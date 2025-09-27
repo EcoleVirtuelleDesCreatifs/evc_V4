@@ -36,7 +36,41 @@
                             </ul>
                         </div>
                         <div class="tab-panel" id="realisations">
-                             <p class="text-gray-300">Auteur du livre "Le Guide du Créatif Digital" et créateur de multiples projets web innovants.</p>
+                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <!-- Realisation 1: Book -->
+                                <a href="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=80" data-fancybox="realisations" data-caption="Livre: Le Guide du Créatif Digital">
+                                    <div class="group relative overflow-hidden rounded-lg">
+                                        <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80" alt="Aperçu du livre" class="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-110">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                                        <div class="absolute bottom-0 left-0 p-4">
+                                            <h4 class="font-semibold text-white">Livre</h4>
+                                            <p class="text-sm text-gray-300">Le Guide du Créatif</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <!-- Realisation 2: Visual Creation -->
+                                <a href="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=800&q=80" data-fancybox="realisations" data-caption="Création Visuelle: Identité de Marque">
+                                    <div class="group relative overflow-hidden rounded-lg">
+                                        <img src="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=400&q=80" alt="Aperçu d'une création visuelle" class="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-110">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                                        <div class="absolute bottom-0 left-0 p-4">
+                                            <h4 class="font-semibold text-white">Design UI/UX</h4>
+                                            <p class="text-sm text-gray-300">Identité de Marque</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                <!-- Realisation 3: App -->
+                                <a href="https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=800&q=80" data-fancybox="realisations" data-caption="Application Web: Plateforme E-learning">
+                                    <div class="group relative overflow-hidden rounded-lg">
+                                        <img src="https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=400&q=80" alt="Aperçu d'une application" class="w-full h-40 object-cover transition-transform duration-300 group-hover:scale-110">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                                        <div class="absolute bottom-0 left-0 p-4">
+                                            <h4 class="font-semibold text-white">Application Web</h4>
+                                            <p class="text-sm text-gray-300">Plateforme E-learning</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
