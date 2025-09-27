@@ -12,6 +12,7 @@
     @include('homepage._avantages')
     @include('homepage._formations')
     @include('homepage._travaux')
+    @include('homepage._events')
     @include('homepage._evenements')
     @include('homepage._actualites')
     @include('homepage._laureats')
