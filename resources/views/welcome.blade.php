@@ -64,7 +64,8 @@
     <!-- Custom Homepage CSS -->
     <link rel="stylesheet" href="{{ asset('css/homepage.css') }}">
 </head>
-<body class="antialiased">
+<body class="bg-black font-sans antialiased">
+    <div id="particles-js"></div>
     @include('homepage._preloader')
 
     @include('homepage._header')
@@ -105,6 +106,7 @@
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="{{ asset('js/homepage.js') }}"></script>
 </body>
 </html>

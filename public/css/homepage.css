@@ -144,6 +144,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* =============================================
+   PARTICLES.JS BACKGROUND
+   ============================================= */
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1; /* Place it behind all content */
+}
+
+/* =============================================
    LAUREATS CAROUSEL STYLES
    ============================================= */
 
