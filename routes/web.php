@@ -22,6 +22,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomepageController::class, 'index'])->name('homepage');
 Route::post('/pre-registration', [HomepageController::class, 'store'])->name('pre-registration.store');
 Route::get('/webtv', [HomepageController::class, 'webtv'])->name('webtv');
+Route::get('/presentation', [HomepageController::class, 'presentation'])->name('presentation');
+Route::get('/formations', [HomepageController::class, 'formations'])->name('formations');
+Route::get('/travaux-etudiants', [HomepageController::class, 'travaux'])->name('travaux');
+Route::get('/laureats', [HomepageController::class, 'laureats'])->name('laureats');
 
 // Routes d'authentification
 

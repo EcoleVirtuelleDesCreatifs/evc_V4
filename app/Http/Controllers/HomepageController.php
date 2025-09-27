@@ -87,4 +87,36 @@ class HomepageController extends Controller
 
         return view('webtv', compact('videos'));
     }
+
+    /**
+     * Affiche la page de présentation.
+     */
+    public function presentation()
+    {
+        return view('presentation');
+    }
+
+    /**
+     * Affiche la page des formations.
+     */
+    public function formations()
+    {
+        return view('formations');
+    }
+
+    /**
+     * Affiche la page des travaux étudiants.
+     */
+    public function travaux()
+    {
+        return view('travaux');
+    }
+
+    /**
+     * Affiche la page des lauréats.
+     */
+    public function laureats()
+    {
+        return view('laureats');
+    }
 }

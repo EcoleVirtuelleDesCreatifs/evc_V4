@@ -13,10 +13,10 @@
             </button>
         </div>
         <div class="hidden lg:flex lg:gap-x-12">
-            <a href="#presentation" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Présentation</a>
-            <a href="#formations" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Nos Formations</a>
-            <a href="#creations" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Travaux Étudiants</a>
-            <a href="#laureats" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Nos Lauréats</a>
+            <a href="{{ route('presentation') }}" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Présentation</a>
+            <a href="{{ route('formations') }}" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Nos Formations</a>
+            <a href="{{ route('travaux') }}" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Travaux Étudiants</a>
+            <a href="{{ route('laureats') }}" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Nos Lauréats</a>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-6">
              <a href="{{ route('webtv') }}" class="webtv-live-pulse flex items-center gap-x-2 bg-orange-500/10 px-3 py-2 text-sm font-semibold text-orange-400 ring-1 ring-inset ring-orange-500/20 hover:bg-orange-500/20 transition rounded-full">
