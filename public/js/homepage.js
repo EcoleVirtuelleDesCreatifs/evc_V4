@@ -168,6 +168,34 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Pre-inscription Modal Error:', e);
     }
 
+    // --- Presentation Page Tabs --- 
+    try {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+
+        if (tabButtons.length > 0) {
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Deactivate all buttons and panels
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabPanels.forEach(panel => panel.classList.remove('active'));
+
+                    // Activate the clicked button
+                    button.classList.add('active');
+
+                    // Activate the corresponding panel
+                    const targetPanelId = button.dataset.target;
+                    const targetPanel = document.getElementById(targetPanelId);
+                    if (targetPanel) {
+                        targetPanel.classList.add('active');
+                    }
+                });
+            });
+        }
+    } catch (e) {
+        console.error('Tab system error:', e);
+    }
+
     // --- Particles.js Initialization ---
     try {
         if (document.getElementById('particles-js')) {

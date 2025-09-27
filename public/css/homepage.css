@@ -148,6 +148,36 @@ h1, h2, h3, h4, h5, h6 {
     50% { opacity: 0.8; filter: brightness(120%); }
 }
 
+/* =============================================
+   PRESENTATION PAGE TABS
+   ============================================= */
+.tab-button {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #9ca3af; /* gray-400 */
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    color: white;
+}
+
+.tab-button.active {
+    color: var(--evc-orange);
+    border-bottom-color: var(--evc-orange);
+}
+
+.tab-panel {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
 .hero-text-slider .swiper-slide-active h1,
 .hero-bg-slider .swiper-slide-active .bg-cover {
     animation: soft-flash 1.5s ease-in-out forwards;
