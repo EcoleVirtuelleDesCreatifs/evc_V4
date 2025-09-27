@@ -4,7 +4,7 @@
 @section('description', 'Découvrez notre mission, nos valeurs et notre engagement à former les leaders du digital de demain en Afrique.')
 
 @section('content')
-<div class="bg-gradient-to-b from-[#000033] to-[#000066] py-24 sm:py-32">
+<div class="bg-gradient-to-b from-[#000033] to-[#000066] pt-40 pb-24 sm:pt-48 sm:pb-32">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
         {{-- Header --}}
         <div class="mx-auto max-w-3xl lg:text-center">
