@@ -1,9 +1,6 @@
 <!-- Section Nos Lauréats -->
 <div id="laureats" class="relative py-24 sm:py-32 overflow-hidden">
-    <video autoplay loop muted class="absolute z-0 w-auto min-w-full min-h-full max-w-none object-cover">
-        <source src="https://assets.mixkit.co/videos/preview/mixkit-developer-working-on-a-laptop-in-a-modern-office-4763-large.mp4" type="video/mp4">
-        Votre navigateur ne supporte pas la vidéo.
-    </video>
+    
     <div class="absolute inset-0 opacity-70" style="background: linear-gradient(135deg, #063E77 0%, #2071C3 50%, #3399ff 100%);"></div>
     <div class="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl lg:text-center" data-aos="fade-up">
