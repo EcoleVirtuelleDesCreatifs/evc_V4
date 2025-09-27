@@ -168,6 +168,18 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Pre-inscription Modal Error:', e);
     }
 
+    // --- Founder Card Flip --- 
+    try {
+        const founderCard = document.querySelector('.founder-card-inner');
+        if (founderCard) {
+            founderCard.addEventListener('click', () => {
+                founderCard.classList.toggle('is-flipped');
+            });
+        }
+    } catch (e) {
+        console.error('Founder card flip error:', e);
+    }
+
     // --- Reusable Tab System --- 
     const initTabs = (tabContainerId) => {
         try {
