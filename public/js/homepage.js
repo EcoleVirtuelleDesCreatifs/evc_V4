@@ -55,13 +55,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Swiper Carousels ---
     try {
         // Hero Sliders
-        const heroTextSwiper = new Swiper('.hero-text-slider', { effect: 'fade', fadeEffect: { crossFade: true }, loop: true, allowTouchMove: false });
-        const heroBgSwiper = new Swiper('.hero-bg-slider', { effect: 'fade', fadeEffect: { crossFade: true }, loop: true, autoplay: { delay: 4000, disableOnInteraction: false }, allowTouchMove: false, controller: { control: heroTextSwiper } });
-        heroTextSwiper.controller.control = heroBgSwiper;
+        const heroTextSwiper = new Swiper('.hero-text-slider', { 
+            loop: true,
+            autoplay: { delay: 4000, disableOnInteraction: false },
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
+            },
+            controller: {
+                control: new Swiper('.hero-bg-slider', {
+                    loop: true,
+                    effect: 'fade',
+                    fadeEffect: {
+                        crossFade: true
+                    },
+                })
+            }
+        });
 
         // Travaux Carousel
         new Swiper('.travaux-carousel', { loop: true, slidesPerView: 1, spaceBetween: 30, grabCursor: true, pagination: { el: '.travaux-pagination', clickable: true }, navigation: { nextEl: '.travaux-next', prevEl: '.travaux-prev' }, breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } } });
-
 
 
     } catch (e) {

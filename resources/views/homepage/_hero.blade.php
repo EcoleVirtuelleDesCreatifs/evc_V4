@@ -27,10 +27,14 @@
             </div>
         </div>
         <div class="relative lg:col-span-5 xl:col-span-6 mt-16 lg:mt-0 flex items-center justify-center">
-             <!-- Background Image Slider -->
-            <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
+            <!-- Background Image Slider -->
+            <div class="swiper-container hero-bg-slider w-full max-w-md lg:max-w-none aspect-square">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
                             <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80');"></div>
                         </div>
+                    </div>
                     <div class="swiper-slide">
                         <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
                             <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=800&q=80');"></div>
@@ -42,6 +46,8 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
             </div>
         </div>
     </div>
