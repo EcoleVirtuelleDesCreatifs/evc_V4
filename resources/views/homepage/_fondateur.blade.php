@@ -1,5 +1,5 @@
 <!-- Section Fondateur -->
-<div class="py-24 sm:py-32">
+<div class="py-24 sm:py-32 bg-gradient-to-b from-[#993300] to-[#330000]">
     <div class="mx-auto max-w-7xl px-6 lg:px-8 flex justify-center">
         <div class="grid max-w-5xl grid-cols-1 items-center gap-x-16 gap-y-16 sm:gap-y-24 lg:grid-cols-2">
             <div class="flex justify-center lg:justify-end" data-aos="fade-right">

@@ -1,5 +1,5 @@
 <!-- Section Travaux Étudiants -->
-<div class="py-24 sm:py-32">
+<div class="bg-black py-24 sm:py-32">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl lg:text-center" data-aos="fade-up">
             <h2 class="text-base font-semibold leading-7 evc-orange">Travaux Étudiants</h2>
