@@ -7,13 +7,13 @@
                 <div class="swiper-container hero-text-slider" style="height: 150px;">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide flex items-center justify-center lg:justify-start">
-                            <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight">De Débutant à Pro</h1>
+                            <h1 class="font-sans text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight">De Débutant à Pro</h1>
                         </div>
                         <div class="swiper-slide flex items-center justify-center lg:justify-start">
-                            <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight">De La Passion au Métier</h1>
+                            <h1 class="font-sans text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight">De La Passion au Métier</h1>
                         </div>
                         <div class="swiper-slide flex items-center justify-center lg:justify-start">
-                            <h1 class="font-serif text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">1ère École Digitale <span class="evc-orange">Ultra-Pratique</span><br>en Afrique Francophone</h1>
+                            <h1 class="font-sans text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight">1ère École Digitale <span class="evc-orange">Ultra-Pratique</span><br>en Afrique Francophone</h1>
                         </div>
                     </div>
                 </div>

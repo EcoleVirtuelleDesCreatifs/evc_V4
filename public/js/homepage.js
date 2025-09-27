@@ -77,7 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Fancybox ---
     try {
-        Fancybox.bind('[data-fancybox="gallery"]', { buttons: ["zoom", "slideShow", "thumbs", "close"], loop: true });
+        Fancybox.bind('[data-fancybox]', {
+            Thumbs: false,
+            buttons: ["zoom", "slideShow", "close"],
+            loop: true
+        });
     } catch (e) {
         console.error('Fancybox Error:', e);
     }

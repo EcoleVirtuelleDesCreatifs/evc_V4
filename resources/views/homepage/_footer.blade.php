@@ -4,7 +4,7 @@
     <div class="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
         <div class="xl:grid xl:grid-cols-3 xl:gap-8">
             <div class="space-y-8">
-                <img class="h-10" src="https://www.ecolevirtuelledescreatifs.com/uploads/media/logo-evc-168x55-1.png" alt="EVC Logo">
+                <img class="h-16 w-auto" src="{{ asset('assets/img/logo.png') }}" alt="EVC Logo">
                 <p class="text-sm leading-6 text-gray-300">Transformez votre passion en carrière avec nos formations 100% pratiques.</p>
                 <div class="flex space-x-6">
                     <a href="#" class="text-gray-400 hover:text-white"><span class="sr-only">Facebook</span><i class="fab fa-facebook"></i></a>

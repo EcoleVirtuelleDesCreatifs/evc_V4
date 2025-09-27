@@ -10,7 +10,7 @@
             <div data-aos="fade-left" data-aos-delay="200">
                 <div class="text-base leading-7 text-gray-400 lg:max-w-lg">
                     <h2 class="text-base font-semibold leading-7 evc-orange">Fondateur & Formateur Principal</h2>
-                    <p class="font-serif mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Bilé Bossombra</p>
+                    <p class="font-sans mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Bilé Bossombra</p>
                     <div class="max-w-xl">
                         <p class="mt-6">Expert en communication digitale et entrepreneur passionné, Bilé a fondé l'EVC avec la conviction que la pratique est la clé de la maîtrise. Sa mission : former la prochaine génération de créatifs et de leaders du digital en Afrique.</p>
                         <p class="mt-8">Avec plus de 10 ans d'expérience, il a accompagné des centaines d'étudiants et de professionnels à atteindre leurs objectifs et à transformer leur passion en une carrière florissante.</p>

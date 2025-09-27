@@ -5,7 +5,7 @@
             <div class="lg:pr-8 lg:pt-4" data-aos="fade-right">
                 <div class="lg:max-w-lg">
                     <h2 class="text-base font-semibold leading-7 evc-orange">Bienvenue à l'EVC</h2>
-                    <p class="font-serif mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">L'école qui transforme la passion en carrière.</p>
+                    <p class="font-sans mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">L'école qui transforme la passion en carrière.</p>
                     <p class="mt-6 text-lg leading-8 text-gray-300">L'École Virtuelle des Créatifs est née d'une vision : rendre l'éducation aux métiers du digital accessible à tous en Afrique francophone. Nous croyons en un apprentissage par la pratique, qui forge des professionnels prêts à innover.</p>
                     <dl class="mt-10 max-w-xl space-y-8 text-base leading-7 text-gray-300 lg:max-w-none">
                         <div class="relative pl-9">
