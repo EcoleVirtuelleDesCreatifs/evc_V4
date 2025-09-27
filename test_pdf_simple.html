@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test PDF Simple</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-area { border: 2px dashed #ccc; padding: 20px; margin: 20px 0; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test PDF Simple - Diagnostic Complet</h1>
+    
+    <div class="test-area">
+        <h3>📁 Test 1: Sélection de fichier PDF</h3>
+        <input type="file" id="testPDF" accept=".pdf" onchange="testPDFSelection(this)">
+        <div id="result1"></div>
+    </div>
+
+    <div class="test-area">
+        <h3>📁 Test 2: Validation manuelle</h3>
+        <button onclick="testValidationFunction()">Tester la fonction validateFile</button>
+        <div id="result2"></div>
+    </div>
+
+    <div class="test-area">
+        <h3>📁 Test 3: Simulation zone dynamique</h3>
+        <button onclick="simulateAdditionalUpload()">Simuler ajout zone dynamique</button>
+        <div id="result3"></div>
+    </div>
+
+    <script>
+        // Configuration identique à tp.js
+        const config = {
+            maxFileSize: 10 * 1024 * 1024,
+            allowedTypes: [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'image/jpeg',
+                'image/jpg',
+                'image/png',
+                'image/gif',
+                'application/zip',
+                'application/x-rar-compressed',
+                'text/plain',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ],
+            allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'txt', 'ppt', 'pptx', 'xls', 'xlsx']
+        };
+
+        let selectedFiles = [];
+
+        // Fonction validateFile corrigée (identique à tp.js)
+        function validateFile(file) {
+            console.log('🔍 Validation du fichier:', file.name, 'Type:', file.type, 'Taille:', file.size);
+            
+            // Vérification de la taille
+            if (file.size > config.maxFileSize) {
+                console.log('❌ Fichier trop volumineux:', file.size, '>', config.maxFileSize);
+                return { valid: false, reason: 'Fichier trop volumineux. Taille maximum : 10MB' };
+            }
+
+            // Obtenir l'extension du fichier
+            const extension = file.name.split('.').pop().toLowerCase();
+            console.log('📂 Extension détectée:', extension);
+            
+            // Vérification du type MIME ET de l'extension (plus permissive)
+            const isMimeTypeAllowed = config.allowedTypes.includes(file.type);
+            const isExtensionAllowed = config.allowedExtensions.includes(extension);
+            
+            console.log('✅ Type MIME autorisé:', isMimeTypeAllowed, '(', file.type, ')');
+            console.log('✅ Extension autorisée:', isExtensionAllowed, '(', extension, ')');
+            
+            // Accepter le fichier si SOIT le type MIME SOIT l'extension est autorisé
+            if (!isMimeTypeAllowed && !isExtensionAllowed) {
+                console.log('❌ Fichier rejeté: ni le type MIME ni l\'extension ne sont autorisés');
+                return { valid: false, reason: 'Type de fichier non autorisé' };
+            }
+
+            // Vérification des doublons
+            const isDuplicate = selectedFiles.some(f => f.name === file.name && f.size === file.size);
+            if (isDuplicate) {
+                console.log('⚠️ Fichier déjà sélectionné');
+                return { valid: false, reason: 'Fichier déjà sélectionné' };
+            }
+
+            console.log('✅ Fichier validé avec succès:', file.name);
+            return { valid: true, reason: 'Fichier valide' };
+        }
+
+        function testPDFSelection(input) {
+            const result1 = document.getElementById('result1');
+            result1.innerHTML = '';
+
+            if (input.files.length === 0) {
+                result1.innerHTML = '<div class="result error">❌ Aucun fichier sélectionné</div>';
+                return;
+            }
+
+            const file = input.files[0];
+            
+            result1.innerHTML = `
+                <div class="result info">
+                    <h4>📄 Fichier sélectionné:</h4>
+                    <p><strong>Nom:</strong> ${file.name}</p>
+                    <p><strong>Type MIME:</strong> ${file.type}</p>
+                    <p><strong>Taille:</strong> ${file.size} bytes (${(file.size / 1024 / 1024).toFixed(2)} MB)</p>
+                    <p><strong>Extension:</strong> ${file.name.split('.').pop().toLowerCase()}</p>
+                    <p><strong>Dernière modification:</strong> ${new Date(file.lastModified).toLocaleString()}</p>
+                </div>
+            `;
+
+            // Test de validation
+            const validation = validateFile(file);
+            const validationDiv = document.createElement('div');
+            validationDiv.className = `result ${validation.valid ? 'success' : 'error'}`;
+            validationDiv.innerHTML = `
+                <h4>${validation.valid ? '✅' : '❌'} Résultat de la validation:</h4>
+                <p>${validation.reason}</p>
+            `;
+            result1.appendChild(validationDiv);
+
+            if (validation.valid) {
+                selectedFiles.push(file);
+            }
+        }
+
+        function testValidationFunction() {
+            const result2 = document.getElementById('result2');
+            
+            // Créer un fichier PDF fictif pour test
+            const mockPDFFile = new File(['test content'], 'test.pdf', {
+                type: 'application/pdf',
+                lastModified: Date.now()
+            });
+
+            const validation = validateFile(mockPDFFile);
+            
+            result2.innerHTML = `
+                <div class="result ${validation.valid ? 'success' : 'error'}">
+                    <h4>${validation.valid ? '✅' : '❌'} Test avec fichier PDF fictif:</h4>
+                    <p><strong>Nom:</strong> test.pdf</p>
+                    <p><strong>Type:</strong> application/pdf</p>
+                    <p><strong>Résultat:</strong> ${validation.reason}</p>
+                </div>
+            `;
+        }
+
+        function simulateAdditionalUpload() {
+            const result3 = document.getElementById('result3');
+            
+            // Simuler la création d'une zone d'upload dynamique
+            const uploadZone = document.createElement('div');
+            uploadZone.innerHTML = `
+                <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0;">
+                    <h5>📁 Zone d'upload simulée</h5>
+                    <input type="file" id="simulatedInput" accept=".pdf" onchange="testSimulatedUpload(this)">
+                    <div id="simulatedResult"></div>
+                </div>
+            `;
+            
+            result3.innerHTML = '';
+            result3.appendChild(uploadZone);
+        }
+
+        function testSimulatedUpload(input) {
+            const simulatedResult = document.getElementById('simulatedResult');
+            
+            if (input.files.length === 0) {
+                simulatedResult.innerHTML = '<p class="error">❌ Aucun fichier</p>';
+                return;
+            }
+
+            const file = input.files[0];
+            const validation = validateFile(file);
+            
+            simulatedResult.innerHTML = `
+                <div class="result ${validation.valid ? 'success' : 'error'}">
+                    <p><strong>Fichier:</strong> ${file.name}</p>
+                    <p><strong>Validation:</strong> ${validation.reason}</p>
+                </div>
+            `;
+
+            // Simuler handleAdditionalFileSelect
+            console.log('🔄 Simulation handleAdditionalFileSelect...');
+            if (validation.valid) {
+                selectedFiles.push(file);
+                console.log('✅ Fichier ajouté à selectedFiles. Total:', selectedFiles.length);
+            } else {
+                console.log('❌ Fichier rejeté par la validation');
+            }
+        }
+
+        // Afficher la configuration au chargement
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Configuration chargée:');
+            console.log('Types MIME autorisés:', config.allowedTypes);
+            console.log('Extensions autorisées:', config.allowedExtensions);
+            console.log('Taille max:', config.maxFileSize / 1024 / 1024, 'MB');
+        });
+    </script>
+</body>
+</html>

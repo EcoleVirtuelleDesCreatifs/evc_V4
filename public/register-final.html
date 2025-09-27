@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription - EVC Formation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .register-header {
+            background: linear-gradient(135deg, #003366 0%, #3399ff 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            width: 50px;
+            height: auto;
+        }
+
+        .register-form {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #3399ff;
+            box-shadow: 0 0 0 0.2rem rgba(51, 153, 255, 0.25);
+        }
+
+        .form-select {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 16px;
+        }
+
+        .photo-upload {
+            border: 2px dashed #3399ff;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .photo-upload:hover {
+            background: #e6f0ff;
+        }
+
+        .photo-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 10px;
+            margin: 10px auto;
+            display: none;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #3399ff 0%, #003366 100%);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(51, 153, 255, 0.3);
+        }
+
+        .btn-register:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .loading-spinner {
+            display: none;
+        }
+
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .row {
+            margin: 0 -10px;
+        }
+
+        .col-md-6 {
+            padding: 0 10px;
+        }
+
+        @media (max-width: 768px) {
+            .register-container {
+                margin: 10px;
+            }
+            
+            .register-header,
+            .register-form {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <div class="logo">
+                <img src="/assets/img/logo_white.png" alt="EVC Logo">
+            </div>
+            <h2>Rejoignez EVC Formation</h2>
+            <p>Créez votre compte pour accéder à nos formations professionnelles</p>
+        </div>
+
+        <div class="register-form">
+            <div id="alert-container"></div>
+
+            <form id="registerForm" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Prénom *</label>
+                            <input type="text" class="form-control" name="prenom" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Nom *</label>
+                            <input type="text" class="form-control" name="nom" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" class="form-control" name="email" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Téléphone *</label>
+                            <input type="tel" class="form-control" name="telephone" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Pays *</label>
+                            <select class="form-select" name="pays" id="pays" required>
+                                <option value="">Sélectionnez votre pays</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Ville *</label>
+                            <input type="text" class="form-control" name="ville" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Formation souhaitée *</label>
+                            <select class="form-select" name="formation" required>
+                                <option value="">Choisissez votre formation</option>
+                                <option value="design_graphique">Design Graphique</option>
+                                <option value="community_management">Community Management</option>
+                                <option value="intelligence_artificielle">Intelligence Artificielle</option>
+                                <option value="gestion_informatique">Gestion Informatique</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Niveau *</label>
+                            <select class="form-select" name="niveau" required>
+                                <option value="">Sélectionnez votre niveau</option>
+                                <option value="debutant">Débutant</option>
+                                <option value="intermediaire">Intermédiaire</option>
+                                <option value="perfectionnement">Perfectionnement</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Photo de profil (optionnel)</label>
+                    <div class="photo-upload" onclick="document.getElementById('photo').click()">
+                        <i class="fas fa-camera fa-2x text-primary mb-2"></i>
+                        <p>Cliquez pour ajouter une photo</p>
+                        <small class="text-muted">Formats acceptés: JPG, PNG, GIF (max 2MB)</small>
+                        <img id="photoPreview" class="photo-preview" alt="Aperçu">
+                    </div>
+                    <input type="file" id="photo" name="photo" accept="image/*" style="display: none;">
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Mot de passe *</label>
+                            <input type="password" class="form-control" name="password" required minlength="6">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label">Confirmer le mot de passe *</label>
+                            <input type="password" class="form-control" name="password_confirmation" required minlength="6">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="terms" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            J'accepte les <a href="#" class="text-primary">conditions d'utilisation</a> et la <a href="#" class="text-primary">politique de confidentialité</a> *
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-register">
+                    <span class="btn-text">S'inscrire</span>
+                    <span class="loading-spinner">
+                        <i class="fas fa-spinner fa-spin"></i> Inscription en cours...
+                    </span>
+                </button>
+            </form>
+
+            <div class="text-center mt-4">
+                <p>Vous avez déjà un compte ? <a href="/auth/login" class="text-primary">Se connecter</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Liste des pays
+        const countries = [
+            'Afghanistan', 'Afrique du Sud', 'Albanie', 'Algérie', 'Allemagne', 'Andorre', 'Angola', 'Antigua-et-Barbuda',
+            'Arabie saoudite', 'Argentine', 'Arménie', 'Australie', 'Autriche', 'Azerbaïdjan', 'Bahamas', 'Bahreïn',
+            'Bangladesh', 'Barbade', 'Belgique', 'Belize', 'Bénin', 'Bhoutan', 'Biélorussie', 'Birmanie', 'Bolivie',
+            'Bosnie-Herzégovine', 'Botswana', 'Brésil', 'Brunei', 'Bulgarie', 'Burkina Faso', 'Burundi', 'Cambodge',
+            'Cameroun', 'Canada', 'Cap-Vert', 'Centrafrique', 'Chili', 'Chine', 'Chypre', 'Colombie', 'Comores',
+            'Congo', 'Congo démocratique', 'Corée du Nord', 'Corée du Sud', 'Costa Rica', 'Côte d\'Ivoire', 'Croatie',
+            'Cuba', 'Danemark', 'Djibouti', 'Dominique', 'Égypte', 'Émirats arabes unis', 'Équateur', 'Érythrée',
+            'Espagne', 'Estonie', 'États-Unis', 'Éthiopie', 'Fidji', 'Finlande', 'France', 'Gabon', 'Gambie',
+            'Géorgie', 'Ghana', 'Grèce', 'Grenade', 'Guatemala', 'Guinée', 'Guinée-Bissau', 'Guinée équatoriale',
+            'Guyana', 'Haïti', 'Honduras', 'Hongrie', 'Îles Cook', 'Îles Marshall', 'Inde', 'Indonésie', 'Irak',
+            'Iran', 'Irlande', 'Islande', 'Israël', 'Italie', 'Jamaïque', 'Japon', 'Jordanie', 'Kazakhstan', 'Kenya',
+            'Kirghizistan', 'Kiribati', 'Koweït', 'Laos', 'Lesotho', 'Lettonie', 'Liban', 'Liberia', 'Libye',
+            'Liechtenstein', 'Lituanie', 'Luxembourg', 'Macédoine du Nord', 'Madagascar', 'Malaisie', 'Malawi',
+            'Maldives', 'Mali', 'Malte', 'Maroc', 'Maurice', 'Mauritanie', 'Mexique', 'Micronésie', 'Moldavie',
+            'Monaco', 'Mongolie', 'Monténégro', 'Mozambique', 'Namibie', 'Nauru', 'Népal', 'Nicaragua', 'Niger',
+            'Nigeria', 'Niué', 'Norvège', 'Nouvelle-Zélande', 'Oman', 'Ouganda', 'Ouzbékistan', 'Pakistan', 'Palaos',
+            'Palestine', 'Panama', 'Papouasie-Nouvelle-Guinée', 'Paraguay', 'Pays-Bas', 'Pérou', 'Philippines',
+            'Pologne', 'Portugal', 'Qatar', 'République dominicaine', 'République tchèque', 'Roumanie', 'Royaume-Uni',
+            'Russie', 'Rwanda', 'Saint-Christophe-et-Niévès', 'Saint-Marin', 'Saint-Vincent-et-les-Grenadines',
+            'Sainte-Lucie', 'Salomon', 'Salvador', 'Samoa', 'São Tomé-et-Principe', 'Sénégal', 'Serbie', 'Seychelles',
+            'Sierra Leone', 'Singapour', 'Slovaquie', 'Slovénie', 'Somalie', 'Soudan', 'Soudan du Sud', 'Sri Lanka',
+            'Suède', 'Suisse', 'Suriname', 'Swaziland', 'Syrie', 'Tadjikistan', 'Tanzanie', 'Tchad', 'Thaïlande',
+            'Timor oriental', 'Togo', 'Tonga', 'Trinité-et-Tobago', 'Tunisie', 'Turkménistan', 'Turquie', 'Tuvalu',
+            'Ukraine', 'Uruguay', 'Vanuatu', 'Vatican', 'Venezuela', 'Viêt Nam', 'Yémen', 'Zambie', 'Zimbabwe'
+        ];
+
+        // Charger les pays
+        const paysSelect = document.getElementById('pays');
+        countries.forEach(country => {
+            const option = document.createElement('option');
+            option.value = country;
+            option.textContent = country;
+            paysSelect.appendChild(option);
+        });
+
+        // Prévisualisation de la photo
+        document.getElementById('photo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('photoPreview');
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Gestion du formulaire
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = document.querySelector('.btn-register');
+            const btnText = document.querySelector('.btn-text');
+            const loadingSpinner = document.querySelector('.loading-spinner');
+            const alertContainer = document.getElementById('alert-container');
+
+            // Afficher le loading
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            loadingSpinner.style.display = 'inline';
+
+            // Vérifier les mots de passe
+            const password = document.querySelector('input[name="password"]').value;
+            const passwordConfirmation = document.querySelector('input[name="password_confirmation"]').value;
+
+            if (password !== passwordConfirmation) {
+                showAlert('Les mots de passe ne correspondent pas.', 'danger');
+                resetButton();
+                return;
+            }
+
+            // Préparer les données
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('/inscription.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = result.redirect;
+                    }, 2000);
+                } else {
+                    showAlert(result.message, 'danger');
+                    resetButton();
+                }
+            } catch (error) {
+                showAlert('Erreur de connexion. Veuillez réessayer.', 'danger');
+                resetButton();
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertContainer = document.getElementById('alert-container');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+        }
+
+        function resetButton() {
+            const submitBtn = document.querySelector('.btn-register');
+            const btnText = document.querySelector('.btn-text');
+            const loadingSpinner = document.querySelector('.loading-spinner');
+
+            submitBtn.disabled = false;
+            btnText.style.display = 'inline';
+            loadingSpinner.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

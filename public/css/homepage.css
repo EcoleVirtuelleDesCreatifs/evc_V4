@@ -1,0 +1,183 @@
+/* =============================================
+   EVC HOMEPAGE DESIGN SYSTEM
+   ============================================= */
+
+:root {
+    --evc-orange: #FF9900;
+    --evc-blue-dark: #003366;
+    --evc-blue-light: #2071C3;
+    --text-light: #e2e8f0; /* slate-200 */
+    --text-dark: #1e293b; /* slate-800 */
+    --bg-dark-primary: #0a0a0a;
+    --bg-dark-secondary: #1e293b;
+    --font-sans: 'Montserrat', sans-serif;
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-dark-primary);
+    color: var(--text-light);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    font-weight: 700; /* bold */
+}
+
+/* =============================================
+   BUTTON STYLES
+   ============================================= */
+
+.btn {
+    display: inline-block;
+    font-weight: 600; /* semibold */
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 9999px; /* rounded-full */
+    transition: var(--transition-fast);
+    text-decoration: none; /* Ensure links styled as buttons don't have underlines */
+}
+
+.btn-primary {
+    color: white;
+    background-image: linear-gradient(to right, #FF9900 0%, #F97316 51%, #FF9900 100%);
+    background-size: 200% auto;
+    border: none;
+    box-shadow: 0 4px 15px 0 rgba(255, 153, 0, 0.3);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.btn-primary:hover {
+    background-position: right center; /* change the direction of the change here */
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 153, 0, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(255, 153, 0, 0.2);
+}
+
+.btn-secondary {
+    color: var(--text-light);
+    background-color: transparent;
+    border-color: var(--text-light);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* =============================================
+   GLOBAL & DIGITAL EFFECTS
+   ============================================= */
+
+.section-title {
+    font-size: 2.25rem; /* text-4xl */
+    font-weight: 900; /* black */
+    letter-spacing: -0.025em;
+}
+
+.section-subtitle {
+    color: var(--evc-orange);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.card-hover-effect {
+    transition: var(--transition-fast);
+}
+
+.card-hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* CSS for Homepage Sections */
+
+/* Revolutionary Pre-inscription Form */
+.form-input {
+    display: block;
+    width: 100%;
+    border-radius: 0.375rem; /* rounded-md */
+    border-width: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.625rem 1rem; /* py-2.5 px-4 */
+    color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    ring: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-input:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+    --tw-ring-color: #F97316; /* focus:ring-orange-500 */
+}
+
+#form-modal .form-step {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+#form-modal .form-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =============================================
+   LAUREATS CAROUSEL STYLES
+   ============================================= */
+
+.laureats-carousel .swiper-pagination-bullet {
+    background-color: rgba(255, 255, 255, 0.5);
+    width: 10px;
+    height: 10px;
+    transition: var(--transition-fast);
+    opacity: 1;
+}
+
+.laureats-carousel .swiper-pagination-bullet-active {
+    background-color: var(--evc-orange);
+    transform: scale(1.3);
+}
+
+.laureats-next, .laureats-prev {
+    color: var(--evc-orange);
+    background-color: rgba(0, 0, 0, 0.3);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    backdrop-filter: blur(5px);
+    transition: var(--transition-fast);
+}
+
+.laureats-next:hover, .laureats-prev:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    transform: scale(1.1);
+}
+
+.laureats-next::after, .laureats-prev::after {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 900;
+}
+

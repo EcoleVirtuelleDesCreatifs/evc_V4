@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Complet Workflow TP</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+        .debug-section { background: white; margin: 20px 0; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { border-left: 4px solid #28a745; }
+        .error { border-left: 4px solid #dc3545; }
+        .warning { border-left: 4px solid #ffc107; }
+        .info { border-left: 4px solid #17a2b8; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        input[type="file"] { margin: 10px 0; padding: 5px; }
+        .step { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+        .step-number { background: #007bff; color: white; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug Complet - Workflow TP PDF</h1>
+    
+    <div class="debug-section info">
+        <h2>🎯 Objectif du Diagnostic</h2>
+        <p>Identifier précisément pourquoi l'ajout de fichiers PDF ne fonctionne pas dans le formulaire TP, malgré toutes les corrections JavaScript.</p>
+    </div>
+
+    <div class="debug-section">
+        <h2>📋 Étapes de Diagnostic</h2>
+        
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Test de la fonction validateFile</strong>
+            <button class="btn-primary" onclick="testValidateFunction()">Tester validateFile</button>
+            <div id="validateResult"></div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Test de sélection de fichier PDF</strong>
+            <input type="file" id="pdfTest" accept=".pdf" onchange="testPDFSelection(this)">
+            <div id="pdfResult"></div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Simulation du bouton "Ajouter un fichier"</strong>
+            <button class="btn-primary" onclick="simulateAddFileButton()">Simuler le bouton</button>
+            <div id="buttonResult"></div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Test de la fonction handleAdditionalFileSelect</strong>
+            <button class="btn-primary" onclick="testHandleFunction()">Tester handleAdditionalFileSelect</button>
+            <div id="handleResult"></div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <strong>Vérification des éléments DOM</strong>
+            <button class="btn-primary" onclick="checkDOMElements()">Vérifier DOM</button>
+            <div id="domResult"></div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">6</span>
+            <strong>Test complet du workflow</strong>
+            <button class="btn-success" onclick="testCompleteWorkflow()">Test Workflow Complet</button>
+            <div id="workflowResult"></div>
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h2>📊 Logs en Temps Réel</h2>
+        <pre id="logs"></pre>
+        <button class="btn-danger" onclick="clearLogs()">Effacer les Logs</button>
+    </div>
+
+    <script>
+        // Configuration identique à tp.js
+        const config = {
+            maxFileSize: 10 * 1024 * 1024,
+            allowedTypes: [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'image/jpeg', 'image/jpg', 'image/png', 'image/gif',
+                'application/zip', 'application/x-rar-compressed', 'application/x-zip-compressed',
+                'text/plain',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'application/x-pdf', 'application/acrobat', 'applications/vnd.pdf',
+                'text/pdf', 'text/x-pdf', '', 'application/octet-stream'
+            ],
+            allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'txt', 'ppt', 'pptx', 'xls', 'xlsx']
+        };
+
+        let selectedFiles = [];
+        let additionalUploadCounter = 0;
+
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('logs');
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').textContent = '';
+        }
+
+        // Fonction validateFile (ultra permissive)
+        function validateFile(file) {
+            log(`🔍 Validation du fichier: ${file.name}, Type: ${file.type}, Taille: ${file.size}`);
+            
+            if (file.size > config.maxFileSize) {
+                log(`❌ Fichier trop volumineux: ${file.size} > ${config.maxFileSize}`);
+                return { valid: false, reason: 'Fichier trop volumineux' };
+            }
+
+            const extension = file.name.split('.').pop().toLowerCase();
+            log(`📂 Extension détectée: ${extension}`);
+            
+            const isExtensionAllowed = config.allowedExtensions.includes(extension);
+            log(`✅ Extension autorisée: ${isExtensionAllowed} (${extension})`);
+            
+            if (isExtensionAllowed) {
+                log(`✅ Fichier accepté par extension: ${extension}`);
+                const isDuplicate = selectedFiles.some(f => f.name === file.name && f.size === file.size);
+                if (isDuplicate) {
+                    log(`⚠️ Fichier déjà sélectionné`);
+                    return { valid: false, reason: 'Fichier déjà sélectionné' };
+                }
+                log(`✅ Fichier validé avec succès par extension: ${file.name}`);
+                return { valid: true, reason: 'Validé par extension' };
+            }
+            
+            const isMimeTypeAllowed = config.allowedTypes.includes(file.type);
+            log(`✅ Type MIME autorisé: ${isMimeTypeAllowed} (${file.type})`);
+            
+            if (isMimeTypeAllowed) {
+                log(`✅ Fichier accepté par type MIME: ${file.type}`);
+                const isDuplicate = selectedFiles.some(f => f.name === file.name && f.size === file.size);
+                if (isDuplicate) {
+                    log(`⚠️ Fichier déjà sélectionné`);
+                    return { valid: false, reason: 'Fichier déjà sélectionné' };
+                }
+                log(`✅ Fichier validé avec succès par type MIME: ${file.name}`);
+                return { valid: true, reason: 'Validé par type MIME' };
+            }
+            
+            log(`❌ Fichier rejeté: extension ET type MIME non reconnus`);
+            return { valid: false, reason: 'Type de fichier non autorisé' };
+        }
+
+        function testValidateFunction() {
+            log('🧪 Test de la fonction validateFile...');
+            const mockPDF = new File(['test'], 'test.pdf', { type: 'application/pdf' });
+            const result = validateFile(mockPDF);
+            
+            document.getElementById('validateResult').innerHTML = `
+                <div class="debug-section ${result.valid ? 'success' : 'error'}">
+                    <h4>${result.valid ? '✅' : '❌'} Test validateFile</h4>
+                    <p><strong>Fichier:</strong> test.pdf</p>
+                    <p><strong>Résultat:</strong> ${result.reason}</p>
+                </div>
+            `;
+        }
+
+        function testPDFSelection(input) {
+            if (input.files.length === 0) return;
+            
+            const file = input.files[0];
+            log(`📁 Fichier PDF sélectionné: ${file.name}`);
+            
+            const validation = validateFile(file);
+            
+            document.getElementById('pdfResult').innerHTML = `
+                <div class="debug-section ${validation.valid ? 'success' : 'error'}">
+                    <h4>${validation.valid ? '✅' : '❌'} Sélection PDF</h4>
+                    <p><strong>Nom:</strong> ${file.name}</p>
+                    <p><strong>Type:</strong> ${file.type}</p>
+                    <p><strong>Taille:</strong> ${file.size} bytes</p>
+                    <p><strong>Validation:</strong> ${validation.reason}</p>
+                </div>
+            `;
+
+            if (validation.valid) {
+                selectedFiles.push(file);
+                log(`✅ Fichier ajouté à selectedFiles. Total: ${selectedFiles.length}`);
+            }
+        }
+
+        function simulateAddFileButton() {
+            log('🔄 Simulation du bouton "Ajouter un fichier"...');
+            
+            // Simuler addAdditionalFileUpload
+            additionalUploadCounter++;
+            const uploadZone = document.createElement('div');
+            uploadZone.className = 'additional-upload-zone';
+            uploadZone.id = `additionalUpload_${additionalUploadCounter}`;
+            
+            uploadZone.innerHTML = `
+                <div style="border: 2px dashed #ccc; padding: 20px; margin: 10px 0; border-radius: 8px;">
+                    <h5>📁 Zone d'Upload #${additionalUploadCounter}</h5>
+                    <input type="file" 
+                           id="additionalFiles_${additionalUploadCounter}"
+                           class="additional-file-input"
+                           accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.zip,.rar,.txt,.ppt,.pptx,.xls,.xlsx"
+                           multiple
+                           onchange="testHandleAdditionalFileSelect(${additionalUploadCounter}, this)">
+                    <div id="additionalFilesList_${additionalUploadCounter}"></div>
+                </div>
+            `;
+            
+            document.getElementById('buttonResult').appendChild(uploadZone);
+            log(`✅ Zone d'upload #${additionalUploadCounter} créée`);
+        }
+
+        function testHandleAdditionalFileSelect(uploadId, input) {
+            log(`🔄 Test handleAdditionalFileSelect pour zone ${uploadId}...`);
+            
+            const files = Array.from(input.files);
+            const filesList = document.getElementById(`additionalFilesList_${uploadId}`);
+            
+            if (!filesList) {
+                log(`❌ Element additionalFilesList_${uploadId} non trouvé`);
+                return;
+            }
+            
+            filesList.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                log(`📄 Traitement du fichier ${index + 1}: ${file.name}`);
+                
+                const validation = validateFile(file);
+                if (validation.valid) {
+                    selectedFiles.push(file);
+                    log(`✅ Fichier ${file.name} ajouté à selectedFiles`);
+                    
+                    const fileItem = document.createElement('div');
+                    fileItem.innerHTML = `
+                        <div style="padding: 5px; margin: 5px 0; background: #e8f5e8; border-radius: 3px;">
+                            ✅ ${file.name} (${(file.size / 1024).toFixed(1)} KB)
+                        </div>
+                    `;
+                    filesList.appendChild(fileItem);
+                } else {
+                    log(`❌ Fichier ${file.name} rejeté: ${validation.reason}`);
+                    
+                    const fileItem = document.createElement('div');
+                    fileItem.innerHTML = `
+                        <div style="padding: 5px; margin: 5px 0; background: #f8e8e8; border-radius: 3px;">
+                            ❌ ${file.name} - ${validation.reason}
+                        </div>
+                    `;
+                    filesList.appendChild(fileItem);
+                }
+            });
+            
+            log(`📊 Total fichiers sélectionnés: ${selectedFiles.length}`);
+        }
+
+        function testHandleFunction() {
+            log('🧪 Test de handleAdditionalFileSelect...');
+            
+            // Créer un fichier PDF fictif
+            const mockPDF = new File(['test content'], 'test-handle.pdf', { type: 'application/pdf' });
+            
+            // Simuler un input avec ce fichier
+            const mockInput = {
+                files: [mockPDF]
+            };
+            
+            // Créer un élément de liste fictif
+            const mockList = document.createElement('div');
+            mockList.id = 'additionalFilesList_999';
+            document.body.appendChild(mockList);
+            
+            // Tester la fonction
+            testHandleAdditionalFileSelect(999, mockInput);
+            
+            document.getElementById('handleResult').innerHTML = `
+                <div class="debug-section success">
+                    <h4>✅ Test handleAdditionalFileSelect</h4>
+                    <p>Fonction testée avec fichier PDF fictif</p>
+                    <p>Vérifiez les logs pour les détails</p>
+                </div>
+            `;
+        }
+
+        function checkDOMElements() {
+            log('🔍 Vérification des éléments DOM...');
+            
+            const elements = [
+                'addMoreFilesBtn',
+                'additionalFileUploads',
+                'filesCounter',
+                'imagesCounter'
+            ];
+            
+            let domReport = '<div class="debug-section info"><h4>📋 Rapport DOM</h4>';
+            
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                const exists = element !== null;
+                log(`${exists ? '✅' : '❌'} Element #${id}: ${exists ? 'trouvé' : 'non trouvé'}`);
+                domReport += `<p>${exists ? '✅' : '❌'} #${id}: ${exists ? 'trouvé' : 'non trouvé'}</p>`;
+            });
+            
+            domReport += '</div>';
+            document.getElementById('domResult').innerHTML = domReport;
+        }
+
+        function testCompleteWorkflow() {
+            log('🚀 Test du workflow complet...');
+            
+            // 1. Simuler le clic sur "Ajouter un fichier"
+            log('1️⃣ Simulation du clic "Ajouter un fichier"');
+            simulateAddFileButton();
+            
+            // 2. Créer un fichier PDF de test
+            const testPDF = new File(['test content'], 'workflow-test.pdf', { type: 'application/pdf' });
+            log('2️⃣ Fichier PDF de test créé');
+            
+            // 3. Simuler la sélection du fichier
+            const mockInput = { files: [testPDF] };
+            log('3️⃣ Simulation de la sélection de fichier');
+            testHandleAdditionalFileSelect(additionalUploadCounter, mockInput);
+            
+            // 4. Vérifier le résultat
+            const success = selectedFiles.some(f => f.name === 'workflow-test.pdf');
+            log(`4️⃣ Résultat final: ${success ? 'SUCCÈS' : 'ÉCHEC'}`);
+            
+            document.getElementById('workflowResult').innerHTML = `
+                <div class="debug-section ${success ? 'success' : 'error'}">
+                    <h4>${success ? '✅' : '❌'} Workflow Complet</h4>
+                    <p><strong>Résultat:</strong> ${success ? 'SUCCÈS - Le PDF a été ajouté' : 'ÉCHEC - Le PDF n\'a pas été ajouté'}</p>
+                    <p><strong>Fichiers totaux:</strong> ${selectedFiles.length}</p>
+                    <p><strong>Zones créées:</strong> ${additionalUploadCounter}</p>
+                </div>
+            `;
+        }
+
+        // Initialisation
+        window.addEventListener('DOMContentLoaded', function() {
+            log('🔧 Debug complet initialisé');
+            log('📋 Configuration chargée');
+            log(`📊 Types MIME autorisés: ${config.allowedTypes.length}`);
+            log(`📊 Extensions autorisées: ${config.allowedExtensions.length}`);
+        });
+
+        // Rendre les fonctions globales
+        window.testHandleAdditionalFileSelect = testHandleAdditionalFileSelect;
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!-- TABLEAU DOCUMENTS OPTIMISÉ - SANS COLONNES TAILLE ET SOURCE -->
+<div class="table-responsive">
+    <table class="table table-dark table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Nom du Fichier</th>
+                <th scope="col">Type</th>
+                <th scope="col">Statut</th>
+                <th scope="col">Date</th>
+                <th scope="col" class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if(isset($studentDocuments) && $studentDocuments->count() > 0)
+                @foreach($studentDocuments as $index => $document)
+                    <tr id="document-row-{{ $document->id }}">
+                        <td>{{ $index + 1 }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="me-2">
+                                    @if(Str::contains($document->mime_type, 'image'))
+                                        <i class="fas fa-image text-info"></i>
+                                    @elseif(Str::contains($document->mime_type, 'pdf'))
+                                        <i class="fas fa-file-pdf text-danger"></i>
+                                    @elseif(Str::contains($document->mime_type, 'word'))
+                                        <i class="fas fa-file-word text-primary"></i>
+                                    @else
+                                        <i class="fas fa-file text-secondary"></i>
+                                    @endif
+                                </div>
+                                <div>
+                                    <div class="text-white fw-bold">{{ $document->original_name }}</div>
+                                    <small class="text-white-50">{{ $document->stored_name ?? $document->filename }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <span class="badge bg-secondary">
+                                    {{ $document->document_type ?? 'Fichier' }}
+                                </span>
+                                @if(isset($document->tp_id))
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-tasks me-1"></i>TP
+                                    </span>
+                                @elseif(isset($document->project_id))
+                                    <span class="badge bg-info">
+                                        <i class="fas fa-project-diagram me-1"></i>Projet
+                                    </span>
+                                @else
+                                    <span class="badge bg-primary">
+                                        <i class="fas fa-briefcase me-1"></i>CVThèque
+                                    </span>
+                                @endif
+                            </div>
+                            <small class="text-white-50 d-block mt-1">{{ $document->mime_type }}</small>
+                        </td>
+                        <td>
+                            @if(isset($document->status))
+                                @if($document->status == 'approved')
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Approuvé
+                                    </span>
+                                @elseif($document->status == 'rejected')
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times me-1"></i>Rejeté
+                                    </span>
+                                @else
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-clock me-1"></i>En attente
+                                    </span>
+                                @endif
+                            @else
+                                <span class="badge bg-secondary">Non défini</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div class="text-white-75">
+                                {{ \Carbon\Carbon::parse($document->created_at)->format('d/m/Y') }}
+                            </div>
+                            <small class="text-white-50">
+                                {{ \Carbon\Carbon::parse($document->created_at)->format('H:i') }}
+                            </small>
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-outline-light btn-sm" onclick="viewDocumentFile({{ $document->id }})" title="Voir">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-info btn-sm" onclick="downloadDocument({{ $document->id }})" title="Télécharger">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                @if(!isset($document->status) || $document->status == 'pending')
+                                    <button class="btn btn-outline-success btn-sm" onclick="approveDocument({{ $document->id }})" title="Approuver">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                @endif
+                                <button class="btn btn-outline-danger btn-sm" onclick="deleteDocument({{ $document->id }})" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            @else
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <div class="text-white-50">
+                            <i class="fas fa-file-alt fa-2x mb-3 opacity-50"></i>
+                            <p class="mb-0">Aucun document trouvé pour cet étudiant</p>
+                        </div>
+                    </td>
+                </tr>
+            @endif
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,625 @@
+/* ===== INTERFACE STATISTIQUES HOLOGRAPHIQUES RÉVOLUTIONNAIRE ===== */
+
+:root {
+    /* Couleurs holographiques */
+    --holo-primary: #00d4ff;
+    --holo-secondary: #b347ff;
+    --holo-accent: #ff6b35;
+    --holo-success: #00ff88;
+    --holo-warning: #ffb347;
+    --holo-danger: #ff4757;
+    
+    /* Gradients holographiques */
+    --holo-gradient-1: linear-gradient(135deg, #00d4ff 0%, #b347ff 100%);
+    --holo-gradient-2: linear-gradient(135deg, #ff6b35 0%, #f093fb 100%);
+    --holo-gradient-3: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+    --holo-gradient-4: linear-gradient(135deg, #ffb347 0%, #ff6b35 100%);
+    
+    /* Effets de lévitation */
+    --hover-lift: translateY(-20px) rotateX(5deg) rotateY(5deg);
+    --hover-scale: scale(1.05);
+    --hover-glow: 0 20px 60px rgba(0, 212, 255, 0.4);
+    
+    /* Animations */
+    --float-duration: 6s;
+    --glow-duration: 2s;
+    --perspective-duration: 0.6s;
+}
+
+/* Container principal holographique */
+.holographic-stats-container {
+    perspective: 1000px;
+    padding: 2rem;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effet de particules de fond */
+.holographic-stats-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(179, 71, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(255, 107, 53, 0.05) 0%, transparent 50%);
+    animation: particleFloat 20s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes particleFloat {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    33% { transform: translateY(-20px) rotate(120deg); }
+    66% { transform: translateY(10px) rotate(240deg); }
+}
+
+/* Grille de cartes holographiques - 4 cartes par ligne */
+.holographic-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+    perspective: 1000px;
+    width: 100%;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Carte holographique de base */
+.holographic-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 2rem;
+    transform-style: preserve-3d;
+    transition: all var(--perspective-duration) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: pointer;
+    overflow: hidden;
+    width: 100%;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    
+    /* Animation de flottement */
+    animation: cardFloat var(--float-duration) ease-in-out infinite;
+}
+
+/* Animations de flottement différées */
+.holographic-card:nth-child(1) { animation-delay: 0s; }
+.holographic-card:nth-child(2) { animation-delay: 1s; }
+.holographic-card:nth-child(3) { animation-delay: 2s; }
+.holographic-card:nth-child(4) { animation-delay: 3s; }
+.holographic-card:nth-child(5) { animation-delay: 4s; }
+.holographic-card:nth-child(6) { animation-delay: 5s; }
+
+@keyframes cardFloat {
+    0%, 100% { 
+        transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+    }
+    25% { 
+        transform: translateY(-10px) rotateX(2deg) rotateY(1deg);
+    }
+    50% { 
+        transform: translateY(-5px) rotateX(0deg) rotateY(-1deg);
+    }
+    75% { 
+        transform: translateY(-15px) rotateX(-1deg) rotateY(2deg);
+    }
+}
+
+/* Effet holographique de fond */
+.holographic-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--holo-gradient-1);
+    opacity: 0.1;
+    border-radius: 20px;
+    transition: opacity 0.3s ease;
+}
+
+/* Bordure holographique animée */
+.holographic-card::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, 
+        var(--holo-primary), 
+        var(--holo-secondary), 
+        var(--holo-accent), 
+        var(--holo-primary)
+    );
+    background-size: 400% 400%;
+    border-radius: 22px;
+    z-index: -1;
+    opacity: 0;
+    animation: gradientShift 3s ease infinite;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* États hover révolutionnaires */
+.holographic-card:hover {
+    transform: var(--hover-lift) var(--hover-scale);
+    box-shadow: var(--hover-glow);
+}
+
+.holographic-card:hover::before {
+    opacity: 0.3;
+}
+
+.holographic-card:hover::after {
+    opacity: 1;
+}
+
+/* Variantes de couleurs */
+.holographic-card.primary::before { background: var(--holo-gradient-1); }
+.holographic-card.secondary::before { background: var(--holo-gradient-2); }
+.holographic-card.success::before { background: var(--holo-gradient-3); }
+.holographic-card.warning::before { background: var(--holo-gradient-4); }
+
+.holographic-card.primary:hover { box-shadow: 0 20px 60px rgba(0, 212, 255, 0.4); }
+.holographic-card.secondary:hover { box-shadow: 0 20px 60px rgba(179, 71, 255, 0.4); }
+.holographic-card.success:hover { box-shadow: 0 20px 60px rgba(0, 255, 136, 0.4); }
+.holographic-card.warning:hover { box-shadow: 0 20px 60px rgba(255, 179, 71, 0.4); }
+
+/* Contenu de la carte */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.holographic-card:hover .card-icon {
+    transform: rotateY(180deg) scale(1.1);
+    box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+}
+
+.card-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.trend-positive { color: var(--holo-success); }
+.trend-negative { color: var(--holo-danger); }
+.trend-neutral { color: var(--holo-warning); }
+
+/* Valeur principale */
+.card-value {
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #ffffff 0%, var(--holo-primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 1rem 0;
+    transition: all 0.3s ease;
+}
+
+.holographic-card:hover .card-value {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+/* Label et description */
+.card-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0.5rem;
+}
+
+.card-description {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.4;
+}
+
+/* Graphique miniature holographique */
+.card-chart {
+    margin-top: 1.5rem;
+    height: 60px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.card-chart canvas {
+    width: 100% !important;
+    height: 100% !important;
+    transition: all 0.3s ease;
+}
+
+.holographic-card:hover .card-chart canvas {
+    transform: scale(1.05);
+}
+
+/* Effet de scan holographique */
+.holographic-card:hover .card-chart::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.4), 
+        transparent
+    );
+    animation: scanEffect 1.5s ease-in-out;
+}
+
+@keyframes scanEffect {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/* Indicateurs de performance */
+.performance-indicators {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.performance-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--holo-primary);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.performance-dot:nth-child(2) {
+    background: var(--holo-secondary);
+    animation-delay: 0.5s;
+}
+
+.performance-dot:nth-child(3) {
+    background: var(--holo-success);
+    animation-delay: 1s;
+}
+
+@keyframes pulse {
+    0%, 100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% { 
+        transform: scale(1.5);
+        opacity: 0.7;
+    }
+}
+
+/* Bouton Voir Plus */
+.holographic-card .view-more-btn {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    background: rgba(0, 212, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 25px;
+    padding: 0.5rem 1rem;
+    color: rgba(0, 212, 255, 0.9);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+    z-index: 10;
+}
+
+.holographic-card:hover .view-more-btn {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.holographic-card .view-more-btn:hover {
+    background: rgba(0, 212, 255, 0.3);
+    border-color: rgba(0, 212, 255, 0.5);
+    color: rgba(0, 212, 255, 1);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+}
+
+.holographic-card .view-more-btn i {
+    margin-left: 0.5rem;
+    transition: transform 0.3s ease;
+}
+
+.holographic-card .view-more-btn:hover i {
+    transform: translateX(3px);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .holographic-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .holographic-card {
+        padding: 1.5rem;
+    }
+    
+    .card-value {
+        font-size: 2.5rem;
+    }
+    
+    .holographic-card:hover {
+        transform: translateY(-10px) scale(1.02);
+    }
+    
+    .holographic-card .view-more-btn {
+        position: static;
+        margin-top: 1rem;
+        opacity: 1;
+        transform: none;
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Forcer 4 colonnes sur desktop et grands écrans */
+@media (min-width: 1201px) {
+    .holographic-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+/* 4 colonnes même sur écrans moyens (tablettes paysage) */
+@media (min-width: 992px) and (max-width: 1200px) {
+    .holographic-stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.2rem;
+    }
+    
+    .holographic-card {
+        padding: 1.5rem;
+        min-height: 260px;
+    }
+}
+
+/* 3 colonnes sur tablettes */
+@media (min-width: 769px) and (max-width: 991px) {
+    .holographic-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+}
+
+/* 2 colonnes sur mobile large */
+@media (min-width: 481px) and (max-width: 768px) {
+    .holographic-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+/* 1 colonne sur petit mobile */
+@media (max-width: 480px) {
+    .holographic-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* Animation d'entrée */
+.holographic-card {
+    opacity: 0;
+    transform: translateY(50px) rotateX(-15deg);
+    animation: cardEntrance 1s ease-out forwards;
+}
+
+@keyframes cardEntrance {
+    to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0deg);
+    }
+}
+
+/* Délais d'animation d'entrée */
+.holographic-card:nth-child(1) { animation-delay: 0.1s; }
+.holographic-card:nth-child(2) { animation-delay: 0.2s; }
+.holographic-card:nth-child(3) { animation-delay: 0.3s; }
+.holographic-card:nth-child(4) { animation-delay: 0.4s; }
+.holographic-card:nth-child(5) { animation-delay: 0.5s; }
+.holographic-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Effet de brillance au clic */
+.holographic-card:active {
+    transform: var(--hover-lift) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+.holographic-card:active::before {
+    opacity: 0.6;
+}
+
+/* Titre de section holographique EVC */
+.holographic-title {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.holographic-title h2 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, 
+        var(--holo-primary) 0%, 
+        var(--holo-secondary) 50%, 
+        var(--holo-accent) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    animation: titleGlow var(--glow-duration) ease-in-out infinite alternate;
+    letter-spacing: -0.5px;
+}
+
+@keyframes titleGlow {
+    from { filter: drop-shadow(0 0 5px rgba(0, 212, 255, 0.5)); }
+    to { filter: drop-shadow(0 0 20px rgba(179, 71, 255, 0.8)); }
+}
+
+.holographic-title p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 0 auto;
+    font-weight: 400;
+}
+
+/* Actions Rapides EVC */
+.evc-quick-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+}
+
+.evc-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 15px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.evc-action-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.evc-action-btn:hover::before {
+    left: 100%;
+}
+
+/* Variantes de couleurs pour les boutons d'action */
+.evc-action-btn.primary {
+    background: rgba(0, 212, 255, 0.15);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    color: var(--holo-primary);
+}
+
+.evc-action-btn.primary:hover {
+    background: rgba(0, 212, 255, 0.25);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 212, 255, 0.3);
+}
+
+.evc-action-btn.secondary {
+    background: rgba(179, 71, 255, 0.15);
+    border: 1px solid rgba(179, 71, 255, 0.3);
+    color: var(--holo-secondary);
+}
+
+.evc-action-btn.secondary:hover {
+    background: rgba(179, 71, 255, 0.25);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(179, 71, 255, 0.3);
+}
+
+.evc-action-btn.warning {
+    background: rgba(255, 179, 71, 0.15);
+    border: 1px solid rgba(255, 179, 71, 0.3);
+    color: var(--holo-warning);
+}
+
+.evc-action-btn.warning:hover {
+    background: rgba(255, 179, 71, 0.25);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 40px rgba(255, 179, 71, 0.3);
+}
+
+.evc-action-btn i {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.evc-action-btn:hover i {
+    transform: scale(1.2) rotate(5deg);
+}
+
+.evc-action-btn:active {
+    transform: translateY(-1px) scale(1.02);
+    transition: all 0.1s ease;
+}
+
+/* Responsive pour les actions */
+@media (max-width: 768px) {
+    .evc-quick-actions {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .evc-action-btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+}

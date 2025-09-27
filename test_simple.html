@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="test-token">
+    <title>Test Simple Actions</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white">
+    <div class="container mt-5">
+        <h1>Test Simple - Actions CRUD</h1>
+        
+        <div class="alert alert-info">
+            <strong>Test :</strong> Cliquez sur les boutons pour tester les actions CRUD.
+        </div>
+
+        <!-- Boutons de test -->
+        <div class="mb-4">
+            <button class="btn btn-primary me-2" onclick="testAction('viewProject', 1)">
+                <i class="fas fa-eye me-1"></i>Test Voir
+            </button>
+            <button class="btn btn-warning me-2" onclick="testAction('editProject', 1)">
+                <i class="fas fa-edit me-1"></i>Test Modifier
+            </button>
+            <button class="btn btn-success me-2" onclick="testAction('validateProject', 1)">
+                <i class="fas fa-check me-1"></i>Test Valider
+            </button>
+            <button class="btn btn-danger me-2" onclick="testAction('deleteProject', 1)">
+                <i class="fas fa-trash me-1"></i>Test Supprimer
+            </button>
+        </div>
+
+        <!-- Zone de résultats -->
+        <div class="card bg-secondary">
+            <div class="card-header">
+                <h5>Résultats des Tests</h5>
+            </div>
+            <div class="card-body">
+                <div id="test-results" style="font-family: monospace; font-size: 0.9rem;">
+                    <div class="text-info">Prêt pour les tests...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulation du dropdown comme dans le vrai composant -->
+        <div class="mt-4">
+            <h5>Test avec Dropdown (comme dans l'interface réelle)</h5>
+            <div class="dropdown">
+                <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    <i class="fas fa-cog"></i> Actions
+                </button>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="viewProject(1)">
+                            <i class="fas fa-eye me-2"></i>Voir
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="#" onclick="editProject(1)">
+                            <i class="fas fa-edit me-2"></i>Modifier
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item text-success" href="#" onclick="validateProject(1)">
+                            <i class="fas fa-check me-2"></i>Valider
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item text-danger" href="#" onclick="deleteProject(1)">
+                            <i class="fas fa-trash me-2"></i>Supprimer
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales (simplifiées) -->
+    <div class="modal fade" id="viewProjectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title">Détails du Projet</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="viewProjectContent">Contenu du projet...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'text-danger' : type === 'success' ? 'text-success' : 'text-info';
+            results.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+        }
+
+        function testAction(functionName, id) {
+            log(`Test de ${functionName}(${id})...`, 'info');
+            
+            if (typeof window[functionName] === 'function') {
+                log(`✅ Fonction ${functionName} trouvée!`, 'success');
+                try {
+                    window[functionName](id);
+                    log(`✅ ${functionName} exécutée sans erreur`, 'success');
+                } catch (e) {
+                    log(`❌ Erreur lors de l'exécution: ${e.message}`, 'error');
+                }
+            } else {
+                log(`❌ Fonction ${functionName} NON TROUVÉE!`, 'error');
+                
+                // Lister toutes les fonctions disponibles contenant "Project"
+                const projectFunctions = Object.getOwnPropertyNames(window).filter(name => 
+                    name.toLowerCase().includes('project') && typeof window[name] === 'function'
+                );
+                
+                if (projectFunctions.length > 0) {
+                    log(`Fonctions disponibles: ${projectFunctions.join(', ')}`, 'info');
+                } else {
+                    log(`Aucune fonction contenant "project" trouvée`, 'info');
+                }
+            }
+        }
+
+        // Vérification au chargement
+        $(document).ready(function() {
+            log('Document ready, jQuery chargé', 'success');
+            log('Bootstrap disponible: ' + (typeof bootstrap !== 'undefined' ? 'Oui' : 'Non'), 'info');
+            
+            // Vérifier si le fichier admin-project-actions.js est chargé
+            setTimeout(() => {
+                const functionsToCheck = ['viewProject', 'editProject', 'validateProject', 'deleteProject'];
+                let loadedFunctions = 0;
+                
+                functionsToCheck.forEach(func => {
+                    if (typeof window[func] === 'function') {
+                        loadedFunctions++;
+                        log(`✅ ${func} disponible`, 'success');
+                    } else {
+                        log(`❌ ${func} manquante`, 'error');
+                    }
+                });
+                
+                if (loadedFunctions === functionsToCheck.length) {
+                    log('🎉 TOUS LES SCRIPTS SONT CHARGÉS CORRECTEMENT!', 'success');
+                } else {
+                    log(`⚠️ ${loadedFunctions}/${functionsToCheck.length} fonctions chargées`, 'error');
+                }
+            }, 1000);
+        });
+    </script>
+
+    <!-- Chargement du fichier JavaScript des actions -->
+    <script src="js/admin-project-actions.js" 
+            onerror="log('❌ ERREUR: Impossible de charger admin-project-actions.js', 'error')" 
+            onload="log('✅ admin-project-actions.js chargé avec succès', 'success')">
+    </script>
+</body>
+</html>

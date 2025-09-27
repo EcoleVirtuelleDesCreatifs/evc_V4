@@ -1,0 +1,343 @@
+:root {
+    --form-bg: #0f172a;
+    --form-surface: rgba(30, 41, 59, 0.6);
+    --form-border: rgba(51, 65, 85, 0.7);
+    --form-primary: #38bdf8;
+    --form-text: #e2e8f0;
+    --form-text-muted: #94a3b8;
+}
+
+.interactive-dashboard-form {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.form-card {
+    background: var(--form-surface);
+    border: 1px solid var(--form-border);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.form-card:hover {
+    border-color: var(--form-primary);
+}
+
+.form-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--form-border);
+    color: var(--form-primary);
+}
+
+.form-card-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--form-text);
+}
+
+.form-card-body {
+    padding: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--form-text-muted);
+    font-weight: 500;
+}
+
+.form-control, .form-select {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border: 1px solid var(--form-border) !important;
+    color: var(--form-text) !important;
+    border-radius: 8px !important;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3) !important;
+    border-color: var(--form-primary) !important;
+}
+
+.form-control::placeholder {
+    color: var(--form-text-muted);
+    opacity: 1; /* Override Firefox's default opacity */
+}
+
+/* Media Card */
+.media-card .form-card-body { padding: 1rem; }
+
+#image-upload-container {
+    position: relative;
+    width: 100%;
+    min-height: 150px;
+}
+
+.image-upload-zone {
+    border: 2px dashed var(--form-border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--form-text-muted);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 2rem;
+}
+
+.image-upload-zone:hover, .image-upload-zone.highlight {
+    border-color: var(--form-primary);
+    background: rgba(56, 189, 248, 0.1);
+}
+
+.image-upload-zone i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.image-preview-container {
+    position: relative;
+}
+
+#image-preview {
+    width: 100%;
+    border-radius: 10px;
+}
+
+#remove-image-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    padding: 0;
+}
+
+/* Vimeo Card */
+.vimeo-card .form-control {
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.vimeo-helper {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid var(--form-border);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+}
+
+.vimeo-helper .helper-title {
+    font-weight: 600;
+    color: var(--form-text);
+    margin-bottom: 0.75rem;
+}
+
+.vimeo-helper ol {
+    padding-left: 1.2rem;
+    margin-bottom: 0;
+    color: var(--form-text-muted);
+}
+
+.vimeo-helper li {
+    margin-bottom: 0.25rem;
+}
+
+.alert.alert-info {
+    background-color: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.3);
+    color: var(--form-primary);
+}
+
+/* Select2 Dark Theme */
+.select2-container--default .select2-selection--single { background-color: rgba(15, 23, 42, 0.8) !important; border: 1px solid var(--form-border) !important; height: calc(1.5em + 1.5rem + 2px) !important; padding: 0.75rem 1rem !important;}
+.select2-container--default .select2-selection--single .select2-selection__rendered { color: var(--form-text) !important; line-height: 1.5;}
+.select2-dropdown { background: #0b1020; color:var(--form-text); border:1px solid var(--form-border); }
+.select2-container--default .select2-results__option--highlighted[aria-selected] { background-color: var(--form-primary); }
+
+/* Publication Status Options */
+.publication-status-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.publication-status-option {
+    border: 2px solid var(--form-border);
+    border-radius: 12px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.publication-status-option:hover {
+    transform: translateY(-3px);
+    border-color: var(--form-primary);
+}
+
+.publication-status-option.selected {
+    border-color: var(--form-primary);
+    background-color: rgba(56, 189, 248, 0.1);
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+.publication-status-option i {
+    font-size: 1.5rem;
+    color: var(--form-text-muted);
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.publication-status-option.selected i {
+    color: var(--form-primary);
+}
+
+.publication-status-option span {
+    font-weight: 600;
+    color: var(--form-text);
+    display: block;
+}
+
+.publication-status-option small {
+    color: var(--form-text-muted);
+    font-size: 0.8rem;
+}
+
+/* Custom Footer Buttons */
+.form-footer {
+    background: var(--form-surface);
+    border: 1px solid var(--form-border);
+    border-radius: 16px;
+    padding: 1rem 1.5rem;
+}
+
+.form-footer .btn {
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.form-footer .btn-light {
+    background-color: transparent;
+    border: 1px solid var(--form-border);
+    color: var(--form-text-muted);
+}
+
+.form-footer .btn-light:hover {
+    background-color: var(--form-surface);
+    color: var(--form-text);
+    border-color: var(--form-primary);
+}
+
+.form-footer .btn-secondary {
+    background-color: #4A5568 !important;
+    border-color: #4A5568 !important;
+    color: white !important;
+}
+
+.form-footer .btn-secondary:hover {
+    background-color: #2D3748 !important;
+    border-color: #2D3748 !important;
+}
+
+.form-footer .btn-warning {
+    background-color: #FBBF24 !important;
+    border-color: #FBBF24 !important;
+    color: #1F2937 !important;
+}
+
+.form-footer .btn-warning:hover {
+    background-color: #F59E0B !important;
+    border-color: #F59E0B !important;
+}
+
+.form-footer .btn-success {
+    background-color: #10B981 !important;
+    border-color: #10B981 !important;
+    color: white !important;
+}
+
+.form-footer .btn-success:hover {
+    background-color: #059669 !important;
+    border-color: #059669 !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* QuillJS Dark Theme */
+#quill-editor {
+    height: 250px; /* Default height */
+}
+
+.ql-toolbar {
+    background: rgba(15, 23, 42, 0.7) !important;
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important;
+    border: 1px solid var(--form-border) !important;
+    border-bottom: 0 !important;
+}
+
+.ql-container {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+    border: 1px solid var(--form-border) !important;
+    color: var(--form-text) !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.ql-editor.ql-blank::before {
+    color: var(--form-text-muted);
+    content: attr(data-placeholder);
+    font-style: normal !important;
+    opacity: 0.8;
+}
+
+.ql-snow .ql-stroke {
+    stroke: var(--form-text-muted) !important;
+}
+
+.ql-snow .ql-picker-label {
+    color: var(--form-text-muted) !important;
+}
+
+.ql-snow .ql-picker-options {
+    background-color: var(--form-surface) !important;
+    border-color: var(--form-border) !important;
+}
+
+.ql-snow .ql-picker-options .ql-picker-item:hover {
+    background-color: var(--form-primary);
+    color: white !important;
+}

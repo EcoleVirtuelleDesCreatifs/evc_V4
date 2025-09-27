@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Validation Fichiers TP</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        input[type="file"] { margin: 10px 0; }
+        button { padding: 8px 16px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug Validation Fichiers TP</h1>
+    
+    <div class="test-section info">
+        <h3>📋 Test de Validation des Fichiers</h3>
+        <p>Sélectionnez différents types de fichiers pour tester la validation :</p>
+        <input type="file" id="testFile" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.zip,.rar,.txt,.ppt,.pptx,.xls,.xlsx">
+        <button onclick="testValidation()">Tester la Validation</button>
+        <button onclick="clearResults()">Effacer les Résultats</button>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        // Configuration identique à tp.js
+        const config = {
+            maxFileSize: 10 * 1024 * 1024, // 10MB en bytes
+            allowedTypes: [
+                'application/pdf',
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'image/jpeg',
+                'image/jpg',
+                'image/png',
+                'image/gif',
+                'application/zip',
+                'application/x-rar-compressed',
+                'text/plain',
+                'application/vnd.ms-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ],
+            allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar', 'txt', 'ppt', 'pptx', 'xls', 'xlsx']
+        };
+
+        let selectedFiles = [];
+
+        function validateFile(file) {
+            console.log('🔍 Validation du fichier:', file.name);
+            console.log('📄 Type MIME:', file.type);
+            console.log('📏 Taille:', file.size, 'bytes');
+            
+            // Vérification de la taille
+            if (file.size > config.maxFileSize) {
+                console.log('❌ Fichier trop volumineux');
+                return { valid: false, reason: `Fichier trop volumineux. Taille maximum : 10MB` };
+            }
+
+            // Vérification du type MIME
+            if (!config.allowedTypes.includes(file.type)) {
+                console.log('⚠️ Type MIME non reconnu, vérification par extension...');
+                // Vérification par extension si le type MIME n'est pas reconnu
+                const extension = file.name.split('.').pop().toLowerCase();
+                console.log('📂 Extension:', extension);
+                
+                if (!config.allowedExtensions.includes(extension)) {
+                    console.log('❌ Extension non autorisée');
+                    return { valid: false, reason: `Type de fichier non autorisé. Extension: ${extension}` };
+                } else {
+                    console.log('✅ Extension autorisée');
+                }
+            } else {
+                console.log('✅ Type MIME autorisé');
+            }
+
+            // Vérification des doublons
+            if (selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                console.log('⚠️ Fichier déjà sélectionné');
+                return { valid: false, reason: `Fichier déjà sélectionné` };
+            }
+
+            console.log('✅ Fichier valide');
+            return { valid: true, reason: 'Fichier valide' };
+        }
+
+        function testValidation() {
+            const fileInput = document.getElementById('testFile');
+            const files = Array.from(fileInput.files);
+            const resultsDiv = document.getElementById('results');
+            
+            if (files.length === 0) {
+                alert('Veuillez sélectionner au moins un fichier');
+                return;
+            }
+
+            files.forEach((file, index) => {
+                const result = validateFile(file);
+                
+                const testSection = document.createElement('div');
+                testSection.className = `test-section ${result.valid ? 'success' : 'error'}`;
+                
+                testSection.innerHTML = `
+                    <h4>${result.valid ? '✅' : '❌'} Fichier ${index + 1}: ${file.name}</h4>
+                    <p><strong>Résultat:</strong> ${result.reason}</p>
+                    <pre><strong>Détails du fichier:</strong>
+Nom: ${file.name}
+Type MIME: ${file.type}
+Taille: ${file.size} bytes (${(file.size / 1024 / 1024).toFixed(2)} MB)
+Extension: ${file.name.split('.').pop().toLowerCase()}
+Dernière modification: ${new Date(file.lastModified).toLocaleString()}</pre>
+                    
+                    <pre><strong>Vérifications:</strong>
+✓ Taille < 10MB: ${file.size <= config.maxFileSize ? 'OUI' : 'NON'}
+✓ Type MIME autorisé: ${config.allowedTypes.includes(file.type) ? 'OUI' : 'NON'}
+✓ Extension autorisée: ${config.allowedExtensions.includes(file.name.split('.').pop().toLowerCase()) ? 'OUI' : 'NON'}
+✓ Pas de doublon: ${!selectedFiles.some(f => f.name === file.name && f.size === file.size) ? 'OUI' : 'NON'}</pre>
+                `;
+                
+                resultsDiv.appendChild(testSection);
+                
+                if (result.valid) {
+                    selectedFiles.push(file);
+                }
+            });
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            selectedFiles = [];
+            document.getElementById('testFile').value = '';
+        }
+
+        // Afficher la configuration au chargement
+        window.addEventListener('DOMContentLoaded', function() {
+            const configSection = document.createElement('div');
+            configSection.className = 'test-section info';
+            configSection.innerHTML = `
+                <h3>⚙️ Configuration Actuelle</h3>
+                <pre><strong>Types MIME autorisés:</strong>
+${config.allowedTypes.map(type => '• ' + type).join('\n')}
+
+<strong>Extensions autorisées:</strong>
+${config.allowedExtensions.map(ext => '• ' + ext).join('\n')}
+
+<strong>Taille maximum:</strong> ${config.maxFileSize / 1024 / 1024} MB</pre>
+            `;
+            
+            document.body.insertBefore(configSection, document.getElementById('results'));
+        });
+    </script>
+</body>
+</html>

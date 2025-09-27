@@ -1,0 +1,241 @@
+/* Styles pour la validation obligatoire d'images dans les TP */
+
+/* État d'erreur pour la zone d'upload */
+.file-upload-area.upload-error {
+    border-color: #dc3545 !important;
+    background: rgba(220, 53, 69, 0.05);
+    animation: shake 0.5s ease-in-out;
+}
+
+.file-upload-area.upload-error .upload-content {
+    color: #dc3545;
+}
+
+.file-upload-area.upload-error .upload-icon {
+    color: #dc3545 !important;
+}
+
+.file-upload-area.upload-error h5 {
+    color: #dc3545 !important;
+}
+
+/* Animation de secousse pour l'erreur */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Indicateur visuel pour les champs obligatoires */
+.form-label .text-danger {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Alerte spéciale pour l'obligation d'image */
+.image-required-alert {
+    background: linear-gradient(45deg, #fff3cd, #ffeaa7);
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 15px;
+    font-weight: 500;
+    color: #856404;
+}
+
+.image-required-alert .fas {
+    color: #ffc107;
+    margin-right: 8px;
+}
+
+/* Style pour les fichiers image dans la liste */
+.file-item.is-image {
+    border-left: 4px solid #28a745;
+    background: rgba(40, 167, 69, 0.05);
+}
+
+.file-item.is-image .file-icon {
+    color: #28a745;
+}
+
+/* Compteur d'images */
+.image-counter {
+    display: inline-block;
+    background: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.image-counter.zero {
+    background: #dc3545;
+}
+
+/* Bouton d'ajout de fichiers */
+.btn-add-files {
+    border: 2px dashed #007bff;
+    background: transparent;
+    color: #007bff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-add-files:hover {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.btn-add-files:active {
+    transform: translateY(0);
+}
+
+/* Compteurs de fichiers */
+.files-counter {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.files-counter .badge {
+    font-size: 0.85em;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+/* Zones d'upload supplémentaires */
+.additional-upload-zone {
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.additional-upload-zone:hover {
+    border-color: #007bff;
+    background: rgba(0, 123, 255, 0.05);
+}
+
+.additional-upload-zone .upload-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.additional-upload-zone .upload-title {
+    font-weight: 600;
+    color: #495057;
+    margin: 0;
+}
+
+.additional-upload-zone .remove-upload {
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.additional-upload-zone .remove-upload:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+/* Animation pour l'ajout dynamique */
+.additional-upload-zone {
+    animation: slideInUp 0.4s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Zone d'upload petite pour les zones supplémentaires */
+.file-upload-zone-small {
+    border: 2px dashed #dee2e6;
+    border-radius: 6px;
+    padding: 15px;
+    text-align: center;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.file-upload-zone-small:hover {
+    border-color: #007bff;
+    background: rgba(0, 123, 255, 0.05);
+}
+
+.file-upload-zone-small.dragover {
+    border-color: #28a745;
+    background: rgba(40, 167, 69, 0.1);
+    transform: scale(1.02);
+}
+
+.file-upload-zone-small p {
+    margin: 0;
+    font-size: 0.9em;
+}
+
+.file-upload-zone-small .text-primary {
+    color: #007bff !important;
+}
+
+/* Responsive design pour les zones supplémentaires */
+@media (max-width: 768px) {
+    .additional-upload-zone {
+        padding: 15px;
+    }
+    
+    .additional-upload-zone .upload-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .additional-upload-zone .remove-upload {
+        align-self: flex-end;
+    }
+    
+    .files-counter {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .btn-add-files {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+}

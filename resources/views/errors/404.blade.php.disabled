@@ -1,0 +1,167 @@
+{{-- DÉSACTIVÉ TEMPORAIREMENT POUR DEBUG --}}
+{{-- @extends('layouts.admin')
+
+@section('title', 'Page Introuvable')
+
+@section('content') --}}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-0" style="margin-top: 50px;">
+                <div class="card-body text-center p-5">
+                    
+                    {{-- Logo et branding --}}
+                    <div class="mb-4">
+                        <div class="error-icon mb-3">
+                            <i class="fas fa-search" style="font-size: 80px; color: #FF9900; opacity: 0.8;"></i>
+                        </div>
+                        <h1 class="display-1 fw-bold text-primary mb-0">404</h1>
+                        <h2 class="h3 text-muted mb-4">Page Introuvable</h2>
+                    </div>
+
+                    {{-- Message principal --}}
+                    <div class="mb-4">
+                        <h3 class="h4 text-dark mb-3">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            Oops ! Cette page n'existe pas
+                        </h3>
+                        <p class="lead text-muted mb-4">
+                            La page que vous recherchez semble avoir été déplacée, supprimée ou n'a jamais existé.
+                        </p>
+                        <p class="text-muted">
+                            Ne vous inquiétez pas, cela arrive même aux meilleurs d'entre nous ! 
+                            Voici quelques suggestions pour continuer votre parcours de formation.
+                        </p>
+                    </div>
+
+                    {{-- Actions suggérées --}}
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 border-primary" style="border-width: 2px;">
+                                <div class="card-body">
+                                    <i class="fas fa-home text-primary mb-3" style="font-size: 2rem;"></i>
+                                    <h5 class="card-title">Retour au Dashboard</h5>
+                                    <p class="card-text text-muted">Accédez à votre espace étudiant principal</p>
+                                    <a href="{{ route('dashboard.design-graphique') }}" class="btn btn-primary">
+                                        <i class="fas fa-arrow-left me-2"></i>Dashboard
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100 border-success" style="border-width: 2px;">
+                                <div class="card-body">
+                                    <i class="fas fa-graduation-cap text-success mb-3" style="font-size: 2rem;"></i>
+                                    <h5 class="card-title">Mes Formations</h5>
+                                    <p class="card-text text-muted">Continuez votre apprentissage</p>
+                                    <a href="{{ route('dashboard.design-graphique') }}" class="btn btn-success">
+                                        <i class="fas fa-book-open me-2"></i>Formations
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Liens rapides --}}
+                    <div class="mb-4">
+                        <h5 class="text-dark mb-3">Liens Rapides</h5>
+                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                            <a href="{{ route('design-graphique.cvtheque.index') }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-folder me-1"></i>CVThèque
+                            </a>
+                            <a href="{{ route('design-graphique.projets.index') }}" class="btn btn-outline-success btn-sm">
+                                <i class="fas fa-project-diagram me-1"></i>Mes Projets
+                            </a>
+                            <a href="{{ route('design-graphique.parametres.index') }}" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-cog me-1"></i>Paramètres
+                            </a>
+                            <a href="{{ route('design-graphique.profil.editer') }}" class="btn btn-outline-warning btn-sm">
+                                <i class="fas fa-user-edit me-1"></i>Mon Profil
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Contact support --}}
+                    <div class="mt-5 pt-4 border-top">
+                        <h6 class="text-muted mb-3">Besoin d'aide ?</h6>
+                        <p class="text-muted small mb-3">
+                            Si vous pensez qu'il s'agit d'une erreur ou si vous avez besoin d'assistance, 
+                            n'hésitez pas à contacter notre équipe support.
+                        </p>
+                        <div class="d-flex justify-content-center gap-3">
+                            <a href="mailto:info@ecolevirtuelledescreatifs.com" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-envelope me-1"></i>Email Support
+                            </a>
+                            <a href="https://wa.me/+22507172586" target="_blank" class="btn btn-outline-success btn-sm">
+                                <i class="fab fa-whatsapp me-1"></i>WhatsApp
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Styles personnalisés --}}
+<style>
+.error-icon {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.display-1 {
+    background: linear-gradient(45deg, #FF9900, #003366);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>
+
+{{-- Scripts pour animations --}}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation d'entrée pour les cartes
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+});
+</script>
+@endsection

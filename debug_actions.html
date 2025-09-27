@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="test-token">
+    <title>Debug Actions CRUD</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-white">
+    <div class="container mt-5">
+        <h1>Test des Actions CRUD - Travaux Pratiques</h1>
+        
+        <div class="alert alert-info">
+            <strong>Test de Debug :</strong> Cette page teste si les fonctions JavaScript des actions CRUD fonctionnent.
+        </div>
+
+        <!-- Simulation d'un tableau de projets -->
+        <div class="card bg-dark border-secondary">
+            <div class="card-header">
+                <h5>Travaux Pratiques ( Images / Print )</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nom du Projet</th>
+                            <th>Statut</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="project-row-1">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-project-diagram text-info me-2"></i>
+                                    <div>
+                                        <div class="text-white fw-bold">Projet Test</div>
+                                        <span class="badge bg-info" style="font-size: 0.6rem;">TP</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-clock me-1"></i>En cours
+                                </span>
+                            </td>
+                            <td>
+                                <div class="text-white-75">16/08/2025</div>
+                                <small class="text-white-50">20:23</small>
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-light btn-sm dropdown-toggle"
+                                            type="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false">
+                                        <i class="fas fa-cog"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark">
+                                        <li>
+                                            <a class="dropdown-item" href="#" onclick="testViewProject(1)">
+                                                <i class="fas fa-eye me-2"></i>Voir
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="#" onclick="testEditProject(1)">
+                                                <i class="fas fa-edit me-2"></i>Modifier
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item text-success" href="#" onclick="testValidateProject(1)">
+                                                <i class="fas fa-check me-2"></i>Valider
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="#" onclick="testDeleteProject(1)">
+                                                <i class="fas fa-trash me-2"></i>Supprimer
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Zone de logs -->
+        <div class="mt-4">
+            <h5>Logs de Debug</h5>
+            <div id="debug-logs" class="bg-secondary p-3 rounded" style="height: 200px; overflow-y: auto; font-family: monospace; font-size: 0.8rem;">
+                <div class="text-success">Debug initialisé...</div>
+            </div>
+        </div>
+
+        <!-- Boutons de test direct -->
+        <div class="mt-4">
+            <h5>Tests Directs</h5>
+            <button class="btn btn-primary me-2" onclick="testViewProject(1)">Test Voir</button>
+            <button class="btn btn-warning me-2" onclick="testEditProject(1)">Test Modifier</button>
+            <button class="btn btn-success me-2" onclick="testValidateProject(1)">Test Valider</button>
+            <button class="btn btn-danger me-2" onclick="testDeleteProject(1)">Test Supprimer</button>
+            <button class="btn btn-info me-2" onclick="clearLogs()">Clear Logs</button>
+        </div>
+    </div>
+
+    <!-- Modales (copiées depuis le composant) -->
+    <div class="modal fade" id="viewProjectModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Détails du Projet</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="viewProjectContent">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <script>
+        // Fonctions de debug
+        function log(message, type = 'info') {
+            const logs = document.getElementById('debug-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const colorClass = type === 'error' ? 'text-danger' : type === 'success' ? 'text-success' : 'text-info';
+            logs.innerHTML += `<div class="${colorClass}">[${timestamp}] ${message}</div>`;
+            logs.scrollTop = logs.scrollHeight;
+        }
+
+        function clearLogs() {
+            document.getElementById('debug-logs').innerHTML = '<div class="text-success">Logs cleared...</div>';
+        }
+
+        // Test des fonctions
+        function testViewProject(id) {
+            log(`Test viewProject(${id}) appelé`, 'info');
+            
+            // Vérifier si la fonction existe
+            if (typeof viewProject === 'function') {
+                log('Fonction viewProject trouvée, exécution...', 'success');
+                try {
+                    viewProject(id);
+                } catch (e) {
+                    log(`Erreur lors de l'exécution: ${e.message}`, 'error');
+                }
+            } else {
+                log('Fonction viewProject NON TROUVÉE!', 'error');
+                log('Fonctions disponibles: ' + Object.getOwnPropertyNames(window).filter(name => name.includes('Project')).join(', '), 'info');
+            }
+        }
+
+        function testEditProject(id) {
+            log(`Test editProject(${id}) appelé`, 'info');
+            
+            if (typeof editProject === 'function') {
+                log('Fonction editProject trouvée, exécution...', 'success');
+                try {
+                    editProject(id);
+                } catch (e) {
+                    log(`Erreur lors de l'exécution: ${e.message}`, 'error');
+                }
+            } else {
+                log('Fonction editProject NON TROUVÉE!', 'error');
+            }
+        }
+
+        function testValidateProject(id) {
+            log(`Test validateProject(${id}) appelé`, 'info');
+            
+            if (typeof validateProject === 'function') {
+                log('Fonction validateProject trouvée, exécution...', 'success');
+                try {
+                    validateProject(id);
+                } catch (e) {
+                    log(`Erreur lors de l'exécution: ${e.message}`, 'error');
+                }
+            } else {
+                log('Fonction validateProject NON TROUVÉE!', 'error');
+            }
+        }
+
+        function testDeleteProject(id) {
+            log(`Test deleteProject(${id}) appelé`, 'info');
+            
+            if (typeof deleteProject === 'function') {
+                log('Fonction deleteProject trouvée, exécution...', 'success');
+                try {
+                    deleteProject(id);
+                } catch (e) {
+                    log(`Erreur lors de l'exécution: ${e.message}`, 'error');
+                }
+            } else {
+                log('Fonction deleteProject NON TROUVÉE!', 'error');
+            }
+        }
+
+        // Initialisation
+        $(document).ready(function() {
+            log('Document ready, jQuery chargé', 'success');
+            log('Bootstrap version: ' + (typeof bootstrap !== 'undefined' ? 'Chargé' : 'Non chargé'), 'info');
+            
+            // Tenter de charger le fichier JavaScript des actions
+            log('Tentative de chargement du fichier admin-project-actions.js...', 'info');
+        });
+    </script>
+
+    <!-- Chargement du fichier JavaScript des actions -->
+    <script src="js/admin-project-actions.js" onerror="log('ERREUR: Impossible de charger admin-project-actions.js', 'error')" onload="log('SUCCESS: admin-project-actions.js chargé avec succès', 'success')"></script>
+</body>
+</html>

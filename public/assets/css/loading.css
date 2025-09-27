@@ -1,0 +1,370 @@
+/* Styles pour la page de chargement EVC */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #003366 0%, #0066cc 50%, #3399ff 100%);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Container principal */
+.loading-container {
+    text-align: center;
+    color: white;
+    position: relative;
+    z-index: 10;
+    max-width: 500px;
+    padding: 2rem;
+}
+
+/* Logo et animation */
+.logo-container {
+    margin-bottom: 2rem;
+    animation: logoFloat 3s ease-in-out infinite;
+}
+
+.logo {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.loading-icon {
+    width: 60px;
+    height: 60px;
+    animation: rotate 2s linear infinite;
+    filter: brightness(0) invert(1);
+}
+
+.logo::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: logoShine 4s ease-in-out infinite;
+}
+
+.logo i {
+    font-size: 3rem;
+    color: #fff;
+    z-index: 2;
+    position: relative;
+}
+
+/* Textes animés */
+.welcome-text {
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 0.5s forwards;
+}
+
+.welcome-text h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(45deg, #fff, #3399ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.welcome-text p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 300;
+}
+
+/* Informations utilisateur */
+.user-info {
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 1s forwards;
+}
+
+.user-info h3 {
+    font-size: 1.5rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.formation-badge {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.formation-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Spinner de chargement */
+.loading-spinner {
+    margin: 2rem 0;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 1.5s forwards;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid #fff;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    animation: spin 1s linear infinite;
+    position: relative;
+}
+
+.spinner::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top: 2px solid #ff6633;
+    animation: spin 2s linear infinite reverse;
+}
+
+.loading-text {
+    font-size: 1rem;
+    opacity: 0.8;
+    animation: pulse 2s ease-in-out infinite;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Barre de progression */
+.progress-container {
+    width: 300px;
+    margin: 2rem auto 0;
+    opacity: 0;
+    animation: fadeInUp 1s ease-out 2s forwards;
+}
+
+.progress {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    position: relative;
+}
+
+.progress::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: progressShimmer 2s ease-in-out infinite;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6633, #FF9900, #3399ff);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+    animation: progressGlow 2s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-text {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    font-weight: 500;
+}
+
+/* Particules d'arrière-plan */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.particle {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite;
+}
+
+.particle:nth-child(1) { width: 10px; height: 10px; left: 10%; animation-delay: 0s; }
+.particle:nth-child(2) { width: 15px; height: 15px; left: 20%; animation-delay: 1s; }
+.particle:nth-child(3) { width: 8px; height: 8px; left: 30%; animation-delay: 2s; }
+.particle:nth-child(4) { width: 12px; height: 12px; left: 40%; animation-delay: 3s; }
+.particle:nth-child(5) { width: 6px; height: 6px; left: 50%; animation-delay: 4s; }
+.particle:nth-child(6) { width: 14px; height: 14px; left: 60%; animation-delay: 5s; }
+.particle:nth-child(7) { width: 9px; height: 9px; left: 70%; animation-delay: 1.5s; }
+.particle:nth-child(8) { width: 11px; height: 11px; left: 80%; animation-delay: 2.5s; }
+.particle:nth-child(9) { width: 7px; height: 7px; left: 90%; animation-delay: 3.5s; }
+
+/* Effet de vague */
+.wave-effect {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.1), transparent);
+    animation: wave 3s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes logoFloat {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+@keyframes logoShine {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes rotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+@keyframes progressGlow {
+    0%, 100% { 
+        box-shadow: 0 0 5px rgba(255, 102, 51, 0.5);
+        filter: brightness(1);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(255, 102, 51, 0.8);
+        filter: brightness(1.2);
+    }
+}
+
+@keyframes progressShimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+@keyframes wave {
+    0%, 100% { transform: translateX(0px); }
+    50% { transform: translateX(-20px); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .loading-container {
+        padding: 1rem;
+    }
+    
+    .logo {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .logo i {
+        font-size: 2.5rem;
+    }
+    
+    .welcome-text h2 {
+        font-size: 1.5rem;
+    }
+    
+    .progress-container {
+        width: 250px;
+    }
+    
+    .user-info h3 {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-text h2 {
+        font-size: 1.3rem;
+    }
+    
+    .progress-container {
+        width: 200px;
+    }
+    
+    .formation-badge {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
