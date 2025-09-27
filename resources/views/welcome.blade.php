@@ -7,12 +7,12 @@
 @section('content')
     @include('homepage._hero')
     @include('homepage._presentation')
-    @include('homepage._fondateur')
+    
     @include('homepage._international')
     @include('homepage._avantages')
     @include('homepage._formations')
     @include('homepage._travaux')
-    @include('homepage._events')
+    
     @include('homepage._evenements')
     @include('homepage._actualites')
     @include('homepage._laureats')

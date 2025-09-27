@@ -92,4 +92,6 @@
         </div>
     </div>
 </div>
+    @include('homepage._fondateur')
+    @include('homepage._events')
 @endsection
