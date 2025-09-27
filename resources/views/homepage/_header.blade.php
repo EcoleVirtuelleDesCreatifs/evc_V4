@@ -19,8 +19,11 @@
             <a href="{{ route('laureats') }}" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Nos Lauréats</a>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-6">
-             <a href="{{ route('webtv') }}" class="webtv-live-pulse flex items-center gap-x-2 bg-orange-500/10 px-3 py-2 text-sm font-semibold text-orange-400 ring-1 ring-inset ring-orange-500/20 hover:bg-orange-500/20 transition rounded-full">
-                <i class="fas fa-tv"></i>
+             <a href="{{ route('webtv') }}" class="flex items-center gap-x-2 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-400 ring-1 ring-inset ring-red-500/20 hover:bg-red-500/20 transition rounded-full">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
                 WebTV
             </a>
             <a href="{{ route('login') }}" class="btn btn-primary">Espace Étudiant</a>
