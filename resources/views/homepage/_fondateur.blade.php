@@ -7,10 +7,10 @@
         </div>
 
         <div class="founder-card-container mx-auto">
-            <div class="founder-card-inner relative w-full max-w-md mx-auto cursor-pointer">
+            <div class="founder-card-inner relative w-full max-w-md mx-auto cursor-pointer aspect-[3/4]">
                 <!-- Front Face -->
                 <div class="card-face card-front">
-                    <div class="relative overflow-hidden rounded-3xl shadow-2xl h-full aspect-[3/4]">
+                    <div class="relative overflow-hidden rounded-3xl shadow-2xl h-full">
                         <img class="h-full w-full object-cover" src="https://i.pravatar.cc/800?img=4" alt="Photo du fondateur">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                         <div class="absolute bottom-0 left-0 p-6">
