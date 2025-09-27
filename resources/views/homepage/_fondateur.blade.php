@@ -20,19 +20,37 @@
                     </div>
                 </div>
                 <!-- Back Face -->
-                <div class="card-face card-back absolute w-full h-full bg-gray-800 rounded-3xl p-8 overflow-y-auto">
-                    <h3 class="text-xl font-bold text-orange-500 mb-4">Parcours</h3>
-                    <p class="text-gray-300 mb-6 text-sm">Expert en communication digitale et entrepreneur passionné, avec plus de 10 ans d'expérience dans la formation des créatifs du digital en Afrique.</p>
-                    
-                    <h3 class="text-xl font-bold text-orange-500 mb-4">Certifications</h3>
-                    <ul class="list-disc list-inside text-gray-300 space-y-2 mb-6 text-sm">
-                        <li>Certification Google Digital Marketing</li>
-                        <li>Certification Meta Blueprint</li>
-                        <li>Adobe Certified Expert (ACE) - Photoshop</li>
-                    </ul>
-                    
-                    <h3 class="text-xl font-bold text-orange-500 mb-4">Réalisations</h3>
-                    <p class="text-gray-300 text-sm">Auteur du livre "Le Guide du Créatif Digital" et créateur de multiples projets web innovants.</p>
+                <div class="card-face card-back absolute w-full h-full bg-gray-800 rounded-3xl p-6 overflow-y-auto">
+                    <div class="flex flex-col h-full">
+                        <!-- Parcours -->
+                        <div>
+                            <h3 class="text-lg font-bold text-orange-500 flex items-center"><i class="fas fa-user-tie mr-2"></i> Parcours & Expérience</h3>
+                            <p class="text-gray-300 mt-2 text-sm">Expert en communication digitale avec 10+ ans d'expérience en formation, consulting et entrepreneuriat.</p>
+                        </div>
+                        <hr class="border-gray-700 my-3">
+                        <!-- Certifications -->
+                        <div>
+                            <h3 class="text-lg font-bold text-orange-500 flex items-center"><i class="fas fa-certificate mr-2"></i> Certifications Clés</h3>
+                            <ul class="text-gray-300 space-y-1 mt-2 text-sm">
+                                <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2 text-xs"></i><span>Google Digital Marketing</span></li>
+                                <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2 text-xs"></i><span>Meta Blueprint</span></li>
+                                <li class="flex items-center"><i class="fas fa-check text-green-400 mr-2 text-xs"></i><span>Adobe Certified Expert</span></li>
+                            </ul>
+                        </div>
+                        <hr class="border-gray-700 my-3">
+                        <!-- Réalisations -->
+                        <div class="flex-grow">
+                            <h3 class="text-lg font-bold text-orange-500 flex items-center mb-2"><i class="fas fa-lightbulb mr-2"></i> Réalisations</h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                <a href="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=80" data-fancybox="realisations-card" data-caption="Livre: Le Guide du Créatif Digital">
+                                    <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=200&q=80" alt="Aperçu du livre" class="rounded-md w-full h-20 object-cover hover:opacity-80 transition-opacity">
+                                </a>
+                                <a href="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=800&q=80" data-fancybox="realisations-card" data-caption="Création Visuelle: Identité de Marque">
+                                    <img src="https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=200&q=80" alt="Aperçu d'une création visuelle" class="rounded-md w-full h-20 object-cover hover:opacity-80 transition-opacity">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
