@@ -168,6 +168,32 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Pre-inscription Modal Error:', e);
     }
 
+    // --- Homepage Founder Parallax --- 
+    try {
+        const parallaxContainer = document.querySelector('.founder-parallax-container');
+        const parallaxImg = document.getElementById('founder-parallax-img');
+
+        if (parallaxContainer && parallaxImg) {
+            parallaxImg.style.height = '130%'; // Make image taller than container
+
+            window.addEventListener('scroll', () => {
+                const containerRect = parallaxContainer.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+
+                // Check if the container is in the viewport
+                if (containerRect.top < windowHeight && containerRect.bottom > 0) {
+                    // Calculate the scroll percentage within the viewport
+                    const scrollPercent = (windowHeight - containerRect.top) / (windowHeight + containerRect.height);
+                    // Calculate the image offset. The image is 30% taller, so it can move by 30%. We map the scroll percentage to this range.
+                    const offset = -15 + (scrollPercent * 30);
+                    parallaxImg.style.transform = `translateY(${offset}%)`;
+                }
+            });
+        }
+    } catch(e) {
+        console.error('Parallax effect error:', e);
+    }
+
     // --- Founder Card Flip --- 
     try {
         const founderCard = document.querySelector('.founder-card-inner');

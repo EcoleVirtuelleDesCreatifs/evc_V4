@@ -7,7 +7,7 @@
 @section('content')
     @include('homepage._hero')
     @include('homepage._presentation')
-    @include('homepage._fondateur')
+    @include('homepage._fondateur_homepage')
     @include('homepage._international')
     @include('homepage._avantages')
     @include('homepage._formations')
