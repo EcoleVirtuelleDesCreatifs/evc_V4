@@ -148,6 +148,44 @@ h1, h2, h3, h4, h5, h6 {
     50% { opacity: 0.8; filter: brightness(120%); }
 }
 
+/* =============================================
+   FOUNDER SECTION ANIMATED BG
+   ============================================= */
+.founder-section-bg::before, .founder-section-bg::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(120px);
+    will-change: transform;
+}
+
+.founder-section-bg::before {
+    top: -10%;
+    left: -10%;
+    background: rgba(0, 51, 102, 0.4); /* EVC Blue */
+    animation: move-glow-1 25s infinite alternate ease-in-out;
+}
+
+.founder-section-bg::after {
+    bottom: -10%;
+    right: -10%;
+    background: rgba(255, 117, 15, 0.3); /* EVC Orange */
+    animation: move-glow-2 25s infinite alternate ease-in-out;
+}
+
+@keyframes move-glow-1 {
+    from { transform: translate(0, 0) rotate(0deg) scale(1); }
+    to { transform: translate(100px, 100px) rotate(360deg) scale(1.5); }
+}
+
+@keyframes move-glow-2 {
+    from { transform: translate(0, 0) rotate(0deg) scale(1.2); }
+    to { transform: translate(-100px, -100px) rotate(-360deg) scale(1); }
+}
+
 .partner-logo {
     filter: invert(1) grayscale(100%) brightness(200%);
     opacity: 0.7;
