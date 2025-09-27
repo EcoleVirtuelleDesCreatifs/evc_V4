@@ -168,33 +168,44 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Pre-inscription Modal Error:', e);
     }
 
-    // --- Presentation Page Tabs --- 
-    try {
-        const tabButtons = document.querySelectorAll('.tab-button');
-        const tabPanels = document.querySelectorAll('.tab-panel');
+    // --- Reusable Tab System --- 
+    const initTabs = (tabContainerId) => {
+        try {
+            const tabContainer = document.getElementById(tabContainerId);
+            if (!tabContainer) return;
 
-        if (tabButtons.length > 0) {
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    // Deactivate all buttons and panels
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabPanels.forEach(panel => panel.classList.remove('active'));
+            const tabButtons = tabContainer.querySelectorAll('.tab-button');
+            const tabPanels = tabContainer.parentElement.querySelectorAll('.tab-panel');
 
-                    // Activate the clicked button
-                    button.classList.add('active');
+            if (tabButtons.length > 0) {
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        // Deactivate all buttons in this container
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        
+                        // Deactivate all panels associated with this tab set
+                        const containerParent = tabContainer.parentElement;
+                        containerParent.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
 
-                    // Activate the corresponding panel
-                    const targetPanelId = button.dataset.target;
-                    const targetPanel = document.getElementById(targetPanelId);
-                    if (targetPanel) {
-                        targetPanel.classList.add('active');
-                    }
+                        // Activate the clicked button
+                        button.classList.add('active');
+
+                        // Activate the corresponding panel
+                        const targetPanelId = button.dataset.target;
+                        const targetPanel = containerParent.querySelector(`#${targetPanelId}`);
+                        if (targetPanel) {
+                            targetPanel.classList.add('active');
+                        }
+                    });
                 });
-            });
+            }
+        } catch (e) {
+            console.error(`Tab system error for #${tabContainerId}:`, e);
         }
-    } catch (e) {
-        console.error('Tab system error:', e);
-    }
+    };
+
+    initTabs('presentation-tabs');
+    initTabs('founder-tabs');
 
     // --- Particles.js Initialization ---
     try {

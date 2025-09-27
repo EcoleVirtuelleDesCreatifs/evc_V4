@@ -17,7 +17,7 @@
 
         {{-- Tab Navigation --}}
         <div class="mt-20 border-b border-gray-700">
-            <div class="-mb-px flex flex-wrap justify-center gap-x-6 sm:gap-x-8" aria-label="Tabs">
+            <div id="presentation-tabs" class="-mb-px flex flex-wrap justify-center gap-x-6 sm:gap-x-8" aria-label="Tabs">
                 <button class="tab-button active" data-target="mission">
                     <i class="fas fa-rocket mr-2"></i> Notre Mission
                 </button>
