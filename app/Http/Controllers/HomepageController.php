@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\PreRegistrationSubmitted;
 use App\Mail\AdminPreRegistrationNotification;
+use App\Http\Requests\StoreCandidatureRequest;
+use App\Services\PreRegistrationService;
 
 class HomepageController extends Controller
 {
@@ -23,219 +25,24 @@ class HomepageController extends Controller
     /**
      * Nouveau endpoint pour le formulaire "/candidature" (noms de champs personnalisés du client).
      */
-    public function candidatureStore(Request $request)
+    public function candidatureStore(StoreCandidatureRequest $request, PreRegistrationService $service)
     {
-        // Normalisations de valeurs
-        $programmeMap = [
-            // Anciennes valeurs (compat)
-            'Infographie' => 'infographie',
-            'Community Management' => 'community_management',
-            'Informatique' => 'informatique',
-            'Infographie + Community Management' => 'infographie_cm',
-            'infographie' => 'infographie',
-            'community_management' => 'community_management',
-            'informatique' => 'informatique',
-            'infographie_cm' => 'infographie_cm',
-            // Nouvelles valeurs slug depuis le select
-            'design-graphique' => 'infographie',
-            'community-manager' => 'community_management',
-            'intelligence-artificielle' => 'intelligence_artificielle',
-            'gestion-informatique' => 'informatique',
-        ];
-        $niveauFormationMap = [
-            'Aucune notion' => 'aucune_notion',
-            'Certaines notions' => 'quelques_notions',
-            'Monter en compétence' => 'me_perfectionner',
-            'aucune_notion' => 'aucune_notion',
-            'quelques_notions' => 'quelques_notions',
-            'me_perfectionner' => 'me_perfectionner',
-        ];
-        $origineMap = [
-            'Réseaux sociaux' => 'reseaux',
-            'Ami' => 'ami',
-            'Publicité' => 'publicite',
-            'Autre' => 'autre',
-            'reseaux' => 'reseaux',
-            'ami' => 'ami',
-            'publicite' => 'publicite',
-            'autre' => 'autre',
-        ];
+        // Données validées
+        $v = $request->validated();
+        // Déléguer au service (normalisation, création, e-mails)
+        [$pre, $mailWarnings] = $service->handle($v);
 
-        // Règles de validation
-        $rules = [
-            // Informations personnelles
-            'nom_complet' => 'required|string|max:255',
-            'prenom' => 'required|string|max:255',
-            'age' => 'required|integer|min:10|max:100',
-            'date_naissance' => 'required|date',
-            'sexe' => 'required|in:M,F',
-            'nationalite' => 'required|string|max:120',
-            'photo_profil' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            // Coordonnées
-            'email' => 'required|string|email|max:255|unique:pre_registrations|unique:users,email',
-            'whatsapp' => 'required|string|max:30',
-            'ville_pays' => 'required|string|max:180',
-            // Académiques & pro
-            'niveau_etude' => 'required|string|max:255',
-            'domaine_etude' => 'required|string|max:255',
-            'competences' => 'required|string|max:1500',
-            // Formation
-            'programme' => 'required|string',
-            'niveau_formation' => 'required|string',
-            'motivation' => 'required|string|max:5000',
-            'origine' => 'required|string',
-            // Équipements
-            'ordinateur' => 'required|string|in:Oui,Non',
-            'smartphone' => 'required|string|in:Oui,Non',
-            'disponibilite' => 'required|in:semaine_soir,weekend,flexible',
-            // Consentements
-            'veracite' => 'accepted',
-            'consentement' => 'accepted',
-        ];
-
-        // Messages et attributs en français
-        $messages = [
-            'required' => 'Le champ :attribute est obligatoire.',
-            'email' => "L'adresse e-mail est invalide.",
-            'integer' => 'Le champ :attribute doit être un nombre entier.',
-            'min' => 'Le champ :attribute doit être au moins :min.',
-            'max' => 'Le champ :attribute ne peut pas dépasser :max.',
-            'date' => 'La date fournie est invalide.',
-            'in' => 'La valeur sélectionnée pour :attribute est invalide.',
-            'image' => 'Le champ :attribute doit être une image.',
-            'mimes' => 'Le champ :attribute doit être de type :values.',
-            'accepted' => 'Vous devez accepter :attribute.',
-            'unique' => 'Cette :attribute est déjà utilisée.',
-        ];
-        $attributes = [
-            'nom_complet' => 'nom complet',
-            'prenom' => 'prénom',
-            'age' => 'âge',
-            'date_naissance' => 'date de naissance',
-            'sexe' => 'sexe',
-            'nationalite' => 'nationalité',
-            'photo_profil' => 'photo de profil',
-            'email' => 'adresse e-mail',
-            'whatsapp' => 'numéro WhatsApp',
-            'ville_pays' => 'ville / pays de résidence',
-            'niveau_etude' => 'niveau d’étude',
-            'domaine_etude' => 'domaine d’étude',
-            'competences' => 'compétences',
-            'programme' => 'programme souhaité',
-            'niveau_formation' => 'niveau pour la formation',
-            'motivation' => 'motivation',
-            'origine' => "comment vous avez connu l’EVC",
-            'ordinateur' => 'ordinateur',
-            'smartphone' => 'smartphone',
-            'disponibilite' => 'disponibilités',
-            'veracite' => 'certification de véracité',
-            'consentement' => 'consentement',
-        ];
-
-        $validator = Validator::make($request->all(), $rules, $messages, $attributes);
-
-        if ($validator->fails()) {
-            if ($request->expectsJson() || $request->ajax()) {
-                return response()->json(['errors' => $validator->errors()], 422);
-            }
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        $v = $validator->validated();
-
-        // Découpage ville / pays si possible (et éviter NULL en base)
-        $ville = null; $pays = null;
-        if (!empty($v['ville_pays'])) {
-            $vp = trim($v['ville_pays']);
-            if (str_contains($vp, '/')) {
-                [$ville, $pays] = array_map('trim', explode('/', $vp, 2));
-            } elseif (str_contains($vp, ',')) {
-                [$ville, $pays] = array_map('trim', explode(',', $vp, 2));
-            } else {
-                // Pas de séparateur, on assume que c'est la ville
-                $ville = $vp;
-            }
-        }
-        // Si le pays reste vide, fallback sur la nationalité ou CI par défaut
-        if (empty($pays)) {
-            $pays = !empty($v['nationalite']) ? $v['nationalite'] : 'Côte d’Ivoire';
-        }
-
-        // Normalisation programme -> enums internes et choix_formation
-        $programme = $programmeMap[$v['programme']] ?? 'infographie';
-        $choixFormationMap = [
-            'infographie' => 'design_graphique',
-            'community_management' => 'community_management',
-            'informatique' => 'gestion_informatique',
-            'intelligence_artificielle' => 'intelligence_artificielle',
-            'infographie_cm' => 'design_graphique', // fallback
-        ];
-        $choixFormation = $choixFormationMap[$programme] ?? 'design_graphique';
-
-        $niveauDansFormation = $niveauFormationMap[$v['niveau_formation']] ?? 'aucune_notion';
-        $howKnown = $origineMap[$v['origine']] ?? 'autre';
-
-        // Construire payload conforme au modèle PreRegistration
-        $data = [
-            'nom' => $v['nom_complet'],
-            'prenom' => $v['prenom'],
-            'age' => $v['age'],
-            'date_naissance' => $v['date_naissance'],
-            'sexe' => $v['sexe'],
-            'nationalite' => $v['nationalite'],
-            'email' => $v['email'],
-            'whatsapp' => $v['whatsapp'],
-            'ville' => $ville,
-            'pays' => $pays,
-            'niveau_etude' => $v['niveau_etude'],
-            'domaine_etude' => $v['domaine_etude'],
-            'competences' => $v['competences'],
-            'programme' => $programme,
-            'choix_formation' => $choixFormation,
-            'niveau_dans_formation' => $niveauDansFormation,
-            'how_known' => $howKnown,
-            'has_computer' => $v['ordinateur'] === 'Oui',
-            'has_smartphone' => $v['smartphone'] === 'Oui',
-            'disponibilite' => $v['disponibilite'],
-            'motivation' => $v['motivation'],
-            'certify' => (bool)$request->boolean('veracite'),
-            'consent' => (bool)$request->boolean('consentement'),
-        ];
-
-        if ($request->hasFile('photo_profil')) {
-            $data['photo'] = $request->file('photo_profil')->store('photos_preregistrations', 'public');
-        }
-
-        $pre = PreRegistration::create($data);
-
-        // Reutilise la logique d'envoi mail
-        $useQueue = config('queue.default') && config('queue.default') !== 'sync' && !app()->environment('local');
-        try {
-            if ($useQueue) {
-                Mail::to($pre->email)->queue(new PreRegistrationSubmitted($pre));
-            } else {
-                Mail::to($pre->email)->send(new PreRegistrationSubmitted($pre));
-            }
-        } catch (\Throwable $e) {
-            Log::error('Failed to send candidate pre-registration email (candidature)', ['error' => $e->getMessage()]);
-        }
-        try {
-            $adminEmail = config('mail.admin_address') ?? config('mail.from.address');
-            if ($adminEmail) {
-                if ($useQueue) {
-                    Mail::to($adminEmail)->queue(new AdminPreRegistrationNotification($pre));
-                } else {
-                    Mail::to($adminEmail)->send(new AdminPreRegistrationNotification($pre));
-                }
-            }
-        } catch (\Throwable $e) {
-            Log::error('Failed to send admin pre-registration email (candidature)', ['error' => $e->getMessage()]);
-        }
-
+        $successMsg = "Votre candidature a été envoyée avec succès. Un e-mail de confirmation vous sera adressé et notre équipe vous répondra sous 24h.";
         if ($request->expectsJson() || $request->ajax()) {
-            return response()->json(['success' => 'Votre candidature a été envoyée avec succès. Nous vous contacterons prochainement.']);
+            $resp = ['success' => $successMsg];
+            if (!empty($mailWarnings)) { $resp['warnings'] = $mailWarnings; }
+            return response()->json($resp);
         }
-        return redirect()->route('preinscription.start')->with('success', 'Votre candidature a été envoyée avec succès. Nous vous contacterons prochainement.');
+        $redirect = redirect()->route('preinscription.start')->with('success', $successMsg);
+        if (!empty($mailWarnings)) {
+            $redirect->with('warning', implode(' ', $mailWarnings));
+        }
+        return $redirect;
     }
 
     /**

@@ -54,6 +54,31 @@ Route::post('/auth/evc/forgot-password', [PasswordResetController::class, 'sendR
 Route::get('/auth/evc/reset-password/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
 Route::post('/auth/evc/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
 
+// Debug: envoyer un e-mail de test (local uniquement)
+Route::get('/debug/mail', function () {
+    if (!app()->environment('local')) {
+        abort(404);
+    }
+    $to = request('to') ?? config('mail.admin_address') ?? config('mail.from.address');
+    if (!$to) {
+        return response('MAIL_ADMIN_ADDRESS ou MAIL_FROM_ADDRESS non configuré.', 400);
+    }
+    \Illuminate\Support\Facades\Mail::raw(
+        "Ceci est un e-mail de test SMTP de l’EVC. Si vous le recevez, la configuration est OK.",
+        function ($message) use ($to) {
+            $message->to($to)->subject('EVC – Test e-mail SMTP');
+        }
+    );
+    return "E-mail de test envoyé à: {$to}";
+})->name('debug.mail');
+
+Route::get('/debug/mail/ui', function () {
+    if (!app()->environment('local')) {
+        abort(404);
+    }
+    return view('debug.mail');
+})->name('debug.mail.ui');
+
 // Routes de confirmation d'inscription étudiant
 Route::get('/student/confirm-registration/{token}', [StudentConfirmationController::class, 'showConfirmationForm'])->name('student.confirm-registration');
 Route::post('/student/confirm-registration/{token}', [StudentConfirmationController::class, 'confirmRegistration'])->name('student.confirm-registration.process');

@@ -16,6 +16,18 @@
         setTimeout(function(){ var el = document.getElementById('flash-success'); if(el) el.remove(); }, 6000);
       </script>
     @endif
+    @if(session('warning'))
+      <div id="flash-warning" class="fixed top-20 left-1/2 -translate-x-1/2 z-[13000] bg-amber-500 text-black px-4 py-3 rounded-full shadow-lg ring-1 ring-white/10 flex items-center gap-3">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>{{ session('warning') }}</span>
+        <button type="button" onclick="document.getElementById('flash-warning').remove()" class="ml-2 text-black/70 hover:text-black">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <script>
+        setTimeout(function(){ var elw = document.getElementById('flash-warning'); if(elw) elw.remove(); }, 8000);
+      </script>
+    @endif
     <!-- Toasts -->
     <div id="toast-container" class="fixed top-4 right-4 z-[11000] space-y-3"></div>
     <div id="toast-sr" class="sr-only" aria-live="polite"></div>
