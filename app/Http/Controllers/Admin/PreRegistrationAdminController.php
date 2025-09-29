@@ -85,7 +85,6 @@ class PreRegistrationAdminController extends Controller
             $user->email = $pre->email;
             // Mot de passe temporaire aléatoire (sera remplacé lors de la confirmation)
             $user->password = bcrypt(str()->random(32));
-            $user->status = 'Invité';
             $user->save();
         }
 

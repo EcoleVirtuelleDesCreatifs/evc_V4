@@ -49,6 +49,12 @@ class StudentConfirmationController extends Controller
                 return redirect()->route('student.login')->with('success', 'Votre inscription est déjà confirmée. Vous pouvez vous connecter.');
             }
             
+            // Hydrater des propriétés attendues par la vue (compatibilité)
+            if (!property_exists($student, 'first_name') || !property_exists($student, 'last_name')) {
+                $parts = preg_split('/\s+/', (string)($student->name ?? ''), 2);
+                $student->first_name = $parts[0] ?? '';
+                $student->last_name = $parts[1] ?? '';
+            }
             return view('student.confirm-registration', compact('student', 'token'));
             
         } catch (\Exception $e) {
