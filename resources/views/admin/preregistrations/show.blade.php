@@ -9,6 +9,30 @@
             @if($pre->photo)
                 <a href="{{ route('admin.preinscriptions.download-photo', $pre->id) }}" class="btn btn-primary"><i class="fas fa-download me-2"></i>Télécharger la photo</a>
             @endif
+            @if(!in_array($pre->status, ['accepted','Validé','Actif']))
+                <form action="{{ route('admin.preinscriptions.validate', $pre->id) }}" method="POST" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-success"><i class="fas fa-check me-2"></i>Valider</button>
+                </form>
+            @endif
+            @if($pre->status !== 'Actif')
+                <form action="{{ route('admin.preinscriptions.resend-link', $pre->id) }}" method="POST" onsubmit="return confirm('Renvoyer le lien d\'inscription au candidat ?');">
+                    @csrf
+                    <button type="submit" class="btn btn-warning"><i class="fas fa-paper-plane me-2"></i>Renvoyer le lien</button>
+                </form>
+            @endif
+            @php
+                $map = [
+                    'en cours' => ['class' => 'badge bg-warning text-dark', 'text' => 'En cours'],
+                    'pending' => ['class' => 'badge bg-warning text-dark', 'text' => 'En cours'],
+                    'accepted' => ['class' => 'badge bg-success', 'text' => 'Validé'],
+                    'Validé' => ['class' => 'badge bg-success', 'text' => 'Validé'],
+                    'Actif' => ['class' => 'badge bg-info text-dark', 'text' => 'Actif'],
+                    'rejected' => ['class' => 'badge bg-danger', 'text' => 'Rejeté'],
+                ];
+                $current = $map[$pre->status] ?? ['class' => 'badge bg-light text-dark', 'text' => ucfirst($pre->status)];
+            @endphp
+            <span class="{{ $current['class'] }}">{{ $current['text'] }}</span>
         </div>
     </div>
 
@@ -28,6 +52,20 @@
                         <div class="col-sm-6"><small class="text-muted d-block">WhatsApp</small>{{ $pre->whatsapp }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Ville</small>{{ $pre->ville }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Pays</small>{{ $pre->pays }}</div>
+                        <div class="col-sm-6"><small class="text-muted d-block">Statut pré-inscription</small>
+                            @php
+                                $map = [
+                                    'en cours' => ['class' => 'badge bg-warning text-dark', 'text' => 'En cours'],
+                                    'pending' => ['class' => 'badge bg-warning text-dark', 'text' => 'En cours'],
+                                    'accepted' => ['class' => 'badge bg-success', 'text' => 'Validé'],
+                                    'Validé' => ['class' => 'badge bg-success', 'text' => 'Validé'],
+                                    'Actif' => ['class' => 'badge bg-info text-dark', 'text' => 'Actif'],
+                                    'rejected' => ['class' => 'badge bg-danger', 'text' => 'Rejeté'],
+                                ];
+                                $current = $map[$pre->status] ?? ['class' => 'badge bg-light text-dark', 'text' => ucfirst($pre->status)];
+                            @endphp
+                            <span class="{{ $current['class'] }}">{{ $current['text'] }}</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -67,7 +105,7 @@
                             <select name="action" class="form-select">
                                 <option value="accepted" @selected($pre->status==='accepted')>Accepté</option>
                                 <option value="rejected" @selected($pre->status==='rejected')>Rejeté</option>
-                                <option value="pending" @selected($pre->status==='pending')>En attente</option>
+                                <option value="pending" @selected($pre->status==='pending' || $pre->status==='en cours')>En cours</option>
                             </select>
                         </div>
                         <div class="col-auto">

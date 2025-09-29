@@ -8,7 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0b1e3a; /* bleu foncé */
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -28,7 +28,7 @@
         }
         
         .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0e2a54 0%, #13386e 100%);
             color: white;
             padding: 2rem;
             text-align: center;
@@ -83,7 +83,7 @@
         
         .formation-badge {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #0e2a54, #13386e);
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 20px;

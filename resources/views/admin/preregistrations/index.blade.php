@@ -79,17 +79,22 @@
                             <td>{{ $pre->niveau_dans_formation }}</td>
                             <td>
                                 @php
-                                    $statusClass = $pre->status==='accepted' ? 'bg-success' : ($pre->status==='rejected' ? 'bg-danger' : 'bg-warning');
-                                    $statusText = $pre->status==='accepted' ? 'Validé' : ($pre->status==='rejected' ? 'Rejeté' : 'En cours');
+                                    $map = [
+                                        'en cours' => ['class' => 'bg-warning text-dark', 'text' => 'En cours'],
+                                        'pending' => ['class' => 'bg-warning text-dark', 'text' => 'En cours'],
+                                        'accepted' => ['class' => 'bg-success', 'text' => 'Validé'],
+                                        'Validé' => ['class' => 'bg-success', 'text' => 'Validé'],
+                                        'Actif' => ['class' => 'bg-info text-dark', 'text' => 'Actif'],
+                                        'rejected' => ['class' => 'bg-danger', 'text' => 'Rejeté'],
+                                    ];
+                                    $current = $map[$pre->status] ?? ['class' => 'bg-light text-dark', 'text' => ucfirst($pre->status)];
                                 @endphp
-                                <span class="badge {{ $statusClass }}">{{ $statusText }}</span>
+                                <span class="badge {{ $current['class'] }}">{{ $current['text'] }}</span>
                             </td>
                             <td>{{ $pre->created_at->format('Y-m-d H:i') }}</td>
                             <td class="text-nowrap">
                                 <div class="btn-group" role="group" aria-label="Actions">
-                                    <a href="{{ route('admin.preinscriptions.show', $pre->id) }}" class="btn btn-sm btn-outline-primary" title="Modifier" aria-label="Modifier">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    
                                     <form action="{{ route('admin.preinscriptions.destroy', $pre->id) }}" method="POST" onsubmit="return confirm('Supprimer cette pré-inscription ?');" class="d-inline">
                                         @csrf
                                         @method('DELETE')
@@ -97,7 +102,7 @@
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
-                                    @if($pre->status !== 'accepted')
+                                    @if(!in_array($pre->status, ['accepted','Validé','Actif']))
                                         <form action="{{ route('admin.preinscriptions.validate', $pre->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             <button type="submit" class="btn btn-sm btn-outline-success" title="Valider" aria-label="Valider">

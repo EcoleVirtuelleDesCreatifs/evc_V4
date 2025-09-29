@@ -69,6 +69,7 @@ class PreRegistrationService
             'motivation' => $input['motivation'],
             'certify' => (bool) ($input['veracite'] ?? false),
             'consent' => (bool) ($input['consentement'] ?? false),
+            'status' => 'en cours',
         ];
 
         // Upload photo si présent

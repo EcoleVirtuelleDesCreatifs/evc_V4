@@ -41,9 +41,13 @@
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <div class="avatar-lg bg-primary rounded-circle text-white d-flex align-items-center justify-content-center mx-auto mb-3">
-                            {{ substr($data['student']['prenom'] ?? 'E', 0, 1) }}{{ substr($data['student']['nom'] ?? 'T', 0, 1) }}
-                        </div>
+                        @if(!empty($data['student']['photo_url']))
+                            <img src="{{ $data['student']['photo_url'] }}" alt="Photo de profil" class="rounded-circle mb-3" style="width:120px;height:120px;object-fit:cover;">
+                        @else
+                            <div class="avatar-lg bg-primary rounded-circle text-white d-flex align-items-center justify-content-center mx-auto mb-3">
+                                {{ substr($data['student']['prenom'] ?? 'E', 0, 1) }}{{ substr($data['student']['nom'] ?? 'T', 0, 1) }}
+                            </div>
+                        @endif
                         <h4 class="mb-1">{{ $data['student']['prenom'] ?? 'Prénom' }} {{ $data['student']['nom'] ?? 'Nom' }}</h4>
                         <span class="badge bg-primary fs-6">{{ $data['student']['formation_souhaitee'] ?? 'Formation' }}</span>
                     </div>

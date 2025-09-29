@@ -90,6 +90,20 @@ Route::get('/student/login', [AuthController::class, 'studentLoginRedirect'])->n
 // Route dashboard désactivée - redirection vers espace étudiant personnalisé
 Route::get('/dashboard', [DashboardController::class, 'redirectBasedOnFormation'])->name('dashboard');
 
+// Admin: renvoyer le lien de création de compte au candidat
+Route::post('/evc/app/admin/preinscriptions/{id}/resend-link', [\App\Http\Controllers\Admin\PreRegistrationAdminController::class, 'resendRegistrationLink'])->name('admin.preinscriptions.resend-link');
+
+// Admin: liste des étudiants par formation
+Route::get('/evc/app/admin/etudiants/{formation}', [\App\Http\Controllers\Admin\StudentAdminController::class, 'listByFormation'])
+    ->whereIn('formation', ['design-graphique','community-manager','intelligence-artificielle','gestion-informatique'])
+    ->name('admin.students.by-formation');
+
+// (Nettoyage) On conserve seulement les routes admin.students.*
+
+Route::get('/evc/app/admin/students/{id}/edit', [\App\Http\Controllers\Admin\StudentAdminController::class, 'edit'])
+    ->whereNumber('id')
+    ->name('admin.students.edit');
+
 // Routes d'espaces étudiants personnalisées selon la formation
 Route::get('/evc/compte/design-graphique/espace-etudiant', [DashboardController::class, 'designGraphique'])->name('dashboard.design-graphique');
 Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
@@ -331,8 +345,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/students/add', [AdminDashboardController::class, 'showAddStudent'])->name('students.add');
         Route::post('/students/store', [AdminDashboardController::class, 'storeStudent'])->name('students.store');
         Route::get('/students/by-formation/{formation}', [AdminDashboardController::class, 'studentsByFormation'])->name('students.by-formation');
-        Route::get('/students/profile/{id}', [AdminDashboardController::class, 'studentProfile'])->name('students.profile');
-        Route::get('/students/edit/{id}', [AdminDashboardController::class, 'editStudent'])->name('students.edit');
+        // routes unifiées pour profil/édition définies en dehors de ce groupe
         Route::put('/students/update/{id}', [AdminDashboardController::class, 'updateStudent'])->name('students.update');
         Route::get('/students/export-pdf', [AdminDashboardController::class, 'exportStudentsPdf'])->name('students.export-pdf');
         Route::get('/students/export-excel', [AdminDashboardController::class, 'exportStudentsExcel'])->name('students.export-excel');
@@ -427,12 +440,12 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/students/create', [AdminDashboardController::class, 'createStudent'])->name('students.create');
         Route::post('/students/store', [AdminDashboardController::class, 'storeStudent'])->name('students.store');
         Route::get('/students/{id}', [AdminDashboardController::class, 'showStudent'])->name('students.show');
-        Route::get('/students/{id}/edit', [AdminDashboardController::class, 'editStudent'])->name('students.edit');
+        // route unifiée d'édition définie en dehors de ce groupe
         Route::put('/students/{id}', [AdminDashboardController::class, 'updateStudent'])->name('students.update');
         Route::delete('/students/{id}', [AdminDashboardController::class, 'deleteStudent'])->name('students.delete');
         Route::post('/students/{id}/toggle-status', [AdminDashboardController::class, 'toggleStudentStatus'])->name('students.toggle-status');
         Route::get('/students/by-formation/{formation}', [AdminDashboardController::class, 'studentsByFormation'])->name('students.by-formation');
-        Route::get('/students/{id}/profile', [AdminDashboardController::class, 'studentProfile'])->name('students.profile');
+        Route::get('/students/{id}/profile', [\App\Http\Controllers\Admin\StudentAdminController::class, 'profile'])->name('students.profile');
         Route::get('/students/add', [AdminDashboardController::class, 'createStudent'])->name('students.add');
         
         // Gestion des Admins

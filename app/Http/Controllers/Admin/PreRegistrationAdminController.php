@@ -16,6 +16,22 @@ class PreRegistrationAdminController extends Controller
 {
     public function index(Request $request)
     {
+        // Synchroniser les statuts: (accepted|Validé) -> Actif si l'utilisateur a confirmé son compte
+        try {
+            $verifiedEmails = DB::table('users')->whereNotNull('email_verified_at')->pluck('email');
+            if ($verifiedEmails->count() > 0) {
+                $update = ['status' => 'Actif'];
+                if (\Illuminate\Support\Facades\Schema::hasColumn('pre_registrations', 'activated_at')) {
+                    $update['activated_at'] = now();
+                }
+                PreRegistration::whereIn('status', ['accepted','Validé'])
+                    ->whereIn('email', $verifiedEmails)
+                    ->update($update);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Sync accepted->Actif failed', ['error' => $e->getMessage()]);
+        }
+
         $query = PreRegistration::query()->latest();
 
         if ($search = $request->get('q')) {
@@ -73,8 +89,8 @@ class PreRegistrationAdminController extends Controller
     public function validateOne($id)
     {
         $pre = PreRegistration::findOrFail($id);
-        // 1) Marquer accepté
-        $pre->status = 'accepted';
+        // 1) Marquer Validé
+        $pre->status = 'Validé';
         $pre->save();
 
         // 2) Créer ou récupérer l'utilisateur lié à cette candidature
@@ -111,6 +127,27 @@ class PreRegistrationAdminController extends Controller
         $pre = PreRegistration::findOrFail($id);
         $pre->delete();
         return redirect()->route('admin.preinscriptions.index')->with('success', 'Pré-inscription supprimée.');
+    }
+
+    public function resendRegistrationLink($id)
+    {
+        $pre = PreRegistration::findOrFail($id);
+
+        // Regénérer un token 24h
+        $email = $pre->email;
+        $timestamp = time();
+        $hash = md5($email . config('app.key'));
+        $token = base64_encode($email.'|'.$timestamp.'|'.$hash);
+        $registerUrl = route('student.confirm-registration', ['token' => $token]);
+
+        try {
+            Mail::to($pre->email)->send(new AdmissionApprovedRegistrationLink($pre, $registerUrl));
+        } catch (\Throwable $e) {
+            Log::error('Echec renvoi lien d\'inscription', ['error' => $e->getMessage(), 'pre_id' => $pre->id]);
+            return redirect()->back()->with('warning', "Le lien n'a pas pu être renvoyé. Veuillez réessayer.");
+        }
+
+        return redirect()->back()->with('success', 'Lien de création de compte renvoyé au candidat.');
     }
 
     public function export(Request $request): StreamedResponse

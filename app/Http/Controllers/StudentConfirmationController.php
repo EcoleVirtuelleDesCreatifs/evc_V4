@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\StudentCompletedRegistration;
+use App\Models\PreRegistration;
 
 class StudentConfirmationController extends Controller
 {
@@ -55,6 +58,33 @@ class StudentConfirmationController extends Controller
                 $student->first_name = $parts[0] ?? '';
                 $student->last_name = $parts[1] ?? '';
             }
+            // Hydrater le téléphone si attendu par la vue
+            if (!property_exists($student, 'phone') || empty($student->phone)) {
+                $pre = PreRegistration::where('email', $email)->latest('id')->first();
+                if ($pre && !empty($pre->whatsapp)) {
+                    $student->phone = $pre->whatsapp;
+                } else {
+                    $student->phone = '';
+                }
+            }
+            // Hydrater la formation souhaitée si attendue par la vue
+            if (!property_exists($student, 'formation_souhaitee') || empty($student->formation_souhaitee)) {
+                $pre = isset($pre) ? $pre : PreRegistration::where('email', $email)->latest('id')->first();
+                $label = '';
+                if ($pre) {
+                    $map = [
+                        'design_graphique' => 'Design Graphique',
+                        'community_management' => 'Community Management',
+                        'intelligence_artificielle' => 'Intelligence Artificielle',
+                        'gestion_informatique' => 'Gestion Informatique',
+                        'infographie' => 'Design Graphique',
+                        'informatique' => 'Gestion Informatique',
+                    ];
+                    $key = $pre->choix_formation ?: $pre->programme;
+                    $label = $map[$key] ?? ($pre->programme ?? '');
+                }
+                $student->formation_souhaitee = $label;
+            }
             return view('student.confirm-registration', compact('student', 'token'));
             
         } catch (\Exception $e) {
@@ -98,38 +128,67 @@ class StudentConfirmationController extends Controller
                 'biography' => 'nullable|string|max:500',
                 'expectations' => 'nullable|string|max:500',
                 'accepte_conditions' => 'required|accepted',
-                'newsletter_consent' => 'nullable|boolean'
+                // Autoriser valeurs typiques de checkbox: on, off, 1, 0, true, false, yes, no
+                'newsletter_consent' => 'nullable|in:0,1,on,off,true,false,yes,no'
             ], [
                 'password.required' => 'Le mot de passe est obligatoire.',
                 'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
                 'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
                 'accepte_conditions.required' => 'Vous devez accepter les conditions d\'utilisation.',
-                'accepte_conditions.accepted' => 'Vous devez accepter les conditions d\'utilisation.'
+                'accepte_conditions.accepted' => 'Vous devez accepter les conditions d\'utilisation.',
+                'newsletter_consent.in' => 'Le champ consentement newsletter est invalide.'
             ]);
             
-            // Mettre à jour l'étudiant
+            // Mettre à jour l'étudiant (tolérant au schéma de la table users)
             $updateData = [
                 'password' => bcrypt($request->password),
-                'biography' => $request->biography,
-                'expectations' => $request->expectations,
-                'accepte_conditions' => true,
-                'newsletter_consent' => $request->has('newsletter_consent'),
                 'email_verified_at' => now(),
-                'status' => 'Actif',
-                'updated_at' => now()
+                'updated_at' => now(),
             ];
+            // Colonnes optionnelles si présentes en base
+            $schema = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+            $has = function(string $col) use ($schema) { return in_array($col, $schema, true); };
+            if ($has('biography')) { $updateData['biography'] = $request->biography; }
+            if ($has('expectations')) { $updateData['expectations'] = $request->expectations; }
+            if ($has('accepte_conditions')) { $updateData['accepte_conditions'] = true; }
+            if ($has('newsletter_consent')) { $updateData['newsletter_consent'] = $request->has('newsletter_consent'); }
+            if ($has('status')) { $updateData['status'] = 'Actif'; }
+
+            DB::table('users')->where('email', $email)->update($updateData);
+
+            // Notifier l'admin de la création de compte réussie
+            try {
+                $adminEmail = config('mail.admin_address') ?? config('mail.from.address');
+                if ($adminEmail) {
+                    // Récupérer l'utilisateur mis à jour pour l'email
+                    $user = DB::table('users')->where('email', $email)->first();
+                    Mail::to($adminEmail)->send(new StudentCompletedRegistration($user));
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Echec envoi mail admin (student completed registration): '.$e->getMessage());
+            }
             
-            DB::table('users')
-                ->where('email', $email)
-                ->update($updateData);
-            
+            // Mettre à jour le statut de la pré-inscription -> Actif
+            try {
+                $update = ['status' => 'Actif'];
+                if (\Illuminate\Support\Facades\Schema::hasColumn('pre_registrations', 'activated_at')) {
+                    $update['activated_at'] = now();
+                }
+                \App\Models\PreRegistration::where('email', $email)->update($update);
+            } catch (\Throwable $e) {
+                Log::warning('Impossible de mettre à jour le statut PreRegistration vers Actif', ['email' => $email, 'error' => $e->getMessage()]);
+            }
+
             Log::info('Inscription confirmée avec succès pour: ' . $email);
             
             return redirect()->route('student.login')->with('success', 'Félicitations ! Votre inscription a été confirmée avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.');
             
         } catch (\Exception $e) {
             Log::error('Erreur lors de la confirmation d\'inscription: ' . $e->getMessage());
-            return back()->with('error', 'Une erreur est survenue lors de la confirmation.')->withInput();
+            $msg = app()->environment('local')
+                ? ('Erreur lors de la confirmation: '.$e->getMessage())
+                : 'Une erreur est survenue lors de la confirmation.';
+            return back()->with('error', $msg)->withInput();
         }
     }
 }

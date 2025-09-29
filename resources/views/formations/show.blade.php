@@ -1,7 +1,7 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Formation - EVC 2024')
-@section('page-title', 'Retouche Photo Avancée')
+@section('title', ($formation->title ?? 'Formation') . ' - EVC 2024')
+@section('page-title', $formation->title ?? 'Formation')
 
 @section('content')
 <div class="row">
@@ -10,17 +10,26 @@
         <div class="card mb-4">
             <div class="card-body">
                 <div class="ratio ratio-16x9 mb-3">
-                    <div class="bg-dark d-flex align-items-center justify-content-center rounded">
-                        <div class="text-center text-white">
-                            <i class="fas fa-play-circle fa-5x mb-3" style="color: var(--primary-color);"></i>
-                            <h5>Retouche Photo Avancée</h5>
-                            <p class="mb-3">Durée: 45 minutes</p>
-                            <button class="btn btn-primary btn-lg">
-                                <i class="fas fa-play me-2"></i>
-                                Lire la vidéo
-                            </button>
+                    @if(!empty($formation->video_url))
+                        @php
+                            $url = $formation->video_url;
+                        @endphp
+                        <iframe src="{{ $url }}" title="{{ $formation->title ?? 'Formation' }}" allowfullscreen class="rounded"></iframe>
+                    @else
+                        <div class="bg-dark d-flex align-items-center justify-content-center rounded">
+                            <div class="text-center text-white">
+                                <i class="fas fa-play-circle fa-5x mb-3" style="color: var(--primary-color);"></i>
+                                <h5>{{ $formation->title ?? 'Formation' }}</h5>
+                                @if(!empty($formation->duration))
+                                    <p class="mb-3">Durée: {{ $formation->duration }}</p>
+                                @endif
+                                <button class="btn btn-primary btn-lg" disabled>
+                                    <i class="fas fa-play me-2"></i>
+                                    Vidéo indisponible
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
 
                 <!-- Contrôles de lecture -->
@@ -58,12 +67,17 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <span class="badge" style="background-color: var(--primary-color); color: white;">Photoshop</span>
-                    <span class="badge bg-secondary ms-1">Niveau Avancé</span>
+                    @if(!empty($formation->category))
+                        <span class="badge" style="background-color: var(--primary-color); color: white;">{{ $formation->category }}</span>
+                    @endif
+                    @if(!empty($formation->level))
+                        <span class="badge bg-secondary ms-1">{{ $formation->level }}</span>
+                    @endif
+                    @if(!empty($formation->duration))
+                        <span class="badge bg-warning text-dark ms-1">{{ $formation->duration }}</span>
+                    @endif
                 </div>
-                <p class="mb-3">
-                    Apprenez les techniques professionnelles de retouche photo avec Photoshop. Cette formation couvre les outils avancés de correction colorimétrique, les masques de fusion, les filtres professionnels et les techniques de montage créatif utilisées par les professionnels de l'image.
-                </p>
+                <p class="mb-3 white-space-pre-line">{{ $formation->description ?? 'Description à venir.' }}</p>
                 <h6>Ce que vous allez apprendre :</h6>
                 <ul class="list-unstyled">
                     <li class="mb-2">
@@ -104,27 +118,10 @@
                         <div class="d-flex align-items-center">
                             <i class="fas fa-play-circle text-primary me-3"></i>
                             <div>
-                                <h6 class="mb-1">1. Introduction aux outils avancés</h6>
-                                <small class="text-muted">8 minutes</small>
+                                <h6 class="mb-1">Contenu prochainement</h6>
+                                <small class="text-muted">Les chapitres seront affichés ici</small>
                             </div>
                         </div>
-                        <span class="badge" style="background-color: var(--success-color); color: white;">Terminé</span>
-                    </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-play-circle text-primary me-3"></i>
-                            <div>
-                                <h6 class="mb-1">2. Correction colorimétrique</h6>
-                                <small class="text-muted">12 minutes</small>
-                            </div>
-                        </div>
-                        <span class="badge" style="background-color: var(--warning-color); color: white;">En cours</span>
-                    </div>
-                    <div class="list-group-item d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-lock text-muted me-3"></i>
-                            <div>
-                                <h6 class="mb-1">3. Masques et calques de réglage</h6>
                                 <small class="text-muted">15 minutes</small>
                             </div>
                         </div>
@@ -203,6 +200,36 @@
                 </div>
             </div>
         </div>
+
+        <!-- Formations liées -->
+        @if(isset($related_formations) && count($related_formations))
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-layer-group me-2"></i>
+                    Formations liées
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    @foreach($related_formations as $rf)
+                    <a class="list-group-item px-0 d-flex justify-content-between align-items-center" href="{{ !empty($rf->id) ? route('design-graphique.formations.show', $rf->id) : '#' }}">
+                        <div>
+                            <i class="fas fa-book-open text-primary me-2"></i>
+                            <small>{{ $rf->title ?? 'Formation' }}</small>
+                            @if(!empty($rf->category))
+                                <span class="badge bg-secondary ms-1">{{ $rf->category }}</span>
+                            @endif
+                        </div>
+                        @if(!empty($rf->created_at))
+                            <small class="text-muted">{{ \Carbon\Carbon::parse($rf->created_at)->format('d/m/Y') }}</small>
+                        @endif
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        @endif
 
         <!-- Informations -->
         <div class="card mb-4">

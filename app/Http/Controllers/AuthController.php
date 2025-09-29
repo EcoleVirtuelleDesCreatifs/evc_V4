@@ -49,14 +49,21 @@ class AuthController extends Controller
         ]);
 
         try {
-            // Rechercher l'utilisateur dans la base de données avec toutes les informations nécessaires
-            $user = DB::table('users')
-                ->select('id', 'email', 'first_name', 'last_name', 'password', 
-                         'current_level', 'status', 'profile_photo', 
-                         'country', 'city', 'phone', 'whatsapp')
-                ->where('email', $request->email)
-                ->where('status', 'Actif')
-                ->first();
+            // Sélection tolérante au schéma: ne sélectionner que les colonnes existantes
+            $schema = \Illuminate\Support\Facades\Schema::getColumnListing('users');
+            $optional = ['first_name','last_name','current_level','status','profile_photo','country','city','phone','whatsapp','name','formation_souhaitee','remember_token','email_verified_at'];
+            $select = ['id','email','password'];
+            foreach ($optional as $col) { if (in_array($col, $schema, true)) { $select[] = $col; } }
+
+            $query = DB::table('users')->select($select)->where('email', $request->email);
+            if (in_array('status', $schema, true)) {
+                $query->where('status', 'Actif');
+            } elseif (in_array('email_verified_at', $schema, true)) {
+                // Si pas de colonne status, on exige un compte confirmé
+                $query->whereNotNull('email_verified_at');
+            }
+
+            $user = $query->first();
 
             if (!$user) {
                 throw ValidationException::withMessages([
@@ -71,29 +78,39 @@ class AuthController extends Controller
                 ]);
             }
 
-            // Enregistrer l'activité de connexion
-            DB::table('user_activities')->insert([
-                'user_id' => $user->id,
-                'activity_type' => 'login',
-                'description' => 'Connexion à la plateforme EVC',
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-                'created_at' => now(),
-            ]);
+            // Enregistrer l'activité de connexion si la table existe
+            if (\Illuminate\Support\Facades\Schema::hasTable('user_activities')) {
+                DB::table('user_activities')->insert([
+                    'user_id' => $user->id,
+                    'activity_type' => 'login',
+                    'description' => 'Connexion à la plateforme EVC',
+                    'ip_address' => request()->ip(),
+                    'user_agent' => request()->userAgent(),
+                    'created_at' => now(),
+                ]);
+            }
 
             // Mettre à jour le timestamp de dernière connexion pour le statut en ligne
-            DB::table('users')
-                ->where('id', $user->id)
-                ->update([
-                    'last_login' => now(),
-                    'updated_at' => now()
-                ]);
+            // Mettre à jour le timestamp de dernière connexion si colonne présente
+            $updateLogin = ['updated_at' => now()];
+            if (in_array('last_login', $schema, true)) {
+                $updateLogin['last_login'] = now();
+            }
+            DB::table('users')->where('id', $user->id)->update($updateLogin);
+
+            // Déterminer un statut utilisateur sûr
+            $userStatus = null;
+            if (in_array('status', $schema, true)) {
+                $userStatus = $user->status ?? null;
+            } elseif (in_array('email_verified_at', $schema, true)) {
+                $userStatus = 'Actif'; // Si le compte est confirmé et pas de colonne status
+            }
 
             // Créer la session utilisateur avec toutes les informations nécessaires
             session([
                 'user_id' => $user->id,
                 'user_email' => $user->email,
-                'user_name' => ($user->first_name ?? '') . ' ' . ($user->last_name ?? ''),
+                'user_name' => trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: ($user->name ?? $user->email),
                 'user_first_name' => $user->first_name ?? '',
                 'user_last_name' => $user->last_name ?? '',
                 'user_phone' => $user->phone ?? '',
@@ -102,7 +119,7 @@ class AuthController extends Controller
                 'user_profile_photo' => $user->profile_photo ?? null,
                 'user_current_level' => $user->current_level ?? '',
                 'user_whatsapp' => $user->whatsapp ?? '',
-                'user_status' => $user->status,
+                'user_status' => $userStatus,
                 // Garder les anciens noms pour compatibilité
                 'user_prenom' => $user->first_name ?? '',
                 'user_nom' => $user->last_name ?? '',
@@ -115,15 +132,10 @@ class AuthController extends Controller
                 'logged_in' => true,
             ]);
 
-            // Se souvenir de l'utilisateur si demandé
-            if ($request->has('remember')) {
-                // Créer un token de souvenir (simplifié pour la démo)
+            // Se souvenir de l'utilisateur si demandé (si colonne existe)
+            if ($request->has('remember') && in_array('remember_token', $schema, true)) {
                 $rememberToken = bin2hex(random_bytes(32));
-                DB::table('users')
-                    ->where('id', $user->id)
-                    ->update(['remember_token' => $rememberToken]);
-                
-                // Cookie de 30 jours
+                DB::table('users')->where('id', $user->id)->update(['remember_token' => $rememberToken]);
                 cookie('remember_token', $rememberToken, 60 * 24 * 30);
             }
 
@@ -147,7 +159,8 @@ class AuthController extends Controller
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput($request->only('email'));
         } catch (\Exception $e) {
-            return back()->with('error', 'Une erreur est survenue lors de la connexion. Veuillez réessayer.')->withInput($request->only('email'));
+            $msg = app()->environment('local') ? ('Erreur de connexion: '.$e->getMessage()) : 'Une erreur est survenue lors de la connexion. Veuillez réessayer.';
+            return back()->with('error', $msg)->withInput($request->only('email'));
         }
     }
 
@@ -172,6 +185,24 @@ class AuthController extends Controller
         return view('auth.loading');
     }
 
+    /**
+     * Redirection vers la page de connexion étudiante (alias route /student/login)
+     */
+    public function studentLoginRedirect()
+    {
+        // Si déjà connecté, rediriger à l'espace selon la formation
+        if (session('logged_in')) {
+            $formation = session('user_formation', 'design-graphique');
+            try {
+                $routeName = $this->getFormationRouteName($formation);
+                return redirect()->route($routeName);
+            } catch (\Throwable $e) {
+                return redirect()->route('dashboard.design-graphique');
+            }
+        }
+        // Sinon afficher le formulaire de connexion
+        return view('auth.login');
+    }
     /**
      * Déconnexion
      */
