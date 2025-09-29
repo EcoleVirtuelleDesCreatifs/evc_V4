@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\LibraryCategoryController;
 use App\Http\Controllers\Admin\AdminStatisticsController;
 use App\Http\Controllers\Admin\SimpleProjectController;
+use App\Http\Controllers\Admin\PreRegistrationAdminController;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\Api\ProjectApiController;
 use App\Http\Controllers\AdminStatisticsDetailController;
@@ -20,7 +22,11 @@ use Illuminate\Support\Facades\Route;
 
 // Page d'accueil et pré-inscription
 Route::get('/', [HomepageController::class, 'index'])->name('homepage');
+Route::get('/preinscription', function () {
+    return view('preinscription.index');
+})->name('preinscription.start');
 Route::post('/pre-registration', [HomepageController::class, 'store'])->name('pre-registration.store');
+Route::post('/candidature', [HomepageController::class, 'candidatureStore'])->name('candidature.store');
 Route::get('/webtv', [HomepageController::class, 'webtv'])->name('webtv');
 Route::get('/presentation', [HomepageController::class, 'presentation'])->name('presentation');
 Route::get('/formations', [HomepageController::class, 'formations'])->name('formations');
@@ -218,6 +224,24 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/projects/validate/{id}', [AdminDashboardController::class, 'validateProject'])->name('projects.validate');
         Route::post('/projects/reject/{id}', [AdminDashboardController::class, 'rejectProject'])->name('projects.reject');
         Route::get('/projects/view/{id}', [AdminDashboardController::class, 'viewProject'])->name('projects.view');
+
+        // Pré-inscriptions - Liste & Export
+        Route::get('/preinscriptions', [PreRegistrationAdminController::class, 'index'])->name('preinscriptions.index');
+        Route::get('/preinscriptions/export', [PreRegistrationAdminController::class, 'export'])->name('preinscriptions.export');
+        Route::get('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'show'])->name('preinscriptions.show');
+        Route::post('/preinscriptions/bulk-status', [PreRegistrationAdminController::class, 'bulkStatus'])->name('preinscriptions.bulk-status');
+        Route::get('/preinscriptions/{id}/download-photo', [PreRegistrationAdminController::class, 'downloadPhoto'])->name('preinscriptions.download-photo');
+        Route::post('/preinscriptions/{id}/validate', [PreRegistrationAdminController::class, 'validateOne'])->name('preinscriptions.validate');
+        Route::delete('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'destroy'])->name('preinscriptions.destroy');
+
+        // Test Mailtrap (admin only)
+        Route::get('/test-mail', function () {
+            $to = config('mail.admin_address') ?? config('mail.from.address');
+            Mail::raw("Ceci est un email de test Mailtrap depuis EVC. Si vous le voyez dans Mailtrap, la configuration SMTP fonctionne.", function ($message) use ($to) {
+                $message->to($to)->subject('Test Mailtrap - EVC');
+            });
+            return response()->json(['status' => 'ok', 'to' => $to]);
+        })->name('mail.test');
         Route::get('/projects/edit/{id}', [AdminDashboardController::class, 'editProject'])->name('projects.edit');
         Route::put('/projects/update/{id}', [AdminDashboardController::class, 'updateProject'])->name('projects.update');
         Route::get('/projects/{id}/images', [AdminDashboardController::class, 'getProjectImages'])->name('projects.images');

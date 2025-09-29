@@ -637,6 +637,8 @@
                 </a>
             </div>
 
+
+
             <!-- Espace Communautaire -->
             <div class="nav-item">
                 <a href="{{ route('design-graphique.communaute.index') }}" class="nav-link {{ request()->routeIs('design-graphique.communaute.*') ? 'active' : '' }}">

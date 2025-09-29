@@ -48,6 +48,14 @@
                         </a>
                     </li>
 
+                    <!-- Pré-inscriptions (Admin) -->
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.preinscriptions.index') }}" class="admin-nav-link {{ request()->routeIs('admin.preinscriptions.*') ? 'active' : '' }}">
+                            <i class="fas fa-user-check"></i>
+                            Pré-inscriptions
+                        </a>
+                    </li>
+
                     <!-- Gestion des Étudiants -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#studentsMenu">

@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formModal = document.getElementById('form-modal');
         const formContainer = document.getElementById('preinscription-form-container');
 
-        if (formModal && formContainer) {
+        if (openModalBtn && formModal && formContainer) {
             const nextBtn = document.getElementById('nextBtn');
             const prevBtn = document.getElementById('prevBtn');
             const submitBtn = document.getElementById('submitBtn');
@@ -115,76 +115,83 @@ document.addEventListener('DOMContentLoaded', () => {
             const totalSteps = formSteps.length;
             let currentStep = 1;
 
-            // Overlay helpers (works for modal-local overlay)
-            const overlay = document.getElementById('mail-loading-overlay');
-            const showOverlay = () => {
-                if (!overlay) return;
-                overlay.classList.remove('hidden');
-                overlay.style.display = 'flex';
+            // --- Toast Utility ---
+            const showToast = (type, message) => {
+                const container = document.getElementById('toast-container');
+                const sr = document.getElementById('toast-sr');
+                if (!container) {
+                    // Fallback
+                    alert(message);
+                    return;
+                }
+                const colors = {
+                    success: 'bg-emerald-600 border-emerald-500 text-white',
+                    error: 'bg-red-600 border-red-500 text-white',
+                    warning: 'bg-amber-600 border-amber-500 text-white',
+                    info: 'bg-sky-600 border-sky-500 text-white',
+                };
+                const icon = {
+                    success: '✔',
+                    error: '✖',
+                    warning: '⚠',
+                    info: 'ℹ',
+                }[type] || 'ℹ';
+
+                const toast = document.createElement('div');
+                toast.className = `flex items-start gap-3 px-4 py-3 rounded-lg shadow-lg border ${colors[type] || colors.info} animate-fade-in`;
+                toast.innerHTML = `
+                    <span class="text-xl leading-none">${icon}</span>
+                    <div class="text-sm">${message}</div>
+                    <button type="button" class="ml-4 text-white/80 hover:text-white">×</button>
+                `;
+
+                const closeBtn = toast.querySelector('button');
+                const remove = () => {
+                    toast.classList.add('opacity-0', 'translate-y-1');
+                    setTimeout(() => toast.remove(), 200);
+                };
+                closeBtn.addEventListener('click', remove);
+
+                container.appendChild(toast);
+                if (sr) sr.textContent = message;
+
+                setTimeout(remove, 5000);
             };
 
-            // Map programme -> choix_formation (enum backend)
-            try {
-                const programmeSelect = document.querySelector('select[name="programme"]');
-                const hiddenChoix = document.querySelector('input[name="choix_formation"]');
-                const mapProgramme = {
-                    'infographie': 'design_graphique',
-                    'community_management': 'community_management',
-                    'informatique': 'gestion_informatique',
-                    'infographie_cm': 'design_graphique', // fallback in enum
-                };
-                if (programmeSelect && hiddenChoix) {
-                    programmeSelect.addEventListener('change', () => {
-                        hiddenChoix.value = mapProgramme[programmeSelect.value] || '';
-                    });
-                }
-            } catch (_) {}
+            const markInvalid = (el) => {
+                el.classList.add('ring-2', 'ring-red-500');
+            };
+            const clearInvalid = (el) => {
+                el.classList.remove('ring-2', 'ring-red-500');
+            };
 
-            // Auto-detect country from ville_pays and prefix WhatsApp with the country dialing code if missing '+'
-            try {
-                const whatsappInput = document.querySelector('input[name="whatsapp"]');
-                const villePaysInput = document.querySelector('input[name="ville_pays"]');
-                const ccMap = [
-                    { k: ['cote d\'ivoire','côte d\'ivoire','ivory coast','ci'], cc: '+225' },
-                    { k: ['france','fr'], cc: '+33' },
-                    { k: ['senegal','sénégal','sn'], cc: '+221' },
-                    { k: ['benin','bénin','bj'], cc: '+229' },
-                    { k: ['burkina faso','bf'], cc: '+226' },
-                    { k: ['cameroun','cameroon','cm'], cc: '+237' },
-                    { k: ['mali','ml'], cc: '+223' },
-                    { k: ['togo','tg'], cc: '+228' },
-                    { k: ['niger','ne'], cc: '+227' },
-                    { k: ['guinee','guinée','gn'], cc: '+224' },
-                    { k: ['rdc','congo','république démocratique du congo','cd'], cc: '+243' },
-                    { k: ['maroc','ma'], cc: '+212' },
-                    { k: ['tunisie','tn'], cc: '+216' },
-                    { k: ['algerie','algérie','dz'], cc: '+213' },
-                ];
-                const detectCC = (text) => {
-                    if (!text) return '+225';
-                    const s = text.toLowerCase();
-                    for (const entry of ccMap) {
-                        if (entry.k.some(key => s.includes(key))) return entry.cc;
-                    }
-                    return '+225';
-                };
-                if (whatsappInput) {
-                    const applyPrefix = () => {
-                        const v = whatsappInput.value.trim();
-                        if (v && !v.startsWith('+')) {
-                            const cc = detectCC(villePaysInput ? villePaysInput.value : '');
-                            whatsappInput.value = `${cc} ${v}`;
+            const validateCurrentStep = () => {
+                const activeStep = Array.from(formSteps).find(s => s.classList.contains('active'));
+                if (!activeStep) return true;
+                let valid = true;
+                // Inputs, selects, textareas
+                const fields = activeStep.querySelectorAll('input[required], select[required], textarea[required]');
+                fields.forEach(field => {
+                    // Special case for radio groups
+                    if (field.type === 'radio') {
+                        const group = activeStep.querySelectorAll(`input[type="radio"][name="${field.name}"]`);
+                        const oneChecked = Array.from(group).some(r => r.checked);
+                        if (!oneChecked) {
+                            valid = false;
+                            group.forEach(r => markInvalid(r));
+                        } else {
+                            group.forEach(r => clearInvalid(r));
                         }
-                    };
-                    whatsappInput.addEventListener('blur', applyPrefix);
-                    if (villePaysInput) villePaysInput.addEventListener('blur', applyPrefix);
-                }
-            } catch(_){}
-
-            const hideOverlay = () => {
-                if (!overlay) return;
-                overlay.classList.add('hidden');
-                overlay.style.display = 'none';
+                    } else {
+                        if (!field.value || field.value.trim() === '') {
+                            valid = false;
+                            markInvalid(field);
+                        } else {
+                            clearInvalid(field);
+                        }
+                    }
+                });
+                return valid;
             };
 
             const updateFormState = () => {
@@ -198,29 +205,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitBtn.style.display = currentStep === totalSteps ? 'inline-block' : 'none';
             };
 
-            if (openModalBtn) {
-                openModalBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    formModal.classList.remove('hidden');
-                    setTimeout(() => {
-                        formModal.classList.remove('opacity-0');
-                        formContainer.classList.remove('scale-95');
-                    }, 10);
-                    updateFormState();
-                });
-            }
-
-            // Mobile / other triggers
-            document.querySelectorAll('.open-form-modal').forEach(el => {
-                el.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    formModal.classList.remove('hidden');
-                    setTimeout(() => {
-                        formModal.classList.remove('opacity-0');
-                        formContainer.classList.remove('scale-95');
-                    }, 10);
-                    updateFormState();
-                });
+            openModalBtn.addEventListener('click', () => {
+                formModal.classList.remove('hidden');
+                setTimeout(() => {
+                    formModal.classList.remove('opacity-0');
+                    formContainer.classList.remove('scale-95');
+                }, 10);
+                updateFormState();
             });
 
             const closeModal = () => {
@@ -232,6 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
             closeModalBtn.addEventListener('click', closeModal);
 
             nextBtn.addEventListener('click', () => {
+                // validate before moving forward
+                if (!validateCurrentStep()) return;
                 if (currentStep < totalSteps) {
                     currentStep++;
                     updateFormState();
@@ -245,127 +238,85 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            const formEl = document.getElementById('preRegistrationForm');
+            progressBar.style.width = `${(currentStep / totalSteps) * 100}%`;
+            prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
+            nextBtn.style.display = currentStep < totalSteps ? 'inline-block' : 'none';
+            submitBtn.style.display = currentStep === totalSteps ? 'inline-block' : 'none';
+        };
 
-            // Live progress calculation for required fields
-            const progressLine = document.getElementById('form-progress-line');
-            const progressText = document.getElementById('form-progress-text');
-            const getRequiredFields = () => Array.from(formEl.querySelectorAll('[name][required]'));
-            const computeProgress = () => {
-                const req = getRequiredFields();
-                if (req.length === 0) return 0;
-                let filled = 0;
-                req.forEach(f => {
-                    if (f.type === 'checkbox') {
-                        if (f.checked) filled++;
-                    } else if (f.type === 'file') {
-                        if (f.files && f.files.length) filled++;
-                    } else if (f.value && f.value.trim() !== '') {
-                        filled++;
-                    }
+        document.getElementById('preRegistrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!validateCurrentStep()) return;
+
+            // Prepare submission
+            submitBtn.disabled = true;
+            const submitTextDefault = submitBtn.textContent;
+            submitBtn.textContent = 'Envoi...';
+
+            // Show loading overlay (email sending)
+            const overlay = document.getElementById('mail-loading-overlay');
+            const showOverlay = () => {
+                if (!overlay) return;
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                overlay.style.display = 'flex';
+            };
+            const hideOverlay = () => {
+                if (!overlay) return;
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+                overlay.style.display = 'none';
+            };
+            showOverlay();
+
+            try {
+                const form = e.currentTarget;
+                const formData = new FormData(form);
+                // Ensure unchecked radio groups still submit a value? Backend requires them, but HTML will send selected only.
+                // Rely on required validation to guarantee selection before submit.
+                const csrf = form.querySelector('input[name="_token"]').value;
+                const resp = await fetch('/pre-registration', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrf,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: formData
                 });
-                return Math.round((filled / req.length) * 100);
-            };
-            const updateProgressUI = () => {
-                const pct = computeProgress();
-                if (progressLine) progressLine.style.width = `${pct}%`;
-                if (progressText) progressText.textContent = `Progression: ${pct}%`;
-            };
-            // Attach listeners
-            formEl.addEventListener('input', updateProgressUI, true);
-            formEl.addEventListener('change', updateProgressUI, true);
-            updateProgressUI();
-
-            formEl.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                // Client-side validity check first
-                if (!formEl.checkValidity()) {
-                    // Find first invalid required field
-                    const invalid = formEl.querySelector('[name][required]:invalid');
-                    if (invalid) {
-                        invalid.classList.add('ring-2','ring-red-500');
-                        const rect = invalid.getBoundingClientRect();
-                        const offsetY = window.scrollY + rect.top - 120;
-                        window.scrollTo({ top: offsetY, behavior: 'smooth' });
-                        invalid.focus({ preventScroll: true });
-                    }
-                    if (typeof showToast === 'function') showToast('warning', 'Merci de compléter les champs requis.');
-                    return;
-                }
-
-                try {
-                    const submitBtnEl = formEl.querySelector('button[type="submit"]');
-                    const originalText = submitBtnEl ? submitBtnEl.textContent : '';
-                    if (submitBtnEl) {
-                        submitBtnEl.disabled = true;
-                        submitBtnEl.textContent = 'Envoi en cours...';
-                    }
-                    showOverlay();
-
-                    const form = e.currentTarget;
-                    const formData = new FormData(form);
-                    // CSRF token from meta if needed
-                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                    const resp = await fetch(form.getAttribute('action') || '/pre-registration', {
-                        method: (form.getAttribute('method') || 'POST').toUpperCase(),
-                        headers: {
-                            'X-CSRF-TOKEN': token,
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                        },
-                        body: formData,
-                    });
-
-                    const isJson = (resp.headers.get('content-type')||'').includes('application/json');
-                    const data = isJson ? await resp.json().catch(() => ({})) : {};
 
                     if (!resp.ok) {
+                        const contentType = resp.headers.get('content-type') || '';
+                        const data = contentType.includes('application/json') ? await resp.json().catch(() => ({})) : { message: await resp.text().catch(() => '') };
+                        // Display validation errors
                         if (data && data.errors) {
-                            let firstInvalid = null;
-                            Object.entries(data.errors).forEach(([name]) => {
+                            Object.entries(data.errors).forEach(([name, messages]) => {
                                 const field = form.querySelector(`[name="${name}"]`);
-                                if (field) {
-                                    field.classList.add('ring-2','ring-red-500');
-                                    field.addEventListener('input', () => field.classList.remove('ring-2','ring-red-500'), { once: true });
-                                    if (!firstInvalid) firstInvalid = field;
-                                }
+                                if (field) markInvalid(field);
                             });
-                            if (typeof showToast === 'function') showToast('error', 'Veuillez corriger les erreurs du formulaire.');
-                            // Scroll to first invalid
-                            if (firstInvalid) {
-                                const rect = firstInvalid.getBoundingClientRect();
-                                const offsetY = window.scrollY + rect.top - 120; // leave room for sticky header
-                                window.scrollTo({ top: offsetY, behavior: 'smooth' });
-                                firstInvalid.focus({ preventScroll: true });
-                            }
-                            updateProgressUI();
+                            showToast('error', 'Veuillez corriger les erreurs du formulaire.');
                         } else if (resp.status === 419) {
-                            if (typeof showToast === 'function') showToast('warning', 'Session expirée. Rechargez la page.');
+                            showToast('warning', 'Votre session a expiré. Veuillez recharger la page puis réessayer.');
                         } else {
-                            if (typeof showToast === 'function') showToast('error', "Une erreur s'est produite. Veuillez réessayer.");
+                            console.error('Submission failed', { status: resp.status, data });
+                            showToast('error', "Une erreur s'est produite. Veuillez réessayer.");
                         }
-                        return;
-                    }
-
-                    if (typeof showToast === 'function') showToast('success', (data && data.success) || 'Votre demande a été envoyée.');
-                    // reset and close
-                    form.reset();
-                    updateProgressUI();
-                    if (formModal) {
-                        formModal.classList.add('opacity-0');
-                        formContainer.classList.add('scale-95');
-                        setTimeout(() => formModal.classList.add('hidden'), 300);
+                    } else {
+                        const data = await resp.json();
+                        showToast('success', data.success || 'Votre demande a été envoyée avec succès.');
+                        // Reset & close
+                        form.reset();
+                        currentStep = 1;
+                        updateFormState();
+                        closeModal();
                     }
                 } catch (err) {
-                    console.error('Pre-inscription submit error:', err);
-                    if (typeof showToast === 'function') showToast('error', "Impossible d'envoyer pour le moment. Réessayez.");
+                    console.error('Submission error:', err);
+                    showToast('error', "Impossible d'envoyer pour le moment. Vérifiez votre connexion et réessayez.");
                 } finally {
-                    const submitBtnEl = formEl.querySelector('button[type="submit"]');
-                    if (submitBtnEl) {
-                        submitBtnEl.disabled = false;
-                        submitBtnEl.textContent = 'Soumettre ma candidature';
-                    }
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = submitTextDefault;
                     hideOverlay();
                 }
             });

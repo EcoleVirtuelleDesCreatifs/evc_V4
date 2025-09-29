@@ -1,0 +1,322 @@
+/* =============================================
+   EVC HOMEPAGE DESIGN SYSTEM
+   ============================================= */
+
+:root {
+    --evc-orange: #FF9900;
+    --evc-blue-dark: #003366;
+    --evc-blue-light: #2071C3;
+    --text-light: #e2e8f0; /* slate-200 */
+    --text-dark: #1e293b; /* slate-800 */
+    --bg-dark-primary: #0a0a0a;
+    --bg-dark-secondary: #1e293b;
+    --font-sans: 'Montserrat', sans-serif;
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    font-family: var(--font-sans);
+    background-color: var(--bg-dark-primary);
+    color: var(--text-light);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    font-weight: 700; /* bold */
+}
+
+/* =============================================
+   BUTTON STYLES
+   ============================================= */
+
+.btn {
+    display: inline-block;
+    font-weight: 600; /* semibold */
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+    padding: 0.5rem 1.5rem; /* Equivalent to py-2 px-6 */
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 9999px; /* rounded-full */
+    transition: var(--transition-fast);
+    text-decoration: none; /* Ensure links styled as buttons don't have underlines */
+}
+
+.btn-primary {
+    color: white;
+    background-image: linear-gradient(to right, #FF9900 0%, #F97316 51%, #FF9900 100%);
+    background-size: 200% auto;
+    border: none;
+    box-shadow: 0 4px 15px 0 rgba(255, 153, 0, 0.3);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.btn-primary:hover {
+    background-position: right center; /* change the direction of the change here */
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(255, 153, 0, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(255, 153, 0, 0.2);
+}
+
+.btn-secondary {
+    color: var(--text-light);
+    background-color: transparent;
+    border-color: var(--text-light);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* =============================================
+   GLOBAL & DIGITAL EFFECTS
+   ============================================= */
+
+.section-title {
+    font-size: 2.25rem; /* text-4xl */
+    font-weight: 900; /* black */
+    letter-spacing: -0.025em;
+}
+
+.section-subtitle {
+    color: var(--evc-orange);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.card-hover-effect {
+    transition: var(--transition-fast);
+}
+
+.card-hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* CSS for Homepage Sections */
+
+/* Revolutionary Pre-inscription Form */
+.form-input {
+    display: block;
+    width: 100%;
+    border-radius: 0.375rem; /* rounded-md */
+    border-width: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.625rem 1rem; /* py-2.5 px-4 */
+    color: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    ring: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-input:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+    --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+    box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+    --tw-ring-color: #F97316; /* focus:ring-orange-500 */
+}
+
+#form-modal .form-step {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+#form-modal .form-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes soft-flash {
+    0%, 100% { opacity: 1; filter: brightness(100%); }
+    50% { opacity: 0.8; filter: brightness(120%); }
+}
+
+/* =============================================
+   FOUNDER SECTION ANIMATED BG
+   ============================================= */
+.founder-section-bg::before, .founder-section-bg::after {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    filter: blur(120px);
+    will-change: transform;
+}
+
+.founder-section-bg::before {
+    top: -10%;
+    left: -10%;
+    background: rgba(0, 51, 102, 0.4); /* EVC Blue */
+    animation: move-glow-1 25s infinite alternate ease-in-out;
+}
+
+.founder-section-bg::after {
+    bottom: -10%;
+    right: -10%;
+    background: rgba(255, 117, 15, 0.3); /* EVC Orange */
+    animation: move-glow-2 25s infinite alternate ease-in-out;
+}
+
+@keyframes move-glow-1 {
+    from { transform: translate(0, 0) rotate(0deg) scale(1); }
+    to { transform: translate(100px, 100px) rotate(360deg) scale(1.5); }
+}
+
+@keyframes move-glow-2 {
+    from { transform: translate(0, 0) rotate(0deg) scale(1.2); }
+    to { transform: translate(-100px, -100px) rotate(-360deg) scale(1); }
+}
+
+/* =============================================
+   FOUNDER CARD FLIP
+   ============================================= */
+.founder-card-container {
+    perspective: 1500px;
+}
+
+.founder-card-inner {
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.founder-card-inner.is-flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden; /* Safari */
+}
+
+.card-back {
+    transform: rotateY(180deg);
+}
+
+/* =============================================
+   FOUNDER STICKY SCROLL
+   ============================================= */
+.founder-step {
+    min-height: 60vh; /* Ensure enough scroll space for the effect */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.partner-logo {
+    filter: invert(1) grayscale(100%) brightness(200%);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.partner-logo:hover {
+    opacity: 1;
+    filter: invert(1) grayscale(0%) brightness(100%);
+}
+
+/* =============================================
+   PRESENTATION PAGE TABS
+   ============================================= */
+.tab-button {
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #9ca3af; /* gray-400 */
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    color: white;
+}
+
+.tab-button.active {
+    color: var(--evc-orange);
+    border-bottom-color: var(--evc-orange);
+}
+
+.tab-panel {
+    display: none;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+.hero-text-slider .swiper-slide-active h1,
+.hero-bg-slider .swiper-slide-active .bg-cover {
+    animation: soft-flash 1.5s ease-in-out forwards;
+}
+
+/* =============================================
+   PARTICLES.JS BACKGROUND
+   ============================================= */
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1; /* Place it behind all content */
+}
+
+/* =============================================
+   LAUREATS CAROUSEL STYLES
+   ============================================= */
+
+.laureats-carousel .swiper-pagination-bullet {
+    background-color: rgba(255, 255, 255, 0.5);
+    width: 10px;
+    height: 10px;
+    transition: var(--transition-fast);
+    opacity: 1;
+}
+
+.laureats-carousel .swiper-pagination-bullet-active {
+    background-color: var(--evc-orange);
+    transform: scale(1.3);
+}
+
+.laureats-next, .laureats-prev {
+    color: var(--evc-orange);
+    background-color: rgba(0, 0, 0, 0.3);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    backdrop-filter: blur(5px);
+    transition: var(--transition-fast);
+}
+
+.laureats-next:hover, .laureats-prev:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    transform: scale(1.1);
+}
+
+.laureats-next::after, .laureats-prev::after {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 900;
+}
+
