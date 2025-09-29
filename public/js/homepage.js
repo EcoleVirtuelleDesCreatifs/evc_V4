@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formModal = document.getElementById('form-modal');
         const formContainer = document.getElementById('preinscription-form-container');
 
-        if (formModal && formContainer) {
+        if (formContainer) {
             const nextBtn = document.getElementById('nextBtn');
             const prevBtn = document.getElementById('prevBtn');
             const submitBtn = document.getElementById('submitBtn');
@@ -188,17 +188,18 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             const updateFormState = () => {
-                formSteps.forEach(step => {
-                    step.classList.toggle('active', parseInt(step.dataset.step) === currentStep);
-                });
-
-                progressBar.style.width = `${(currentStep / totalSteps) * 100}%`;
-                prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
-                nextBtn.style.display = currentStep < totalSteps ? 'inline-block' : 'none';
-                submitBtn.style.display = currentStep === totalSteps ? 'inline-block' : 'none';
+                if (formSteps && formSteps.length) {
+                    formSteps.forEach(step => {
+                        step.classList.toggle('active', parseInt(step.dataset.step) === currentStep);
+                    });
+                }
+                if (progressBar) progressBar.style.width = `${(currentStep / (totalSteps || 1)) * 100}%`;
+                if (prevBtn) prevBtn.style.display = currentStep > 1 ? 'inline-block' : 'none';
+                if (nextBtn) nextBtn.style.display = currentStep < (totalSteps || 1) ? 'inline-block' : 'none';
+                if (submitBtn) submitBtn.style.display = currentStep === (totalSteps || 1) ? 'inline-block' : 'none';
             };
 
-            if (openModalBtn) {
+            if (openModalBtn && formModal) {
                 openModalBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     formModal.classList.remove('hidden');
@@ -213,6 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mobile / other triggers
             document.querySelectorAll('.open-form-modal').forEach(el => {
                 el.addEventListener('click', (e) => {
+                    if (!formModal) return; // dedicated page: no modal
                     e.preventDefault();
                     formModal.classList.remove('hidden');
                     setTimeout(() => {
@@ -224,12 +226,13 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             const closeModal = () => {
+                if (!formModal) return;
                 formModal.classList.add('opacity-0');
                 formContainer.classList.add('scale-95');
                 setTimeout(() => formModal.classList.add('hidden'), 300);
             };
 
-            closeModalBtn.addEventListener('click', closeModal);
+            if (closeModalBtn && formModal) closeModalBtn.addEventListener('click', closeModal);
 
             nextBtn.addEventListener('click', () => {
                 if (currentStep < totalSteps) {

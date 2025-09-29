@@ -21,7 +21,7 @@
                     École légalement constituée en SARL, <strong class="text-white">reconnue par l’État ivoirien</strong>, EVC est spécialisée dans les domaines du <strong class="text-white">Design Graphique, du Community Management, du Social Media Management, de la Gestion en Informatique et l’Intelligence Artificielle appliquée</strong>.
                 </p>
                 <div class="mt-8 flex items-center justify-center lg:justify-start gap-x-6">
-                    <a href="#preinscription" class="btn btn-primary">Je me préinscris</a>
+                    <a href="{{ route('preinscription.start') }}" class="btn btn-primary" aria-label="Démarrer ma préinscription">Je me préinscris</a>
                     <a href="#formations" class="btn btn-secondary">Nos formations <span aria-hidden="true">→</span></a>
                 </div>
             </div>

@@ -19,7 +19,8 @@
             <a href="{{ route('laureats') }}" class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Nos Lauréats</a>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-6">
-             <a href="{{ route('webtv') }}" class="flex items-center gap-x-2 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-400 ring-1 ring-inset ring-red-500/20 hover:bg-red-500/20 transition rounded-full">
+             <a href="{{ route('preinscription.start') }}" class="whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 shadow transition">Préinscription</a>
+            <a href="{{ route('webtv') }}" class="flex items-center gap-x-2 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-400 ring-1 ring-inset ring-red-500/20 hover:bg-red-500/20 transition rounded-full">
                 <span class="relative flex h-3 w-3">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
@@ -47,7 +48,7 @@
         <div class="mt-6 flow-root">
             <div class="-my-6 divide-y divide-gray-500/25">
                 <div class="space-y-2 py-6">
-                    <a href="#presentation" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Présentation</a>
+                    <a href="{{ route('preinscription.start') }}" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Préinscription</a>
                     <a href="#formations" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos Formations</a>
                     <a href="#creations" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Travaux Étudiants</a>
                     <a href="#laureats" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos Lauréats</a>
