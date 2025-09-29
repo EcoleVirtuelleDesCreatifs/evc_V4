@@ -115,4 +115,7 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    // Adresse e-mail de l'admin pour les notifications système
+    'admin_address' => env('MAIL_ADMIN_ADDRESS', null),
+
 ];

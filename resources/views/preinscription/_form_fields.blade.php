@@ -73,9 +73,10 @@
             <select name="programme" class="form-input mb-3" required>
                 <option value="">-- Sélectionnez --</option>
                 @php $prog = old('programme'); @endphp
-                <option {{ ($prog==='Infographie') ? 'selected' : '' }}>Infographie</option>
-                <option {{ ($prog==='Community Management') ? 'selected' : '' }}>Community Management</option>
-                <option {{ ($prog==='Informatique') ? 'selected' : '' }}>Informatique</option>
+                <option value="design-graphique" {{ ($prog==='design-graphique') ? 'selected' : '' }}>Design Graphique</option>
+                <option value="community-manager" {{ ($prog==='community-manager') ? 'selected' : '' }}>Community Manager</option>
+                <option value="intelligence-artificielle" {{ ($prog==='intelligence-artificielle') ? 'selected' : '' }}>Intelligence Artificielle</option>
+                <option value="gestion-informatique" {{ ($prog==='gestion-informatique') ? 'selected' : '' }}>Gestion Informatique</option>
             </select>
 
             <label class="block text-sm text-gray-300">Niveau actuel pour cette formation :</label>

@@ -27,6 +27,7 @@ class HomepageController extends Controller
     {
         // Normalisations de valeurs
         $programmeMap = [
+            // Anciennes valeurs (compat)
             'Infographie' => 'infographie',
             'Community Management' => 'community_management',
             'Informatique' => 'informatique',
@@ -35,6 +36,11 @@ class HomepageController extends Controller
             'community_management' => 'community_management',
             'informatique' => 'informatique',
             'infographie_cm' => 'infographie_cm',
+            // Nouvelles valeurs slug depuis le select
+            'design-graphique' => 'infographie',
+            'community-manager' => 'community_management',
+            'intelligence-artificielle' => 'intelligence_artificielle',
+            'gestion-informatique' => 'informatique',
         ];
         $niveauFormationMap = [
             'Aucune notion' => 'aucune_notion',
@@ -161,7 +167,8 @@ class HomepageController extends Controller
             'infographie' => 'design_graphique',
             'community_management' => 'community_management',
             'informatique' => 'gestion_informatique',
-            'infographie_cm' => 'design_graphique', // fallback sur un enum accepté
+            'intelligence_artificielle' => 'intelligence_artificielle',
+            'infographie_cm' => 'design_graphique', // fallback
         ];
         $choixFormation = $choixFormationMap[$programme] ?? 'design_graphique';
 
