@@ -6,6 +6,7 @@
 
 @section('content')
     @include('homepage._hero')
+    @include('homepage._webtv_home')
     @include('homepage._presentation')
     @include('homepage._fondateur_homepage')
     @include('homepage._international')
