@@ -21,8 +21,12 @@
                         <div class="col-sm-6"><small class="text-muted d-block">Nom</small>{{ $pre->nom }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Prénom</small>{{ $pre->prenom }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Âge</small>{{ $pre->age }}</div>
+                        <div class="col-sm-6"><small class="text-muted d-block">Date de naissance</small>{{ optional($pre->date_naissance)->format('Y-m-d') ?? $pre->date_naissance }}</div>
+                        <div class="col-sm-6"><small class="text-muted d-block">Sexe</small>{{ $pre->sexe }}</div>
+                        <div class="col-sm-6"><small class="text-muted d-block">Nationalité</small>{{ $pre->nationalite }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Email</small>{{ $pre->email }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">WhatsApp</small>{{ $pre->whatsapp }}</div>
+                        <div class="col-sm-6"><small class="text-muted d-block">Ville</small>{{ $pre->ville }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Pays</small>{{ $pre->pays }}</div>
                     </div>
                 </div>
@@ -33,11 +37,17 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-sm-6"><small class="text-muted d-block">Niveau d'étude</small>{{ $pre->niveau_etude }}</div>
+                        <div class="col-sm-6"><small class="text-muted d-block">Domaine d’étude</small>{{ $pre->domaine_etude }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Formation choisie</small>{{ $pre->choix_formation }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Niveau dans la formation</small>{{ $pre->niveau_dans_formation }}</div>
-                        <div class="col-sm-6"><small class="text-muted d-block">Statut actuel</small>{{ $pre->disponibilite }}</div>
+                        <div class="col-sm-6"><small class="text-muted d-block">Disponibilités</small>{{ $pre->disponibilite }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Ordinateur</small>{{ $pre->has_computer ? 'Oui' : 'Non' }}</div>
                         <div class="col-sm-6"><small class="text-muted d-block">Smartphone</small>{{ $pre->has_smartphone ? 'Oui' : 'Non' }}</div>
+                        <div class="col-sm-6"><small class="text-muted d-block">Origine</small>{{ $pre->how_known ?? $pre->origine }}</div>
+                    </div>
+                    <div class="mt-3">
+                        <small class="text-muted d-block mb-1">Compétences</small>
+                        <div class="white-space-pre-line">{{ $pre->competences }}</div>
                     </div>
                     <div class="mt-3">
                         <small class="text-muted d-block mb-1">Motivation</small>

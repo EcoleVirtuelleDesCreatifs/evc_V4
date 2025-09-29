@@ -55,7 +55,8 @@ class HomepageController extends Controller
             'autre' => 'autre',
         ];
 
-        $validator = Validator::make($request->all(), [
+        // Règles de validation
+        $rules = [
             // Informations personnelles
             'nom_complet' => 'required|string|max:255',
             'prenom' => 'required|string|max:255',
@@ -84,24 +85,74 @@ class HomepageController extends Controller
             // Consentements
             'veracite' => 'accepted',
             'consentement' => 'accepted',
-        ]);
+        ];
+
+        // Messages et attributs en français
+        $messages = [
+            'required' => 'Le champ :attribute est obligatoire.',
+            'email' => "L'adresse e-mail est invalide.",
+            'integer' => 'Le champ :attribute doit être un nombre entier.',
+            'min' => 'Le champ :attribute doit être au moins :min.',
+            'max' => 'Le champ :attribute ne peut pas dépasser :max.',
+            'date' => 'La date fournie est invalide.',
+            'in' => 'La valeur sélectionnée pour :attribute est invalide.',
+            'image' => 'Le champ :attribute doit être une image.',
+            'mimes' => 'Le champ :attribute doit être de type :values.',
+            'accepted' => 'Vous devez accepter :attribute.',
+            'unique' => 'Cette :attribute est déjà utilisée.',
+        ];
+        $attributes = [
+            'nom_complet' => 'nom complet',
+            'prenom' => 'prénom',
+            'age' => 'âge',
+            'date_naissance' => 'date de naissance',
+            'sexe' => 'sexe',
+            'nationalite' => 'nationalité',
+            'photo_profil' => 'photo de profil',
+            'email' => 'adresse e-mail',
+            'whatsapp' => 'numéro WhatsApp',
+            'ville_pays' => 'ville / pays de résidence',
+            'niveau_etude' => 'niveau d’étude',
+            'domaine_etude' => 'domaine d’étude',
+            'competences' => 'compétences',
+            'programme' => 'programme souhaité',
+            'niveau_formation' => 'niveau pour la formation',
+            'motivation' => 'motivation',
+            'origine' => "comment vous avez connu l’EVC",
+            'ordinateur' => 'ordinateur',
+            'smartphone' => 'smartphone',
+            'disponibilite' => 'disponibilités',
+            'veracite' => 'certification de véracité',
+            'consentement' => 'consentement',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages, $attributes);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $v = $validator->validated();
 
-        // Découpage ville / pays si possible
+        // Découpage ville / pays si possible (et éviter NULL en base)
         $ville = null; $pays = null;
         if (!empty($v['ville_pays'])) {
-            if (str_contains($v['ville_pays'], '/')) {
-                [$ville, $pays] = array_map('trim', explode('/', $v['ville_pays'], 2));
-            } elseif (str_contains($v['ville_pays'], ',')) {
-                [$ville, $pays] = array_map('trim', explode(',', $v['ville_pays'], 2));
+            $vp = trim($v['ville_pays']);
+            if (str_contains($vp, '/')) {
+                [$ville, $pays] = array_map('trim', explode('/', $vp, 2));
+            } elseif (str_contains($vp, ',')) {
+                [$ville, $pays] = array_map('trim', explode(',', $vp, 2));
             } else {
-                $ville = trim($v['ville_pays']);
+                // Pas de séparateur, on assume que c'est la ville
+                $ville = $vp;
             }
+        }
+        // Si le pays reste vide, fallback sur la nationalité ou CI par défaut
+        if (empty($pays)) {
+            $pays = !empty($v['nationalite']) ? $v['nationalite'] : 'Côte d’Ivoire';
         }
 
         // Normalisation programme -> enums internes et choix_formation
@@ -174,7 +225,10 @@ class HomepageController extends Controller
             Log::error('Failed to send admin pre-registration email (candidature)', ['error' => $e->getMessage()]);
         }
 
-        return response()->json(['success' => 'Votre candidature a été envoyée avec succès. Nous vous contacterons prochainement.']);
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => 'Votre candidature a été envoyée avec succès. Nous vous contacterons prochainement.']);
+        }
+        return redirect()->route('preinscription.start')->with('success', 'Votre candidature a été envoyée avec succès. Nous vous contacterons prochainement.');
     }
 
     /**

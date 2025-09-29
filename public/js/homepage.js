@@ -250,6 +250,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const formEl = document.getElementById('preRegistrationForm');
 
+            // Flash banner (AJAX) for success
+            const showFlashSuccess = (message) => {
+                try {
+                    const id = 'flash-success-ajax';
+                    const old = document.getElementById(id);
+                    if (old) old.remove();
+                    const wrap = document.createElement('div');
+                    wrap.id = id;
+                    wrap.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-[13000] bg-emerald-600 text-white px-4 py-3 rounded-full shadow-lg ring-1 ring-white/10 flex items-center gap-3';
+                    wrap.innerHTML = `<i class="fas fa-check-circle"></i><span>${message || 'Votre candidature a été envoyée avec succès.'}</span>`;
+                    document.body.appendChild(wrap);
+                    setTimeout(() => { const el = document.getElementById(id); if (el) el.remove(); }, 6000);
+                } catch(_){}
+            };
+
             // Live progress calculation for required fields
             const progressLine = document.getElementById('form-progress-line');
             const progressText = document.getElementById('form-progress-text');
@@ -274,19 +289,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (progressLine) progressLine.style.width = `${pct}%`;
                 if (progressText) progressText.textContent = `Progression: ${pct}%`;
             };
+
+            // Inline error rendering helpers
+            const clearFieldError = (field) => {
+                try {
+                    field.classList.remove('ring-2','ring-red-500');
+                    field.setAttribute('aria-invalid', 'false');
+                    // Remove a following helper if present
+                    const next = field.nextElementSibling;
+                    if (next && next.classList && next.classList.contains('field-error-text')) {
+                        next.remove();
+                    }
+                } catch(_){}
+            };
+            const setFieldError = (field, msg) => {
+                try {
+                    clearFieldError(field);
+                    field.classList.add('ring-2','ring-red-500');
+                    field.setAttribute('aria-invalid', 'true');
+                    const p = document.createElement('p');
+                    p.className = 'field-error-text text-red-400 text-sm mt-1';
+                    p.textContent = msg;
+                    field.insertAdjacentElement('afterend', p);
+                    field.addEventListener('input', () => clearFieldError(field), { once: true });
+                    field.addEventListener('change', () => clearFieldError(field), { once: true });
+                } catch(_){}
+            };
+            const clearAllErrors = (form) => {
+                form.querySelectorAll('[name]').forEach(el => clearFieldError(el));
+            };
             // Attach listeners
             formEl.addEventListener('input', updateProgressUI, true);
             formEl.addEventListener('change', updateProgressUI, true);
             updateProgressUI();
 
+            // If the form is configured for native submission, skip AJAX handling
+            const ajaxDisabled = formEl && (formEl.getAttribute('data-ajax') === 'false');
+            if (!formEl || ajaxDisabled) {
+                return; // let browser/Laravel handle everything (redirects, flashes)
+            }
+
             formEl.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 // Client-side validity check first
                 if (!formEl.checkValidity()) {
+                    clearAllErrors(formEl);
                     // Find first invalid required field
                     const invalid = formEl.querySelector('[name][required]:invalid');
                     if (invalid) {
-                        invalid.classList.add('ring-2','ring-red-500');
+                        setFieldError(invalid, 'Ce champ est requis.');
                         const rect = invalid.getBoundingClientRect();
                         const offsetY = window.scrollY + rect.top - 120;
                         window.scrollTo({ top: offsetY, behavior: 'smooth' });
@@ -324,13 +375,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = isJson ? await resp.json().catch(() => ({})) : {};
 
                     if (!resp.ok) {
+                        clearAllErrors(form);
                         if (data && data.errors) {
                             let firstInvalid = null;
-                            Object.entries(data.errors).forEach(([name]) => {
+                            Object.entries(data.errors).forEach(([name, messages]) => {
                                 const field = form.querySelector(`[name="${name}"]`);
                                 if (field) {
-                                    field.classList.add('ring-2','ring-red-500');
-                                    field.addEventListener('input', () => field.classList.remove('ring-2','ring-red-500'), { once: true });
+                                    setFieldError(field, Array.isArray(messages) ? messages[0] : 'Champ invalide');
                                     if (!firstInvalid) firstInvalid = field;
                                 }
                             });
@@ -351,7 +402,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         return;
                     }
 
-                    if (typeof showToast === 'function') showToast('success', (data && data.success) || 'Votre demande a été envoyée.');
+                    const successMsg = (data && data.success) || 'Votre candidature a été envoyée avec succès. Nous vous contacterons prochainement.';
+                    if (typeof showToast === 'function') showToast('success', successMsg);
+                    showFlashSuccess(successMsg);
                     // reset and close
                     form.reset();
                     updateProgressUI();

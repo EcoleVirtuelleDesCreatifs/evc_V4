@@ -4,6 +4,18 @@
 
 @section('content')
   <div class="min-h-screen" style="background: linear-gradient(45deg, #0b1e3a 0%, #0e2a54 100%);">
+    @if(session('success'))
+      <div id="flash-success" class="fixed top-4 left-1/2 -translate-x-1/2 z-[13000] bg-emerald-600 text-white px-4 py-3 rounded-full shadow-lg ring-1 ring-white/10 flex items-center gap-3">
+        <i class="fas fa-check-circle"></i>
+        <span>{{ session('success') }}</span>
+        <button type="button" onclick="document.getElementById('flash-success').remove()" class="ml-2 text-white/80 hover:text-white">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <script>
+        setTimeout(function(){ var el = document.getElementById('flash-success'); if(el) el.remove(); }, 6000);
+      </script>
+    @endif
     <!-- Toasts -->
     <div id="toast-container" class="fixed top-4 right-4 z-[11000] space-y-3"></div>
     <div id="toast-sr" class="sr-only" aria-live="polite"></div>
@@ -32,7 +44,17 @@
     <section class="py-10 pb-20">
       <div class="mx-auto max-w-3xl px-6 lg:px-0">
         <div id="preinscription-form-container" class="relative bg-dark-secondary/95 p-8 rounded-2xl shadow-lg ring-1 ring-white/10 w-full max-h-[85vh] overflow-y-auto">
-          <form id="preRegistrationForm" action="/candidature" method="POST" enctype="multipart/form-data" novalidate>
+          @if ($errors->any())
+            <div class="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 text-red-200 px-4 py-3">
+              <strong class="block mb-1">Veuillez corriger les erreurs suivantes :</strong>
+              <ul class="list-disc list-inside text-sm">
+                @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
+                @endforeach
+              </ul>
+            </div>
+          @endif
+          <form id="preRegistrationForm" action="/candidature" method="POST" enctype="multipart/form-data" data-ajax="false">
             @csrf
             @include('preinscription._form_fields')
           </form>
