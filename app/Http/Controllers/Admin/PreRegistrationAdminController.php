@@ -6,6 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\PreRegistration;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\AdmissionApprovedRegistrationLink;
+use App\Models\User;
 
 class PreRegistrationAdminController extends Controller
 {
@@ -68,9 +73,38 @@ class PreRegistrationAdminController extends Controller
     public function validateOne($id)
     {
         $pre = PreRegistration::findOrFail($id);
+        // 1) Marquer accepté
         $pre->status = 'accepted';
         $pre->save();
-        return redirect()->back()->with('success', 'Pré-inscription validée.');
+
+        // 2) Créer ou récupérer l'utilisateur lié à cette candidature
+        $user = User::where('email', $pre->email)->first();
+        if (!$user) {
+            $user = new User();
+            $user->name = trim(($pre->prenom ? $pre->prenom.' ' : '').($pre->nom ?? '')) ?: $pre->email;
+            $user->email = $pre->email;
+            // Mot de passe temporaire aléatoire (sera remplacé lors de la confirmation)
+            $user->password = bcrypt(str()->random(32));
+            $user->status = 'Invité';
+            $user->save();
+        }
+
+        // 3) Générer un lien unique de création de compte (valide 24h)
+        $email = $pre->email;
+        $timestamp = time();
+        $hash = md5($email . config('app.key'));
+        $token = base64_encode($email.'|'.$timestamp.'|'.$hash);
+        $registerUrl = route('student.confirm-registration', ['token' => $token]);
+
+        // 4) Envoyer l'e-mail de félicitations avec le lien
+        try {
+            Mail::to($pre->email)->send(new AdmissionApprovedRegistrationLink($pre, $registerUrl));
+        } catch (\Throwable $e) {
+            Log::error('Echec envoi mail de validation de candidature', ['error' => $e->getMessage(), 'pre_id' => $pre->id]);
+            return redirect()->back()->with('warning', "Candidature validée mais l'e-mail n'a pas pu être envoyé.");
+        }
+
+        return redirect()->back()->with('success', 'Pré-inscription validée et e-mail de création de compte envoyé au candidat.');
     }
 
     public function destroy($id)
