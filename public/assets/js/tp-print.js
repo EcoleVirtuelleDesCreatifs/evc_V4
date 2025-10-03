@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fonction pour ajouter un champ PDF
     function addPdfField() {
         if (pdfCount >= maxPdfs) {
-            alert(`Vous ne pouvez ajouter que ${maxPdfs} PDF maximum.`);
+            alert(`Vous ne pouvez ajouter que ${maxPdfs} documents maximum.`);
             return;
         }
         
@@ -97,13 +97,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Fonction pour gérer l'upload d'un PDF
+    // Fonction pour gérer l'upload d'un document
     function handlePdfUpload(file, pdfField) {
         if (!file) return;
         
-        // Validation du type de fichier
-        if (file.type !== 'application/pdf') {
-            alert('Seuls les fichiers PDF sont acceptés.');
+        // Obtenir l'extension du fichier (plus fiable que le MIME type)
+        const fileName = file.name.toLowerCase();
+        const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+        
+        // Extensions acceptées
+        const acceptedExtensions = ['.pdf', '.doc', '.docx', '.ppt', '.pptx'];
+        
+        // Validation basée sur l'extension (plus fiable)
+        if (!acceptedExtensions.includes(fileExtension)) {
+            alert('Seuls les fichiers PDF, Word (.doc, .docx) et PowerPoint (.ppt, .pptx) sont acceptés.\n\nVotre fichier: ' + fileName);
+            console.log('Fichier rejeté:', fileName, 'Extension:', fileExtension);
             return;
         }
         
@@ -113,11 +121,31 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Mettre à jour l'aperçu
+        console.log('Fichier accepté:', fileName, 'Taille:', formatFileSize(file.size));
+        
+        // Déterminer l'icône selon l'extension
+        let fileIcon = 'fa-file-pdf';
+        let fileColor = 'text-danger';
+        
+        if (fileExtension === '.doc' || fileExtension === '.docx') {
+            fileIcon = 'fa-file-word';
+            fileColor = 'text-primary';
+        } else if (fileExtension === '.ppt' || fileExtension === '.pptx') {
+            fileIcon = 'fa-file-powerpoint';
+            fileColor = 'text-warning';
+        }
+        
+        // Mettre à jour l'affichage
         const uploadPlaceholder = pdfField.querySelector('.upload-placeholder');
         const uploadPreview = pdfField.querySelector('.upload-preview');
+        const docIcon = pdfField.querySelector('.doc-icon');
         const pdfName = pdfField.querySelector('.pdf-name');
         const pdfSize = pdfField.querySelector('.pdf-size');
+        
+        // Mettre à jour l'icône
+        if (docIcon) {
+            docIcon.className = `fas ${fileIcon} fa-2x ${fileColor} mb-2 doc-icon`;
+        }
         
         uploadPlaceholder.style.display = 'none';
         uploadPreview.style.display = 'block';

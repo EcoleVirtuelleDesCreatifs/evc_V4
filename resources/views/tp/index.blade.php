@@ -8,45 +8,7 @@
     <div class="col-12">
         <!-- Debug Info (à supprimer après résolution) -->
 
-        <!-- Informations Profil Utilisateur -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card bg-gradient-primary text-white">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-auto">
-                                @if(isset($userProfile) && $userProfile->profile_photo)
-                                    <img src="{{ asset('uploads/photos/' . basename($userProfile->profile_photo)) }}" alt="Photo de profil" class="rounded-circle" style="width: 60px; height: 60px; object-fit: cover; border: 3px solid rgba(255,255,255,0.3);">
-                                @else
-                                    <div class="rounded-circle bg-white bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                        <i class="fas fa-user fa-2x text-white"></i>
-                                    </div>
-                                @endif
-            </div>
-                            <div class="col">
-                                <h4 class="mb-1">
-                                    @if(isset($userProfile))
-                                        {{ $userProfile->first_name }} {{ $userProfile->last_name }}
-                                    @else
-                                        {{ session('user_prenom', 'Prénom') }} {{ session('user_nom', 'Nom') }}
-                                    @endif
-                                </h4>
-                                <p class="mb-0 opacity-75">
-                                    <i class="fas fa-graduation-cap me-2"></i>
-                                    Formation Design Graphique - EVC 2024
-                                </p>
-                            </div>
-                            <div class="col-auto text-end">
-                                <div class="badge bg-white text-primary fs-6 px-3 py-2">
-                                    <i class="fas fa-tasks me-1"></i>
-                                    {{ isset($statistiques) ? $statistiques['tp_realises'] : 0 }} TP réalisés
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <!-- Statistiques TP Dynamiques -->
         <div class="row mb-4">
@@ -153,6 +115,138 @@
             </div>
         </div>
         @endif
+
+
+        <!-- Liste des TP à faire -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>
+                    TP à faire
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>TP</th>
+                                <th>Catégorie</th>
+                                <th>Échéance</th>
+                                <th>Priorité</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <h6 class="mb-1">TP Photoshop - Retouche Portrait</h6>
+                                        <small class="text-muted">Retouche professionnelle d'un portrait avec techniques avancées</small>
+                                    </div>
+                                </td>
+                                <td><span class="badge" style="background-color: var(--primary-color); color: white;">Photoshop</span></td>
+                                <td>
+                                    <small class="text-danger">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        30 Juillet 2024
+                                    </small>
+                                </td>
+                                <td><span class="badge" style="background-color: var(--accent-color); color: white;">Urgent</span></td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-primary" title="Commencer">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" title="Détails">
+                                            <i class="fas fa-info"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <h6 class="mb-1">TP InDesign - Magazine Layout</h6>
+                                        <small class="text-muted">Création d'une mise en page de magazine avec grilles et typographie</small>
+                                    </div>
+                                </td>
+                                <td><span class="badge" style="background-color: var(--accent-color); color: white;">InDesign</span></td>
+                                <td>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        5 Août 2024
+                                    </small>
+                                </td>
+                                <td><span class="badge" style="background-color: var(--primary-color); color: white;">Normal</span></td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-primary" title="Commencer">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" title="Détails">
+                                            <i class="fas fa-info"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <h6 class="mb-1">TP Illustrator - Logo Design</h6>
+                                        <small class="text-muted">Création d'un logo vectoriel avec techniques avancées</small>
+                                    </div>
+                                </td>
+                                <td><span class="badge" style="background-color: var(--secondary-color); color: white;">Illustrator</span></td>
+                                <td>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        10 Août 2024
+                                    </small>
+                                </td>
+                                <td><span class="badge" style="background-color: var(--warning-color); color: white;">Normal</span></td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-primary" title="Commencer">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" title="Détails">
+                                            <i class="fas fa-info"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div>
+                                        <h6 class="mb-1">TP Strategy Business - Plan d'affaires</h6>
+                                        <small class="text-muted">Création d'un plan d'affaires pour une entreprise de création graphique</small>
+                                    </div>
+                                </td>
+                                <td><span class="badge" style="background-color: var(--warning-color); color: white;">Master Class</span></td>
+                                <td>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        15 Août 2024
+                                    </small>
+                                </td>
+                                <td><span class="badge" style="background-color: var(--success-color); color: white;">Normal</span></td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn btn-primary" title="Commencer">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary" title="Détails">
+                                            <i class="fas fa-info"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
         <!-- Boutons Ajouter Projets -->
         <div class="row mb-4">
@@ -330,136 +424,7 @@
         }
         </style>
 
-        <!-- Liste des TP à faire -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-clock me-2"></i>
-                    TP à faire
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>TP</th>
-                                <th>Catégorie</th>
-                                <th>Échéance</th>
-                                <th>Priorité</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <div>
-                                        <h6 class="mb-1">TP Photoshop - Retouche Portrait</h6>
-                                        <small class="text-muted">Retouche professionnelle d'un portrait avec techniques avancées</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge" style="background-color: var(--primary-color); color: white;">Photoshop</span></td>
-                                <td>
-                                    <small class="text-danger">
-                                        <i class="fas fa-calendar me-1"></i>
-                                        30 Juillet 2024
-                                    </small>
-                                </td>
-                                <td><span class="badge" style="background-color: var(--accent-color); color: white;">Urgent</span></td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-primary" title="Commencer">
-                                            <i class="fas fa-play"></i>
-                                        </button>
-                                        <button class="btn btn-outline-secondary" title="Détails">
-                                            <i class="fas fa-info"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div>
-                                        <h6 class="mb-1">TP InDesign - Magazine Layout</h6>
-                                        <small class="text-muted">Création d'une mise en page de magazine avec grilles et typographie</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge" style="background-color: var(--accent-color); color: white;">InDesign</span></td>
-                                <td>
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar me-1"></i>
-                                        5 Août 2024
-                                    </small>
-                                </td>
-                                <td><span class="badge" style="background-color: var(--primary-color); color: white;">Normal</span></td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-primary" title="Commencer">
-                                            <i class="fas fa-play"></i>
-                                        </button>
-                                        <button class="btn btn-outline-secondary" title="Détails">
-                                            <i class="fas fa-info"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div>
-                                        <h6 class="mb-1">TP Illustrator - Logo Design</h6>
-                                        <small class="text-muted">Création d'un logo vectoriel avec techniques avancées</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge" style="background-color: var(--secondary-color); color: white;">Illustrator</span></td>
-                                <td>
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar me-1"></i>
-                                        10 Août 2024
-                                    </small>
-                                </td>
-                                <td><span class="badge" style="background-color: var(--warning-color); color: white;">Normal</span></td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-primary" title="Commencer">
-                                            <i class="fas fa-play"></i>
-                                        </button>
-                                        <button class="btn btn-outline-secondary" title="Détails">
-                                            <i class="fas fa-info"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div>
-                                        <h6 class="mb-1">TP Strategy Business - Plan d'affaires</h6>
-                                        <small class="text-muted">Création d'un plan d'affaires pour une entreprise de création graphique</small>
-                                    </div>
-                                </td>
-                                <td><span class="badge" style="background-color: var(--warning-color); color: white;">Master Class</span></td>
-                                <td>
-                                    <small class="text-muted">
-                                        <i class="fas fa-calendar me-1"></i>
-                                        15 Août 2024
-                                    </small>
-                                </td>
-                                <td><span class="badge" style="background-color: var(--success-color); color: white;">Normal</span></td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-primary" title="Commencer">
-                                            <i class="fas fa-play"></i>
-                                        </button>
-                                        <button class="btn btn-outline-secondary" title="Détails">
-                                            <i class="fas fa-info"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+
     </div>
 </div>
 @endsection

@@ -78,6 +78,12 @@ class AuthController extends Controller
                 ]);
             }
 
+            // Authentifier l'utilisateur dans Laravel (IMPORTANT pour le middleware auth)
+            $userModel = \App\Models\User::find($user->id);
+            if ($userModel) {
+                Auth::login($userModel, $request->has('remember'));
+            }
+
             // Enregistrer l'activité de connexion si la table existe
             if (\Illuminate\Support\Facades\Schema::hasTable('user_activities')) {
                 DB::table('user_activities')->insert([

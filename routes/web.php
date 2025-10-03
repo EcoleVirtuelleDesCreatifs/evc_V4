@@ -104,17 +104,19 @@ Route::get('/evc/app/admin/students/{id}/edit', [\App\Http\Controllers\Admin\Stu
     ->whereNumber('id')
     ->name('admin.students.edit');
 
-// Routes d'espaces étudiants personnalisées selon la formation
-Route::get('/evc/compte/design-graphique/espace-etudiant', [DashboardController::class, 'designGraphique'])->name('dashboard.design-graphique');
-Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
-Route::get('/evc/compte/intelligence-artificielle/espace-etudiant', [DashboardController::class, 'intelligenceArtificielle'])->name('dashboard.intelligence-artificielle');
-Route::get('/evc/compte/gestion-informatique/espace-etudiant', [DashboardController::class, 'gestionInformatique'])->name('dashboard.gestion-informatique');
+// Routes d'espaces étudiants personnalisées selon la formation (PROTÉGÉES PAR AUTH)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/evc/compte/design-graphique/espace-etudiant', [DashboardController::class, 'designGraphique'])->name('dashboard.design-graphique');
+    Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
+    Route::get('/evc/compte/intelligence-artificielle/espace-etudiant', [DashboardController::class, 'intelligenceArtificielle'])->name('dashboard.intelligence-artificielle');
+    Route::get('/evc/compte/gestion-informatique/espace-etudiant', [DashboardController::class, 'gestionInformatique'])->name('dashboard.gestion-informatique');
+});
 
-// Groupe de routes pour Design Graphique avec préfixe commun
-Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->group(function () {
+// Groupe de routes pour Design Graphique avec préfixe commun (PROTÉGÉ PAR AUTH)
+Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middleware(['auth'])->group(function () {
     // Profil - Structure: /evc/compte/design-graphique/profil/{action}
-    Route::get('/profil/editer', [DashboardController::class, 'editProfile'])->name('profil.editer');
-    Route::post('/profil/editer', [DashboardController::class, 'updateProfile'])->name('profil.update');
+    Route::get('/profil/editer/{id?}', [DashboardController::class, 'editProfile'])->name('profil.editer');
+    Route::post('/profil/editer/{id?}', [DashboardController::class, 'updateProfile'])->name('profil.update');
 
     // CVThèque - Structure: /evc/compte/design-graphique/cvtheque/{action}
     Route::get('/cvtheque/index', [CVThequeController::class, 'index'])->name('cvtheque.index');

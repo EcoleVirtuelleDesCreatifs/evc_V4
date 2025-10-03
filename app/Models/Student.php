@@ -11,19 +11,22 @@ class Student extends Model
         'last_name',
         'email',
         'phone',
+        'whatsapp',
         'date_of_birth',
         'gender',
         'student_id',
         'program',
         'level',
         'specialization',
-        'address',
+        'quartier',
         'city',
         'country',
         'profile_photo',
         'status',
         'gpa',
-        'credits_earned'
+        'credits_earned',
+        'years_experience',
+        'industry_sector',
     ];
 
     protected $casts = [

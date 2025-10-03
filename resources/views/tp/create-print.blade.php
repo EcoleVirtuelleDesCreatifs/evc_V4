@@ -15,7 +15,7 @@
                         </div>
                         <div>
                             <h2 class="mb-1">Nouveau Projet Print</h2>
-                            <p class="mb-0 opacity-75">Ajoutez vos documents PDF d'impression (cartes de visite, plaquettes, catalogues...)</p>
+                            <p class="mb-0 opacity-75">Ajoutez vos documents (PDF, Word, PowerPoint) d'impression (cartes de visite, plaquettes, catalogues...)</p>
                         </div>
                     </div>
                 </div>
@@ -81,34 +81,41 @@
                     </div>
                 </div>
 
-                <!-- Documents PDF -->
+                <!-- Documents -->
                 <div class="card mb-4">
                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-file-pdf text-danger me-2"></i>Documents PDF <span class="text-danger">*</span></h5>
+                        <h5 class="mb-0"><i class="fas fa-file-alt text-primary me-2"></i>Documents (PDF, Word, PowerPoint)</h5>
                         <button type="button" class="btn btn-sm btn-outline-primary" id="addPdfBtn">
-                            <i class="fas fa-plus me-1"></i>Ajouter un PDF
+                            <i class="fas fa-plus me-1"></i>Ajouter un Document
                         </button>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-warning alert-sm mb-3" id="pdfAlert" style="display: none;">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            <small><strong>Obligatoire :</strong> Ajoutez au moins un document PDF pour votre projet.</small>
+                            Veuillez ajouter au moins un document avant de soumettre le formulaire.
                         </div>
                         
                         <div class="row" id="pdfContainer">
                             <!-- Les champs PDF seront ajoutés ici dynamiquement -->
                         </div>
 
-                        <!-- Zone de drag & drop globale pour PDF -->
-                        <div id="globalPdfDropZone" class="border-2 border-dashed border-danger rounded p-5 text-center mt-4" style="min-height: 200px; background: #fff5f5;">
-                            <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                <i class="fas fa-cloud-upload-alt fa-3x text-danger mb-3"></i>
-                                <h5 class="text-danger mb-2">Glissez-déposez vos PDF ici</h5>
-                                <p class="text-muted mb-3">ou cliquez sur "Ajouter un PDF" ci-dessus</p>
-                                <div class="text-muted small">
-                                    <i class="fas fa-check-circle text-success me-1"></i>PDF uniquement
-                                    <span class="mx-2">•</span>
-                                    <i class="fas fa-weight-hanging text-info me-1"></i>Max 50MB par fichier
+                        <!-- Zone de drag & drop globale pour documents -->
+                        <div id="globalPdfDropZone" class="border-2 border-dashed border-primary rounded p-5 text-center mt-4" style="min-height: 200px; background: #f0f7ff;">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                            <h5>Glissez-déposez vos documents ici</h5>
+                            <p class="text-muted mb-3">ou cliquez sur "Ajouter un Document" ci-dessus</p>
+                            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                <div class="text-muted">
+                                    <i class="fas fa-file-pdf text-danger me-1"></i>PDF
+                                </div>
+                                <div class="text-muted">
+                                    <i class="fas fa-file-word text-primary me-1"></i>Word (.doc, .docx)
+                                </div>
+                                <div class="text-muted">
+                                    <i class="fas fa-file-powerpoint text-warning me-1"></i>PowerPoint (.ppt, .pptx)
+                                </div>
+                                <div class="text-muted">
+                                    <i class="fas fa-weight-hanging text-info me-1"></i>Max 50MB
                                 </div>
                             </div>
                         </div>
@@ -313,7 +320,7 @@
         <div class="card border-2 border-dashed border-danger">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="mb-0">PDF <span class="pdf-number"></span></h6>
+                    <h6 class="mb-0">Document <span class="pdf-number"></span></h6>
                     <div class="btn-group btn-group-sm">
                         <button type="button" class="btn btn-outline-danger btn-sm remove-pdf" title="Supprimer">
                             <i class="fas fa-trash"></i>
@@ -322,14 +329,14 @@
                 </div>
 
                 <div class="pdf-upload-zone border rounded p-3 text-center position-relative">
-                    <input type="file" class="form-control pdf-input" name="documents[]" accept=".pdf" style="display: none;">
+                    <input type="file" class="form-control pdf-input" name="files[]" accept=".pdf,.doc,.docx,.ppt,.pptx" style="display: none;">
                     <div class="upload-placeholder">
-                        <i class="fas fa-file-pdf fa-2x text-danger mb-2"></i>
-                        <p class="mb-1">Cliquez ou glissez un PDF</p>
-                        <small class="text-muted">PDF uniquement - Max 50MB</small>
+                        <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                        <p class="mb-1">Cliquez ou glissez un document</p>
+                        <small class="text-muted">PDF, Word, PowerPoint - Max 50MB</small>
                     </div>
                     <div class="upload-preview" style="display: none;">
-                        <i class="fas fa-file-pdf fa-2x text-danger mb-2"></i>
+                        <i class="fas fa-file-alt fa-2x text-primary mb-2 doc-icon"></i>
                         <p class="mb-1 fw-bold pdf-name"></p>
                         <small class="text-muted pdf-size"></small>
                     </div>

@@ -7,9 +7,17 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Models\User;
+use App\Models\Student;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use App\Http\Requests\StudentProfileRequest;
+use App\Services\StudentProfileService;
 
 class DashboardController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Redirect to the login page to ensure stability.
      */
@@ -21,9 +29,16 @@ class DashboardController extends Controller
     /**
      * Placeholder for the design graphique dashboard.
      */
-    public function designGraphique(): View
+    public function designGraphique(StudentProfileService $service): View
     {
-        return view('dashboard.design-graphique', ['data' => 'placeholder']);
+        $user = Auth::user();
+        $student = $service->loadStudent($user, null);
+        $preReg = $service->loadPreRegistration($student, $user);
+        return view('dashboard.design-graphique', [
+            'user' => $user,
+            'student' => $student,
+            'preReg' => $preReg,
+        ]);
     }
 
     /**
@@ -36,6 +51,451 @@ class DashboardController extends Controller
             'stats' => [],
             'userProfile' => (object)[]
         ]);
+    }
+
+    /**
+     * Lister tous les TP de l'utilisateur (Design Graphique)
+     */
+    public function listTP(): View
+    {
+        $user = Auth::user();
+        
+        // Initialiser les valeurs par défaut
+        $tps = [];
+        $totalTpRequis = 20; // Nombre total de TP requis pour la certification
+        
+        // Statistiques par défaut
+        $statistiques = [
+            'tp_realises' => 0,
+            'tp_a_faire' => $totalTpRequis,
+            'tp_total' => $totalTpRequis,
+            'progression_pourcentage' => 0
+        ];
+        
+        $validationStats = [
+            'tp_en_validation' => 0,
+            'tp_valides' => 0
+        ];
+        
+        // Vérifier si l'utilisateur est connecté
+        if (!$user) {
+            return view('tp.index', compact('tps', 'statistiques', 'validationStats'));
+        }
+        
+        try {
+            // Vérifier si la table tp existe
+            if (!Schema::hasTable('tp')) {
+                Log::warning('Table tp n\'existe pas');
+                return view('tp.index', compact('tps', 'statistiques', 'validationStats'));
+            }
+            
+            // Récupérer tous les TP de l'utilisateur
+            $tpsQuery = DB::table('tp')->where('user_id', $user->id);
+            
+            // Joindre les fichiers si la table existe
+            if (Schema::hasTable('tp_files')) {
+                $tpsQuery->leftJoin('tp_files', 'tp.id', '=', 'tp_files.tp_id')
+                         ->select('tp.*', DB::raw('COUNT(tp_files.id) as files_count'))
+                         ->groupBy('tp.id');
+            }
+            
+            $tps = $tpsQuery->orderByDesc('created_at')->get();
+            
+            // Calculer les statistiques
+            $cols = Schema::getColumnListing('tp');
+            
+            if (in_array('status', $cols)) {
+                // Compter les TP par statut
+                $tpsPending = DB::table('tp')
+                    ->where('user_id', $user->id)
+                    ->where('status', 'pending')
+                    ->count();
+                
+                $tpsValidated = DB::table('tp')
+                    ->where('user_id', $user->id)
+                    ->where('status', 'validated')
+                    ->count();
+                
+                // Mettre à jour les statistiques
+                $validationStats['tp_en_validation'] = $tpsPending;
+                $validationStats['tp_valides'] = $tpsValidated;
+                $statistiques['tp_realises'] = $tpsValidated;
+                $statistiques['tp_a_faire'] = max(0, $totalTpRequis - $tpsValidated);
+                $statistiques['progression_pourcentage'] = $totalTpRequis > 0 ? min(100, round(($tpsValidated / $totalTpRequis) * 100)) : 0;
+                
+                // Log pour débogage
+                Log::info('Statistiques TP calculées', [
+                    'user_id' => $user->id,
+                    'tp_pending' => $tpsPending,
+                    'tp_validated' => $tpsValidated,
+                    'tp_realises' => $statistiques['tp_realises'],
+                    'progression' => $statistiques['progression_pourcentage']
+                ]);
+            } else {
+                Log::warning('Colonne status n\'existe pas dans la table tp');
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du chargement des TP', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+        
+        return view('tp.index', compact('tps', 'statistiques', 'validationStats'));
+    }
+
+    /**
+     * Afficher le formulaire de création d'un TP
+     */
+    public function createTP(): View|RedirectResponse
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
+        }
+        
+        // Vérifier le type de projet (print ou digital)
+        $type = request()->query('type', 'digital');
+        
+        // Charger la vue appropriée selon le type
+        if ($type === 'print') {
+            return view('tp.create-print');
+        }
+        
+        return view('tp.create');
+    }
+
+    /**
+     * Enregistrer un nouveau TP
+     */
+    public function storeTP(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
+        }
+        
+        try {
+            // Validation des données
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string|max:2000',
+                'link' => 'nullable|url|max:500',
+                'files.*' => 'nullable|file|max:10240|mimes:pdf,doc,docx,jpg,jpeg,png,gif,zip,rar,txt,ppt,pptx,xls,xlsx'
+            ], [
+                'title.required' => 'Le titre du TP est obligatoire.',
+                'title.max' => 'Le titre ne peut pas dépasser 255 caractères.',
+                'description.max' => 'La description ne peut pas dépasser 2000 caractères.',
+                'link.url' => 'Le lien doit être une URL valide.',
+                'link.max' => 'Le lien ne peut pas dépasser 500 caractères.',
+                'files.*.max' => 'Chaque fichier ne peut pas dépasser 10MB.',
+                'files.*.mimes' => 'Types de fichiers autorisés: PDF, DOC, DOCX, JPG, JPEG, PNG, GIF, ZIP, RAR, TXT, PPT, PPTX, XLS, XLSX.'
+            ]);
+            
+            // Vérifier si la table tp existe
+            if (!Schema::hasTable('tp')) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'La table des TPs n\'existe pas encore.');
+            }
+            
+            // Insérer le TP
+            $tpId = DB::table('tp')->insertGetId([
+                'user_id' => $user->id,
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'link' => $validated['link'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            
+            // Traiter les fichiers uploadés
+            if ($request->hasFile('files') && Schema::hasTable('tp_files')) {
+                $uploadPath = public_path('uploads/tp');
+                
+                // Créer le dossier s'il n'existe pas
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                foreach ($request->file('files') as $file) {
+                    if ($file->isValid()) {
+                        // Récupérer les informations du fichier AVANT de le déplacer
+                        $originalName = $file->getClientOriginalName();
+                        $fileSize = $file->getSize();
+                        $mimeType = $file->getMimeType();
+                        $extension = $file->getClientOriginalExtension();
+                        
+                        // Générer un nom unique pour le fichier
+                        $fileName = time() . '_' . uniqid() . '.' . $extension;
+                        $filePath = 'uploads/tp/' . $fileName;
+                        
+                        // Déplacer le fichier
+                        $file->move($uploadPath, $fileName);
+                        
+                        // Enregistrer les informations du fichier en base
+                        DB::table('tp_files')->insert([
+                            'tp_id' => $tpId,
+                            'original_name' => $originalName,
+                            'file_path' => $filePath,
+                            'file_size' => $fileSize,
+                            'mime_type' => $mimeType,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+            }
+            
+            return redirect()->route('design-graphique.tp.index')
+                ->with('success', 'TP ajouté avec succès!');
+                
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de l\'ajout du TP: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de l\'ajout du TP: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Mettre à jour un projet/TP
+     */
+    public function updateProject(Request $request, int $id): RedirectResponse
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
+        }
+        
+        try {
+            if (!Schema::hasTable('tp')) {
+                return redirect()->back()->with('error', 'La table des TPs n\'existe pas.');
+            }
+            
+            // Vérifier que le TP appartient à l'utilisateur
+            $tp = DB::table('tp')->where('id', $id)->where('user_id', $user->id)->first();
+            
+            if (!$tp) {
+                return redirect()->route('design-graphique.tp.index')
+                    ->with('error', 'TP introuvable ou accès non autorisé.');
+            }
+            
+            // Validation
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string|max:2000',
+                'link' => 'nullable|url|max:500',
+            ]);
+            
+            // Mettre à jour le TP
+            DB::table('tp')->where('id', $id)->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'link' => $validated['link'] ?? null,
+                'updated_at' => now(),
+            ]);
+            
+            return redirect()->route('design-graphique.tp.index')
+                ->with('success', 'TP mis à jour avec succès!');
+                
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la mise à jour du TP: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour du TP.');
+        }
+    }
+
+    /**
+     * Mettre à jour un projet/TP avec images
+     */
+    public function updateProjectWithImages(Request $request, int $id): RedirectResponse
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
+        }
+        
+        try {
+            if (!Schema::hasTable('tp')) {
+                return redirect()->back()->with('error', 'La table des TPs n\'existe pas.');
+            }
+            
+            // Vérifier que le TP appartient à l'utilisateur
+            $tp = DB::table('tp')->where('id', $id)->where('user_id', $user->id)->first();
+            
+            if (!$tp) {
+                return redirect()->route('design-graphique.tp.index')
+                    ->with('error', 'TP introuvable ou accès non autorisé.');
+            }
+            
+            // Traiter les nouveaux fichiers
+            if ($request->hasFile('files') && Schema::hasTable('tp_files')) {
+                $uploadPath = public_path('uploads/tp');
+                
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                foreach ($request->file('files') as $file) {
+                    if ($file->isValid()) {
+                        $originalName = $file->getClientOriginalName();
+                        $fileSize = $file->getSize();
+                        $mimeType = $file->getMimeType();
+                        $extension = $file->getClientOriginalExtension();
+                        $fileName = time() . '_' . uniqid() . '.' . $extension;
+                        $filePath = 'uploads/tp/' . $fileName;
+                        
+                        $file->move($uploadPath, $fileName);
+                        
+                        DB::table('tp_files')->insert([
+                            'tp_id' => $id,
+                            'original_name' => $originalName,
+                            'file_path' => $filePath,
+                            'file_size' => $fileSize,
+                            'mime_type' => $mimeType,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+            }
+            
+            return redirect()->route('design-graphique.tp.index')
+                ->with('success', 'Images ajoutées avec succès!');
+                
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de l\'ajout des images: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erreur lors de l\'ajout des images.');
+        }
+    }
+
+    /**
+     * Supprimer un projet/TP
+     */
+    public function deleteProject(int $id): RedirectResponse
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
+        }
+        
+        try {
+            if (!Schema::hasTable('tp')) {
+                return redirect()->back()->with('error', 'La table des TPs n\'existe pas.');
+            }
+            
+            // Vérifier que le TP appartient à l'utilisateur
+            $tp = DB::table('tp')->where('id', $id)->where('user_id', $user->id)->first();
+            
+            if (!$tp) {
+                return redirect()->route('design-graphique.tp.index')
+                    ->with('error', 'TP introuvable ou accès non autorisé.');
+            }
+            
+            // Supprimer les fichiers associés
+            if (Schema::hasTable('tp_files')) {
+                $files = DB::table('tp_files')->where('tp_id', $id)->get();
+                
+                foreach ($files as $file) {
+                    $fullPath = public_path($file->file_path);
+                    if (file_exists($fullPath)) {
+                        unlink($fullPath);
+                    }
+                }
+                
+                DB::table('tp_files')->where('tp_id', $id)->delete();
+            }
+            
+            // Supprimer le TP
+            DB::table('tp')->where('id', $id)->delete();
+            
+            return redirect()->route('design-graphique.tp.index')
+                ->with('success', 'TP supprimé avec succès!');
+                
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la suppression du TP: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erreur lors de la suppression du TP.');
+        }
+    }
+
+    /**
+     * Formulaire d'ajout simple de TP
+     */
+    public function ajouterSimpleTP(): View|RedirectResponse
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
+        }
+        
+        return view('tp.ajouter-simple');
+    }
+
+    /**
+     * Formulaire de test simple de TP
+     */
+    public function testSimpleTP(): View|RedirectResponse
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour accéder à cette page.');
+        }
+        
+        return view('tp.test-simple');
+    }
+
+    /**
+     * Enregistrer un TP de test simple
+     */
+    public function storeTestSimpleTP(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Vous devez être connecté pour effectuer cette action.');
+        }
+        
+        try {
+            // Validation simple
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string|max:2000',
+            ]);
+            
+            if (!Schema::hasTable('tp')) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', 'La table des TPs n\'existe pas encore.');
+            }
+            
+            // Insérer le TP de test
+            DB::table('tp')->insert([
+                'user_id' => $user->id,
+                'title' => $validated['title'],
+                'description' => $validated['description'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            
+            return redirect()->route('design-graphique.tp.index')
+                ->with('success', 'TP de test ajouté avec succès!');
+                
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de l\'ajout du TP de test: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de l\'ajout du TP de test.');
+        }
     }
 
     /**
@@ -221,5 +681,175 @@ class DashboardController extends Controller
             'formation' => $formation,
             'related_formations' => $related ?? collect(),
         ]);
+    }
+
+    /**
+     * Affichage du formulaire d'édition du profil étudiant.
+     */
+    /** @return View */
+    public function editProfile(Request $request, StudentProfileService $service, ?int $id = null): View
+    {
+        /** @var User|null $authUser */
+        $authUser = Auth::user();
+        $student = $service->loadStudent($authUser, $id);
+        // Autorisation désactivée temporairement pour éviter les 403 pendant l'intégration de la policy
+
+        $preReg = $service->loadPreRegistration($student, $authUser);
+        // Construire des valeurs par défaut (pré-remplissage)
+        $sf = optional($student);
+        $pr = optional($preReg);
+        $defaults = [
+            'first_name'       => $sf->first_name ?: ($authUser->name ?? ($pr->first_name ?? '')),
+            'last_name'        => $sf->last_name ?: ($pr->last_name ?? ''),
+            'email'            => $sf->email ?: (($authUser->email ?? '') ?: ($pr->email ?? '')),
+            'phone'            => $sf->phone ?: ($pr->phone ?? ''),
+            'whatsapp'         => $sf->whatsapp ?: ($pr->whatsapp ?? ''),
+            'date_of_birth'    => $sf->date_of_birth ? $sf->date_of_birth->format('Y-m-d') : ($pr->date_of_birth ?? ''),
+            'gender'           => $sf->gender ?: ($pr->gender ?? ''),
+            'level'            => $sf->level ?: ($pr->level ?? ''),
+            'specialization'   => $sf->specialization ?: ($pr->specialization ?? ''),
+            'quartier'         => $sf->quartier ?: ($pr->quartier ?? ''),
+            'city'             => $sf->city ?: ($pr->city ?? ''),
+            'country'          => $sf->country ?: ($pr->country ?? ''),
+            'years_experience' => ($sf->years_experience !== null ? $sf->years_experience : ($pr->years_experience ?? '')),
+            'industry_sector'  => $sf->industry_sector ?: ($pr->industry_sector ?? ''),
+        ];
+
+        return view('dashboard.profil.editer', [
+            'student' => $student,
+            'user' => $authUser,
+            'preReg' => $preReg,
+            'defaults' => $defaults,
+        ]);
+    }
+
+    /**
+     * Mise à jour du profil étudiant (nom, email, photo, ...)
+     */
+    /** @return RedirectResponse */
+    public function updateProfile(StudentProfileRequest $request, StudentProfileService $service, ?int $id = null): RedirectResponse
+    {
+        /** @var User|null $authUser */
+        $authUser = Auth::user();
+        if (!$authUser) {
+            return redirect()->route('login');
+        }
+        $student = $service->loadStudent($authUser, $id);
+        // Autorisation désactivée temporairement pour éviter les 403 pendant l'intégration de la policy
+        $service->save($student, $request->validated(), $request->file('profile_photo'));
+        $redirectParams = $id ? ['id' => $student->id] : [];
+        return redirect()->route('design-graphique.profil.editer', $redirectParams)
+            ->with('success', 'Profil mis à jour avec succès!');
+    }
+
+    /**
+     * Afficher la page des projets de design graphique
+     */
+    public function projets(): View
+    {
+        $user = Auth::user();
+        
+        // Initialiser toutes les variables avec des valeurs par défaut
+        $projets = collect([]);
+        $soloProjects = [];
+        $groupProjects = [];
+        $stats = [
+            'solo_projects' => 0,
+            'group_projects' => 0,
+            'total_projects' => 0
+        ];
+        $statistiques = [
+            'total' => 0,
+            'en_cours' => 0,
+            'termines' => 0,
+            'en_attente' => 0
+        ];
+        $soloPagination = [
+            'current_page' => 1,
+            'per_page' => 10,
+            'total_items' => 0,
+            'total_pages' => 1,
+            'has_prev' => false,
+            'has_next' => false
+        ];
+        $groupPagination = [
+            'current_page' => 1,
+            'per_page' => 10,
+            'total_items' => 0,
+            'total_pages' => 1,
+            'has_prev' => false,
+            'has_next' => false
+        ];
+        
+        if (!$user) {
+            return view('projets.index', compact('projets', 'soloProjects', 'groupProjects', 'stats', 'statistiques', 'soloPagination', 'groupPagination'));
+        }
+        
+        try {
+            // Vérifier si la table design_projects existe
+            if (!Schema::hasTable('design_projects')) {
+                Log::warning('Table design_projects n\'existe pas');
+                return view('projets.index', compact('projets', 'soloProjects', 'groupProjects', 'stats', 'statistiques', 'soloPagination', 'groupPagination'));
+            }
+            
+            // Récupérer tous les projets de l'utilisateur
+            $allProjects = DB::table('design_projects')
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->get();
+            
+            if ($allProjects && $allProjects->count() > 0) {
+                // Convertir en tableau pour faciliter la manipulation
+                $projets = $allProjects->map(function($project) {
+                    $projectArray = (array) $project;
+                    // Ajouter files_count si nécessaire
+                    if (!isset($projectArray['files_count'])) {
+                        $projectArray['files_count'] = 0;
+                    }
+                    // Parser software_used si c'est une chaîne JSON
+                    if (isset($projectArray['software_used']) && is_string($projectArray['software_used'])) {
+                        $projectArray['software_used_array'] = json_decode($projectArray['software_used'], true) ?: [];
+                    } else {
+                        $projectArray['software_used_array'] = [];
+                    }
+                    return $projectArray;
+                });
+                
+                // Séparer les projets solo et groupe
+                $soloProjects = $projets->where('category', 'solo')->values()->toArray();
+                $groupProjects = $projets->where('category', 'groupe')->values()->toArray();
+                
+                // Calculer les statistiques
+                $stats['solo_projects'] = count($soloProjects);
+                $stats['group_projects'] = count($groupProjects);
+                $stats['total_projects'] = $projets->count();
+                
+                $statistiques['total'] = $projets->count();
+                $statistiques['en_cours'] = $projets->where('status', 'in_progress')->count();
+                $statistiques['termines'] = $projets->where('status', 'completed')->count();
+                $statistiques['en_attente'] = $projets->where('status', 'pending')->count();
+                
+                // Calculer la pagination pour solo
+                $soloPagination['total_items'] = count($soloProjects);
+                $soloPagination['total_pages'] = max(1, ceil($soloPagination['total_items'] / $soloPagination['per_page']));
+                $soloPagination['has_prev'] = $soloPagination['current_page'] > 1;
+                $soloPagination['has_next'] = $soloPagination['current_page'] < $soloPagination['total_pages'];
+                
+                // Calculer la pagination pour groupe
+                $groupPagination['total_items'] = count($groupProjects);
+                $groupPagination['total_pages'] = max(1, ceil($groupPagination['total_items'] / $groupPagination['per_page']));
+                $groupPagination['has_prev'] = $groupPagination['current_page'] > 1;
+                $groupPagination['has_next'] = $groupPagination['current_page'] < $groupPagination['total_pages'];
+            }
+            
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du chargement des projets', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $user->id
+            ]);
+        }
+        
+        return view('projets.index', compact('projets', 'soloProjects', 'groupProjects', 'stats', 'statistiques', 'soloPagination', 'groupPagination'));
     }
 }

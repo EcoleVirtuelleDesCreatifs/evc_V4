@@ -99,6 +99,8 @@ return [
 
     'key' => env('APP_KEY'),
 
+    // (providers laissés à la configuration par défaut du framework)
+
     'previous_keys' => [
         ...array_filter(
             explode(',', (string) env('APP_PREVIOUS_KEYS', ''))

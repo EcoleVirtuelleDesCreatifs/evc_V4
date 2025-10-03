@@ -570,7 +570,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <a href="{{ route('dashboard') }}" class="sidebar-brand">
+            <a href="{{ route('dashboard.design-graphique') }}" class="sidebar-brand">
                 <img src="{{ asset('assets/img/logo_white.png') }}" alt="EVC Logo" style="height: 100px; width: auto; margin-right: 10px;">
 
             </a>
@@ -583,7 +583,7 @@
         <nav class="sidebar-nav">
             <!-- Vue d'ensemble -->
             <div class="nav-item">
-                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <a href="{{ route('dashboard.design-graphique') }}" class="nav-link {{ request()->routeIs('dashboard.design-graphique') ? 'active' : '' }}">
                     <i class="fas fa-chart-pie"></i>
                     Vue d'ensemble
                 </a>
@@ -783,7 +783,7 @@
 
                         <li><hr class="dropdown-divider"></li>
 
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route('dashboard') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ route('dashboard.design-graphique') }}">
                             <i class="fas fa-chart-pie me-3"></i>
                             <span>Mon Espace Étudiant</span>
                         </a></li>
