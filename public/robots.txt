@@ -1,2 +1,37 @@
+# EVC - École Virtuelle des Créatifs
+# Robots.txt optimisé pour SEO
+
+# Tous les robots
 User-agent: *
-Disallow:
+Allow: /
+
+# Bloquer les dossiers privés et administratifs
+Disallow: /evc/compte/
+Disallow: /evc/app/admin/
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /.env
+Disallow: /config/
+
+# Autoriser explicitement les ressources importantes
+Allow: /assets/
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /uploads/design_projects/
+
+# Sitemap
+Sitemap: http://127.0.0.1:8000/sitemap.xml
+
+# Crawl delay pour éviter la surcharge
+Crawl-delay: 1
+
+# Directives spécifiques pour Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Directives pour Bingbot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1

@@ -1,0 +1,33 @@
+{
+    "name": "École Virtuelle des Créatifs - EVC",
+    "short_name": "EVC",x
+    "description": "Première école virtuelle de Côte d'Ivoire. Formations en Design Graphique, Community Management et Intelligence Artificielle.",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#FF6B00",
+    "background_color": "#FFFFFF",
+    "display": "standalone",
+    "orientation": "portrait",
+    "start_url": "/",
+    "scope": "/",
+    "lang": "fr-CI",
+    "dir": "ltr",
+    "categories": ["education", "training", "design", "technology"],
+    "screenshots": [
+        {
+            "src": "/assets/img/hero-1.jpg",
+            "sizes": "1280x720",
+            "type": "image/jpeg"
+        }
+    ]
+}

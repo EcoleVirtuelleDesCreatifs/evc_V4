@@ -250,6 +250,7 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
 
     // Documents - Structure: /evc/compte/design-graphique/documents/{action}
     Route::get('/documents/index', [DashboardController::class, 'documentsIndex'])->name('documents.index');
+    Route::get('/documents/download/{id}', [DashboardController::class, 'downloadDocument'])->name('documents.download');
 });
 
 // Routes Administration - Espace sécurisé pour les administrateurs

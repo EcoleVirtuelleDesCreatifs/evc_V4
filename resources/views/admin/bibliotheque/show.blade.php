@@ -41,7 +41,21 @@
                             @endforeach
                         </p>
                     @endif
-                    <a href="{{ asset('storage/' . $item->path) }}" class="btn btn-primary mt-3" target="_blank"><i class="fas fa-download me-2"></i>Télécharger</a>
+                    
+                    <div class="mt-3">
+                        <a href="{{ asset('storage/' . $item->path) }}" class="btn btn-secondary me-2" download>
+                            <i class="fas fa-image me-2"></i>Télécharger la couverture
+                        </a>
+                        @if($item->pdf_path)
+                            <a href="{{ asset('storage/' . $item->pdf_path) }}" class="btn btn-primary" download>
+                                <i class="fas fa-file-pdf me-2"></i>Télécharger le PDF
+                            </a>
+                        @else
+                            <button class="btn btn-secondary" disabled>
+                                <i class="fas fa-file-pdf me-2"></i>PDF non disponible
+                            </button>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

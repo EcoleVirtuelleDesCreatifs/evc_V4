@@ -9,7 +9,7 @@ class Library extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'title', 'path', 'download_url', 'file_type', 'size', 'library_category_id', 'user_id', 'recipients', 'status'];
+    protected $fillable = ['name', 'title', 'path', 'pdf_path', 'download_url', 'file_type', 'size', 'downloads_count', 'library_category_id', 'user_id', 'recipients', 'status'];
 
     protected $casts = [
         'recipients' => 'array',

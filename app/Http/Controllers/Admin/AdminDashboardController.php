@@ -98,7 +98,7 @@ class AdminDashboardController extends Controller
             'is_featured' => 'required|boolean',
             'action' => 'required|in:draft,pending,published',
             'student_ids' => 'nullable|array',
-            'student_ids.*' => 'exists:users,id',
+            'student_ids.*' => 'nullable|integer|exists:users,id',
             'pdf_files' => 'nullable|array',
             'pdf_files.*' => 'file|mimes:pdf|max:10240', // 10 Mo max par fichier
         ]);
@@ -136,7 +136,11 @@ class AdminDashboardController extends Controller
             $formation->save();
 
             if ($request->filled('student_ids')) {
-                $formation->students()->sync($validatedData['student_ids']);
+                // Filtrer les valeurs vides et invalides avant la synchronisation
+                $studentIds = array_filter($validatedData['student_ids'], function($id) {
+                    return !empty($id) && is_numeric($id);
+                });
+                $formation->students()->sync($studentIds);
             }
 
             // Gérer l'upload des fichiers PDF
@@ -215,7 +219,7 @@ class AdminDashboardController extends Controller
             'is_featured' => 'required|boolean',
             'action' => 'required|in:draft,pending,published',
             'student_ids' => 'nullable|array',
-            'student_ids.*' => 'exists:users,id',
+            'student_ids.*' => 'nullable|integer|exists:users,id',
         ]);
 
         try {
@@ -252,7 +256,11 @@ class AdminDashboardController extends Controller
             $formation->save();
 
             if ($request->filled('student_ids')) {
-                $formation->students()->sync($validatedData['student_ids']);
+                // Filtrer les valeurs vides et invalides avant la synchronisation
+                $studentIds = array_filter($validatedData['student_ids'], function($id) {
+                    return !empty($id) && is_numeric($id);
+                });
+                $formation->students()->sync($studentIds);
             } else {
                 $formation->students()->detach();
             }
@@ -415,21 +423,28 @@ class AdminDashboardController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
-            'file' => 'required|file|mimes:pdf,jpg,jpeg,png,gif,svg,zip|max:20480', // Max 20MB
+            'cover_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048', // Max 2MB pour l'image
+            'pdf_file' => 'required|file|mimes:pdf|max:51200', // Max 50MB pour le PDF
             'library_category_id' => 'nullable|exists:library_categories,id',
             'download_url' => 'nullable|url',
             'recipients' => 'nullable|array',
         ]);
 
-        $file = $request->file('file');
-        $path = $file->store('library', 'public');
+        // Upload de l'image de couverture
+        $coverImage = $request->file('cover_image');
+        $coverPath = $coverImage->store('library/covers', 'public');
+
+        // Upload du fichier PDF
+        $pdfFile = $request->file('pdf_file');
+        $pdfPath = $pdfFile->store('library/pdfs', 'public');
 
         Library::create([
             'title' => $validatedData['title'],
-            'name' => $file->getClientOriginalName(),
-            'path' => $path,
-            'file_type' => $file->getClientOriginalExtension(),
-            'size' => $file->getSize(),
+            'name' => $coverImage->getClientOriginalName(),
+            'path' => $coverPath,
+            'pdf_path' => $pdfPath, // Nouveau champ pour le PDF
+            'file_type' => $coverImage->getClientOriginalExtension(),
+            'size' => $coverImage->getSize(),
             'library_category_id' => $validatedData['library_category_id'] ?? null,
             'download_url' => $validatedData['download_url'] ?? null,
             'recipients' => $validatedData['recipients'] ?? [],

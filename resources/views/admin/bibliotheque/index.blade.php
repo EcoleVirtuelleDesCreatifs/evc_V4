@@ -30,9 +30,9 @@
                             <th>Prévisualisation</th>
                             <th>Titre</th>
                             <th>Catégorie</th>
-                            <th>Type</th>
                             <th>Destinataires</th>
                             <th>Date d'ajout</th>
+                            <th>Téléchargements</th>
                             <th>Statut</th>
                             <th>Actions</th>
                         </tr>
@@ -55,9 +55,6 @@
                                 </td>
                                 <td>{{ $item->libraryCategory->name ?? 'N/A' }}</td>
                                 <td>
-                                    <span class="badge bg-secondary">{{ strtoupper($item->file_type) }}</span>
-                                </td>
-                                <td>
                                     @if(!empty($item->recipients))
                                         @foreach($item->recipients as $recipient)
                                             <span class="badge bg-info me-1">{{ ucfirst(str_replace(['-', '_'], ' ', $recipient)) }}</span>
@@ -67,6 +64,11 @@
                                     @endif
                                 </td>
                                 <td>{{ $item->created_at->format('d/m/Y') }}</td>
+                                <td>
+                                    <span class="badge bg-primary">
+                                        <i class="fas fa-download me-1"></i>{{ $item->downloads_count ?? 0 }}
+                                    </span>
+                                </td>
                                 <td>
                                     @if($item->status == 'active')
                                         <span class="badge bg-success">Actif</span>

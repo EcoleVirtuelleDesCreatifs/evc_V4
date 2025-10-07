@@ -49,9 +49,25 @@
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="file" class="form-label text-white">Fichier</label>
-                    <input type="file" class="form-control bg-dark text-white @error('file') is-invalid @enderror" id="file" name="file" required>
-                    @error('file')
+                    <label for="cover_image" class="form-label text-white">Couverture (image) <span class="text-danger">*</span></label>
+                    <input type="file" class="form-control bg-dark text-white @error('cover_image') is-invalid @enderror" id="cover_image" name="cover_image" accept="image/*" required onchange="previewCoverImage(event)">
+                    <small class="text-muted">Formats acceptés : JPG, PNG, WebP (max 2 Mo)</small>
+                    @error('cover_image')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <!-- Aperçu de l'image -->
+                    <div id="cover-preview" class="mt-3" style="display: none;">
+                        <label class="form-label text-white">Aperçu de la couverture :</label>
+                        <div class="border border-secondary rounded p-2" style="background-color: #2d3748;">
+                            <img id="preview-image" src="" alt="Aperçu" class="img-fluid rounded" style="max-height: 300px; object-fit: contain;">
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="pdf_file" class="form-label text-white">Joindre le PDF <span class="text-danger">*</span></label>
+                    <input type="file" class="form-control bg-dark text-white @error('pdf_file') is-invalid @enderror" id="pdf_file" name="pdf_file" accept=".pdf" required>
+                    <small class="text-muted">Fichier PDF uniquement (max 50 Mo)</small>
+                    @error('pdf_file')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -71,3 +87,28 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+// Fonction pour prévisualiser l'image de couverture
+function previewCoverImage(event) {
+    const file = event.target.files[0];
+    const previewContainer = document.getElementById('cover-preview');
+    const previewImage = document.getElementById('preview-image');
+    
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            previewImage.src = e.target.result;
+            previewContainer.style.display = 'block';
+        };
+        
+        reader.readAsDataURL(file);
+    } else {
+        previewContainer.style.display = 'none';
+        previewImage.src = '';
+    }
+}
+</script>
+@endpush

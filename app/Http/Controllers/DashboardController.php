@@ -1454,15 +1454,113 @@ class DashboardController extends Controller
     }
 
     /**
-     * Afficher la bibliothèque digitale de documents
+     * Afficher la bibliothèque digitale de documents filtrée par module
      */
     public function documentsIndex(): View
     {
         $user = Auth::user();
         
-        // Documents de démonstration classés par catégories
-        // À remplacer par une requête réelle vers votre table documents
-        $documents = [
+        // Récupérer le module actuel depuis l'URL (ex: design-graphique)
+        $currentModule = request()->segment(3);
+        
+        // Récupérer les documents de la bibliothèque filtrés par module
+        $libraryItems = \App\Models\Library::where('status', 'active')
+            ->whereJsonContains('recipients', $currentModule)
+            ->with('libraryCategory')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Transformer les données pour la vue
+        $documents = $libraryItems->map(function($item) {
+            return [
+                'id' => $item->id,
+                'titre' => $item->title,
+                'description' => $item->libraryCategory->name ?? 'Document',
+                'categorie' => $item->libraryCategory->name ?? 'Autres',
+                'type' => strtoupper($item->file_type),
+                'taille' => number_format($item->size / 1024, 2) . ' KB',
+                'format' => '.' . $item->file_type,
+                'telechargements' => $item->downloads_count ?? 0,
+                'date_ajout' => $item->created_at->format('Y-m-d'),
+                'image' => $item->path ? asset('storage/' . $item->path) : null,
+                'lien' => $item->pdf_path ? asset('storage/' . $item->pdf_path) : ($item->download_url ?? '#'),
+            ];
+        })->toArray();
+        
+        // Récupérer les catégories de bibliothèque et les trier pour mettre "Ebooks" en premier
+        $categories = \App\Models\LibraryCategory::all()->sortBy(function($category) {
+            // Ebooks en premier (priorité 0), les autres après (priorité 1)
+            return stripos($category->name, 'ebook') !== false ? 0 : 1;
+        })->values();
+        
+        // Organiser les documents par catégorie de bibliothèque
+        $documentsParCategorie = [];
+        
+        foreach ($categories as $category) {
+            $documentsParCategorie[$category->name] = array_filter($documents, function($doc) use ($category) {
+                return stripos($doc['categorie'], $category->name) !== false;
+            });
+        }
+        
+        // Ajouter une catégorie "Autres" pour les documents sans catégorie
+        $documentsParCategorie['Autres'] = array_filter($documents, function($doc) use ($categories) {
+            foreach ($categories as $category) {
+                if (stripos($doc['categorie'], $category->name) !== false) {
+                    return false;
+                }
+            }
+            return true;
+        });
+        
+        // Statistiques dynamiques par catégorie
+        $stats = [
+            'total' => count($documents)
+        ];
+        
+        // Ajouter les stats pour chaque catégorie
+        foreach ($categories as $category) {
+            $key = strtolower(str_replace(' ', '_', $category->name));
+            $stats[$key] = count($documentsParCategorie[$category->name]);
+        }
+        $stats['autres'] = count($documentsParCategorie['Autres']);
+        
+        return view('documents.index', [
+            'user' => $user,
+            'documents' => $documents,
+            'documentsParCategorie' => $documentsParCategorie,
+            'categories' => $categories,
+            'stats' => $stats,
+            'currentModule' => $currentModule
+        ]);
+    }
+
+    /**
+     * Télécharger un document et incrémenter le compteur
+     */
+    public function downloadDocument($id)
+    {
+        $document = \App\Models\Library::findOrFail($id);
+        
+        // Incrémenter le compteur de téléchargements
+        $document->increment('downloads_count');
+        
+        // Récupérer le chemin du fichier PDF
+        if ($document->pdf_path) {
+            $filePath = storage_path('app/public/' . $document->pdf_path);
+            
+            if (file_exists($filePath)) {
+                return response()->download($filePath, $document->title . '.pdf');
+            }
+        }
+        
+        // Si le fichier n'existe pas, retourner avec erreur
+        return redirect()->back()->with('error', 'Fichier non disponible');
+    }
+
+    // Reste du code (méthode communautéIndex existe déjà plus bas)
+    
+    private function getDemoDocuments() {
+        return [
             // Catégorie Logiciels
             [
                 'id' => 1,

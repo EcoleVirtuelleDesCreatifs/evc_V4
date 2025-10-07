@@ -5,7 +5,6 @@
 
 @section('content')
 <div class="container-fluid">
-    
     <!-- En-tête avec statistiques globales -->
     <div class="row mb-4">
         <div class="col-12">
@@ -33,7 +32,7 @@
                 $icon = $icons[$index % count($icons)];
             @endphp
             <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
-                <div class="card h-100 border-0 shadow-sm" style="transition: all 0.3s ease;">
+                <div class="card h-100 border-0 shadow-sm hover-lift" style="transition: all 0.3s ease;">
                     <div class="card-body text-center">
                         <div class="mb-3" style="background: {{ $color }}20; width: 70px; height: 70px; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
                             <i class="{{ $icon }} fa-2x" style="color: {{ $color }};"></i>
@@ -84,48 +83,48 @@
                             $key = strtolower(str_replace(' ', '_', $category->name));
                         @endphp
                         <span class="badge" style="background-color: {{ $color }}; color: white;">{{ $stats[$key] ?? 0 }} document(s)</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            @foreach($documentsParCategorie[$category->name] as $doc)
-                            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                <div class="card h-100 shadow-sm">
-                                    <div class="position-relative">
-                                        <img src="{{ $doc['image'] ?? 'https://via.placeholder.com/200x280/667eea/ffffff?text=Document' }}" 
-                                             class="card-img-top" 
-                                             alt="{{ $doc['titre'] }}"
-                                             style="height: 280px; object-fit: cover;">
-                                        <div class="position-absolute top-0 end-0 m-2">
-                                            <span class="badge bg-success">{{ $doc['type'] }}</span>
-                                        </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach($documentsParCategorie[$category->name] as $doc)
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                            <div class="card h-100 shadow-sm">
+                                <div class="position-relative">
+                                    <img src="{{ $doc['image'] ?? 'https://via.placeholder.com/200x280/667eea/ffffff?text=Ebook' }}" 
+                                         class="card-img-top" 
+                                         alt="{{ $doc['titre'] }}"
+                                         style="height: 280px; object-fit: cover;">
+                                    <div class="position-absolute top-0 end-0 m-2">
+                                        <span class="badge bg-success">{{ $doc['type'] }}</span>
                                     </div>
-                                    <div class="card-body d-flex flex-column">
-                                        <h6 class="card-title">{{ $doc['titre'] }}</h6>
-                                        <p class="card-text text-muted small flex-grow-1">{{ $doc['description'] }}</p>
-                                        <div class="mb-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-file-pdf me-1"></i>{{ $doc['format'] }} • {{ $doc['taille'] }}
-                                            </small><br>
-                                            <small class="text-muted">
-                                                <i class="fas fa-download me-1"></i>{{ $doc['telechargements'] }} téléchargements
-                                            </small>
-                                        </div>
-                                        <div class="d-flex gap-2">
-                                            <a href="{{ $doc['lien'] }}" target="_blank" class="btn btn-primary btn-sm flex-fill" title="Ouvrir le PDF dans un nouvel onglet">
-                                                <i class="fas fa-book-open me-1"></i> Lire
-                                            </a>
-                                            <a href="{{ route('design-graphique.documents.download', $doc['id']) }}" class="btn btn-outline-secondary btn-sm" title="Télécharger le PDF">
-                                                <i class="fas fa-download"></i>
-                                            </a>
-                                        </div>
+                                </div>
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title">{{ $doc['titre'] }}</h6>
+                                    <p class="card-text text-muted small flex-grow-1">{{ $doc['description'] }}</p>
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-file-pdf me-1"></i>{{ $doc['format'] }} • {{ $doc['taille'] }}
+                                        </small><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-download me-1"></i>{{ $doc['telechargements'] }} téléchargements
+                                        </small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ $doc['lien'] }}" target="_blank" class="btn btn-primary btn-sm flex-fill" title="Ouvrir le PDF dans un nouvel onglet">
+                                            <i class="fas fa-book-open me-1"></i> Lire
+                                        </a>
+                                        <a href="{{ route('design-graphique.documents.download', $doc['id']) }}" class="btn btn-outline-secondary btn-sm" title="Télécharger le PDF">
+                                            <i class="fas fa-download"></i>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
-                            @endforeach
                         </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
+        </div>
         </div>
         @endif
     @endforeach
@@ -144,7 +143,6 @@
         </div>
     </div>
     @endif
-
 </div>
 
 @section('scripts')
@@ -157,6 +155,7 @@ document.querySelectorAll('a[href^="#category-"]').forEach(anchor => {
         const targetElement = document.querySelector(targetId);
         
         if (targetElement) {
+            // Scroll avec un offset pour ne pas cacher le titre
             const offset = 80;
             const elementPosition = targetElement.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - offset;
@@ -169,5 +168,4 @@ document.querySelectorAll('a[href^="#category-"]').forEach(anchor => {
     });
 });
 </script>
-@endsection
 @endsection
