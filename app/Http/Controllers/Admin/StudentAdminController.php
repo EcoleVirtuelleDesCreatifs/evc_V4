@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class StudentAdminController extends Controller
 {
@@ -16,83 +18,96 @@ class StudentAdminController extends Controller
     {
         // Map slug -> label et clés internes possibles
         $formationMap = [
-            'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['design_graphique','infographie','design-graphique']],
-            'community-manager' => ['label' => 'Community Management', 'keys' => ['community_management','community-manager']],
-            'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'keys' => ['intelligence_artificielle','intelligence-artificielle']],
-            'gestion-informatique' => ['label' => 'Gestion Informatique', 'keys' => ['gestion_informatique','informatique','gestion-informatique']],
+            'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique','design_graphique','infographie','design-graphique']],
+            'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager']],
+            'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'keys' => ['Intelligence Artificielle','intelligence_artificielle','intelligence-artificielle']],
+            'gestion-informatique' => ['label' => 'Gestion Informatique', 'keys' => ['Gestion Informatique','gestion_informatique','informatique','gestion-informatique']],
         ];
         abort_unless(isset($formationMap[$formation]), 404);
 
         $label = $formationMap[$formation]['label'];
         $keys = $formationMap[$formation]['keys'];
 
-        $userCols = Schema::getColumnListing('users');
-        $select = ['id','email','created_at'];
-        foreach (['first_name','last_name','name','phone','city','ville'] as $c) {
-            if (in_array($c, $userCols, true)) $select[] = $c;
-        }
-
-        // Base requête sur users si une colonne formation existe, sinon fallback via pre_registrations
+        // Requêter directement depuis la table students (TOUS les statuts)
         $students = collect();
-        if (in_array('formation_souhaitee', $userCols, true) || in_array('choix_formation', $userCols, true)) {
-            $query = DB::table('users')->select($select);
-            if (in_array('formation_souhaitee', $userCols, true)) {
-                $query->whereIn('formation_souhaitee', $keys);
-            } else {
-                $query->whereIn('choix_formation', $keys);
-            }
-            if (in_array('status', $userCols, true)) {
-                $query->where('status', 'Actif');
-            } elseif (in_array('email_verified_at', $userCols, true)) {
-                $query->whereNotNull('email_verified_at');
-            }
-            $students = $query->orderBy('id','desc')->get();
-        } else {
-            // Fallback: joindre via pre_registrations par email et status Actif
-            $preCols = Schema::getColumnListing('pre_registrations');
-            $raws = [];
-            $raws[] = 'u.id';
-            $raws[] = 'u.email';
-            $raws[] = 'u.created_at';
-            $raws[] = in_array('first_name', $userCols, true) ? DB::raw('COALESCE(u.first_name, "") as first_name') : DB::raw('"" as first_name');
-            $raws[] = in_array('last_name', $userCols, true) ? DB::raw('COALESCE(u.last_name, "") as last_name') : DB::raw('"" as last_name');
-            $raws[] = in_array('name', $userCols, true) ? DB::raw('COALESCE(u.name, "") as name') : DB::raw('"" as name');
-            $raws[] = in_array('phone', $userCols, true) ? DB::raw('COALESCE(u.phone, "") as phone') : DB::raw('"" as phone');
-            $raws[] = in_array('city', $userCols, true) ? DB::raw('COALESCE(u.city, "") as city') : DB::raw('"" as city');
-
-            $pre = DB::table('pre_registrations as p')
-                ->join('users as u', 'u.email', '=', 'p.email')
-                ->whereIn('p.choix_formation', $keys)
-                ->where('p.status', 'Actif')
-                ->select($raws);
-            if (in_array('email_verified_at', $userCols, true)) {
-                $pre->whereNotNull('u.email_verified_at');
-            }
-            $students = $pre->orderBy('u.id','desc')->get();
+        if (Schema::hasTable('students')) {
+            $query = DB::table('students')
+                ->select('students.*');
+            // NE PAS filtrer par statut - afficher actifs ET inactifs
+            
+            // Filtrer par formation (program ou specialization)
+            $query->where(function($q) use ($keys) {
+                $q->whereIn('program', $keys)
+                  ->orWhereIn('specialization', $keys);
+            });
+            
+            // Trier par statut (actifs d'abord) puis par id
+            $students = $query->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+                             ->orderBy('id','desc')
+                             ->get();
+        }
+        
+        // Récupérer les user_id depuis users via email pour les TPs
+        $studentEmails = $students->pluck('email')->toArray();
+        $userIds = [];
+        if (!empty($studentEmails)) {
+            $userIds = DB::table('users')
+                ->whereIn('email', $studentEmails)
+                ->pluck('id', 'email')
+                ->toArray();
+        }
+        
+        // Récupérer les compteurs de TP pour tous les étudiants
+        $tpCounts = [];
+        if (!empty($userIds) && Schema::hasTable('tp')) {
+            $tpCounts = DB::table('tp')
+                ->select('user_id', DB::raw('COUNT(*) as total'))
+                ->whereIn('user_id', array_values($userIds))
+                ->groupBy('user_id')
+                ->pluck('total', 'user_id')
+                ->toArray();
         }
 
         // Formatter pour la vue existante
-        $rows = $students->map(function($u){
-            $prenom = property_exists($u,'first_name') ? $u->first_name : '';
-            $nom = property_exists($u,'last_name') ? $u->last_name : '';
-            if ((!$prenom || !$nom) && property_exists($u,'name')) {
-                $parts = preg_split('/\s+/', (string)$u->name, 2);
-                $prenom = $prenom ?: ($parts[0] ?? '');
-                $nom = $nom ?: ($parts[1] ?? '');
+        $rows = $students->map(function($s) use ($tpCounts, $userIds) {
+            // Récupérer le user_id correspondant
+            $userId = $userIds[$s->email] ?? null;
+            $tpCount = $userId ? ($tpCounts[$userId] ?? 0) : 0;
+            
+            // Calculer la progression
+            $totalTpRequis = 20;
+            $progression = $tpCount > 0 ? min(100, round(($tpCount / $totalTpRequis) * 100)) : 0;
+            
+            // Photo de profil - utiliser le même chemin que les autres pages admin
+            $photoUrl = null;
+            if (!empty($s->profile_photo)) {
+                // Vérifier si le chemin commence déjà par uploads/ ou photos_preregistrations/
+                if (str_starts_with($s->profile_photo, 'uploads/') || str_starts_with($s->profile_photo, 'photos_preregistrations/')) {
+                    $photoUrl = asset($s->profile_photo);
+                } else {
+                    // Sinon, utiliser le pattern standard uploads/photos/
+                    $photoUrl = asset('uploads/photos/' . basename($s->profile_photo));
+                }
             }
-            $ville = property_exists($u,'city') ? $u->city : (property_exists($u,'ville') ? $u->ville : '');
+            
             return [
-                'id' => $u->id,
-                'email' => $u->email,
-                'prenom' => $prenom,
-                'nom' => $nom,
-                'phone' => property_exists($u,'phone') ? $u->phone : '',
-                'ville' => $ville,
-                'created_at' => $u->created_at,
-                'tp_count' => 0,
-                'progression' => 0,
+                'id' => $userId ?? $s->id, // Utiliser le user_id si disponible pour les routes
+                'student_id' => $s->id,
+                'email' => $s->email,
+                'prenom' => $s->first_name ?? '',
+                'nom' => $s->last_name ?? '',
+                'phone' => $s->phone ?? '',
+                'pays' => $s->country ?? '',
+                'created_at' => $s->created_at,
+                'tp_count' => $tpCount,
+                'progression' => $progression,
+                'photo_url' => $photoUrl,
+                'status' => $s->status ?? 'active', // Ajouter le statut
             ];
         })->values();
+        
+        // Calculer la progression moyenne
+        $avgProgression = $rows->count() > 0 ? round($rows->avg('progression')) : 0;
 
         $data = [
             'formation' => $formation,
@@ -101,7 +116,7 @@ class StudentAdminController extends Controller
             'stats' => [
                 'total' => $rows->count(),
                 'active' => $rows->count(),
-                'avg_progression' => 0,
+                'avg_progression' => $avgProgression,
             ],
         ];
 
@@ -109,104 +124,156 @@ class StudentAdminController extends Controller
     }
 
     /**
-     * Profil étudiant (admin)
+     * Profil étudiant complet (admin) - Affiche toutes les infos depuis students, tp, design_projects, paiement
      */
     public function profile(int $id)
     {
-        $cols = Schema::getColumnListing('users');
-        $select = ['id','email','created_at'];
-        foreach (['first_name','last_name','name','phone','city','country','ville','pays','formation_souhaitee','choix_formation'] as $c) {
-            if (in_array($c, $cols, true)) $select[] = $c;
+        // Récupérer l'utilisateur
+        $user = DB::table('users')->where('id', $id)->first();
+        abort_unless($user, 404);
+        
+        // Récupérer les données complètes depuis la table students
+        $student = DB::table('students')->where('email', $user->email)->first();
+        
+        if (!$student) {
+            // Fallback: utiliser les données de users si pas dans students
+            $student = (object) [
+                'id' => null,
+                'first_name' => $user->first_name ?? '',
+                'last_name' => $user->last_name ?? '',
+                'email' => $user->email,
+                'phone' => $user->phone ?? '',
+                'country' => $user->country ?? '',
+                'city' => $user->city ?? '',
+                'profile_photo' => $user->profile_photo ?? null,
+                'status' => 'active',
+                'program' => $user->formation_souhaitee ?? '',
+                'level' => '',
+                'student_id' => '',
+                'created_at' => $user->created_at,
+            ];
         }
-        $u = DB::table('users')->select($select)->where('id', $id)->first();
-        abort_unless($u, 404);
 
-        // Hydrater prenom/nom depuis name au besoin
-        $prenom = property_exists($u,'first_name') ? ($u->first_name ?? '') : '';
-        $nom = property_exists($u,'last_name') ? ($u->last_name ?? '') : '';
-        if ((!$prenom || !$nom) && property_exists($u,'name')) {
-            $parts = preg_split('/\s+/', (string)($u->name ?? ''), 2);
-            $prenom = $prenom ?: ($parts[0] ?? '');
-            $nom = $nom ?: ($parts[1] ?? '');
-        }
-
-        // Ville/Pays
-        $ville = property_exists($u,'city') ? ($u->city ?? '') : (property_exists($u,'ville') ? ($u->ville ?? '') : '');
-        $pays = property_exists($u,'country') ? ($u->country ?? '') : (property_exists($u,'pays') ? ($u->pays ?? '') : '');
-
-        // Formation
-        $formationKey = '';
-        if (property_exists($u,'formation_souhaitee')) $formationKey = (string)($u->formation_souhaitee ?? '');
-        elseif (property_exists($u,'choix_formation')) $formationKey = (string)($u->choix_formation ?? '');
-        $formationMap = [
-            'design_graphique' => 'Design Graphique',
-            'community_management' => 'Community Management',
-            'intelligence_artificielle' => 'Intelligence Artificielle',
-            'gestion_informatique' => 'Gestion Informatique',
-            'infographie' => 'Design Graphique',
-            'informatique' => 'Gestion Informatique',
-            'design-graphique' => 'Design Graphique',
-            'community-manager' => 'Community Management',
-            'intelligence-artificielle' => 'Intelligence Artificielle',
-            'gestion-informatique' => 'Gestion Informatique',
-        ];
-        $formationLabel = $formationMap[$formationKey] ?? $formationKey;
-
-        // Compléments depuis pre_registrations (toujours récupérer la dernière pour enrichir le profil)
-        $pre = DB::table('pre_registrations')->where('email', $u->email)->orderByDesc('id')->first();
-        if ($pre) {
-            if (!$ville && property_exists($pre,'ville')) $ville = $pre->ville;
-            if (!$pays && property_exists($pre,'pays')) $pays = $pre->pays;
-            if (!$formationLabel && property_exists($pre,'choix_formation')) {
-                $formationLabel = $formationMap[$pre->choix_formation] ?? $pre->choix_formation;
+        // Photo de profil
+        $photoUrl = null;
+        if (!empty($student->profile_photo)) {
+            if (str_starts_with($student->profile_photo, 'uploads/') || str_starts_with($student->profile_photo, 'photos_preregistrations/')) {
+                $photoUrl = asset($student->profile_photo);
+            } else {
+                $photoUrl = asset('uploads/photos/' . basename($student->profile_photo));
             }
         }
-
-        // Photo profil: priorité à users.profile_photo, sinon pre_registrations.photo
-        $photoUrl = null;
-        if (in_array('profile_photo', $cols, true) && !empty($u->profile_photo)) {
-            $photoUrl = asset('storage/' . ltrim($u->profile_photo, '/'));
-        } elseif ($pre && property_exists($pre, 'photo') && !empty($pre->photo)) {
-            $photoUrl = asset('storage/' . ltrim($pre->photo, '/'));
+        
+        // Récupérer les TPs de l'étudiant
+        $tps = [];
+        if (Schema::hasTable('tp')) {
+            $tps = DB::table('tp')
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
-
+        
+        // Statistiques des TPs
+        $totalTp = $tps->count();
+        $tpValides = $tps->where('status', 'validated')->count();
+        $tpEnCours = $tps->where('status', 'pending')->count();
+        $tpRejetes = $tps->where('status', 'rejected')->count();
+        
+        // Récupérer les projets design
+        $designProjects = [];
+        if (Schema::hasTable('design_projects')) {
+            $designProjects = DB::table('design_projects')
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            // Charger les fichiers pour chaque projet depuis design_project_files
+            if (Schema::hasTable('design_project_files')) {
+                foreach ($designProjects as $project) {
+                    $files = DB::table('design_project_files')
+                        ->where('project_id', $project->id)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    // Ajouter les fichiers au projet
+                    $project->project_files = $files;
+                }
+            }
+        }
+        
+        // Récupérer les paiements et factures
+        $paiements = [];
+        $factures = [];
+        $totalPaye = 0;
+        $totalFactures = 0;
+        $soldeRestant = 0;
+        
+        if (Schema::hasTable('paiements')) {
+            $paiements = DB::table('paiements')
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $totalPaye = $paiements->where('statut', 'validé')->sum('montant');
+        }
+        
+        // Récupérer les factures si la table existe
+        if (Schema::hasTable('factures')) {
+            $factures = DB::table('factures')
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+            $totalFactures = $factures->sum('montant');
+            $soldeRestant = $totalFactures - $totalPaye;
+        }
+        
+        // Calculer la progression (basée sur les TPs validés)
+        $totalTpRequis = 20; // Nombre de TPs requis pour 100%
+        $progression = $totalTp > 0 ? min(100, round(($tpValides / $totalTpRequis) * 100)) : 0;
+        
+        // Préparer les données pour la vue
         $data = [
             'student' => [
-                'id' => $u->id,
-                'email' => $u->email,
-                'prenom' => $prenom ?: '—',
-                'nom' => $nom ?: '—',
-                'phone' => property_exists($u,'phone') ? ($u->phone ?? '') : '',
-                'ville' => $ville ?: '—',
-                'pays' => $pays ?: '—',
-                'created_at' => $u->created_at,
-                'formation_souhaitee' => $formationLabel ?: '—',
+                'id' => $user->id,
+                'student_id' => $student->student_id ?? '',
+                'email' => $student->email,
+                'prenom' => $student->first_name ?? '—',
+                'nom' => $student->last_name ?? '—',
+                'phone' => $student->phone ?? '',
+                'whatsapp' => $student->whatsapp ?? '',
+                'ville' => $student->city ?? '—',
+                'pays' => $student->country ?? '—',
+                'quartier' => $student->quartier ?? '',
+                'date_of_birth' => $student->date_of_birth ?? '',
+                'gender' => $student->gender ?? '',
+                'created_at' => $student->created_at,
+                'formation' => $student->program ?? '—',
+                'level' => $student->level ?? '',
+                'specialization' => $student->specialization ?? '',
+                'status' => $student->status ?? 'active',
                 'photo_url' => $photoUrl,
+                'gpa' => $student->gpa ?? null,
+                'credits_earned' => $student->credits_earned ?? 0,
+                'years_experience' => $student->years_experience ?? null,
+                'industry_sector' => $student->industry_sector ?? '',
             ],
-            'prereg' => $pre ? [
-                'niveau_etude' => property_exists($pre,'niveau_etude') ? ($pre->niveau_etude ?? '—') : '—',
-                'domaine_etude' => property_exists($pre,'domaine_etude') ? ($pre->domaine_etude ?? '—') : '—',
-                'choix_formation' => property_exists($pre,'choix_formation') ? ($formationMap[$pre->choix_formation] ?? $pre->choix_formation) : ($formationLabel ?: '—'),
-                'niveau_dans_formation' => property_exists($pre,'niveau_dans_formation') ? ($pre->niveau_dans_formation ?? '—') : '—',
-                'disponibilite' => property_exists($pre,'disponibilite') ? ($pre->disponibilite ?? '—') : '—',
-                'has_computer' => property_exists($pre,'has_computer') ? (bool)$pre->has_computer : null,
-                'has_smartphone' => property_exists($pre,'has_smartphone') ? (bool)$pre->has_smartphone : null,
-                'origine' => property_exists($pre,'how_known') ? ($pre->how_known ?? ($pre->origine ?? '—')) : (property_exists($pre,'origine') ? ($pre->origine ?? '—') : '—'),
-                'motivation' => property_exists($pre,'motivation') ? ($pre->motivation ?? '') : '',
-                'competences' => property_exists($pre,'competences') ? ($pre->competences ?? '') : '',
-                'status' => property_exists($pre,'status') ? ($pre->status ?? '—') : '—',
-            ] : null,
             'stats' => [
-                'total_tp' => 0,
-                'tp_valides' => 0,
-                'tp_en_cours' => 0,
-                'progression' => 0,
-                'total_files_size' => 0,
+                'total_tp' => $totalTp,
+                'tp_valides' => $tpValides,
+                'tp_en_cours' => $tpEnCours,
+                'tp_rejetes' => $tpRejetes,
+                'progression' => $progression,
+                'total_projects' => $designProjects->count(),
+                'total_paye' => $totalPaye,
+                'total_factures' => $totalFactures,
+                'solde_restant' => $soldeRestant,
+                'total_files_size' => 0, // Taille totale des fichiers (à calculer si nécessaire)
             ],
-            'projects' => [],
+            'tps' => $tps,
+            'projects' => $designProjects,
+            'paiements' => $paiements,
+            'factures' => $factures,
         ];
 
-        return view('admin.students.profile', compact('data'));
+        return view('admin.students.profile-new', compact('data'));
     }
 
     /**
@@ -270,5 +337,393 @@ class StudentAdminController extends Controller
         ];
 
         return view('admin.students.edit', compact('student'));
+    }
+
+    /**
+     * Désactiver/Activer le compte d'un étudiant
+     */
+    public function toggleStatus(Request $request, int $id)
+    {
+        try {
+            // Vérifier si la table students existe
+            if (!Schema::hasTable('students')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Table students introuvable'
+                ], 404);
+            }
+
+            // Récupérer l'étudiant
+            $student = DB::table('students')->where('id', $id)->first();
+            
+            if (!$student) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Étudiant introuvable'
+                ], 404);
+            }
+
+            // Basculer le statut
+            $newStatus = $student->status === 'active' ? 'inactive' : 'active';
+            $reason = $request->input('reason', '');
+            
+            $updateData = [
+                'status' => $newStatus,
+                'updated_at' => now()
+            ];
+            
+            // Si on désactive, enregistrer la raison et la date
+            if ($newStatus === 'inactive') {
+                $updateData['deactivation_reason'] = $reason;
+                $updateData['deactivated_at'] = now();
+            } else {
+                // Si on réactive, effacer la raison
+                $updateData['deactivation_reason'] = null;
+                $updateData['deactivated_at'] = null;
+            }
+            
+            DB::table('students')
+                ->where('id', $id)
+                ->update($updateData);
+
+            // Envoyer un email à l'étudiant selon le statut
+            if ($newStatus === 'inactive' && !empty($student->email)) {
+                // Email de désactivation
+                try {
+                    Mail::send('emails.account-deactivated', [
+                        'studentName' => $student->first_name . ' ' . $student->last_name,
+                        'reason' => $reason,
+                        'date' => now()->format('d/m/Y à H:i')
+                    ], function($message) use ($student) {
+                        $message->to($student->email)
+                                ->subject('⚠️ Votre compte EVC a été désactivé');
+                    });
+                } catch (\Exception $e) {
+                    Log::error('Erreur envoi email désactivation: ' . $e->getMessage());
+                    // On continue même si l'email échoue
+                }
+            } elseif ($newStatus === 'active' && !empty($student->email)) {
+                // Email de réactivation
+                try {
+                    Mail::send('emails.account-reactivated', [
+                        'studentName' => $student->first_name . ' ' . $student->last_name,
+                        'date' => now()->format('d/m/Y à H:i')
+                    ], function($message) use ($student) {
+                        $message->to($student->email)
+                                ->subject('✅ Votre compte EVC a été réactivé');
+                    });
+                } catch (\Exception $e) {
+                    Log::error('Erreur envoi email réactivation: ' . $e->getMessage());
+                    // On continue même si l'email échoue
+                }
+            }
+
+            $message = $newStatus === 'inactive' 
+                ? 'Le compte de l\'étudiant a été désactivé avec succès. Un email a été envoyé à l\'étudiant.' 
+                : 'Le compte de l\'étudiant a été réactivé avec succès. Un email de confirmation a été envoyé à l\'étudiant.';
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'new_status' => $newStatus
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la modification du statut: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Afficher les détails d'un projet design (admin)
+     * 
+     * @param int $projectId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showProject(int $projectId)
+    {
+        try {
+            // Récupérer le projet
+            $project = DB::table('design_projects')
+                ->where('id', $projectId)
+                ->first();
+
+            if (!$project) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Projet non trouvé'
+                ], 404);
+            }
+
+            // Récupérer les fichiers associés depuis design_project_files
+            $files = [];
+            if (Schema::hasTable('design_project_files')) {
+                $projectFiles = DB::table('design_project_files')
+                    ->where('project_id', $projectId)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+                
+                $files = $projectFiles->map(function($file) {
+                    return [
+                        'id' => $file->id,
+                        'name' => $file->original_name,
+                        'url' => asset($file->file_path),
+                        'size' => $file->file_size,
+                        'type' => $file->file_type,
+                        'mime_type' => $file->mime_type
+                    ];
+                })->toArray();
+            }
+
+            // Formater les données du projet
+            $projectData = [
+                'id' => $project->id,
+                'title' => $project->title ?? 'Sans titre',
+                'description' => $project->description ?? 'Aucune description',
+                'status' => $project->status ?? 'en_cours',
+                'created_at' => isset($project->created_at) ? date('d/m/Y H:i', strtotime($project->created_at)) : '-',
+                'files' => $files
+            ];
+
+            return response()->json([
+                'success' => true,
+                'project' => $projectData
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la récupération du projet: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la récupération des détails du projet'
+            ], 500);
+        }
+    }
+
+    /**
+     * Valider un projet design (admin)
+     * 
+     * @param int $projectId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function validateProject(int $projectId)
+    {
+        try {
+            // Vérifier que le projet existe
+            $project = DB::table('design_projects')
+                ->where('id', $projectId)
+                ->first();
+
+            if (!$project) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Projet non trouvé'
+                ], 404);
+            }
+
+            // Récupérer les informations de l'étudiant
+            $student = DB::table('users')
+                ->where('id', $project->user_id)
+                ->first();
+
+            if (!$student) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Étudiant non trouvé'
+                ], 404);
+            }
+
+            // Mettre à jour le statut du projet
+            DB::table('design_projects')
+                ->where('id', $projectId)
+                ->update([
+                    'status' => 'validated',
+                    'validated_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+            // Envoyer un email de validation à l'étudiant
+            try {
+                $studentName = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
+                if (empty($studentName)) {
+                    $studentName = $student->name ?? $student->email ?? 'Étudiant';
+                }
+
+                Mail::send('emails.design-project-validated', [
+                    'studentName' => $studentName,
+                    'projectTitle' => $project->title,
+                    'projectType' => ucfirst($project->project_type ?? 'Design'),
+                    'validatedAt' => now()->format('d/m/Y à H:i')
+                ], function ($message) use ($student, $project) {
+                    $message->to($student->email)
+                            ->subject('🎉 Félicitations ! Votre projet "' . $project->title . '" a été validé - EVC');
+                });
+
+                Log::info('Email de validation envoyé à l\'étudiant', [
+                    'project_id' => $projectId,
+                    'student_email' => $student->email
+                ]);
+            } catch (\Exception $e) {
+                // Ne pas bloquer la validation si l'email échoue
+                Log::warning('Erreur lors de l\'envoi de l\'email de validation: ' . $e->getMessage());
+            }
+
+            // Logger l'action
+            Log::info('Projet validé par admin', [
+                'project_id' => $projectId,
+                'admin_session' => session()->all()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Projet validé avec succès !'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la validation du projet: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la validation du projet'
+            ], 500);
+        }
+    }
+
+    /**
+     * Télécharger un projet design (admin)
+     * 
+     * @param int $projectId
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadProject(int $projectId)
+    {
+        try {
+            // Récupérer le projet
+            $project = DB::table('design_projects')
+                ->where('id', $projectId)
+                ->first();
+
+            if (!$project) {
+                abort(404, 'Projet non trouvé');
+            }
+
+            // Récupérer les fichiers depuis design_project_files
+            $projectFiles = [];
+            if (Schema::hasTable('design_project_files')) {
+                $projectFiles = DB::table('design_project_files')
+                    ->where('project_id', $projectId)
+                    ->get();
+            }
+
+            if ($projectFiles->isEmpty()) {
+                return redirect()->back()->with('error', 'Aucun fichier à télécharger pour ce projet');
+            }
+
+            // Si un seul fichier, télécharger directement
+            if ($projectFiles->count() === 1) {
+                $file = $projectFiles->first();
+                $filePath = public_path($file->file_path);
+                if (file_exists($filePath)) {
+                    return response()->download($filePath, $file->original_name);
+                } else {
+                    return redirect()->back()->with('error', 'Fichier introuvable: ' . $file->original_name);
+                }
+            }
+
+            // Si plusieurs fichiers, créer une archive ZIP
+            $zip = new \ZipArchive();
+            $zipFileName = 'projet_' . $projectId . '_' . time() . '.zip';
+            $zipPath = storage_path('app/temp/' . $zipFileName);
+
+            // Créer le répertoire temp s'il n'existe pas
+            if (!file_exists(storage_path('app/temp'))) {
+                mkdir(storage_path('app/temp'), 0755, true);
+            }
+
+            if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
+                foreach ($projectFiles as $file) {
+                    $filePath = public_path($file->file_path);
+                    if (file_exists($filePath)) {
+                        $zip->addFile($filePath, $file->original_name);
+                    }
+                }
+                $zip->close();
+
+                return response()->download($zipPath)->deleteFileAfterSend(true);
+            } else {
+                return redirect()->back()->with('error', 'Impossible de créer l\'archive ZIP');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du téléchargement du projet: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erreur lors du téléchargement du projet');
+        }
+    }
+
+    /**
+     * Supprimer un projet design (admin)
+     * 
+     * @param int $projectId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function deleteProject(int $projectId)
+    {
+        try {
+            // Récupérer le projet
+            $project = DB::table('design_projects')
+                ->where('id', $projectId)
+                ->first();
+
+            if (!$project) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Projet non trouvé'
+                ], 404);
+            }
+
+            // Supprimer les fichiers associés depuis design_project_files
+            if (Schema::hasTable('design_project_files')) {
+                $projectFiles = DB::table('design_project_files')
+                    ->where('project_id', $projectId)
+                    ->get();
+                
+                // Supprimer les fichiers physiques
+                foreach ($projectFiles as $file) {
+                    $filePath = public_path($file->file_path);
+                    if (file_exists($filePath)) {
+                        @unlink($filePath);
+                        Log::info('Fichier supprimé', ['file' => $file->file_path]);
+                    }
+                }
+                
+                // Supprimer les entrées de la table design_project_files
+                DB::table('design_project_files')
+                    ->where('project_id', $projectId)
+                    ->delete();
+            }
+
+            // Supprimer le projet de la base de données
+            DB::table('design_projects')
+                ->where('id', $projectId)
+                ->delete();
+
+            // Logger l'action
+            Log::info('Projet supprimé par admin', [
+                'project_id' => $projectId,
+                'project_title' => $project->title ?? 'Sans titre'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Projet supprimé avec succès !'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la suppression du projet: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de la suppression du projet'
+            ], 500);
+        }
     }
 }

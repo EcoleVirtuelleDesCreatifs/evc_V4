@@ -174,6 +174,128 @@
         </div>
     </div>
 
+    {{-- Tableau de Bord - Statistiques Principales --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
+                Mon Tableau de Bord
+            </h4>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        {{-- Formations Disponibles --}}
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-1 opacity-75 small">Formations Disponibles</p>
+                            <h2 class="mb-0 fw-bold">{{ $stats['formations_disponibles'] ?? 0 }}</h2>
+                        </div>
+                        <div class="p-3 bg-white bg-opacity-25 rounded-3">
+                            <i class="fas fa-graduation-cap fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- TP Réalisés --}}
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-1 opacity-75 small">TP Réalisés</p>
+                            <h2 class="mb-0 fw-bold">{{ $stats['tp_realises'] ?? 0 }}<span class="fs-6"> / {{ $stats['tp_total'] ?? 0 }}</span></h2>
+                            @if(($stats['tp_total'] ?? 0) > 0)
+                                <small class="opacity-75">{{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}% complet</small>
+                            @endif
+                        </div>
+                        <div class="p-3 bg-white bg-opacity-25 rounded-3">
+                            <i class="fas fa-tasks fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Projets Réalisés --}}
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-1 opacity-75 small">Projets Réalisés</p>
+                            <h2 class="mb-0 fw-bold">{{ $stats['projets_realises'] ?? 0 }}<span class="fs-6"> / {{ $stats['projets_total'] ?? 0 }}</span></h2>
+                            @if(($stats['projets_total'] ?? 0) > 0)
+                                <small class="opacity-75">{{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}% complet</small>
+                            @endif
+                        </div>
+                        <div class="p-3 bg-white bg-opacity-25 rounded-3">
+                            <i class="fas fa-project-diagram fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Webinaires & Actualités --}}
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="mb-1 opacity-75 small">Événements</p>
+                            <div class="d-flex gap-3 align-items-center">
+                                <div>
+                                    <h3 class="mb-0 fw-bold">{{ $stats['webinaires_en_cours'] ?? 0 }}</h3>
+                                    <small class="opacity-75">Webinaires</small>
+                                </div>
+                                <div class="vr opacity-50"></div>
+                                <div>
+                                    <h3 class="mb-0 fw-bold">{{ $stats['actualites_en_cours'] ?? 0 }}</h3>
+                                    <small class="opacity-75">Actualités</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-white bg-opacity-25 rounded-3">
+                            <i class="fas fa-calendar-alt fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Montant Restant à Solder --}}
+    @if(isset($stats['montant_restant']) && $stats['montant_restant'] > 0)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center" role="alert">
+                <div class="p-3 bg-warning bg-opacity-25 rounded-3 me-3">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="alert-heading mb-1">
+                        <i class="fas fa-wallet me-2"></i>
+                        Montant Restant à Solder
+                    </h5>
+                    <p class="mb-2">
+                        Il vous reste <strong class="fs-4 text-danger">{{ number_format($stats['montant_restant'], 0, ',', ' ') }} FCFA</strong> à régler pour votre formation.
+                    </p>
+                    <a href="#" class="btn btn-warning btn-sm">
+                        <i class="fas fa-credit-card me-1"></i>
+                        Effectuer un paiement
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- Statistics Cards --}}
     <div class="row g-4 mb-4">
         <div class="col-lg-3 col-md-6">

@@ -83,6 +83,27 @@
             </div>
         </div>
 
+        <!-- PDF Documents Row -->
+        <div class="col-12">
+            <div class="form-card">
+                <div class="form-card-header">
+                    <i class="fas fa-file-pdf"></i>
+                    <h3>Documents PDF</h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="form-group">
+                        <label for="pdf_files">Joindre des fichiers PDF (optionnel)</label>
+                        <input type="file" class="form-control" id="pdf_files" name="pdf_files[]" accept=".pdf" multiple>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Vous pouvez sélectionner plusieurs fichiers PDF (supports de cours, exercices, etc.). Taille maximale : 10 Mo par fichier.
+                        </small>
+                    </div>
+                    <div id="pdf-preview-list" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Description Row -->
         <div class="col-12">
             <div class="form-card description-card">
@@ -154,16 +175,17 @@
                         </select>
                     </div>
                 </div>
-                {{-- <div class="row mt-3 d-none" id="students-select-container">
+                <div class="row mt-3 d-none" id="students-select-container">
                     <div class="col-12 form-group">
-                        <label for="student_ids">Sélectionner les étudiants</label>
+                        <label for="student_ids">Sélectionner les étudiants <span class="text-danger">*</span></label>
                         <select class="form-select" id="student_ids" name="student_ids[]" multiple="multiple">
                             @foreach($students as $student)
                                 <option value="{{ $student->id }}">{{ $student->name }}</option>
                             @endforeach
                         </select>
+                        <small class="text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs étudiants</small>
                     </div>
-                </div> --}}
+                </div>
             </div>
         </div>
     </div>
@@ -234,4 +256,138 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <script src="{{ asset('js/admin/formation-create.js') }}"></script>
+<script>
+// Gestion de l'aperçu des fichiers PDF
+document.getElementById('pdf_files').addEventListener('change', function(e) {
+    const files = e.target.files;
+    const previewList = document.getElementById('pdf-preview-list');
+    previewList.innerHTML = '';
+    
+    if (files.length > 0) {
+        const listGroup = document.createElement('div');
+        listGroup.className = 'list-group';
+        
+        Array.from(files).forEach((file, index) => {
+            const fileSize = (file.size / 1024 / 1024).toFixed(2); // Taille en Mo
+            const item = document.createElement('div');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center';
+            item.innerHTML = `
+                <div>
+                    <i class="fas fa-file-pdf text-danger me-2"></i>
+                    <strong>${file.name}</strong>
+                    <small class="text-muted ms-2">(${fileSize} Mo)</small>
+                </div>
+                <span class="badge bg-success">
+                    <i class="fas fa-check me-1"></i>Prêt
+                </span>
+            `;
+            listGroup.appendChild(item);
+        });
+        
+        previewList.appendChild(listGroup);
+        
+        // Afficher un message si trop de fichiers
+        const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0) / 1024 / 1024;
+        if (totalSize > 50) {
+            const warning = document.createElement('div');
+            warning.className = 'alert alert-warning mt-2';
+            warning.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Attention : La taille totale des fichiers dépasse 50 Mo.';
+            previewList.appendChild(warning);
+        }
+    }
+});
+
+// Gestion de l'affichage dynamique du champ de sélection d'étudiants
+$(document).ready(function() {
+    // Initialiser Select2 pour le champ de sélection des étudiants
+    $('#student_ids').select2({
+        placeholder: 'Rechercher et sélectionner des étudiants...',
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return 'Aucun étudiant trouvé';
+            },
+            searching: function() {
+                return 'Recherche en cours...';
+            }
+        }
+    });
+
+    // Fonction pour charger les étudiants selon le module sélectionné
+    function loadStudentsByModule(module) {
+        if (!module) {
+            $('#student_ids').empty().trigger('change');
+            return;
+        }
+
+        // Afficher un loader
+        $('#student_ids').empty().append('<option value="">Chargement...</option>').trigger('change');
+
+        // Requête AJAX pour récupérer les étudiants du module
+        $.ajax({
+            url: '{{ route("admin.api.students-by-module") }}',
+            method: 'GET',
+            data: { module: module },
+            success: function(response) {
+                if (response.success) {
+                    // Vider le select
+                    $('#student_ids').empty();
+                    
+                    // Ajouter les étudiants du module
+                    if (response.students.length > 0) {
+                        response.students.forEach(function(student) {
+                            $('#student_ids').append(
+                                $('<option></option>').attr('value', student.id).text(student.name)
+                            );
+                        });
+                    } else {
+                        $('#student_ids').append('<option value="">Aucun étudiant dans ce module</option>');
+                    }
+                    
+                    $('#student_ids').trigger('change');
+                } else {
+                    alert('Erreur lors du chargement des étudiants');
+                }
+            },
+            error: function() {
+                alert('Erreur lors du chargement des étudiants');
+                $('#student_ids').empty().append('<option value="">Erreur de chargement</option>').trigger('change');
+            }
+        });
+    }
+
+    // Fonction pour afficher/masquer le champ de sélection des étudiants
+    function toggleStudentsSelect() {
+        const destinataire = $('#destinataire').val();
+        const studentsContainer = $('#students-select-container');
+        const module = $('#module').val();
+        
+        if (destinataire === 'etudiants-specifiques') {
+            studentsContainer.removeClass('d-none').addClass('animate__animated animate__fadeIn');
+            $('#student_ids').prop('required', true);
+            // Charger les étudiants du module sélectionné
+            loadStudentsByModule(module);
+        } else {
+            studentsContainer.addClass('d-none').removeClass('animate__animated animate__fadeIn');
+            $('#student_ids').prop('required', false);
+            $('#student_ids').val(null).trigger('change');
+        }
+    }
+
+    // Écouter les changements du champ Module
+    $('#module').on('change', function() {
+        const destinataire = $('#destinataire').val();
+        if (destinataire === 'etudiants-specifiques') {
+            loadStudentsByModule($(this).val());
+        }
+    });
+
+    // Écouter les changements du champ Destinataires
+    $('#destinataire').on('change', toggleStudentsSelect);
+
+    // Vérifier l'état initial au chargement de la page
+    toggleStudentsSelect();
+});
+</script>
 @endpush

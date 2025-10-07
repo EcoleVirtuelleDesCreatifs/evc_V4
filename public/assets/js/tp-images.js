@@ -8,7 +8,19 @@ class ProjectImageManager {
         this.imageCount = 0;
         this.maxImages = 15;
         this.thumbnailIndex = 0;
-        this.allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+        this.allowedTypes = [
+            // Images
+            'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+            // Documents
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            // Archives
+            'application/zip',
+            'application/x-zip-compressed',
+            'application/x-rar-compressed',
+            'application/x-rar'
+        ];
         this.maxFileSize = 20 * 1024 * 1024; // 20MB
         
         this.init();
@@ -232,13 +244,50 @@ class ProjectImageManager {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(file);
         fileInput.files = dataTransfer.files;
+        
+        console.log(`✅ Fichier ${index + 1} attaché:`, file.name, file.type, file.size, 'bytes');
 
-        // Afficher l'aperçu
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            img.src = e.target.result;
-            imageName.textContent = file.name;
-            imageSize.textContent = this.formatFileSize(file.size);
+        // Afficher l'aperçu selon le type de fichier
+        imageName.textContent = file.name;
+        imageSize.textContent = this.formatFileSize(file.size);
+        
+        // Vérifier si c'est une image
+        if (file.type.startsWith('image/')) {
+            // Pour les images, afficher l'aperçu
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                img.src = e.target.result;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+                preview.style.display = 'block';
+                
+                // Mettre à jour le compteur d'images puis la progression
+                this.updateImageCount();
+                this.updateFormProgress();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Pour les fichiers non-images (PDF, DOC, etc.), afficher une icône
+            img.style.display = 'none';
+            
+            // Créer une icône pour le type de fichier
+            let iconClass = 'fa-file';
+            if (file.type === 'application/pdf') {
+                iconClass = 'fa-file-pdf text-danger';
+            } else if (file.type.includes('word') || file.type.includes('document')) {
+                iconClass = 'fa-file-word text-primary';
+            } else if (file.type.includes('zip') || file.type.includes('rar')) {
+                iconClass = 'fa-file-archive text-warning';
+            }
+            
+            // Ajouter l'icône si elle n'existe pas déjà
+            let fileIcon = preview.querySelector('.file-icon');
+            if (!fileIcon) {
+                fileIcon = document.createElement('div');
+                fileIcon.className = 'file-icon mb-2';
+                preview.insertBefore(fileIcon, preview.firstChild);
+            }
+            fileIcon.innerHTML = `<i class="fas ${iconClass} fa-4x"></i>`;
             
             placeholder.style.display = 'none';
             preview.style.display = 'block';
@@ -246,8 +295,7 @@ class ProjectImageManager {
             // Mettre à jour le compteur d'images puis la progression
             this.updateImageCount();
             this.updateFormProgress();
-        };
-        reader.readAsDataURL(file);
+        }
     }
 
     validateFile(file) {

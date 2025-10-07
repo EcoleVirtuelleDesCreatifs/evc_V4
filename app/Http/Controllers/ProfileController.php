@@ -110,10 +110,37 @@ class ProfileController extends Controller
      */
     private function getUserData(int $userId): object
     {
+        // Récupérer les données de l'utilisateur depuis la table users
         $user = DB::table('users')->where('id', $userId)->first();
         
         if (!$user) {
             throw new Exception('Utilisateur non trouvé');
+        }
+        
+        // Essayer de récupérer les informations du profil étudiant
+        $student = DB::table('students')->where('user_id', $userId)->first();
+        
+        // Si un profil étudiant existe, fusionner les données
+        if ($student) {
+            // Convertir les objets en tableaux pour fusionner
+            $userData = (array) $user;
+            $studentData = (array) $student;
+            
+            // Fusionner les données (les données de student ont la priorité)
+            $mergedData = array_merge($userData, $studentData);
+            
+            // Reconvertir en objet
+            return (object) $mergedData;
+        }
+        
+        // Sinon, essayer avec la table pre_registrations
+        $preReg = DB::table('pre_registrations')->where('user_id', $userId)->first();
+        
+        if ($preReg) {
+            $userData = (array) $user;
+            $preRegData = (array) $preReg;
+            $mergedData = array_merge($userData, $preRegData);
+            return (object) $mergedData;
         }
         
         return $user;
@@ -181,9 +208,37 @@ class ProfileController extends Controller
 
         // Only update if there are fields to update (besides updated_at)
         if (count($updateData) > 1) {
-            DB::table('users')
-                ->where('id', $userId)
-                ->update($updateData);
+            // Vérifier si un profil étudiant existe
+            $student = DB::table('students')->where('user_id', $userId)->first();
+            
+            if ($student) {
+                // Mettre à jour la table students
+                DB::table('students')
+                    ->where('user_id', $userId)
+                    ->update($updateData);
+            } else {
+                // Vérifier dans pre_registrations
+                $preReg = DB::table('pre_registrations')->where('user_id', $userId)->first();
+                
+                if ($preReg) {
+                    // Mettre à jour pre_registrations
+                    DB::table('pre_registrations')
+                        ->where('user_id', $userId)
+                        ->update($updateData);
+                } else {
+                    // Fallback : mettre à jour users
+                    DB::table('users')
+                        ->where('id', $userId)
+                        ->update($updateData);
+                }
+            }
+            
+            // Toujours mettre à jour l'email dans users si fourni
+            if (!empty($data['email'])) {
+                DB::table('users')
+                    ->where('id', $userId)
+                    ->update(['email' => $data['email'], 'updated_at' => now()]);
+            }
         }
     }
 

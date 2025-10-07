@@ -47,7 +47,7 @@ class DesignProjectController extends Controller
         $filters = [
             'status' => $request->get('status'),
             'project_type' => $request->get('project_type'),
-            'project_mode' => $request->get('project_mode'),
+            'category' => $request->get('category'),
             'limit' => $request->get('limit', 50)
         ];
 
@@ -423,18 +423,31 @@ class DesignProjectController extends Controller
     {
         try {
             $userId = session('user_id');
+            Log::info('=== DEBUT soloProjects ===', ['user_id' => $userId]);
+            
             if (!$userId) {
+                Log::warning('Pas d\'user_id dans la session');
                 return redirect()->route('login');
             }
 
             // Récupérer les projets solo
-            $projects = $this->designProjectService->getUserProjects($userId, ['project_mode' => 'solo']);
+            Log::info('Appel getUserProjects avec category=solo');
+            $projects = $this->designProjectService->getUserProjects($userId, ['category' => 'solo']);
+            Log::info('Projets récupérés', ['count' => count($projects)]);
+            
+            Log::info('Appel getUserStats');
             $stats = $this->designProjectService->getUserStats($userId);
+            Log::info('Stats récupérées', ['stats' => $stats]);
 
             return view('projets.solo', compact('projects', 'stats'));
         } catch (Exception $e) {
+            Log::error('❌ ERREUR dans soloProjects', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
             return redirect()->route('design-graphique.projets.index')
-                ->with('error', 'Erreur lors du chargement des projets solo.');
+                ->with('error', 'Erreur lors du chargement des projets solo: ' . $e->getMessage());
         }
     }
 
@@ -450,13 +463,14 @@ class DesignProjectController extends Controller
             }
 
             // Récupérer les projets groupe
-            $projects = $this->designProjectService->getUserProjects($userId, ['project_mode' => 'groupe']);
+            $projects = $this->designProjectService->getUserProjects($userId, ['category' => 'groupe']);
             $stats = $this->designProjectService->getUserStats($userId);
 
             return view('projets.groupe', compact('projects', 'stats'));
         } catch (Exception $e) {
+            Log::error('Erreur dans groupProjects', ['error' => $e->getMessage()]);
             return redirect()->route('design-graphique.projets.index')
-                ->with('error', 'Erreur lors du chargement des projets groupe.');
+                ->with('error', 'Erreur lors du chargement des projets groupe: ' . $e->getMessage());
         }
     }
 

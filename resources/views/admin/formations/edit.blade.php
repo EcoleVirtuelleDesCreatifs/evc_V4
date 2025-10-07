@@ -139,8 +139,11 @@
                     <div class="col-md-4 form-group">
                         <label for="module">Module Principal</label>
                         <select class="form-select" id="module" name="module" required>
+                            <option value="" disabled {{ (old('module', $formation->modules[0] ?? '') == '') ? 'selected' : '' }}>Choisir un module...</option>
                             <option value="design-graphique" {{ (old('module', $formation->modules[0] ?? '') == 'design-graphique') ? 'selected' : '' }}>Design Graphique</option>
                             <option value="community-management" {{ (old('module', $formation->modules[0] ?? '') == 'community-management') ? 'selected' : '' }}>Community Management</option>
+                            <option value="gestion-informatique" {{ (old('module', $formation->modules[0] ?? '') == 'gestion-informatique') ? 'selected' : '' }}>Gestion Informatique</option>
+                            <option value="intelligence-artificielle" {{ (old('module', $formation->modules[0] ?? '') == 'intelligence-artificielle') ? 'selected' : '' }}>Intelligence Artificielle</option>
                         </select>
                     </div>
                     <div class="col-md-4 form-group">
@@ -156,6 +159,20 @@
                             <option value="etudiants-actifs" {{ (old('destinataire', $formation->student_restriction) == 'active_only') ? 'selected' : '' }}>Étudiants actifs</option>
                             <option value="etudiants-specifiques" {{ (old('destinataire', $formation->student_restriction) == 'all') ? 'selected' : '' }}>Étudiants spécifiques</option>
                         </select>
+                    </div>
+                </div>
+                <div class="row mt-3 d-none" id="students-select-container">
+                    <div class="col-12 form-group">
+                        <label for="student_ids">Sélectionner les étudiants <span class="text-danger">*</span></label>
+                        <select class="form-select" id="student_ids" name="student_ids[]" multiple="multiple">
+                            @foreach($students as $student)
+                                <option value="{{ $student->id }}" 
+                                    {{ in_array($student->id, old('student_ids', $formation->target_student_types ?? [])) ? 'selected' : '' }}>
+                                    {{ $student->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs étudiants</small>
                     </div>
                 </div>
             </div>
@@ -222,4 +239,104 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <script src="{{ asset('js/admin/formation-create.js') }}"></script>
+<script>
+// Gestion de l'affichage dynamique du champ de sélection d'étudiants
+$(document).ready(function() {
+    // Initialiser Select2 pour le champ de sélection des étudiants
+    $('#student_ids').select2({
+        placeholder: 'Rechercher et sélectionner des étudiants...',
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return 'Aucun étudiant trouvé';
+            },
+            searching: function() {
+                return 'Recherche en cours...';
+            }
+        }
+    });
+
+    // Fonction pour charger les étudiants selon le module sélectionné
+    function loadStudentsByModule(module, selectedIds = []) {
+        if (!module) {
+            $('#student_ids').empty().trigger('change');
+            return;
+        }
+
+        // Afficher un loader
+        $('#student_ids').empty().append('<option value="">Chargement...</option>').trigger('change');
+
+        // Requête AJAX pour récupérer les étudiants du module
+        $.ajax({
+            url: '{{ route("admin.api.students-by-module") }}',
+            method: 'GET',
+            data: { module: module },
+            success: function(response) {
+                if (response.success) {
+                    // Vider le select
+                    $('#student_ids').empty();
+                    
+                    // Ajouter les étudiants du module
+                    if (response.students.length > 0) {
+                        response.students.forEach(function(student) {
+                            const option = $('<option></option>')
+                                .attr('value', student.id)
+                                .text(student.name);
+                            
+                            // Sélectionner si dans les IDs pré-sélectionnés
+                            if (selectedIds.includes(student.id)) {
+                                option.attr('selected', 'selected');
+                            }
+                            
+                            $('#student_ids').append(option);
+                        });
+                    } else {
+                        $('#student_ids').append('<option value="">Aucun étudiant dans ce module</option>');
+                    }
+                    
+                    $('#student_ids').trigger('change');
+                } else {
+                    alert('Erreur lors du chargement des étudiants');
+                }
+            },
+            error: function() {
+                alert('Erreur lors du chargement des étudiants');
+                $('#student_ids').empty().append('<option value="">Erreur de chargement</option>').trigger('change');
+            }
+        });
+    }
+
+    // Fonction pour afficher/masquer le champ de sélection des étudiants
+    function toggleStudentsSelect() {
+        const destinataire = $('#destinataire').val();
+        const studentsContainer = $('#students-select-container');
+        const module = $('#module').val();
+        
+        if (destinataire === 'etudiants-specifiques') {
+            studentsContainer.removeClass('d-none').addClass('animate__animated animate__fadeIn');
+            $('#student_ids').prop('required', true);
+            // Charger les étudiants du module sélectionné
+            loadStudentsByModule(module);
+        } else {
+            studentsContainer.addClass('d-none').removeClass('animate__animated animate__fadeIn');
+            $('#student_ids').prop('required', false);
+        }
+    }
+
+    // Écouter les changements du champ Module
+    $('#module').on('change', function() {
+        const destinataire = $('#destinataire').val();
+        if (destinataire === 'etudiants-specifiques') {
+            loadStudentsByModule($(this).val());
+        }
+    });
+
+    // Écouter les changements du champ Destinataires
+    $('#destinataire').on('change', toggleStudentsSelect);
+
+    // Vérifier l'état initial au chargement de la page
+    toggleStudentsSelect();
+});
+</script>
 @endpush

@@ -1,6 +1,6 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Voir le Projet - ' . $project->title)
+@section('title', 'Voir le TP - ' . $project->title)
 
 @section('content')
 <div class="container-fluid px-4">
@@ -11,7 +11,7 @@
                 <div>
                     <h1 class="h3 mb-0 text-gray-800">
                         <i class="fas fa-eye text-primary me-2"></i>
-                        Détails du Projet
+                        Détails du TP
                     </h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
@@ -26,12 +26,6 @@
                         <i class="fas fa-arrow-left me-1"></i>
                         Retour à la liste
                     </a>
-                    @if($project->status === 'en_cours')
-                        <a href="{{ route('design-graphique.tp.modifier', $project->id) }}" class="btn btn-warning ms-2">
-                            <i class="fas fa-edit me-1"></i>
-                            Modifier
-                        </a>
-                    @endif
                 </div>
             </div>
         </div>
@@ -48,21 +42,25 @@
                         <i class="fas fa-info-circle me-2"></i>
                         Informations du Projet
                     </h6>
-                    <span class="badge {{ $project->status === 'valide' ? 'bg-success' : 'bg-warning' }} fs-6">
-                        {{ $project->status === 'valide' ? 'Validé' : 'En cours' }}
-                    </span>
+                    @if($project->status === 'validated')
+                        <span class="badge bg-success fs-6">
+                            <i class="fas fa-check-circle me-1"></i>Validé
+                        </span>
+                    @elseif($project->status === 'rejected')
+                        <span class="badge bg-danger fs-6">
+                            <i class="fas fa-times-circle me-1"></i>Rejeté
+                        </span>
+                    @else
+                        <span class="badge bg-warning fs-6">
+                            <i class="fas fa-clock me-1"></i>En attente
+                        </span>
+                    @endif
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold text-muted">Titre du projet</label>
+                        <div class="col-12 mb-3">
+                            <label class="form-label fw-bold text-muted">Titre du TP</label>
                             <p class="fs-5 mb-0">{{ $project->title }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold text-muted">Catégorie</label>
-                            <p class="mb-0">
-                                <span class="badge bg-info">{{ ucfirst($project->category) }}</span>
-                            </p>
                         </div>
                         @if($project->description)
                         <div class="col-12 mb-3">
@@ -119,85 +117,140 @@
                 </div>
             </div>
 
-            <!-- Images du projet -->
-            @if($project->images && $project->images->count() > 0)
+            <!-- Fichiers du TP -->
+            @if($project->files && $project->files->count() > 0)
+                @php
+                    // Fonction améliorée pour détecter les images
+                    $isImage = function($file) {
+                        // D'abord vérifier le mime_type (plus fiable)
+                        if (isset($file->mime_type)) {
+                            // Si c'est explicitement une image
+                            if (str_starts_with($file->mime_type, 'image/')) {
+                                return true;
+                            }
+                            // Si c'est explicitement un document, retourner false
+                            if (in_array($file->mime_type, [
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'application/vnd.ms-excel',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/zip',
+                                'application/x-rar-compressed',
+                                'text/plain'
+                            ])) {
+                                return false;
+                            }
+                        }
+                        
+                        // Ensuite vérifier l'extension
+                        $filePath = $file->file_path ?? $file->original_name ?? '';
+                        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+                        
+                        // Extensions d'images uniquement
+                        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
+                        return in_array($ext, $imageExtensions);
+                    };
+                    
+                    $imageFiles = $project->files->filter($isImage);
+                    $otherFiles = $project->files->filter(fn($f) => !$isImage($f));
+                @endphp
+                
+                @if($imageFiles->count() > 0)
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="fas fa-images me-2"></i>
+                            Images du TP ({{ $imageFiles->count() }})
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @foreach($imageFiles as $image)
+                            <div class="col-md-4 col-sm-6">
+                                <div class="position-relative" style="height: 200px; overflow: hidden; border-radius: 8px; cursor: pointer; background: #f0f0f0;"
+                                     onclick="viewImage('{{ asset($image->file_path) }}', '{{ $image->original_name }}')">
+                                    <img src="{{ asset($image->file_path) }}" class="w-100 h-100" style="object-fit: cover;"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="d-none w-100 h-100 align-items-center justify-content-center flex-column" style="background: #f8f9fa;">
+                                        <i class="fas fa-image text-muted fa-3x"></i>
+                                    </div>
+                                    <div class="position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
+                                        <small class="text-white d-block text-truncate">{{ $image->original_name }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
+                @if($otherFiles->count() > 0)
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-images me-2"></i>
-                        Images du Projet ({{ $project->images->count() }})
+                        <i class="fas fa-file me-2"></i>
+                        Autres fichiers ({{ $otherFiles->count() }})
                     </h6>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        @foreach($project->images as $image)
-                        <div class="col-md-4 mb-3">
-                            <div class="card border-0 shadow-sm">
-                                <div class="position-relative">
-                                    <img src="{{ $image->url }}" 
-                                         class="card-img-top" 
-                                         alt="{{ $image->original_name }}"
-                                         style="height: 200px; object-fit: cover;"
-                                         onerror="this.src='{{ asset('images/no-image.png') }}'; this.onerror=null;">
-                                    <div class="position-absolute top-0 end-0 m-2">
-                                        <span class="badge bg-dark bg-opacity-75">
-                                            {{ number_format($image->file_size / 1024, 0) }} KB
-                                        </span>
-                                    </div>
+                    <div class="list-group">
+                        @foreach($otherFiles as $file)
+                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                @if(str_starts_with($file->mime_type, 'image/'))
+                                    <i class="fas fa-image fa-2x text-info me-3"></i>
+                                @elseif($file->mime_type === 'application/pdf')
+                                    <i class="fas fa-file-pdf fa-2x text-danger me-3"></i>
+                                @elseif(str_starts_with($file->mime_type, 'video/'))
+                                    <i class="fas fa-file-video fa-2x text-success me-3"></i>
+                                @else
+                                    <i class="fas fa-file fa-2x text-secondary me-3"></i>
+                                @endif
+                                <div>
+                                    <h6 class="mb-0">{{ $file->original_name }}</h6>
+                                    <small class="text-muted">
+                                        {{ number_format($file->file_size / 1024, 2) }} KB
+                                        • {{ $file->mime_type }}
+                                    </small>
                                 </div>
-                                <div class="card-body p-2">
-                                    <p class="card-text small mb-0 text-truncate" title="{{ $image->original_name }}">
-                                        {{ $image->original_name }}
-                                    </p>
-                                </div>
+                            </div>
+                            <div>
+                                @if(str_starts_with($file->mime_type, 'image/'))
+                                    <a href="{{ asset($file->file_path) }}" 
+                                       target="_blank" 
+                                       class="btn btn-sm btn-info me-1"
+                                       title="Voir l'image">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                @endif
+                                @if($file->mime_type === 'application/pdf')
+                                    <a href="{{ asset($file->file_path) }}" 
+                                       target="_blank" 
+                                       class="btn btn-sm btn-danger me-1"
+                                       title="Lire le PDF">
+                                        <i class="fas fa-book-open"></i>
+                                    </a>
+                                @endif
+                                <a href="{{ asset($file->file_path) }}" 
+                                   download="{{ $file->original_name }}" 
+                                   class="btn btn-sm btn-primary"
+                                   title="Télécharger">
+                                    <i class="fas fa-download"></i>
+                                </a>
                             </div>
                         </div>
                         @endforeach
                     </div>
                 </div>
             </div>
+                @endif
             @endif
         </div>
 
         <!-- Sidebar -->
         <div class="col-lg-4">
-            <!-- Statistiques -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-bar me-2"></i>
-                        Statistiques
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <div class="border-end">
-                                <h4 class="text-primary mb-0">{{ $project->images ? $project->images->count() : 0 }}</h4>
-                                <small class="text-muted">Images</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <h4 class="text-info mb-0">
-                                @if($project->images && $project->images->count() > 0)
-                                    {{ number_format($project->images->sum('file_size') / 1024 / 1024, 1) }} MB
-                                @else
-                                    0 MB
-                                @endif
-                            </h4>
-                            <small class="text-muted">Taille totale</small>
-                        </div>
-                        <div class="col-12">
-                            <hr>
-                            <p class="text-muted small mb-0">
-                                <i class="fas fa-clock me-1"></i>
-                                Créé il y a {{ \Carbon\Carbon::parse($project->created_at)->diffForHumans() }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Actions -->
             <div class="card shadow">
                 <div class="card-header py-3">
@@ -208,24 +261,43 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        @if($project->status === 'en_cours')
-                            <a href="{{ route('design-graphique.tp.modifier', $project->id) }}" class="btn btn-warning">
+                        @if($project->status === 'pending')
+                            <div class="alert alert-info mb-3">
+                                <i class="fas fa-clock me-2"></i>
+                                <strong>En attente de validation</strong><br>
+                                <small>Votre TP est en cours d'évaluation par l'équipe pédagogique.</small>
+                            </div>
+                            <a href="{{ route('design-graphique.tp.modifier', $project->id) }}" class="btn btn-warning w-100 mb-2">
                                 <i class="fas fa-edit me-2"></i>
-                                Modifier le projet
+                                Modifier le TP
                             </a>
-                            <button type="button" class="btn btn-danger" onclick="deleteProject({{ $project->id }})">
+                            <button type="button" class="btn btn-danger w-100" onclick="confirmDelete({{ $project->id }})">
                                 <i class="fas fa-trash me-2"></i>
-                                Supprimer le projet
+                                Supprimer le TP
                             </button>
-                        @else
-                            <div class="alert alert-info mb-0">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Ce projet est validé et ne peut plus être modifié.
+                        @elseif($project->status === 'validated')
+                            <div class="alert alert-success mb-0">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>TP validé !</strong><br>
+                                <small>Félicitations ! Votre travail a été accepté.</small>
+                                @if($project->validated_at)
+                                    <br><small class="text-muted">Validé le {{ \Carbon\Carbon::parse($project->validated_at)->format('d/m/Y à H:i') }}</small>
+                                @endif
+                            </div>
+                        @elseif($project->status === 'rejected')
+                            <div class="alert alert-danger mb-0">
+                                <i class="fas fa-times-circle me-2"></i>
+                                <strong>TP à améliorer</strong><br>
+                                <small>Veuillez apporter les corrections demandées et resoumettre votre TP.</small>
+                                @if($project->rejection_reason)
+                                    <hr class="my-2">
+                                    <small><strong>Commentaires :</strong><br>{{ $project->rejection_reason }}</small>
+                                @endif
                             </div>
                         @endif
-                        <a href="{{ route('design-graphique.tp.tous') }}" class="btn btn-secondary">
+                        <a href="{{ route('design-graphique.tp.tous') }}" class="btn btn-secondary w-100 mt-2">
                             <i class="fas fa-list me-2"></i>
-                            Voir tous les projets
+                            Voir tous mes TP
                         </a>
                     </div>
                 </div>
@@ -234,44 +306,96 @@
     </div>
 </div>
 
-@if($project->status === 'en_cours')
+
+@if($project->status === 'pending')
 <script>
-function deleteProject(projectId) {
-    Swal.fire({
-        title: 'Êtes-vous sûr ?',
-        text: "Cette action est irréversible !",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Oui, supprimer !',
-        cancelButtonText: 'Annuler'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch(`/evc/compte/design-graphique/tp/supprimer/${projectId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire('Supprimé !', data.message, 'success').then(() => {
-                        window.location.href = '{{ route("design-graphique.tp.tous") }}';
-                    });
-                } else {
-                    Swal.fire('Erreur !', data.message, 'error');
-                }
-            })
-            .catch(error => {
-                Swal.fire('Erreur !', 'Une erreur est survenue lors de la suppression.', 'error');
-            });
-        }
-    });
+function confirmDelete(tpId) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce TP ? Cette action est irréversible.')) {
+        // Créer un formulaire de suppression dynamique
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("design-graphique.tp.supprimer", "__ID__") }}'.replace('__ID__', tpId);
+        
+        // Ajouter le token CSRF
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = '{{ csrf_token() }}';
+        form.appendChild(csrfInput);
+        
+        // Ajouter la méthode DELETE
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+        
+        // Ajouter au body et soumettre
+        document.body.appendChild(form);
+        form.submit();
+    }
 }
 </script>
 @endif
+
 @endsection
+
+@push('styles')
+<style>
+#imageLightbox {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+#imageLightbox img {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+#imageLightbox .close-lightbox {
+    position: absolute;
+    top: 20px;
+    right: 40px;
+    color: #fff;
+    font-size: 40px;
+    cursor: pointer;
+}
+</style>
+@endpush
+
+@push('scripts')
+<script>
+function viewImage(url, name) {
+    let lb = document.getElementById('imageLightbox');
+    if (!lb) {
+        lb = document.createElement('div');
+        lb.id = 'imageLightbox';
+        lb.innerHTML = '<span class="close-lightbox" onclick="closeLightbox()">&times;</span><img id="lbImg" src=""><div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: white; background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 5px;"><span id="lbName"></span></div>';
+        document.body.appendChild(lb);
+        lb.onclick = e => e.target === lb && closeLightbox();
+    }
+    document.getElementById('lbImg').src = url;
+    document.getElementById('lbName').textContent = name;
+    lb.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+    const lb = document.getElementById('imageLightbox');
+    if (lb) {
+        lb.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+document.addEventListener('keydown', e => e.key === 'Escape' && closeLightbox());
+</script>
+@endpush

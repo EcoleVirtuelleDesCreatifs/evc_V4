@@ -104,16 +104,62 @@ Route::get('/evc/app/admin/students/{id}/edit', [\App\Http\Controllers\Admin\Stu
     ->whereNumber('id')
     ->name('admin.students.edit');
 
-// Routes d'espaces étudiants personnalisées selon la formation (PROTÉGÉES PAR AUTH)
-Route::middleware(['auth'])->group(function () {
+Route::post('/evc/app/admin/students/{id}/toggle-status', [\App\Http\Controllers\Admin\StudentAdminController::class, 'toggleStatus'])
+    ->whereNumber('id')
+    ->name('admin.students.toggle-status');
+
+// Route pour la page de compte désactivé (accessible UNIQUEMENT avec compte désactivé)
+Route::get('/compte-desactive', function() {
+    // Vérifier si l'utilisateur est authentifié
+    if (!Auth::check()) {
+        return redirect()->route('login');
+    }
+    
+    $user = Auth::user();
+    
+    // Vérifier le statut dans la table students
+    if (Schema::hasTable('students')) {
+        $student = DB::table('students')
+            ->where('email', $user->email)
+            ->first();
+        
+        // Si l'étudiant existe et est ACTIF, rediriger vers le dashboard
+        if ($student && $student->status === 'active') {
+            // Déterminer la formation pour rediriger vers le bon dashboard
+            $formationMap = [
+                'Design Graphique' => 'dashboard.design-graphique',
+                'Community Management' => 'dashboard.community-manager',
+                'Intelligence Artificielle' => 'dashboard.intelligence-artificielle',
+                'Gestion Informatique' => 'dashboard.gestion-informatique',
+            ];
+            
+            $dashboardRoute = $formationMap[$student->program] ?? 'dashboard.design-graphique';
+            return redirect()->route($dashboardRoute)->with('success', 'Votre compte est actif ! Bienvenue.');
+        }
+        
+        // Si inactif, afficher la page de désactivation
+        if ($student && $student->status === 'inactive') {
+            return view('account-deactivated', [
+                'reason' => session('reason', $student->deactivation_reason ?? ''),
+                'deactivatedAt' => session('deactivatedAt', $student->deactivated_at ?? null)
+            ]);
+        }
+    }
+    
+    // Par défaut, rediriger vers le dashboard
+    return redirect()->route('dashboard.design-graphique');
+})->middleware('auth')->name('account.deactivated');
+
+// Routes d'espaces étudiants personnalisées selon la formation (PROTÉGÉES PAR AUTH + VÉRIFICATION COMPTE ACTIF)
+Route::middleware(['auth', 'student.active'])->group(function () {
     Route::get('/evc/compte/design-graphique/espace-etudiant', [DashboardController::class, 'designGraphique'])->name('dashboard.design-graphique');
     Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
     Route::get('/evc/compte/intelligence-artificielle/espace-etudiant', [DashboardController::class, 'intelligenceArtificielle'])->name('dashboard.intelligence-artificielle');
     Route::get('/evc/compte/gestion-informatique/espace-etudiant', [DashboardController::class, 'gestionInformatique'])->name('dashboard.gestion-informatique');
 });
 
-// Groupe de routes pour Design Graphique avec préfixe commun (PROTÉGÉ PAR AUTH)
-Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middleware(['auth'])->group(function () {
+// Groupe de routes pour Design Graphique avec préfixe commun (PROTÉGÉ PAR AUTH + VÉRIFICATION COMPTE ACTIF)
+Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middleware(['auth', 'student.active'])->group(function () {
     // Profil - Structure: /evc/compte/design-graphique/profil/{action}
     Route::get('/profil/editer/{id?}', [DashboardController::class, 'editProfile'])->name('profil.editer');
     Route::post('/profil/editer/{id?}', [DashboardController::class, 'updateProfile'])->name('profil.update');
@@ -136,8 +182,10 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     // TP (Travaux Pratiques) - Structure: /evc/compte/design-graphique/tp/{action}
     Route::get('/tp/index', [DashboardController::class, 'listTP'])->name('tp.index');
     Route::get('/tp/tous', [DashboardController::class, 'showAllTP'])->name('tp.tous');
+    Route::get('/tp/voir/{id}', [DashboardController::class, 'viewTP'])->name('tp.voir');
     Route::get('/tp/ajouter', [DashboardController::class, 'createTP'])->name('tp.ajouter');
     Route::post('/tp/ajouter', [DashboardController::class, 'storeTP'])->name('tp.store');
+    Route::get('/tp/modifier/{id}', [DashboardController::class, 'editTP'])->name('tp.modifier');
     // Routes pour les projets de design graphique
     Route::get('/projets', [DashboardController::class, 'projets'])->name('projets.index');
     Route::post('/projets', [App\Http\Controllers\DesignProjectController::class, 'store'])->name('projets.store');
@@ -188,6 +236,8 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     Route::get('/formations/index', [DashboardController::class, 'formationsIndex'])->name('formations.index');
     Route::get('/formations/category/{category}', [DashboardController::class, 'formationsCategory'])->name('formations.category');
     Route::get('/formations/show/{id}', [DashboardController::class, 'formationsShow'])->name('formations.show');
+    Route::get('/formations/download/{id}', [DashboardController::class, 'formationsDownload'])->name('formations.download');
+    Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
     // Projets - Structure: /evc/compte/design-graphique/projets/{action}
     // Routes déplacées vers les lignes 112-117 pour éviter les doublons
@@ -249,6 +299,12 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/formations/categories', [AdminDashboardController::class, 'categoriesIndex'])->name('formations.categories.index');
         Route::get('/formations/categories/create', [AdminDashboardController::class, 'createCategory'])->name('formations.categories.create');
         Route::post('/formations/categories', [AdminDashboardController::class, 'storeCategory'])->name('formations.categories.store');
+        Route::get('/formations/categories/{id}/edit', [AdminDashboardController::class, 'editCategory'])->name('formations.categories.edit');
+        Route::put('/formations/categories/{id}', [AdminDashboardController::class, 'updateCategory'])->name('formations.categories.update');
+        Route::delete('/formations/categories/{id}', [AdminDashboardController::class, 'deleteCategory'])->name('formations.categories.delete');
+        // API pour récupérer les étudiants par module
+        Route::get('/api/students-by-module', [AdminDashboardController::class, 'getStudentsByModule'])->name('api.students-by-module');
+        
         Route::post('/formations', [AdminDashboardController::class, 'store'])->name('formations.store');
         Route::get('/formations/{formation}', [AdminDashboardController::class, 'show'])->name('formations.show');
         Route::get('/formations/{formation}/edit', [AdminDashboardController::class, 'edit'])->name('formations.edit');
@@ -445,10 +501,16 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         // route unifiée d'édition définie en dehors de ce groupe
         Route::put('/students/{id}', [AdminDashboardController::class, 'updateStudent'])->name('students.update');
         Route::delete('/students/{id}', [AdminDashboardController::class, 'deleteStudent'])->name('students.delete');
-        Route::post('/students/{id}/toggle-status', [AdminDashboardController::class, 'toggleStudentStatus'])->name('students.toggle-status');
+        // Route::post('/students/{id}/toggle-status', [AdminDashboardController::class, 'toggleStudentStatus'])->name('students.toggle-status'); // COMMENTÉ - Route dupliquée, voir ligne 107
         Route::get('/students/by-formation/{formation}', [AdminDashboardController::class, 'studentsByFormation'])->name('students.by-formation');
         Route::get('/students/{id}/profile', [\App\Http\Controllers\Admin\StudentAdminController::class, 'profile'])->name('students.profile');
         Route::get('/students/add', [AdminDashboardController::class, 'createStudent'])->name('students.add');
+        
+        // Routes pour la gestion des projets design (admin)
+        Route::get('/projects/{id}', [\App\Http\Controllers\Admin\StudentAdminController::class, 'showProject'])->name('projects.show');
+        Route::post('/projects/{id}/validate', [\App\Http\Controllers\Admin\StudentAdminController::class, 'validateProject'])->name('projects.validate');
+        Route::get('/projects/{id}/download', [\App\Http\Controllers\Admin\StudentAdminController::class, 'downloadProject'])->name('projects.download');
+        Route::delete('/projects/{id}/delete', [\App\Http\Controllers\Admin\StudentAdminController::class, 'deleteProject'])->name('projects.delete');
         
         // Gestion des Admins
         Route::get('/admins', [AdminDashboardController::class, 'admins'])->name('admins.index');

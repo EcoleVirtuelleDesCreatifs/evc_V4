@@ -69,11 +69,7 @@
                 <div class="card text-center">
                     <div class="card-body">
                         <h4 style="color: var(--primary-color);">
-                            @if($category == 'photoshop') 12
-                            @elseif($category == 'illustrator') 8
-                            @elseif($category == 'indesign') 6
-                            @else 4
-                            @endif
+                            {{ $stats['total'] ?? 0 }}
                         </h4>
                         <small class="text-muted">Formations disponibles</small>
                     </div>
@@ -83,11 +79,7 @@
                 <div class="card text-center">
                     <div class="card-body">
                         <h4 style="color: var(--success-color);">
-                            @if($category == 'photoshop') 8h 30min
-                            @elseif($category == 'illustrator') 6h 15min
-                            @elseif($category == 'indesign') 4h 45min
-                            @else 3h 20min
-                            @endif
+                            {{ $stats['duration'] ?? 0 }} semaines
                         </h4>
                         <small class="text-muted">Durée totale</small>
                     </div>
@@ -97,13 +89,9 @@
                 <div class="card text-center">
                     <div class="card-body">
                         <h4 style="color: var(--warning-color);">
-                            @if($category == 'photoshop') 65%
-                            @elseif($category == 'illustrator') 40%
-                            @elseif($category == 'indesign') 25%
-                            @else 15%
-                            @endif
+                            {{ number_format($stats['completion_rate'] ?? 0, 0) }}%
                         </h4>
-                        <small class="text-muted">Progression</small>
+                        <small class="text-muted">Taux de complétion</small>
                     </div>
                 </div>
             </div>
@@ -111,11 +99,7 @@
                 <div class="card text-center">
                     <div class="card-body">
                         <h4 style="color: var(--accent-color);">
-                            @if($category == 'photoshop') 3
-                            @elseif($category == 'illustrator') 2
-                            @elseif($category == 'indesign') 1
-                            @else 1
-                            @endif
+                            {{ $stats['new_this_week'] ?? 0 }}
                         </h4>
                         <small class="text-muted">Nouvelles cette semaine</small>
                     </div>
@@ -125,243 +109,122 @@
 
         <!-- Liste des formations -->
         <div class="row">
-            @if($category == 'photoshop')
-                <!-- Formations Photoshop -->
+            @forelse($formations as $formation)
                 <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-magic fa-2x me-3" style="color: var(--primary-color);"></i>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Retouche Photo Avancée</h6>
-                                    <small class="text-muted">45 minutes • Avancé</small>
+                    <div class="card h-100 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''">
+                        
+                        <!-- Image de la formation -->
+                        <div class="position-relative" style="height: 200px; overflow: hidden;">
+                            @if(isset($formation->image_url) && $formation->image_url)
+                                <img src="{{ asset('storage/' . $formation->image_url) }}" class="w-100 h-100" alt="{{ $formation->name }}" style="object-fit: cover;">
+                            @else
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, 
+                                    @if($category == 'photoshop') #667eea 0%, #764ba2 100%
+                                    @elseif($category == 'illustrator') #f093fb 0%, #f5576c 100%
+                                    @elseif($category == 'indesign') #4facfe 0%, #00f2fe 100%
+                                    @else #fa709a 0%, #fee140 100%
+                                    @endif);">
+                                    <i class="fas fa-graduation-cap fa-4x text-white opacity-75"></i>
                                 </div>
-                            </div>
-                            <p class="text-muted small mb-3">Techniques professionnelles de retouche photo et correction colorimétrique.</p>
-                            <div class="progress mb-3" style="height: 6px;">
-                                <div class="progress-bar" style="width: 75%; background-color: var(--primary-color);"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge" style="background-color: var(--success-color); color: white;">75% terminé</span>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('formations.show', 1) }}" class="btn btn-primary">
-                                        <i class="fas fa-play"></i>
-                                    </a>
-                                    <button class="btn btn-outline-primary">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
+                            @endif
+                            
+                            <!-- Badge du niveau -->
+                            <span class="position-absolute top-0 end-0 m-3 badge bg-dark bg-opacity-75 px-3 py-2" style="border-radius: 10px; font-size: 0.85rem;">
+                                {{ ucfirst($formation->level ?? 'débutant') }}
+                            </span>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-layer-group fa-2x me-3" style="color: var(--primary-color);"></i>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Masques et Calques</h6>
-                                    <small class="text-muted">35 minutes • Intermédiaire</small>
-                                </div>
-                            </div>
-                            <p class="text-muted small mb-3">Maîtrisez les masques de fusion et les modes de fusion des calques.</p>
-                            <div class="progress mb-3" style="height: 6px;">
-                                <div class="progress-bar" style="width: 100%; background-color: var(--success-color);"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge" style="background-color: var(--success-color); color: white;">Terminé</span>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('formations.show', 2) }}" class="btn btn-primary">
-                                        <i class="fas fa-play"></i>
-                                    </a>
-                                    <button class="btn btn-outline-primary">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                        <!-- Corps de la carte -->
+                        <div class="card-body d-flex flex-column p-4">
+                            <!-- Titre de la formation -->
+                            <h5 class="card-title fw-bold mb-3" style="color: #2c3e50; font-size: 1.1rem;">
+                                {{ $formation->name }}
+                            </h5>
 
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-palette fa-2x me-3" style="color: var(--primary-color);"></i>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Correction Colorimétrique</h6>
-                                    <small class="text-muted">40 minutes • Intermédiaire</small>
-                                </div>
+                            <!-- Durée et informations -->
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <small class="text-muted d-flex align-items-center">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ $formation->duration_weeks }} sem.
+                                </small>
+                                @if(isset($formation->is_featured) && $formation->is_featured)
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-star me-1"></i>Populaire
+                                    </span>
+                                @endif
                             </div>
-                            <p class="text-muted small mb-3">Techniques avancées de correction des couleurs et de l'exposition.</p>
-                            <div class="progress mb-3" style="height: 6px;">
-                                <div class="progress-bar" style="width: 30%; background-color: var(--warning-color);"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge" style="background-color: var(--warning-color); color: white;">30% terminé</span>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('formations.show', 3) }}" class="btn btn-primary">
-                                        <i class="fas fa-play"></i>
-                                    </a>
-                                    <button class="btn btn-outline-primary">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-            @elseif($category == 'illustrator')
-                <!-- Formations Illustrator -->
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-bezier-curve fa-2x me-3" style="color: var(--secondary-color);"></i>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Création de Logos</h6>
-                                    <small class="text-muted">50 minutes • Intermédiaire</small>
-                                </div>
-                            </div>
-                            <p class="text-muted small mb-3">Concevez des logos professionnels avec les outils vectoriels.</p>
-                            <div class="progress mb-3" style="height: 6px;">
-                                <div class="progress-bar" style="width: 60%; background-color: var(--secondary-color);"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge" style="background-color: var(--warning-color); color: white;">60% terminé</span>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('formations.show', 4) }}" class="btn btn-primary">
-                                        <i class="fas fa-play"></i>
-                                    </a>
-                                    <button class="btn btn-outline-primary">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            <!-- Description -->
+                            <p class="card-text text-muted flex-grow-1 mb-4" style="font-size: 0.9rem; line-height: 1.6;">
+                                {{ Str::limit(strip_tags($formation->short_description ?? $formation->description), 110) }}
+                            </p>
 
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-shapes fa-2x me-3" style="color: var(--secondary-color);"></i>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Illustrations Vectorielles</h6>
-                                    <small class="text-muted">60 minutes • Avancé</small>
-                                </div>
-                            </div>
-                            <p class="text-muted small mb-3">Créez des illustrations complexes avec les outils vectoriels avancés.</p>
-                            <div class="progress mb-3" style="height: 6px;">
-                                <div class="progress-bar" style="width: 0%; background-color: var(--secondary-color);"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-secondary">Pas commencé</span>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('formations.show', 5) }}" class="btn btn-primary">
-                                        <i class="fas fa-play"></i>
-                                    </a>
-                                    <button class="btn btn-outline-primary">
-                                        <i class="fas fa-download"></i>
+                            <!-- Boutons d'action -->
+                            <div class="d-grid gap-2">
+                                <a href="{{ route('design-graphique.formations.show', $formation->id) }}" class="btn btn-primary d-flex align-items-center justify-content-center gap-2" style="border-radius: 10px; padding: 12px; font-weight: 500;">
+                                    <i class="fas fa-play-circle"></i>
+                                    Voir la formation
+                                </a>
+                                
+                                <div class="d-flex gap-2">
+                                    @if(!empty($formation->video_url) || !empty($formation->vimeo_code))
+                                        <a href="{{ route('design-graphique.formations.download', $formation->id) }}" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-1" style="border-radius: 10px; font-size: 0.9rem;" title="Télécharger la vidéo" target="_blank">
+                                            <i class="fas fa-download"></i>
+                                            <span class="d-none d-md-inline">Télécharger</span>
+                                        </a>
+                                    @else
+                                        <button class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-1" style="border-radius: 10px; font-size: 0.9rem;" title="Vidéo non disponible" disabled>
+                                            <i class="fas fa-download"></i>
+                                            <span class="d-none d-md-inline">Télécharger</span>
+                                        </button>
+                                    @endif
+                                    
+                                    <button class="btn btn-outline-info flex-fill d-flex align-items-center justify-content-center gap-1" style="border-radius: 10px; font-size: 0.9rem;" title="Favoris">
+                                        <i class="fas fa-bookmark"></i>
+                                        <span class="d-none d-md-inline">Favoris</span>
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-            @elseif($category == 'indesign')
-                <!-- Formations InDesign -->
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-file-alt fa-2x me-3" style="color: var(--accent-color);"></i>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Mise en Page Magazine</h6>
-                                    <small class="text-muted">55 minutes • Intermédiaire</small>
-                                </div>
-                            </div>
-                            <p class="text-muted small mb-3">Créez des mises en page professionnelles pour magazines et brochures.</p>
-                            <div class="progress mb-3" style="height: 6px;">
-                                <div class="progress-bar" style="width: 40%; background-color: var(--accent-color);"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge" style="background-color: var(--warning-color); color: white;">40% terminé</span>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('formations.show', 6) }}" class="btn btn-primary">
-                                        <i class="fas fa-play"></i>
-                                    </a>
-                                    <button class="btn btn-outline-primary">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
+                        <!-- Footer avec statistiques -->
+                        <div class="card-footer bg-light border-0 py-3" style="border-radius: 0 0 15px 15px;">
+                            <div class="d-flex justify-content-between align-items-center small text-muted">
+                                <span>
+                                    <i class="fas fa-users me-1"></i>
+                                    {{ $formation->max_students ?? 'Illimité' }}
+                                </span>
+                                @if(isset($formation->satisfaction_rate))
+                                    <span>
+                                        <i class="fas fa-star me-1 text-warning"></i>
+                                        {{ number_format($formation->satisfaction_rate, 1) }}/5
+                                    </span>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
-
-            @else
-                <!-- Master Class -->
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 border-warning">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <i class="fas fa-crown fa-2x me-3" style="color: var(--warning-color);"></i>
-                                <div class="flex-grow-1">
-                                    <h6 class="mb-1">Strategy Business Design</h6>
-                                    <small class="text-muted">90 minutes • Expert</small>
-                                </div>
-                            </div>
-                            <p class="text-muted small mb-3">Stratégies avancées de design thinking et business model canvas.</p>
-                            <div class="progress mb-3" style="height: 6px;">
-                                <div class="progress-bar" style="width: 20%; background-color: var(--warning-color);"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge" style="background-color: var(--warning-color); color: white;">20% terminé</span>
-                                <div class="btn-group btn-group-sm">
-                                    <a href="{{ route('formations.show', 7) }}" class="btn btn-primary">
-                                        <i class="fas fa-play"></i>
-                                    </a>
-                                    <button class="btn btn-outline-primary">
-                                        <i class="fas fa-download"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+            @empty
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-5" role="alert" style="border-radius: 15px; border: 2px dashed #0dcaf0;">
+                        <i class="fas fa-info-circle fa-3x mb-3 text-info opacity-50"></i>
+                        <h5 class="text-info">Aucune formation disponible</h5>
+                        <p class="mb-0 text-muted">Aucune formation n'est disponible dans cette catégorie pour le moment.</p>
                     </div>
                 </div>
-            @endif
+            @endforelse
         </div>
 
         <!-- Pagination -->
+        @if($formations->hasPages())
         <div class="row mt-4">
             <div class="col-12">
-                <nav aria-label="Navigation des formations">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <span class="page-link">Précédent</span>
-                        </li>
-                        <li class="page-item active">
-                            <span class="page-link">1</span>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">2</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">3</a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Suivant</a>
-                        </li>
-                    </ul>
-                </nav>
+                <div class="d-flex justify-content-center">
+                    {{ $formations->links() }}
+                </div>
             </div>
         </div>
+        @endif
     </div>
 </div>
 @endsection

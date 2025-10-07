@@ -51,7 +51,7 @@
             <div class="card-header">
                 <h5 class="mb-0">
                     <i class="fas fa-share-alt me-2"></i>
-                    Rejoins les canaux de travail
+                    Rejoins les différentes classes
                 </h5>
             </div>
             <div class="card-body">
@@ -150,7 +150,7 @@
                     <i class="fas fa-thumbs-up me-2"></i>
                     Suivez-nous sur les réseaux sociaux
                 </h5>
-                <p class="text-muted mb-0 mt-2">Restez connectés avec EVC et découvrez nos dernières actualités, conseils et success stories</p>
+                <p class="text-white mb-0 mt-2">Restez connectés avec EVC et découvrez nos dernières actualités, conseils et success stories</p>
             </div>
             <div class="card-body">
                 <div class="row">

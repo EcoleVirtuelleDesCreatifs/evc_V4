@@ -82,6 +82,44 @@ class StudentProfileService
             $student->user_id = $user->id;
         }
 
+        // Générer automatiquement un student_id unique si non fourni
+        if (empty($student->student_id)) {
+            // Format: EVC-ANNEE-NUMERO (ex: EVC-2025-001)
+            $year = date('Y');
+            $lastStudent = Student::where('student_id', 'LIKE', "EVC-{$year}-%")
+                ->orderBy('student_id', 'desc')
+                ->first();
+            
+            if ($lastStudent && preg_match('/EVC-\\d{4}-(\\d+)/', $lastStudent->student_id, $matches)) {
+                $nextNumber = intval($matches[1]) + 1;
+            } else {
+                $nextNumber = 1;
+            }
+            
+            $student->student_id = sprintf('EVC-%s-%03d', $year, $nextNumber);
+        }
+
+        // Définir des valeurs par défaut pour les champs obligatoires (NOT NULL)
+        if (empty($student->first_name)) {
+            $student->first_name = auth()->user()->name ?? 'Non spécifié';
+        }
+        
+        if (empty($student->last_name)) {
+            $student->last_name = 'Non spécifié';
+        }
+        
+        if (empty($student->email)) {
+            $student->email = auth()->user()->email ?? 'noemail@evc.com';
+        }
+        
+        if (empty($student->degree)) {
+            $student->degree = 'Non spécifié';
+        }
+        
+        if (empty($student->Level_education)) {
+            $student->Level_education = 'Non spécifié';
+        }
+
         $student->save();
         return $student;
     }

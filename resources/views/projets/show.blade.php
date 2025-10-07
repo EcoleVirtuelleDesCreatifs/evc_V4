@@ -70,8 +70,8 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-bold">Mode de projet</label>
                             <p class="form-control-plaintext">
-                                <span class="badge {{ $project['project_mode'] === 'solo' ? 'bg-primary' : 'bg-secondary' }}">
-                                    {{ $project['project_mode'] === 'solo' ? 'Projet Solo' : 'Projet Groupe' }}
+                                <span class="badge {{ $project['category'] === 'solo' ? 'bg-primary' : 'bg-secondary' }}">
+                                    {{ $project['category'] === 'solo' ? 'Projet Solo' : 'Projet Groupe' }}
                                 </span>
                             </p>
                         </div>
@@ -109,16 +109,7 @@
                                 @endif
                             </div>
                         </div>
-                        @if($project['reference_url'])
-                        <div class="col-12 mb-3">
-                            <label class="form-label fw-bold">URL de référence</label>
-                            <p class="form-control-plaintext">
-                                <a href="{{ $project['reference_url'] }}" target="_blank" class="text-decoration-none">
-                                    {{ $project['reference_url'] }} <i class="fas fa-external-link-alt ms-1"></i>
-                                </a>
-                            </p>
-                        </div>
-                        @endif
+
                     </div>
                 </div>
             </div>

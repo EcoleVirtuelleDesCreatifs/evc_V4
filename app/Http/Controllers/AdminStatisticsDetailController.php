@@ -95,6 +95,7 @@ class AdminStatisticsDetailController extends Controller
                 case 'total-projects':
                     return $this->getProjectsDetails();
                     
+                case 'tp':
                 case 'total-tp':
                     return $this->getTpDetails();
                     
@@ -234,7 +235,7 @@ class AdminStatisticsDetailController extends Controller
     {
         try {
             $totalTp = DB::table('tp')->count();
-            $validatedTp = DB::table('tp')->where('status', 'validate')->count();
+            $validatedTp = DB::table('tp')->where('status', 'validated')->count();
             $pendingTp = DB::table('tp')->where('status', 'pending')->count();
             
             return [

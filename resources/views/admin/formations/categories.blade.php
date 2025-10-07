@@ -1726,11 +1726,9 @@
                         <table class="table table-dark mb-0" style="background: transparent; border: none; color: #ffffff !important;">
                             <thead style="background: rgba(0, 0, 0, 0.2); border-bottom: 2px solid rgba(255, 255, 255, 0.1);">
                                 <tr>
-                                    <th style="width: 60px; padding: 20px 16px; color: #ffffff; font-weight: 600; font-size: 0.9rem; border: none;" class="sortable" data-sort="id">
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-hashtag me-2" style="color: #64b5f6; font-size: 0.8rem;"></i>
-                                            #
-                                            <i class="fas fa-sort ms-1 sort-icon" style="color: rgba(255, 255, 255, 0.5); font-size: 0.7rem;"></i>
+                                    <th style="width: 70px; padding: 20px 16px; color: #ffffff; font-weight: 600; font-size: 0.9rem; border: none;" class="text-center">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-hashtag" style="color: #64b5f6; font-size: 0.8rem;"></i>
                                         </div>
                                     </th>
                                     <th style="padding: 20px 16px; color: #ffffff; font-weight: 600; font-size: 0.9rem; border: none;" class="sortable" data-sort="name">
@@ -1773,12 +1771,9 @@
                             <tbody>
                                 @forelse($categories ?? [] as $index => $category)
                                 <tr class="category-row" data-category-id="{{ $category['id'] ?? 0 }}" data-status="{{ $category['status'] ?? 'active' }}" data-name="{{ strtolower($category['name'] ?? 'catégorie') }}" style="border-bottom: 1px solid rgba(255, 255, 255, 0.08); transition: all 0.3s ease; background: rgba(255, 255, 255, 0.02);" onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.02)'; this.style.transform='translateY(0)'">
-                                    <td style="padding: 18px 16px; border: none; vertical-align: middle;">
-                                        <div class="d-flex align-items-center">
-                                            <div class="category-icon-wrapper me-3" style="width: 40px; height: 40px; background: rgba(100, 181, 246, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                                <i class="{{ $category['icon'] ?? 'fas fa-layer-group' }}" style="color: #64b5f6; font-size: 1.1rem;"></i>
-                                            </div>
-                                            <span class="fw-bold" style="color: #ffffff; font-size: 1rem;">{{ $index + 1 }}</span>
+                                    <td class="text-center" style="padding: 18px 16px; border: none; vertical-align: middle;">
+                                        <div class="category-icon-wrapper" style="width: 40px; height: 40px; background: rgba(100, 181, 246, 0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+                                            <span class="fw-bold" style="color: #64b5f6; font-size: 0.9rem;">{{ $index + 1 }}</span>
                                         </div>
                                     </td>
                                     <td style="padding: 18px 16px; border: none; vertical-align: middle;">
@@ -1824,24 +1819,14 @@
                                             @endif
                                         </div>
                                     </td>
-                                    <td style="padding: 18px 16px; border: none; vertical-align: middle;">
+                                    <td class="text-center" style="padding: 18px 16px; border: none; vertical-align: middle;">
                                         <div class="d-flex align-items-center justify-content-center gap-2">
-                                            <button class="btn-action-modern btn-view" onclick="viewCategory({{ $category['id'] ?? 0 }})" title="Voir les détails" style="width: 36px; height: 36px; background: rgba(100, 181, 246, 0.15); color: #64b5f6; border: 1px solid rgba(100, 181, 246, 0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(100, 181, 246, 0.25)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(100, 181, 246, 0.15)'; this.style.transform='scale(1)'">
-                                                <i class="fas fa-eye" style="font-size: 0.9rem;"></i>
-                                            </button>
                                             <button class="btn-action-modern btn-edit" onclick="editCategory({{ $category['id'] ?? 0 }})" title="Modifier la catégorie" style="width: 36px; height: 36px; background: rgba(76, 175, 80, 0.15); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(76, 175, 80, 0.25)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(76, 175, 80, 0.15)'; this.style.transform='scale(1)'">
                                                 <i class="fas fa-edit" style="font-size: 0.9rem;"></i>
                                             </button>
                                             <button class="btn-action-modern btn-delete" onclick="deleteCategory({{ $category['id'] ?? 0 }})" title="Supprimer la catégorie" style="width: 36px; height: 36px; background: rgba(244, 67, 54, 0.15); color: #f44336; border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(244, 67, 54, 0.25)'; this.style.transform='scale(1.05)'" onmouseout="this.style.background='rgba(244, 67, 54, 0.15)'; this.style.transform='scale(1)'">
                                                 <i class="fas fa-trash" style="font-size: 0.9rem;"></i>
                                             </button>
-                                                <ul class="dropdown-menu dropdown-menu-dark" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);">
-                                                    <li><a class="dropdown-item" href="#" onclick="duplicateCategory({{ $category['id'] ?? 0 }})"><i class="fas fa-copy me-2"></i>Dupliquer</a></li>
-                                                    <li><a class="dropdown-item" href="#" onclick="toggleStatus({{ $category['id'] ?? 0 }})"><i class="fas fa-toggle-on me-2"></i>Changer statut</a></li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li><a class="dropdown-item text-danger" href="#" onclick="deleteCategory({{ $category['id'] ?? 0 }})"><i class="fas fa-trash me-2"></i>Supprimer</a></li>
-                                                </ul>
-                                            </div>
                                         </div>
                                     </td>
                                 </tr>

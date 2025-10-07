@@ -122,5 +122,45 @@
         </div>
     </div>
     @endif
+
+    {{-- Section des fichiers PDF --}}
+    @if(isset($files) && $files->count() > 0)
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card details-card">
+                <div class="card-header details-header d-flex justify-content-between align-items-center">
+                    <h4><i class="fas fa-file-pdf me-2 text-danger"></i>Documents PDF ({{ $files->count() }})</h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @foreach($files as $file)
+                        <div class="list-group-item d-flex justify-content-between align-items-center" style="background-color: #334155; border-color: #475569; margin-bottom: 10px;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-pdf fa-2x text-danger me-3"></i>
+                                <div>
+                                    <h6 class="mb-1 text-white">{{ $file->original_name }}</h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-hdd me-1"></i>{{ $file->formatted_size }}
+                                        <span class="mx-2">•</span>
+                                        <i class="fas fa-calendar me-1"></i>{{ $file->created_at->format('d/m/Y à H:i') }}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <a href="{{ asset($file->file_path) }}" target="_blank" class="btn btn-sm btn-info" title="Voir le PDF">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ asset($file->file_path) }}" download="{{ $file->original_name }}" class="btn btn-sm btn-success" title="Télécharger">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection

@@ -43,7 +43,7 @@
                 <div class="row align-items-center">
                     <div class="col-md-2 text-center">
                         <div class="profile-photo-container" style="position: relative; width: 120px; height: 120px; margin: 0 auto;">
-                            @if(isset($user) && $user->profile_photo)
+                            @if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo)
                                 <img id="profilePhoto" src="{{ asset('uploads/photos/' . basename($user->profile_photo)) }}"
                                      alt="Photo de profil" class="rounded-circle"
                                      style="width: 120px; height: 120px; object-fit: cover; border: 4px solid white;">
@@ -68,7 +68,7 @@
                     <div class="col-md-10">
                         <h3 class="mb-2">
                             <i class="fas fa-user-cog me-3"></i>
-                            @if(isset($user) && $user->first_name && $user->last_name)
+                            @if(isset($user) && property_exists($user, 'first_name') && property_exists($user, 'last_name') && $user->first_name && $user->last_name)
                                 {{ $user->first_name }} {{ $user->last_name }}
                             @elseif(session('user_prenom') && session('user_nom'))
                                 {{ session('user_prenom') }} {{ session('user_nom') }}
@@ -110,12 +110,12 @@
                     <div class="col-md-6 mb-3">
                         <label for="firstName" class="form-label"><strong>Prénom</strong> <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="firstName" name="firstName"
-                               value="@if(isset($user) && $user->first_name){{ $user->first_name }}@elseif(session('user_prenom')){{ session('user_prenom') }}@endif">
+                               value="@if(isset($user) && property_exists($user, 'first_name') && $user->first_name){{ $user->first_name }}@elseif(session('user_prenom')){{ session('user_prenom') }}@endif">
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="lastName" class="form-label"><strong>Nom</strong> <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="lastName" name="lastName"
-                               value="@if(isset($user) && $user->last_name){{ $user->last_name }}@elseif(session('user_nom')){{ session('user_nom') }}@endif">
+                               value="@if(isset($user) && property_exists($user, 'last_name') && $user->last_name){{ $user->last_name }}@elseif(session('user_nom')){{ session('user_nom') }}@endif">
                     </div>
                 </div>
                 <div class="row">
@@ -127,7 +127,7 @@
                         <label for="country" class="form-label"><strong>Pays</strong> <span class="text-danger">*</span></label>
                         @php
                             $userCountry = '';
-                            if(isset($user) && $user->country) {
+                            if(isset($user) && property_exists($user, 'country') && $user->country) {
                                 $userCountry = $user->country;
                             } elseif(session('user_pays')) {
                                 $userCountry = session('user_pays');
@@ -149,7 +149,7 @@
                     <div class="col-md-4 mb-3">
                         <label for="city" class="form-label"><strong>Ville</strong> <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="city" name="city"
-                               value="@if(isset($user) && $user->city){{ $user->city }}@elseif(session('user_ville')){{ session('user_ville') }}@endif">
+                               value="@if(isset($user) && property_exists($user, 'city') && $user->city){{ $user->city }}@elseif(session('user_ville')){{ session('user_ville') }}@endif">
                     </div>
                 </div>
                 <div class="mb-3">
@@ -176,20 +176,20 @@
                     <div class="col-md-6 mb-3">
                         <label for="email" class="form-label"><strong>Adresse email</strong> <span class="text-danger">*</span></label>
                         <input type="email" class="form-control" id="email" name="email"
-                               value="@if(isset($user) && $user->email){{ $user->email }}@elseif(session('user_email')){{ session('user_email') }}@endif">
+                               value="@if(isset($user) && property_exists($user, 'email') && $user->email){{ $user->email }}@elseif(session('user_email')){{ session('user_email') }}@endif">
                         <div class="form-text">Votre email principal pour les communications</div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="phone" class="form-label"><strong>Numéro de téléphone</strong></label>
                         <input type="tel" class="form-control" id="phone" name="phone"
-                               value="@if(isset($user) && $user->phone){{ $user->phone }}@elseif(session('user_telephone')){{ session('user_telephone') }}@endif"
+                               value="@if(isset($user) && property_exists($user, 'phone') && $user->phone){{ $user->phone }}@elseif(session('user_telephone')){{ session('user_telephone') }}@endif"
                                placeholder="+33 6 12 34 56 78">
                     </div>
                 </div>
                 <div class="mb-3">
                     <label for="whatsapp" class="form-label"><strong>WhatsApp</strong></label>
                     <input type="tel" class="form-control" id="whatsapp" name="whatsapp"
-                           value="@if(isset($user) && $user->whatsapp){{ $user->whatsapp }}@elseif(session('user_whatsapp')){{ session('user_whatsapp') }}@endif">
+                           value="@if(isset($user) && property_exists($user, 'whatsapp') && $user->whatsapp){{ $user->whatsapp }}@elseif(session('user_whatsapp')){{ session('user_whatsapp') }}@endif">
                     <div class="form-text">
                         <i class="fab fa-whatsapp text-success me-1"></i>
                         Numéro WhatsApp pour les communications rapides
@@ -212,7 +212,7 @@
                         <label for="educationLevel" class="form-label"><strong>Niveau d'étude</strong></label>
                         @php
                             $userEducationLevel = '';
-                            if(isset($user) && $user->education_level) {
+                            if(isset($user) && property_exists($user, 'education_level') && $user->education_level) {
                                 $userEducationLevel = $user->education_level;
                             }
                         @endphp

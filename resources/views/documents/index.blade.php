@@ -99,118 +99,61 @@
         </div>
     </div>
 
-    <!-- Section Ebooks Infographie -->
+    <!-- Section Ebooks -->
+    @if(isset($documentsParCategorie['Ebook']) && count($documentsParCategorie['Ebook']) > 0)
     <div class="row mb-4">
         <div class="col-12">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
-                        <i class="fas fa-palette me-2" style="color: var(--primary-color);"></i>
-                        Ebooks Infographie
+                        <i class="fas fa-book me-2" style="color: var(--primary-color);"></i>
+                        Ebooks
                     </h5>
-                    <span class="badge" style="background-color: var(--primary-color); color: white;">32 ebooks</span>
+                    <span class="badge" style="background-color: var(--primary-color); color: white;">{{ $stats['ebooks'] ?? 0 }} ebooks</span>
                 </div>
                 <div class="card-body">
                     <div class="row">
+                        @foreach($documentsParCategorie['Ebook'] as $doc)
                         <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                             <div class="card h-100 shadow-sm">
                                 <div class="position-relative">
-                                    <img src="https://via.placeholder.com/200x280/003366/ffffff?text=Photoshop+CC+2024" class="card-img-top" alt="Ebook Cover">
+                                    <img src="{{ $doc['image'] ?? 'https://via.placeholder.com/200x280/667eea/ffffff?text=Ebook' }}" 
+                                         class="card-img-top" 
+                                         alt="{{ $doc['titre'] }}"
+                                         style="height: 280px; object-fit: cover;">
                                     <div class="position-absolute top-0 end-0 m-2">
-                                        <span class="badge bg-success">Nouveau</span>
+                                        <span class="badge bg-success">{{ $doc['type'] }}</span>
                                     </div>
                                 </div>
                                 <div class="card-body d-flex flex-column">
-                                    <h6 class="card-title">Design Graphique Moderne</h6>
-                                    <p class="card-text text-muted small flex-grow-1">Maîtrisez les principes du design contemporain</p>
+                                    <h6 class="card-title">{{ $doc['titre'] }}</h6>
+                                    <p class="card-text text-muted small flex-grow-1">{{ $doc['description'] }}</p>
                                     <div class="mb-2">
-                                        <small class="text-muted">Auteur: Design Studio</small><br>
-                                        <small class="text-muted">Pages: 380 • PDF: 18.5 MB</small>
+                                        <small class="text-muted">
+                                            <i class="fas fa-file-pdf me-1"></i>{{ $doc['format'] }} • {{ $doc['taille'] }}
+                                        </small><br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-download me-1"></i>{{ $doc['telechargements'] }} téléchargements
+                                        </small>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <button class="btn btn-primary btn-sm flex-fill">
+                                        <a href="{{ $doc['lien'] }}" class="btn btn-primary btn-sm flex-fill">
                                             <i class="fas fa-book-open me-1"></i> Lire
-                                        </button>
-                                        <button class="btn btn-outline-secondary btn-sm">
+                                        </a>
+                                        <a href="{{ $doc['lien'] }}" download class="btn btn-outline-secondary btn-sm">
                                             <i class="fas fa-download"></i>
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <img src="https://via.placeholder.com/200x280/ff6633/ffffff?text=Retouche+Portrait" class="card-img-top" alt="Ebook Cover">
-                                <div class="card-body d-flex flex-column">
-                                    <h6 class="card-title">Identité Visuelle & Branding</h6>
-                                    <p class="card-text text-muted small flex-grow-1">Créez des identités visuelles marquantes</p>
-                                    <div class="mb-2">
-                                        <small class="text-muted">Auteur: Brand Masters</small><br>
-                                        <small class="text-muted">Pages: 295 • PDF: 14.2 MB</small>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-primary btn-sm flex-fill">
-                                            <i class="fas fa-book-open me-1"></i> Lire
-                                        </button>
-                                        <button class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <img src="https://via.placeholder.com/200x280/3399ff/ffffff?text=Effets+Speciaux" class="card-img-top" alt="Ebook Cover">
-                                <div class="card-body d-flex flex-column">
-                                    <h6 class="card-title">Typographie Créative</h6>
-                                    <p class="card-text text-muted small flex-grow-1">L'art de la typographie moderne</p>
-                                    <div class="mb-2">
-                                        <small class="text-muted">Auteur: Type Experts</small><br>
-                                        <small class="text-muted">Pages: 340 • PDF: 16.8 MB</small>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-primary btn-sm flex-fill">
-                                            <i class="fas fa-book-open me-1"></i> Lire
-                                        </button>
-                                        <button class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <img src="https://via.placeholder.com/200x280/FF9900/ffffff?text=Photomontage" class="card-img-top" alt="Ebook Cover">
-                                <div class="card-body d-flex flex-column">
-                                    <h6 class="card-title">Mise en Page Professionnelle</h6>
-                                    <p class="card-text text-muted small flex-grow-1">Techniques de mise en page avancées</p>
-                                    <div class="mb-2">
-                                        <small class="text-muted">Auteur: Layout Pro</small><br>
-                                        <small class="text-muted">Pages: 420 • PDF: 19.7 MB</small>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn btn-primary btn-sm flex-fill">
-                                            <i class="fas fa-book-open me-1"></i> Lire
-                                        </button>
-                                        <button class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-plus me-1"></i> Voir tous les ebooks Infographie (32)
-                        </button>
+                        @endforeach
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Section Ebooks Community Manager -->
     <div class="row mb-4">

@@ -8,6 +8,8 @@ use PDOException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Service pour la gestion des projets de design graphique
@@ -97,6 +99,11 @@ class DesignProjectService
             // Valider la transaction
             $this->pdo->commit();
             
+            // Envoyer une notification email à l'admin si c'est un projet réel (status = 'active')
+            if ($validatedData['status'] === 'active') {
+                $this->sendAdminNotification($projectId, $userId, count($uploadedFiles));
+            }
+            
             return [
                 'success' => true,
                 'project_id' => $projectId,
@@ -136,7 +143,7 @@ class DesignProjectService
             'description' => 'nullable|string|max:2000',
             'software_used' => 'nullable|array',
             'software_used.*' => 'string|in:' . implode(',', self::ALLOWED_SOFTWARE),
-            'project_mode' => 'required|string|in:' . implode(',', self::ALLOWED_PROJECT_MODES),
+            'category' => 'required|string|in:' . implode(',', self::ALLOWED_PROJECT_MODES),
             'reference_url' => 'nullable|url|max:500',
             'save_as_draft' => 'nullable|boolean',
             'files.*' => 'nullable|file|max:' . self::MAX_FILE_SIZE
@@ -164,8 +171,8 @@ class DesignProjectService
                 $stmt = $this->pdo->prepare("
                     SELECT COUNT(*) as file_count 
                     FROM design_project_files dpf
-                    JOIN design_projects dp ON dpf.design_project_id = dp.id
-                    WHERE dpf.design_project_id = ? AND dp.user_id = ?
+                    JOIN design_projects dp ON dpf.project_id = dp.id
+                    WHERE dpf.project_id = ? AND dp.user_id = ?
                 ");
                 $stmt->execute([$projectId, $userId]);
                 $existingFileCount = $stmt->fetchColumn();
@@ -208,17 +215,18 @@ class DesignProjectService
             'description' => 'nullable|string|max:2000',
             'software_used' => 'nullable|array',
             'software_used.*' => 'string|in:' . implode(',', self::ALLOWED_SOFTWARE),
-            'project_mode' => 'required|string|in:' . implode(',', self::ALLOWED_PROJECT_MODES),
+            'category' => 'required|string|in:' . implode(',', self::ALLOWED_PROJECT_MODES),
             'reference_url' => 'nullable|url|max:500',
-            'save_as_draft' => 'nullable|boolean',
+            'save_as_draft' => 'nullable|in:on,true,false,1,0',
             'files.*' => 'nullable|file|max:' . self::MAX_FILE_SIZE
         ];
 
         try {
             $validatedData = $request->validate($rules);
             
-            // Déterminer le statut
-            $isDraft = $request->has('save_as_draft') && $request->save_as_draft;
+            // Déterminer le statut - accepter plusieurs formats de booléen (y compris "on" des checkboxes HTML)
+            $isDraft = $request->has('save_as_draft') && 
+                       in_array($request->save_as_draft, ['on', 'true', '1', 1, true], true);
             $validatedData['status'] = $isDraft ? 'draft' : 'active';
             
             // Validation spéciale : si ce n'est pas un brouillon, au moins une image est requise
@@ -263,9 +271,9 @@ class DesignProjectService
         $stmt = $this->pdo->prepare("
             INSERT INTO design_projects (
                 user_id, title, description, project_type, 
-                software_used, project_mode, reference_url, 
-                status, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                software_used, category, status, 
+                created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
         ");
 
         $stmt->execute([
@@ -274,8 +282,7 @@ class DesignProjectService
             $data['description'] ?? null,
             $data['project_type'],
             $softwareUsed,
-            $data['project_mode'],
-            $data['reference_url'] ?? null,
+            $data['category'],
             $data['status']
         ]);
 
@@ -340,15 +347,14 @@ class DesignProjectService
         // Enregistrer en base avec les informations récupérées avant le déplacement
         $stmt = $this->pdo->prepare("
             INSERT INTO design_project_files (
-                design_project_id, original_name, stored_name, 
-                file_path, file_size, mime_type, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, NOW())
+                project_id, original_name, file_path, 
+                file_size, mime_type, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())
         ");
 
         $stmt->execute([
             $projectId,
             $originalName,
-            $storedName,
             $filePath,
             $fileSize,
             $mimeType
@@ -375,12 +381,9 @@ class DesignProjectService
     {
         $sql = "
             SELECT dp.*, 
-                   COUNT(DISTINCT dpf.id) as files_count,
-                   COUNT(DISTINCT dpc.id) as collaborators_count
+                   COUNT(DISTINCT dpf.id) as files_count
             FROM design_projects dp
-            LEFT JOIN design_project_files dpf ON dp.id = dpf.design_project_id
-            LEFT JOIN design_project_collaborators dpc ON dp.id = dpc.design_project_id 
-                AND dpc.status = 'accepted'
+            LEFT JOIN design_project_files dpf ON dp.id = dpf.project_id
             WHERE dp.user_id = ?
         ";
 
@@ -397,9 +400,9 @@ class DesignProjectService
             $params[] = $filters['project_type'];
         }
 
-        if (!empty($filters['project_mode'])) {
-            $sql .= " AND dp.project_mode = ?";
-            $params[] = $filters['project_mode'];
+        if (!empty($filters['category'])) {
+            $sql .= " AND dp.category = ?";
+            $params[] = $filters['category'];
         }
 
         $sql .= " GROUP BY dp.id ORDER BY dp.created_at DESC";
@@ -446,7 +449,7 @@ class DesignProjectService
                 mime_type,
                 created_at
             FROM design_project_files 
-            WHERE design_project_id = ? 
+            WHERE project_id = ? 
             ORDER BY created_at ASC
         ");
         
@@ -465,13 +468,12 @@ class DesignProjectService
         $stmt = $this->pdo->prepare("
             SELECT 
                 COUNT(*) as total_projects,
-                SUM(CASE WHEN project_mode = 'solo' THEN 1 ELSE 0 END) as solo_projects,
-                SUM(CASE WHEN project_mode = 'groupe' THEN 1 ELSE 0 END) as group_projects,
+                SUM(CASE WHEN category = 'solo' THEN 1 ELSE 0 END) as solo_projects,
+                SUM(CASE WHEN category = 'groupe' THEN 1 ELSE 0 END) as group_projects,
                 SUM(CASE WHEN status = 'validated' THEN 1 ELSE 0 END) as completed_projects,
                 SUM(CASE WHEN status = 'validated' THEN 1 ELSE 0 END) as validated_projects,
                 SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_projects,
-                SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draft_projects,
-                ROUND(AVG(progress_percentage), 1) as avg_progress
+                SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) as draft_projects
             FROM design_projects 
             WHERE user_id = ?
         ");
@@ -522,10 +524,9 @@ class DesignProjectService
                 SET title = ?, 
                     description = ?, 
                     project_type = ?, 
-                    project_mode = ?, 
+                    category = ?, 
                     status = ?, 
-                    software_used = ?, 
-                    reference_url = ?,
+                    software_used = ?,
                     updated_at = NOW()
                 WHERE id = ? AND user_id = ?
             ");
@@ -534,10 +535,9 @@ class DesignProjectService
                 $validatedData['title'],
                 $validatedData['description'],
                 $validatedData['project_type'],
-                $validatedData['project_mode'],
+                $validatedData['category'],
                 $validatedData['status'],
                 json_encode($validatedData['software_used']),
-                $validatedData['reference_url'] ?? null,
                 $projectId,
                 $userId
             ]);
@@ -617,8 +617,8 @@ class DesignProjectService
             $stmt = $this->pdo->prepare("
                 SELECT dpf.file_path 
                 FROM design_project_files dpf
-                JOIN design_projects dp ON dpf.design_project_id = dp.id
-                WHERE dpf.id = ? AND dpf.design_project_id = ? AND dp.user_id = ?
+                JOIN design_projects dp ON dpf.project_id = dp.id
+                WHERE dpf.id = ? AND dpf.project_id = ? AND dp.user_id = ?
             ");
             $stmt->execute([$fileId, $projectId, $userId]);
             $file = $stmt->fetch();
@@ -668,7 +668,7 @@ class DesignProjectService
             // Récupérer les fichiers pour les supprimer physiquement
             $stmt = $this->pdo->prepare("
                 SELECT file_path FROM design_project_files 
-                WHERE design_project_id = ?
+                WHERE project_id = ?
             ");
             $stmt->execute([$projectId]);
             $files = $stmt->fetchAll();
@@ -700,6 +700,58 @@ class DesignProjectService
             $this->pdo->rollBack();
             Log::error('Erreur suppression projet: ' . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Envoie une notification email à l'admin lors de la création d'un projet réel
+     * 
+     * @param int $projectId
+     * @param int $userId
+     * @param int $filesCount
+     * @return void
+     */
+    private function sendAdminNotification(int $projectId, int $userId, int $filesCount): void
+    {
+        try {
+            // Récupérer les informations du projet
+            $project = DB::table('design_projects')->where('id', $projectId)->first();
+            
+            if (!$project) {
+                Log::warning('Projet introuvable pour notification admin: ' . $projectId);
+                return;
+            }
+            
+            // Récupérer les informations de l'étudiant
+            $student = DB::table('users')->where('id', $userId)->first();
+            
+            if (!$student) {
+                Log::warning('Utilisateur introuvable pour notification admin: ' . $userId);
+                return;
+            }
+            
+            // Récupérer l'email de l'admin principal
+            $adminEmail = env('ADMIN_EMAIL', 'admin@evc.com');
+            
+            // URL pour consulter le projet
+            $viewUrl = url('/evc/app/admin/projects/real/' . $projectId);
+            
+            // Envoyer l'email à l'admin
+            Mail::send('emails.admin-new-project-notification', [
+                'project' => $project,
+                'student' => $student,
+                'filesCount' => $filesCount,
+                'viewUrl' => $viewUrl
+            ], function ($message) use ($adminEmail, $student) {
+                $message->to($adminEmail)
+                        ->subject('🚀 Nouveau Projet Réel soumis - ' . ($student->first_name ?? 'Étudiant') . ' ' . ($student->last_name ?? ''));
+            });
+            
+            Log::info('Email de notification envoyé à l\'admin pour le projet: ' . $projectId);
+            
+        } catch (Exception $e) {
+            // Ne pas bloquer la création du projet si l'email échoue
+            Log::warning('Erreur lors de l\'envoi de l\'email de notification admin: ' . $e->getMessage());
         }
     }
 

@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.guest' => \App\Http\Middleware\RedirectIfAdminAuthenticated::class,
             'admin.auth' => \App\Http\Middleware\AdminAuthRequired::class,
             'track.online' => \App\Http\Middleware\TrackOnlineStatus::class,
+            'student.active' => \App\Http\Middleware\CheckStudentActive::class,
         ]);
         
         // Appliquer le middleware de suivi du statut en ligne sur toutes les routes web

@@ -381,22 +381,19 @@
                                     <th scope="col" class="text-center" width="6%">
                                         <i class="fas fa-hashtag"></i>
                                     </th>
-                                    <th scope="col" width="30%">
-                                        <i class="fas fa-project-diagram me-2"></i>Projet
+                                    <th scope="col" width="40%">
+                                        <i class="fas fa-project-diagram me-2"></i>TP
                                     </th>
                                     <th scope="col" class="text-center" width="12%">
-                                        <i class="fas fa-tags me-2"></i>Catégorie
-                                    </th>
-                                    <th scope="col" class="text-center" width="10%">
                                         <i class="fas fa-check-circle me-2"></i>Statut
                                     </th>
                                     <th scope="col" class="text-center" width="12%">
                                         <i class="fas fa-files me-2"></i>Fichiers
                                     </th>
-                                    <th scope="col" class="text-center" width="8%">
+                                    <th scope="col" class="text-center" width="10%">
                                         <i class="fas fa-calendar me-2"></i>Date
                                     </th>
-                                    <th scope="col" class="text-center" width="22%">
+                                    <th scope="col" class="text-center" width="20%">
                                         <i class="fas fa-cogs me-2"></i>Actions
                                     </th>
                                 </tr>
@@ -411,50 +408,51 @@
                                             </div>
                                         </td>
 
-                                        <!-- Projet avec image et titre -->
+                                        <!-- TP avec titre et description -->
                                         <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="project-thumbnail me-3">
-                                                    @if($project->thumbnail_image && file_exists(public_path('storage/' . $project->thumbnail_image)))
-                                                        <img src="{{ asset('storage/' . $project->thumbnail_image) }}"
-                                                             alt="Aperçu {{ $project->title }}"
-                                                             class="rounded-3 shadow-sm">
-                                                    @else
-                                                        <div class="thumbnail-placeholder rounded-3 shadow-sm">
-                                                            <i class="fas fa-image"></i>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                                <div>
-                                                    <h6 class="mb-1 fw-bold text-dark">{{ $project->title }}</h6>
-                                                    @if($project->description)
-                                                        <p class="mb-0 text-muted small">
-                                                            {{ Str::limit($project->description, 60) }}
-                                                        </p>
-                                                    @endif
-                                                </div>
+                                            <div>
+                                                <h6 class="mb-1 fw-bold text-dark">{{ $project->title }}</h6>
+                                                @if($project->description)
+                                                    <p class="mb-0 text-muted small">
+                                                        {{ Str::limit($project->description, 80) }}
+                                                    </p>
+                                                @endif
+                                                @if($project->link)
+                                                    <p class="mb-0 mt-1">
+                                                        <a href="{{ $project->link }}" target="_blank" class="text-primary small">
+                                                            <i class="fas fa-link me-1"></i>Voir le lien
+                                                        </a>
+                                                    </p>
+                                                @endif
                                             </div>
-                                        </td>
-
-                                        <!-- Catégorie -->
-                                        <td class="text-center">
-                                            <span class="category-badge">
-                                                <i class="fas fa-desktop me-1"></i>
-                                                {{ ucfirst($project->category) }}
-                                            </span>
                                         </td>
 
                                         <!-- Statut -->
                                         <td class="text-center">
-                                            @if($project->status == 'valide')
+                                            @if($project->status == 'validated')
                                                 <span class="status-badge status-success">
                                                     <i class="fas fa-check-circle me-1"></i>
                                                     Validé
                                                 </span>
-                                            @else
+                                            @elseif($project->status == 'rejected')
+                                                <span class="status-badge" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+                                                    <i class="fas fa-times-circle me-1"></i>
+                                                    Rejeté
+                                                </span>
+                                            @elseif($project->status == 'completed')
+                                                <span class="status-badge" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); color: white;">
+                                                    <i class="fas fa-check me-1"></i>
+                                                    Terminé
+                                                </span>
+                                            @elseif($project->status == 'in_progress')
                                                 <span class="status-badge status-warning">
-                                                    <i class="fas fa-clock me-1"></i>
+                                                    <i class="fas fa-spinner me-1"></i>
                                                     En cours
+                                                </span>
+                                            @else
+                                                <span class="status-badge" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white;">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    En attente
                                                 </span>
                                             @endif
                                         </td>
@@ -464,16 +462,20 @@
                                             <div class="file-stats">
                                                 <div class="stat-item">
                                                     <i class="fas fa-file text-primary"></i>
-                                                    <span>{{ $project->files_count }}</span>
+                                                    <span>{{ $project->files->count() }}</span>
                                                 </div>
+                                                @php
+                                                    $imageCount = $project->files->where('mime_type', 'LIKE', 'image/%')->count();
+                                                    $pdfCount = $project->files->where('mime_type', 'application/pdf')->count();
+                                                @endphp
                                                 <div class="stat-item">
                                                     <i class="fas fa-images text-success"></i>
-                                                    <span>{{ $project->images_count }}</span>
+                                                    <span>{{ $imageCount }}</span>
                                                 </div>
-                                                @if($project->pdf_count > 0)
+                                                @if($pdfCount > 0)
                                                     <div class="stat-item">
                                                         <i class="fas fa-file-pdf text-danger"></i>
-                                                        <span>{{ $project->pdf_count }}</span>
+                                                        <span>{{ $pdfCount }}</span>
                                                     </div>
                                                 @endif
                                             </div>
@@ -494,7 +496,7 @@
                                         <!-- Actions -->
                                         <td class="text-center">
                                             <div class="action-buttons">
-                                                @if($project->status == 'valide')
+                                                @if($project->status == 'validated')
                                                     <!-- Projet validé : seulement voir -->
                                                     <button class="btn btn-outline-info btn-sm action-btn"
                                                             title="Voir le projet"

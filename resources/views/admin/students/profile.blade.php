@@ -249,6 +249,276 @@
             </div>
         </div>
     </div>
+
+    <!-- PROJETS DESIGN - Vue en cartes -->
+    @if(isset($data['projects']) && count($data['projects']) > 0)
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-palette me-2"></i>PROJETS DESIGN ({{ count($data['projects']) }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach($data['projects'] as $project)
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ $project['title'] ?? 'Sans titre' }}</h6>
+                                    <p class="card-text">
+                                        <small>{{ Str::limit($project['description'] ?? 'Aucune description', 100) }}</small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        @if(($project['status'] ?? 'en_cours') === 'valide')
+                                            <span class="badge bg-success">Validé</span>
+                                        @elseif(($project['status'] ?? 'en_cours') === 'en_cours')
+                                            <span class="badge bg-warning">En cours</span>
+                                        @else
+                                            <span class="badge bg-info">{{ $project['status'] ?? 'active' }}</span>
+                                        @endif
+                                        <small class="text-muted">{{ isset($project['created_at']) ? date('d/m/Y', strtotime($project['created_at'])) : '-' }}</small>
+                                    </div>
+                                    <!-- Boutons d'action -->
+                                    <div class="d-flex gap-1 mt-3">
+                                        <button class="btn btn-sm btn-primary" 
+                                                onclick="showProjectDetails({{ $project['id'] ?? 0 }})" 
+                                                title="Voir détails">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        @if(($project['status'] ?? 'en_cours') === 'en_cours')
+                                        <button class="btn btn-sm btn-success" 
+                                                onclick="if(confirm('Valider ce projet ?')) validateProject({{ $project['id'] ?? 0 }})" 
+                                                title="Valider">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        @endif
+                                        <button class="btn btn-sm btn-danger" 
+                                                onclick="deleteProjectFromProfile({{ $project['id'] ?? 0 }})" 
+                                                title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary" 
+                                                onclick="downloadProject({{ $project['id'] ?? 0 }})" 
+                                                title="Télécharger">
+                                            <i class="fas fa-download"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Liste des TPs -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-alt text-primary me-2"></i>Travaux Pratiques (TPs)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="tpsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Titre</th>
+                                    <th>Description</th>
+                                    <th>Lien</th>
+                                    <th>Statut</th>
+                                    <th>Soumis le</th>
+                                    <th>Validé le</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($data['tps'] as $index => $tp)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $tp->title ?? 'TP ' . ($index + 1) }}</td>
+                                    <td>
+                                        <small class="text-muted">{{ Str::limit($tp->description ?? '-', 50) }}</small>
+                                    </td>
+                                    <td>
+                                        @if($tp->link)
+                                            <a href="{{ $tp->link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-external-link-alt"></i> Voir
+                                            </a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($tp->status === 'validated')
+                                            <span class="badge bg-success">✓ Validé</span>
+                                        @elseif($tp->status === 'pending')
+                                            <span class="badge bg-warning">⏳ En attente</span>
+                                        @elseif($tp->status === 'rejected')
+                                            <span class="badge bg-danger">✗ Rejeté</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ $tp->status }}</span>
+                                        @endif
+                                    </td>
+                                    <td>{{ $tp->created_at ? date('d/m/Y', strtotime($tp->created_at)) : '-' }}</td>
+                                    <td>{{ $tp->validated_at ? date('d/m/Y', strtotime($tp->validated_at)) : '-' }}</td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <a href="{{ route('admin.tp.view', $tp->id) }}" class="btn btn-sm btn-primary" title="Voir détails">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            @if($tp->status === 'pending')
+                                            <form action="{{ route('admin.tp.validate', $tp->id) }}" method="POST" class="d-inline">
+                                                @csrf
+                                                <button type="submit" class="btn btn-sm btn-success" title="Valider" onclick="return confirm('Valider ce TP ?')">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                            @endif
+                                            <button class="btn btn-sm btn-danger" onclick="deleteTpFromProfile({{ $tp->id }})" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="8" class="text-center py-4">
+                                        <div class="text-muted">
+                                            <i class="fas fa-file-alt fa-2x mb-2"></i>
+                                            <p>Aucun TP soumis</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paiements et Factures -->
+    <div class="row mt-4">
+        <!-- Factures -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-file-invoice text-danger me-2"></i>Factures
+                        <span class="badge bg-danger ms-2">{{ number_format($data['stats']['total_factures'], 0, ',', ' ') }} FCFA</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if(isset($data['factures']) && count($data['factures']) > 0)
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Montant</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($data['factures'] as $facture)
+                                    <tr>
+                                        <td>#{{ $facture->id }}</td>
+                                        <td class="fw-bold">{{ number_format($facture->montant, 0, ',', ' ') }} FCFA</td>
+                                        <td>{{ date('d/m/Y', strtotime($facture->created_at)) }}</td>
+                                        <td>
+                                            <span class="badge bg-warning">{{ $facture->statut ?? 'En attente' }}</span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center text-muted py-3">Aucune facture</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Paiements -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-money-bill-wave text-success me-2"></i>Paiements
+                        <span class="badge bg-success ms-2">{{ number_format($data['stats']['total_paye'], 0, ',', ' ') }} FCFA</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if(isset($data['paiements']) && count($data['paiements']) > 0)
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Montant</th>
+                                        <th>Date</th>
+                                        <th>Statut</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($data['paiements'] as $paiement)
+                                    <tr>
+                                        <td>#{{ $paiement->id }}</td>
+                                        <td class="fw-bold text-success">{{ number_format($paiement->montant, 0, ',', ' ') }} FCFA</td>
+                                        <td>{{ date('d/m/Y', strtotime($paiement->created_at)) }}</td>
+                                        <td>
+                                            @if($paiement->statut === 'validé')
+                                                <span class="badge bg-success">✓ Validé</span>
+                                            @else
+                                                <span class="badge bg-warning">{{ $paiement->statut }}</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center text-muted py-3">Aucun paiement</p>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solde -->
+    <div class="row mt-3 mb-4">
+        <div class="col-12">
+            <div class="alert {{ $data['stats']['solde_restant'] > 0 ? 'alert-danger' : 'alert-success' }} d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="fas fa-calculator me-2"></i>
+                    <strong>Solde Restant:</strong>
+                </div>
+                <div class="h4 mb-0">
+                    {{ number_format($data['stats']['solde_restant'], 0, ',', ' ') }} FCFA
+                    @if($data['stats']['solde_restant'] > 0)
+                        <span class="badge bg-danger ms-2">À payer</span>
+                    @elseif($data['stats']['solde_restant'] < 0)
+                        <span class="badge bg-info ms-2">Trop-perçu</span>
+                    @else
+                        <span class="badge bg-success ms-2">✓ Soldé</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -479,6 +749,57 @@ function validateProject(projectId) {
 function downloadProject(projectId) {
     // TODO: Implémenter le téléchargement du projet
     window.open(`/evc/app/admin/projects/${projectId}/download`, '_blank');
+}
+
+/**
+ * Supprimer un TP depuis le profil étudiant (admin)
+ * @param {number} tpId - ID du TP à supprimer
+ */
+function deleteTpFromProfile(tpId) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce TP ? Cette action est irréversible.')) {
+        return;
+    }
+    
+    // Afficher un loader
+    const loadingModal = document.createElement('div');
+    loadingModal.className = 'modal fade show';
+    loadingModal.style.display = 'block';
+    loadingModal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+    loadingModal.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center py-4">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <p>Suppression du TP en cours...</p>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(loadingModal);
+    
+    // Créer et soumettre le formulaire de suppression
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/evc/app/admin/tp/delete/${tpId}`;
+    
+    // Token CSRF
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    form.appendChild(csrfInput);
+    
+    // Méthode DELETE
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    form.appendChild(methodInput);
+    
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 

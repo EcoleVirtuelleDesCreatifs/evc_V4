@@ -47,29 +47,10 @@
                         @csrf
                         @method('PUT')
                         
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="title" class="form-label fw-bold">Titre du projet *</label>
-                                <input type="text" class="form-control" id="title" name="title" value="{{ $project->title }}" required>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="category" class="form-label fw-bold">Catégorie *</label>
-                                <select class="form-select" id="category" name="category" required>
-                                    <option value="">Sélectionner une catégorie</option>
-                                    <option value="logo" {{ $project->category === 'logo' ? 'selected' : '' }}>Logo</option>
-                                    <option value="affiche" {{ $project->category === 'affiche' ? 'selected' : '' }}>Affiche</option>
-                                    <option value="flyer" {{ $project->category === 'flyer' ? 'selected' : '' }}>Flyer</option>
-                                    <option value="brochure" {{ $project->category === 'brochure' ? 'selected' : '' }}>Brochure</option>
-                                    <option value="carte_visite" {{ $project->category === 'carte_visite' ? 'selected' : '' }}>Carte de visite</option>
-                                    <option value="packaging" {{ $project->category === 'packaging' ? 'selected' : '' }}>Packaging</option>
-                                    <option value="web_design" {{ $project->category === 'web_design' ? 'selected' : '' }}>Web Design</option>
-                                    <option value="illustration" {{ $project->category === 'illustration' ? 'selected' : '' }}>Illustration</option>
-                                    <option value="autre" {{ $project->category === 'autre' ? 'selected' : '' }}>Autre</option>
-                                </select>
-                                <div class="invalid-feedback"></div>
-                            </div>
+                        <div class="mb-3">
+                            <label for="title" class="form-label fw-bold">Titre du TP *</label>
+                            <input type="text" class="form-control" id="title" name="title" value="{{ $project->title }}" required>
+                            <div class="invalid-feedback"></div>
                         </div>
 
                         <div class="mb-3">
@@ -78,25 +59,10 @@
                             <div class="form-text">Optionnel - Décrivez brièvement votre projet</div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="link" class="form-label fw-bold">Lien du projet</label>
-                                <input type="url" class="form-control" id="link" name="link" value="{{ $project->link }}" placeholder="https://...">
-                                <div class="form-text">Optionnel - Lien vers votre projet en ligne</div>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="tags" class="form-label fw-bold">Tags</label>
-                                <input type="text" class="form-control" id="tags" name="tags" value="{{ is_array($project->tags) ? implode(', ', $project->tags) : $project->tags }}" placeholder="tag1, tag2, tag3">
-                                <div class="form-text">Optionnel - Séparez les tags par des virgules</div>
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="software_used" class="form-label fw-bold">Logiciels utilisés *</label>
-                            <input type="text" class="form-control" id="software_used" name="software_used" value="{{ is_array($project->software_used) ? implode(', ', $project->software_used) : $project->software_used }}" placeholder="Photoshop, Illustrator, InDesign" required>
-                            <div class="form-text">Séparez les logiciels par des virgules</div>
-                            <div class="invalid-feedback"></div>
+                        <div class="mb-3">
+                            <label for="link" class="form-label fw-bold">Lien du TP</label>
+                            <input type="url" class="form-control" id="link" name="link" value="{{ $project->link }}" placeholder="https://...">
+                            <div class="form-text">Optionnel - Lien vers votre TP en ligne (site web, prototype, etc.)</div>
                         </div>
 
                         <div class="d-flex justify-content-between">
@@ -121,16 +87,16 @@
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
                         <i class="fas fa-images me-2"></i>
-                        Gestion des Images ({{ $project->images ? $project->images->count() : 0 }})
+                        Gestion des Fichiers ({{ $project->files ? $project->files->count() : 0 }})
                     </h6>
                 </div>
                 <div class="card-body">
                     <!-- Images actuelles -->
-                    @if($project->images && $project->images->count() > 0)
+                    @if($project->files && $project->files->count() > 0)
                     <div class="mb-4">
                         <h6 class="text-muted mb-3">Images actuelles</h6>
                         <div class="row" id="current-images">
-                            @foreach($project->images as $image)
+                            @foreach($project->files as $image)
                             <div class="col-6 mb-3" id="image-{{ $image->id }}">
                                 <div class="card border-0 shadow-sm">
                                     <div class="position-relative">
@@ -233,60 +199,9 @@ let imagesToDelete = [];
 // Gestion du formulaire principal
 document.getElementById('editProjectForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    // Créer FormData manuellement (sans le @method('PUT') du formulaire)
-    const formData = new FormData();
     
-    // Ajouter le token CSRF
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-    
-    // Ajouter tous les champs du formulaire manuellement
-    const formElements = this.elements;
-    for (let i = 0; i < formElements.length; i++) {
-        const element = formElements[i];
-        if (element.name && element.name !== '_method' && element.type !== 'submit') {
-            if (element.type === 'checkbox' || element.type === 'radio') {
-                if (element.checked) {
-                    formData.append(element.name, element.value);
-                }
-            } else if (element.type !== 'file') {
-                formData.append(element.name, element.value);
-            }
-        }
-    }
     const submitBtn = this.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
-    
-    // Récupérer TOUS les fichiers (input HTML + drag & drop)
-    const fileInput = document.getElementById('new-images');
-    let allFiles = [];
-    
-    // Ajouter les fichiers de l'input HTML
-    if (fileInput.files.length > 0) {
-        allFiles = allFiles.concat(Array.from(fileInput.files));
-    }
-    
-    // Ajouter les fichiers drag & drop (éviter les doublons)
-    if (newImages.length > 0) {
-        newImages.forEach(file => {
-            // Vérifier si le fichier n'est pas déjà dans allFiles
-            const isDuplicate = allFiles.some(existingFile => 
-                existingFile.name === file.name && existingFile.size === file.size
-            );
-            if (!isDuplicate) {
-                allFiles.push(file);
-            }
-        });
-    }
-    
-    // Ajouter tous les fichiers au FormData
-    allFiles.forEach((file, index) => {
-        formData.append(`new_images[]`, file);
-    });
-    
-    // Ajouter les IDs des images à supprimer
-    imagesToDelete.forEach((imageId, index) => {
-        formData.append(`delete_images[${index}]`, imageId);
-    });
     
     // Désactiver le bouton et afficher un loader
     submitBtn.disabled = true;
@@ -296,15 +211,25 @@ document.getElementById('editProjectForm').addEventListener('submit', function(e
     document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
     document.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = '');
     
-    const url = `{{ route('design-graphique.tp.update.images', $project->id) }}`;
+    // Récupérer les données du formulaire
+    const formData = {
+        _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        _method: 'PUT',
+        title: document.getElementById('title').value,
+        description: document.getElementById('description').value,
+        link: document.getElementById('link').value
+    };
+    
+    const url = `{{ route('design-graphique.tp.update', $project->id) }}`;
     
     fetch(url, {
         method: 'POST',
         headers: {
+            'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
             'Accept': 'application/json'
         },
-        body: formData
+        body: JSON.stringify(formData)
     })
     .then(response => {
         if (!response.ok) {

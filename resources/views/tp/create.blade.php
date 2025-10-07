@@ -92,7 +92,7 @@
                     <div class="card-body">
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Obligatoire :</strong> Ajoutez au moins 1 image (maximum 15). Formats acceptés : JPG, PNG, GIF, WEBP, SVG, PSD, AI. Taille max : 20MB par image.
+                            <strong>Obligatoire :</strong> Ajoutez au moins 1 fichier (maximum 15). Formats acceptés : JPG, PNG, GIF, WEBP, SVG, PDF, DOC, DOCX, PSD, AI, ZIP, RAR. Taille max : 20MB par fichier.
                         </div>
 
                         <!-- Zone d'ajout d'images -->
@@ -104,12 +104,12 @@
                         <div id="globalDropZone" class="border-2 border-dashed border-primary rounded p-5 text-center mt-4" style="min-height: 200px; background: #f8f9ff;">
                             <div class="d-flex flex-column align-items-center justify-content-center h-100">
                                 <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-                                <h5 class="text-primary mb-2">Glissez-déposez vos images ici</h5>
+                                <h5 class="text-primary mb-2">Glissez-déposez vos fichiers ici</h5>
                                 <p class="text-muted mb-3">ou cliquez sur "Ajouter une image" ci-dessus</p>
                                 <div class="text-muted small">
-                                    <i class="fas fa-check-circle text-success me-1"></i>JPG, PNG, GIF, WEBP, SVG, PSD, AI
+                                    <i class="fas fa-check-circle text-success me-1"></i>JPG, PNG, GIF, WEBP, SVG, PDF, DOC, DOCX, PSD, AI, ZIP, RAR
                                     <span class="mx-2">•</span>
-                                    <i class="fas fa-weight-hanging text-info me-1"></i>Max 20MB par image
+                                    <i class="fas fa-weight-hanging text-info me-1"></i>Max 20MB par fichier
                                 </div>
                             </div>
                         </div>
@@ -290,7 +290,13 @@
                     <div class="card-body">
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
-                                <i class="fas fa-save me-2"></i>Créer le Projet
+                                <span class="btn-text">
+                                    <i class="fas fa-save me-2"></i>Créer le Projet
+                                </span>
+                                <span class="btn-loading" style="display: none;">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    Envoi en cours...
+                                </span>
                             </button>
                             <a href="{{ route('design-graphique.tp.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>Annuler
@@ -330,11 +336,11 @@
                 </div>
 
                 <div class="image-upload-zone border rounded p-3 text-center position-relative">
-                    <input type="file" class="form-control image-input" name="images[]" accept="image/*,.psd,.ai" style="display: none;">
+                    <input type="file" class="form-control image-input" name="images[]" accept="image/*,.pdf,.doc,.docx,.psd,.ai,.zip,.rar,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip,application/x-rar-compressed" style="display: none;">
                     <div class="upload-placeholder">
                         <i class="fas fa-image fa-2x text-muted mb-2"></i>
-                        <p class="mb-1">Cliquez ou glissez une image</p>
-                        <small class="text-muted">JPG, PNG, GIF, WEBP, SVG, PSD, AI</small>
+                        <p class="mb-1">Cliquez ou glissez un fichier</p>
+                        <small class="text-muted">JPG, PNG, GIF, WEBP, SVG, PDF, DOC, DOCX, PSD, AI, ZIP, RAR</small>
                     </div>
                     <div class="image-preview" style="display: none;">
                         <img class="img-fluid rounded" style="max-height: 150px;">
@@ -418,4 +424,30 @@
 
 @section('scripts')
 <script src="{{ asset('assets/js/tp-images.js') }}"></script>
+<script>
+    // Activer le loader lors de la soumission du formulaire
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('projectForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = submitBtn.querySelector('.btn-text');
+        const btnLoading = submitBtn.querySelector('.btn-loading');
+        
+        if (form && submitBtn) {
+            form.addEventListener('submit', function(e) {
+                // Vérifier que le formulaire est valide avant d'afficher le loader
+                if (form.checkValidity()) {
+                    // Masquer le texte normal et afficher le loader
+                    btnText.style.display = 'none';
+                    btnLoading.style.display = 'inline-block';
+                    
+                    // Désactiver le bouton pour éviter les doubles soumissions
+                    submitBtn.disabled = true;
+                    
+                    // Optionnel : Ajouter une classe pour le style
+                    submitBtn.classList.add('btn-loading-active');
+                }
+            });
+        }
+    });
+</script>
 @endsection

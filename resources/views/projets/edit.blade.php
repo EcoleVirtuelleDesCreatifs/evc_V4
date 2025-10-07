@@ -74,20 +74,20 @@
                                 @enderror
                             </div>
 
-                            <!-- Mode de projet -->
+                            <!-- Catégorie de projet -->
                             <div class="col-md-6 mb-3">
-                                <label for="project_mode" class="form-label">Mode de projet <span class="text-danger">*</span></label>
-                                <select class="form-select @error('project_mode') is-invalid @enderror" 
-                                        id="project_mode" name="project_mode" required>
-                                    <option value="">Choisir un mode</option>
+                                <label for="category" class="form-label">Catégorie de projet <span class="text-danger">*</span></label>
+                                <select class="form-select @error('category') is-invalid @enderror" 
+                                        id="category" name="category" required>
+                                    <option value="">Choisir une catégorie</option>
                                     @foreach($formOptions['project_modes'] as $mode)
                                         <option value="{{ $mode }}" 
-                                                {{ old('project_mode', $project['project_mode']) === $mode ? 'selected' : '' }}>
+                                                {{ old('category', $project['category'] ?? '') === $mode ? 'selected' : '' }}>
                                             {{ $mode === 'solo' ? 'PROJET Solo' : 'PROJET Groupe' }}
                                         </option>
                                     @endforeach
                                 </select>
-                                @error('project_mode')
+                                @error('category')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -157,17 +157,7 @@
                                 @enderror
                             </div>
 
-                            <!-- URL de référence -->
-                            <div class="col-12 mb-3">
-                                <label for="reference_url" class="form-label">URL de référence</label>
-                                <input type="url" class="form-control @error('reference_url') is-invalid @enderror" 
-                                       id="reference_url" name="reference_url" 
-                                       value="{{ old('reference_url', $project['reference_url']) }}"
-                                       placeholder="https://exemple.com">
-                                @error('reference_url')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+
 
                             <!-- Nouveaux fichiers -->
                             <div class="col-12 mb-3">
@@ -185,22 +175,50 @@
                             <!-- Fichiers existants -->
                             @if(isset($project['files']) && !empty($project['files']))
                             <div class="col-12 mb-3">
-                                <label class="form-label">Fichiers actuels</label>
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-images me-2"></i>
+                                    Fichiers actuels ({{ count($project['files']) }})
+                                </label>
                                 <div class="row">
-                                    @foreach($project['files'] as $index => $file)
-                                    <div class="col-md-4 col-sm-6 mb-2">
-                                        <div class="card border">
-                                            <div class="card-body text-center py-2">
-                                                <i class="fas fa-file text-muted mb-1"></i>
-                                                <h6 class="card-title small mb-1">{{ $file['name'] }}</h6>
-                                                <div class="btn-group btn-group-sm">
-                                                    <div class="d-flex justify-content-between align-items-center">
-                                                        <span>{{ $file['name'] }}</span>
-                                                        <button type="button" class="btn btn-sm btn-outline-danger" 
-                                                                onclick="removeFile({{ $file['id'] }}, '{{ addslashes($file['name']) }}')">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </div>
+                                    @foreach($project['files'] as $file)
+                                    <div class="col-md-3 col-sm-6 mb-3">
+                                        <div class="card h-100 shadow-sm">
+                                            @php
+                                                $filePath = $file['file_path'] ?? ($file['path'] ?? '');
+                                                $fileName = $file['original_name'] ?? ($file['name'] ?? 'Fichier');
+                                                $fileId = $file['id'] ?? 0;
+                                                $extension = $filePath ? strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) : '';
+                                                $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+                                            @endphp
+                                            
+                                            @if($isImage && $filePath)
+                                                <img src="{{ asset($filePath) }}" 
+                                                     class="card-img-top" 
+                                                     alt="{{ $fileName }}"
+                                                     style="height: 200px; object-fit: cover;"
+                                                     onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23f0f0f0\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' font-family=\'sans-serif\' font-size=\'14\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3EImage non disponible%3C/text%3E%3C/svg%3E';">
+                                            @else
+                                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                                     style="height: 200px;">
+                                                    <i class="fas fa-file fa-4x text-muted"></i>
+                                                </div>
+                                            @endif
+                                            
+                                            <div class="card-body p-2">
+                                                <h6 class="card-title small mb-1 text-truncate" title="{{ $fileName }}">
+                                                    {{ Str::limit($fileName, 25) }}
+                                                </h6>
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">
+                                                        {{ $extension ? strtoupper($extension) : 'FILE' }}
+                                                    </small>
+                                                    @if($fileId)
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-outline-danger" 
+                                                            onclick="removeFile({{ $fileId }}, '{{ addslashes($fileName) }}')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>

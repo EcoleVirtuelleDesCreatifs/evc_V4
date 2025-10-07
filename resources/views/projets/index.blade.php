@@ -3,81 +3,188 @@
 @section('title', 'Projets - Design Graphique')
 
 @section('content')
+<style>
+    .project-stat-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        color: white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    
+    .project-stat-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    
+    .project-stat-card.solo {
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    }
+    
+    .project-stat-card.groupe {
+        background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
+    }
+    
+    .project-stat-card.total {
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+    }
+    
+    .project-stat-number {
+        font-size: 4rem;
+        font-weight: 900;
+        line-height: 1;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+        margin: 1rem 0;
+    }
+    
+    .project-stat-label {
+        font-size: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        opacity: 0.95;
+    }
+    
+    .project-stat-icon {
+        font-size: 3.5rem;
+        opacity: 0.2;
+        position: absolute;
+        right: 15px;
+        top: 15px;
+    }
+    
+    .project-stat-btn {
+        background: rgba(255,255,255,0.25);
+        border: 2px solid rgba(255,255,255,0.4);
+        color: white;
+        font-weight: 700;
+        padding: 0.6rem 1.5rem;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .project-stat-btn:hover {
+        background: rgba(255,255,255,0.4);
+        border-color: white;
+        color: white;
+        transform: scale(1.05);
+    }
+    
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        border-radius: 2px;
+    }
+    
+    .nav-card {
+        border: none;
+        border-radius: 20px;
+        background: white;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+    
+    .nav-btn-group .btn {
+        border-radius: 10px;
+        font-weight: 600;
+        padding: 0.6rem 1.2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-btn-group .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+    }
+</style>
+
 <div class="container-fluid">
-    <!-- Navigation rapide -->
+    <!-- Section Titre -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card shadow-sm border-0">
-                <div class="card-body py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-0 text-primary">
-                                <i class="fas fa-folder-open me-2"></i>Gestion des Projets
-                            </h5>
-                            <small class="text-muted">Accès rapide à vos différentes vues de projets</small>
-                        </div>
-                        <div class="btn-group" role="group">
-                            <a href="{{ route('design-graphique.projets.solo') }}" class="btn btn-outline-info btn-sm">
-                                <i class="fas fa-user me-1"></i>Projets Solo
-                            </a>
-                            <a href="{{ route('design-graphique.projets.groupe') }}" class="btn btn-outline-warning btn-sm">
-                                <i class="fas fa-users me-1"></i>Projets Groupe
-                            </a>
-                            <a href="{{ route('design-graphique.projets.tous') }}" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-list me-1"></i>Tous les Projets
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <h2 class="section-title">
+                <i class="fas fa-folder-open me-2"></i>
+                Gestion des Projets
+            </h2>
         </div>
     </div>
 
+
+
     <!-- Statistiques des projets -->
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <i class="fas fa-user fa-2x mb-2" style="color: var(--primary-color);"></i>
-                    <h3 style="color: var(--primary-color);">{{ $stats['solo_projects'] ?? 0 }}</h3>
-                    <small class="text-muted mb-3">Projets Solo</small>
-                    <div class="mt-auto">
-                        <a href="{{ route('design-graphique.projets.solo') }}" class="btn btn-info btn-sm w-100">
-                            <i class="fas fa-list me-1"></i>
-                            Voir Tous les Projets Solo
-                        </a>
-                    </div>
+    <div class="row mb-5">
+        <div class="col-md-4 mb-4 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="project-stat-card solo h-100">
+                <i class="fas fa-user project-stat-icon"></i>
+                <div class="card-body p-4 text-center">
+                    <div class="project-stat-label mb-2">Projets Solo</div>
+                    <div class="project-stat-number">{{ $stats['solo_projects'] ?? 0 }}</div>
+                    <a href="{{ route('design-graphique.projets.solo') }}" class="btn project-stat-btn w-100 mt-3">
+                        <i class="fas fa-arrow-right me-2"></i>
+                        Explorer
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <i class="fas fa-users fa-2x mb-2" style="color: var(--secondary-color);"></i>
-                    <h3 style="color: var(--secondary-color);">{{ $stats['group_projects'] ?? 0 }}</h3>
-                    <small class="text-muted mb-3">Projets Groupe</small>
-                    <div class="mt-auto">
-                        <a href="{{ route('design-graphique.projets.groupe') }}" class="btn btn-warning btn-sm w-100">
-                            <i class="fas fa-list me-1"></i>
-                            Voir Tous les Projets Groupe
-                        </a>
-                    </div>
+        
+        <div class="col-md-4 mb-4 fade-in-up" style="animation-delay: 0.3s;">
+            <div class="project-stat-card groupe h-100">
+                <i class="fas fa-users project-stat-icon"></i>
+                <div class="card-body p-4 text-center">
+                    <div class="project-stat-label mb-2">Projets Groupe</div>
+                    <div class="project-stat-number">{{ $stats['group_projects'] ?? 0 }}</div>
+                    <a href="{{ route('design-graphique.projets.groupe') }}" class="btn project-stat-btn w-100 mt-3">
+                        <i class="fas fa-arrow-right me-2"></i>
+                        Explorer
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <i class="fas fa-project-diagram fa-2x mb-2" style="color: var(--accent-color);"></i>
-                    <h3 style="color: var(--accent-color);">{{ $stats['total_projects'] ?? 0 }}</h3>
-                    <small class="text-muted mb-3">Total Projets</small>
-                    <div class="mt-auto">
-                        <a href="{{ route('design-graphique.projets.tous') }}" class="btn btn-success btn-sm w-100">
-                            <i class="fas fa-list me-1"></i>
-                            Voir Tous les Projets
-                        </a>
-                    </div>
+        <div class="col-md-4 mb-4 fade-in-up" style="animation-delay: 0.4s;">
+            <div class="project-stat-card total h-100">
+                <i class="fas fa-project-diagram project-stat-icon"></i>
+                <div class="card-body p-4 text-center">
+                    <div class="project-stat-label mb-2">Total Projets</div>
+                    <div class="project-stat-number">{{ $stats['total_projects'] ?? 0 }}</div>
+                    <a href="{{ route('design-graphique.projets.tous') }}" class="btn project-stat-btn w-100 mt-3">
+                        <i class="fas fa-arrow-right me-2"></i>
+                        Voir Tout
+                    </a>
                 </div>
             </div>
         </div>
@@ -238,11 +345,11 @@
 
                             <!-- Type de projet (Solo/Groupe) -->
                             <div class="col-md-6 mb-3">
-                                <label for="project_mode" class="form-label">
+                                <label for="category" class="form-label">
                                     <i class="fas fa-users me-1" style="color: var(--accent-color);"></i>
-                                    <strong>Type de projet</strong>
+                                    <strong>Catégorie de projet</strong>
                                 </label>
-                                <select class="form-select" id="project_mode" name="project_mode">
+                                <select class="form-select" id="category" name="category">
                                     <option value="solo" selected>PROJET Solo</option>
                                     <option value="groupe">PROJET Groupe</option>
                                 </select>
@@ -717,7 +824,7 @@
         function validateForm() {
             const title = document.getElementById('title').value.trim();
             const projectType = document.getElementById('project_type').value;
-            const projectMode = document.getElementById('project_mode').value;
+            const projectMode = document.getElementById('category').value;
             const saveAsDraft = document.getElementById('save_as_draft').checked;
             const fileInput = document.getElementById('files');
 
@@ -1090,11 +1197,6 @@
                                         </a>
                                         @endif
                                         @if($project['status'] !== 'validated' && $project['status'] !== 'completed')
-                                        <button type="button" class="btn btn-sm btn-warning me-1"
-                                                onclick="manageCollaborators({{ $project['id'] }})"
-                                                title="Gérer les collaborateurs">
-                                            <i class="fas fa-users"></i>
-                                        </button>
                                         <button type="button" class="btn btn-sm btn-danger"
                                                 onclick="confirmDelete({{ $project['id'] }}, '{{ addslashes($project['title']) }}')"
                                                 title="Supprimer le projet">
