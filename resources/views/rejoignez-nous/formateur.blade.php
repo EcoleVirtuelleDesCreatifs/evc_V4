@@ -385,8 +385,8 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     <div class="row">
-                <!-- Left Column: Information -->
-                <div class="col-lg-5 mb-4">
+                        <!-- Left Column: Information -->
+                        <div class="col-lg-5 mb-4">
                     <!-- Pourquoi enseigner -->
                     <div class="info-card">
                         <h3>
