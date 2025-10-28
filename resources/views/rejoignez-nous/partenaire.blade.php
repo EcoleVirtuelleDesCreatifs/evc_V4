@@ -307,6 +307,8 @@
     <!-- Content -->
     <section class="content-section">
         <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
             <!-- Types de partenariats -->
             <div class="info-card mb-5">
                 <h3>
@@ -533,6 +535,8 @@
                             </button>
                         </form>
                     </div>
+                </div>
+            </div>
                 </div>
             </div>
         </div>

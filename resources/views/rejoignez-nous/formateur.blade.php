@@ -385,7 +385,9 @@
     <!-- Content -->
     <section class="content-section">
         <div class="container">
-            <div class="row">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="row">
                 <!-- Left Column: Information -->
                 <div class="col-lg-5 mb-4">
                     <!-- Pourquoi enseigner -->
@@ -647,6 +649,8 @@
                                 Envoyer ma candidature
                             </button>
                         </form>
+                    </div>
+                </div>
                     </div>
                 </div>
             </div>
