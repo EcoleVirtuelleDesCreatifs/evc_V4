@@ -1,27 +1,12 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rejoignez-nous - École Virtuelle des Créatifs</title>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Rejoignez l'École Virtuelle des Créatifs en tant que collaborateur, partenaire ou formateur. Participez à la formation de la prochaine génération de créatifs en Côte d'Ivoire.">
-    <meta name="keywords" content="rejoindre evc, collaborateur evc, partenaire evc, devenir formateur, école virtuelle abidjan, emploi formation côte d'ivoire">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="Rejoignez-nous - École Virtuelle des Créatifs">
-    <meta property="og:description" content="Participez à notre mission de former la prochaine génération de créatifs">
-    <meta property="og:type" content="website">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
+@extends('layouts.app')
+
+@section('title', 'Rejoignez-nous - École Virtuelle des Créatifs')
+@section('description', 'Rejoignez l\'École Virtuelle des Créatifs en tant que collaborateur, partenaire ou formateur. Participez à la formation de la prochaine génération de créatifs en Côte d\'Ivoire.')
+@section('keywords', 'rejoindre evc, collaborateur evc, partenaire evc, devenir formateur, école virtuelle abidjan, emploi formation côte d\'ivoire')
+
+@push('styles')
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
         * {
             margin: 0;
             padding: 0;
@@ -358,9 +343,10 @@
                 opacity: 0;
             }
         }
-    </style>
-</head>
-<body>
+</style>
+@endpush
+
+@section('content')
     <!-- Back Button -->
     <a href="{{ url('/') }}" class="back-button">
         <i class="fas fa-arrow-left"></i>
@@ -500,8 +486,4 @@
     <div class="particle" style="left: 70%; animation-delay: 2.5s;"></div>
     <div class="particle" style="left: 80%; animation-delay: 4.5s;"></div>
     <div class="particle" style="left: 90%; animation-delay: 1.5s;"></div>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@endsection

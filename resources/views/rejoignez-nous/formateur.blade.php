@@ -41,7 +41,7 @@
             font-size: 3rem;
             font-weight: 800;
             margin-bottom: 1rem;
-            background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -90,17 +90,17 @@
             border-radius: 20px;
             padding: 2.5rem;
             margin-bottom: 2rem;
-            border: 1px solid rgba(156, 39, 176, 0.2);
+            border: 1px solid rgba(255, 152, 0, 0.2);
             transition: all 0.3s;
         }
 
         .info-card:hover {
-            border-color: #9c27b0;
-            box-shadow: 0 10px 40px rgba(156, 39, 176, 0.2);
+            border-color: #ff9800;
+            box-shadow: 0 10px 40px rgba(255, 152, 0, 0.2);
         }
 
         .info-card h3 {
-            color: #9c27b0;
+            color: #ff9800;
             font-size: 1.8rem;
             margin-bottom: 1.5rem;
             display: flex;
@@ -131,7 +131,7 @@
         }
 
         .info-card ul li i {
-            color: #9c27b0;
+            color: #ff9800;
             margin-top: 0.3rem;
             flex-shrink: 0;
         }
@@ -145,8 +145,8 @@
         }
 
         .formation-badge {
-            background: rgba(156, 39, 176, 0.1);
-            border: 1px solid rgba(156, 39, 176, 0.3);
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
             border-radius: 12px;
             padding: 1.5rem 1rem;
             text-align: center;
@@ -154,14 +154,14 @@
         }
 
         .formation-badge:hover {
-            background: rgba(156, 39, 176, 0.15);
-            border-color: #9c27b0;
+            background: rgba(255, 152, 0, 0.15);
+            border-color: #ff9800;
             transform: translateY(-3px);
         }
 
         .formation-badge i {
             font-size: 2.5rem;
-            color: #9c27b0;
+            color: #ff9800;
             margin-bottom: 0.8rem;
         }
 
@@ -177,13 +177,13 @@
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 3rem;
-            border: 1px solid rgba(156, 39, 176, 0.2);
+            border: 1px solid rgba(255, 152, 0, 0.2);
         }
 
         .form-title {
             font-size: 2rem;
             font-weight: 700;
-            color: #9c27b0;
+            color: #ff9800;
             margin-bottom: 2rem;
             text-align: center;
         }
@@ -200,7 +200,7 @@
         }
 
         .form-label .required {
-            color: #9c27b0;
+            color: #ff9800;
         }
 
         .form-control, .form-select {
@@ -214,8 +214,8 @@
 
         .form-control:focus, .form-select:focus {
             background: rgba(255, 255, 255, 0.15);
-            border-color: #9c27b0;
-            box-shadow: 0 0 0 0.2rem rgba(156, 39, 176, 0.25);
+            border-color: #ff9800;
+            box-shadow: 0 0 0 0.2rem rgba(255, 152, 0, 0.25);
             color: white;
         }
 
@@ -245,23 +245,23 @@
             align-items: center;
             gap: 0.8rem;
             padding: 0.8rem;
-            background: rgba(156, 39, 176, 0.1);
-            border: 1px solid rgba(156, 39, 176, 0.2);
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.2);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .checkbox-item:hover {
-            background: rgba(156, 39, 176, 0.15);
-            border-color: #9c27b0;
+            background: rgba(255, 152, 0, 0.15);
+            border-color: #ff9800;
         }
 
         .checkbox-item input[type="checkbox"] {
             width: 20px;
             height: 20px;
             cursor: pointer;
-            accent-color: #9c27b0;
+            accent-color: #ff9800;
         }
 
         .checkbox-item label {
@@ -288,8 +288,8 @@
             justify-content: center;
             gap: 1rem;
             padding: 1.5rem;
-            background: rgba(156, 39, 176, 0.1);
-            border: 2px dashed rgba(156, 39, 176, 0.5);
+            background: rgba(255, 152, 0, 0.1);
+            border: 2px dashed rgba(255, 152, 0, 0.5);
             border-radius: 12px;
             cursor: pointer;
             transition: all 0.3s;
@@ -297,18 +297,18 @@
         }
 
         .file-upload-label:hover {
-            background: rgba(156, 39, 176, 0.2);
-            border-color: #9c27b0;
+            background: rgba(255, 152, 0, 0.2);
+            border-color: #ff9800;
         }
 
         .file-upload-label i {
             font-size: 2rem;
-            color: #9c27b0;
+            color: #ff9800;
         }
 
         .file-name {
             margin-top: 0.5rem;
-            color: #9c27b0;
+            color: #ff9800;
             font-size: 0.9rem;
         }
 
@@ -318,17 +318,17 @@
             font-size: 1.2rem;
             font-weight: 600;
             color: white;
-            background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
             border: none;
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(156, 39, 176, 0.3);
+            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.3);
         }
 
         .submit-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(156, 39, 176, 0.4);
+            box-shadow: 0 15px 40px rgba(255, 152, 0, 0.4);
         }
 
         .submit-button:active {
