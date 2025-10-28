@@ -16,15 +16,15 @@
 
         /* Header */
         .page-header {
-            padding: 150px 0 80px;
+            padding: 120px 0 60px;
             text-align: center;
             position: relative;
         }
 
         .page-title {
-            font-size: 3.5rem;
+            font-size: 3rem;
             font-weight: 800;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -33,9 +33,9 @@
         }
 
         .page-subtitle {
-            font-size: 1.3rem;
+            font-size: 1.15rem;
             color: rgba(255, 255, 255, 0.85);
-            max-width: 750px;
+            max-width: 700px;
             margin: 0 auto;
             font-weight: 300;
             line-height: 1.7;
@@ -68,14 +68,14 @@
 
         /* Content Section */
         .content-section {
-            padding: 40px 0;
+            padding: 30px 0 60px;
         }
 
         .info-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2.5rem;
+            border-radius: 16px;
+            padding: 2rem;
             margin-bottom: 2rem;
             border: 1px solid rgba(255, 152, 0, 0.2);
             transition: all 0.3s;
@@ -88,8 +88,8 @@
 
         .info-card h3 {
             color: #ff9800;
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
             display: flex;
             align-items: center;
             gap: 1rem;
@@ -162,16 +162,16 @@
         .form-container {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 3rem;
+            border-radius: 16px;
+            padding: 2.5rem;
             border: 1px solid rgba(255, 152, 0, 0.2);
         }
 
         .form-title {
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: #ff9800;
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
             text-align: center;
         }
 
@@ -301,8 +301,8 @@
 
         .submit-button {
             width: 100%;
-            padding: 1.2rem;
-            font-size: 1.2rem;
+            padding: 1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: white;
             background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
