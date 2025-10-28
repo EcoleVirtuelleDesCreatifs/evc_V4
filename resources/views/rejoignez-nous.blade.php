@@ -17,7 +17,7 @@
         /* Hero Section */
         .hero-section {
             position: relative;
-            padding: 150px 0 100px;
+            padding: 120px 0 60px;
             text-align: center;
             color: white;
             overflow: hidden;
@@ -35,9 +35,9 @@
         }
 
         .hero-title {
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 800;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 50%, #ffffff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -47,10 +47,10 @@
         }
 
         .hero-subtitle {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             color: rgba(255, 255, 255, 0.9);
-            max-width: 800px;
-            margin: 0 auto 4rem;
+            max-width: 750px;
+            margin: 0 auto 3rem;
             line-height: 1.8;
             animation: fadeInUp 1s ease-out 0.2s both;
             font-weight: 300;
@@ -58,7 +58,7 @@
 
         /* Cards Container */
         .cards-container {
-            padding: 60px 0 120px;
+            padding: 40px 0 80px;
             position: relative;
         }
         
@@ -69,8 +69,8 @@
         .join-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 3rem 2.5rem;
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
             text-align: center;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid rgba(255, 255, 255, 0.1);
@@ -127,9 +127,9 @@
 
         /* Icon Circle */
         .icon-circle {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 1.5rem;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.25rem;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -162,34 +162,34 @@
 
         /* Card Content */
         .card-title {
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: white;
-            margin-bottom: 1.5rem;
-            margin-top: 1rem;
+            margin-bottom: 1.25rem;
+            margin-top: 0.75rem;
         }
 
         .card-description {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             color: rgba(255, 255, 255, 0.85);
-            line-height: 1.8;
-            margin-bottom: 2rem;
-            min-height: 90px;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            min-height: 70px;
             flex-grow: 0;
         }
 
         .card-features {
             list-style: none;
             padding: 0;
-            margin: 2rem 0;
+            margin: 1.5rem 0;
             text-align: left;
             flex-grow: 1;
         }
 
         .card-features li {
-            padding: 0.75rem 0;
+            padding: 0.6rem 0;
             color: rgba(255, 255, 255, 0.9);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             display: flex;
             align-items: flex-start;
             gap: 1rem;
@@ -205,8 +205,8 @@
         /* CTA Button */
         .cta-button {
             display: inline-block;
-            padding: 1.1rem 2.5rem;
-            font-size: 1rem;
+            padding: 1rem 2rem;
+            font-size: 0.95rem;
             font-weight: 600;
             color: white;
             background: linear-gradient(135deg, var(--card-color) 0%, var(--card-color) 100%);
