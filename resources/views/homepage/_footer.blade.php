@@ -64,6 +64,16 @@
                                 <i class="fab fa-pinterest text-white text-lg"></i>
                             </div>
                         </a>
+                        <a href="https://wa.me/2250700000000" target="_blank" class="group" title="Chaîne WhatsApp">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-green-500 group-hover:scale-110">
+                                <i class="fab fa-whatsapp text-white text-lg"></i>
+                            </div>
+                        </a>
+                        <a href="https://t.me/evc_ci" target="_blank" class="group" title="Canal Telegram">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-blue-400 group-hover:scale-110">
+                                <i class="fab fa-telegram text-white text-lg"></i>
+                            </div>
+                        </a>
                         <a href="#" class="group">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-orange-500 group-hover:scale-110">
                                 <i class="fas fa-map-marker-alt text-white text-lg"></i>
@@ -151,20 +161,20 @@
                     <h4 class="text-sm font-semibold text-white mb-4">Rejoignez-nous</h4>
                     <ul role="list" class="space-y-3">
                         <li>
-                            <a href="#" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
-                                <i class="fas fa-handshake text-orange-500 text-xs mr-2"></i>
+                            <a href="{{ route('rejoignez-nous.collaborateur') }}" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
+                                <i class="fas fa-handshake text-orange-500 text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
                                 Collaborateur
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
-                                <i class="fas fa-users text-orange-500 text-xs mr-2"></i>
+                            <a href="{{ route('rejoignez-nous.partenaire') }}" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
+                                <i class="fas fa-users text-orange-500 text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
                                 Partenaire
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
-                                <i class="fas fa-chalkboard-teacher text-orange-500 text-xs mr-2"></i>
+                            <a href="{{ route('rejoignez-nous.formateur') }}" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
+                                <i class="fas fa-chalkboard-teacher text-orange-500 text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
                                 Devenir formateur
                             </a>
                         </li>
