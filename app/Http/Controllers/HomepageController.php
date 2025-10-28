@@ -275,4 +275,119 @@ class HomepageController extends Controller
         
         return view('actualite-detail', compact('actualite'));
     }
+
+    /**
+     * Traite la soumission du formulaire Collaborateur.
+     */
+    public function collaborateurSubmit(Request $request)
+    {
+        $validated = $request->validate([
+            'prenom' => 'required|string|max:255',
+            'nom' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'telephone' => 'required|string|max:30',
+            'poste' => 'required|string|max:255',
+            'experience' => 'required|string|max:50',
+            'message' => 'required|string|max:5000',
+            'cv' => 'required|file|mimes:pdf|max:2048',
+            'portfolio' => 'nullable|url|max:500',
+        ]);
+
+        // Upload du CV
+        if ($request->hasFile('cv')) {
+            $cvPath = $request->file('cv')->store('candidatures/collaborateurs', 'public');
+            $validated['cv_path'] = $cvPath;
+        }
+
+        // Envoyer un email à l'admin
+        try {
+            $adminEmail = config('mail.admin_address', 'recrutement@evc.ci');
+            Mail::send('emails.collaborateur-candidature', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
+                $message->to($adminEmail)
+                    ->subject('Nouvelle candidature Collaborateur - ' . $validated['prenom'] . ' ' . $validated['nom']);
+            });
+        } catch (\Exception $e) {
+            Log::error('Erreur envoi email candidature collaborateur: ' . $e->getMessage());
+        }
+
+        return redirect()->route('rejoignez-nous.collaborateur')
+            ->with('success', 'Votre candidature a été envoyée avec succès ! Nous vous contacterons bientôt.');
+    }
+
+    /**
+     * Traite la soumission du formulaire Partenaire.
+     */
+    public function partenaireSubmit(Request $request)
+    {
+        $validated = $request->validate([
+            'type_structure' => 'required|string|max:255',
+            'nom_structure' => 'required|string|max:255',
+            'nom_contact' => 'required|string|max:255',
+            'fonction' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'telephone' => 'required|string|max:30',
+            'site_web' => 'nullable|url|max:500',
+            'type_partenariat' => 'required|string|max:255',
+            'secteur' => 'required|string|max:255',
+            'message' => 'required|string|max:5000',
+        ]);
+
+        // Envoyer un email à l'admin
+        try {
+            $adminEmail = config('mail.admin_address', 'partenariats@evc.ci');
+            Mail::send('emails.partenaire-demande', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
+                $message->to($adminEmail)
+                    ->subject('Nouvelle demande de partenariat - ' . $validated['nom_structure']);
+            });
+        } catch (\Exception $e) {
+            Log::error('Erreur envoi email demande partenariat: ' . $e->getMessage());
+        }
+
+        return redirect()->route('rejoignez-nous.partenaire')
+            ->with('success', 'Votre demande de partenariat a été envoyée avec succès ! Nous vous contacterons bientôt.');
+    }
+
+    /**
+     * Traite la soumission du formulaire Formateur.
+     */
+    public function formateurSubmit(Request $request)
+    {
+        $validated = $request->validate([
+            'prenom' => 'required|string|max:255',
+            'nom' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'telephone' => 'required|string|max:30',
+            'domaines' => 'required|array|min:1',
+            'domaines.*' => 'string|max:255',
+            'experience' => 'required|string|max:50',
+            'niveau_etudes' => 'required|string|max:255',
+            'disponibilite' => 'required|string|max:255',
+            'message' => 'required|string|max:5000',
+            'cv' => 'required|file|mimes:pdf|max:2048',
+            'portfolio' => 'nullable|url|max:500',
+        ]);
+
+        // Upload du CV
+        if ($request->hasFile('cv')) {
+            $cvPath = $request->file('cv')->store('candidatures/formateurs', 'public');
+            $validated['cv_path'] = $cvPath;
+        }
+
+        // Convertir les domaines en string pour l'email
+        $validated['domaines_text'] = implode(', ', $validated['domaines']);
+
+        // Envoyer un email à l'admin
+        try {
+            $adminEmail = config('mail.admin_address', 'formateurs@evc.ci');
+            Mail::send('emails.formateur-candidature', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
+                $message->to($adminEmail)
+                    ->subject('Nouvelle candidature Formateur - ' . $validated['prenom'] . ' ' . $validated['nom']);
+            });
+        } catch (\Exception $e) {
+            Log::error('Erreur envoi email candidature formateur: ' . $e->getMessage());
+        }
+
+        return redirect()->route('rejoignez-nous.formateur')
+            ->with('success', 'Votre candidature a été envoyée avec succès ! Nous vous contacterons bientôt.');
+    }
 }

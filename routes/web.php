@@ -38,6 +38,28 @@ Route::get('/evenement/{slug}', [HomepageController::class, 'showEvenement'])->n
 Route::get('/actualites', [HomepageController::class, 'actualites'])->name('actualites');
 Route::get('/actualite/{slug}', [HomepageController::class, 'showActualite'])->name('actualite.show');
 
+// Routes "Rejoignez-nous"
+Route::get('/rejoignez-nous', function () {
+    return view('rejoignez-nous');
+})->name('rejoignez-nous');
+
+Route::get('/rejoignez-nous/collaborateur', function () {
+    return view('rejoignez-nous.collaborateur');
+})->name('rejoignez-nous.collaborateur');
+
+Route::get('/rejoignez-nous/partenaire', function () {
+    return view('rejoignez-nous.partenaire');
+})->name('rejoignez-nous.partenaire');
+
+Route::get('/rejoignez-nous/formateur', function () {
+    return view('rejoignez-nous.formateur');
+})->name('rejoignez-nous.formateur');
+
+// Routes de soumission des formulaires "Rejoignez-nous"
+Route::post('/rejoignez-nous/collaborateur/submit', [HomepageController::class, 'collaborateurSubmit'])->name('rejoignez-nous.collaborateur.submit');
+Route::post('/rejoignez-nous/partenaire/submit', [HomepageController::class, 'partenaireSubmit'])->name('rejoignez-nous.partenaire.submit');
+Route::post('/rejoignez-nous/formateur/submit', [HomepageController::class, 'formateurSubmit'])->name('rejoignez-nous.formateur.submit');
+
 // Routes d'authentification
 
 Route::get('/auth/evc/login', [AuthController::class, 'showLoginForm'])->name('login');
