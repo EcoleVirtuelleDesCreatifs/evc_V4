@@ -7,13 +7,7 @@
 @push('styles')
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
+        .rejoignez-nous-page {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #0a1628 0%, #1a2942 100%);
             min-height: 100vh;
@@ -347,6 +341,7 @@
 @endpush
 
 @section('content')
+<div class="rejoignez-nous-page">
     <!-- Back Button -->
     <a href="{{ url('/') }}" class="back-button">
         <i class="fas fa-arrow-left"></i>
@@ -486,4 +481,5 @@
     <div class="particle" style="left: 70%; animation-delay: 2.5s;"></div>
     <div class="particle" style="left: 80%; animation-delay: 4.5s;"></div>
     <div class="particle" style="left: 90%; animation-delay: 1.5s;"></div>
+</div>
 @endsection

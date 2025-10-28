@@ -1,29 +1,13 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Devenir Partenaire - École Virtuelle des Créatifs</title>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Devenez partenaire de l'École Virtuelle des Créatifs. Collaborez avec nous pour développer des synergies et créer de la valeur ensemble en Côte d'Ivoire.">
-    <meta name="keywords" content="partenariat evc, partenaire école virtuelle, collaboration formation abidjan, partenariat éducation côte d'ivoire">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+@extends('layouts.app')
 
-        body {
+@section('title', 'Devenir Partenaire - École Virtuelle des Créatifs')
+@section('description', 'Devenez partenaire de l\'École Virtuelle des Créatifs. Collaborez avec nous pour développer des synergies et créer de la valeur ensemble en Côte d\'Ivoire.')
+@section('keywords', 'partenariat evc, partenaire école virtuelle, collaboration formation abidjan, partenariat éducation côte d\'ivoire')
+
+@push('styles')
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+        .partenaire-page {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #0a1628 0%, #1a2942 100%);
             min-height: 100vh;
@@ -296,9 +280,11 @@
                 grid-template-columns: 1fr;
             }
         }
-    </style>
-</head>
-<body>
+</style>
+@endpush
+
+@section('content')
+<div class="partenaire-page">
     <!-- Back Button -->
     <a href="{{ route('rejoignez-nous') }}" class="back-button">
         <i class="fas fa-arrow-left"></i>
@@ -552,7 +538,5 @@
         </div>
     </section>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+@endsection
