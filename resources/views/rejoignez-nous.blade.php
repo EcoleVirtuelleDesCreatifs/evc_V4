@@ -58,8 +58,12 @@
 
         /* Cards Container */
         .cards-container {
-            padding: 80px 0 120px;
+            padding: 60px 0 120px;
             position: relative;
+        }
+        
+        .cards-container .row.mt-4 {
+            margin-top: 3rem !important;
         }
 
         .join-card {
@@ -369,11 +373,9 @@
     <!-- Cards Section -->
     <section class="cards-container">
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-11">
-                    <div class="row g-4">
+            <div class="row justify-content-center g-5">
                 <!-- Collaborateur Card -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-5 col-md-6">
                     <div class="join-card card-collaborateur">
                         <div>
                             <div class="icon-circle">
@@ -410,7 +412,7 @@
                 </div>
 
                 <!-- Partenaire Card -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-5 col-md-6">
                     <div class="join-card card-partenaire">
                         <div>
                             <div class="icon-circle">
@@ -446,8 +448,11 @@
                     </div>
                 </div>
 
+            </div>
+            <!-- Second Row: Formateur Card Centered -->
+            <div class="row justify-content-center mt-4">
                 <!-- Devenir Formateur Card -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-5 col-md-8">
                     <div class="join-card card-formateur">
                         <div>
                             <div class="icon-circle">
@@ -480,8 +485,6 @@
                             Rejoindre l'équipe
                             <i class="fas fa-arrow-right ms-2"></i>
                         </a>
-                    </div>
-                </div>
                     </div>
                 </div>
             </div>
