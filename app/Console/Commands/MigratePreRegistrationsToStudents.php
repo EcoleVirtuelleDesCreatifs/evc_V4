@@ -71,8 +71,9 @@ class MigratePreRegistrationsToStudents extends Command
 
         foreach ($preRegistrations as $preReg) {
             try {
-                // Check if student already exists with this email
-                if (Student::where('email', $preReg->email)->exists()) {
+                // Check if student already exists via user_id (email n'existe pas dans students)
+                $user = \DB::table('users')->where('email', $preReg->email)->first();
+                if ($user && Student::where('user_id', $user->id)->exists()) {
                     $skipped++;
                     $progressBar->advance();
                     continue;
@@ -148,26 +149,27 @@ class MigratePreRegistrationsToStudents extends Command
 
     /**
      * Generate a unique student ID
+     * Format: EVC-ANNÉE-JOUR-MOIS-NUMERO (ex: EVC-2025-141001)
      */
     private function generateStudentId($preReg): string
     {
         $year = now()->year;
-        $formationCode = $this->getFormationCode($preReg->choix_formation);
+        $day = now()->format('d');
+        $month = now()->format('m');
+        $datePrefix = "{$year}-{$day}{$month}";
         
-        // Get the last student ID for this year and formation
-        $lastStudent = Student::where('student_id', 'LIKE', "EVC{$year}{$formationCode}%")
+        // Get the last student ID for this date
+        $lastStudent = Student::where('student_id', 'LIKE', "EVC-{$datePrefix}%")
             ->orderBy('student_id', 'desc')
             ->first();
 
-        if ($lastStudent) {
-            // Extract the sequence number and increment
-            $lastSequence = (int) substr($lastStudent->student_id, -4);
-            $newSequence = $lastSequence + 1;
+        if ($lastStudent && preg_match('/EVC-\d{4}-\d{4}(\d{2})/', $lastStudent->student_id, $matches)) {
+            $newSequence = intval($matches[1]) + 1;
         } else {
             $newSequence = 1;
         }
 
-        return sprintf('EVC%s%s%04d', $year, $formationCode, $newSequence);
+        return sprintf('EVC-%s-%s%02d', $year, $day . $month, $newSequence);
     }
 
     /**

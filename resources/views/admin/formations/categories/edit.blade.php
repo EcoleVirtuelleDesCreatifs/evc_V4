@@ -180,6 +180,38 @@
                                 </div>
                             </div>
 
+                            <!-- Module de formation -->
+                            <div class="mb-4">
+                                <label for="module" class="form-label fw-semibold text-dark">
+                                    <i class="fas fa-graduation-cap me-2 text-primary"></i>Module de Formation
+                                </label>
+                                <select class="form-select form-select-lg @error('module') is-invalid @enderror"
+                                        id="module"
+                                        name="module"
+                                        required
+                                        style="border-radius: 12px; border: 2px solid #e9ecef; padding: 15px 20px;">
+                                    <option value="">-- Sélectionnez un module --</option>
+                                    <option value="design-graphique" {{ old('module', $category->module) == 'design-graphique' ? 'selected' : '' }}>
+                                        <i class="fas fa-palette"></i> Design Graphique
+                                    </option>
+                                    <option value="community-management" {{ old('module', $category->module) == 'community-management' ? 'selected' : '' }}>
+                                        <i class="fas fa-users"></i> Community Management
+                                    </option>
+                                    <option value="gestion-informatique" {{ old('module', $category->module) == 'gestion-informatique' ? 'selected' : '' }}>
+                                        <i class="fas fa-laptop-code"></i> Gestion Informatique
+                                    </option>
+                                    <option value="intelligence-artificielle" {{ old('module', $category->module) == 'intelligence-artificielle' ? 'selected' : '' }}>
+                                        <i class="fas fa-brain"></i> Intelligence Artificielle
+                                    </option>
+                                </select>
+                                @error('module')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div class="form-text text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>Chaque catégorie doit être associée à un module de formation
+                                </div>
+                            </div>
+
                             <!-- Statut -->
                             <div class="mb-4">
                                 <label for="status" class="form-label fw-semibold text-dark">

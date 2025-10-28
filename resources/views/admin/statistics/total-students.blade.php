@@ -286,10 +286,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Animations des compteurs terminées');
 });
 
-function addStudent() {
-    console.log('Redirection vers ajout étudiant...');
-    window.location.href = "{{ route('admin.students.add') }}";
-}
+
 
 function exportData() {
     console.log('Export des données...');

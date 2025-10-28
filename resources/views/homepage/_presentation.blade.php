@@ -29,7 +29,7 @@
                     <p class="mt-4 text-gray-300">Nos étudiants ne font pas que suivre des cours. Ils rejoignent notre studio créatif interne pour travailler sur des projets réels pour de vrais clients, acquérant une expérience professionnelle inestimable avant même d'être diplômés.</p>
                 </div>
                 <div class="lg:sticky lg:top-8 lg:self-start">
-                    <img class="rounded-2xl object-cover w-[597px] h-[517px]" src="https://i.pravatar.cc/800?img=1" alt="Bilé Bossombra">
+                    <img class="rounded-2xl object-cover w-[597px] h-[517px]" src="{{ asset('assets/img/cover/ecole-virtuelle-des-creatifs.jpg') }}" alt="École Virtuelle des Créatifs">
                 </div>
             </div>
         </div>

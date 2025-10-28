@@ -5,35 +5,7 @@
 
 @section('content')
 
-<!-- Messages Flash Laravel -->
-@if(session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
 
-@if(session('error'))
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-circle me-2"></i>
-        {{ session('error') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
-
-@if($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="fas fa-exclamation-triangle me-2"></i>
-        <strong>Erreurs de validation :</strong>
-        <ul class="mb-0 mt-2">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-@endif
 
 <!-- En-tête avec photo de profil -->
 <div class="row mb-4">
@@ -41,31 +13,7 @@
         <div class="card" style="background: linear-gradient(135deg, #003366 0%, #3399ff 100%); color: white;">
             <div class="card-body py-4">
                 <div class="row align-items-center">
-                    <div class="col-md-2 text-center">
-                        <div class="profile-photo-container" style="position: relative; width: 120px; height: 120px; margin: 0 auto;">
-                            @if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo)
-                                <img id="profilePhoto" src="{{ asset('uploads/photos/' . basename($user->profile_photo)) }}"
-                                     alt="Photo de profil" class="rounded-circle"
-                                     style="width: 120px; height: 120px; object-fit: cover; border: 4px solid white;">
-                            @elseif(session('user_photo'))
-                                <img id="profilePhoto" src="{{ asset('uploads/photos/' . basename(session('user_photo'))) }}"
-                                     alt="Photo de profil" class="rounded-circle"
-                                     style="width: 120px; height: 120px; object-fit: cover; border: 4px solid white;">
-                            @else
-                                <div id="profilePhoto" class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center"
-                                     style="width: 120px; height: 120px; border: 4px solid white;">
-                                    <i class="fas fa-user fs-1 text-primary"></i>
-                                </div>
-                            @endif
-                            <div class="photo-overlay"
-                                 style="position: absolute; top: 0; left: 0; width: 120px; height: 120px; background: rgba(0,0,0,0.5); border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer;"
-                                 onclick="document.getElementById('photoFile').click()">
-                                <i class="fas fa-camera" style="font-size: 1.5rem; color: white;"></i>
-                            </div>
-                            <input type="file" id="photoFile" accept="image/*" style="display: none;" onchange="handlePhotoUpload(this)">
-                        </div>
-                    </div>
-                    <div class="col-md-10">
+                    <div class="col-md-12">
                         <h3 class="mb-2">
                             <i class="fas fa-user-cog me-3"></i>
                             @if(isset($user) && property_exists($user, 'first_name') && property_exists($user, 'last_name') && $user->first_name && $user->last_name)
@@ -74,7 +22,7 @@
                                 {{ session('user_prenom') }} {{ session('user_nom') }}
                             @else
                                 Mon Profil
-                            @endif - Formation Infographie EVC
+                            @endif - {{ session('user_formation_raw', 'design-graphique') }}
                         </h3>
                         <p class="mb-0 opacity-75">Gérez vos informations personnelles et préférences de formation</p>
                         <div class="mt-2">
@@ -93,7 +41,63 @@
         </div>
     </div>
 </div>
-<form id="profileForm" method="POST" action="{{ route('design-graphique.parametres.update') }}">
+
+<!-- Photo de profil - EN DEHORS DU FORMULAIRE -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-camera me-2" style="color: #3399ff;"></i>
+                    Photo de profil
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4 text-center">
+                        <div id="photoPreviewContainer" style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
+                            @if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo)
+                                <img id="photoPreview" src="{{ asset($user->profile_photo) }}"
+                                     alt="Photo de profil" class="rounded-circle"
+                                     style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #3399ff;">
+                            @elseif(session('user_photo'))
+                                <img id="photoPreview" src="{{ asset(session('user_photo')) }}"
+                                     alt="Photo de profil" class="rounded-circle"
+                                     style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #3399ff;">
+                            @else
+                                <div id="photoPreview" class="rounded-circle bg-light d-flex align-items-center justify-content-center"
+                                     style="width: 150px; height: 150px; border: 3px dashed #3399ff;">
+                                    <i class="fas fa-user fs-1 text-muted"></i>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h6 class="mb-3">Modifier votre photo de profil</h6>
+                        <p class="text-muted small mb-3">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Formats acceptés : JPG, PNG, GIF (max 5MB)
+                        </p>
+                        <input type="file" id="photoInput" name="photo" accept="image/*" class="form-control mb-3">
+                        <button type="button" class="btn btn-primary" onclick="uploadPhoto()">
+                            <i class="fas fa-upload me-2"></i>
+                            Uploader la photo
+                        </button>
+                        <div id="uploadProgress" class="mt-3" style="display: none;">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                            </div>
+                            <small class="text-muted">Upload en cours...</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FORMULAIRE PRINCIPAL DE MISE À JOUR DU PROFIL -->
+<form id="profileForm" method="POST" action="{{ route(session('user_formation_raw', 'design-graphique') . '.parametres.update') }}">
 @csrf
 <div class="row">
     <div class="col-md-8">
@@ -154,11 +158,12 @@
                 </div>
                 <div class="mb-3">
                     <label for="district" class="form-label"><strong>Quartier</strong></label>
-                    <input type="text" class="form-control" id="district" name="district" value="{{ $user->district ?? '' }}" placeholder="Quartier ou arrondissement">
+                    <input type="text" class="form-control" id="district" name="district" value="{{ $user->quartier ?? '' }}" placeholder="Quartier ou arrondissement">
                 </div>
                 <div class="mb-3">
                     <label for="biography" class="form-label"><strong>Biographie</strong></label>
-                    <textarea class="form-control" id="biography" name="biography" rows="4" placeholder="Parlez-nous de vous, votre parcours, vos passions...">{{ $user->biography ?? 'Passionné de design graphique depuis mon plus jeune âge, je souhaite développer mes compétences en infographie pour évoluer professionnellement dans le domaine créatif.' }}</textarea>
+                    <textarea class="form-control" id="biography" name="biography" rows="4" placeholder="Parlez-nous de vous, votre parcours, vos passions...">{{ $user->biography ?? '' }}</textarea>
+                    <div class="form-text text-muted"><i class="fas fa-info-circle me-1"></i>Présentez-vous en quelques lignes (optionnel).</div>
                 </div>
             </div>
         </div>
@@ -174,25 +179,24 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label for="email" class="form-label"><strong>Adresse email</strong> <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" name="email"
-                               value="@if(isset($user) && property_exists($user, 'email') && $user->email){{ $user->email }}@elseif(session('user_email')){{ session('user_email') }}@endif">
-                        <div class="form-text">Votre email principal pour les communications</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
                         <label for="phone" class="form-label"><strong>Numéro de téléphone</strong></label>
                         <input type="tel" class="form-control" id="phone" name="phone"
                                value="@if(isset($user) && property_exists($user, 'phone') && $user->phone){{ $user->phone }}@elseif(session('user_telephone')){{ session('user_telephone') }}@endif"
-                               placeholder="+33 6 12 34 56 78">
+                               placeholder="+225 07 12 34 56 78">
+                        <div class="form-text">
+                            <i class="fas fa-phone me-1 text-primary"></i>
+                            Votre numéro de téléphone principal
+                        </div>
                     </div>
-                </div>
-                <div class="mb-3">
-                    <label for="whatsapp" class="form-label"><strong>WhatsApp</strong></label>
-                    <input type="tel" class="form-control" id="whatsapp" name="whatsapp"
-                           value="@if(isset($user) && property_exists($user, 'whatsapp') && $user->whatsapp){{ $user->whatsapp }}@elseif(session('user_whatsapp')){{ session('user_whatsapp') }}@endif">
-                    <div class="form-text">
-                        <i class="fab fa-whatsapp text-success me-1"></i>
-                        Numéro WhatsApp pour les communications rapides
+                    <div class="col-md-6 mb-3">
+                        <label for="whatsapp" class="form-label"><strong>WhatsApp</strong></label>
+                        <input type="tel" class="form-control" id="whatsapp" name="whatsapp"
+                               value="@if(isset($user) && property_exists($user, 'whatsapp') && $user->whatsapp){{ $user->whatsapp }}@elseif(session('user_whatsapp')){{ session('user_whatsapp') }}@endif"
+                               placeholder="+225 07 12 34 56 78">
+                        <div class="form-text">
+                            <i class="fab fa-whatsapp text-success me-1"></i>
+                            Numéro WhatsApp pour les communications rapides
+                        </div>
                     </div>
                 </div>
             </div>
@@ -212,8 +216,8 @@
                         <label for="educationLevel" class="form-label"><strong>Niveau d'étude</strong></label>
                         @php
                             $userEducationLevel = '';
-                            if(isset($user) && property_exists($user, 'education_level') && $user->education_level) {
-                                $userEducationLevel = $user->education_level;
+                            if(isset($user) && property_exists($user, 'Level_education') && $user->Level_education) {
+                                $userEducationLevel = $user->Level_education;
                             }
                         @endphp
                         <select class="form-control" id="educationLevel" name="educationLevel">
@@ -229,46 +233,15 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <label for="lastDiploma" class="form-label"><strong>Dernier diplôme obtenu</strong></label>
-                        <input type="text" class="form-control" id="lastDiploma" name="lastDiploma" value="{{ $user->last_diploma ?? 'Baccalauréat Scientifique' }}" placeholder="Ex: Bac ES, BTS Communication...">
+                        <input type="text" class="form-control" id="lastDiploma" name="lastDiploma" value="{{ $user->degree ?? '' }}" placeholder="Ex: Bac ES, BTS Communication...">
                     </div>
                 </div>
 
             </div>
         </div>
 
-        <!-- Sécurité -->
+        <!-- Boutons d'action du formulaire principal -->
         <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-shield-alt me-2" style="color: #ff6633;"></i>
-                    Sécurité et mot de passe
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-info">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <strong>Modification du mot de passe</strong><br>
-                    Laissez vide si vous ne souhaitez pas changer votre mot de passe actuel.
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="currentPassword" class="form-label"><strong>Mot de passe actuel</strong></label>
-                        <input type="password" class="form-control" id="currentPassword" placeholder="Saisissez votre mot de passe actuel">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="newPassword" class="form-label"><strong>Nouveau mot de passe</strong></label>
-                        <input type="password" class="form-control" id="newPassword" placeholder="Minimum 8 caractères">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="confirmPassword" class="form-label"><strong>Confirmer le nouveau mot de passe</strong></label>
-                    <input type="password" class="form-control" id="confirmPassword" placeholder="Répétez le nouveau mot de passe">
-                </div>
-            </div>
-        </div>
-
-        <!-- Boutons d'action -->
-        <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -290,13 +263,137 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 
     <!-- Sidebar -->
     <div class="col-md-4">
+        <!-- Le contenu de la sidebar reste ici -->
+    </div>
+</div>
+</form>
+<!-- FIN DU FORMULAIRE PRINCIPAL -->
+
+<!-- DÉBUT DU FORMULAIRE SÉPARÉ POUR LES INFORMATIONS DE CONNEXION -->
+<div class="row">
+    <div class="col-md-8">
+        <!-- Informations de connexion (Table USERS) -->
+        <div class="card mb-4">
+            <div class="card-header" style="background: linear-gradient(135deg, #ff6633 0%, #ff9966 100%); color: white;">
+                <h5 class="mb-0">
+                    <i class="fas fa-key me-2"></i>
+                    Informations de connexion
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Section sensible</strong><br>
+                    Ces informations sont utilisées pour votre connexion. Toute modification nécessite votre mot de passe actuel.
+                </div>
+
+                <!-- Formulaire séparé pour les informations de connexion -->
+                <form id="loginInfoForm" method="POST" action="{{ route(session('user_formation_raw', 'design-graphique') . '.parametres.update-login') }}">
+                    @csrf
+                    
+                    <div class="mb-3">
+                        <label for="loginEmail" class="form-label">
+                            <i class="fas fa-envelope me-1" style="color: #ff6633;"></i>
+                            <strong>Adresse Email</strong>
+                        </label>
+                        <input type="email" class="form-control" id="loginEmail" name="email" 
+                               value="{{ $user->email ?? session('user_email') }}" required>
+                        <small class="text-muted">Utilisé pour la connexion à votre compte</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="fas fa-user me-1" style="color: #ff6633;"></i>
+                            <strong>Pseudonyme</strong>
+                        </label>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               value="{{ $user->name ?? session('user_nom') }}" 
+                               placeholder="Votre nom d'utilisateur">
+                        <small class="text-muted">Nom affiché sur votre profil</small>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h6 class="mb-3">
+                        <i class="fas fa-lock me-2" style="color: #ff6633;"></i>
+                        Modification du mot de passe
+                    </h6>
+                    <p class="text-muted small mb-3">Laissez vide si vous ne souhaitez pas changer votre mot de passe</p>
+
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label"><strong>Mot de passe actuel</strong> <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="currentPassword" name="current_password" 
+                               placeholder="Requis pour toute modification" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="newPassword" class="form-label"><strong>Nouveau mot de passe</strong></label>
+                            <input type="password" class="form-control" id="newPassword" name="new_password" 
+                                   placeholder="Minimum 8 caractères">
+                            <small class="text-muted">Laissez vide pour ne pas changer</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="confirmPassword" class="form-label"><strong>Confirmer le nouveau mot de passe</strong></label>
+                            <input type="password" class="form-control" id="confirmPassword" name="new_password_confirmation" 
+                                   placeholder="Répétez le nouveau mot de passe">
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="fas fa-shield-alt me-2"></i>
+                            Mettre à jour les informations de connexion
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar pour le formulaire de connexion -->
+    <div class="col-md-4">
         <!-- Résumé du profil -->
+        @php
+            // Calculer le pourcentage de complétion du profil
+            $totalFields = 13; // Nombre total de champs importants
+            $completedFields = 0;
+
+            // Vérifier les champs obligatoires/importants
+            if (!empty($user->first_name)) $completedFields++;
+            if (!empty($user->last_name)) $completedFields++;
+            if (!empty($user->email)) $completedFields++;
+            if (!empty($user->phone)) $completedFields++;
+            if (!empty($user->whatsapp)) $completedFields++;
+            if (!empty($user->age)) $completedFields++;
+            if (!empty($user->country)) $completedFields++;
+            if (!empty($user->city)) $completedFields++;
+            if (!empty($user->quartier)) $completedFields++;
+            if (!empty($user->biography)) $completedFields++;
+            if (!empty($user->Level_education)) $completedFields++;
+            if (!empty($user->degree)) $completedFields++;
+            if (!empty($user->profile_photo)) $completedFields++;
+
+            $completionPercentage = round(($completedFields / $totalFields) * 100);
+
+            // Calculer le stroke-dashoffset pour le cercle de progression
+            $circumference = 2 * pi() * 40; // 2πr où r=40
+            $dashOffset = $circumference - ($circumference * $completionPercentage / 100);
+
+            // Déterminer la couleur selon le pourcentage
+            $progressColor = $completionPercentage >= 80 ? '#28a745' : ($completionPercentage >= 50 ? '#3399ff' : '#ffc107');
+
+            // Vérifier les sections
+            $hasPersonalInfo = !empty($user->first_name) && !empty($user->last_name) && !empty($user->age);
+            $hasContact = !empty($user->email) && !empty($user->phone);
+            $hasPhoto = !empty($user->profile_photo);
+            $hasEducation = !empty($user->Level_education) || !empty($user->degree);
+        @endphp
+
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0">
@@ -309,34 +406,58 @@
                     <div class="progress-circle" style="width: 100px; height: 100px; margin: 0 auto; position: relative;">
                         <svg width="100" height="100" style="transform: rotate(-90deg);">
                             <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="8"></circle>
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="#3399ff" stroke-width="8"
-                                    stroke-dasharray="251.2" stroke-dashoffset="62.8"
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="{{ $progressColor }}" stroke-width="8"
+                                    stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $dashOffset }}"
                                     style="transition: stroke-dashoffset 0.5s ease;"></circle>
                         </svg>
                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; color: #003366;">
-                            75%
+                            {{ $completionPercentage }}%
                         </div>
                     </div>
                     <p class="mt-2 mb-0"><strong>Profil complété</strong></p>
-                    <small class="text-muted">Ajoutez plus d'informations pour atteindre 100%</small>
+                    @if($completionPercentage < 100)
+                        <small class="text-muted">Ajoutez plus d'informations pour atteindre 100%</small>
+                    @else
+                        <small class="text-success">🎉 Votre profil est complet !</small>
+                    @endif
                 </div>
 
                 <div class="profile-stats">
                     <div class="d-flex justify-content-between mb-2">
-                        <span><i class="fas fa-check-circle text-success me-1"></i> Infos personnelles</span>
-                        <span class="badge bg-success">Complété</span>
+                        <span>
+                            <i class="fas {{ $hasPersonalInfo ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-warning' }} me-1"></i>
+                            Infos personnelles
+                        </span>
+                        <span class="badge {{ $hasPersonalInfo ? 'bg-success' : 'bg-warning' }}">
+                            {{ $hasPersonalInfo ? 'Complété' : 'Incomplet' }}
+                        </span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span><i class="fas fa-check-circle text-success me-1"></i> Contact</span>
-                        <span class="badge bg-success">Complété</span>
+                        <span>
+                            <i class="fas {{ $hasContact ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-warning' }} me-1"></i>
+                            Contact
+                        </span>
+                        <span class="badge {{ $hasContact ? 'bg-success' : 'bg-warning' }}">
+                            {{ $hasContact ? 'Complété' : 'Incomplet' }}
+                        </span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span><i class="fas fa-exclamation-circle text-warning me-1"></i> Photo de profil</span>
-                        <span class="badge bg-warning">Manquant</span>
+                        <span>
+                            <i class="fas {{ $hasPhoto ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-warning' }} me-1"></i>
+                            Photo de profil
+                        </span>
+                        <span class="badge {{ $hasPhoto ? 'bg-success' : 'bg-warning' }}">
+                            {{ $hasPhoto ? 'Complété' : 'Manquant' }}
+                        </span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span><i class="fas fa-check-circle text-success me-1"></i> Formation</span>
-                        <span class="badge bg-success">Complété</span>
+                        <span>
+                            <i class="fas {{ $hasEducation ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-warning' }} me-1"></i>
+                            Formation
+                        </span>
+                        <span class="badge {{ $hasEducation ? 'bg-success' : 'bg-warning' }}">
+                            {{ $hasEducation ? 'Complété' : 'Incomplet' }}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -344,31 +465,66 @@
 
 
 
-        <!-- Support -->
-        <div class="card">
-            <div class="card-header">
+        <!-- Support & Aide -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header" style="background: linear-gradient(135deg, #003366 0%, #3399ff 100%); color: white; border: none;">
                 <h5 class="mb-0">
-                    <i class="fas fa-headset me-2" style="color: #003366;"></i>
+                    <i class="fas fa-headset me-2"></i>
                     Besoin d'aide ?
                 </h5>
             </div>
             <div class="card-body">
-                <p class="mb-3">Notre équipe est là pour vous accompagner !</p>
-                <div class="d-grid gap-2">
-                    <a href="mailto:info@ecolevirtuelledescreatifs.com" class="btn btn-sm btn-outline-primary">
+                <p class="mb-3 text-muted small">
+                    <i class="fas fa-info-circle me-1 text-primary"></i>
+                    Notre équipe est là pour vous accompagner !
+                </p>
+                
+                <!-- Boutons d'aide -->
+                <div class="d-grid gap-2 mb-3">
+                    <a href="#" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-start" 
+                       onclick="alert('Redirection vers le centre d\'aide...'); return false;">
+                        <i class="fas fa-book me-2"></i>
+                        Centre d'aide
+                    </a>
+                    <a href="mailto:info@ecolevirtuelledescreatifs.com" 
+                       class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-start">
                         <i class="fas fa-envelope me-2"></i>
-                        info@ecolevirtuelledescreatifs.com
+                        Contacter le support
                     </a>
-                    <a href="https://wa.me/2250717258602" class="btn btn-sm btn-outline-success" target="_blank">
-                        <i class="fab fa-whatsapp me-2"></i>
-                        07 17 25 86 02
+                    <a href="#" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-start"
+                       onclick="alert('Formulaire de signalement...'); return false;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Signaler un problème
                     </a>
+                </div>
+                
+                <!-- Contact direct -->
+                <div class="border-top pt-3">
+                    <p class="small text-muted mb-2">
+                        <i class="fas fa-phone-alt me-1"></i>
+                        Contact direct :
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="mailto:info@ecolevirtuelledescreatifs.com" 
+                           class="btn btn-sm btn-light text-start" 
+                           style="font-size: 0.85rem;">
+                            <i class="fas fa-envelope me-2 text-primary"></i>
+                            info@ecolevirtuelledescreatifs.com
+                        </a>
+                        <a href="https://wa.me/2250717258602" 
+                           class="btn btn-sm btn-light text-start" 
+                           style="font-size: 0.85rem;"
+                           target="_blank">
+                            <i class="fab fa-whatsapp me-2 text-success"></i>
+                            07 17 25 86 02
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</form>
+<!-- FIN DU FORMULAIRE INFORMATIONS DE CONNEXION -->
 
 <style>
 /* Styles personnalisés pour la page paramètres */
@@ -488,30 +644,89 @@
 </style>
 
 <script>
-// Gestion de l'upload de photo
-function handlePhotoUpload(input) {
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
+// UPLOAD DE PHOTO - VERSION ULTRA SIMPLE
+function uploadPhoto() {
+    console.log('🚀 Fonction uploadPhoto() appelée');
 
-        // Validation du fichier
-        if (!file.type.startsWith('image/')) {
-            showNotification('Erreur', 'Veuillez sélectionner un fichier image valide.', 'error');
-            return;
-        }
+    var input = document.getElementById('photoInput');
+    var preview = document.getElementById('photoPreview');
+    var progress = document.getElementById('uploadProgress');
 
-        if (file.size > 5 * 1024 * 1024) { // 5MB max
-            showNotification('Erreur', 'La taille de l\'image ne doit pas dépasser 5MB.', 'error');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('profilePhoto').src = e.target.result;
-            updateProfileCompletion();
-            showNotification('Succès', 'Photo de profil mise à jour avec succès !', 'success');
-        };
-        reader.readAsDataURL(file);
+    if (!input.files || !input.files[0]) {
+        alert('⚠️ Veuillez d\'abord sélectionner une photo');
+        return;
     }
+
+    var file = input.files[0];
+    console.log('📁 Fichier:', file.name, file.type, file.size);
+
+    // Validation
+    if (!file.type.match('image.*')) {
+        alert('⚠️ Veuillez sélectionner une image');
+        return;
+    }
+
+    if (file.size > 5242880) { // 5MB
+        alert('⚠️ L\'image ne doit pas dépasser 5MB');
+        return;
+    }
+
+    console.log('✅ Validation OK');
+
+    // Prévisualisation
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        console.log('🖼️ Prévisualisation...');
+        if (preview.tagName === 'DIV') {
+            var img = document.createElement('img');
+            img.id = 'photoPreview';
+            img.className = 'rounded-circle';
+            img.style.cssText = 'width: 150px; height: 150px; object-fit: cover; border: 3px solid #3399ff;';
+            img.src = e.target.result;
+            preview.parentNode.replaceChild(img, preview);
+        } else {
+            preview.src = e.target.result;
+        }
+    };
+    reader.readAsDataURL(file);
+
+    // Afficher progression
+    if (progress) progress.style.display = 'block';
+
+    // Upload
+    var formData = new FormData();
+    formData.append('photo', file);
+    formData.append('_token', '{{ csrf_token() }}');
+
+    var url = '{{ route(session("user_formation_raw", "design-graphique") . ".parametres.upload-photo") }}';
+    console.log('📡 Upload vers:', url);
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+    .then(function(response) {
+        console.log('📥 Réponse:', response.status);
+        return response.json();
+    })
+    .then(function(data) {
+        console.log('📦 Données:', data);
+        if (progress) progress.style.display = 'none';
+
+        if (data.success) {
+            alert('✅ Photo uploadée avec succès!');
+            setTimeout(function() {
+                location.reload();
+            }, 500);
+        } else {
+            alert('❌ ' + (data.message || 'Erreur'));
+        }
+    })
+    .catch(function(error) {
+        console.error('❌ Erreur:', error);
+        if (progress) progress.style.display = 'none';
+        alert('❌ Erreur: ' + error.message);
+    });
 }
 
 // Fonction de notification
@@ -520,15 +735,15 @@ function showNotification(title, message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
     notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px;';
-    
+
     notification.innerHTML = `
         <strong>${title}</strong><br>
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Auto-remove après 5 secondes
     setTimeout(() => {
         if (notification.parentNode) {
@@ -541,7 +756,7 @@ function showNotification(title, message, type = 'info') {
 function updateLastModified() {
     const now = new Date();
     const dateStr = now.toLocaleDateString('fr-FR') + ' à ' + now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
-    
+
     // Chercher et mettre à jour l'élément de dernière modification s'il existe
     const lastModifiedElement = document.querySelector('.last-modified');
     if (lastModifiedElement) {
@@ -559,7 +774,7 @@ function updateProfileCompletion() {
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('profileForm');
     const submitBtn = form.querySelector('button[type="submit"]');
-    
+
     form.addEventListener('submit', function() {
         // Disable button and show loading state
         submitBtn.disabled = true;
@@ -570,8 +785,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // Réinitialiser le formulaire
 function resetForm() {
     if (confirm('Êtes-vous sûr de vouloir annuler toutes les modifications ?')) {
-        document.getElementById('profileForm').reset();
-        showNotification('Info', 'Modifications annulées.', 'info');
+        // Recharger la page pour restaurer les valeurs d'origine
+        window.location.reload();
     }
 }
 
@@ -617,22 +832,14 @@ function previewProfile() {
 
     const previewContent = `
         <div class="text-center mb-3">
-            <img src="${document.getElementById('profilePhoto').src}" class="rounded-circle" width="80" height="80">
+            <img src="${document.getElementById('photoPreview').src}" class="rounded-circle" width="80" height="80">
             <h5 class="mt-2">${firstName} ${lastName}</h5>
             <p class="text-muted">${email}</p>
-                <h6 class="mb-0">
-                    <i class="fas fa-question-circle me-2"></i>
-                    Support
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary btn-sm">Centre d'aide</button>
-                    <button class="btn btn-outline-primary btn-sm">Contacter le support</button>
-                    <button class="btn btn-outline-primary btn-sm">Signaler un problème</button>
-                </div>
-            </div>
+            <p class="text-muted">Niveau: ${level}</p>
         </div>
-    </div>
-</div>
+    `;
+
+    alert('Prévisualisation du profil:\n\n' + previewContent.replace(/<[^>]*>/g, ''));
+}
+</script>
 @endsection

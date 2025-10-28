@@ -1,404 +1,327 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Actualités - EVC 2024')
+@section('title', 'Actualités - EVC')
 @section('page-title', 'Actualités')
 
 @section('content')
 <div class="container-fluid">
-    <!-- Statistiques en haut -->
+    <!-- Header Section avec Statistiques -->
     <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <i class="fas fa-newspaper fa-2x mb-2" style="color: var(--primary-color);"></i>
-                    <h3 style="color: var(--primary-color);">8</h3>
-                    <small class="text-muted mb-3">News École</small>
-                    <div class="mt-auto">
-                        <button class="btn btn-primary btn-sm w-100">
-                            <i class="fas fa-eye me-1"></i>
-                            Voir News
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <i class="fas fa-bullhorn fa-2x mb-2" style="color: var(--secondary-color);"></i>
-                    <h3 style="color: var(--secondary-color);">3</h3>
-                    <small class="text-muted mb-3">Annonces</small>
-                    <div class="mt-auto">
-                        <button class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-eye me-1"></i>
-                            Voir Annonces
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <i class="fas fa-trophy fa-2x mb-2" style="color: var(--success-color);"></i>
-                    <h3 style="color: var(--success-color);">5</h3>
-                    <small class="text-muted mb-3">Réussites</small>
-                    <div class="mt-auto">
-                        <button class="btn btn-success btn-sm w-100">
-                            <i class="fas fa-medal me-1"></i>
-                            Voir Réussites
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 mb-3">
-            <div class="card text-center h-100">
-                <div class="card-body">
-                    <i class="fas fa-rss fa-2x mb-2" style="color: var(--accent-color);"></i>
-                    <h3 style="color: var(--accent-color);">16</h3>
-                    <small class="text-muted mb-3">Total Articles</small>
-                    <div class="mt-auto">
-                        <button class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-history me-1"></i>
-                            Archives
-                        </button>
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); border-radius: 20px;">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-white mb-3 mb-md-0">
+                            <h2 class="mb-2" style="font-weight: 700;">
+                                <i class="fas fa-newspaper me-3"></i>Actualités EVC
+                            </h2>
+                            <p class="mb-0 opacity-75">Restez informé des dernières nouvelles de l'école</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="row text-center text-white">
+                                <div class="col-4">
+                                    <div class="bg-white bg-opacity-10 rounded p-3">
+                                        <h3 class="mb-1" style="font-weight: 700;">{{ $stats['total'] }}</h3>
+                                        <small class="opacity-75">Actualités</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="bg-white bg-opacity-10 rounded p-3">
+                                        <h3 class="mb-1" style="font-weight: 700;">{{ $stats['categories']->count() }}</h3>
+                                        <small class="opacity-75">Catégories</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="bg-white bg-opacity-10 rounded p-3">
+                                        <h3 class="mb-1" style="font-weight: 700;">{{ number_format($stats['vues_total']) }}</h3>
+                                        <small class="opacity-75">Vues</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Section News de l'école -->
+    <!-- Statistiques par Catégorie -->
+    <div class="row mb-4">
+        @php
+            $categoryInfo = [
+                'general' => ['label' => 'Général', 'icon' => 'newspaper', 'color' => '#6c757d', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
+                'formation' => ['label' => 'Formation', 'icon' => 'graduation-cap', 'color' => '#0d6efd', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
+                'evenement' => ['label' => 'Événement', 'icon' => 'calendar-alt', 'color' => '#0dcaf0', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
+                'partenariat' => ['label' => 'Partenariat', 'icon' => 'handshake', 'color' => '#198754', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
+                'succes' => ['label' => 'Succès', 'icon' => 'trophy', 'color' => '#ffc107', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
+            ];
+        @endphp
+        @foreach($stats['categories'] as $cat => $count)
+            @php
+                $info = $categoryInfo[$cat] ?? ['label' => ucfirst($cat), 'icon' => 'tag', 'color' => '#6c757d', 'gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'];
+            @endphp
+            <div class="col-md-6 col-lg-4 col-xl mb-3">
+                <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 16px; transition: all 0.3s ease;">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center me-3"
+                                 style="width: 50px; height: 50px; background: {{ $info['gradient'] }};">
+                                <i class="fas fa-{{ $info['icon'] }} fa-lg text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-0" style="font-weight: 700; color: {{ $info['color'] }};">{{ $count }}</h3>
+                                <small class="text-muted">{{ $info['label'] }}</small>
+                            </div>
+                        </div>
+                        <div class="progress" style="height: 6px; border-radius: 10px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ $stats['total'] > 0 ? ($count / $stats['total'] * 100) : 0 }}%; background: {{ $info['gradient'] }};"
+                                 aria-valuenow="{{ $count }}" aria-valuemin="0" aria-valuemax="{{ $stats['total'] }}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    <!-- Actualité à la une -->
+    @if($featured)
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-newspaper me-2" style="color: var(--primary-color);"></i>
-                        News de l'École
-                    </h5>
-                    <span class="badge" style="background-color: var(--primary-color); color: white;">8 articles</span>
+            <div class="card border-0 shadow-lg overflow-hidden" style="border-radius: 20px;">
+                <div class="position-absolute top-0 start-0 m-3" style="z-index: 10;">
+                    <span class="badge bg-warning text-dark px-3 py-2" style="font-size: 0.9rem; border-radius: 10px;">
+                        <i class="fas fa-star me-2"></i>À LA UNE
+                    </span>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Article</th>
-                                    <th>Catégorie</th>
-                                    <th>Date</th>
-                                    <th>Auteur</th>
-                                    <th>Statut</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div>
-                                            <strong>Nouvelle formation Photoshop CC 2024</strong>
-                                            <br><small class="text-muted">Découvrez les nouvelles fonctionnalités et outils</small>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-info">Formation</span></td>
-                                    <td><small>28 Juillet 2024</small></td>
-                                    <td><small>Direction Pédagogique</small></td>
-                                    <td><span class="badge" style="background-color: var(--success-color); color: white;">Publié</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary me-1">
-                                            <i class="fas fa-eye"></i> Lire
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-share"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div>
-                                            <strong>Concours Design Graphique 2024</strong>
-                                            <br><small class="text-muted">Participez au concours annuel d'infographie</small>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-warning">Concours</span></td>
-                                    <td><small>26 Juillet 2024</small></td>
-                                    <td><small>Équipe EVC</small></td>
-                                    <td><span class="badge" style="background-color: var(--success-color); color: white;">Publié</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary me-1">
-                                            <i class="fas fa-eye"></i> Lire
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-share"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div>
-                                            <strong>Maintenance serveurs - 30 Juillet</strong>
-                                            <br><small class="text-muted">Interruption de service prévue de 2h à 4h</small>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-danger">Technique</span></td>
-                                    <td><small>25 Juillet 2024</small></td>
-                                    <td><small>Service IT</small></td>
-                                    <td><span class="badge" style="background-color: var(--success-color); color: white;">Publié</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary me-1">
-                                            <i class="fas fa-eye"></i> Lire
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-share"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div>
-                                            <strong>Nouveaux outils Adobe Creative Suite</strong>
-                                            <br><small class="text-muted">Mise à jour des logiciels de création</small>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-success">Outils</span></td>
-                                    <td><small>22 Juillet 2024</small></td>
-                                    <td><small>Prof. Martin</small></td>
-                                    <td><span class="badge" style="background-color: var(--success-color); color: white;">Publié</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary me-1">
-                                            <i class="fas fa-eye"></i> Lire
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-share"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <div class="row g-0">
+                    <div class="col-md-5">
+                        <div class="d-flex align-items-center justify-content-center" style="height: 100%; min-height: 400px; background-color: #f8f9fa; padding: 1rem;">
+                            <img src="{{ asset('storage/' . $featured->cover_image) }}" 
+                                 alt="{{ $featured->title }}" 
+                                 class="img-fluid" 
+                                 style="max-height: 400px; max-width: 100%; width: auto; object-fit: contain;">
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card-body p-5">
+                            @php
+                                $categoryLabels = [
+                                    'general' => ['label' => 'Général', 'icon' => 'newspaper', 'color' => 'secondary'],
+                                    'formation' => ['label' => 'Formation', 'icon' => 'graduation-cap', 'color' => 'primary'],
+                                    'evenement' => ['label' => 'Événement', 'icon' => 'calendar-alt', 'color' => 'info'],
+                                    'partenariat' => ['label' => 'Partenariat', 'icon' => 'handshake', 'color' => 'success'],
+                                    'succes' => ['label' => 'Succès', 'icon' => 'trophy', 'color' => 'warning'],
+                                ];
+                                $category = $categoryLabels[$featured->category] ?? ['label' => 'Général', 'icon' => 'tag', 'color' => 'secondary'];
+                            @endphp
+                            <span class="badge bg-{{ $category['color'] }} mb-3">
+                                <i class="fas fa-{{ $category['icon'] }} me-1"></i>{{ $category['label'] }}
+                            </span>
+                            <h2 class="mb-3" style="font-weight: 700; color: #1e3a8a;">{{ $featured->title }}</h2>
+                            <p class="text-muted mb-4" style="font-size: 1.05rem;">{{ $featured->excerpt }}</p>
+                            <div class="d-flex align-items-center gap-4 mb-4 text-muted">
+                                <div>
+                                    <i class="fas fa-user me-2"></i>
+                                    <small>{{ $featured->author->name ?? 'EVC' }}</small>
+                                </div>
+                                <div>
+                                    <i class="fas fa-calendar me-2"></i>
+                                    <small>{{ $featured->created_at->format('d/m/Y') }}</small>
+                                </div>
+                                <div>
+                                    <i class="fas fa-eye me-2"></i>
+                                    <small>{{ number_format($featured->views_count) }} vues</small>
+                                </div>
+                            </div>
+                            <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/' . $featured->id) }}" 
+                               class="btn btn-primary btn-lg px-4" style="border-radius: 10px;">
+                                <i class="fas fa-arrow-right me-2"></i>Lire l'article
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    <!-- Filtres par catégorie -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                <div class="card-body p-3">
+                    <div class="d-flex gap-2 flex-wrap align-items-center">
+                        <span class="text-muted me-2"><i class="fas fa-filter me-2"></i>Filtrer :</span>
+                        <button class="btn btn-sm btn-primary active" data-filter="all" style="border-radius: 10px;">
+                            <i class="fas fa-th me-2"></i>Toutes ({{ $stats['total'] }})
+                        </button>
+                        @foreach($stats['categories'] as $cat => $count)
+                            @php
+                                $info = $categoryInfo[$cat] ?? ['label' => ucfirst($cat), 'icon' => 'tag', 'color' => 'secondary'];
+                            @endphp
+                            <button class="btn btn-sm btn-outline-{{ $info['color'] ?? 'secondary' }}" data-filter="{{ $cat }}" style="border-radius: 10px;">
+                                <i class="fas fa-{{ $info['icon'] }} me-2"></i>{{ $info['label'] }} ({{ $count }})
+                            </button>
+                        @endforeach
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Section Annonces Importantes -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-bullhorn me-2" style="color: var(--secondary-color);"></i>
-                        Annonces Importantes
-                    </h5>
-                    <span class="badge" style="background-color: var(--secondary-color); color: white;">3 annonces</span>
+    <!-- Grille des actualités -->
+    <div class="row g-4" id="actualites-grid">
+        @forelse($actualites->where('is_featured', false) as $actualite)
+        <div class="col-md-6 col-lg-3 actualite-card" data-category="{{ $actualite->category }}">
+            <div class="card h-100 border-0 shadow-sm hover-card" style="border-radius: 16px; transition: all 0.3s ease;">
+                <!-- Image -->
+                <div class="position-relative d-flex align-items-center justify-content-center" style="border-radius: 16px 16px 0 0; min-height: 250px; background-color: #f8f9fa; padding: 1rem;">
+                    <img src="{{ asset('storage/' . $actualite->cover_image) }}" 
+                         alt="{{ $actualite->title }}" 
+                         class="img-fluid" 
+                         style="max-height: 250px; width: auto; max-width: 100%; object-fit: contain; transition: transform 0.3s ease;">
+                    @php
+                        $categoryLabels = [
+                            'general' => ['label' => 'Général', 'color' => 'secondary', 'icon' => 'newspaper'],
+                            'formation' => ['label' => 'Formation', 'color' => 'primary', 'icon' => 'graduation-cap'],
+                            'evenement' => ['label' => 'Événement', 'color' => 'info', 'icon' => 'calendar-alt'],
+                            'partenariat' => ['label' => 'Partenariat', 'color' => 'success', 'icon' => 'handshake'],
+                            'succes' => ['label' => 'Succès', 'color' => 'warning', 'icon' => 'trophy'],
+                        ];
+                        $category = $categoryLabels[$actualite->category] ?? ['label' => 'N/A', 'color' => 'secondary', 'icon' => 'tag'];
+                    @endphp
+                    <span class="badge bg-{{ $category['color'] }} position-absolute top-0 start-0 m-3" style="border-radius: 8px;">
+                        <i class="fas fa-{{ $category['icon'] }} me-1"></i>{{ $category['label'] }}
+                    </span>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Annonce</th>
-                                    <th>Type</th>
-                                    <th>Date</th>
-                                    <th>Priorité</th>
-                                    <th>Statut</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="table-warning">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
-                                            <div>
-                                                <strong>Changement d'horaire - Formation InDesign</strong>
-                                                <br><small class="text-muted">Le cours du 29 juillet est reporté à 16h</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-warning">Horaire</span></td>
-                                    <td><small>28 Juillet 2024</small></td>
-                                    <td><span class="badge bg-warning">Urgent</span></td>
-                                    <td><span class="badge" style="background-color: var(--warning-color); color: white;">Actif</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-warning me-1">
-                                            <i class="fas fa-bell"></i> Accusé
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-info"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="table-info">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-info-circle text-info me-2"></i>
-                                            <div>
-                                                <strong>Nouvelle fonctionnalité - Certificats</strong>
-                                                <br><small class="text-muted">Téléchargement direct depuis votre profil</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-info">Fonctionnalité</span></td>
-                                    <td><small>27 Juillet 2024</small></td>
-                                    <td><span class="badge bg-info">Info</span></td>
-                                    <td><span class="badge" style="background-color: var(--primary-color); color: white;">Actif</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info me-1">
-                                            <i class="fas fa-check"></i> Lu
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-external-link-alt"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="table-success">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-check-circle text-success me-2"></i>
-                                            <div>
-                                                <strong>Mise à jour plateforme réussie</strong>
-                                                <br><small class="text-muted">Nouvelles fonctionnalités disponibles</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-success">Système</span></td>
-                                    <td><small>25 Juillet 2024</small></td>
-                                    <td><span class="badge bg-success">Normal</span></td>
-                                    <td><span class="badge" style="background-color: var(--success-color); color: white;">Terminé</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-success me-1">
-                                            <i class="fas fa-eye"></i> Détails
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-archive"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Section Réussites Étudiantes -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-trophy me-2" style="color: var(--success-color);"></i>
-                        Réussites Étudiantes
+                <!-- Contenu -->
+                <div class="card-body d-flex flex-column p-4">
+                    <h5 class="card-title mb-3" style="font-weight: 600; color: #1e3a8a; line-height: 1.4; min-height: 50px;">
+                        {{ Str::limit($actualite->title, 60) }}
                     </h5>
-                    <span class="badge" style="background-color: var(--success-color); color: white;">5 réussites</span>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Réussite</th>
-                                    <th>Étudiant</th>
-                                    <th>Formation</th>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-medal text-warning me-2"></i>
-                                            <div>
-                                                <strong>Premier Prix Concours Logo</strong>
-                                                <br><small class="text-muted">Création d'identité visuelle exceptionnelle</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32">
-                                            <small>Marie Dubois</small>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-warning">Illustrator</span></td>
-                                    <td><small>26 Juillet 2024</small></td>
-                                    <td><span class="badge bg-warning">Concours</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-success me-1">
-                                            <i class="fas fa-eye"></i> Voir
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-share"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-graduation-cap text-success me-2"></i>
-                                            <div>
-                                                <strong>Certification Adobe Photoshop</strong>
-                                                <br><small class="text-muted">Obtention de la certification officielle</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32">
-                                            <small>Pierre Martin</small>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-info">Photoshop</span></td>
-                                    <td><small>24 Juillet 2024</small></td>
-                                    <td><span class="badge bg-success">Certification</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-success me-1">
-                                            <i class="fas fa-certificate"></i> Certificat
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-download"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <i class="fas fa-star text-primary me-2"></i>
-                                            <div>
-                                                <strong>Projet Final Excellent</strong>
-                                                <br><small class="text-muted">Magazine professionnel avec InDesign</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://via.placeholder.com/32" class="rounded-circle me-2" width="32" height="32">
-                                            <small>Sophie Laurent</small>
-                                        </div>
-                                    </td>
-                                    <td><span class="badge bg-success">InDesign</span></td>
-                                    <td><small>22 Juillet 2024</small></td>
-                                    <td><span class="badge bg-primary">Projet</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary me-1">
-                                            <i class="fas fa-eye"></i> Portfolio
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary">
-                                            <i class="fas fa-thumbs-up"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <p class="card-text text-muted mb-4 flex-grow-1" style="font-size: 0.95rem;">
+                        {{ Str::limit($actualite->excerpt, 100) }}
+                    </p>
+
+                    <!-- Footer -->
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <div class="d-flex align-items-center gap-3">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>
+                                {{ $actualite->created_at->format('d/m/Y') }}
+                            </small>
+                            <small class="text-muted">
+                                <i class="fas fa-eye me-1"></i>
+                                {{ number_format($actualite->views_count) }}
+                            </small>
+                        </div>
+                        <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/' . $actualite->id) }}" 
+                           class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
+        @empty
+        <div class="col-12">
+            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <i class="fas fa-newspaper fa-4x text-muted opacity-50"></i>
+                    </div>
+                    <h4 class="text-muted mb-2">Aucune actualité disponible</h4>
+                    <p class="text-muted mb-0">Revenez plus tard pour découvrir les dernières nouvelles de l'EVC</p>
+                </div>
+            </div>
+        </div>
+        @endforelse
     </div>
 </div>
+
+<style>
+.hover-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+.hover-card:hover img {
+    transform: scale(1.05);
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn.active {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.bg-opacity-10 {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.opacity-75 {
+    opacity: 0.75;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const cards = document.querySelectorAll('.actualite-card');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.getAttribute('data-filter');
+            
+            // Update active button
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('btn-primary');
+                const color = btn.getAttribute('data-filter') === 'all' ? 'primary' : 
+                             (btn.classList.contains('btn-outline-secondary') ? 'secondary' :
+                              btn.classList.contains('btn-outline-primary') ? 'primary' :
+                              btn.classList.contains('btn-outline-info') ? 'info' :
+                              btn.classList.contains('btn-outline-success') ? 'success' :
+                              btn.classList.contains('btn-outline-warning') ? 'warning' : 'secondary');
+                btn.className = `btn btn-sm btn-outline-${color}`;
+                btn.style.borderRadius = '10px';
+            });
+            
+            if (filter === 'all') {
+                this.classList.remove('btn-outline-primary');
+                this.classList.add('btn-primary', 'active');
+            } else {
+                this.classList.add('active');
+            }
+
+            // Filter cards with animation
+            cards.forEach(card => {
+                if (filter === 'all' || card.getAttribute('data-category') === filter) {
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'scale(1)';
+                    }, 10);
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        card.style.display = 'none';
+                    }, 300);
+                }
+            });
+        });
+    });
+
+    // Initialize cards
+    cards.forEach(card => {
+        card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    });
+});
+</script>
 @endsection

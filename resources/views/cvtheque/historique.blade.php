@@ -3,11 +3,26 @@
 @section('title', 'Historique des documents - CVThèque')
 @section('page-title', 'Historique des documents')
 
+@php
+    // Détecter automatiquement la formation de l'utilisateur pour les routes
+    $routePrefix = session('user_formation_raw', 'design-graphique');
+    
+    if (!$routePrefix || $routePrefix === 'design-graphique') {
+        $formation = session('user_formation', 'Design Graphique');
+        $routePrefix = match(strtolower($formation)) {
+            'community management' => 'community-management',
+            'gestion informatique' => 'gestion-informatique',
+            'intelligence artificielle' => 'intelligence-artificielle',
+            default => 'design-graphique'
+        };
+    }
+@endphp
+
 @section('content')
 <!-- Header avec navigation -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card" style="background: linear-gradient(135deg, #003366, #0066cc); color: white;">
+        <div class="card" style="background: linear-gradient(135deg, #833AB4, #C13584, #E1306C); color: white; box-shadow: 0 20px 60px rgba(131, 58, 180, 0.3); border-radius: 20px;">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -18,11 +33,11 @@
                         <p class="mb-0">Suivez le statut de validation de tous vos documents</p>
                     </div>
                     <div>
-                        <a href="{{ route('design-graphique.cvtheque.index') }}" class="btn btn-light me-2">
+                        <a href="{{ route($routePrefix . '.cvtheque.index') }}" class="btn btn-light me-2" style="border-radius: 30px;">
                             <i class="fas fa-arrow-left me-1"></i>
                             Retour CVThèque
                         </a>
-                        <button class="btn btn-success" onclick="exportHistory()">
+                        <button class="btn" onclick="exportHistory()" style="background: linear-gradient(135deg, #C13584, #E1306C); color: white; border: none; border-radius: 30px;">
                             <i class="fas fa-download me-1"></i>
                             Exporter
                         </button>
@@ -31,13 +46,13 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="mb-0">Liste des documents ({{ $documentStats['total_documents'] ?? 0 }})</h5>
                     <div>
-                        <a href="{{ route('design-graphique.cvtheque.documents.export') }}" class="btn btn-outline-success btn-sm">
+                        <a href="{{ route($routePrefix . '.cvtheque.documents.export') }}" class="btn btn-outline-light btn-sm" style="border-radius: 20px;">
                             <i class="fas fa-download"></i> Exporter CSV
                         </a>
-                        <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
+                        <button class="btn btn-outline-light btn-sm" onclick="location.reload()" style="border-radius: 20px;">
                             <i class="fas fa-sync-alt"></i> Actualiser
                         </button>
-                        <button class="btn btn-outline-warning btn-sm" onclick="testFunction()">
+                        <button class="btn btn-outline-light btn-sm" onclick="testFunction()" style="border-radius: 20px;">
                             <i class="fas fa-bug"></i> Test JS
                         </button>
                     </div>
@@ -50,7 +65,7 @@
 <!-- Statistiques rapides -->
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="card bg-primary text-white">
+        <div class="card text-white" style="background: linear-gradient(135deg, #833AB4, #C13584); border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(131, 58, 180, 0.3);">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
@@ -65,7 +80,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card bg-success text-white">
+        <div class="card text-white" style="background: linear-gradient(135deg, #C13584, #E1306C); border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(193, 53, 132, 0.3);">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
@@ -80,7 +95,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card bg-info text-white">
+        <div class="card text-white" style="background: linear-gradient(135deg, #F56040, #FCAF45); border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(245, 96, 64, 0.3);">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
@@ -95,7 +110,7 @@
         </div>
     </div>
     <div class="col-md-3">
-        <div class="card bg-warning text-white">
+        <div class="card text-white" style="background: linear-gradient(135deg, #E1306C, #F56040); border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(225, 48, 108, 0.3);">
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>

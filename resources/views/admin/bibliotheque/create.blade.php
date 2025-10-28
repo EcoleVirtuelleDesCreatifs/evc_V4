@@ -48,6 +48,21 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label text-white">Affichage</label>
+                    <div class="p-3 rounded" style="background-color: #2d3748;">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="is_featured" id="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }}>
+                            <label class="form-check-label text-white" for="is_featured">
+                                <i class="fas fa-star text-warning me-2"></i>
+                                <strong>Mettre à la UNE</strong>
+                                <small class="d-block text-white mt-1">Ce média sera affiché en vedette sur la page de la bibliothèque</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-3">
                     <label for="cover_image" class="form-label text-white">Couverture (image) <span class="text-danger">*</span></label>
                     <input type="file" class="form-control bg-dark text-white @error('cover_image') is-invalid @enderror" id="cover_image" name="cover_image" accept="image/*" required onchange="previewCoverImage(event)">
@@ -63,18 +78,34 @@
                         </div>
                     </div>
                 </div>
+                <div class="alert alert-info" style="background-color: #2d3748; border-color: #4fc3f7; color: #fff;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Remarque :</strong> Vous devez fournir <strong>soit un fichier PDF, soit un lien de téléchargement</strong> (ou les deux).
+                </div>
+
                 <div class="mb-3">
-                    <label for="pdf_file" class="form-label text-white">Joindre le PDF <span class="text-danger">*</span></label>
-                    <input type="file" class="form-control bg-dark text-white @error('pdf_file') is-invalid @enderror" id="pdf_file" name="pdf_file" accept=".pdf" required>
-                    <small class="text-muted">Fichier PDF uniquement (max 50 Mo)</small>
+                    <label for="pdf_file" class="form-label text-white">
+                        <i class="fas fa-file-pdf me-2"></i>Joindre le fichier 
+                        <span class="text-warning">(PDF, DOC, DOCX, etc.)</span>
+                    </label>
+                    <input type="file" class="form-control bg-dark text-white @error('pdf_file') is-invalid @enderror" id="pdf_file" name="pdf_file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx">
+                    <small class="text-muted">Formats acceptés : PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX (max 50 Mo)</small>
                     @error('pdf_file')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+
+                <div class="text-center my-3">
+                    <span class="badge bg-secondary">OU</span>
+                </div>
+
                 <div class="mb-3">
-                    <label for="download_url" class="form-label text-white">Lien de téléchargement (Optionnel)</label>
-                    <input type="url" class="form-control bg-dark text-white @error('download_url') is-invalid @enderror" id="download_url" name="download_url" value="{{ old('download_url') }}" placeholder="https://...">
-                    @error('download_url')
+                    <label for="external_link" class="form-label text-white">
+                        <i class="fas fa-link me-2"></i>Lien externe de téléchargement
+                    </label>
+                    <input type="url" class="form-control bg-dark text-white @error('external_link') is-invalid @enderror" id="external_link" name="external_link" value="{{ old('external_link') }}" placeholder="https://exemple.com/document.pdf">
+                    <small class="text-muted">URL complète vers le fichier hébergé ailleurs</small>
+                    @error('external_link')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -110,5 +141,38 @@ function previewCoverImage(event) {
         previewImage.src = '';
     }
 }
+
+// Validation du formulaire : au moins un fichier OU un lien doit être fourni
+document.querySelector('form').addEventListener('submit', function(e) {
+    const pdfFile = document.getElementById('pdf_file');
+    const externalLink = document.getElementById('external_link');
+    
+    const hasFile = pdfFile.files.length > 0;
+    const hasLink = externalLink.value.trim() !== '';
+    
+    if (!hasFile && !hasLink) {
+        e.preventDefault();
+        alert('⚠️ Vous devez fournir soit un fichier, soit un lien de téléchargement !');
+        
+        // Mettre en évidence les champs
+        pdfFile.classList.add('is-invalid');
+        externalLink.classList.add('is-invalid');
+        
+        return false;
+    }
+    
+    // Retirer les classes d'erreur si la validation passe
+    pdfFile.classList.remove('is-invalid');
+    externalLink.classList.remove('is-invalid');
+});
+
+// Retirer les classes d'erreur quand l'utilisateur modifie les champs
+document.getElementById('pdf_file').addEventListener('change', function() {
+    this.classList.remove('is-invalid');
+});
+
+document.getElementById('external_link').addEventListener('input', function() {
+    this.classList.remove('is-invalid');
+});
 </script>
 @endpush

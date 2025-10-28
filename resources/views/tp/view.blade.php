@@ -9,20 +9,20 @@
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="h3 mb-0 text-gray-800">
-                        <i class="fas fa-eye text-primary me-2"></i>
+                    <h1 class="h3 mb-0" style="color: white;">
+                        <i class="fas fa-eye me-2" style="color: white;"></i>
                         Détails du TP
                     </h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard.design-graphique') }}">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('design-graphique.tp.tous') }}">Tous les TP</a></li>
-                            <li class="breadcrumb-item active">{{ $project->title }}</li>
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard.community-management') }}" style="color: white;">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('community-management.tp.index') }}" style="color: white;">Tous les TP</a></li>
+                            <li class="breadcrumb-item active" style="color: white;">{{ $project->title }}</li>
                         </ol>
                     </nav>
                 </div>
                 <div>
-                    <a href="{{ route('design-graphique.tp.tous') }}" class="btn btn-secondary">
+                    <a href="{{ route('community-management.tp.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i>
                         Retour à la liste
                     </a>
@@ -63,9 +63,9 @@
                             <p class="fs-5 mb-0">{{ $project->title }}</p>
                         </div>
                         @if($project->description)
-                        <div class="col-12 mb-3">
+                        <div class="mb-3">
                             <label class="form-label fw-bold text-muted">Description</label>
-                            <p class="mb-0">{{ $project->description }}</p>
+                            <div class="mb-0">{!! $project->description !!}</div>
                         </div>
                         @endif
                         @if($project->link)
@@ -120,36 +120,36 @@
             <!-- Fichiers du TP -->
             @if($project->files && $project->files->count() > 0)
                 @php
-                    // Fonction améliorée pour détecter les images
+                    // Fonction pour détecter les images
                     $isImage = function($file) {
-                        // D'abord vérifier le mime_type (plus fiable)
-                        if (isset($file->mime_type)) {
-                            // Si c'est explicitement une image
-                            if (str_starts_with($file->mime_type, 'image/')) {
-                                return true;
-                            }
-                            // Si c'est explicitement un document, retourner false
-                            if (in_array($file->mime_type, [
-                                'application/pdf',
-                                'application/msword',
-                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                                'application/vnd.ms-excel',
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                'application/zip',
-                                'application/x-rar-compressed',
-                                'text/plain'
-                            ])) {
-                                return false;
+                        if (isset($file->mime_type) && str_starts_with($file->mime_type, 'image/')) {
+                            return true;
+                        }
+                        $ext = strtolower(pathinfo($file->original_name ?? '', PATHINFO_EXTENSION));
+                        return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg']);
+                    };
+                    
+                    // Fonction pour obtenir l'URL correcte du fichier
+                    $getFileUrl = function($filePath) {
+                        // Nettoyer le chemin
+                        $path = str_replace('public/', '', $filePath);
+                        
+                        // Vérifier si le fichier existe avec différents chemins possibles
+                        $possiblePaths = [
+                            $path,
+                            'storage/' . $path,
+                            'uploads/' . basename($path),
+                            'storage/tp_files/' . basename($path),
+                        ];
+                        
+                        foreach ($possiblePaths as $testPath) {
+                            if (file_exists(public_path($testPath))) {
+                                return asset($testPath);
                             }
                         }
                         
-                        // Ensuite vérifier l'extension
-                        $filePath = $file->file_path ?? $file->original_name ?? '';
-                        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-                        
-                        // Extensions d'images uniquement
-                        $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
-                        return in_array($ext, $imageExtensions);
+                        // Par défaut, retourner le chemin original
+                        return asset($path);
                     };
                     
                     $imageFiles = $project->files->filter($isImage);
@@ -167,14 +167,31 @@
                     <div class="card-body">
                         <div class="row g-3">
                             @foreach($imageFiles as $image)
-                            <div class="col-md-4 col-sm-6">
-                                <div class="position-relative" style="height: 200px; overflow: hidden; border-radius: 8px; cursor: pointer; background: #f0f0f0;"
-                                     onclick="viewImage('{{ asset($image->file_path) }}', '{{ $image->original_name }}')">
-                                    <img src="{{ asset($image->file_path) }}" class="w-100 h-100" style="object-fit: cover;"
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <div class="d-none w-100 h-100 align-items-center justify-content-center flex-column" style="background: #f8f9fa;">
-                                        <i class="fas fa-image text-muted fa-3x"></i>
+                                @php
+                                    $imageUrl = $getFileUrl($image->file_path);
+                                @endphp
+                            <div class="col-md-4 col-sm-6" id="image-{{ $image->id }}">
+                                <div class="position-relative" style="height: 200px; overflow: hidden; border-radius: 8px; background: #f0f0f0;">
+                                    <div class="w-100 h-100" style="cursor: pointer;" onclick="viewImage('{{ $imageUrl }}', '{{ $image->original_name }}')">
+                                        <img src="{{ $imageUrl }}" 
+                                             class="w-100 h-100" 
+                                             style="object-fit: cover;"
+                                             alt="{{ $image->original_name }}"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="d-none w-100 h-100 align-items-center justify-content-center flex-column" style="background: #f8f9fa;">
+                                            <i class="fas fa-image text-muted fa-3x mb-2"></i>
+                                            <small class="text-muted">Image non disponible</small>
+                                            <small class="text-muted mt-1" style="font-size: 0.7rem;">{{ $image->file_path }}</small>
+                                        </div>
                                     </div>
+                                    @if($project->status === 'pending')
+                                    <button type="button" 
+                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2" 
+                                            style="z-index: 10;"
+                                            onclick="event.stopPropagation(); deleteImage({{ $project->id }}, {{ $image->id }}, '{{ $image->original_name }}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    @endif
                                     <div class="position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);">
                                         <small class="text-white d-block text-truncate">{{ $image->original_name }}</small>
                                     </div>
@@ -267,7 +284,7 @@
                                 <strong>En attente de validation</strong><br>
                                 <small>Votre TP est en cours d'évaluation par l'équipe pédagogique.</small>
                             </div>
-                            <a href="{{ route('design-graphique.tp.modifier', $project->id) }}" class="btn btn-warning w-100 mb-2">
+                            <a href="{{ route('community-management.tp.modifier', $project->id) }}" class="btn btn-warning w-100 mb-2">
                                 <i class="fas fa-edit me-2"></i>
                                 Modifier le TP
                             </a>
@@ -295,7 +312,7 @@
                                 @endif
                             </div>
                         @endif
-                        <a href="{{ route('design-graphique.tp.tous') }}" class="btn btn-secondary w-100 mt-2">
+                        <a href="{{ route('community-management.tp.tous') }}" class="btn btn-secondary w-100 mt-2">
                             <i class="fas fa-list me-2"></i>
                             Voir tous mes TP
                         </a>
@@ -314,7 +331,7 @@ function confirmDelete(tpId) {
         // Créer un formulaire de suppression dynamique
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '{{ route("design-graphique.tp.supprimer", "__ID__") }}'.replace('__ID__', tpId);
+        form.action = '{{ route("community-management.tp.supprimer", "__ID__") }}'.replace('__ID__', tpId);
         
         // Ajouter le token CSRF
         const csrfInput = document.createElement('input');
@@ -333,6 +350,68 @@ function confirmDelete(tpId) {
         // Ajouter au body et soumettre
         document.body.appendChild(form);
         form.submit();
+    }
+}
+
+function deleteImage(tpId, fileId, fileName) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer l'image "${fileName}" ?`)) {
+        // Afficher un loader
+        const imageElement = document.getElementById(`image-${fileId}`);
+        if (imageElement) {
+            imageElement.style.opacity = '0.5';
+            imageElement.style.pointerEvents = 'none';
+        }
+        
+        // Envoyer la requête de suppression
+        fetch(`{{ route("community-management.tp.fichier.supprimer", ["tpId" => "__TP_ID__", "fileId" => "__FILE_ID__"]) }}`
+            .replace('__TP_ID__', tpId)
+            .replace('__FILE_ID__', fileId), {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Supprimer l'élément avec animation
+                if (imageElement) {
+                    imageElement.style.transition = 'all 0.3s ease';
+                    imageElement.style.transform = 'scale(0)';
+                    setTimeout(() => {
+                        imageElement.remove();
+                        
+                        // Vérifier s'il reste des images
+                        const imagesContainer = document.querySelector('.row.g-3');
+                        if (imagesContainer && imagesContainer.children.length === 0) {
+                            // Recharger la page si plus d'images
+                            location.reload();
+                        }
+                    }, 300);
+                }
+                
+                // Afficher un message de succès
+                alert(data.message || 'Image supprimée avec succès !');
+            } else {
+                // Restaurer l'élément en cas d'erreur
+                if (imageElement) {
+                    imageElement.style.opacity = '1';
+                    imageElement.style.pointerEvents = 'auto';
+                }
+                alert(data.message || 'Erreur lors de la suppression de l\'image.');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            // Restaurer l'élément en cas d'erreur
+            if (imageElement) {
+                imageElement.style.opacity = '1';
+                imageElement.style.pointerEvents = 'auto';
+            }
+            alert('Erreur lors de la suppression de l\'image.');
+        });
     }
 }
 </script>

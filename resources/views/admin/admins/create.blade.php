@@ -30,27 +30,14 @@
                     <form action="{{ route('admin.admins.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="prenom">Prénom <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('prenom') is-invalid @enderror" 
-                                           id="prenom" name="prenom" value="{{ old('prenom') }}" required>
-                                    @error('prenom')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="nom">Nom <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control @error('nom') is-invalid @enderror" 
-                                           id="nom" name="nom" value="{{ old('nom') }}" required>
-                                    @error('nom')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
+                        <div class="form-group">
+                            <label for="name">Nom complet <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                                   id="name" name="name" value="{{ old('name') }}" required 
+                                   placeholder="Ex: Jean Dupont">
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="form-group">
@@ -83,67 +70,32 @@
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="telephone">Téléphone</label>
-                                    <input type="tel" class="form-control @error('telephone') is-invalid @enderror" 
-                                           id="telephone" name="telephone" value="{{ old('telephone') }}">
-                                    @error('telephone')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="role">Rôle <span class="text-danger">*</span></label>
-                                    <select class="form-control @error('role') is-invalid @enderror" id="role" name="role" required>
-                                        <option value="">Sélectionner un rôle</option>
-                                        <option value="super_admin" {{ old('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
-                                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                        <option value="moderator" {{ old('role') == 'moderator' ? 'selected' : '' }}>Modérateur</option>
-                                    </select>
-                                    @error('role')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="form-group">
-                            <label for="photo">Photo de profil</label>
-                            <input type="file" class="form-control-file @error('photo') is-invalid @enderror" 
-                                   id="photo" name="photo" accept="image/*">
-                            <small class="form-text text-muted">Formats acceptés: JPG, PNG, GIF. Taille max: 2MB</small>
-                            @error('photo')
+                            <label for="role">Rôle <span class="text-danger">*</span></label>
+                            <select class="form-control @error('role') is-invalid @enderror" id="role" name="role" required>
+                                <option value="">Sélectionnez un rôle</option>
+                                <option value="super_admin" {{ old('role') == 'super_admin' ? 'selected' : '' }}>Super Admin</option>
+                                <option value="assistant" {{ old('role') == 'assistant' ? 'selected' : '' }}>Assistant</option>
+                                <option value="comptable" {{ old('role') == 'comptable' ? 'selected' : '' }}>Comptable</option>
+                            </select>
+                            @error('role')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="form-group">
-                            <label for="description">Description/Bio</label>
-                            <textarea class="form-control @error('description') is-invalid @enderror" 
-                                      id="description" name="description" rows="3" 
-                                      placeholder="Description du rôle et responsabilités...">{{ old('description') }}</textarea>
-                            @error('description')
+                            <label for="bio">Description / Bio</label>
+                            <textarea class="form-control @error('bio') is-invalid @enderror" 
+                                      id="bio" name="bio" rows="3" 
+                                      placeholder="Courte biographie de l'administrateur...">{{ old('bio') }}</textarea>
+                            @error('bio')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
-                        <div class="form-group">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="is_active" name="is_active" 
-                                       {{ old('is_active', true) ? 'checked' : '' }}>
-                                <label class="custom-control-label" for="is_active">Compte actif</label>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="send_welcome_email" name="send_welcome_email" 
-                                       {{ old('send_welcome_email', true) ? 'checked' : '' }}>
-                                <label class="custom-control-label" for="send_welcome_email">Envoyer un email de bienvenue</label>
-                            </div>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note :</strong> Le compte sera automatiquement activé. L'administrateur pourra se connecter immédiatement avec les identifiants fournis.
                         </div>
 
                         <hr>

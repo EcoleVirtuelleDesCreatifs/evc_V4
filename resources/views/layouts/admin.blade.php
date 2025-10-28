@@ -43,177 +43,233 @@
                     <!-- Dashboard -->
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.dashboard') }}" class="admin-nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                            <i class="fas fa-tachometer-alt"></i>
-                            Dashboard
+                            <i class="fas fa-home"></i>
+                            Tableau de bord
                         </a>
                     </li>
 
-                    <!-- Pré-inscriptions (Admin) -->
+                    <!-- Séparateur : Gestion Académique -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-graduation-cap me-2"></i>Gestion Académique
+                    </li>
+
+                    <!-- Pré-inscriptions -->
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.preinscriptions.index') }}" class="admin-nav-link {{ request()->routeIs('admin.preinscriptions.*') ? 'active' : '' }}">
-                            <i class="fas fa-user-check"></i>
+                            <i class="fas fa-user-plus"></i>
                             Pré-inscriptions
                         </a>
                     </li>
 
                     <!-- Gestion des Étudiants -->
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#studentsMenu">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.etudiants.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#studentsMenu">
                             <i class="fas fa-users"></i>
                             Gestion des Étudiants
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse" id="studentsMenu">
+                        <div class="collapse {{ request()->routeIs('admin.etudiants.*') ? 'show' : '' }}" id="studentsMenu">
                             <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.etudiants.design-graphique') }}" class="admin-nav-sublink">
+                                <li><a href="{{ route('admin.etudiants.design-graphique') }}" class="admin-nav-sublink {{ request()->routeIs('admin.etudiants.design-graphique') ? 'active' : '' }}">
                                     <i class="fas fa-palette"></i>Design Graphique
                                 </a></li>
-                                <li><a href="{{ route('admin.etudiants.community-management') }}" class="admin-nav-sublink">
+                                <li><a href="{{ route('admin.etudiants.community-management') }}" class="admin-nav-sublink {{ request()->routeIs('admin.etudiants.community-management') ? 'active' : '' }}">
                                     <i class="fas fa-share-alt"></i>Community Management
                                 </a></li>
-                                <li><a href="{{ route('admin.etudiants.intelligence-artificielle') }}" class="admin-nav-sublink">
+                                <li><a href="{{ route('admin.etudiants.intelligence-artificielle') }}" class="admin-nav-sublink {{ request()->routeIs('admin.etudiants.intelligence-artificielle') ? 'active' : '' }}">
                                     <i class="fas fa-robot"></i>Intelligence Artificielle
                                 </a></li>
-                                <li><a href="{{ route('admin.etudiants.gestion-informatique') }}" class="admin-nav-sublink">
+                                <li><a href="{{ route('admin.etudiants.gestion-informatique') }}" class="admin-nav-sublink {{ request()->routeIs('admin.etudiants.gestion-informatique') ? 'active' : '' }}">
                                     <i class="fas fa-server"></i>Gestion Informatique
                                 </a></li>
                             </ul>
                         </div>
                     </li>
 
-                    <!-- Gestion des Formations -->
+                    @if(session('admin_role') === 'super_admin')
+                    <!-- Formations -->
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#formationsMenu">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.formations.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#formationsMenu">
                             <i class="fas fa-chalkboard-teacher"></i>
-                            Gestion des Formations
+                            Formations
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse" id="formationsMenu">
+                        <div class="collapse {{ request()->routeIs('admin.formations.*') ? 'show' : '' }}" id="formationsMenu">
                             <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.formations.categories.index') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-tags"></i>Catégories
+                                <li><a href="{{ route('admin.formations.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.formations.index') ? 'active' : '' }}">
+                                    <i class="fas fa-book-open"></i>Toutes les formations
                                 </a></li>
-                                <li><a href="{{ route('admin.formations.index') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-book-open"></i>Formations
+                                <li><a href="{{ route('admin.formations.categories.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.formations.categories.*') ? 'active' : '' }}">
+                                    <i class="fas fa-tags"></i>Catégories
                                 </a></li>
                             </ul>
                         </div>
                     </li>
 
+                    <!-- Programmes -->
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.programmes') }}" class="admin-nav-link {{ request()->routeIs('admin.programmes') ? 'active' : '' }}">
+                            <i class="fas fa-file-alt"></i>
+                            Programmes
+                        </a>
+                    </li>
+                    @endif
+
+                    <!-- Séparateur : Contenu Pédagogique -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-book me-2"></i>Contenu Pédagogique
+                    </li>
+
+                    @if(session('admin_role') === 'super_admin')
                     <!-- Bibliothèque -->
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#bibliothequeMenu">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.bibliotheque.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#bibliothequeMenu">
                             <i class="fas fa-book-reader"></i>
                             Bibliothèque
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse" id="bibliothequeMenu">
+                        <div class="collapse {{ request()->routeIs('admin.bibliotheque.*') ? 'show' : '' }}" id="bibliothequeMenu">
                             <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.bibliotheque.categories.index') }}" class="admin-nav-sublink">
+                                <li><a href="{{ route('admin.bibliotheque.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.bibliotheque.index') ? 'active' : '' }}">
+                                    <i class="fas fa-books"></i>Tous les médias
+                                </a></li>
+                                <li><a href="{{ route('admin.bibliotheque.categories.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.bibliotheque.categories.*') ? 'active' : '' }}">
                                     <i class="fas fa-folder-open"></i>Catégories
                                 </a></li>
-                                <li><a href="{{ route('admin.bibliotheque.index') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-book-open"></i>Bibliothèque
-                                </a></li>
                             </ul>
                         </div>
                     </li>
 
-                    <!-- Gestion des Documents -->
+                    <!-- Rapports Étudiants -->
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#documentsMenu">
-                            <i class="fas fa-folder-open"></i>
-                            Gestion des Documents
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.documents.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#documentsMenu">
+                            <i class="fas fa-file-pdf"></i>
+                            Rapports Étudiants
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse" id="documentsMenu">
+                        <div class="collapse {{ request()->routeIs('admin.documents.*') ? 'show' : '' }}" id="documentsMenu">
                             <ul class="admin-nav-submenu">
                                 <li><a href="{{ route('admin.documents.pending') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-hourglass-half"></i>À valider
+                                    <i class="fas fa-clock"></i>À valider
                                 </a></li>
                                 <li><a href="{{ route('admin.documents.all') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-file-invoice"></i>Tous documents
+                                    <i class="fas fa-file-invoice"></i>Tous
                                 </a></li>
                             </ul>
                         </div>
                     </li>
+                    @endif
 
-                    <!-- Gestion des Programmes -->
-                    <li class="admin-nav-item">
-                        <a href="{{ route('admin.programmes') }}" class="admin-nav-link">
-                            <i class="fas fa-graduation-cap"></i>
-                            Gestion des Programmes
-                        </a>
+                    <!-- Séparateur : Travaux & Projets -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-tasks me-2"></i>Travaux & Projets
                     </li>
 
-                    <!-- Gestion des Travaux -->
+                    <!-- Travaux Pratiques -->
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#travauxMenu">
-                            <i class="fas fa-tasks"></i>
-                            Gestion des Travaux
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.travaux.*') || request()->routeIs('admin.tp.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#travauxMenu">
+                            <i class="fas fa-laptop-code"></i>
+                            Travaux Pratiques
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse" id="travauxMenu">
+                        <div class="collapse {{ request()->routeIs('admin.travaux.*') || request()->routeIs('admin.tp.*') ? 'show' : '' }}" id="travauxMenu">
                             <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.travaux.pending') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-hourglass-half"></i>À valider
+                                <li><a href="{{ route('admin.travaux.pending') }}" class="admin-nav-sublink {{ request()->routeIs('admin.travaux.pending') ? 'active' : '' }}">
+                                    <i class="fas fa-clock"></i>À valider
                                 </a></li>
-                                <li><a href="{{ route('admin.travaux.to-send') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-paper-plane"></i>TP à envoyer
+                                <li><a href="{{ route('admin.travaux.to-send') }}" class="admin-nav-sublink {{ request()->routeIs('admin.travaux.to-send') ? 'active' : '' }}">
+                                    <i class="fas fa-paper-plane"></i>À envoyer
                                 </a></li>
-                                <li><a href="{{ route('admin.travaux.all') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-list"></i>Tous
+                                <li><a href="{{ route('admin.travaux.assigned') }}" class="admin-nav-sublink {{ request()->routeIs('admin.travaux.assigned') ? 'active' : '' }}">
+                                    <i class="fas fa-check-circle"></i>Envoyés
+                                </a></li>
+                                <li><a href="{{ route('admin.travaux.all') }}" class="admin-nav-sublink {{ request()->routeIs('admin.travaux.all') ? 'active' : '' }}">
+                                    <i class="fas fa-list"></i>Tous les TP
                                 </a></li>
                             </ul>
                         </div>
                     </li>
 
-                    <!-- Gestion des Projets -->
+                    <!-- Projets -->
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#projetsMenu">
-                            <i class="fas fa-project-diagram"></i>
-                            Gestion des Projets
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.projets.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#projetsMenu">
+                            <i class="fas fa-briefcase"></i>
+                            Projets
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse" id="projetsMenu">
+                        <div class="collapse {{ request()->routeIs('admin.projets.*') ? 'show' : '' }}" id="projetsMenu">
                             <ul class="admin-nav-submenu">
                                 <li><a href="{{ route('admin.projets.pending') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-eye"></i>À valider
+                                    <i class="fas fa-clock"></i>À valider
                                 </a></li>
                                 <li><a href="{{ route('admin.projets.to-send') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-share"></i>À envoyer
+                                    <i class="fas fa-paper-plane"></i>À envoyer
                                 </a></li>
                                 <li><a href="{{ route('admin.projets.all') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-folder-open"></i>Tous
+                                    <i class="fas fa-list"></i>Tous les projets
                                 </a></li>
                             </ul>
                         </div>
                     </li>
 
-                    <!-- Gestion des Articles -->
-                    <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#articlesMenu">
+                    <!-- Séparateur : Communication -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-bullhorn me-2"></i>Communication
+                    </li>
+
+                    @if(session('admin_role') === 'super_admin')
+                    <!-- Événements -->
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.articles.evenements') }}" class="admin-nav-link">
+                            <i class="fas fa-calendar-alt"></i>
+                            Événements
+                        </a>
+                    </li>
+
+                    <!-- Actualités -->
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.articles.actualites') }}" class="admin-nav-link">
                             <i class="fas fa-newspaper"></i>
-                            Gestion des Articles
+                            Actualités
+                        </a>
+                    </li>
+                    @endif
+
+                    <!-- Séparateur : Finances & Certificats -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-coins me-2"></i>Finances & Certificats
+                    </li>
+
+                    @if(in_array(session('admin_role'), ['super_admin', 'comptable']))
+                    <!-- Paiements -->
+                    <li class="admin-nav-item dropdown">
+                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#paiementsMenu">
+                            <i class="fas fa-wallet"></i>
+                            Paiements
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse" id="articlesMenu">
+                        <div class="collapse" id="paiementsMenu">
                             <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.articles.evenements') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-calendar-alt"></i>Événements
+                                <li><a href="{{ route('admin.paiements.a-jour') }}" class="admin-nav-sublink">
+                                    <i class="fas fa-check-circle"></i>À jour
                                 </a></li>
-                                <li><a href="{{ route('admin.articles.actualites') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-rss"></i>Actualités
+                                <li><a href="{{ route('admin.paiements.a-solder') }}" class="admin-nav-sublink">
+                                    <i class="fas fa-exclamation-circle"></i>À solder
+                                </a></li>
+                                <li><a href="{{ route('admin.paiements.reste-a-payer') }}" class="admin-nav-sublink">
+                                    <i class="fas fa-clock"></i>Reste à payer
                                 </a></li>
                             </ul>
                         </div>
                     </li>
+                    @endif
 
-                    <!-- Gestion des Certificats -->
+                    @if(session('admin_role') === 'super_admin')
+                    <!-- Certificats -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#certificatsMenu">
                             <i class="fas fa-certificate"></i>
-                            Gestion des Certificats
+                            Certificats
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
                         <div class="collapse" id="certificatsMenu">
@@ -222,42 +278,24 @@
                                     <i class="fas fa-check-circle"></i>Éligibles
                                 </a></li>
                                 <li><a href="{{ route('admin.certificats.not-eligible') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-times-circle"></i>Pas éligibles
+                                    <i class="fas fa-times-circle"></i>Non éligibles
                                 </a></li>
                             </ul>
                         </div>
                     </li>
+                    @endif
 
-                    <!-- Gestion des Paiements -->
-                    <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#paiementsMenu">
-                            <i class="fas fa-credit-card"></i>
-                            Gestion des Paiements
-                            <i class="fas fa-chevron-right ms-auto"></i>
-                        </a>
-                        <div class="collapse" id="paiementsMenu">
-                            <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.paiements.a-jour') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-check-double"></i>À jour
-                                </a></li>
-                                <li><a href="{{ route('admin.paiements.a-solder') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-exclamation-triangle"></i>À solder
-                                </a></li>
-                                <li><a href="{{ route('admin.paiements.reste-a-payer') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-clock"></i>Reste à payer
-                                </a></li>
-                            </ul>
-                        </div>
-                    </li>
-
+                    @if(session('admin_role') === 'super_admin')
                     <!-- Gestion des CVthèque -->
                     <li class="admin-nav-item">
-                        <a href="{{ route('admin.cvtheque') }}" class="admin-nav-link">
-                            <i class="fas fa-user-tie"></i>
-                            Gestion des CVthèque
+                        <a href="{{ route('admin.cvtheque.profiles') }}" class="admin-nav-link">
+                            <i class="fas fa-briefcase"></i>
+                            CVthèque - Profils
                         </a>
                     </li>
+                    @endif
 
+                    @if(session('admin_role') === 'super_admin')
                     <!-- Gestion des Rapports -->
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.rapports') }}" class="admin-nav-link">
@@ -265,7 +303,9 @@
                             Gestion des Rapports
                         </a>
                     </li>
+                    @endif
 
+                    @if(session('admin_role') === 'super_admin')
                     <!-- Gestion des Admins -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#adminsMenu">
@@ -276,22 +316,25 @@
                         <div class="collapse" id="adminsMenu">
                             <ul class="admin-nav-submenu">
                                 <li><a href="{{ route('admin.admins.index') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-users-cog"></i>Admins
+                                    <i class="fas fa-users-cog"></i>Liste des Admins
                                 </a></li>
-                                <li><a href="{{ route('admin.admins.roles') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-key"></i>Rôles
+                                <li><a href="{{ route('admin.admins.create') }}" class="admin-nav-sublink">
+                                    <i class="fas fa-user-plus"></i>Ajouter un Admin
                                 </a></li>
                             </ul>
                         </div>
                     </li>
+                    @endif
 
+                    @if(session('admin_role') === 'super_admin')
                     <!-- Paramètres -->
                     <li class="admin-nav-item">
-                        <a href="{{ route('admin.parametres.index') }}" class="admin-nav-link">
+                        <a href="{{ route('admin.parametres.index') }}" class="admin-nav-link {{ request()->routeIs('admin.parametres.*') ? 'active' : '' }}">
                             <i class="fas fa-cog"></i>
                             Paramètres
                         </a>
                     </li>
+                    @endif
                 </ul>
             </nav>
         </aside>

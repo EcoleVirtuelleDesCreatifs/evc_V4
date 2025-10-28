@@ -51,7 +51,7 @@
             <div class="card-header">
                 <h5 class="mb-0">
                     <i class="fas fa-share-alt me-2"></i>
-                    Rejoins les différentes classes
+                    Rejoins les différentes classes de Travail
                 </h5>
             </div>
             <div class="card-body">

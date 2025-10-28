@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PreRegistration;
+use App\Models\Evenement;
+use App\Models\Actualite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
@@ -19,7 +21,21 @@ class HomepageController extends Controller
      */
     public function index()
     {
-        return view('welcome');
+        // Récupérer les 3 événements publiés : "A la une" en premier, puis les plus récents
+        $evenements = Evenement::where('status', 'published')
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+
+        // Récupérer les 3 actualités publiées : "A la une" en premier, puis les plus récentes
+        $actualites = Actualite::where('status', 'published')
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+
+        return view('welcome', compact('evenements', 'actualites'));
     }
 
     /**
@@ -212,5 +228,51 @@ class HomepageController extends Controller
     public function laureats()
     {
         return view('laureats');
+    }
+
+    /**
+     * Affiche le détail d'un événement.
+     */
+    public function showEvenement($slug)
+    {
+        // Récupérer uniquement les événements publiés
+        $evenement = Evenement::where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail();
+        
+        // Incrémenter le compteur de vues
+        $evenement->incrementViews();
+        
+        return view('evenement-detail', compact('evenement'));
+    }
+
+    /**
+     * Affiche la liste complète des actualités.
+     */
+    public function actualites()
+    {
+        // Récupérer toutes les actualités publiées : "A la une" en premier, puis les plus récentes
+        $actualites = Actualite::where('status', 'published')
+            ->orderBy('is_featured', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+
+        return view('actualites-liste', compact('actualites'));
+    }
+
+    /**
+     * Affiche le détail d'une actualité.
+     */
+    public function showActualite($slug)
+    {
+        // Récupérer uniquement les actualités publiées
+        $actualite = Actualite::where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail();
+        
+        // Incrémenter le compteur de vues
+        $actualite->increment('views_count');
+        
+        return view('actualite-detail', compact('actualite'));
     }
 }

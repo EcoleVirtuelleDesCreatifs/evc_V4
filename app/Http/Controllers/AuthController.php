@@ -112,6 +112,33 @@ class AuthController extends Controller
                 $userStatus = 'Actif'; // Si le compte est confirmé et pas de colonne status
             }
 
+            // Récupérer la formation depuis la table students via user_id
+            $student = DB::table('students')->where('user_id', $user->id)->first();
+            $formationSouhaitee = 'design-graphique'; // Valeur par défaut
+            
+            if ($student && !empty($student->program)) {
+                // Mapper les valeurs de program vers les formats de route
+                $programMapping = [
+                    'Design Graphique' => 'design-graphique',
+                    'Community Management' => 'community-management',
+                    'Intelligence Artificielle' => 'intelligence-artificielle',
+                    'Gestion Informatique' => 'gestion-informatique',
+                    // Variantes possibles
+                    'design graphique' => 'design-graphique',
+                    'community management' => 'community-management',
+                    'intelligence artificielle' => 'intelligence-artificielle',
+                    'gestion informatique' => 'gestion-informatique',
+                ];
+                
+                $formationSouhaitee = $programMapping[$student->program] ?? str_replace(['_', ' '], '-', strtolower($student->program));
+            } elseif (isset($user->formation_souhaitee)) {
+                // Fallback sur formation_souhaitee si elle existe dans users
+                $formationSouhaitee = $user->formation_souhaitee;
+            }
+            
+            // Normaliser la formation (convertir les underscores en tirets)
+            $formationNormalized = str_replace('_', '-', strtolower($formationSouhaitee));
+            
             // Créer la session utilisateur avec toutes les informations nécessaires
             session([
                 'user_id' => $user->id,
@@ -126,6 +153,8 @@ class AuthController extends Controller
                 'user_current_level' => $user->current_level ?? '',
                 'user_whatsapp' => $user->whatsapp ?? '',
                 'user_status' => $userStatus,
+                'user_formation' => $formationNormalized, // IMPORTANT: Stocker la formation normalisée
+                'user_formation_raw' => $formationSouhaitee, // Formation brute pour référence
                 // Garder les anciens noms pour compatibilité
                 'user_prenom' => $user->first_name ?? '',
                 'user_nom' => $user->last_name ?? '',
@@ -147,7 +176,7 @@ class AuthController extends Controller
 
             // Stocker la route de destination pour la page de chargement
             try {
-                $formationRoute = $this->getFormationRouteName($user->formation_souhaitee ?? 'design-graphique');
+                $formationRoute = $this->getFormationRouteName($formationNormalized);
                 session(['redirect_to' => route($formationRoute)]);
             } catch (\Exception $e) {
                 // Fallback vers la route par défaut
@@ -156,11 +185,11 @@ class AuthController extends Controller
         
             // Stocker les informations utilisateur supplémentaires pour la page de chargement
             session([
-                'user_formation_display' => $this->getFormationDisplayName($user->formation_souhaitee ?? 'design-graphique')
+                'user_formation_display' => $this->getFormationDisplayName($formationNormalized)
             ]);
         
             // Rediriger vers la page de chargement
-            return redirect()->route('auth.loading')->with('success', 'Connexion réussie ! Bienvenue dans votre espace ' . $this->getFormationDisplayName($user->formation_souhaitee ?? 'design-graphique') . ', ' . $user->first_name . ' 👋');
+            return redirect()->route('auth.loading')->with('success', 'Connexion réussie ! Bienvenue dans votre espace ' . $this->getFormationDisplayName($formationNormalized) . ', ' . ($user->first_name ?? 'Étudiant') . ' 👋');
 
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput($request->only('email'));
@@ -634,18 +663,26 @@ class AuthController extends Controller
     }
     
     /**
-     * Obtenir le nom d'affichage de la formation
+     * Obtenir le nom d'affichage selon le type de formation
      */
     private function getFormationDisplayName($formationType)
     {
+        // Normaliser le format (remplacer tirets et underscores)
+        $normalized = str_replace(['-', '_'], '-', strtolower($formationType));
+        
         $formations = [
+            'design-graphique' => 'Design Graphique',
+            'community-management' => 'Community Management',
+            'intelligence-artificielle' => 'Intelligence Artificielle',
+            'gestion-informatique' => 'Gestion Informatique',
+            // Variantes avec underscores
             'design_graphique' => 'Design Graphique',
             'community_management' => 'Community Management',
             'intelligence_artificielle' => 'Intelligence Artificielle',
             'gestion_informatique' => 'Gestion Informatique'
         ];
         
-        return $formations[$formationType] ?? 'Formation';
+        return $formations[$normalized] ?? $formations[$formationType] ?? 'Formation';
     }
     
     /**
@@ -656,8 +693,8 @@ class AuthController extends Controller
         $routes = [
             'design_graphique' => 'dashboard.design-graphique', // Espace étudiant Design Graphique
             'design-graphique' => 'dashboard.design-graphique', // Variante avec tiret
-            'community_management' => 'dashboard.community-manager',
-            'community-management' => 'dashboard.community-manager',
+            'community_management' => 'dashboard.community-management',
+            'community-management' => 'dashboard.community-management',
             'intelligence_artificielle' => 'dashboard.intelligence-artificielle',
             'intelligence-artificielle' => 'dashboard.intelligence-artificielle',
             'gestion_informatique' => 'dashboard.gestion-informatique',

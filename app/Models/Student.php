@@ -7,20 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     protected $fillable = [
+        'user_id',
         'first_name',
         'last_name',
-        'email',
+        // NOTE: 'email' n'existe PAS dans la table students - uniquement dans users
         'phone',
         'whatsapp',
+        'age',
         'date_of_birth',
         'gender',
         'student_id',
         'program',
         'level',
+        'Level_education',
+        'degree',
         'specialization',
         'quartier',
+        'address',
         'city',
         'country',
+        'biography',
         'profile_photo',
         'status',
         'gpa',

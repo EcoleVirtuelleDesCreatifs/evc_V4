@@ -12,9 +12,14 @@
         <div class="card-body text-white">
             <div class="row">
                 <div class="col-md-4">
-                    @if(in_array(strtolower($item->file_type), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']))
+                    @if($item->cover_image)
+                        {{-- Afficher l'image de couverture si elle existe --}}
+                        <img src="{{ asset('storage/' . $item->cover_image) }}" alt="{{ $item->title }}" class="img-fluid rounded shadow-sm">
+                    @elseif(in_array(strtolower($item->file_type), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']))
+                        {{-- Sinon, afficher le fichier principal s'il est une image --}}
                         <img src="{{ asset('storage/' . $item->path) }}" alt="{{ $item->title }}" class="img-fluid rounded shadow-sm">
                     @else
+                        {{-- Sinon, afficher une icône de fichier --}}
                         <div style="height: 200px; background-color: #334155;" class="rounded shadow-sm d-flex align-items-center justify-content-center">
                             <i class="fas fa-file-alt text-white fa-4x"></i>
                         </div>

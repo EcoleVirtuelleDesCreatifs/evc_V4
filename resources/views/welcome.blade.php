@@ -7,6 +7,7 @@
 @section('content')
     @include('homepage._hero')
     @include('homepage._webtv_home')
+    @include('homepage._chiffres')
     @include('homepage._presentation')
     @include('homepage._fondateur_homepage')
     @include('homepage._international')
@@ -18,7 +19,6 @@
     @include('homepage._actualites')
     @include('homepage._laureats')
     @include('homepage._temoignages')
-    @include('homepage._chiffres')
     @include('homepage._preinscription')
     @include('homepage._cta-final')
 @endsection

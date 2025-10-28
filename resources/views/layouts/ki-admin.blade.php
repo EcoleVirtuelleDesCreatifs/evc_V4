@@ -39,7 +39,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--light-color);
+            background-color: #000066;
             color: var(--dark-color);
         }
 
@@ -50,15 +50,29 @@
             left: 0;
             height: 100vh;
             width: var(--sidebar-width);
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 50%, #3399ff 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
             z-index: 1000;
             transition: all 0.3s ease;
             overflow-y: auto;
         }
 
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
         .sidebar-header {
             padding: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(10px);
         }
 
         .sidebar-brand {
@@ -80,22 +94,135 @@
             display: flex;
             align-items: center;
             padding: 0.75rem 1.5rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.85);
             text-decoration: none;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin: 0.25rem 0.5rem;
+            border-radius: 10px;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .nav-link:hover::before {
+            left: 100%;
         }
 
         .nav-link:hover,
         .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
             color: white;
             transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+            font-weight: 600;
         }
 
         .nav-link i {
             margin-right: 0.75rem;
             width: 20px;
             text-align: center;
+        }
+
+        /* Menu avec sous-menus */
+        .nav-item-dropdown {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link-dropdown {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.5rem;
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin: 0.25rem 0.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .nav-link-dropdown:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link-dropdown.active {
+            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+        }
+
+        .dropdown-arrow.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* Sous-menu */
+        .submenu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+            background: rgba(0, 0, 0, 0.2);
+            margin: 0 0.5rem;
+            border-radius: 10px;
+        }
+
+        .submenu.open {
+            max-height: 500px;
+            padding: 0.5rem 0;
+        }
+
+        .submenu-item {
+            padding: 0.5rem 1rem 0.5rem 3rem;
+            color: rgba(255, 255, 255, 0.75);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            margin: 0.25rem 0.5rem;
+        }
+
+        .submenu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .submenu-item.active {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.3) 0%, rgba(251, 140, 0, 0.3) 100%);
+            color: white;
+            font-weight: 600;
+            border-left: 3px solid #ff9800;
+        }
+
+        .submenu-item i {
+            margin-right: 0.75rem;
+            width: 16px;
+            text-align: center;
+            font-size: 0.9rem;
         }
 
         /* Main Content */
@@ -107,9 +234,9 @@
 
         /* Top Navigation - Dynamic Version */
         .dynamic-topbar {
-            background: linear-gradient(135deg, #003366 0%, #3399ff 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%);
             padding: 1rem 2rem;
-            box-shadow: 0 4px 20px rgba(0, 51, 102, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 51, 102, 0.4);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -320,11 +447,12 @@
         }
 
         .profile-menu .dropdown-header {
-            background: linear-gradient(135deg, #003366 0%, #3399ff 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%);
             color: white;
             padding: 1.5rem;
             margin: 0;
             border-radius: 15px 15px 0 0;
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
         }
 
         .profile-menu .user-info {
@@ -389,24 +517,93 @@
         /* Content Area */
         .content-wrapper {
             padding: 2rem;
+            background: #000066;
+            min-height: 100vh;
+        }
+
+        /* Badges with Gradient */
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .badge-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+            color: white;
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+            color: white;
+        }
+
+        /* Alerts with Gradient */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+            border-left: 4px solid #ff9800;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            color: #1e40af;
+            border-left: 4px solid #4fc3f7;
         }
 
         /* Cards */
         .card {
             border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(30, 60, 114, 0.1);
         }
 
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.2);
         }
 
         .card-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
+            border-radius: 15px 15px 0 0 !important;
             border-radius: 12px 12px 0 0 !important;
             border: none;
             padding: 1.5rem;
@@ -428,16 +625,66 @@
         }
 
         .btn-warning {
-            background-color: var(--warning-color);
-            border-color: var(--warning-color);
+            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+            border: none;
             color: white;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
         }
 
         .btn-warning:hover {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
+            background: linear-gradient(135deg, #fb8c00 0%, #ff6f00 100%);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 102, 51, 0.4);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.3);
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(135deg, #29b6f6 0%, #039be5 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 195, 247, 0.5);
+        }
+
+        /* Form Inputs with Gradient Border */
+        .form-control, .form-select {
+            border: 2px solid rgba(30, 60, 114, 0.2);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: transparent;
+            box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.2);
+            background: white;
+            outline: none;
+            border-image: linear-gradient(135deg, #1e3c72 0%, #4fc3f7 100%);
+            border-image-slice: 1;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #1e3c72;
+            margin-bottom: 0.5rem;
         }
 
         /* Profile Image */
@@ -564,13 +811,198 @@
     @yield('styles')
 </head>
 <body>
+    @php
+        // Détecter automatiquement la formation de l'utilisateur depuis l'URL ou la session
+        $currentRoute = request()->route()->getName() ?? '';
+        $formationPrefix = 'design-graphique'; // Par défaut
+        $isCommunityManagement = false;
+        
+        // Détecter depuis l'URL
+        if (str_contains($currentRoute, 'community-manager') || str_contains($currentRoute, 'community-management')) {
+            $formationPrefix = 'community-management';
+            $isCommunityManagement = true;
+        } elseif (str_contains($currentRoute, 'intelligence-artificielle')) {
+            $formationPrefix = 'intelligence-artificielle';
+        } elseif (str_contains($currentRoute, 'gestion-informatique')) {
+            $formationPrefix = 'gestion-informatique';
+        }
+        
+        // Mapper le préfixe de route au nom de route du dashboard
+        $dashboardRoute = match($formationPrefix) {
+            'community-management' => 'dashboard.community-management',
+            'intelligence-artificielle' => 'dashboard.intelligence-artificielle',
+            'gestion-informatique' => 'dashboard.gestion-informatique',
+            default => 'dashboard.design-graphique',
+        };
+    @endphp
+
+    @if($isCommunityManagement)
+    <style>
+        /* Thème Instagram complet pour Community Management */
+        
+        /* Sidebar et Topbar */
+        .sidebar {
+            background: linear-gradient(180deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+            box-shadow: 4px 0 20px rgba(240, 148, 51, 0.4) !important;
+        }
+
+        .dynamic-topbar {
+            background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+            box-shadow: 0 4px 20px rgba(240, 148, 51, 0.4) !important;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Boutons */
+        .btn-primary,
+        button.btn-primary,
+        a.btn-primary,
+        input[type="submit"].btn-primary {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+            border: none !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 15px rgba(240, 148, 51, 0.3) !important;
+            color: white !important;
+        }
+
+        .btn-primary:hover,
+        button.btn-primary:hover,
+        a.btn-primary:hover,
+        input[type="submit"].btn-primary:hover {
+            background: linear-gradient(135deg, #e6683c 0%, #cc2366 100%) !important;
+            box-shadow: 0 6px 20px rgba(240, 148, 51, 0.5) !important;
+            color: white !important;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #cc2366 0%, #bc1888 100%) !important;
+            border: none !important;
+            color: white !important;
+        }
+
+        .btn-info:hover {
+            background: linear-gradient(135deg, #dc2743 0%, #cc2366 100%) !important;
+            color: white !important;
+        }
+
+        /* Cartes */
+        .card-header,
+        .card-header.bg-primary {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+            color: white !important;
+        }
+
+        /* Badges */
+        .badge-primary,
+        .badge.bg-primary {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+            color: white !important;
+        }
+
+        .badge-info,
+        .badge.bg-info {
+            background: linear-gradient(135deg, #cc2366 0%, #bc1888 100%) !important;
+            color: white !important;
+        }
+
+        /* Progress bars */
+        .progress-bar,
+        .progress-bar.bg-primary {
+            background: linear-gradient(90deg, #f09433 0%, #dc2743 100%) !important;
+        }
+
+        /* Liens */
+        a.text-primary,
+        .text-primary {
+            color: #dc2743 !important;
+        }
+
+        a.text-primary:hover {
+            color: #f09433 !important;
+        }
+
+        /* Backgrounds */
+        .bg-primary {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+        }
+
+        .bg-info {
+            background: linear-gradient(135deg, #cc2366 0%, #bc1888 100%) !important;
+        }
+
+        /* Bordures */
+        .border-primary {
+            border-color: #f09433 !important;
+        }
+
+        /* Alertes */
+        .alert-primary {
+            background: linear-gradient(135deg, rgba(240, 148, 51, 0.1) 0%, rgba(220, 39, 67, 0.1) 100%) !important;
+            border-left: 4px solid #f09433 !important;
+            color: #dc2743 !important;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, rgba(204, 35, 102, 0.1) 0%, rgba(188, 24, 136, 0.1) 100%) !important;
+            border-left: 4px solid #cc2366 !important;
+            color: #bc1888 !important;
+        }
+
+        /* Tables */
+        .table thead th {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+            color: white !important;
+        }
+
+        /* Pagination */
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+            border-color: #f09433 !important;
+        }
+
+        /* Forms */
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #f09433 !important;
+            box-shadow: 0 0 0 0.25rem rgba(240, 148, 51, 0.25) !important;
+        }
+
+        /* Tabs */
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+            color: white !important;
+            border-color: #f09433 !important;
+        }
+
+        /* Liste groupée */
+        .list-group-item.active {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+            border-color: #f09433 !important;
+        }
+
+        /* Icônes avec couleur primaire */
+        .fas.text-primary,
+        .far.text-primary,
+        .fab.text-primary,
+        i.text-primary {
+            background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+        }
+    </style>
+    @endif
+
     <!-- Mobile Sidebar Overlay -->
     <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <a href="{{ route('dashboard.design-graphique') }}" class="sidebar-brand">
+            <a href="{{ route($dashboardRoute) }}" class="sidebar-brand">
                 <img src="{{ asset('assets/img/logo_white.png') }}" alt="EVC Logo" style="height: 100px; width: auto; margin-right: 10px;">
 
             </a>
@@ -583,107 +1015,124 @@
         <nav class="sidebar-nav">
             <!-- Vue d'ensemble -->
             <div class="nav-item">
-                <a href="{{ route('dashboard.design-graphique') }}" class="nav-link {{ request()->routeIs('dashboard.design-graphique') ? 'active' : '' }}">
+                <a href="{{ route($dashboardRoute) }}" class="nav-link {{ request()->routeIs($dashboardRoute) ? 'active' : '' }}">
                     <i class="fas fa-chart-pie"></i>
                     Vue d'ensemble
                 </a>
             </div>
 
-            <!-- Formation -->
+            <!-- Gestion Formation (avec sous-menus) -->
+            <div class="nav-item-dropdown">
+                <div class="nav-link-dropdown {{ request()->routeIs($formationPrefix . '.formations.*') || request()->routeIs($formationPrefix . '.programme.*') || request()->routeIs($formationPrefix . '.paiements.*') || request()->routeIs($formationPrefix . '.communaute.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)">
+                    <div>
+                        <i class="fas fa-graduation-cap"></i>
+                        Gestion Formation
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
+                <div class="submenu {{ request()->routeIs($formationPrefix . '.formations.*') || request()->routeIs($formationPrefix . '.programme.*') || request()->routeIs($formationPrefix . '.paiements.*') || request()->routeIs($formationPrefix . '.communaute.*') ? 'open' : '' }}">
+                    <a href="{{ route($formationPrefix . '.formations.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.formations.*') ? 'active' : '' }}">
+                        <i class="fas fa-book-reader"></i>
+                        Formation
+                    </a>
+                    <a href="{{ route($formationPrefix . '.programme.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.programme.*') ? 'active' : '' }}">
+                        <i class="fas fa-book"></i>
+                        Programme
+                    </a>
+                    <a href="{{ route($formationPrefix . '.paiements.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.paiements.*') ? 'active' : '' }}">
+                        <i class="fas fa-credit-card"></i>
+                        Paiements
+                    </a>
+                    <a href="{{ route($formationPrefix . '.communaute.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.communaute.*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i>
+                        Communauté
+                    </a>
+                </div>
+            </div>
+
+            <!-- Gestion Projet (avec sous-menus) -->
+            <div class="nav-item-dropdown">
+                <div class="nav-link-dropdown {{ request()->routeIs($formationPrefix . '.tp.*') || request()->routeIs($formationPrefix . '.projets.*') || request()->routeIs($formationPrefix . '.todo.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)">
+                    <div>
+                        <i class="fas fa-folder-open"></i>
+                        Gestion Projet
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
+                <div class="submenu {{ request()->routeIs($formationPrefix . '.tp.*') || request()->routeIs($formationPrefix . '.todo.*') ? 'open' : '' }}">
+                    <a href="{{ route($formationPrefix . '.tp.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.tp.*') ? 'active' : '' }}">
+                        <i class="fas fa-tasks"></i>
+                        Travaux Pratiques
+                    </a>
+                    <a href="{{ route($formationPrefix . '.todo.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.todo.*') ? 'active' : '' }}">
+                        <i class="fas fa-list-check"></i>
+                        To Do List
+                    </a>
+                </div>
+            </div>
+
+            <!-- Bibliothèque CM_SMM -->
             <div class="nav-item">
-                <a href="{{ route('design-graphique.formations.index') }}" class="nav-link {{ request()->routeIs('design-graphique.formations.*') ? 'active' : '' }}">
-                    <i class="fas fa-graduation-cap"></i>
-                    Formation Ultra-pratique
+                <a href="{{ route($formationPrefix . '.bibliotheque.index') }}" class="nav-link {{ request()->routeIs($formationPrefix . '.bibliotheque.*') ? 'active' : '' }}">
+                    <i class="fas fa-book-open"></i>
+                    <span>Bibliothèque CM_SMM</span>
                 </a>
             </div>
 
-            <!-- TP (Travaux Pratiques) -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.tp.index') }}" class="nav-link {{ request()->routeIs('design-graphique.tp.*') ? 'active' : '' }}">
-                    <i class="fas fa-flask"></i>
-                    Travaux pratiques (TP)
-                </a>
+            <!-- Mes Évènements (avec sous-menus) -->
+            <div class="nav-item-dropdown">
+                <div class="nav-link-dropdown {{ request()->routeIs($formationPrefix . '.events.*') || request()->routeIs($formationPrefix . '.actualites.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)">
+                    <div>
+                        <i class="fas fa-calendar-star"></i>
+                        Mes Évènements
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
+                <div class="submenu {{ request()->routeIs($formationPrefix . '.events.*') || request()->routeIs($formationPrefix . '.actualites.*') ? 'open' : '' }}">
+                    <a href="{{ route($formationPrefix . '.events.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.events.*') ? 'active' : '' }}">
+                        <i class="fas fa-calendar-alt"></i>
+                        Événements
+                    </a>
+                    <a href="{{ route($formationPrefix . '.actualites.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.actualites.*') ? 'active' : '' }}">
+                        <i class="fas fa-newspaper"></i>
+                        Actualités
+                    </a>
+                </div>
             </div>
 
-            <!-- Projets -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.projets.index') }}" class="nav-link {{ request()->routeIs('design-graphique.projets.*') ? 'active' : '' }}">
-                    <i class="fas fa-project-diagram"></i>
-                    Projets réels
-                </a>
+            <!-- Mon Profil (avec sous-menus) -->
+            <div class="nav-item-dropdown">
+                <div class="nav-link-dropdown {{ request()->routeIs($formationPrefix . '.parametres.*') || request()->routeIs($formationPrefix . '.documents.*') || request()->routeIs($formationPrefix . '.cvtheque.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)">
+                    <div>
+                        <i class="fas fa-user-circle"></i>
+                        Mon Profil
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
+                <div class="submenu {{ request()->routeIs($formationPrefix . '.parametres.*') || request()->routeIs($formationPrefix . '.documents.*') || request()->routeIs($formationPrefix . '.cvtheque.*') ? 'open' : '' }}">
+                    <a href="{{ route($formationPrefix . '.parametres.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.parametres.*') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i>
+                        Paramètres
+                    </a>
+                    <a href="{{ route($formationPrefix . '.documents.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.documents.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-alt"></i>
+                        Mes rapports
+                    </a>
+                    <a href="{{ route($formationPrefix . '.cvtheque.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.cvtheque.*') ? 'active' : '' }}">
+                        <i class="fas fa-briefcase"></i>
+                        CVthèque
+                    </a>
+                </div>
             </div>
 
-            <!-- Events -->
+            <!-- Divider -->
+            <hr class="sidebar-divider">
+
+            <!-- Fin de Formation -->
             <div class="nav-item">
-                <a href="{{ route('design-graphique.events.index') }}" class="nav-link {{ request()->routeIs('design-graphique.events.*') ? 'active' : '' }}">
-                    <i class="fas fa-calendar-alt"></i>
-                    Evènements & Ateliers
-                </a>
-            </div>
-
-            <!-- Actualité -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.actualites.index') }}" class="nav-link {{ request()->routeIs('design-graphique.actualites.*') ? 'active' : '' }}">
-                    <i class="fas fa-newspaper"></i>
-                    Actualités & Annonces
-                </a>
-            </div>
-
-            <!-- Bibliothèque -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.documents.index') }}" class="nav-link {{ request()->routeIs('design-graphique.documents.*') ? 'active' : '' }}">
-                    <i class="fas fa-book"></i>
-                    Bibliothèque
-                </a>
-            </div>
-
-
-
-            <!-- Espace Communautaire -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.communaute.index') }}" class="nav-link {{ request()->routeIs('design-graphique.communaute.*') ? 'active' : '' }}">
-                    <i class="fas fa-users"></i>
-                    Classes Virtuelles
-                </a>
-            </div>
-
-            <!-- CVThèque -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.cvtheque.index') }}" class="nav-link {{ request()->routeIs('design-graphique.cvtheque.*') ? 'active' : '' }}">
-                    <i class="fas fa-briefcase"></i>
-                    CVThèque & Candidature
-                </a>
-            </div>
-
-            <!-- Programme -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.programme.index') }}" class="nav-link {{ request()->routeIs('design-graphique.programme.*') ? 'active' : '' }}">
-                    <i class="fas fa-brain"></i>
-                    Programme Complet
-                </a>
-            </div>
-
-            <!-- Paiement -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.paiements.index') }}" class="nav-link {{ request()->routeIs('design-graphique.paiements.*') ? 'active' : '' }}">
-                    <i class="fas fa-credit-card"></i>
-                    Paiement & Facturation
-                </a>
-            </div>
-
-            <!-- Fin de formation -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.fin-formation.index') }}" class="nav-link {{ request()->routeIs('design-graphique.fin-formation.*') ? 'active' : '' }}">
-                    <i class="fas fa-flag-checkered"></i>
-                    Fin de formation
-                </a>
-            </div>
-
-            <!-- Paramètres -->
-            <div class="nav-item">
-                <a href="{{ route('design-graphique.parametres.index') }}" class="nav-link {{ request()->routeIs('design-graphique.parametres.*') ? 'active' : '' }}">
-                    <i class="fas fa-cog"></i>
-                    Paramètres
+                <a href="{{ route($formationPrefix . '.fin-formation.index') }}" class="nav-link {{ request()->routeIs($formationPrefix . '.fin-formation.*') ? 'active' : '' }}">
+                    <i class="fas fa-certificate"></i>
+                    Fin de Formation
                 </a>
             </div>
         </nav>
@@ -705,7 +1154,7 @@
                 <div class="notification-bell me-3">
                     <button class="btn btn-link text-white position-relative notification-btn">
                         <i class="fas fa-bell fa-lg"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success notification-badge">
                             3
                             <span class="visually-hidden">notifications non lues</span>
                         </span>
@@ -825,18 +1274,46 @@
         <!-- Content Wrapper -->
         <div class="content-wrapper">
             @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle me-2"></i>
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="alert alert-dismissible fade show" role="alert" 
+                     style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); 
+                            color: white; 
+                            border: none; 
+                            border-radius: 16px; 
+                            padding: 1.2rem 1.5rem; 
+                            box-shadow: 0 8px 24px rgba(86, 171, 47, 0.25);
+                            font-weight: 500;
+                            margin-bottom: 1.5rem;">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-check-circle" style="font-size: 1.3rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            {{ session('success') }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="opacity: 0.8;"></button>
+                    </div>
                 </div>
             @endif
 
             @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <div class="alert alert-dismissible fade show" role="alert" 
+                     style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); 
+                            color: white; 
+                            border: none; 
+                            border-radius: 16px; 
+                            padding: 1.2rem 1.5rem; 
+                            box-shadow: 0 8px 24px rgba(235, 51, 73, 0.25);
+                            font-weight: 500;
+                            margin-bottom: 1.5rem;">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3" style="width: 40px; height: 40px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 1.3rem;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            {{ session('error') }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="opacity: 0.8;"></button>
+                    </div>
                 </div>
             @endif
 
@@ -899,6 +1376,18 @@
                 });
             }
         });
+
+        // Toggle submenu
+        function toggleSubmenu(element) {
+            const submenu = element.nextElementSibling;
+            const arrow = element.querySelector('.dropdown-arrow');
+            
+            // Toggle open class on submenu
+            submenu.classList.toggle('open');
+            
+            // Rotate arrow
+            arrow.classList.toggle('rotated');
+        }
 
         // Mobile sidebar management
         function toggleSidebar() {

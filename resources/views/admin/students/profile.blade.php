@@ -54,6 +54,10 @@
 
                     <div class="info-group">
                         <div class="info-item">
+                            <i class="fas fa-id-badge text-primary me-2"></i>
+                            <strong>Student ID:</strong> <span class="badge bg-dark">{{ $data['student']['student_id'] ?? 'N/A' }}</span>
+                        </div>
+                        <div class="info-item">
                             <i class="fas fa-envelope text-muted me-2"></i>
                             <strong>Email:</strong> {{ $data['student']['email'] ?? '-' }}
                         </div>
@@ -61,25 +65,114 @@
                             <i class="fas fa-phone text-muted me-2"></i>
                             <strong>Téléphone:</strong> {{ $data['student']['phone'] ?? '-' }}
                         </div>
+                        @if(!empty($data['student']['whatsapp']) && $data['student']['whatsapp'] !== $data['student']['phone'])
+                        <div class="info-item">
+                            <i class="fab fa-whatsapp text-success me-2"></i>
+                            <strong>WhatsApp:</strong> {{ $data['student']['whatsapp'] }}
+                        </div>
+                        @endif
+                        <div class="info-item">
+                            <i class="fas fa-birthday-cake text-muted me-2"></i>
+                            <strong>Date de naissance:</strong> {{ !empty($data['student']['date_of_birth']) ? date('d/m/Y', strtotime($data['student']['date_of_birth'])) : '-' }}
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-venus-mars text-muted me-2"></i>
+                            <strong>Genre:</strong> {{ $data['student']['gender'] ?? '-' }}
+                        </div>
                         <div class="info-item">
                             <i class="fas fa-map-marker-alt text-muted me-2"></i>
                             <strong>Ville:</strong> {{ $data['student']['ville'] ?? '-' }}
                         </div>
+                        @if(!empty($data['student']['quartier']))
+                        <div class="info-item">
+                            <i class="fas fa-location-arrow text-muted me-2"></i>
+                            <strong>Quartier:</strong> {{ $data['student']['quartier'] }}
+                        </div>
+                        @endif
                         <div class="info-item">
                             <i class="fas fa-globe text-muted me-2"></i>
                             <strong>Pays:</strong> {{ $data['student']['pays'] ?? '-' }}
                         </div>
                         <div class="info-item">
-                            <i class="fas fa-calendar text-muted me-2"></i>
+                            <i class="fas fa-calendar-plus text-muted me-2"></i>
                             <strong>Inscription:</strong> {{ isset($data['student']['created_at']) ? date('d/m/Y', strtotime($data['student']['created_at'])) : '-' }}
                         </div>
                         <div class="info-item">
-                            <i class="fas fa-id-card text-muted me-2"></i>
-                            <strong>ID Étudiant:</strong> #{{ $data['student']['id'] }}
+                            <i class="fas fa-toggle-{{ ($data['student']['status'] ?? 'active') === 'active' ? 'on text-success' : 'off text-danger' }} me-2"></i>
+                            <strong>Statut:</strong> 
+                            <span class="badge bg-{{ ($data['student']['status'] ?? 'active') === 'active' ? 'success' : 'danger' }}">
+                                {{ ($data['student']['status'] ?? 'active') === 'active' ? 'Actif' : 'Désactivé' }}
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Informations Académiques -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-graduation-cap me-2"></i>Informations Académiques
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        <div class="info-item">
+                            <i class="fas fa-book-reader text-success me-2"></i>
+                            <strong>Programme:</strong> <span class="badge bg-primary">{{ $data['student']['formation'] ?? 'N/A' }}</span>
+                        </div>
+                        @if(!empty($data['student']['specialization']))
+                        <div class="info-item">
+                            <i class="fas fa-certificate text-success me-2"></i>
+                            <strong>Spécialisation:</strong> {{ ucwords(str_replace(['_', '-'], ' ', $data['student']['specialization'])) }}
+                        </div>
+                        @endif
+                        <div class="info-item">
+                            <i class="fas fa-layer-group text-success me-2"></i>
+                            <strong>Niveau:</strong> {{ $data['student']['level'] ?? 'Débutant' }}
+                        </div>
+                        @if(!empty($data['student']['gpa']))
+                        <div class="info-item">
+                            <i class="fas fa-chart-line text-success me-2"></i>
+                            <strong>GPA (Moyenne):</strong> <span class="badge bg-info">{{ number_format($data['student']['gpa'], 2) }}/4.0</span>
+                        </div>
+                        @endif
+                        @if(!empty($data['student']['credits_earned']))
+                        <div class="info-item">
+                            <i class="fas fa-award text-success me-2"></i>
+                            <strong>Crédits obtenus:</strong> <span class="badge bg-warning text-dark">{{ $data['student']['credits_earned'] }} crédits</span>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expérience Professionnelle (si applicable) -->
+            @if(!empty($data['student']['years_experience']) || !empty($data['student']['industry_sector']))
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-briefcase me-2"></i>Expérience Professionnelle
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="info-group">
+                        @if(!empty($data['student']['years_experience']))
+                        <div class="info-item">
+                            <i class="fas fa-clock text-info me-2"></i>
+                            <strong>Années d'expérience:</strong> {{ $data['student']['years_experience'] }} {{ $data['student']['years_experience'] > 1 ? 'ans' : 'an' }}
+                        </div>
+                        @endif
+                        @if(!empty($data['student']['industry_sector']))
+                        <div class="info-item">
+                            <i class="fas fa-industry text-info me-2"></i>
+                            <strong>Secteur d'activité:</strong> {{ $data['student']['industry_sector'] }}
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Statistiques et progression -->

@@ -192,9 +192,6 @@
         </p>
         
         <div class="quick-actions">
-            <a href="{{ route('admin.students.add') }}" class="btn-quick">
-                <i class="fas fa-user-plus me-2"></i>Ajouter Étudiant
-            </a>
             <a href="#" class="btn-quick" onclick="exportStudents()">
                 <i class="fas fa-download me-2"></i>Exporter Liste
             </a>

@@ -1,10 +1,10 @@
 <!-- Homepage Founder Section -->
 <div class="bg-gray-100 py-24 sm:py-32">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
-        <div class="mx-auto grid max-w-5xl grid-cols-1 items-center gap-x-16 gap-y-16 lg:grid-cols-2">
+        <div class="mx-auto grid max-w-5xl grid-cols-1 items-center gap-x-0 gap-y-16 lg:grid-cols-2">
             <!-- Left Column: Image -->
             <div>
-                <img class="w-full max-w-sm mx-auto rounded-lg shadow-lg" src="https://i.pravatar.cc/800?img=4" alt="Photo du fondateur">
+                <img class="w-full max-w-sm mx-auto rounded-lg shadow-lg" src="{{ asset('assets/img/founder/Bile_Bossombra.jpg') }}" alt="Photo de Bilé Bossombra, Fondateur & Formateur Principal">
             </div>
             
             <!-- Right Column: Text -->

@@ -55,15 +55,63 @@ body {
     padding: 1rem 1.5rem;
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-left: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
 }
 
-.admin-nav-link:hover,
+.admin-nav-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), transparent);
+    transition: width 0.3s ease;
+}
+
+.admin-nav-link:hover::before {
+    width: 100%;
+}
+
+.admin-nav-link:hover {
+    background: rgba(0, 212, 255, 0.08);
+    border-left-color: rgba(0, 212, 255, 0.6);
+    color: rgba(0, 212, 255, 0.95);
+    transform: translateX(2px);
+}
+
 .admin-nav-link.active {
-    background: rgba(0, 212, 255, 0.1);
-    border-left-color: rgba(0, 212, 255, 0.8);
-    color: rgba(0, 212, 255, 0.9);
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.15), rgba(0, 212, 255, 0.05));
+    border-left-color: rgba(0, 212, 255, 1);
+    color: rgba(0, 212, 255, 1);
+    font-weight: 600;
+    box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1);
+}
+
+.admin-nav-link.active::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    width: 6px;
+    height: 6px;
+    background: rgba(0, 212, 255, 1);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(0, 212, 255, 0.8);
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 0.7;
+    }
 }
 
 .admin-nav-link i {
@@ -72,13 +120,37 @@ body {
     text-align: center;
 }
 
+.nav-section-title {
+    padding: 1.5rem 1.5rem 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+}
+
+.nav-section-title:first-of-type {
+    margin-top: 0;
+    border-top: none;
+}
+
+.nav-section-title i {
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
 .admin-nav-submenu {
     list-style: none;
-    padding: 0;
+    padding: 0.5rem;
     margin: 0;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
     margin-top: 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .admin-nav-sublink {
@@ -87,29 +159,117 @@ body {
     padding: 0.75rem 1rem 0.75rem 2.5rem;
     color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    transition: all 0.3s ease;
-    border-radius: 6px;
-    margin: 0.25rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    margin: 0.25rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-nav-sublink::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 0;
+    background: rgba(0, 212, 255, 1);
+    transition: height 0.3s ease;
+    border-radius: 2px;
 }
 
 .admin-nav-sublink:hover {
     background: rgba(0, 212, 255, 0.1);
-    color: rgba(0, 212, 255, 0.9);
+    color: rgba(0, 212, 255, 0.95);
     text-decoration: none;
+    transform: translateX(4px);
+    padding-left: 2.75rem;
+}
+
+.admin-nav-sublink:hover::before {
+    height: 60%;
+}
+
+.admin-nav-sublink.active {
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), rgba(0, 212, 255, 0.08));
+    color: rgba(0, 212, 255, 1);
+    text-decoration: none;
+    font-weight: 600;
+    border-left: 2px solid rgba(0, 212, 255, 0.8);
+    padding-left: 2.5rem;
+}
+
+.admin-nav-sublink.active::after {
+    content: '●';
+    position: absolute;
+    right: 1rem;
+    color: rgba(0, 212, 255, 1);
+    font-size: 0.6rem;
+    animation: pulse-dot 2s infinite;
 }
 
 .admin-nav-sublink i {
-    width: 16px;
+    width: 18px;
     margin-right: 0.75rem;
-    font-size: 0.875rem;
+    text-align: center;
 }
 
 .dropdown-toggle .fa-chevron-right {
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.75rem;
+    opacity: 0.6;
+}
+
+.dropdown-toggle:hover .fa-chevron-right {
+    opacity: 1;
 }
 
 .dropdown-toggle[aria-expanded="true"] .fa-chevron-right {
     transform: rotate(90deg);
+    color: rgba(0, 212, 255, 1);
+    opacity: 1;
+}
+
+/* Animation des sous-menus */
+.collapse {
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.collapsing {
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Badge de compteur pour les dropdowns */
+.dropdown-toggle .badge {
+    margin-left: auto;
+    margin-right: 0.5rem;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    background: rgba(0, 212, 255, 0.2);
+    color: rgba(0, 212, 255, 1);
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+/* Effet de brillance au hover sur les icônes */
+.admin-nav-link i,
+.admin-nav-sublink i {
+    transition: all 0.3s ease;
+}
+
+.admin-nav-link:hover i {
+    filter: drop-shadow(0 0 4px rgba(0, 212, 255, 0.6));
+    transform: scale(1.1);
+}
+
+.admin-nav-sublink:hover i {
+    transform: scale(1.1);
+}
+
+.admin-nav-sublink.active i {
+    transform: scale(1.15);
+    color: rgba(0, 212, 255, 1);
 }
 
 .admin-main {

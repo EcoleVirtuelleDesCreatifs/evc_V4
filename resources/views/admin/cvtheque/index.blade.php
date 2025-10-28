@@ -50,61 +50,44 @@
     <div class="stats-grid">
         <div class="stat-card primary">
             <div class="stat-icon">
-                <i class="fas fa-user-check"></i>
+                <i class="fas fa-users"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-value">156</div>
-                <div class="stat-label">Profils Complets</div>
+                <div class="stat-value">{{ $stats['total_students'] }}</div>
+                <div class="stat-label">Total Étudiants</div>
                 <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    <span class="stat-change-value">+12%</span>
-                    <span class="stat-change-text">ce mois</span>
+                    <i class="fas fa-info-circle"></i>
+                    <span class="stat-change-text">Tous actifs</span>
                 </div>
-            </div>
-            <div class="stat-action">
-                <button class="btn-stat-action" onclick="viewCompleteProfiles()">
-                    <i class="fas fa-eye"></i>
-                </button>
-            </div>
-        </div>
-
-        <div class="stat-card warning">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-content">
-                <div class="stat-value">24</div>
-                <div class="stat-label">En Validation</div>
-                <div class="stat-change neutral">
-                    <i class="fas fa-minus"></i>
-                    <span class="stat-change-value">Stable</span>
-                    <span class="stat-change-text">cette semaine</span>
-                </div>
-            </div>
-            <div class="stat-action">
-                <button class="btn-stat-action" onclick="showPendingValidation()">
-                    <i class="fas fa-eye"></i>
-                </button>
             </div>
         </div>
 
         <div class="stat-card success">
             <div class="stat-icon">
-                <i class="fas fa-file-check"></i>
+                <i class="fas fa-user-check"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-value">342</div>
-                <div class="stat-label">Documents Validés</div>
+                <div class="stat-value">{{ $stats['with_profile'] }}</div>
+                <div class="stat-label">Avec Profil CVthèque</div>
                 <div class="stat-change positive">
                     <i class="fas fa-arrow-up"></i>
-                    <span class="stat-change-value">+8%</span>
-                    <span class="stat-change-text">ce mois</span>
+                    <span class="stat-change-value">{{ $stats['total_students'] > 0 ? round(($stats['with_profile'] / $stats['total_students']) * 100, 1) : 0 }}%</span>
+                    <span class="stat-change-text">du total</span>
                 </div>
             </div>
-            <div class="stat-action">
-                <button class="btn-stat-action" onclick="viewValidatedDocuments()">
-                    <i class="fas fa-eye"></i>
-                </button>
+        </div>
+
+        <div class="stat-card warning">
+            <div class="stat-icon">
+                <i class="fas fa-user-times"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ $stats['without_profile'] }}</div>
+                <div class="stat-label">Sans Profil</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span class="stat-change-text">À compléter</span>
+                </div>
             </div>
         </div>
 
@@ -113,14 +96,81 @@
                 <i class="fas fa-chart-pie"></i>
             </div>
             <div class="stat-content">
-                <div class="stat-value">78%</div>
-                <div class="stat-label">Taux de Complétion</div>
+                <div class="stat-value">{{ $stats['avg_completion'] }}%</div>
+                <div class="stat-label">Taux de Complétion Moyen</div>
                 <div class="stat-change positive">
-                    <i class="fas fa-arrow-up"></i>
-                    <span class="stat-change-value">+5%</span>
-                    <span class="stat-change-text">ce mois</span>
+                    <i class="fas fa-eye"></i>
+                    <span class="stat-change-value">{{ $stats['visible_profiles'] }}</span>
+                    <span class="stat-change-text">profils visibles</span>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Tabs par Formation -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <ul class="nav nav-tabs card-header-tabs" id="formationTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                        <i class="fas fa-users me-1"></i>Tous ({{ $students->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="design-tab" data-bs-toggle="tab" data-bs-target="#design" type="button" role="tab">
+                        <i class="fas fa-palette me-1"></i>Design Graphique ({{ ($studentsByFormation['Design Graphique'] ?? collect())->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="community-tab" data-bs-toggle="tab" data-bs-target="#community" type="button" role="tab">
+                        <i class="fas fa-bullhorn me-1"></i>Community Management ({{ ($studentsByFormation['Community Management'] ?? collect())->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="gestion-tab" data-bs-toggle="tab" data-bs-target="#gestion" type="button" role="tab">
+                        <i class="fas fa-laptop-code me-1"></i>Gestion Informatique ({{ ($studentsByFormation['Gestion Informatique'] ?? collect())->count() }})
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="ia-tab" data-bs-toggle="tab" data-bs-target="#ia" type="button" role="tab">
+                        <i class="fas fa-brain me-1"></i>Intelligence Artificielle ({{ ($studentsByFormation['Intelligence Artificielle'] ?? collect())->count() }})
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="formationTabsContent">
+                <!-- Onglet Tous -->
+                <div class="tab-pane fade show active" id="all" role="tabpanel">
+                    @include('admin.cvtheque.partials.students-table', ['students' => $students])
+                </div>
+                
+                <!-- Onglet Design Graphique -->
+                <div class="tab-pane fade" id="design" role="tabpanel">
+                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Design Graphique'] ?? collect()])
+                </div>
+                
+                <!-- Onglet Community Management -->
+                <div class="tab-pane fade" id="community" role="tabpanel">
+                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Community Management'] ?? collect()])
+                </div>
+                
+                <!-- Onglet Gestion Informatique -->
+                <div class="tab-pane fade" id="gestion" role="tabpanel">
+                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Gestion Informatique'] ?? collect()])
+                </div>
+                
+                <!-- Onglet Intelligence Artificielle -->
+                <div class="tab-pane fade" id="ia" role="tabpanel">
+                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Intelligence Artificielle'] ?? collect()])
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ancienne section - Masquée temporairement -->
+    <div class="d-none">
+        <div class="stat-card info-old">
             <div class="stat-action">
                 <button class="btn-stat-action" onclick="viewCompletionStats()">
                     </div>
@@ -363,8 +413,11 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
                     <button type="button" class="btn btn-success" onclick="validateCurrentProfile()">Valider</button>
                     <button type="button" class="btn btn-primary" onclick="downloadCurrentProfile()">Télécharger</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-
 @endsection
 
 @push('styles')
@@ -910,9 +963,35 @@ function downloadCurrentProfile() {
     }
 }
 
+// Fonction pour ajouter un nouveau profil
+function addNewProfile() {
+    alert('Fonctionnalité "Nouveau Profil" : Redirection vers la page de création de profil CVthèque');
+    // TODO: Implémenter la création de profil CVthèque
+    // window.location.href = '/evc/app/admin/cvtheque/create';
+}
+
+// Fonction pour valider les documents
+function validateDocuments() {
+    alert('Fonctionnalité "Valider Documents" : Affichage des documents en attente de validation');
+    // TODO: Afficher une modal avec les documents à valider
+    // $('#validateDocumentsModal').modal('show');
+}
+
+// Fonction pour générer un rapport
 function generateReport() {
     if (confirm('Générer un rapport CVThèque complet ?')) {
-        window.open('/evc/app/admin/rapports/generate?type=cvtheque', '_blank');
+        alert('Fonctionnalité "Générer Rapport" : Génération du rapport en cours...');
+        // TODO: Implémenter la génération de rapport
+        // Utiliser une requête POST ou rediriger vers une page de rapport
+    }
+}
+
+// Fonction pour exporter les profils
+function exportProfiles() {
+    if (confirm('Exporter tous les profils CVthèque en Excel ?')) {
+        alert('Fonctionnalité "Exporter Profils" : Export en cours...');
+        // TODO: Implémenter l'export Excel
+        // window.location.href = '/evc/app/admin/cvtheque/export';
     }
 }
 </script>
@@ -966,4 +1045,4 @@ function generateReport() {
     height: auto;
 }
 </style>
-@endsection
+@endpush

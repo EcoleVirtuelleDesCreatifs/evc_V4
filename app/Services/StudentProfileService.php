@@ -17,19 +17,8 @@ class StudentProfileService
         }
         
         if ($user) {
-            // Chercher d'abord par user_id
+            // Chercher par user_id (email n'existe PAS dans la table students)
             $student = Student::where('user_id', $user->id)->first();
-            
-            // Si pas trouvé par user_id, chercher par email (cas des étudiants migrés)
-            if (!$student && $user->email) {
-                $student = Student::where('email', $user->email)->first();
-                
-                // Si trouvé par email, lier le user_id
-                if ($student) {
-                    $student->user_id = $user->id;
-                    $student->save();
-                }
-            }
             
             // Si toujours pas trouvé, créer un nouveau
             if (!$student) {
@@ -84,19 +73,23 @@ class StudentProfileService
 
         // Générer automatiquement un student_id unique si non fourni
         if (empty($student->student_id)) {
-            // Format: EVC-ANNEE-NUMERO (ex: EVC-2025-001)
+            // Format: EVC-ANNÉE-JOUR-MOIS-NUMERO (ex: EVC-2025-141001)
             $year = date('Y');
-            $lastStudent = Student::where('student_id', 'LIKE', "EVC-{$year}-%")
+            $day = date('d');
+            $month = date('m');
+            $datePrefix = "{$year}-{$day}{$month}";
+            
+            $lastStudent = Student::where('student_id', 'LIKE', "EVC-{$datePrefix}%")
                 ->orderBy('student_id', 'desc')
                 ->first();
             
-            if ($lastStudent && preg_match('/EVC-\\d{4}-(\\d+)/', $lastStudent->student_id, $matches)) {
+            if ($lastStudent && preg_match('/EVC-\\d{4}-\\d{4}(\\d{2})/', $lastStudent->student_id, $matches)) {
                 $nextNumber = intval($matches[1]) + 1;
             } else {
                 $nextNumber = 1;
             }
             
-            $student->student_id = sprintf('EVC-%s-%03d', $year, $nextNumber);
+            $student->student_id = sprintf('EVC-%s-%s%02d', $year, $day . $month, $nextNumber);
         }
 
         // Définir des valeurs par défaut pour les champs obligatoires (NOT NULL)

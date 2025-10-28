@@ -71,8 +71,10 @@ class ProfileController extends Controller
             }
 
             // Handle regular form submissions
+            // Redirection dynamique selon la formation de l'utilisateur
+            $userFormation = session('user_formation_raw', 'design-graphique');
             return redirect()
-                ->route('design-graphique.parametres.index')
+                ->route($userFormation . '.parametres.index')
                 ->with('success', 'Profil mis à jour avec succès !');
 
         } catch (Exception $e) {
@@ -129,6 +131,11 @@ class ProfileController extends Controller
             // Fusionner les données (les données de student ont la priorité)
             $mergedData = array_merge($userData, $studentData);
             
+            // IMPORTANT: L'email doit TOUJOURS provenir de la table users (pour la connexion)
+            $mergedData['email'] = $user->email;
+            $mergedData['name'] = $user->name;
+            $mergedData['password'] = $user->password;
+            
             // Reconvertir en objet
             return (object) $mergedData;
         }
@@ -140,6 +147,12 @@ class ProfileController extends Controller
             $userData = (array) $user;
             $preRegData = (array) $preReg;
             $mergedData = array_merge($userData, $preRegData);
+            
+            // IMPORTANT: L'email doit TOUJOURS provenir de la table users
+            $mergedData['email'] = $user->email;
+            $mergedData['name'] = $user->name;
+            $mergedData['password'] = $user->password;
+            
             return (object) $mergedData;
         }
         
@@ -151,94 +164,205 @@ class ProfileController extends Controller
      */
     private function updateUserInDatabase(int $userId, array $data): void
     {
-        // Build update array with only non-empty fields
-        $updateData = ['updated_at' => now()];
+        // Données pour la table USERS (authentification)
+        // NOTE: L'email n'est PAS mis à jour ici, seulement via le formulaire "Informations de connexion"
+        $usersData = [
+            'updated_at' => now()
+        ];
+        
+        // Mettre à jour uniquement le nom complet (pour l'affichage)
+        if (!empty($data['firstName'])) {
+            $usersData['name'] = $data['firstName'] . ' ' . ($data['lastName'] ?? '');
+        }
+        
+        // Données pour la table STUDENTS (informations supplémentaires)
+        $studentsData = [
+            'updated_at' => now()
+        ];
         
         if (!empty($data['firstName'])) {
-            $updateData['first_name'] = $data['firstName'];
+            $studentsData['first_name'] = $data['firstName'];
         }
         
         if (!empty($data['lastName'])) {
-            $updateData['last_name'] = $data['lastName'];
-        }
-        
-        if (!empty($data['email'])) {
-            $updateData['email'] = $data['email'];
+            $studentsData['last_name'] = $data['lastName'];
         }
         
         if (!empty($data['phone'])) {
-            $updateData['phone'] = $data['phone'];
+            $studentsData['phone'] = $data['phone'];
         }
         
         if (!empty($data['whatsapp'])) {
-            $updateData['whatsapp'] = $data['whatsapp'];
+            $studentsData['whatsapp'] = $data['whatsapp'];
         }
         
         if (!empty($data['age'])) {
-            $updateData['age'] = $data['age'];
+            $studentsData['age'] = $data['age'];
         }
         
         if (!empty($data['country'])) {
-            $updateData['country'] = $data['country'];
+            $studentsData['country'] = $data['country'];
         }
         
         if (!empty($data['city'])) {
-            $updateData['city'] = $data['city'];
+            $studentsData['city'] = $data['city'];
         }
         
+        // Map district to quartier (the actual column name in students table)
         if (!empty($data['district'])) {
-            $updateData['district'] = $data['district'];
+            $studentsData['quartier'] = $data['district'];
         }
         
         if (!empty($data['address'])) {
-            $updateData['address'] = $data['address'];
+            $studentsData['address'] = $data['address'];
         }
         
         if (!empty($data['biography'])) {
-            $updateData['biography'] = $data['biography'];
+            $studentsData['biography'] = $data['biography'];
         }
         
+        // Map educationLevel to Level_education (the actual column name)
         if (!empty($data['educationLevel'])) {
-            $updateData['education_level'] = $data['educationLevel'];
+            $studentsData['Level_education'] = $data['educationLevel'];
         }
         
+        // Map lastDiploma to degree (the actual column name)
         if (!empty($data['lastDiploma'])) {
-            $updateData['last_diploma'] = $data['lastDiploma'];
+            $studentsData['degree'] = $data['lastDiploma'];
         }
 
-        // Only update if there are fields to update (besides updated_at)
-        if (count($updateData) > 1) {
-            // Vérifier si un profil étudiant existe
+        // 1. Mettre à jour la table USERS (toujours)
+        if (count($usersData) > 1) {
+            DB::table('users')
+                ->where('id', $userId)
+                ->update($usersData);
+            
+            Log::info('Table users mise à jour', ['user_id' => $userId, 'fields' => array_keys($usersData)]);
+        }
+        
+        // 2. Mettre à jour la table STUDENTS si elle existe
+        if (count($studentsData) > 1) {
             $student = DB::table('students')->where('user_id', $userId)->first();
             
             if ($student) {
-                // Mettre à jour la table students
                 DB::table('students')
                     ->where('user_id', $userId)
-                    ->update($updateData);
+                    ->update($studentsData);
+                
+                Log::info('Table students mise à jour', ['user_id' => $userId, 'fields' => array_keys($studentsData)]);
             } else {
-                // Vérifier dans pre_registrations
+                // Si pas de profil étudiant, vérifier dans pre_registrations
                 $preReg = DB::table('pre_registrations')->where('user_id', $userId)->first();
                 
                 if ($preReg) {
-                    // Mettre à jour pre_registrations
                     DB::table('pre_registrations')
                         ->where('user_id', $userId)
-                        ->update($updateData);
+                        ->update($studentsData);
+                    
+                    Log::info('Table pre_registrations mise à jour', ['user_id' => $userId, 'fields' => array_keys($studentsData)]);
                 } else {
-                    // Fallback : mettre à jour users
-                    DB::table('users')
-                        ->where('id', $userId)
-                        ->update($updateData);
+                    Log::warning('Aucun profil étudiant trouvé pour user_id: ' . $userId);
                 }
             }
+        }
+    }
+
+    /**
+     * Update login information (email, username, password) - TABLE USERS ONLY
+     */
+    public function updateLoginInfo(Request $request)
+    {
+        try {
+            $userId = (int) session('user_id');
             
-            // Toujours mettre à jour l'email dans users si fourni
-            if (!empty($data['email'])) {
-                DB::table('users')
-                    ->where('id', $userId)
-                    ->update(['email' => $data['email'], 'updated_at' => now()]);
+            Log::info('Tentative de mise à jour des informations de connexion', [
+                'user_id' => $userId,
+                'email' => $request->email
+            ]);
+            
+            // Vérifier que l'utilisateur est connecté
+            if (!$userId) {
+                throw new Exception('Session utilisateur invalide');
             }
+            
+            // Validation
+            $validated = $request->validate([
+                'email' => 'required|email|unique:users,email,' . $userId . ',id',
+                'username' => 'nullable|string|max:255',
+                'current_password' => 'required|string',
+                'new_password' => 'nullable|string|min:8|confirmed',
+            ]);
+            
+            Log::info('Validation réussie', ['validated_fields' => array_keys($validated)]);
+            
+            // Vérifier le mot de passe actuel
+            $user = DB::table('users')->where('id', $userId)->first();
+            
+            if (!$user) {
+                Log::error('Utilisateur non trouvé dans la base de données', ['user_id' => $userId]);
+                throw new Exception('Utilisateur non trouvé');
+            }
+            
+            Log::info('Utilisateur trouvé, vérification du mot de passe');
+            
+            if (!password_verify($validated['current_password'], $user->password)) {
+                Log::warning('Mot de passe actuel incorrect', ['user_id' => $userId]);
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', 'Le mot de passe actuel est incorrect.');
+            }
+            
+            Log::info('Mot de passe vérifié avec succès');
+            
+            // Préparer les données à mettre à jour
+            $updateData = [
+                'email' => $validated['email'],
+                'updated_at' => now()
+            ];
+            
+            if (!empty($validated['username'])) {
+                $updateData['name'] = $validated['username'];
+            }
+            
+            // Si un nouveau mot de passe est fourni
+            if (!empty($validated['new_password'])) {
+                $updateData['password'] = bcrypt($validated['new_password']);
+            }
+            
+            // Mettre à jour la table users
+            DB::table('users')
+                ->where('id', $userId)
+                ->update($updateData);
+            
+            // Mettre à jour la session
+            session([
+                'user_email' => $validated['email'],
+                'user_nom' => $validated['username'] ?? $user->name
+            ]);
+            
+            Log::info('Informations de connexion mises à jour', [
+                'user_id' => $userId,
+                'email_updated' => $validated['email'],
+                'password_changed' => !empty($validated['new_password'])
+            ]);
+            
+            // Redirection dynamique selon la formation de l'utilisateur
+            $userFormation = session('user_formation_raw', 'design-graphique');
+            return redirect()
+                ->route($userFormation . '.parametres.index')
+                ->with('success', 'Informations de connexion mises à jour avec succès !');
+                
+        } catch (Exception $e) {
+            Log::error('Erreur mise à jour informations de connexion: ' . $e->getMessage(), [
+                'user_id' => session('user_id'),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour. Veuillez réessayer.');
         }
     }
 
@@ -284,6 +408,97 @@ class ProfileController extends Controller
         // Only update session if there are fields to update
         if (!empty($sessionData)) {
             session($sessionData);
+        }
+    }
+
+    /**
+     * Upload profile photo.
+     */
+    public function uploadPhoto(Request $request)
+    {
+        try {
+            // Vérifier l'authentification
+            if (!session('logged_in') || !session('user_id')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vous devez être connecté pour effectuer cette action.'
+                ], 401);
+            }
+
+            // Valider le fichier
+            $request->validate([
+                'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120' // 5MB max
+            ]);
+
+            $userId = (int) session('user_id');
+            
+            // Récupérer l'ancien fichier pour le supprimer
+            $student = DB::table('students')->where('user_id', $userId)->first();
+            $oldPhoto = $student ? $student->profile_photo : null;
+
+            // Uploader le nouveau fichier
+            if ($request->hasFile('photo')) {
+                $file = $request->file('photo');
+                $filename = 'profile_' . $userId . '_' . time() . '.' . $file->getClientOriginalExtension();
+                
+                // Créer le dossier s'il n'existe pas
+                $uploadPath = public_path('uploads/photos');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                // Déplacer le fichier
+                $file->move($uploadPath, $filename);
+                $photoPath = 'uploads/photos/' . $filename;
+
+                // Mettre à jour la base de données
+                DB::table('students')
+                    ->where('user_id', $userId)
+                    ->update([
+                        'profile_photo' => $photoPath,
+                        'updated_at' => now()
+                    ]);
+
+                // Mettre à jour la session
+                session(['user_photo' => $photoPath]);
+
+                // Supprimer l'ancienne photo si elle existe
+                if ($oldPhoto && file_exists(public_path($oldPhoto))) {
+                    @unlink(public_path($oldPhoto));
+                }
+
+                Log::info('Photo de profil mise à jour', [
+                    'user_id' => $userId,
+                    'photo_path' => $photoPath
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Photo de profil mise à jour avec succès !',
+                    'photo_url' => asset($photoPath)
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Aucun fichier n\'a été uploadé.'
+            ], 400);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Fichier invalide. Veuillez sélectionner une image (JPEG, PNG, JPG, GIF) de moins de 5MB.'
+            ], 422);
+        } catch (Exception $e) {
+            Log::error('Erreur upload photo profil: ' . $e->getMessage(), [
+                'user_id' => session('user_id'),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'upload de la photo. Veuillez réessayer.'
+            ], 500);
         }
     }
 }

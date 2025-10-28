@@ -60,9 +60,6 @@
                         <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
                             <i class="fas fa-sync-alt me-1"></i>Actualiser
                         </button>
-                        <button class="btn btn-success btn-sm" onclick="exportFormationStudents()">
-                            <i class="fas fa-file-excel me-1"></i>Exporter
-                        </button>
                     </div>
                 </div>
                 <div class="card-body">
@@ -140,12 +137,18 @@
                                                 </button>
                                             @else
                                                 <button type="button" 
-                                                        class="btn btn-outline-danger" 
+                                                        class="btn btn-outline-secondary" 
                                                         title="Désactiver le compte"
                                                         onclick="openDeactivateModal({{ $student['student_id'] ?? $student['id'] }}, '{{ addslashes($student['prenom']) }} {{ addslashes($student['nom']) }}', '{{ $student['email'] }}')">
                                                     <i class="fas fa-ban"></i>
                                                 </button>
                                             @endif
+                                            <button type="button" 
+                                                    class="btn btn-outline-danger" 
+                                                    title="Supprimer définitivement"
+                                                    onclick="deleteStudent({{ $student['student_id'] ?? $student['id'] }}, '{{ addslashes($student['prenom']) }} {{ addslashes($student['nom']) }}')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -155,9 +158,6 @@
                                         <div class="text-muted">
                                             <i class="fas fa-users fa-2x mb-2"></i>
                                             <p>Aucun étudiant trouvé pour cette formation</p>
-                                            <a href="{{ route('admin.students.add') }}" class="btn btn-primary btn-sm">
-                                                <i class="fas fa-plus me-1"></i>Ajouter un étudiant
-                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -241,11 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function exportFormationStudents() {
-    const formation = '{{ $data["formation"] }}';
-    const url = `{{ route("admin.students.export-excel") }}?formation=${formation}`;
-    window.open(url, '_blank');
-}
+
 
 // Ouvrir le modal custom
 function openDeactivateModal(studentId, studentName, email) {
@@ -454,6 +450,42 @@ function showErrorNotification(message) {
             }, 150);
         }
     }, 5000);
+}
+
+// Supprimer un étudiant définitivement
+function deleteStudent(studentId, studentName) {
+    if (!confirm(`⚠️ ATTENTION - SUPPRESSION DÉFINITIVE !\n\nÊtes-vous absolument sûr de vouloir supprimer l'étudiant "${studentName}" ?\n\n⚠️ Cette action est IRRÉVERSIBLE et supprimera :\n- Le profil étudiant\n- Tous ses TP\n- Tous ses projets\n- Tous ses documents\n- Toutes ses données\n\nTapez OK pour confirmer la suppression.`)) {
+        return;
+    }
+
+    // Deuxième confirmation
+    if (!confirm(`Dernière confirmation !\n\nVoulez-vous vraiment supprimer définitivement "${studentName}" ?\n\nCette action ne peut PAS être annulée.`)) {
+        return;
+    }
+
+    // Créer un formulaire de suppression
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/evc/app/admin/students/${studentId}/delete`;
+    
+    // Token CSRF
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    
+    // Méthode DELETE
+    const methodInput = document.createElement('input');
+    methodInput.type = 'hidden';
+    methodInput.name = '_method';
+    methodInput.value = 'DELETE';
+    form.appendChild(methodInput);
+    
+    // Ajouter au body et soumettre
+    document.body.appendChild(form);
+    form.submit();
 }
 </script>
 

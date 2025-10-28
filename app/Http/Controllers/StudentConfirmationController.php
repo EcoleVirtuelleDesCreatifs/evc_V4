@@ -179,6 +179,87 @@ class StudentConfirmationController extends Controller
                 Log::warning('Impossible de mettre à jour le statut PreRegistration vers Actif', ['email' => $email, 'error' => $e->getMessage()]);
             }
 
+            // CRÉER L'ENTRÉE DANS LA TABLE STUDENTS si elle n'existe pas encore
+            try {
+                // Vérifier via user_id au lieu de email (email n'existe pas dans students)
+                $user = DB::table('users')->where('email', $email)->first();
+                $studentExists = $user ? DB::table('students')->where('user_id', $user->id)->exists() : false;
+                
+                if (!$studentExists) {
+                    // Récupérer les infos de la pré-inscription et de l'utilisateur
+                    $preRegistration = PreRegistration::where('email', $email)->latest('id')->first();
+                    $user = DB::table('users')->where('email', $email)->first();
+                    
+                    if ($preRegistration && $user) {
+                        // Générer un student_id unique (format: EVC-ANNÉE-JOUR-MOIS-NUMERO)
+                        // Exemple: EVC-2025-141001 (14 octobre 2025, 1er étudiant du jour)
+                        $year = date('Y');
+                        $day = date('d');
+                        $month = date('m');
+                        $datePrefix = "{$year}-{$day}{$month}";
+                        
+                        $lastStudent = DB::table('students')
+                            ->where('student_id', 'like', "EVC-{$datePrefix}%")
+                            ->orderBy('id', 'desc')
+                            ->first();
+                        
+                        if ($lastStudent && preg_match('/EVC-\d{4}-\d{4}(\d{2})/', $lastStudent->student_id, $matches)) {
+                            $nextNumber = intval($matches[1]) + 1;
+                        } else {
+                            $nextNumber = 1;
+                        }
+                        $studentId = sprintf('EVC-%s-%s%02d', $year, $day . $month, $nextNumber);
+                        
+                        // Mapper la formation de la pré-inscription
+                        $formationMap = [
+                            'design_graphique' => ['program' => 'Design Graphique', 'specialization' => 'design_graphique'],
+                            'community_management' => ['program' => 'Community Management', 'specialization' => 'community_management'],
+                            'intelligence_artificielle' => ['program' => 'Intelligence Artificielle', 'specialization' => 'intelligence_artificielle'],
+                            'gestion_informatique' => ['program' => 'Gestion Informatique', 'specialization' => 'gestion_informatique'],
+                            'infographie' => ['program' => 'Design Graphique', 'specialization' => 'design_graphique'],
+                            'informatique' => ['program' => 'Gestion Informatique', 'specialization' => 'gestion_informatique'],
+                        ];
+                        
+                        $formationKey = $preRegistration->choix_formation ?? 'design_graphique';
+                        $formationData = $formationMap[$formationKey] ?? ['program' => 'Design Graphique', 'specialization' => 'design_graphique'];
+                        
+                        // Créer l'entrée student
+                        DB::table('students')->insert([
+                            'user_id' => $user->id,
+                            'student_id' => $studentId,
+                            'first_name' => $preRegistration->prenom ?? '',
+                            'last_name' => $preRegistration->nom ?? '',
+                            'email' => $email,
+                            'phone' => $preRegistration->whatsapp ?? null,
+                            'whatsapp' => $preRegistration->whatsapp ?? null,
+                            'program' => $formationData['program'],
+                            'specialization' => $formationData['specialization'],
+                            'level' => $preRegistration->niveau_dans_formation ?? 'Débutant',
+                            'Level_education' => $preRegistration->niveau_etude ?? null,
+                            'degree' => 'En cours',
+                            'status' => 'active',
+                            'city' => $preRegistration->pays ?? null,
+                            'country' => $preRegistration->pays ?? 'Côte d\'Ivoire',
+                            'profile_photo' => $preRegistration->photo ?? null,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                        
+                        Log::info('Entrée student créée automatiquement lors de la confirmation', [
+                            'email' => $email,
+                            'student_id' => $studentId,
+                            'formation' => $formationData['program']
+                        ]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::error('Erreur lors de la création automatique de l\'entrée student', [
+                    'email' => $email,
+                    'error' => $e->getMessage()
+                ]);
+                // Ne pas bloquer l'inscription si la création du student échoue
+            }
+
             Log::info('Inscription confirmée avec succès pour: ' . $email);
             
             return redirect()->route('student.login')->with('success', 'Félicitations ! Votre inscription a été confirmée avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.');

@@ -15,33 +15,12 @@ class CVThequeProfile extends Model
     protected $fillable = [
         'user_id',
         'professional_title',
-        'professional_summary',
-        'years_experience',
-        'current_position',
-        'current_company',
-        'software_skills',
-        'technical_skills',
-        'languages',
-        'professional_email',
-        'professional_phone',
-        'professional_website',
-        'linkedin_profile',
-        'behance_profile',
-        'dribbble_profile',
-        'instagram_profile',
-        'job_type',
-        'salary_expectation',
-        'availability_date',
-        'remote_work',
-        'willing_to_relocate',
-        'preferred_locations',
-        'certifications',
-        'formations_completed',
-        'profile_visible',
-        'profile_public',
-        'allow_contact',
+        'summary',  // Nom réel de la colonne dans la table
+        'experience_years',  // Nom réel de la colonne dans la table
+        'availability',
+        'skills',
+        'portfolio_url',
         'profile_completion_score',
-        'last_updated_by_user',
         // Champs pour les fichiers joints
         'cv_file_path',
         'cv_file_name',
@@ -55,34 +34,16 @@ class CVThequeProfile extends Model
     ];
 
     protected $casts = [
-        'software_skills' => 'array',
-        'technical_skills' => 'array',
-        'languages' => 'array',
-        'preferred_locations' => 'array',
-        'certifications' => 'array',
-        'formations_completed' => 'array',
+        'skills' => 'array',
         'portfolio_files' => 'array', // Pour stocker plusieurs fichiers de réalisations
-        'years_experience' => 'integer',
-        'remote_work' => 'boolean',
-        'willing_to_relocate' => 'boolean',
-        'profile_visible' => 'boolean',
-        'profile_public' => 'boolean',
-        'allow_contact' => 'boolean',
+        'experience_years' => 'integer',
         'profile_completion_score' => 'integer',
-        'availability_date' => 'date',
-        'last_updated_by_user' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
 
     protected $attributes = [
-        'years_experience' => 0,
-        'job_type' => 'Tout',
-        'remote_work' => false,
-        'willing_to_relocate' => false,
-        'profile_visible' => true,
-        'profile_public' => false,
-        'allow_contact' => true,
+        'experience_years' => 0,
         'profile_completion_score' => 0
     ];
 
@@ -159,14 +120,7 @@ class CVThequeProfile extends Model
         return $this->profile_completion_score . '%';
     }
 
-    /**
-     * Mutator pour mettre à jour automatiquement last_updated_by_user
-     */
-    public function setUpdatedAt($value)
-    {
-        parent::setUpdatedAt($value);
-        $this->attributes['last_updated_by_user'] = now();
-    }
+    // Mutator retiré car la colonne last_updated_by_user n'existe pas dans la table
 
     /**
      * Vérifier si le profil est complet (score >= 80%)

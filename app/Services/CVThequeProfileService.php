@@ -21,11 +21,34 @@ class CVThequeProfileService
     public function createOrUpdateProfile(int $userId, array $data, array $files = []): array
     {
         try {
+            // Debug: Log des données reçues
+            Log::info('CVThequeProfileService - Données reçues:', [
+                'user_id' => $userId,
+                'data_keys' => array_keys($data),
+                'data' => $data
+            ]);
+
+            // Préparer les données
+            $preparedData = $this->prepareProfileData($data);
+            
+            // Debug: Log des données préparées
+            Log::info('CVThequeProfileService - Données préparées:', [
+                'prepared_data' => $preparedData
+            ]);
+
             // Rechercher le profil existant ou créer un nouveau
             $profile = CVThequeProfile::updateOrCreate(
                 ['user_id' => $userId],
-                $this->prepareProfileData($data)
+                $preparedData
             );
+
+            // Debug: Log du profil après sauvegarde
+            Log::info('CVThequeProfileService - Profil après sauvegarde:', [
+                'profile_id' => $profile->id,
+                'professional_title' => $profile->professional_title,
+                'summary' => $profile->summary,
+                'experience_years' => $profile->experience_years
+            ]);
 
             // Gérer les fichiers joints si fournis
             if (!empty($files)) {
@@ -290,56 +313,57 @@ class CVThequeProfileService
 
     /**
      * Préparer les données du profil pour la sauvegarde
+     * Adapté à la structure réelle de la table cvtheque_profiles
      */
     private function prepareProfileData(array $data): array
     {
         // Nettoyer et valider les données
         $cleanData = [];
 
-        // Champs texte simples
-        $textFields = [
-            'professional_title', 'professional_summary', 'current_position',
-            'current_company', 'professional_email', 'professional_phone',
-            'professional_website', 'linkedin_profile', 'behance_profile',
-            'dribbble_profile', 'instagram_profile', 'salary_expectation'
-        ];
-
-        foreach ($textFields as $field) {
-            if (isset($data[$field])) {
-                $cleanData[$field] = trim($data[$field]) ?: null;
-            }
+        // Champs texte simples (colonnes réelles de la table)
+        if (isset($data['professional_title'])) {
+            $cleanData['professional_title'] = trim($data['professional_title']) ?: null;
         }
 
-        // Champs numériques
+        // Mapper professional_summary vers summary (nom réel de la colonne)
+        if (isset($data['professional_summary'])) {
+            $cleanData['summary'] = trim($data['professional_summary']) ?: null;
+        } elseif (isset($data['summary'])) {
+            $cleanData['summary'] = trim($data['summary']) ?: null;
+        }
+
+        // Mapper years_experience vers experience_years (nom réel de la colonne)
         if (isset($data['years_experience'])) {
-            $cleanData['years_experience'] = max(0, (int) $data['years_experience']);
+            $cleanData['experience_years'] = max(0, (int) $data['years_experience']);
+        } elseif (isset($data['experience_years'])) {
+            $cleanData['experience_years'] = max(0, (int) $data['experience_years']);
         }
 
-        // Champs de sélection
-        if (isset($data['job_type'])) {
-            $validJobTypes = ['CDI', 'CDD', 'Freelance', 'Stage', 'Alternance', 'Tout'];
-            $cleanData['job_type'] = in_array($data['job_type'], $validJobTypes) ? $data['job_type'] : 'Tout';
+        // Champ availability
+        if (isset($data['availability'])) {
+            $cleanData['availability'] = trim($data['availability']) ?: null;
         }
 
-        // Champs booléens
-        $booleanFields = ['remote_work', 'willing_to_relocate', 'profile_visible', 'profile_public', 'allow_contact'];
-        foreach ($booleanFields as $field) {
-            if (isset($data[$field])) {
-                $cleanData[$field] = (bool) $data[$field];
-            }
+        // Champ portfolio_url
+        if (isset($data['portfolio_url'])) {
+            $cleanData['portfolio_url'] = trim($data['portfolio_url']) ?: null;
         }
 
-        // Champs de date
-        if (isset($data['availability_date']) && !empty($data['availability_date'])) {
-            $cleanData['availability_date'] = $data['availability_date'];
+        // Champs array - skills (colonne réelle de la table)
+        // Accepter software_skills, technical_skills, ou skills
+        $skillsData = [];
+        if (isset($data['software_skills']) && is_array($data['software_skills'])) {
+            $skillsData = array_merge($skillsData, $data['software_skills']);
         }
-
-        // Champs array (automatiquement gérés par les casts du modèle)
-        $arrayFields = ['software_skills', 'technical_skills', 'languages', 'preferred_locations', 'certifications', 'formations_completed'];
-        foreach ($arrayFields as $field) {
-            if (isset($data[$field]) && is_array($data[$field])) {
-                $cleanData[$field] = array_filter($data[$field]); // Supprimer les valeurs vides
-            }
+        if (isset($data['technical_skills']) && is_array($data['technical_skills'])) {
+            $skillsData = array_merge($skillsData, $data['technical_skills']);
+        }
+        if (isset($data['skills']) && is_array($data['skills'])) {
+            $skillsData = array_merge($skillsData, $data['skills']);
+        }
+        
+        if (!empty($skillsData)) {
+            $cleanData['skills'] = array_values(array_unique(array_filter($skillsData)));
         }
 
         return $cleanData;

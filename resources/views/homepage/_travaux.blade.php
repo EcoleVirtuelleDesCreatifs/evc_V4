@@ -1,12 +1,12 @@
 <!-- Section Travaux Étudiants -->
-<div class="bg-black py-24 sm:py-32">
+<div class="pt-32 sm:pt-40 lg:pt-48 pb-24 sm:pb-32 bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#034078]">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-2xl lg:text-center" data-aos="fade-up">
             <h2 class="text-base font-semibold leading-7 evc-orange">Travaux Étudiants</h2>
-            <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Nos étudiants ne se contentent pas d’apprendre, ils créent !</p>
+            <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Nos étudiants ne se contentent pas d'apprendre, ils créent !</p>
         </div>
         <div class="relative mx-auto mt-16 max-w-6xl overflow-hidden">
-            <div class="swiper-container travaux-carousel relative">
+            <div class="swiper travaux-carousel relative">
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
                         <a href="https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&w=1200&q=80" data-fancybox="gallery" data-caption="Projet étudiant 1">
@@ -44,6 +44,16 @@
             </div>
             <!-- Pagination -->
             <div class="swiper-pagination travaux-pagination mt-8 relative"></div>
+        </div>
+        
+        <!-- Bouton Voir Plus -->
+        <div class="mt-12 text-center" data-aos="fade-up" data-aos-delay="200">
+            <a href="#" class="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300">
+                <span>Voir plus de travaux</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+            </a>
         </div>
     </div>
 </div>

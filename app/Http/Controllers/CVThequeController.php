@@ -132,6 +132,15 @@ class CVThequeController extends Controller
                 Log::info('Realisations files détectés:', ['count' => count($request->file('realisations_files'))]);
             }
 
+            // Debug: Log des données validées
+            Log::info('Données validées reçues:', [
+                'user_id' => $userId,
+                'validated_data' => $validatedData,
+                'has_professional_title' => isset($validatedData['professional_title']),
+                'has_professional_summary' => isset($validatedData['professional_summary']),
+                'has_years_experience' => isset($validatedData['years_experience'])
+            ]);
+
             // Utiliser le Service Laravel pour enregistrer les données et fichiers
             try {
                 $profileService = new CVThequeProfileService();
@@ -398,6 +407,131 @@ class CVThequeController extends Controller
     }
 
     /**
+     * Afficher le profil CVThèque - Nouvelle page interactive
+     */
+    public function monProfil(): View|RedirectResponse
+    {
+        if (!$this->isAuthenticated()) {
+            return redirect()->route('login');
+        }
+
+        try {
+            $userId = (int) session('user_id');
+            $profileService = new CVThequeProfileService();
+            
+            // Récupérer les informations utilisateur et profil CVThèque
+            $userInfo = $this->getUserInfo($userId);
+            $cvthequeProfile = $profileService->getOrCreateUserProfile($userId);
+            $completionScore = $profileService->calculateCompletionScore($cvthequeProfile);
+
+            // Préparer la liste des documents
+            $documents = [
+                [
+                    'name' => 'CV',
+                    'available' => !empty($cvthequeProfile->cv_file),
+                    'url' => $cvthequeProfile->cv_file ? asset('storage/' . $cvthequeProfile->cv_file) : null
+                ],
+                [
+                    'name' => 'Lettre de motivation',
+                    'available' => !empty($cvthequeProfile->motivation_file),
+                    'url' => $cvthequeProfile->motivation_file ? asset('storage/' . $cvthequeProfile->motivation_file) : null
+                ],
+                [
+                    'name' => 'Pressbook',
+                    'available' => !empty($cvthequeProfile->pressbook_file),
+                    'url' => $cvthequeProfile->pressbook_file ? asset('storage/' . $cvthequeProfile->pressbook_file) : null
+                ],
+                [
+                    'name' => 'Rapport de formation',
+                    'available' => !empty($cvthequeProfile->rapport_file),
+                    'url' => $cvthequeProfile->rapport_file ? asset('storage/' . $cvthequeProfile->rapport_file) : null
+                ]
+            ];
+
+            return view('cvtheque.mon-profil', [
+                'userInfo' => $userInfo,
+                'cvthequeProfile' => $cvthequeProfile,
+                'completionScore' => $completionScore,
+                'documents' => $documents,
+                'softwareOptions' => $profileService->getSoftwareOptions(),
+                'skillsOptions' => $profileService->getSkillsOptions(),
+                'languageOptions' => $profileService->getLanguageOptions()
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Erreur CVThèque monProfil: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            // Déterminer la route de retour selon la formation
+            $formation = session('user_formation_raw', 'design-graphique');
+            $returnRoute = $formation . '.cvtheque.index';
+            
+            return redirect()->route($returnRoute)
+                ->with('error', 'Erreur lors de l\'affichage du profil: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Afficher le profil CVThèque de manière structurée
+     */
+    public function profileDisplay(): View|RedirectResponse
+    {
+        if (!$this->isAuthenticated()) {
+            return redirect()->route('login');
+        }
+
+        try {
+            $userId = (int) session('user_id');
+            $profileService = new CVThequeProfileService();
+            
+            // Récupérer les informations utilisateur et profil CVThèque
+            $userInfo = $this->getUserInfo($userId);
+            $cvthequeProfile = $profileService->getOrCreateUserProfile($userId);
+            $completionScore = $profileService->calculateCompletionScore($cvthequeProfile);
+
+            // Préparer la liste des documents
+            $documents = [
+                [
+                    'name' => 'CV',
+                    'available' => !empty($cvthequeProfile->cv_file),
+                    'url' => $cvthequeProfile->cv_file ? asset('storage/' . $cvthequeProfile->cv_file) : null
+                ],
+                [
+                    'name' => 'Lettre de motivation',
+                    'available' => !empty($cvthequeProfile->motivation_file),
+                    'url' => $cvthequeProfile->motivation_file ? asset('storage/' . $cvthequeProfile->motivation_file) : null
+                ],
+                [
+                    'name' => 'Pressbook',
+                    'available' => !empty($cvthequeProfile->pressbook_file),
+                    'url' => $cvthequeProfile->pressbook_file ? asset('storage/' . $cvthequeProfile->pressbook_file) : null
+                ],
+                [
+                    'name' => 'Rapport de formation',
+                    'available' => !empty($cvthequeProfile->rapport_file),
+                    'url' => $cvthequeProfile->rapport_file ? asset('storage/' . $cvthequeProfile->rapport_file) : null
+                ]
+            ];
+
+            return view('cvtheque.profile-display', [
+                'userInfo' => $userInfo,
+                'cvthequeProfile' => $cvthequeProfile,
+                'completionScore' => $completionScore,
+                'documents' => $documents,
+                'softwareOptions' => $profileService->getSoftwareOptions(),
+                'skillsOptions' => $profileService->getSkillsOptions(),
+                'languageOptions' => $profileService->getLanguageOptions()
+            ]);
+            
+        } catch (\Exception $e) {
+            Log::error('Erreur CVThèque profileDisplay: ' . $e->getMessage());
+            return redirect()->route('design-graphique.cvtheque.index')
+                ->with('error', 'Erreur lors de l\'affichage du profil');
+        }
+    }
+
+    /**
      * Prévisualiser le profil CVThèque complet
      */
     public function preview(): View|RedirectResponse
@@ -650,11 +784,12 @@ class CVThequeController extends Controller
      */
     private function getUserInfo(int $userId): object
     {
-        $user = DB::table('users')
-            ->select('id', 'first_name', 'last_name', 'email', 'phone', 'whatsapp', 
-                    'country', 'city', 'district', 'profile_photo', 'education_level', 
-                    'last_diploma', 'biography', 'current_level')
-            ->where('id', $userId)
+        // Récupérer depuis la table students car c'est là que sont stockées les infos complètes
+        $user = DB::table('students')
+            ->select('id', 'user_id', 'first_name', 'last_name', 'email', 'phone', 'whatsapp', 
+                    'country', 'city', 'quartier as district', 'profile_photo', 'Level_education as education_level', 
+                    'degree as last_diploma', 'biography', 'level as current_level', 'program')
+            ->where('user_id', $userId)
             ->first();
 
         return $user ?: $this->getFallbackUserInfo();

@@ -399,6 +399,193 @@ class AdminStatisticsDetailController extends Controller
     }
 
     /**
+     * Afficher tous les administrateurs par rôle
+     */
+    public function totalAdmins()
+    {
+        try {
+            // Récupérer tous les admins depuis la table admins
+            $admins = DB::table('admins')
+                ->where('is_active', true)
+                ->orderBy('role')
+                ->orderBy('name')
+                ->get();
+            
+            // Grouper les admins par rôle
+            $adminsByRole = [
+                'super_admin' => $admins->where('role', 'super_admin'),
+                'assistant' => $admins->where('role', 'assistant'),
+                'comptable' => $admins->where('role', 'comptable'),
+            ];
+            
+            // Définir les permissions pour chaque rôle
+            $permissions = [
+                'super_admin' => [
+                    'label' => 'Super Admin',
+                    'description' => 'Accès complet à toutes les fonctionnalités',
+                    'access' => [
+                        'Dashboard', 'Formations', 'Pré-inscriptions', 'Étudiants', 'Évènements', 
+                        'Actualités', 'Bibliothèque', 'TP', 'Projets', 'Paiements', 
+                        'Rapports', 'Statistiques', 'Gestion des Admins'
+                    ],
+                    'color' => '#1e3c72',
+                ],
+                'assistant' => [
+                    'label' => 'Assistant',
+                    'description' => 'Accès aux formations et gestion académique',
+                    'access' => [
+                        'Formations', 'Pré-inscriptions', 'Étudiants', 'Évènements',
+                        'Actualités', 'Bibliothèque', 'TP', 'Projets'
+                    ],
+                    'color' => '#4fc3f7',
+                ],
+                'comptable' => [
+                    'label' => 'Comptable',
+                    'description' => 'Accès aux paiements et étudiants par formation',
+                    'access' => [
+                        'Paiements', 'Étudiants Design Graphique', 'Étudiants Community Management',
+                        'Étudiants Gestion Informatique', 'Étudiants Intelligence Artificielle'
+                    ],
+                    'color' => '#9c27b0',
+                ],
+            ];
+            
+            $stats = [
+                'total_admins' => $admins->count(),
+                'total_super_admins' => $adminsByRole['super_admin']->count(),
+                'total_assistants' => $adminsByRole['assistant']->count(),
+                'total_comptables' => $adminsByRole['comptable']->count(),
+            ];
+            
+            return view('admin.statistics.total-admins', compact('adminsByRole', 'permissions', 'stats'));
+            
+        } catch (\Exception $e) {
+            Log::error('Erreur dans totalAdmins: ' . $e->getMessage());
+            
+            return redirect()->route('admin.dashboard')
+                ->with('error', 'Erreur lors du chargement des administrateurs');
+        }
+    }
+
+    /**
+     * Afficher toutes les statistiques sur une seule page
+     */
+    public function allStatistics()
+    {
+        // Initialiser toutes les statistiques avec des valeurs par défaut
+        $stats = [];
+        
+        // Statistiques des étudiants par formation
+        try {
+            $stats['students_design_graphique'] = DB::table('pre_registrations')
+                ->where('choix_formation', 'design_graphique')
+                ->count();
+        } catch (\Exception $e) {
+            $stats['students_design_graphique'] = 0;
+        }
+        
+        try {
+            $stats['students_community_management'] = DB::table('pre_registrations')
+                ->where('choix_formation', 'community_management')
+                ->count();
+        } catch (\Exception $e) {
+            $stats['students_community_management'] = 0;
+        }
+        
+        try {
+            $stats['students_gestion_informatique'] = DB::table('pre_registrations')
+                ->where('choix_formation', 'gestion_informatique')
+                ->count();
+        } catch (\Exception $e) {
+            $stats['students_gestion_informatique'] = 0;
+        }
+        
+        try {
+            $stats['students_intelligence_artificielle'] = DB::table('pre_registrations')
+                ->where('choix_formation', 'intelligence_artificielle')
+                ->count();
+        } catch (\Exception $e) {
+            $stats['students_intelligence_artificielle'] = 0;
+        }
+        
+        // Bibliothèque
+        try {
+            $stats['total_bibliotheque_documents'] = DB::table('libraries')->count();
+        } catch (\Exception $e) {
+            $stats['total_bibliotheque_documents'] = 0;
+        }
+        
+        // Événements
+        try {
+            $stats['total_events'] = DB::table('events')->count();
+        } catch (\Exception $e) {
+            $stats['total_events'] = 0;
+        }
+        
+        // Actualités
+        try {
+            $stats['total_actualites'] = DB::table('actualites')->count();
+        } catch (\Exception $e) {
+            $stats['total_actualites'] = 0;
+        }
+        
+        // Paiements
+        try {
+            $stats['total_payments'] = DB::table('payments')->count();
+        } catch (\Exception $e) {
+            $stats['total_payments'] = 0;
+        }
+        
+        // Rapports
+        try {
+            $stats['total_reports'] = DB::table('reports')->count();
+        } catch (\Exception $e) {
+            $stats['total_reports'] = 0;
+        }
+        
+        // Pré-inscriptions
+        try {
+            $stats['total_pre_inscriptions'] = DB::table('pre_registrations')->count();
+        } catch (\Exception $e) {
+            $stats['total_pre_inscriptions'] = 0;
+        }
+        
+        // Admins
+        try {
+            $stats['total_admins'] = DB::table('users')->where('role', 'admin')->count();
+        } catch (\Exception $e) {
+            $stats['total_admins'] = 0;
+        }
+        
+        // Autres statistiques
+        try {
+            $stats['total_students'] = DB::table('users')->where('role', 'student')->count();
+        } catch (\Exception $e) {
+            $stats['total_students'] = 0;
+        }
+        
+        try {
+            $stats['total_formations'] = DB::table('formations')->count();
+        } catch (\Exception $e) {
+            $stats['total_formations'] = 0;
+        }
+        
+        try {
+            $stats['total_projects'] = DB::table('projects')->count();
+        } catch (\Exception $e) {
+            $stats['total_projects'] = 0;
+        }
+        
+        try {
+            $stats['total_tp'] = DB::table('tp')->count();
+        } catch (\Exception $e) {
+            $stats['total_tp'] = 0;
+        }
+        
+        return view('admin.statistics.all', compact('stats'));
+    }
+
+    /**
      * Données de fallback en cas d'erreur - SANS GRAPHIQUES
      */
     private function getFallbackData($statType)

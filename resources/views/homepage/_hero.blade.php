@@ -1,6 +1,6 @@
 <!-- Hero Section -->
 <main id="hero-section" class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-24 sm:pt-32 z-40">
-    <div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-8 lg:px-8">
+    <div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-3 lg:px-8">
         <div class="px-6 lg:col-span-7 xl:col-span-6 text-center lg:text-left flex flex-col justify-center">
             <div class="relative z-10">
                 <!-- Text Slider -->
@@ -32,17 +32,17 @@
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
                         <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80');"></div>
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ asset('assets/img/cover/formation-infographie-à-abidjan.jpg') }}');"></div>
                         </div>
                     </div>
                     <div class="swiper-slide">
                         <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=800&q=80');"></div>
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ asset('assets/img/cover/formation-community-manager-à-abidjan.jpg') }}');"></div>
                         </div>
                     </div>
                     <div class="swiper-slide">
                         <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80');"></div>
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ asset('assets/img/cover/premiere-ecole-dgitale-ultra-pratique-à-abidjan.jpg') }}');"></div>
                         </div>
                     </div>
                 </div>

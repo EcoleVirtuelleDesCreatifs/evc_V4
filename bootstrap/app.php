@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.auth' => \App\Http\Middleware\AdminAuthRequired::class,
             'track.online' => \App\Http\Middleware\TrackOnlineStatus::class,
             'student.active' => \App\Http\Middleware\CheckStudentActive::class,
+            'formation.access' => \App\Http\Middleware\CheckFormationAccess::class,
         ]);
         
         // Appliquer le middleware de suivi du statut en ligne sur toutes les routes web

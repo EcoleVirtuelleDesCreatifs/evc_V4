@@ -3,6 +3,23 @@
 @section('title', 'CVThèque - EVC 2024')
 @section('page-title', 'CVThèque')
 
+@php
+    // Détecter automatiquement la formation de l'utilisateur pour les routes
+    // Utiliser user_formation_raw qui contient déjà le format correct (ex: community-management)
+    $routePrefix = session('user_formation_raw', 'design-graphique');
+    
+    // Si user_formation_raw n'existe pas, utiliser user_formation et le convertir
+    if (!$routePrefix || $routePrefix === 'design-graphique') {
+        $formation = session('user_formation', 'Design Graphique');
+        $routePrefix = match(strtolower($formation)) {
+            'community management' => 'community-management',
+            'gestion informatique' => 'gestion-informatique',
+            'intelligence artificielle' => 'intelligence-artificielle',
+            default => 'design-graphique'
+        };
+    }
+@endphp
+
 @push('styles')
 <!-- Animate.css pour les animations de la modale -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
@@ -138,7 +155,7 @@
                     </li>
                 </ul>
 
-                <form id="profile-form" method="POST" action="{{ route('design-graphique.cvtheque.update-profile') }}" enctype="multipart/form-data">
+                <form id="profile-form" method="POST" action="{{ route($routePrefix . '.cvtheque.update-profile') }}" enctype="multipart/form-data">
                     @csrf
 
                     <div class="tab-content" id="profile-tab-content" style="background: white; padding: 30px; border-radius: 0 0 15px 15px;">
@@ -158,7 +175,7 @@
                                 <div class="col-md-6">
                                     <div class="form-floating">
                                         <input type="text" class="form-control" id="professional_title" name="professional_title"
-                                               value="{{ $cvthequeProfile->professional_title ?? '' }}"
+                                               value="{{ old('professional_title', $cvthequeProfile->professional_title ?? '') }}"
                                                placeholder="Ex: Designer Graphique Junior"
                                                required style="border-radius: 10px; border: 2px solid #e9ecef;">
                                         <label for="professional_title">
@@ -189,7 +206,7 @@
                                 <div class="form-floating">
                                     <textarea class="form-control" id="professional_summary" name="professional_summary" rows="4"
                                               placeholder="Décrivez votre parcours, vos compétences clés et vos objectifs..."
-                                              required style="height: 120px; border-radius: 10px; border: 2px solid #e9ecef;">{{ $cvthequeProfile->professional_summary ?? '' }}</textarea>
+                                              required style="height: 120px; border-radius: 10px; border: 2px solid #e9ecef;">{{ old('professional_summary', $cvthequeProfile->professional_summary ?? '') }}</textarea>
                                     <label for="professional_summary">
                                         <i class="fas fa-file-alt me-2 text-success"></i>
                                         Résumé Professionnel *
@@ -513,14 +530,14 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <a href="{{ route('design-graphique.cvtheque.preview') }}" class="btn-visual-primary">
+                    <a href="{{ route($routePrefix . '.cvtheque.mon-profil') }}" class="btn-visual-primary">
                         <div class="btn-visual-content">
                             <div class="btn-visual-icon">
                                 <i class="fas fa-eye"></i>
                             </div>
                             <div class="btn-visual-text">
-                                <h6 class="mb-1">Prévisualiser mon profil</h6>
-                                <small>Voir comment votre profil apparaît aux employeurs</small>
+                                <h6 class="mb-1">Voir mon profil</h6>
+                                <small>Consultez votre profil CVThèque complet et structuré</small>
                             </div>
                             <div class="btn-visual-arrow">
                                 <i class="fas fa-chevron-right"></i>
@@ -529,7 +546,7 @@
                     </a>
                 </div>
                 <div class="mb-3">
-                    <a href="{{ route('design-graphique.cvtheque.historique') }}" class="btn-visual-secondary">
+                    <a href="{{ route($routePrefix . '.cvtheque.historique') }}" class="btn-visual-secondary">
                         <div class="btn-visual-content">
                             <div class="btn-visual-icon">
                                 <i class="fas fa-history"></i>
@@ -1449,12 +1466,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gestion du formulaire de profil en AJAX avec fichiers
     $('#profile-form').on('submit', function(e) {
         e.preventDefault();
+        
+        console.log('🚀 Formulaire soumis !');
 
         // Valider avant soumission
         if (!validateRequiredFields()) {
+            console.log('❌ Validation échouée');
             showNotification('error', 'Veuillez remplir tous les champs obligatoires');
             return;
         }
+        
+        console.log('✅ Validation réussie');
 
         const $form = $(this);
         const $submitBtn = $('#save-profile-btn');
@@ -1465,6 +1487,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Préparer les données du formulaire avec fichiers
         const formData = new FormData(this);
+        
+        console.log('📦 FormData créé');
+        console.log('🔗 URL:', $form.attr('action'));
+        
+        // Debug: Afficher toutes les données du formulaire
+        for (let pair of formData.entries()) {
+            console.log('📝', pair[0], ':', pair[1]);
+        }
 
         // Ajouter les fichiers des zones d'upload si ils existent
         const fileInputs = [
@@ -1498,8 +1528,43 @@ document.addEventListener('DOMContentLoaded', function() {
             contentType: false,
             success: function(response) {
                 if (response.success) {
-                    // Afficher un message de succès
+                    // Afficher un message de succès avec bouton
                     showNotification('success', response.message);
+                    
+                    // Afficher un modal de succès avec option de voir le profil
+                    const successModal = `
+                        <div class="modal fade" id="successModal" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content" style="border-radius: 15px; border: none;">
+                                    <div class="modal-body text-center p-4">
+                                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                                            <i class="fas fa-check" style="font-size: 2.5rem; color: white;"></i>
+                                        </div>
+                                        <h4 class="mb-3" style="color: #1f2937; font-weight: 700;">Profil enregistré !</h4>
+                                        <p class="text-muted mb-4">Vos informations ont été sauvegardées avec succès.</p>
+                                        <div class="d-grid gap-2">
+                                            <a href="{{ route($routePrefix . '.cvtheque.mon-profil') }}" class="btn btn-lg" style="background: linear-gradient(135deg, #003366 0%, #0066cc 100%); color: white; border: none; border-radius: 10px; font-weight: 600;">
+                                                <i class="fas fa-eye me-2"></i>Voir mon profil
+                                            </a>
+                                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius: 10px;">
+                                                Continuer l'édition
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Ajouter et afficher le modal
+                    $('body').append(successModal);
+                    const modal = new bootstrap.Modal(document.getElementById('successModal'));
+                    modal.show();
+                    
+                    // Nettoyer le modal après fermeture
+                    $('#successModal').on('hidden.bs.modal', function() {
+                        $(this).remove();
+                    });
 
                     // Mettre à jour le score de complétion si disponible
                     if (response.completion_score) {
@@ -1620,7 +1685,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         $.ajax({
-            url: '{{ route("design-graphique.cvtheque.documents.delete") }}',
+            url: '{{ route($routePrefix . ".cvtheque.documents.delete") }}',
             type: 'DELETE',
             data: {
                 _token: '{{ csrf_token() }}',
@@ -1726,7 +1791,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const profileFormData = new FormData(profileForm);
 
         $.ajax({
-            url: '{{ route("design-graphique.cvtheque.update-profile") }}',
+            url: '{{ route($routePrefix . ".cvtheque.update-profile") }}',
             type: 'POST',
             data: profileFormData,
             processData: false,
@@ -1791,19 +1856,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     let uploadRoute;
                     switch(input.id) {
                         case 'cv-file':
-                            uploadRoute = '{{ route("design-graphique.cvtheque.upload-cv") }}';
+                            uploadRoute = '{{ route($routePrefix . ".cvtheque.upload-cv") }}';
                             break;
                         case 'motivation-file':
-                            uploadRoute = '{{ route("design-graphique.cvtheque.upload-motivation") }}';
+                            uploadRoute = '{{ route($routePrefix . ".cvtheque.upload-motivation") }}';
                             break;
                         case 'pressbook-file':
-                            uploadRoute = '{{ route("design-graphique.cvtheque.upload-pressbook") }}';
+                            uploadRoute = '{{ route($routePrefix . ".cvtheque.upload-pressbook") }}';
                             break;
                         case 'rapport-file':
-                            uploadRoute = '{{ route("design-graphique.cvtheque.upload-rapport") }}';
+                            uploadRoute = '{{ route($routePrefix . ".cvtheque.upload-rapport") }}';
                             break;
                         case 'realisations-file':
-                            uploadRoute = '{{ route("design-graphique.cvtheque.upload-realisation") }}';
+                            uploadRoute = '{{ route($routePrefix . ".cvtheque.upload-realisation") }}';
                             break;
                     }
 

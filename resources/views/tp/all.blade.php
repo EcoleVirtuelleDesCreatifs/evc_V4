@@ -348,10 +348,10 @@
             </div>
         </div>
         <div class="col-md-6 text-end">
-            <a href="{{ route('design-graphique.tp.ajouter') }}" class="btn btn-primary">
+            <a href="{{ route('community-management.tp.ajouter') }}" class="btn btn-primary">
                 <i class="fas fa-plus me-1"></i> Nouveau TP
             </a>
-            <a href="{{ route('design-graphique.tp.index') }}" class="btn btn-outline-secondary">
+            <a href="{{ route('community-management.tp.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Retour
             </a>
         </div>
@@ -411,10 +411,10 @@
                                         <!-- TP avec titre et description -->
                                         <td>
                                             <div>
-                                                <h6 class="mb-1 fw-bold text-dark">{{ $project->title }}</h6>
+                                                <h6 class="mb-1 fw-bold text-dark">{!! $project->title !!}</h6>
                                                 @if($project->description)
                                                     <p class="mb-0 text-muted small">
-                                                        {{ Str::limit($project->description, 80) }}
+                                                        {!! Str::limit(strip_tags($project->description), 80) !!}
                                                     </p>
                                                 @endif
                                                 @if($project->link)
@@ -538,7 +538,7 @@
                             <i class="fas fa-folder-open fa-4x text-muted mb-3"></i>
                             <h4 class="text-muted mb-3">Aucun projet trouvé</h4>
                             <p class="text-muted mb-4">Vous n'avez pas encore créé de projets TP.<br>Commencez dès maintenant !</p>
-                            <a href="{{ route('design-graphique.tp.ajouter') }}" class="btn btn-primary btn-lg">
+                            <a href="{{ route('community-management.tp.ajouter') }}" class="btn btn-primary btn-lg">
                                 <i class="fas fa-plus me-2"></i>Créer mon premier projet
                             </a>
                         </div>
@@ -655,12 +655,12 @@ document.addEventListener('DOMContentLoaded', function() {
 // Fonctions pour les actions des projets
 function viewProject(projectId) {
     // Redirection vers la page de visualisation du projet
-    window.location.href = `/evc/compte/design-graphique/tp/voir/${projectId}`;
+    window.location.href = `/evc/compte/community-management/tp/voir/${projectId}`;
 }
 
 function editProject(projectId) {
     // Redirection vers la page d'édition du projet
-    window.location.href = `/evc/compte/design-graphique/tp/modifier/${projectId}`;
+    window.location.href = `/evc/compte/community-management/tp/modifier/${projectId}`;
 }
 
 function deleteProject(projectId, projectTitle) {
@@ -695,7 +695,7 @@ function deleteProject(projectId, projectTitle) {
             });
 
             // Envoyer la requête de suppression
-            fetch(`/evc/compte/design-graphique/tp/supprimer/${projectId}`, {
+            fetch(`/evc/compte/community-management/tp/supprimer/${projectId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

@@ -354,9 +354,6 @@
         
         <!-- Actions Rapides en Haut -->
         <div class="quick-actions">
-            <a href="{{ route('admin.students.add') }}" class="btn-quick">
-                <i class="fas fa-user-plus me-2"></i>Ajouter Étudiant
-            </a>
             <button class="btn-quick" onclick="exportStudents('pdf')">
                 <i class="fas fa-file-pdf me-2"></i>Exporter PDF
             </button>
@@ -710,10 +707,7 @@
                                     <i class="fas fa-users"></i>
                                 </div>
                                 <div class="empty-title">Aucun étudiant trouvé</div>
-                                <div class="empty-subtitle">Commencez par ajouter des étudiants à votre plateforme</div>
-                                <a href="{{ route('admin.students.add') }}" class="empty-action">
-                                    <i class="fas fa-plus me-2"></i>Ajouter un étudiant
-                                </a>
+                                <div class="empty-subtitle">Les étudiants apparaissent ici après leur inscription</div>
                             </div>
                         </td>
                     </tr>

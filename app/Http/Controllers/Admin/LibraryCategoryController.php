@@ -53,24 +53,37 @@ class LibraryCategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id): View
     {
-        //
+        $category = LibraryCategory::findOrFail($id);
+        return view('admin.bibliotheque.categories.edit', compact('category'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): RedirectResponse
     {
-        //
+        $category = LibraryCategory::findOrFail($id);
+        
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:library_categories,name,' . $id,
+            'description' => 'nullable|string',
+        ]);
+
+        $category->update($validatedData);
+
+        return redirect()->route('admin.bibliotheque.categories.index')->with('success', 'Catégorie mise à jour avec succès.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id): RedirectResponse
     {
-        //
+        $category = LibraryCategory::findOrFail($id);
+        $category->delete();
+
+        return redirect()->route('admin.bibliotheque.categories.index')->with('success', 'Catégorie supprimée avec succès.');
     }
 }

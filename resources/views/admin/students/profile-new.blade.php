@@ -276,7 +276,7 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td class="fw-bold">{{ $tp->title ?? 'TP ' . ($index + 1) }}</td>
-                                        <td><small>{{ Str::limit($tp->description ?? '-', 60) }}</small></td>
+                                        <td><small>{!! Str::limit(strip_tags($tp->description ?? '-'), 60) !!}</small></td>
                                         <td>
                                             @if($tp->link)
                                                 <a href="{{ $tp->link }}" target="_blank" class="btn btn-sm btn-outline-primary">

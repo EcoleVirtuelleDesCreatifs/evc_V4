@@ -91,13 +91,14 @@ class DesignProjectController extends Controller
         }
 
         $userId = (int) session('user_id');
+        $userFormation = session('user_formation', 'design-graphique');
 
         try {
             // Créer le projet via le service
             $result = $this->designProjectService->createProject($request, $userId);
 
             if ($result['success']) {
-                return redirect()->route('design-graphique.projets.index')
+                return redirect()->route($userFormation . '.projets.index')
                     ->with('success', $result['message'])
                     ->with('project_id', $result['project_id']);
             } else {
@@ -133,6 +134,7 @@ class DesignProjectController extends Controller
         }
 
         $userId = (int) session('user_id');
+        $userFormation = session('user_formation', 'design-graphique');
 
         try {
             // Récupérer tous les projets de l'utilisateur pour trouver le projet spécifique
@@ -140,7 +142,7 @@ class DesignProjectController extends Controller
             $project = collect($projects)->firstWhere('id', (int) $id);
 
             if (!$project) {
-                return redirect()->route('design-graphique.projets.index')
+                return redirect()->route($userFormation . '.projets.index')
                     ->with('error', 'Projet non trouvé.');
             }
 
@@ -149,7 +151,7 @@ class DesignProjectController extends Controller
         } catch (\Exception $e) {
             Log::error('Erreur affichage projet: ' . $e->getMessage());
             
-            return redirect()->route('design-graphique.projets.index')
+            return redirect()->route($userFormation . '.projets.index')
                 ->with('error', 'Erreur lors du chargement du projet.');
         }
     }
@@ -167,6 +169,7 @@ class DesignProjectController extends Controller
         }
 
         $userId = (int) session('user_id');
+        $userFormation = session('user_formation', 'design-graphique');
 
         try {
             // Récupérer tous les projets de l'utilisateur
@@ -176,25 +179,25 @@ class DesignProjectController extends Controller
             $project = collect($projects)->firstWhere('id', (int) $id);
 
             if (!$project) {
-                return redirect()->route('design-graphique.projets.index')
+                return redirect()->route($userFormation . '.projets.index')
                     ->with('error', 'Projet non trouvé.');
             }
 
             // Vérifier si le projet est validé (non modifiable)
             if ($project['status'] === 'validated' || $project['status'] === 'completed') {
-                return redirect()->route('design-graphique.projets.show', $id)
+                return redirect()->route($userFormation . '.projets.show', $id)
                     ->with('error', 'Ce projet est validé et ne peut plus être modifié.');
             }
 
             // Récupérer les options pour le formulaire
             $formOptions = DesignProjectService::getFormOptions();
 
-            return view('projets.edit', compact('project', 'formOptions'));
+            return view('projets.edit', compact('project', 'formOptions', 'userFormation'));
 
         } catch (\Exception $e) {
             Log::error('Erreur chargement formulaire édition: ' . $e->getMessage());
             
-            return redirect()->route('design-graphique.projets.index')
+            return redirect()->route($userFormation . '.projets.index')
                 ->with('error', 'Erreur lors du chargement du formulaire d\'édition.');
         }
     }
@@ -213,6 +216,7 @@ class DesignProjectController extends Controller
         }
 
         $userId = (int) session('user_id');
+        $userFormation = session('user_formation', 'design-graphique');
 
         try {
             // Vérifier d'abord si le projet est validé (non modifiable)
@@ -220,7 +224,7 @@ class DesignProjectController extends Controller
             $project = collect($projects)->firstWhere('id', (int) $id);
             
             if ($project && $project['status'] === 'validated') {
-                return redirect()->route('design-graphique.projets.show', $id)
+                return redirect()->route($userFormation . '.projets.show', $id)
                     ->with('error', 'Ce projet est validé et ne peut plus être modifié.');
             }
             
@@ -228,7 +232,7 @@ class DesignProjectController extends Controller
             $result = $this->designProjectService->updateProject($request, (int) $id, $userId);
             
             if ($result['success']) {
-                return redirect()->route('design-graphique.projets.show', $id)
+                return redirect()->route($userFormation . '.projets.show', $id)
                     ->with('success', $result['message']);
             } else {
                 return redirect()->back()
@@ -343,6 +347,7 @@ class DesignProjectController extends Controller
         }
 
         $userId = (int) session('user_id');
+        $userFormation = session('user_formation', 'design-graphique');
 
         try {
             // Vérifier d'abord si le projet est validé (non supprimable)
@@ -350,14 +355,14 @@ class DesignProjectController extends Controller
             $project = collect($projects)->firstWhere('id', (int) $id);
             
             if ($project && $project['status'] === 'validated') {
-                return redirect()->route('design-graphique.projets.index')
+                return redirect()->route($userFormation . '.projets.index')
                     ->with('error', 'Ce projet est validé et ne peut pas être supprimé.');
             }
             
             $success = $this->designProjectService->deleteProject((int) $id, $userId);
 
             if ($success) {
-                return redirect()->route('design-graphique.projets.index')
+                return redirect()->route($userFormation . '.projets.index')
                     ->with('success', 'Projet supprimé avec succès.');
             } else {
                 return redirect()->back()
@@ -423,6 +428,7 @@ class DesignProjectController extends Controller
     {
         try {
             $userId = session('user_id');
+            $userFormation = session('user_formation', 'design-graphique');
             Log::info('=== DEBUT soloProjects ===', ['user_id' => $userId]);
             
             if (!$userId) {
@@ -446,7 +452,7 @@ class DesignProjectController extends Controller
                 'file' => $e->getFile(),
                 'line' => $e->getLine()
             ]);
-            return redirect()->route('design-graphique.projets.index')
+            return redirect()->route($userFormation . '.projets.index')
                 ->with('error', 'Erreur lors du chargement des projets solo: ' . $e->getMessage());
         }
     }
@@ -458,6 +464,7 @@ class DesignProjectController extends Controller
     {
         try {
             $userId = session('user_id');
+            $userFormation = session('user_formation', 'design-graphique');
             if (!$userId) {
                 return redirect()->route('login');
             }
@@ -469,7 +476,7 @@ class DesignProjectController extends Controller
             return view('projets.groupe', compact('projects', 'stats'));
         } catch (Exception $e) {
             Log::error('Erreur dans groupProjects', ['error' => $e->getMessage()]);
-            return redirect()->route('design-graphique.projets.index')
+            return redirect()->route($userFormation . '.projets.index')
                 ->with('error', 'Erreur lors du chargement des projets groupe: ' . $e->getMessage());
         }
     }
@@ -481,6 +488,7 @@ class DesignProjectController extends Controller
     {
         try {
             $userId = session('user_id');
+            $userFormation = session('user_formation', 'design-graphique');
             if (!$userId) {
                 return redirect()->route('login');
             }
@@ -491,7 +499,7 @@ class DesignProjectController extends Controller
 
             return view('projets.tous', compact('projects', 'stats'));
         } catch (Exception $e) {
-            return redirect()->route('design-graphique.projets.index')
+            return redirect()->route($userFormation . '.projets.index')
                 ->with('error', 'Erreur lors du chargement de tous les projets.');
         }
     }

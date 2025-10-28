@@ -25,7 +25,7 @@ class UpdateProfileRequest extends FormRequest
         return [
             'firstName' => 'nullable|string|max:255|min:2',
             'lastName' => 'nullable|string|max:255|min:2',
-            'email' => 'nullable|email|max:255',
+            // NOTE: 'email' retiré - géré uniquement par le formulaire "Informations de connexion"
             'phone' => 'nullable|string|max:20|regex:/^[\+]?[0-9\s\-\(\)]+$/',
             'whatsapp' => 'nullable|string|max:20|regex:/^[\+]?[0-9\s\-\(\)]+$/',
             'age' => 'nullable|integer|min:16|max:100',

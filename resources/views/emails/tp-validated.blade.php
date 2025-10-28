@@ -281,7 +281,7 @@
                     <span>📝</span> {{ $tp->title }}
                 </div>
                 @if($tp->description)
-                    <div class="tp-description">{{ $tp->description }}</div>
+                    <div class="tp-description">{!! $tp->description !!}</div>
                 @endif
             </div>
 

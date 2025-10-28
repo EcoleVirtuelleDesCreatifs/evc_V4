@@ -65,9 +65,9 @@
                             <p class="fs-5 mb-0">{{ $project->title }}</p>
                         </div>
                         @if($project->description)
-                        <div class="col-12 mb-3">
+                        <div class="mb-3">
                             <label class="form-label fw-bold text-muted">Description</label>
-                            <p class="mb-0">{{ $project->description }}</p>
+                            <div class="mb-0">{!! $project->description !!}</div>
                         </div>
                         @endif
                         @if($project->link)

@@ -1,0 +1,250 @@
+@extends('layouts.ki-admin')
+
+@section('title', $actualite->title . ' - EVC')
+@section('page-title', 'Actualité')
+
+@section('content')
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3)) }}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/index') }}">Actualités</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($actualite->title, 50) }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Contenu principal -->
+        <div class="col-lg-8">
+            <!-- Header de l'article -->
+            <div class="mb-4">
+                @php
+                    $categoryLabels = [
+                        'general' => ['label' => 'Général', 'color' => 'secondary', 'icon' => 'newspaper'],
+                        'formation' => ['label' => 'Formation', 'color' => 'primary', 'icon' => 'graduation-cap'],
+                        'evenement' => ['label' => 'Événement', 'color' => 'info', 'icon' => 'calendar-alt'],
+                        'partenariat' => ['label' => 'Partenariat', 'color' => 'success', 'icon' => 'handshake'],
+                        'succes' => ['label' => 'Succès', 'color' => 'warning', 'icon' => 'trophy'],
+                    ];
+                    $category = $categoryLabels[$actualite->category] ?? ['label' => 'N/A', 'color' => 'secondary', 'icon' => 'tag'];
+                @endphp
+                
+                <span class="badge bg-{{ $category['color'] }} mb-3" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                    <i class="fas fa-{{ $category['icon'] }} me-2"></i>{{ $category['label'] }}
+                </span>
+
+                <h1 class="mb-3" style="color: #1e3a8a; font-weight: 700; line-height: 1.3;">
+                    {{ $actualite->title }}
+                </h1>
+
+                <div class="d-flex flex-wrap gap-4 text-muted mb-4">
+                    <div>
+                        <i class="fas fa-user me-2"></i>
+                        <strong>{{ $actualite->author->name ?? 'EVC' }}</strong>
+                    </div>
+                    <div>
+                        <i class="fas fa-calendar me-2"></i>
+                        {{ $actualite->created_at->format('d/m/Y à H:i') }}
+                    </div>
+                    <div>
+                        <i class="fas fa-eye me-2"></i>
+                        {{ number_format($actualite->views_count) }} vues
+                    </div>
+                    @if($actualite->published_at)
+                    <div>
+                        <i class="fas fa-check-circle me-2"></i>
+                        Publié le {{ $actualite->published_at->format('d/m/Y') }}
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Description courte -->
+                <div class="alert alert-light border-start border-primary border-4 mb-4" style="background-color: #f8f9fa;">
+                    <p class="mb-0" style="font-size: 1.1rem; color: #495057;">
+                        <i class="fas fa-quote-left me-2 text-primary"></i>
+                        {{ $actualite->excerpt }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Image de couverture -->
+            <div class="mb-5">
+                <img src="{{ asset('storage/' . $actualite->cover_image) }}" 
+                     alt="{{ $actualite->cover_image_alt ?? $actualite->title }}" 
+                     class="img-fluid w-100 rounded shadow-lg"
+                     style="max-height: 500px; object-fit: cover;">
+                @if($actualite->cover_image_alt)
+                <p class="text-muted text-center mt-2 small">
+                    <i class="fas fa-image me-1"></i>{{ $actualite->cover_image_alt }}
+                </p>
+                @endif
+            </div>
+
+            <!-- Contenu de l'article -->
+            <div class="article-content mb-5" style="font-size: 1.05rem; line-height: 1.8; color: #333;">
+                {!! $actualite->content !!}
+            </div>
+
+            <!-- SEO Keywords (si présents) -->
+            @if($actualite->meta_keywords)
+            <div class="mb-4">
+                <h6 class="text-muted mb-3">
+                    <i class="fas fa-tags me-2"></i>Mots-clés
+                </h6>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach(explode(',', $actualite->meta_keywords) as $keyword)
+                    <span class="badge bg-light text-dark border">{{ trim($keyword) }}</span>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <!-- Partage social -->
+            <div class="card border-0 shadow-sm mb-5" style="border-radius: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="card-body p-4 text-white">
+                    <h5 class="mb-3">
+                        <i class="fas fa-share-alt me-2"></i>Partager cette actualité
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" 
+                           target="_blank" 
+                           class="btn btn-light">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </a>
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($actualite->title) }}" 
+                           target="_blank" 
+                           class="btn btn-light">
+                            <i class="fab fa-twitter"></i> Twitter
+                        </a>
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}" 
+                           target="_blank" 
+                           class="btn btn-light">
+                            <i class="fab fa-linkedin-in"></i> LinkedIn
+                        </a>
+                        <a href="https://wa.me/?text={{ urlencode($actualite->title . ' - ' . url()->current()) }}" 
+                           target="_blank" 
+                           class="btn btn-light">
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bouton retour -->
+            <div class="mb-5">
+                <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-2"></i>Retour aux actualités
+                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Informations de l'auteur -->
+            @if($actualite->author)
+            <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                <div class="card-body p-4">
+                    <h6 class="mb-3" style="color: #1e3a8a; font-weight: 600;">
+                        <i class="fas fa-user-circle me-2"></i>Auteur
+                    </h6>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3"
+                             style="width: 50px; height: 50px; font-size: 1.5rem; color: white;">
+                            {{ strtoupper(substr($actualite->author->name, 0, 1)) }}
+                        </div>
+                        <div>
+                            <strong>{{ $actualite->author->name }}</strong>
+                            <br>
+                            <small class="text-muted">Administrateur EVC</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Actualités similaires -->
+            @if($similaires->count() > 0)
+            <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+                <div class="card-body p-4">
+                    <h6 class="mb-4" style="color: #1e3a8a; font-weight: 600;">
+                        <i class="fas fa-newspaper me-2"></i>Actualités similaires
+                    </h6>
+                    @foreach($similaires as $similaire)
+                    <div class="mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
+                        <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/' . $similaire->id) }}" 
+                           class="text-decoration-none">
+                            <div class="d-flex gap-3">
+                                <img src="{{ asset('storage/' . $similaire->cover_image) }}" 
+                                     alt="{{ $similaire->title }}"
+                                     class="rounded"
+                                     style="width: 80px; height: 80px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-2" style="color: #1e3a8a; font-size: 0.95rem; line-height: 1.4;">
+                                        {{ Str::limit($similaire->title, 60) }}
+                                    </h6>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        {{ $similaire->created_at->format('d/m/Y') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<style>
+.article-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 1.5rem 0;
+}
+
+.article-content h2 {
+    color: #1e3a8a;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.article-content h3 {
+    color: #334155;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.article-content p {
+    margin-bottom: 1.25rem;
+}
+
+.article-content ul, .article-content ol {
+    margin-bottom: 1.25rem;
+    padding-left: 2rem;
+}
+
+.article-content blockquote {
+    border-left: 4px solid #667eea;
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: #64748b;
+}
+
+.article-content a {
+    color: #667eea;
+    text-decoration: underline;
+}
+
+.article-content a:hover {
+    color: #764ba2;
+}
+</style>
+@endsection

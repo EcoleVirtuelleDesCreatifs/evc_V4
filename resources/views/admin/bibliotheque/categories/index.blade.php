@@ -26,8 +26,12 @@
                                 <td>{{ $category->name }}</td>
                                 <td>{{ $category->description ?? 'N/A' }}</td>
                                 <td>
-                                    <a href="#" class="btn btn-sm btn-outline-warning" title="Modifier"><i class="fas fa-edit"></i></a>
-                                    <button class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
+                                    <a href="{{ route('admin.bibliotheque.categories.edit', $category->id) }}" class="btn btn-sm btn-outline-warning" title="Modifier"><i class="fas fa-edit"></i></a>
+                                    <form action="{{ route('admin.bibliotheque.categories.destroy', $category->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer"><i class="fas fa-trash-alt"></i></button>
+                                    </form>
                                 </td>
                             </tr>
                         @empty

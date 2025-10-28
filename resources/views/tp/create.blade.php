@@ -1,21 +1,155 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Ajouter un Projet avec Images')
+@section('title', 'Nouveau Projet CM')
 
 @section('content')
+<style>
+    /* Instagram Color Palette */
+    .instagram-gradient {
+        background: linear-gradient(135deg, #833AB4 0%, #C13584 25%, #E1306C 50%, #F56040 75%, #FCAF45 100%);
+    }
+    
+    .instagram-header {
+        background: linear-gradient(135deg, #833AB4 0%, #C13584 50%, #E1306C 100%);
+        border-radius: 24px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(131, 58, 180, 0.3);
+    }
+    
+    .instagram-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        animation: pulse 4s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(5deg); }
+    }
+    
+    .instagram-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(131, 58, 180, 0.1);
+        transition: all 0.3s ease;
+        border: 2px solid rgba(131, 58, 180, 0.1);
+    }
+    
+    .instagram-card:hover {
+        box-shadow: 0 8px 32px rgba(131, 58, 180, 0.2);
+        border-color: rgba(131, 58, 180, 0.3);
+    }
+    
+    .instagram-card-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        border-bottom: 2px solid transparent;
+        border-image: linear-gradient(90deg, #833AB4, #E1306C, #FCAF45) 1;
+        padding: 1.5rem;
+    }
+    
+    .instagram-btn {
+        background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 0.75rem 2rem;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 16px rgba(131, 58, 180, 0.3);
+    }
+    
+    .instagram-btn:hover {
+        background: linear-gradient(135deg, #C13584 0%, #F56040 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(131, 58, 180, 0.4);
+        color: white;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #C13584;
+        box-shadow: 0 0 0 0.25rem rgba(193, 53, 132, 0.15);
+    }
+    
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+    }
+    
+    #globalDropZone:hover {
+        border-color: #C13584 !important;
+        background: linear-gradient(135deg, rgba(131, 58, 180, 0.1) 0%, rgba(225, 48, 108, 0.1) 100%) !important;
+        transform: scale(1.01);
+    }
+    
+    #globalDropZone.drag-over {
+        border-color: #E1306C !important;
+        background: linear-gradient(135deg, rgba(131, 58, 180, 0.15) 0%, rgba(225, 48, 108, 0.15) 100%) !important;
+        transform: scale(1.02);
+    }
+    
+    .btn-outline-secondary {
+        border: 2px solid #dee2e6;
+        color: #6c757d;
+        font-weight: 600;
+        border-radius: 30px;
+        padding: 0.75rem 2rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        border-color: #6c757d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border-radius: 12px;
+        border: 2px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:hover, .form-select:hover {
+        border-color: rgba(131, 58, 180, 0.3);
+    }
+</style>
+
 <div class="container-fluid">
-    <!-- Header Section -->
+    <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card-header bg-light">
-                <div class="card-body">
+            <div class="instagram-header">
+                <div class="card-body p-5 position-relative">
                     <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-images fa-3x opacity-75"></i>
+                        <div class="me-4">
+                            <div class="icon-circle">
+                                <i class="fas fa-bullhorn fa-3x"></i>
+                            </div>
                         </div>
                         <div>
-                            <h2 class="mb-1">Nouveau Projet Design</h2>
-                            <p class="mb-0 opacity-75">Ajoutez plusieurs images pour votre projet de design graphique</p>
+                            <h2 class="mb-2 fw-bold" style="font-size: 2rem;">Nouveau projet CM_SMM</h2>
+                            <p class="mb-0 opacity-90" style="font-size: 1.05rem;">Publiez votre TP pour constituer votre Pressbook</p>
                         </div>
                     </div>
                 </div>
@@ -23,293 +157,153 @@
         </div>
     </div>
 
-    <form id="projectForm" method="POST" action="{{ route('design-graphique.tp.ajouter') }}" enctype="multipart/form-data">
+    <!-- Formulaire -->
+    <form id="projectForm" method="POST" action="{{ route('community-management.tp.store') }}" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="type" value="digital">
 
         <div class="row">
-            <!-- Formulaire Principal -->
-            <div class="col-lg-8">
+            <div class="col-lg-8 mx-auto">
                 <!-- Informations du Projet -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0"><i class="fas fa-info-circle text-primary me-2"></i>Informations du Projet</h5>
+                <div class="card instagram-card mb-4">
+                    <div class="card-header instagram-card-header">
+                        <h5 class="mb-0 fw-bold" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <i class="fas fa-info-circle me-2" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                            Informations du Projet
+                        </h5>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="title" class="form-label"><strong>Titre du Projet</strong><span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="title" name="title" required maxlength="255" placeholder="Ex: Logo pour entreprise tech">
-                                <div class="form-text">Maximum 255 caractères</div>
+                    <div class="card-body p-4">
+                        <!-- Titre du Projet -->
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-semibold">
+                                Titre du Projet <span class="text-danger">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                class="form-control form-control-lg @error('title') is-invalid @enderror"
+                                id="title"
+                                name="title"
+                                value="{{ old('title') }}"
+                                required
+                                maxlength="255"
+                                placeholder="Ex: Campagne Instagram pour marque de mode"
+                            >
+                            @error('title')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">Maximum 255 caractères</div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-semibold">
+                                Description <span class="text-danger">*</span>
+                            </label>
+                            <textarea
+                                id="description"
+                                name="description"
+                                class="@error('description') is-invalid @enderror"
+                                required
+                                placeholder="Décrivez votre projet de Community Management en détail : objectifs, cibles, stratégies, résultats attendus..."
+                            >{{ old('description') }}</textarea>
+                            @error('description')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text d-flex justify-content-between mt-2">
+                                <span>Décrivez votre projet en détail</span>
+                                <span><span id="charCount">0</span>/2000 caractères</span>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="category" class="form-label"><strong>Catégorie</strong><span class="text-danger">*</span></label>
-                                <select class="form-select" id="category" name="category" required>
-                                    <option value="">Choisir une catégorie</option>
-                                    <option value="photoshop">Photoshop</option>
-                                    <option value="illustrator">Illustrator</option>
-                                    <option value="indesign">InDesign</option>
-                                    <option value="web-design">Web Design</option>
-                                    <option value="ui-ux">UI/UX Design</option>
-                                    <option value="branding">Branding</option>
-                                </select>
+                        </div>
+
+                        <!-- Liens (multiples) -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                Liens du Projet <span class="text-muted">(optionnel)</span>
+                            </label>
+                            <div id="linksContainer">
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-link"></i>
+                                    </span>
+                                    <input
+                                        type="url"
+                                        class="form-control"
+                                        name="links[]"
+                                        placeholder="https://example.com"
+                                    >
+                                    <button type="button" class="btn btn-outline-danger remove-link" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="description" class="form-label"><strong>Description</strong><span class="text-muted">(optionnel)</span></label>
-                            <textarea class="form-control" id="description" name="description" rows="4" maxlength="2000" placeholder="Décrivez votre projet en détail..."></textarea>
-                            <div class="form-text">
-                                <span id="charCount">0</span>/2000 caractères
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="link" class="form-label"> <strong>Lien du Projet</strong>(optionnel)</label>
-                            <input type="url" class="form-control" id="link" name="link" placeholder="https://example.com">
-                            <div class="form-text">URL vers votre projet en ligne (Behance, Dribbble, etc.)</div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="tags" class="form-label"><strong>Tags</strong>(optionnel)</label>
-                            <input type="text" class="form-control" id="tags" name="tags" maxlength="500" placeholder="logo, moderne, tech, bleu">
-                            <div class="form-text">Mots-clés séparés par des virgules</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section Images -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-images text-success me-2"></i>Images du Projet <span class="text-danger">*</span></h5>
-                        <div>
-                            <span class="badge bg-info" id="imageCount">0 image(s)</span>
-                            <button type="button" class="btn btn-sm btn-success ms-2" id="addImageBtn">
-                                <i class="fas fa-plus me-1"></i>Ajouter une image
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="addLinkBtn">
+                                <i class="fas fa-plus me-1"></i>Ajouter un autre lien
                             </button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Obligatoire :</strong> Ajoutez au moins 1 fichier (maximum 15). Formats acceptés : JPG, PNG, GIF, WEBP, SVG, PDF, DOC, DOCX, PSD, AI, ZIP, RAR. Taille max : 20MB par fichier.
-                        </div>
-
-                        <!-- Zone d'ajout d'images -->
-                        <div id="imagesContainer" class="row g-3">
-                            <!-- Les champs d'images seront ajoutés ici dynamiquement -->
-                        </div>
-
-                        <!-- Zone de drag & drop globale -->
-                        <div id="globalDropZone" class="border-2 border-dashed border-primary rounded p-5 text-center mt-4" style="min-height: 200px; background: #f8f9ff;">
-                            <div class="d-flex flex-column align-items-center justify-content-center h-100">
-                                <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
-                                <h5 class="text-primary mb-2">Glissez-déposez vos fichiers ici</h5>
-                                <p class="text-muted mb-3">ou cliquez sur "Ajouter une image" ci-dessus</p>
-                                <div class="text-muted small">
-                                    <i class="fas fa-check-circle text-success me-1"></i>JPG, PNG, GIF, WEBP, SVG, PDF, DOC, DOCX, PSD, AI, ZIP, RAR
-                                    <span class="mx-2">•</span>
-                                    <i class="fas fa-weight-hanging text-info me-1"></i>Max 20MB par fichier
-                                </div>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Ajoutez des liens vers vos réseaux sociaux, campagnes, articles, etc.
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <!-- Statistiques -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0"><i class="fas fa-chart-line text-primary me-2"></i>Vos Statistiques</h6>
+                <!-- Section Fichiers -->
+                <div class="card instagram-card mb-4">
+                    <div class="card-header instagram-card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <i class="fas fa-paperclip me-2" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                            Fichiers du Projet
+                        </h5>
+                        <button type="button" class="btn instagram-btn btn-sm" id="addFileBtn" style="padding: 0.5rem 1.2rem; font-size: 0.875rem;">
+                            <i class="fas fa-plus me-1"></i>Ajouter un fichier
+                        </button>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <div class="text-center p-2 bg-light rounded">
-                                    <div class="h4 mb-1 text-primary">
-                                        @if(isset($stats))
-                                            {{ $stats['tp_total'] + $stats['projets_total'] }}
-                                        @else
-                                            0
-                                        @endif
-                                    </div>
-                                    <small class="text-muted">TP/Projets Total</small>
+                    <div class="card-body p-4">
+                        <div class="alert border-0 mb-4" style="background: linear-gradient(135deg, rgba(131, 58, 180, 0.1) 0%, rgba(225, 48, 108, 0.1) 100%); border-left: 4px solid #C13584 !important;">
+                            <div class="d-flex">
+                                <i class="fas fa-info-circle me-3 mt-1" style="color: #C13584; font-size: 1.2rem;"></i>
+                                <div style="color: #4a5568;">
+                                    <strong style="color: #833AB4;">Formats acceptés :</strong> Images (JPG, PNG, GIF), PDF, Documents Word, Archives (ZIP, RAR)<br>
+                                    <strong style="color: #833AB4;">Taille maximale :</strong> 10 Mo par fichier
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <div class="text-center p-2 bg-light rounded">
-                                    <div class="h4 mb-1 text-success">
-                                        @if(isset($stats))
-                                            {{ $stats['tp_valides'] }}
-                                        @else
-                                            0
-                                        @endif
-                                    </div>
-                                    <small class="text-muted">TP Validés</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-center p-2 bg-light rounded">
-                                    <div class="h4 mb-1 text-info">
-                                        @if(isset($stats))
-                                            {{ $stats['images_total'] }}
-                                        @else
-                                            0
-                                        @endif
-                                    </div>
-                                    <small class="text-muted">Images Total</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="text-center p-2 bg-light rounded">
-                                    <div class="h4 mb-1 text-warning">
-                                        @if(isset($stats))
-                                            {{ $stats['taille_totale_mb'] }}
-                                        @else
-                                            0
-                                        @endif
-                                        <small>MB</small>
-                                    </div>
-                                    <small class="text-muted">Taille Totale</small>
-                                </div>
-                            </div>
+                        </div>
+                        <div
+                            id="globalDropZone"
+                            class="border-2 border-dashed rounded-4 p-5 text-center mt-4"
+                            style="border-color: rgba(131, 58, 180, 0.3); background: linear-gradient(135deg, rgba(131, 58, 180, 0.05) 0%, rgba(225, 48, 108, 0.05) 100%); min-height: 200px; cursor: pointer; transition: all 0.3s ease;"
+                        >
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                            <h5 class="fw-bold" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Glissez vos fichiers ici</h5>
+                            <p class="text-muted mb-3">ou</p>
+                            <button type="button" class="btn instagram-btn" id="globalBrowseBtn">
+                                <i class="fas fa-folder-open me-2"></i>Parcourir les fichiers
+                            </button>
+                            <input type="file" id="globalFileInput" name="files[]" multiple accept="image/*,.pdf,.doc,.docx,.zip,.rar" style="display: none;">
                         </div>
                         
-                        <!-- Progression vers certification -->
-                        <div class="mt-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="small text-muted">Progression Certification</span>
-                                <span class="small fw-bold">
-                                    @if(isset($stats))
-                                        {{ min(100, $stats['progression_globale']) }}%
-                                    @else
-                                        0%
-                                    @endif
-                                </span>
-                            </div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-gradient" role="progressbar" 
-                                     style="width: @if(isset($stats)){{ min(100, $stats['progression_globale']) }}@else 0 @endif%"></div>
-                            </div>
-                            <div class="text-center mt-2">
-                                <small class="text-muted">
-                                    @if(isset($stats))
-                                        {{ $stats['tp_total'] + $stats['projets_total'] }}/{{ $stats['objectif_certification'] }}
-                                    @else
-                                        0/20
-                                    @endif
-                                    TP/Projets requis
-                                </small>
-                            </div>
-                        </div>
+                        <!-- Conteneur pour les fichiers ajoutés -->
+                        <div id="filesContainer" class="row g-3 mt-4"></div>
                     </div>
                 </div>
 
-                <!-- Aperçu -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0"><i class="fas fa-eye text-info me-2"></i>Aperçu du Projet</h6>
-                    </div>
-                    <div class="card-body">
-                        <div id="projectPreview">
-                            <div class="text-center text-muted py-4">
-                                <i class="fas fa-image fa-2x mb-2"></i>
-                                <p class="mb-0">Remplissez les informations pour voir l'aperçu</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Logiciels Utilisés -->
-                <div class="card mb-4">
-                    <div class="card-header bg-light">
-                        <h6 class="mb-0"><i class="fas fa-tools text-warning me-2"></i>Logiciels Utilisés <span class="text-danger">*</span></h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-warning alert-sm mb-3" id="softwareAlert" style="display: none;">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <small><strong>Obligatoire :</strong> Sélectionnez au moins un logiciel utilisé pour ce projet.</small>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="software_used[]" value="photoshop" id="sw_photoshop">
-                                    <label class="form-check-label" for="sw_photoshop">
-                                        <i class="fab fa-adobe text-primary me-1"></i>Photoshop
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="software_used[]" value="illustrator" id="sw_illustrator">
-                                    <label class="form-check-label" for="sw_illustrator">
-                                        <i class="fab fa-adobe text-warning me-1"></i>Illustrator
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="software_used[]" value="indesign" id="sw_indesign">
-                                    <label class="form-check-label" for="sw_indesign">
-                                        <i class="fab fa-adobe text-danger me-1"></i>InDesign
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="software_used[]" value="figma" id="sw_figma">
-                                    <label class="form-check-label" for="sw_figma">
-                                        <i class="fas fa-vector-square text-success me-1"></i>Figma
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="software_used[]" value="sketch" id="sw_sketch">
-                                    <label class="form-check-label" for="sw_sketch">
-                                        <i class="fas fa-pencil-ruler text-info me-1"></i>Sketch
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="software_used[]" value="xd" id="sw_xd">
-                                    <label class="form-check-label" for="sw_xd">
-                                        <i class="fab fa-adobe text-purple me-1"></i>Adobe XD
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
+                <!-- Boutons d'action -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex gap-2 justify-content-end">
+                            <a href="{{ route('community-management.tp.index') }}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn instagram-btn btn-lg w-100" id="submitBtn" style="font-size: 1.1rem; padding: 1rem 2rem;">
                                 <span class="btn-text">
-                                    <i class="fas fa-save me-2"></i>Créer le Projet
+                                    <i class="fas fa-paper-plane me-2"></i>
+                                    Soumettre le Projet
                                 </span>
                                 <span class="btn-loading" style="display: none;">
                                     <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                                     Envoi en cours...
                                 </span>
                             </button>
-                            <a href="{{ route('design-graphique.tp.index') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-times me-2"></i>Annuler
-                            </a>
-                        </div>
-
-                        <div class="mt-3">
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar" role="progressbar" style="width: 0%" id="formProgress"></div>
-                            </div>
-                            <div class="text-center mt-2">
-                                <small class="text-muted" id="progressText">Remplissez le formulaire</small>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -318,136 +312,354 @@
     </form>
 </div>
 
-<!-- Template pour les champs d'images -->
-<template id="imageFieldTemplate">
-    <div class="col-md-6 image-field" data-index="">
-        <div class="card border-2 border-dashed">
+<!-- Template pour les fichiers -->
+<template id="fileItemTemplate">
+    <div class="col-md-6 file-item">
+        <div class="card h-100 border shadow-sm">
             <div class="card-body p-3">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="mb-0">Image <span class="image-number"></span></h6>
-                    <div class="btn-group btn-group-sm">
-                        <button type="button" class="btn btn-outline-primary btn-sm set-thumbnail" title="Définir comme image principale">
-                            <i class="fas fa-star"></i>
-                        </button>
-                        <button type="button" class="btn btn-outline-danger btn-sm remove-image" title="Supprimer">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                    <div class="file-icon me-2">
+                        <i class="fas fa-file fa-2x text-primary"></i>
                     </div>
+                    <button type="button" class="btn btn-sm btn-danger remove-file">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-
-                <div class="image-upload-zone border rounded p-3 text-center position-relative">
-                    <input type="file" class="form-control image-input" name="images[]" accept="image/*,.pdf,.doc,.docx,.psd,.ai,.zip,.rar,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip,application/x-rar-compressed" style="display: none;">
-                    <div class="upload-placeholder">
-                        <i class="fas fa-image fa-2x text-muted mb-2"></i>
-                        <p class="mb-1">Cliquez ou glissez un fichier</p>
-                        <small class="text-muted">JPG, PNG, GIF, WEBP, SVG, PDF, DOC, DOCX, PSD, AI, ZIP, RAR</small>
-                    </div>
-                    <div class="image-preview" style="display: none;">
-                        <img class="img-fluid rounded" style="max-height: 150px;">
-                        <div class="image-info mt-2">
-                            <small class="text-muted d-block image-name"></small>
-                            <small class="text-muted image-size"></small>
-                        </div>
-                    </div>
+                <!-- Aperçu de l'image (caché par défaut, affiché pour les images) -->
+                <div class="file-preview mb-3" style="display: none;">
+                    <img class="img-fluid rounded shadow-sm" style="max-height: 200px; width: 100%; object-fit: cover; border: 2px solid #e9ecef;">
                 </div>
-
-                <div class="mt-2">
-                    <input type="text" class="form-control form-control-sm image-description" placeholder="Description de l'image (optionnel)">
+                <div class="file-info">
+                    <p class="mb-1 fw-bold file-name text-truncate" style="font-size: 0.9rem;"></p>
+                    <p class="mb-0 text-muted file-size" style="font-size: 0.85rem;"></p>
                 </div>
+                <input type="file" class="file-input" name="files[]" accept="image/*,.pdf,.doc,.docx,.zip,.rar" style="display: none;">
             </div>
         </div>
     </div>
 </template>
-
 @endsection
 
 @section('styles')
+<!-- Summernote CSS -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 <style>
-.image-upload-zone {
-    cursor: pointer;
-    transition: all 0.3s ease;
-    min-height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    .file-item {
+        animation: fadeIn 0.3s ease-in;
+    }
 
-.image-upload-zone:hover {
-    border-color: #007bff !important;
-    background-color: #f8f9ff;
-}
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 
-.image-upload-zone.dragover {
-    border-color: #28a745 !important;
-    background-color: #f8fff8;
-    transform: scale(1.02);
-}
+    #globalDropZone.dragover {
+        border-color: #0d6efd !important;
+        background-color: #e7f1ff !important;
+        transform: scale(1.01);
+        transition: all 0.2s ease;
+    }
 
-.image-field.thumbnail {
-    order: -1;
-}
+    .file-item .card {
+        transition: all 0.2s ease;
+    }
 
-.image-field.thumbnail .card {
-    border-color: #ffc107 !important;
-    box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.25);
-}
+    .file-item .card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
 
-.image-field.thumbnail .set-thumbnail {
-    color: #ffc107;
-    border-color: #ffc107;
-}
-
-.image-field.thumbnail .set-thumbnail i {
-    color: #ffc107;
-}
-
-#globalDropZone.dragover {
-    border-color: #28a745 !important;
-    background-color: #f8fff8 !important;
-    transform: scale(1.01);
-}
-
-.fade-in {
-    animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.text-purple {
-    color: #6f42c1 !important;
-}
+    /* Style pour Summernote */
+    .note-editor {
+        border-radius: 0.375rem;
+    }
+    
+    .note-toolbar {
+        background: #f8f9fa;
+    }
 </style>
 @endsection
 
 @section('scripts')
-<script src="{{ asset('assets/js/tp-images.js') }}"></script>
+<!-- Summernote JS -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
-    // Activer le loader lors de la soumission du formulaire
-    document.addEventListener('DOMContentLoaded', function() {
-        const form = document.getElementById('projectForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = submitBtn.querySelector('.btn-text');
-        const btnLoading = submitBtn.querySelector('.btn-loading');
-        
-        if (form && submitBtn) {
-            form.addEventListener('submit', function(e) {
-                // Vérifier que le formulaire est valide avant d'afficher le loader
-                if (form.checkValidity()) {
-                    // Masquer le texte normal et afficher le loader
-                    btnText.style.display = 'none';
-                    btnLoading.style.display = 'inline-block';
-                    
-                    // Désactiver le bouton pour éviter les doubles soumissions
-                    submitBtn.disabled = true;
-                    
-                    // Optionnel : Ajouter une classe pour le style
-                    submitBtn.classList.add('btn-loading-active');
+document.addEventListener('DOMContentLoaded', function() {
+    // ========== Initialisation de Summernote ==========
+    $('#description').summernote({
+        height: 300,
+        placeholder: 'Décrivez votre projet de Community Management en détail : objectifs, cibles, stratégies, résultats attendus...',
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ],
+        disableDragAndDrop: true,
+        callbacks: {
+            onChange: function(contents, $editable) {
+                // Nettoyer les attributs data-* de Summernote
+                let cleanedContent = contents;
+                cleanedContent = cleanedContent.replace(/\s*data-start="[^"]*"/g, '');
+                cleanedContent = cleanedContent.replace(/\s*data-end="[^"]*"/g, '');
+                
+                // Mettre à jour le textarea avec le contenu nettoyé
+                $('#description').val(cleanedContent);
+                
+                // Mettre à jour le compteur de caractères
+                const text = $editable.text().trim();
+                const charCount = document.getElementById('charCount');
+                if (charCount) {
+                    charCount.textContent = text.length;
+                }
+            }
+        }
+    });
+
+    // ========== Gestion des liens multiples ==========
+    const linksContainer = document.getElementById('linksContainer');
+    const addLinkBtn = document.getElementById('addLinkBtn');
+
+    addLinkBtn.addEventListener('click', function() {
+        const linkGroup = document.createElement('div');
+        linkGroup.className = 'input-group mb-2';
+        linkGroup.innerHTML = `
+            <span class="input-group-text">
+                <i class="fas fa-link"></i>
+            </span>
+            <input type="url" class="form-control" name="links[]" placeholder="https://example.com">
+            <button type="button" class="btn btn-outline-danger remove-link">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        linksContainer.appendChild(linkGroup);
+        updateRemoveButtons();
+    });
+
+    linksContainer.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-link')) {
+            e.target.closest('.input-group').remove();
+            updateRemoveButtons();
+        }
+    });
+
+    function updateRemoveButtons() {
+        const linkGroups = linksContainer.querySelectorAll('.input-group');
+        linkGroups.forEach((group) => {
+            const removeBtn = group.querySelector('.remove-link');
+            if (linkGroups.length > 1) {
+                removeBtn.style.display = 'block';
+            } else {
+                removeBtn.style.display = 'none';
+            }
+        });
+    }
+
+    // ========== Compteur de caractères ==========
+    const description = document.getElementById('description');
+    const charCount = document.getElementById('charCount');
+
+    if (description && charCount) {
+        description.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+    }
+
+    // ========== Gestion des fichiers ==========
+    const filesContainer = document.getElementById('filesContainer');
+    const addFileBtn = document.getElementById('addFileBtn');
+    const globalDropZone = document.getElementById('globalDropZone');
+    const globalBrowseBtn = document.getElementById('globalBrowseBtn');
+    const globalFileInput = document.getElementById('globalFileInput');
+    const fileTemplate = document.getElementById('fileItemTemplate');
+
+    console.log('✅ Éléments fichiers trouvés:', {
+        filesContainer: !!filesContainer,
+        addFileBtn: !!addFileBtn,
+        globalDropZone: !!globalDropZone,
+        globalBrowseBtn: !!globalBrowseBtn,
+        globalFileInput: !!globalFileInput,
+        fileTemplate: !!fileTemplate
+    });
+
+    // Ajouter un fichier via le bouton "Ajouter un fichier"
+    if (addFileBtn) {
+        addFileBtn.addEventListener('click', function() {
+            console.log('🔵 Clic sur Ajouter un fichier');
+            addFileItem();
+        });
+    }
+
+    // Sélectionner des fichiers via le bouton "Parcourir"
+    if (globalBrowseBtn && globalFileInput) {
+        globalBrowseBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('📁 Clic sur Parcourir les fichiers');
+            globalFileInput.click();
+        });
+    }
+
+    // Clic sur la zone de drop
+    if (globalDropZone && globalFileInput) {
+        globalDropZone.addEventListener('click', function(e) {
+            if (e.target !== globalBrowseBtn && !globalBrowseBtn.contains(e.target)) {
+                console.log('📦 Clic sur zone de drop');
+                globalFileInput.click();
+            }
+        });
+    }
+
+    // Gestion du changement de fichier global
+    globalFileInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        files.forEach(file => {
+            addFileItem(file);
+        });
+        // Réinitialiser l'input
+        globalFileInput.value = '';
+    });
+
+    // Drag & Drop sur la zone globale
+    globalDropZone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.add('dragover');
+    });
+
+    globalDropZone.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.remove('dragover');
+    });
+
+    globalDropZone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.remove('dragover');
+
+        const files = Array.from(e.dataTransfer.files);
+        files.forEach(file => {
+            addFileItem(file);
+        });
+    });
+
+    // Fonction pour ajouter un item de fichier
+    function addFileItem(file = null) {
+        const clone = fileTemplate.content.cloneNode(true);
+        const fileItem = clone.querySelector('.file-item');
+        const fileInput = clone.querySelector('.file-input');
+        const fileName = clone.querySelector('.file-name');
+        const fileSize = clone.querySelector('.file-size');
+        const fileIcon = clone.querySelector('.file-icon i');
+        const filePreview = clone.querySelector('.file-preview');
+        const previewImg = clone.querySelector('.file-preview img');
+        const removeBtn = clone.querySelector('.remove-file');
+
+        // Si un fichier est fourni, l'afficher
+        if (file) {
+            displayFile(file, fileInput, fileName, fileSize, fileIcon, filePreview, previewImg);
+        } else {
+            // Sinon, permettre la sélection
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    displayFile(e.target.files[0], fileInput, fileName, fileSize, fileIcon, filePreview, previewImg);
+                }
+            });
+
+            // Clic sur la carte pour sélectionner un fichier
+            fileItem.addEventListener('click', function(e) {
+                if (!e.target.closest('.remove-file')) {
+                    fileInput.click();
                 }
             });
         }
-    });
+
+        // Supprimer le fichier
+        removeBtn.addEventListener('click', function() {
+            fileItem.remove();
+        });
+
+        filesContainer.appendChild(clone);
+    }
+
+    // Fonction pour afficher un fichier
+    function displayFile(file, fileInput, fileName, fileSize, fileIcon, filePreview, previewImg) {
+        console.log('📁 Affichage du fichier:', file.name, 'Type:', file.type);
+        
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+
+        // Créer un DataTransfer pour assigner le fichier à l'input
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+
+        // Icône selon le type
+        if (file.type.startsWith('image/')) {
+            console.log('🖼️ Image détectée, chargement de la prévisualisation...');
+            fileIcon.className = 'fas fa-image fa-2x text-success';
+            
+            // Prévisualisation de l'image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                console.log('✅ Image chargée, affichage de la prévisualisation');
+                previewImg.src = e.target.result;
+                filePreview.style.display = 'block';
+                
+                // Masquer l'icône pour laisser place à l'image
+                if (fileIcon && fileIcon.parentElement) {
+                    fileIcon.parentElement.style.display = 'none';
+                }
+            };
+            reader.onerror = function(error) {
+                console.error('❌ Erreur lors du chargement de l\'image:', error);
+            };
+            reader.readAsDataURL(file);
+        } else if (file.type === 'application/pdf') {
+            fileIcon.className = 'fas fa-file-pdf fa-2x text-danger';
+        } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+            fileIcon.className = 'fas fa-file-word fa-2x text-primary';
+        } else if (file.type.includes('zip') || file.name.endsWith('.zip') || file.name.endsWith('.rar')) {
+            fileIcon.className = 'fas fa-file-archive fa-2x text-warning';
+        } else {
+            fileIcon.className = 'fas fa-file fa-2x text-secondary';
+        }
+    }
+
+    // Formater la taille du fichier
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // ========== Loader de soumission ==========
+    const form = document.getElementById('projectForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            if (form.checkValidity()) {
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'inline-block';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+});
 </script>
 @endsection

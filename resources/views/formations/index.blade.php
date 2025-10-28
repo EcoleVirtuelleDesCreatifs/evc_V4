@@ -206,7 +206,7 @@
 <!-- Section Statistiques -->
 <div class="row mb-5">
     <div class="col-12">
-        <h2 class="section-title">
+        <h2 class="section-title" style="color: white;">
             <i class="fas fa-chart-bar me-2"></i>
             Vos Formations par Catégorie
         </h2>
@@ -296,28 +296,13 @@
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <h5 class="formation-title">{{ $f->title ?? ($f->name ?? '—') }}</h5>
-                                        @if(!empty($f->category))
+                                        @if(!empty($f->category_name))
                                             <span class="badge badge-custom bg-primary">
                                                 <i class="fas fa-tag me-1"></i>
-                                                {{ $f->category }}
+                                                {{ $f->category_name }}
                                             </span>
                                         @endif
                                     </div>
-                                </div>
-                                
-                                <div class="d-flex gap-2 flex-wrap mb-3">
-                                    @if(!empty($f->level))
-                                        <span class="badge badge-custom bg-info">
-                                            <i class="fas fa-signal me-1"></i>
-                                            {{ $f->level }}
-                                        </span>
-                                    @endif
-                                    @if(!empty($f->duration))
-                                        <span class="badge badge-custom bg-warning text-dark">
-                                            <i class="fas fa-clock me-1"></i>
-                                            {{ $f->duration }}
-                                        </span>
-                                    @endif
                                 </div>
                                 
                                 @if(!empty($f->created_at))
@@ -329,7 +314,7 @@
                                 
                                 <div class="mt-auto">
                                     @if(!empty($f->id))
-                                        <a href="{{ route('design-graphique.formations.show', $f->id) }}" class="btn btn-view-formation w-100">
+                                        <a href="{{ route($module_slug . '.formations.show', $f->id) }}" class="btn btn-view-formation w-100">
                                             <i class="fas fa-play-circle me-2"></i>
                                             Commencer la Formation
                                         </a>

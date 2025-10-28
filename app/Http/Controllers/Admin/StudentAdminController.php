@@ -12,6 +12,37 @@ use Illuminate\Support\Facades\Log;
 class StudentAdminController extends Controller
 {
     /**
+     * Lister les étudiants avec paramètre de requête formation
+     * Redirige vers listByFormation avec le bon format de slug
+     */
+    public function index(Request $request)
+    {
+        // Récupérer le paramètre formation depuis la query string
+        $formation = $request->query('formation');
+        
+        // Si pas de formation spécifiée, afficher tous les étudiants ou rediriger
+        if (!$formation) {
+            abort(400, 'Paramètre formation requis');
+        }
+        
+        // Map des formations query string vers slug URL
+        $formationMap = [
+            'design_graphique' => 'design-graphique',
+            'community_management' => 'community-manager',
+            'intelligence_artificielle' => 'intelligence-artificielle',
+            'gestion_informatique' => 'gestion-informatique',
+        ];
+        
+        // Vérifier que la formation existe
+        if (!isset($formationMap[$formation])) {
+            abort(404, 'Formation non trouvée');
+        }
+        
+        // Rediriger vers la route existante avec le bon format
+        return redirect()->route('admin.students.by-formation', ['formation' => $formationMap[$formation]]);
+    }
+    
+    /**
      * Lister les étudiants d'une formation (slug): design-graphique, community-manager, intelligence-artificielle, gestion-informatique
      */
     public function listByFormation(Request $request, string $formation)
@@ -20,6 +51,7 @@ class StudentAdminController extends Controller
         $formationMap = [
             'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique','design_graphique','infographie','design-graphique']],
             'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager']],
+            'community-management' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager','community-management']],
             'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'keys' => ['Intelligence Artificielle','intelligence_artificielle','intelligence-artificielle']],
             'gestion-informatique' => ['label' => 'Gestion Informatique', 'keys' => ['Gestion Informatique','gestion_informatique','informatique','gestion-informatique']],
         ];
@@ -132,8 +164,8 @@ class StudentAdminController extends Controller
         $user = DB::table('users')->where('id', $id)->first();
         abort_unless($user, 404);
         
-        // Récupérer les données complètes depuis la table students
-        $student = DB::table('students')->where('email', $user->email)->first();
+        // Récupérer les données complètes depuis la table students via user_id
+        $student = DB::table('students')->where('user_id', $user->id)->first();
         
         if (!$student) {
             // Fallback: utiliser les données de users si pas dans students
@@ -154,12 +186,28 @@ class StudentAdminController extends Controller
             ];
         }
 
-        // Photo de profil
+        // Photo de profil - gestion de tous les chemins possibles
         $photoUrl = null;
         if (!empty($student->profile_photo)) {
-            if (str_starts_with($student->profile_photo, 'uploads/') || str_starts_with($student->profile_photo, 'photos_preregistrations/')) {
-                $photoUrl = asset($student->profile_photo);
-            } else {
+            // Vérifier si c'est un chemin absolu (commence par http:// ou https://)
+            if (str_starts_with($student->profile_photo, 'http://') || str_starts_with($student->profile_photo, 'https://')) {
+                $photoUrl = $student->profile_photo;
+            }
+            // Vérifier si c'est un chemin relatif qui commence par uploads/ ou photos_
+            elseif (str_starts_with($student->profile_photo, 'uploads/') || 
+                    str_starts_with($student->profile_photo, 'photos_preregistrations/') ||
+                    str_starts_with($student->profile_photo, 'photos/')) {
+                // Essayer d'abord storage/app/public/
+                $storagePath = storage_path('app/public/' . $student->profile_photo);
+                if (file_exists($storagePath)) {
+                    $photoUrl = asset('storage/' . $student->profile_photo);
+                } else {
+                    // Sinon essayer directement public/
+                    $photoUrl = asset($student->profile_photo);
+                }
+            }
+            // Sinon, considérer que c'est juste le nom de fichier
+            else {
                 $photoUrl = asset('uploads/photos/' . basename($student->profile_photo));
             }
         }
@@ -724,6 +772,74 @@ class StudentAdminController extends Controller
                 'success' => false,
                 'message' => 'Erreur lors de la suppression du projet'
             ], 500);
+        }
+    }
+
+    /**
+     * Supprimer définitivement un étudiant et toutes ses données
+     */
+    public function destroy($id)
+    {
+        try {
+            // Récupérer l'étudiant
+            $student = DB::table('students')->where('id', $id)->first();
+            
+            if (!$student) {
+                return redirect()->back()->with('error', '❌ Étudiant introuvable.');
+            }
+
+            $studentName = $student->first_name . ' ' . $student->last_name;
+            $userId = $student->user_id;
+
+            // Supprimer les TP de l'étudiant
+            if (Schema::hasTable('tp')) {
+                $tps = DB::table('tp')->where('user_id', $userId)->get();
+                foreach ($tps as $tp) {
+                    // Supprimer les fichiers associés aux TP
+                    if (Schema::hasTable('tp_files')) {
+                        DB::table('tp_files')->where('tp_id', $tp->id)->delete();
+                    }
+                }
+                DB::table('tp')->where('user_id', $userId)->delete();
+            }
+
+            // Supprimer les projets de l'étudiant
+            if (Schema::hasTable('design_projects')) {
+                $projects = DB::table('design_projects')->where('user_id', $userId)->get();
+                foreach ($projects as $project) {
+                    // Supprimer les fichiers associés aux projets
+                    if (Schema::hasTable('design_project_files')) {
+                        DB::table('design_project_files')->where('project_id', $project->id)->delete();
+                    }
+                }
+                DB::table('design_projects')->where('user_id', $userId)->delete();
+            }
+
+            // Supprimer les documents de l'étudiant
+            if (Schema::hasTable('student_documents')) {
+                DB::table('student_documents')->where('student_id', $id)->delete();
+            }
+
+            // Supprimer le profil étudiant
+            DB::table('students')->where('id', $id)->delete();
+
+            // Supprimer l'utilisateur associé
+            if ($userId) {
+                DB::table('users')->where('id', $userId)->delete();
+            }
+
+            // Logger l'action
+            Log::info('Étudiant supprimé par admin', [
+                'student_id' => $id,
+                'student_name' => $studentName,
+                'user_id' => $userId
+            ]);
+
+            return redirect()->back()->with('success', "✅ L'étudiant {$studentName} a été supprimé définitivement avec toutes ses données.");
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la suppression de l\'étudiant: ' . $e->getMessage());
+            return redirect()->back()->with('error', '❌ Erreur lors de la suppression de l\'étudiant : ' . $e->getMessage());
         }
     }
 }

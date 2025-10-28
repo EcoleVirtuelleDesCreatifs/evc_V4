@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nouveau TP soumis - EVC Admin</title>
+    <title>Nouveau Rapport soumis - EVC Admin</title>
     <style>
         /* 🎨 DESIGN MODERNE EVC - Variables CSS */
         :root {
@@ -271,7 +271,7 @@
                 <div class="evc-brand">🎓 EVC - Admin</div>
                 <div class="evc-tagline">Système de Gestion Pédagogique</div>
             </div>
-            <div class="notification-badge">🔔 Nouveau TP Soumis</div>
+            <div class="notification-badge">🔔 Nouveau Rapport Soumis</div>
         </div>
 
         <!-- 📋 CONTENU PRINCIPAL -->
@@ -282,10 +282,10 @@
 
             <div class="message-card">
                 <p style="font-size: 1.1rem; margin-bottom: 15px;">
-                    Un nouvel étudiant vient de soumettre un <strong>Travail Pratique (TP)</strong> qui nécessite votre attention.
+                    Un nouvel étudiant vient de soumettre un <strong>Rapport</strong> qui nécessite votre attention.
                 </p>
                 <p style="color: var(--evc-text-light);">
-                    Vous pouvez consulter ce TP et procéder à sa validation ou demander des améliorations.
+                    Vous pouvez consulter ce rapport et procéder à sa validation ou demander des améliorations.
                 </p>
             </div>
 
@@ -316,14 +316,14 @@
                 </div>
             </div>
 
-            <!-- 📝 DÉTAILS DU TP -->
+            <!-- 📝 DÉTAILS DU RAPPORT -->
             <div class="tp-details">
                 <div class="tp-title">
                     <span>📝</span> {{ $tp->title }}
                 </div>
                 @if($tp->description)
                     <div class="tp-description">
-                        {{ $tp->description }}
+                        {!! $tp->description !!}
                     </div>
                 @endif
                 
@@ -352,14 +352,14 @@
             <!-- 🎯 BOUTON D'ACTION -->
             <div style="text-align: center; margin: 30px 0;">
                 <a href="{{ $viewUrl }}" class="action-button">
-                    👁️ Consulter et Évaluer le TP
+                    👁️ Consulter et Évaluer le Rapport
                 </a>
             </div>
 
             <div style="background: #dbeafe; padding: 20px; border-radius: 12px; margin-top: 20px;">
                 <p style="font-size: 0.95rem; color: var(--evc-text); margin: 0; text-align: center;">
                     <strong>⏰ Action requise</strong><br>
-                    Pensez à évaluer ce TP dans les plus brefs délais pour maintenir l'engagement des étudiants.
+                    Pensez à évaluer ce rapport dans les plus brefs délais pour maintenir l'engagement des étudiants.
                 </p>
             </div>
         </div>
