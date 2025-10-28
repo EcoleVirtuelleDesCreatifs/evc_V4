@@ -16,26 +16,29 @@
 
         /* Header */
         .page-header {
-            padding: 100px 0 60px;
+            padding: 150px 0 80px;
             text-align: center;
             position: relative;
         }
 
         .page-title {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -1px;
         }
 
         .page-subtitle {
-            font-size: 1.2rem;
-            color: rgba(255, 255, 255, 0.8);
-            max-width: 700px;
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 750px;
             margin: 0 auto;
+            font-weight: 300;
+            line-height: 1.7;
         }
 
         /* Back Button */
@@ -363,12 +366,6 @@
 
 @section('content')
 <div class="formateur-page">
-    <!-- Back Button -->
-    <a href="{{ route('rejoignez-nous') }}" class="back-button">
-        <i class="fas fa-arrow-left"></i>
-        <span>Retour</span>
-    </a>
-
     <!-- Header -->
     <section class="page-header">
         <div class="container">

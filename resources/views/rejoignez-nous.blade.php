@@ -17,7 +17,7 @@
         /* Hero Section */
         .hero-section {
             position: relative;
-            padding: 120px 0 80px;
+            padding: 150px 0 100px;
             text-align: center;
             color: white;
             overflow: hidden;
@@ -35,28 +35,30 @@
         }
 
         .hero-title {
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: 800;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 50%, #ffffff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             animation: fadeInDown 1s ease-out;
+            letter-spacing: -1px;
         }
 
         .hero-subtitle {
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             color: rgba(255, 255, 255, 0.9);
-            max-width: 700px;
-            margin: 0 auto 3rem;
+            max-width: 800px;
+            margin: 0 auto 4rem;
             line-height: 1.8;
             animation: fadeInUp 1s ease-out 0.2s both;
+            font-weight: 300;
         }
 
         /* Cards Container */
         .cards-container {
-            padding: 60px 0 100px;
+            padding: 80px 0 120px;
             position: relative;
         }
 
@@ -64,7 +66,7 @@
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border-radius: 24px;
-            padding: 3rem 2rem;
+            padding: 3rem 2.5rem;
             text-align: center;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid rgba(255, 255, 255, 0.1);
@@ -72,6 +74,9 @@
             overflow: hidden;
             height: 100%;
             animation: fadeInUp 0.8s ease-out both;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .join-card:nth-child(1) { animation-delay: 0.1s; }
@@ -118,14 +123,14 @@
 
         /* Icon Circle */
         .icon-circle {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 2rem;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 1.5rem;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
+            font-size: 2.5rem;
             color: white;
             position: relative;
             transition: all 0.4s;
@@ -133,21 +138,22 @@
 
         .card-collaborateur .icon-circle {
             background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
-            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.3);
+            box-shadow: 0 15px 40px rgba(255, 152, 0, 0.4);
         }
 
         .card-partenaire .icon-circle {
             background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
-            box-shadow: 0 10px 30px rgba(79, 195, 247, 0.3);
+            box-shadow: 0 15px 40px rgba(79, 195, 247, 0.4);
         }
 
         .card-formateur .icon-circle {
-            background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
-            box-shadow: 0 10px 30px rgba(156, 39, 176, 0.3);
+            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+            box-shadow: 0 15px 40px rgba(255, 152, 0, 0.4);
         }
 
         .join-card:hover .icon-circle {
-            transform: scale(1.1) rotate(5deg);
+            transform: scale(1.15) rotate(10deg);
+            box-shadow: 0 20px 50px rgba(255, 152, 0, 0.5);
         }
 
         /* Card Content */
@@ -155,15 +161,17 @@
             font-size: 2rem;
             font-weight: 700;
             color: white;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            margin-top: 1rem;
         }
 
         .card-description {
-            font-size: 1.1rem;
-            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.85);
             line-height: 1.8;
             margin-bottom: 2rem;
-            min-height: 100px;
+            min-height: 90px;
+            flex-grow: 0;
         }
 
         .card-features {
@@ -171,15 +179,17 @@
             padding: 0;
             margin: 2rem 0;
             text-align: left;
+            flex-grow: 1;
         }
 
         .card-features li {
-            padding: 0.8rem 0;
+            padding: 0.75rem 0;
             color: rgba(255, 255, 255, 0.9);
-            font-size: 1rem;
+            font-size: 0.95rem;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 1rem;
+            line-height: 1.6;
         }
 
         .card-features li i {
@@ -191,8 +201,8 @@
         /* CTA Button */
         .cta-button {
             display: inline-block;
-            padding: 1rem 2.5rem;
-            font-size: 1.1rem;
+            padding: 1.1rem 2.5rem;
+            font-size: 1rem;
             font-weight: 600;
             color: white;
             background: linear-gradient(135deg, var(--card-color) 0%, var(--card-color) 100%);
@@ -203,6 +213,9 @@
             box-shadow: 0 10px 30px var(--card-color-alpha);
             position: relative;
             overflow: hidden;
+            margin-top: 1rem;
+            width: 100%;
+            text-align: center;
         }
 
         .cta-button::before {
@@ -342,12 +355,6 @@
 
 @section('content')
 <div class="rejoignez-nous-page">
-    <!-- Back Button -->
-    <a href="{{ url('/') }}" class="back-button">
-        <i class="fas fa-arrow-left"></i>
-        <span>Retour à l'accueil</span>
-    </a>
-
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
@@ -362,35 +369,39 @@
     <!-- Cards Section -->
     <section class="cards-container">
         <div class="container">
-            <div class="row g-4">
+            <div class="row justify-content-center">
+                <div class="col-lg-11">
+                    <div class="row g-4">
                 <!-- Collaborateur Card -->
                 <div class="col-lg-4 col-md-6">
                     <div class="join-card card-collaborateur">
-                        <div class="icon-circle">
-                            <i class="fas fa-handshake"></i>
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <h2 class="card-title">Collaborateur</h2>
+                            <p class="card-description">
+                                Intégrez notre équipe dynamique et contribuez à transformer l'éducation digitale en Afrique.
+                            </p>
+                            <ul class="card-features">
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Environnement de travail stimulant</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Opportunités de développement</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Équipe passionnée et innovante</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Impact social significatif</span>
+                                </li>
+                            </ul>
                         </div>
-                        <h2 class="card-title">Collaborateur</h2>
-                        <p class="card-description">
-                            Intégrez notre équipe dynamique et contribuez à transformer l'éducation digitale en Afrique.
-                        </p>
-                        <ul class="card-features">
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Environnement de travail stimulant</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Opportunités de développement</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Équipe passionnée et innovante</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Impact social significatif</span>
-                            </li>
-                        </ul>
                         <a href="{{ route('rejoignez-nous.collaborateur') }}" class="cta-button">
                             Postuler maintenant
                             <i class="fas fa-arrow-right ms-2"></i>
@@ -401,31 +412,33 @@
                 <!-- Partenaire Card -->
                 <div class="col-lg-4 col-md-6">
                     <div class="join-card card-partenaire">
-                        <div class="icon-circle">
-                            <i class="fas fa-users"></i>
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h2 class="card-title">Partenaire</h2>
+                            <p class="card-description">
+                                Collaborez avec nous pour développer des synergies et créer de la valeur ensemble.
+                            </p>
+                            <ul class="card-features">
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Partenariats stratégiques</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Visibilité accrue</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Accès à un vivier de talents</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Projets collaboratifs innovants</span>
+                                </li>
+                            </ul>
                         </div>
-                        <h2 class="card-title">Partenaire</h2>
-                        <p class="card-description">
-                            Collaborez avec nous pour développer des synergies et créer de la valeur ensemble.
-                        </p>
-                        <ul class="card-features">
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Partenariats stratégiques</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Visibilité accrue</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Accès à un vivier de talents</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Projets collaboratifs innovants</span>
-                            </li>
-                        </ul>
                         <a href="{{ route('rejoignez-nous.partenaire') }}" class="cta-button">
                             Devenir partenaire
                             <i class="fas fa-arrow-right ms-2"></i>
@@ -436,35 +449,39 @@
                 <!-- Devenir Formateur Card -->
                 <div class="col-lg-4 col-md-6">
                     <div class="join-card card-formateur">
-                        <div class="icon-circle">
-                            <i class="fas fa-chalkboard-teacher"></i>
+                        <div>
+                            <div class="icon-circle">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h2 class="card-title">Devenir formateur</h2>
+                            <p class="card-description">
+                                Partagez votre expertise et formez la nouvelle génération de créatifs africains.
+                            </p>
+                            <ul class="card-features">
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Transmission de savoir</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Rémunération attractive</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Flexibilité des horaires</span>
+                                </li>
+                                <li>
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Réseau professionnel étendu</span>
+                                </li>
+                            </ul>
                         </div>
-                        <h2 class="card-title">Devenir formateur</h2>
-                        <p class="card-description">
-                            Partagez votre expertise et formez la nouvelle génération de créatifs africains.
-                        </p>
-                        <ul class="card-features">
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Transmission de savoir</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Rémunération attractive</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Flexibilité des horaires</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Réseau professionnel étendu</span>
-                            </li>
-                        </ul>
                         <a href="{{ route('rejoignez-nous.formateur') }}" class="cta-button">
                             Rejoindre l'équipe
                             <i class="fas fa-arrow-right ms-2"></i>
                         </a>
+                    </div>
+                </div>
                     </div>
                 </div>
             </div>
