@@ -1,543 +1,678 @@
 @extends('layouts.app')
 
 @section('title', 'Devenir Partenaire - École Virtuelle des Créatifs')
-@section('description', 'Devenez partenaire de l\'École Virtuelle des Créatifs. Collaborez avec nous pour développer des synergies et créer de la valeur ensemble en Côte d\'Ivoire.')
-@section('keywords', 'partenariat evc, partenaire école virtuelle, collaboration formation abidjan, partenariat éducation côte d\'ivoire')
+@section('description', 'Devenez partenaire de l\'École Virtuelle des Créatifs')
+@section('keywords', 'partenariat evc, partenaire école virtuelle abidjan')
 
 @push('styles')
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-        .partenaire-page {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0a1628 0%, #1a2942 100%);
-            min-height: 100vh;
-            color: white;
+    :root {
+        --primary: #4fc3f7;
+        --primary-dark: #29b6f6;
+        --bg-dark: #0f172a;
+        --bg-card: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --border: #334155;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-dark);
+        font-family: 'Inter', sans-serif;
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .page-container {
+        min-height: 100vh;
+        padding: 160px 20px 60px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+        text-align: center;
+        margin-bottom: 60px;
+        padding-top: 60px;
+    }
+
+    .header-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        background: rgba(79, 195, 247, 0.1);
+        border: 1px solid rgba(79, 195, 247, 0.3);
+        border-radius: 20px;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+    }
+
+    .header h1 {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        letter-spacing: -1px;
+    }
+
+    .header p {
+        font-size: 18px;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto;
+        font-weight: 400;
+    }
+
+    /* Partnership Types */
+    .partnership-types {
+        margin-bottom: 60px;
+    }
+
+    .partnership-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+    }
+
+    .partnership-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .partnership-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+    }
+
+    .partnership-icon {
+        font-size: 32px;
+        color: var(--primary);
+        margin-bottom: 12px;
+    }
+
+    .partnership-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .partnership-desc {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    /* Content Grid */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 50px;
+        align-items: start;
+        max-width: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: sticky;
+        top: 100px;
+    }
+
+    .info-box {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .info-box h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--text-primary);
+    }
+
+    .info-box ul {
+        list-style: none;
+    }
+
+    .info-box li {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        padding-left: 20px;
+        position: relative;
+    }
+
+    .info-box li:before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    .contact-info {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.8;
+    }
+
+    .contact-info strong {
+        color: var(--text-primary);
+    }
+
+    /* Form Card */
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 40px;
+    }
+
+    .form-header {
+        margin-bottom: 32px;
+    }
+
+    .form-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .form-header p {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+    .required {
+        color: var(--primary);
+    }
+
+    .form-control,
+    .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        background: var(--bg-dark);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: var(--bg-dark);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-select option {
+        background: var(--bg-dark);
+    }
+
+    /* Submit Button */
+    .submit-btn {
+        width: 100%;
+        padding: 14px 24px;
+        background: var(--primary);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Alert */
+    .alert-success {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 8px;
+        padding: 12px 16px;
+        color: #22c55e;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+    }
+
+    .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 8px;
+        padding: 12px 16px;
+        color: #ef4444;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+    }
+
+    .error-text {
+        color: #ef4444;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .form-control.error,
+    .form-select.error {
+        border-color: #ef4444;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.95);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .loader-container {
+        text-align: center;
+    }
+
+    .loader {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(79, 195, 247, 0.2);
+        border-top: 4px solid #4fc3f7;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+        color: #4fc3f7;
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .loader-subtext {
+        color: #94a3b8;
+        font-size: 14px;
+        margin-top: 8px;
+    }
+
+    .submit-btn.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .submit-btn.loading i {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
         }
 
-        /* Header */
-        .page-header {
-            padding: 120px 0 60px;
-            text-align: center;
-            position: relative;
+        .sidebar {
+            position: static;
         }
 
-        .page-title {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 1.25rem;
-            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -1px;
-        }
-
-        .page-subtitle {
-            font-size: 1.15rem;
-            color: rgba(255, 255, 255, 0.85);
-            max-width: 700px;
-            margin: 0 auto;
-            font-weight: 300;
-            line-height: 1.7;
-        }
-
-        /* Back Button */
-        .back-button {
-            position: fixed;
-            top: 30px;
-            left: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 1000;
-        }
-
-        .back-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateX(-5px);
-            color: white;
-        }
-
-        /* Content Section */
-        .content-section {
-            padding: 30px 0 60px;
-        }
-
-        .info-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(79, 195, 247, 0.2);
-            transition: all 0.3s;
-        }
-
-        .info-card:hover {
-            border-color: #4fc3f7;
-            box-shadow: 0 10px 40px rgba(79, 195, 247, 0.2);
-        }
-
-        .info-card h3 {
-            color: #4fc3f7;
-            font-size: 1.5rem;
-            margin-bottom: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .info-card h3 i {
-            font-size: 2rem;
-        }
-
-        .info-card p, .info-card li {
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.8;
-            font-size: 1.05rem;
-        }
-
-        .info-card ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .info-card ul li {
-            padding: 0.8rem 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .info-card ul li i {
-            color: #4fc3f7;
-            margin-top: 0.3rem;
-            flex-shrink: 0;
-        }
-
-        /* Partnership Types */
         .partnership-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 140px 16px 40px;
         }
 
-        .partnership-type {
-            background: rgba(79, 195, 247, 0.1);
-            border: 1px solid rgba(79, 195, 247, 0.3);
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s;
+        .header {
+            padding-top: 40px;
         }
 
-        .partnership-type:hover {
-            background: rgba(79, 195, 247, 0.15);
-            border-color: #4fc3f7;
-            transform: translateY(-5px);
+        .header h1 {
+            font-size: 32px;
         }
 
-        .partnership-type i {
-            font-size: 3rem;
-            color: #4fc3f7;
-            margin-bottom: 1rem;
+        .header p {
+            font-size: 16px;
         }
 
-        .partnership-type h4 {
-            color: white;
-            font-size: 1.3rem;
-            margin-bottom: 0.5rem;
+        .partnership-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
         }
 
-        .partnership-type p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.95rem;
+        .form-card {
+            padding: 24px;
         }
 
-        /* Form Section */
-        .form-container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 2.5rem;
-            border: 1px solid rgba(79, 195, 247, 0.2);
+        .form-row {
+            grid-template-columns: 1fr;
         }
-
-        .form-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #4fc3f7;
-            margin-bottom: 1.75rem;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .form-label .required {
-            color: #4fc3f7;
-        }
-
-        .form-control, .form-select {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            color: white;
-            padding: 0.8rem 1.2rem;
-            transition: all 0.3s;
-        }
-
-        .form-control:focus, .form-select:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: #4fc3f7;
-            box-shadow: 0 0 0 0.2rem rgba(79, 195, 247, 0.25);
-            color: white;
-        }
-
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .form-select option {
-            background: #1a2942;
-            color: white;
-        }
-
-        textarea.form-control {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .submit-button {
-            width: 100%;
-            padding: 1rem;
-            font-size: 1rem;
-            font-weight: 600;
-            color: white;
-            background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(79, 195, 247, 0.3);
-        }
-
-        .submit-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(79, 195, 247, 0.4);
-        }
-
-        .submit-button:active {
-            transform: translateY(0);
-        }
-
-        /* Alert */
-        .alert-custom {
-            background: rgba(76, 175, 80, 0.1);
-            border: 1px solid rgba(76, 175, 80, 0.5);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 2rem;
-            color: #4caf50;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .page-subtitle {
-                font-size: 1rem;
-            }
-
-            .info-card, .form-container {
-                padding: 1.5rem;
-            }
-
-            .back-button {
-                top: 15px;
-                left: 15px;
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-            }
-
-            .partnership-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="partenaire-page">
-    <!-- Header -->
-    <section class="page-header">
-        <div class="container">
-            <h1 class="page-title">
-                <i class="fas fa-users me-3"></i>
-                Devenir Partenaire
-            </h1>
-            <p class="page-subtitle">
-                Collaborez avec l'École Virtuelle des Créatifs pour développer des synergies et créer de la valeur ensemble
-            </p>
+<div class="page-container">
+    <div class="container">
+        <!-- Header -->
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="header">
+                    <span class="header-badge">PARTENARIATS STRATÉGIQUES</span>
+                    <h1>Devenez partenaire</h1>
+                    <p>Collaborez avec nous pour développer des synergies et créer de la valeur ensemble</p>
+                </div>
+            </div>
         </div>
-    </section>
 
-    <!-- Content -->
-    <section class="content-section">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-            <!-- Types de partenariats -->
-            <div class="info-card mb-5">
-                <h3>
-                    <i class="fas fa-handshake"></i>
-                    Types de partenariats
-                </h3>
-                <div class="partnership-grid">
-                    <div class="partnership-type">
-                        <i class="fas fa-building"></i>
-                        <h4>Entreprises</h4>
-                        <p>Recrutement de talents, stages, projets collaboratifs</p>
-                    </div>
-                    <div class="partnership-type">
-                        <i class="fas fa-graduation-cap"></i>
-                        <h4>Institutions</h4>
-                        <p>Partenariats académiques, échanges de compétences</p>
-                    </div>
-                    <div class="partnership-type">
-                        <i class="fas fa-lightbulb"></i>
-                        <h4>Startups</h4>
-                        <p>Innovation, co-création, mentorat</p>
-                    </div>
-                    <div class="partnership-type">
-                        <i class="fas fa-globe"></i>
-                        <h4>ONG / Associations</h4>
-                        <p>Projets sociaux, formation inclusive</p>
+        <!-- Partnership Types -->
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="partnership-types">
+                    <div class="partnership-grid">
+                        <div class="partnership-card">
+                            <div class="partnership-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <div class="partnership-title">Entreprises</div>
+                            <div class="partnership-desc">Recrutement & stages</div>
+                        </div>
+                        <div class="partnership-card">
+                            <div class="partnership-icon">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="partnership-title">Institutions</div>
+                            <div class="partnership-desc">Projets académiques</div>
+                        </div>
+                        <div class="partnership-card">
+                            <div class="partnership-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="partnership-title">Startups</div>
+                            <div class="partnership-desc">Innovation & tech</div>
+                        </div>
+                        <div class="partnership-card">
+                            <div class="partnership-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div class="partnership-title">ONG</div>
+                            <div class="partnership-desc">Projets sociaux</div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="row">
-                <!-- Left Column: Information -->
-                <div class="col-lg-5 mb-4">
-                    <!-- Avantages -->
-                    <div class="info-card">
-                        <h3>
-                            <i class="fas fa-star"></i>
-                            Avantages du partenariat
-                        </h3>
-                        <ul>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Accès à un vivier de talents formés et qualifiés</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Visibilité auprès de notre communauté</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Participation à des projets innovants</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Contribution à la transformation digitale africaine</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Réseau professionnel étendu</span>
-                            </li>
-                        </ul>
-                    </div>
+        <!-- Content -->
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="content-grid">
+                    <!-- Sidebar -->
+                    <aside class="sidebar">
+                        <div class="info-box">
+                            <h3>Avantages</h3>
+                            <ul>
+                                <li>Accès à des talents qualifiés</li>
+                                <li>Visibilité accrue</li>
+                                <li>Projets collaboratifs</li>
+                                <li>Innovation partagée</li>
+                                <li>Réseau étendu</li>
+                            </ul>
+                        </div>
 
-                    <!-- Modalités -->
-                    <div class="info-card">
-                        <h3>
-                            <i class="fas fa-clipboard-list"></i>
-                            Modalités de collaboration
-                        </h3>
-                        <ul>
-                            <li>
-                                <i class="fas fa-briefcase"></i>
-                                <span>Offres de stages et d'emploi</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-project-diagram"></i>
-                                <span>Projets collaboratifs avec les étudiants</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-chalkboard-teacher"></i>
-                                <span>Interventions et masterclasses</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-donate"></i>
-                                <span>Parrainage et sponsoring</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-tools"></i>
-                                <span>Mise à disposition d'outils et ressources</span>
-                            </li>
-                        </ul>
-                    </div>
+                        <div class="info-box">
+                            <h3>Types de collaboration</h3>
+                            <ul>
+                                <li>Recrutement de talents</li>
+                                <li>Offres de stages</li>
+                                <li>Projets collaboratifs</li>
+                                <li>Masterclass</li>
+                                <li>Sponsoring</li>
+                            </ul>
+                        </div>
 
-                    <!-- Contact -->
-                    <div class="info-card">
-                        <h3>
-                            <i class="fas fa-envelope"></i>
-                            Contact
-                        </h3>
-                        <p>
-                            <strong>Email :</strong> partenariats@evc.ci<br>
-                            <strong>Téléphone :</strong> +225 XX XX XX XX XX<br>
-                            <strong>Adresse :</strong> Abidjan, Côte d'Ivoire
-                        </p>
-                    </div>
-                </div>
+                        <div class="info-box">
+                            <h3>Contact</h3>
+                            <div class="contact-info">
+                                <strong>Email:</strong><br>
+                                partenariats@evc.ci<br><br>
+                                <strong>Téléphone:</strong><br>
+                                +225 XX XX XX XX
+                            </div>
+                        </div>
+                    </aside>
 
-                <!-- Right Column: Form -->
-                <div class="col-lg-7">
-                    <div class="form-container">
-                        <h2 class="form-title">Demande de partenariat</h2>
+                    <!-- Form -->
+                    <div class="form-card">
+                        <div class="form-header">
+                            <h2>Demande de partenariat</h2>
+                            <p>Remplissez ce formulaire pour initier une collaboration</p>
+                        </div>
 
                         @if(session('success'))
-                            <div class="alert-custom">
-                                <i class="fas fa-check-circle me-2"></i>
+                            <div class="alert-success">
+                                <i class="fas fa-check-circle"></i>
                                 {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if($errors->any())
+                            <div class="alert-error">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <div>
+                                    <strong>Erreur :</strong> Veuillez corriger les champs suivants.
+                                </div>
                             </div>
                         @endif
 
                         <form action="{{ route('rejoignez-nous.partenaire.submit') }}" method="POST">
                             @csrf
 
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Type de structure <span class="required">*</span>
-                                </label>
-                                <select name="type_structure" class="form-select" required>
-                                    <option value="">Sélectionnez</option>
-                                    <option value="entreprise">Entreprise</option>
-                                    <option value="institution">Institution académique</option>
-                                    <option value="startup">Startup</option>
-                                    <option value="ong">ONG / Association</option>
-                                    <option value="autre">Autre</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Nom de la structure <span class="required">*</span>
-                                </label>
-                                <input type="text" name="nom_structure" class="form-control" placeholder="Nom de votre entreprise/organisation" required>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Nom du contact <span class="required">*</span>
-                                        </label>
-                                        <input type="text" name="nom_contact" class="form-control" placeholder="Nom complet" required>
-                                    </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Nom de l'organisation <span class="required">*</span></label>
+                                    <input type="text" name="organisation" class="form-control @error('organisation') error @enderror" placeholder="Nom de votre structure" value="{{ old('organisation') }}" required>
+                                    @error('organisation')
+                                        <span class="error-text">{{ $message }}</span>
+                                    @enderror
                                 </div>
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Fonction <span class="required">*</span>
-                                        </label>
-                                        <input type="text" name="fonction" class="form-control" placeholder="Votre fonction" required>
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nom du contact <span class="required">*</span></label>
+                                    <input type="text" name="nom_contact" class="form-control @error('nom_contact') error @enderror" placeholder="Votre nom" value="{{ old('nom_contact') }}" required>
+                                    @error('nom_contact')
+                                        <span class="error-text">{{ $message }}</span>
+                                    @enderror
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Email <span class="required">*</span>
-                                        </label>
-                                        <input type="email" name="email" class="form-control" placeholder="contact@exemple.com" required>
-                                    </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Email <span class="required">*</span></label>
+                                    <input type="email" name="email" class="form-control @error('email') error @enderror" placeholder="contact@exemple.com" value="{{ old('email') }}" required>
+                                    @error('email')
+                                        <span class="error-text">{{ $message }}</span>
+                                    @enderror
                                 </div>
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Téléphone <span class="required">*</span>
-                                        </label>
-                                        <input type="tel" name="telephone" class="form-control" placeholder="+225 XX XX XX XX XX" required>
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">Téléphone <span class="required">*</span></label>
+                                    <input type="tel" name="telephone" class="form-control @error('telephone') error @enderror" placeholder="+225 XX XX XX XX" value="{{ old('telephone') }}" required>
+                                    @error('telephone')
+                                        <span class="error-text">{{ $message }}</span>
+                                    @enderror
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">
-                                    Site web (optionnel)
-                                </label>
-                                <input type="url" name="site_web" class="form-control" placeholder="https://...">
+                                <label class="form-label">Site web (optionnel)</label>
+                                <input type="url" name="site_web" class="form-control @error('site_web') error @enderror" placeholder="https://..." value="{{ old('site_web') }}">
+                                @error('site_web')
+                                    <span class="error-text">{{ $message }}</span>
+                                @enderror
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Type de partenariat <span class="required">*</span></label>
+                                    <select name="type_partenariat" class="form-select @error('type_partenariat') error @enderror" required>
+                                        <option value="">Sélectionnez</option>
+                                        <option value="recrutement" {{ old('type_partenariat') == 'recrutement' ? 'selected' : '' }}>Recrutement de talents</option>
+                                        <option value="stages" {{ old('type_partenariat') == 'stages' ? 'selected' : '' }}>Offres de stages</option>
+                                        <option value="projets" {{ old('type_partenariat') == 'projets' ? 'selected' : '' }}>Projets collaboratifs</option>
+                                        <option value="masterclass" {{ old('type_partenariat') == 'masterclass' ? 'selected' : '' }}>Interventions / Masterclass</option>
+                                        <option value="sponsoring" {{ old('type_partenariat') == 'sponsoring' ? 'selected' : '' }}>Parrainage / Sponsoring</option>
+                                        <option value="ressources" {{ old('type_partenariat') == 'ressources' ? 'selected' : '' }}>Mise à disposition de ressources</option>
+                                        <option value="autre" {{ old('type_partenariat') == 'autre' ? 'selected' : '' }}>Autre</option>
+                                    </select>
+                                    @error('type_partenariat')
+                                        <span class="error-text">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Secteur d'activité <span class="required">*</span></label>
+                                    <input type="text" name="secteur" class="form-control @error('secteur') error @enderror" placeholder="Ex: Technologie, Marketing..." value="{{ old('secteur') }}" required>
+                                    @error('secteur')
+                                        <span class="error-text">{{ $message }}</span>
+                                    @enderror
+                                </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">
-                                    Type de partenariat souhaité <span class="required">*</span>
-                                </label>
-                                <select name="type_partenariat" class="form-select" required>
-                                    <option value="">Sélectionnez</option>
-                                    <option value="recrutement">Recrutement de talents</option>
-                                    <option value="stages">Offres de stages</option>
-                                    <option value="projets">Projets collaboratifs</option>
-                                    <option value="masterclass">Interventions / Masterclass</option>
-                                    <option value="sponsoring">Parrainage / Sponsoring</option>
-                                    <option value="ressources">Mise à disposition de ressources</option>
-                                    <option value="autre">Autre (précisez dans le message)</option>
-                                </select>
+                                <label class="form-label">Décrivez votre projet <span class="required">*</span></label>
+                                <textarea name="message" class="form-control @error('message') error @enderror" placeholder="Présentez votre structure et vos objectifs de partenariat..." required>{{ old('message') }}</textarea>
+                                @error('message')
+                                    <span class="error-text">{{ $message }}</span>
+                                @enderror
                             </div>
 
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Secteur d'activité <span class="required">*</span>
-                                </label>
-                                <input type="text" name="secteur" class="form-control" placeholder="Ex: Technologie, Marketing, Design..." required>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Décrivez votre projet de partenariat <span class="required">*</span>
-                                </label>
-                                <textarea name="message" class="form-control" placeholder="Présentez votre structure, vos objectifs et ce que vous attendez de ce partenariat..." required></textarea>
-                            </div>
-
-                            <button type="submit" class="submit-button">
-                                <i class="fas fa-paper-plane me-2"></i>
-                                Envoyer la demande
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Envoyer la demande</span>
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
-                </div>
-            </div>
         </div>
-    </section>
+    </div>
+</div>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader-container">
+        <div class="loader"></div>
+        <div class="loader-text">Envoi en cours...</div>
+        <div class="loader-subtext">Veuillez patienter</div>
+    </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action*="partenaire"]');
+    const submitBtn = document.querySelector('.submit-btn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    
+    if (form && submitBtn && loadingOverlay) {
+        form.addEventListener('submit', function(e) {
+            // Vérifier si le formulaire est valide
+            if (form.checkValidity()) {
+                // Afficher le loader
+                loadingOverlay.classList.add('active');
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+                
+                // Changer le texte du bouton
+                const btnText = submitBtn.querySelector('span');
+                if (btnText) {
+                    btnText.textContent = 'Envoi en cours...';
+                }
+            }
+        });
+    }
+});
+</script>
+@endpush

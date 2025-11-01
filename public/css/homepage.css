@@ -320,3 +320,71 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 900;
 }
 
+/* =============================================
+   SCROLL TO TOP BUTTON
+   ============================================= */
+
+.scroll-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, var(--evc-orange) 0%, #F97316 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: 0 4px 20px rgba(255, 153, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+}
+
+.scroll-to-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-to-top:hover {
+    transform: translateY(-5px) scale(1.1);
+    box-shadow: 0 8px 30px rgba(255, 153, 0, 0.6);
+    background: linear-gradient(135deg, #F97316 0%, var(--evc-orange) 100%);
+}
+
+.scroll-to-top:active {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 153, 0, 0.5);
+}
+
+.scroll-to-top i {
+    animation: bounce-arrow 2s infinite;
+}
+
+@keyframes bounce-arrow {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .scroll-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.1rem;
+    }
+}
+

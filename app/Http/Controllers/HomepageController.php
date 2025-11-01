@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\PreRegistration;
 use App\Models\Evenement;
 use App\Models\Actualite;
+use App\Models\CandidatureCollaborateur;
+use App\Models\DemandePartenariat;
+use App\Models\CandidatureFormateur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
@@ -299,13 +302,23 @@ class HomepageController extends Controller
             $validated['cv_path'] = $cvPath;
         }
 
+        // Enregistrer la candidature dans la base de données
+        $candidature = CandidatureCollaborateur::create($validated);
+
         // Envoyer un email à l'admin
         try {
-            $adminEmail = config('mail.admin_address', 'recrutement@evc.ci');
-            Mail::send('emails.collaborateur-candidature', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
-                $message->to($adminEmail)
-                    ->subject('Nouvelle candidature Collaborateur - ' . $validated['prenom'] . ' ' . $validated['nom']);
-            });
+            // Utiliser l'email depuis .env ou une valeur par défaut
+            $adminEmail = env('MAIL_ADMIN_ADDRESS') ?: env('MAIL_FROM_ADDRESS', 'recrutement@evc.ci');
+            
+            // Vérifier que l'email est valide avant d'envoyer
+            if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+                Mail::send('emails.collaborateur-candidature', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
+                    $message->to($adminEmail)
+                        ->subject('Nouvelle candidature Collaborateur - ' . $validated['prenom'] . ' ' . $validated['nom']);
+                });
+            } else {
+                Log::warning('Email admin non configuré. Candidature enregistrée mais email non envoyé.');
+            }
         } catch (\Exception $e) {
             Log::error('Erreur envoi email candidature collaborateur: ' . $e->getMessage());
         }
@@ -320,10 +333,8 @@ class HomepageController extends Controller
     public function partenaireSubmit(Request $request)
     {
         $validated = $request->validate([
-            'type_structure' => 'required|string|max:255',
-            'nom_structure' => 'required|string|max:255',
+            'organisation' => 'required|string|max:255',
             'nom_contact' => 'required|string|max:255',
-            'fonction' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'telephone' => 'required|string|max:30',
             'site_web' => 'nullable|url|max:500',
@@ -332,13 +343,23 @@ class HomepageController extends Controller
             'message' => 'required|string|max:5000',
         ]);
 
+        // Enregistrer la demande dans la base de données
+        $demande = DemandePartenariat::create($validated);
+
         // Envoyer un email à l'admin
         try {
-            $adminEmail = config('mail.admin_address', 'partenariats@evc.ci');
-            Mail::send('emails.partenaire-demande', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
-                $message->to($adminEmail)
-                    ->subject('Nouvelle demande de partenariat - ' . $validated['nom_structure']);
-            });
+            // Utiliser l'email depuis .env ou une valeur par défaut
+            $adminEmail = env('MAIL_ADMIN_ADDRESS') ?: env('MAIL_FROM_ADDRESS', 'partenariats@evc.ci');
+            
+            // Vérifier que l'email est valide avant d'envoyer
+            if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+                Mail::send('emails.partenaire-demande', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
+                    $message->to($adminEmail)
+                        ->subject('Nouvelle demande de partenariat - ' . $validated['organisation']);
+                });
+            } else {
+                Log::warning('Email admin non configuré. Demande de partenariat enregistrée mais email non envoyé.');
+            }
         } catch (\Exception $e) {
             Log::error('Erreur envoi email demande partenariat: ' . $e->getMessage());
         }
@@ -357,12 +378,10 @@ class HomepageController extends Controller
             'nom' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'telephone' => 'required|string|max:30',
-            'domaines' => 'required|array|min:1',
-            'domaines.*' => 'string|max:255',
+            'domaine' => 'required|string|max:255',
             'experience' => 'required|string|max:50',
-            'niveau_etudes' => 'required|string|max:255',
-            'disponibilite' => 'required|string|max:255',
-            'message' => 'required|string|max:5000',
+            'diplomes' => 'required|string|max:5000',
+            'motivation' => 'required|string|max:5000',
             'cv' => 'required|file|mimes:pdf|max:2048',
             'portfolio' => 'nullable|url|max:500',
         ]);
@@ -373,16 +392,23 @@ class HomepageController extends Controller
             $validated['cv_path'] = $cvPath;
         }
 
-        // Convertir les domaines en string pour l'email
-        $validated['domaines_text'] = implode(', ', $validated['domaines']);
+        // Enregistrer la candidature dans la base de données
+        $candidature = CandidatureFormateur::create($validated);
 
         // Envoyer un email à l'admin
         try {
-            $adminEmail = config('mail.admin_address', 'formateurs@evc.ci');
-            Mail::send('emails.formateur-candidature', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
-                $message->to($adminEmail)
-                    ->subject('Nouvelle candidature Formateur - ' . $validated['prenom'] . ' ' . $validated['nom']);
-            });
+            // Utiliser l'email depuis .env ou une valeur par défaut
+            $adminEmail = env('MAIL_ADMIN_ADDRESS') ?: env('MAIL_FROM_ADDRESS', 'formateurs@evc.ci');
+            
+            // Vérifier que l'email est valide avant d'envoyer
+            if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+                Mail::send('emails.formateur-candidature', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
+                    $message->to($adminEmail)
+                        ->subject('Nouvelle candidature Formateur - ' . $validated['prenom'] . ' ' . $validated['nom']);
+                });
+            } else {
+                Log::warning('Email admin non configuré. Candidature formateur enregistrée mais email non envoyé.');
+            }
         } catch (\Exception $e) {
             Log::error('Erreur envoi email candidature formateur: ' . $e->getMessage());
         }

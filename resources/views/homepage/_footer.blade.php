@@ -192,11 +192,11 @@
                     </li>
                     <li class="flex items-start text-sm text-gray-300">
                         <i class="fas fa-envelope text-orange-500 mt-1 mr-3"></i>
-                        <a href="mailto:contact@evc.ci" class="hover:text-orange-400 transition-colors">contact@evc.ci</a>
+                        <a href="mailto:info@ecolevirtuelledescreatifs.com" class="hover:text-orange-400 transition-colors">info@ecolevirtuelledescreatifs.com</a>
                     </li>
                     <li class="flex items-start text-sm text-gray-300">
                         <i class="fas fa-phone text-orange-500 mt-1 mr-3"></i>
-                        <a href="tel:+2250700000000" class="hover:text-orange-400 transition-colors">+225 07 00 00 00 00</a>
+                        <a href="tel:+2250747259507" class="hover:text-orange-400 transition-colors">+225 07 47 25 95 07</a>
                     </li>
                 </ul>
                 
@@ -215,9 +215,9 @@
                     &copy; {{ date('Y') }} <span class="font-semibold text-white">EVC - École Virtuelle des Créatifs</span>. Tous droits réservés.
                 </p>
                 <div class="flex gap-6 text-sm">
-                    <a href="#" class="text-gray-400 hover:text-orange-400 transition-colors">Mentions Légales</a>
+                    <a href="{{ route('mentions-legales') }}" class="text-gray-400 hover:text-orange-400 transition-colors">Mentions Légales</a>
                     <span class="text-gray-600">|</span>
-                    <a href="#" class="text-gray-400 hover:text-orange-400 transition-colors">Politique de Confidentialité</a>
+                    <a href="{{ route('politique-confidentialite') }}" class="text-gray-400 hover:text-orange-400 transition-colors">Politique de Confidentialité</a>
                 </div>
             </div>
         </div>

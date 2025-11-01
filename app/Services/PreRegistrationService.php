@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use App\Mail\AdminPreRegistrationNotification;
-use App\Mail\PreRegistrationSubmitted;
 use App\Models\PreRegistration;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -79,25 +77,33 @@ class PreRegistrationService
 
         $pre = PreRegistration::create($data);
 
-        // Envoi e-mails synchrone
+        // Envoi e-mails synchrone (méthode identique au formulaire formateur qui fonctionne)
         $warnings = [];
+        
+        // Email au candidat
         try {
-            Mail::to($pre->email)
-                ->send((new PreRegistrationSubmitted($pre))
-                    ->replyTo(config('mail.from.address'), config('mail.from.name')));
+            Mail::send('emails.pre_registration_submitted', ['pre' => $pre], function ($message) use ($pre) {
+                $message->to($pre->email)
+                    ->subject("Confirmation de votre candidature à l'EVC");
+            });
             Log::info('Mail candidat envoyé', ['to' => $pre->email, 'pre_id' => $pre->id]);
         } catch (\Throwable $e) {
             Log::error('Envoi mail candidat échec', ['error' => $e->getMessage()]);
             $warnings[] = "L'e-mail de confirmation n'a pas pu être envoyé au candidat.";
         }
 
+        // Email à l'admin
         try {
-            $adminEmail = config('mail.admin_address') ?? config('mail.from.address');
-            if ($adminEmail) {
-                Mail::to($adminEmail)
-                    ->send(new AdminPreRegistrationNotification($pre));
+            $adminEmail = env('MAIL_ADMIN_ADDRESS') ?: env('MAIL_FROM_ADDRESS', 'admin@evc.ci');
+            
+            if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+                Mail::send('emails.admin_pre_registration_notification', ['pre' => $pre], function ($message) use ($adminEmail, $pre) {
+                    $message->to($adminEmail)
+                        ->subject('Nouvelle candidature reçue - ' . $pre->prenom . ' ' . $pre->nom);
+                });
                 Log::info('Mail admin envoyé', ['to' => $adminEmail, 'pre_id' => $pre->id]);
             } else {
+                Log::warning('Email admin non configuré. Candidature enregistrée mais email non envoyé.');
                 $warnings[] = "L'adresse e-mail administrateur n'est pas configurée (MAIL_ADMIN_ADDRESS).";
             }
         } catch (\Throwable $e) {

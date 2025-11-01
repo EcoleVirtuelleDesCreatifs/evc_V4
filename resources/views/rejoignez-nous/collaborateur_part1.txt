@@ -1,0 +1,8 @@
+@extends('layouts.app')
+
+@section('title', 'Devenir Collaborateur - École Virtuelle des Créatifs')
+@section('description', 'Rejoignez l\'équipe de l\'École Virtuelle des Créatifs. Postulez pour devenir collaborateur et participez à la transformation de l\'éducation digitale en Côte d\'Ivoire.')
+@section('keywords', 'emploi evc, recrutement evc abidjan, collaborateur école virtuelle, carrière formation côte d\'ivoire')
+
+@push('styles')
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">

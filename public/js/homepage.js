@@ -563,4 +563,36 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Particles.js Error:', e);
     }
 
+    // --- Scroll to Top Button ---
+    try {
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+        
+        if (scrollToTopBtn) {
+            // Afficher/masquer le bouton en fonction du scroll
+            const toggleScrollButton = () => {
+                if (window.scrollY > 300) {
+                    scrollToTopBtn.classList.add('show');
+                } else {
+                    scrollToTopBtn.classList.remove('show');
+                }
+            };
+
+            // Écouter le scroll
+            window.addEventListener('scroll', toggleScrollButton);
+
+            // Gérer le clic sur le bouton
+            scrollToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+
+            // Vérifier la position initiale
+            toggleScrollButton();
+        }
+    } catch(e) {
+        console.error('Scroll to Top Error:', e);
+    }
+
 });

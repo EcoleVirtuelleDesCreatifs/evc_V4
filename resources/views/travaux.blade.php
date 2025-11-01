@@ -48,17 +48,20 @@
             <button class="filter-btn active px-6 py-2 bg-orange-500 text-white rounded-full font-semibold hover:bg-orange-600 transition duration-300" data-filter="all">
                 Tous les projets
             </button>
-            <button class="filter-btn px-6 py-2 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition duration-300" data-filter="design-graphique">
-                Design Graphique
+            <button class="filter-btn px-6 py-2 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition duration-300" data-filter="identite-visuelle">
+                Identité visuelle
             </button>
-            <button class="filter-btn px-6 py-2 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition duration-300" data-filter="web-design">
-                Web Design
+            <button class="filter-btn px-6 py-2 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition duration-300" data-filter="affiche">
+                Affiche
             </button>
-            <button class="filter-btn px-6 py-2 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition duration-300" data-filter="branding">
-                Branding
+            <button class="filter-btn px-6 py-2 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition duration-300" data-filter="plaquette">
+                Plaquette
             </button>
-            <button class="filter-btn px-6 py-2 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition duration-300" data-filter="ui-ux">
-                UI/UX
+            <button class="filter-btn px-6 py-2 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition duration-300" data-filter="logotypes">
+                LogoTypes
+            </button>
+            <button class="filter-btn px-6 py-2 bg-white/10 text-white rounded-full font-semibold hover:bg-white/20 transition duration-300" data-filter="autres">
+                Autres
             </button>
         </div>
 

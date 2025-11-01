@@ -33,7 +33,7 @@
             background: linear-gradient(135deg, #003366 0%, #3399ff 50%, #ff6633 100%);
             min-height: 100vh;
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
             padding: 20px 0;
         }
 
@@ -106,7 +106,10 @@
         .logo {
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
-            animation: pulse 2s infinite;
+        }
+
+        .logo a:hover img {
+            transform: scale(1.1);
         }
 
         @keyframes pulse {
@@ -393,7 +396,9 @@
         <!-- Header -->
         <div class="login-header">
             <div class="logo">
-                <img src="{{ asset('assets/img/logo_white.png') }}" alt="EVC Logo" style="height: 100px; width: auto;">
+                <a href="{{ route('homepage') }}" style="display: inline-block; cursor: pointer;">
+                    <img src="{{ asset('assets/img/logo_white.png') }}" alt="EVC Logo" style="height: 100px; width: auto; transition: transform 0.3s ease;">
+                </a>
             </div>
             <h1 class="login-title">Espace de connexion</h1>
         </div>
@@ -541,30 +546,6 @@
             loginText.style.display = 'none';
             loadingSpinner.style.display = 'inline-block';
             loginBtn.disabled = true;
-
-            // Simulate loading (remove this in production)
-            setTimeout(() => {
-                loginText.style.display = 'inline-block';
-                loadingSpinner.style.display = 'none';
-                loginBtn.disabled = false;
-            }, 2000);
-        });
-
-        // Auto-fill demo credentials
-        document.addEventListener('DOMContentLoaded', function() {
-            const demoBox = document.querySelector('.demo-credentials');
-            if (demoBox) {
-                demoBox.addEventListener('click', function() {
-                    document.getElementById('email').value = 'jean.dupont@evc.com';
-                    document.getElementById('password').value = 'password';
-
-                    // Visual feedback
-                    this.style.transform = 'scale(0.98)';
-                    setTimeout(() => {
-                        this.style.transform = 'scale(1)';
-                    }, 150);
-                });
-            }
         });
 
         // Input animations

@@ -38,6 +38,15 @@ Route::get('/evenement/{slug}', [HomepageController::class, 'showEvenement'])->n
 Route::get('/actualites', [HomepageController::class, 'actualites'])->name('actualites');
 Route::get('/actualite/{slug}', [HomepageController::class, 'showActualite'])->name('actualite.show');
 
+// Pages légales
+Route::get('/mentions-legales', function () {
+    return view('legal.mentions-legales');
+})->name('mentions-legales');
+
+Route::get('/politique-confidentialite', function () {
+    return view('legal.politique-confidentialite');
+})->name('politique-confidentialite');
+
 // Routes "Rejoignez-nous"
 Route::get('/rejoignez-nous', function () {
     return view('rejoignez-nous');
@@ -689,6 +698,13 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/cvtheque/profil/{id}', [CVThequeAdminController::class, 'show'])->name('cvtheque.show');
         Route::get('/cvtheque/download/{id}/{type}', [CVThequeAdminController::class, 'downloadFile'])->name('cvtheque.download');
         Route::get('/cvtheque/export', [CVThequeAdminController::class, 'export'])->name('cvtheque.export');
+        
+        // Gestion des Candidatures Collaborateurs
+        Route::get('/candidatures/collaborateurs', [App\Http\Controllers\Admin\CandidatureCollaborateurController::class, 'index'])->name('candidatures.collaborateurs.index');
+        Route::get('/candidatures/collaborateurs/{id}', [App\Http\Controllers\Admin\CandidatureCollaborateurController::class, 'show'])->name('candidatures.collaborateurs.show');
+        Route::post('/candidatures/collaborateurs/{id}/statut', [App\Http\Controllers\Admin\CandidatureCollaborateurController::class, 'updateStatut'])->name('candidatures.collaborateurs.update-statut');
+        Route::get('/candidatures/collaborateurs/{id}/download-cv', [App\Http\Controllers\Admin\CandidatureCollaborateurController::class, 'downloadCV'])->name('candidatures.collaborateurs.download-cv');
+        Route::delete('/candidatures/collaborateurs/{id}', [App\Http\Controllers\Admin\CandidatureCollaborateurController::class, 'destroy'])->name('candidatures.collaborateurs.destroy');
         
         // Gestion des Rapports
         Route::get('/rapports', [AdminDashboardController::class, 'rapports'])->name('rapports');

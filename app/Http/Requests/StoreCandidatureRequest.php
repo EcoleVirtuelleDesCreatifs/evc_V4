@@ -31,10 +31,10 @@ class StoreCandidatureRequest extends FormRequest
             'domaine_etude' => 'required|string|max:255',
             'competences' => 'required|string|max:1500',
             // Formation
-            'programme' => 'required|string',
-            'niveau_formation' => 'required|string',
+            'programme' => 'required|string|in:design-graphique,community-manager,intelligence-artificielle,gestion-informatique',
+            'niveau_formation' => 'required|string|in:Aucune notion,Certaines notions,Monter en compétence',
             'motivation' => 'required|string|max:5000',
-            'origine' => 'required|string',
+            'origine' => 'required|string|in:Réseaux sociaux,Ami,Publicité,Autre',
             // Équipements
             'ordinateur' => 'required|string|in:Oui,Non',
             'smartphone' => 'required|string|in:Oui,Non',

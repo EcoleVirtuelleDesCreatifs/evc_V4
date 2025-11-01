@@ -20,10 +20,10 @@
                 <p class="mt-2 text-sm leading-6 text-gray-300">Devenez un expert des réseaux sociaux et engagez des communautés.</p>
                 <a href="{{ route('preinscription.start') }}" class="mt-6 block text-sm font-semibold leading-6 text-orange-400 hover:text-orange-300 choose-formation" data-formation="community_management">Choisir cette formation &rarr;</a>
             </div>
-            <!-- Card 3: Gestion Informatique -->
+            <!-- Card 3: Bureautique et informatique -->
             <div class="formation-card rounded-2xl bg-gray-800/80 p-8 ring-1 ring-white/10" data-aos="fade-up" data-aos-delay="300">
                 <i class="fas fa-cogs text-3xl evc-orange"></i>
-                <h3 class="mt-6 text-lg font-semibold leading-8 text-white">Gestion Informatique</h3>
+                <h3 class="mt-6 text-lg font-semibold leading-8 text-white">Bureautique et informatique</h3>
                 <p class="mt-2 text-sm leading-6 text-gray-300">Pilotez des projets informatiques et gérez des systèmes d'information.</p>
                 <a href="{{ route('preinscription.start') }}" class="mt-6 block text-sm font-semibold leading-6 text-orange-400 hover:text-orange-300 choose-formation" data-formation="gestion_informatique">Choisir cette formation &rarr;</a>
             </div>

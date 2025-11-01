@@ -160,6 +160,11 @@
 
     @include('homepage._footer')
 
+    <!-- Bouton Retour en Haut -->
+    <button id="scrollToTop" class="scroll-to-top" aria-label="Retour en haut">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>

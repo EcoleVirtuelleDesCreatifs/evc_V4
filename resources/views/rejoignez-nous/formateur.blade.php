@@ -1,668 +1,773 @@
 @extends('layouts.app')
 
 @section('title', 'Devenir Formateur - École Virtuelle des Créatifs')
-@section('description', 'Devenez formateur à l\'École Virtuelle des Créatifs. Partagez votre expertise et formez la nouvelle génération de créatifs africains en Côte d\'Ivoire.')
-@section('keywords', 'devenir formateur evc, enseigner evc abidjan, formateur design graphique, formateur community management, enseignement côte d\'ivoire')
+@section('description', 'Devenez formateur à l\'École Virtuelle des Créatifs')
+@section('keywords', 'formateur evc, enseigner école virtuelle abidjan')
 
 @push('styles')
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-        .formateur-page {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0a1628 0%, #1a2942 100%);
-            min-height: 100vh;
-            color: white;
+    :root {
+        --primary: #ff9800;
+        --primary-dark: #f57c00;
+        --primary-gradient: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+        --accent: #ffb74d;
+        --bg-dark: #0f172a;
+        --bg-card: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --border: #334155;
+        --glow-orange: rgba(255, 152, 0, 0.3);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: var(--bg-dark);
+        font-family: 'Inter', sans-serif;
+        color: var(--text-primary);
+        line-height: 1.6;
+    }
+
+    .page-container {
+        min-height: 100vh;
+        padding: 160px 20px 60px;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+        text-align: center;
+        margin-bottom: 60px;
+        padding-top: 60px;
+    }
+
+    .header-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        background: rgba(255, 152, 0, 0.1);
+        border: 1px solid rgba(255, 152, 0, 0.3);
+        border-radius: 20px;
+        color: var(--primary);
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 0 20px var(--glow-orange);
+    }
+
+    .header h1 {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        letter-spacing: -1px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .header p {
+        font-size: 18px;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto;
+        font-weight: 400;
+    }
+
+    /* Stats */
+    .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 60px;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-4px);
+    }
+
+    .stat-number {
+        font-size: 32px;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 8px;
+    }
+
+    .stat-label {
+        font-size: 14px;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    /* Content Grid */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 50px;
+        align-items: start;
+        max-width: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: sticky;
+        top: 100px;
+    }
+
+    .info-box {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+
+    .info-box h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--text-primary);
+    }
+
+    .info-box ul {
+        list-style: none;
+    }
+
+    .info-box li {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        padding-left: 20px;
+        position: relative;
+    }
+
+    .info-box li:before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--primary);
+        font-weight: bold;
+    }
+
+    .contact-info {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.8;
+    }
+
+    .contact-info strong {
+        color: var(--text-primary);
+    }
+
+    /* Form Card */
+    .form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 40px;
+    }
+
+    .form-header {
+        margin-bottom: 32px;
+    }
+
+    .form-header h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .form-header p {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+    .required {
+        color: var(--primary);
+    }
+
+    .form-control,
+    .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        background: var(--bg-dark);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: var(--bg-dark);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-select option {
+        background: var(--bg-dark);
+    }
+
+    /* File Upload */
+    .file-upload {
+        position: relative;
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        padding: 32px;
+        text-align: center;
+        background: var(--bg-dark);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .file-upload:hover {
+        border-color: var(--primary);
+        background: rgba(156, 39, 176, 0.05);
+    }
+
+    .file-upload.drag-over {
+        border-color: var(--primary);
+        background: rgba(156, 39, 176, 0.1);
+    }
+
+    .file-upload input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .file-upload-icon {
+        font-size: 32px;
+        color: var(--primary);
+        margin-bottom: 12px;
+    }
+
+    .file-upload-text {
+        font-size: 14px;
+        color: var(--text-primary);
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .file-upload-hint {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .file-name {
+        margin-top: 12px;
+        padding: 8px 12px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 6px;
+        color: #22c55e;
+        font-size: 13px;
+        display: none;
+    }
+
+    .file-name.show {
+        display: block;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+        width: 100%;
+        padding: 14px 24px;
+        background: var(--primary);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Alert */
+    .alert-success {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 8px;
+        padding: 12px 16px;
+        color: #22c55e;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+    }
+
+    .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 8px;
+        padding: 12px 16px;
+        color: #ef4444;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 14px;
+    }
+
+    .error-text {
+        color: #ef4444;
+        font-size: 12px;
+        margin-top: 4px;
+        display: block;
+    }
+
+    .form-control.error,
+    .form-select.error {
+        border-color: #ef4444;
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.95);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .loader-container {
+        text-align: center;
+    }
+
+    .loader {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 152, 0, 0.2);
+        border-top: 4px solid #ff9800;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .loader-text {
+        color: #ff9800;
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .loader-subtext {
+        color: #94a3b8;
+        font-size: 14px;
+        margin-top: 8px;
+    }
+
+    .submit-btn.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .submit-btn.loading i {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
         }
 
-        /* Header */
-        .page-header {
-            padding: 120px 0 60px;
-            text-align: center;
-            position: relative;
+        .sidebar {
+            position: static;
         }
 
-        .page-title {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 1.25rem;
-            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -1px;
+        .stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .page-container {
+            padding: 140px 16px 40px;
         }
 
-        .page-subtitle {
-            font-size: 1.15rem;
-            color: rgba(255, 255, 255, 0.85);
-            max-width: 700px;
-            margin: 0 auto;
-            font-weight: 300;
-            line-height: 1.7;
+        .header {
+            padding-top: 40px;
         }
 
-        /* Back Button */
-        .back-button {
-            position: fixed;
-            top: 30px;
-            left: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            z-index: 1000;
+        .header h1 {
+            font-size: 32px;
         }
 
-        .back-button:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateX(-5px);
-            color: white;
+        .header p {
+            font-size: 16px;
         }
 
-        /* Content Section */
-        .content-section {
-            padding: 30px 0 60px;
+        .stats {
+            grid-template-columns: 1fr;
+            gap: 12px;
         }
 
-        .info-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(255, 152, 0, 0.2);
-            transition: all 0.3s;
+        .form-card {
+            padding: 24px;
         }
 
-        .info-card:hover {
-            border-color: #ff9800;
-            box-shadow: 0 10px 40px rgba(255, 152, 0, 0.2);
+        .form-row {
+            grid-template-columns: 1fr;
         }
-
-        .info-card h3 {
-            color: #ff9800;
-            font-size: 1.5rem;
-            margin-bottom: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .info-card h3 i {
-            font-size: 2rem;
-        }
-
-        .info-card p, .info-card li {
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.8;
-            font-size: 1.05rem;
-        }
-
-        .info-card ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .info-card ul li {
-            padding: 0.8rem 0;
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .info-card ul li i {
-            color: #ff9800;
-            margin-top: 0.3rem;
-            flex-shrink: 0;
-        }
-
-        /* Formations Grid */
-        .formations-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .formation-badge {
-            background: rgba(255, 152, 0, 0.1);
-            border: 1px solid rgba(255, 152, 0, 0.3);
-            border-radius: 12px;
-            padding: 1.5rem 1rem;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .formation-badge:hover {
-            background: rgba(255, 152, 0, 0.15);
-            border-color: #ff9800;
-            transform: translateY(-3px);
-        }
-
-        .formation-badge i {
-            font-size: 2.5rem;
-            color: #ff9800;
-            margin-bottom: 0.8rem;
-        }
-
-        .formation-badge h5 {
-            color: white;
-            font-size: 1rem;
-            margin: 0;
-        }
-
-        /* Form Section */
-        .form-container {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 2.5rem;
-            border: 1px solid rgba(255, 152, 0, 0.2);
-        }
-
-        .form-title {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: #ff9800;
-            margin-bottom: 1.75rem;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            display: block;
-        }
-
-        .form-label .required {
-            color: #ff9800;
-        }
-
-        .form-control, .form-select {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            color: white;
-            padding: 0.8rem 1.2rem;
-            transition: all 0.3s;
-        }
-
-        .form-control:focus, .form-select:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: #ff9800;
-            box-shadow: 0 0 0 0.2rem rgba(255, 152, 0, 0.25);
-            color: white;
-        }
-
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .form-select option {
-            background: #1a2942;
-            color: white;
-        }
-
-        textarea.form-control {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        .checkbox-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.8rem;
-            background: rgba(255, 152, 0, 0.1);
-            border: 1px solid rgba(255, 152, 0, 0.2);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .checkbox-item:hover {
-            background: rgba(255, 152, 0, 0.15);
-            border-color: #ff9800;
-        }
-
-        .checkbox-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            accent-color: #ff9800;
-        }
-
-        .checkbox-item label {
-            color: rgba(255, 255, 255, 0.9);
-            cursor: pointer;
-            margin: 0;
-        }
-
-        .file-upload-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .file-upload-input {
-            position: absolute;
-            left: -9999px;
-        }
-
-        .file-upload-label {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            padding: 1.5rem;
-            background: rgba(255, 152, 0, 0.1);
-            border: 2px dashed rgba(255, 152, 0, 0.5);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .file-upload-label:hover {
-            background: rgba(255, 152, 0, 0.2);
-            border-color: #ff9800;
-        }
-
-        .file-upload-label i {
-            font-size: 2rem;
-            color: #ff9800;
-        }
-
-        .file-name {
-            margin-top: 0.5rem;
-            color: #ff9800;
-            font-size: 0.9rem;
-        }
-
-        .submit-button {
-            width: 100%;
-            padding: 1rem;
-            font-size: 1rem;
-            font-weight: 600;
-            color: white;
-            background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(255, 152, 0, 0.3);
-        }
-
-        .submit-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(255, 152, 0, 0.4);
-        }
-
-        .submit-button:active {
-            transform: translateY(0);
-        }
-
-        /* Alert */
-        .alert-custom {
-            background: rgba(76, 175, 80, 0.1);
-            border: 1px solid rgba(76, 175, 80, 0.5);
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 2rem;
-            color: #4caf50;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 2rem;
-            }
-
-            .page-subtitle {
-                font-size: 1rem;
-            }
-
-            .info-card, .form-container {
-                padding: 1.5rem;
-            }
-
-            .back-button {
-                top: 15px;
-                left: 15px;
-                padding: 0.6rem 1.2rem;
-                font-size: 0.9rem;
-            }
-
-            .formations-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .checkbox-group {
-                grid-template-columns: 1fr;
-            }
-        }
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="formateur-page">
-    <!-- Header -->
-    <section class="page-header">
-        <div class="container">
-            <h1 class="page-title">
-                <i class="fas fa-chalkboard-teacher me-3"></i>
-                Devenir Formateur
-            </h1>
-            <p class="page-subtitle">
-                Partagez votre expertise et formez la nouvelle génération de créatifs africains
-            </p>
+<div class="page-container">
+    <div class="container">
+        <!-- Header -->
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2">
+                <div class="header">
+                    <span class="header-badge">ENSEIGNEMENT & FORMATION</span>
+                    <h1>Devenez formateur</h1>
+                    <p>Partagez votre expertise et formez la nouvelle génération de créatifs africains</p>
+                </div>
+            </div>
         </div>
-    </section>
 
-    <!-- Content -->
-    <section class="content-section">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-10">
-                    <div class="row">
-                        <!-- Left Column: Information -->
-                        <div class="col-lg-5 mb-4">
-                    <!-- Pourquoi enseigner -->
-                    <div class="info-card">
-                        <h3>
-                            <i class="fas fa-heart"></i>
-                            Pourquoi enseigner chez EVC ?
-                        </h3>
-                        <ul>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Transmettez votre savoir et votre passion</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Rémunération attractive et compétitive</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Flexibilité des horaires d'enseignement</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Réseau professionnel étendu</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Impact social significatif</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-check-circle"></i>
-                                <span>Formation continue et développement</span>
-                            </li>
-                        </ul>
+        <!-- Stats -->
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number">20+</div>
+                        <div class="stat-label">Formateurs</div>
                     </div>
-
-                    <!-- Formations -->
-                    <div class="info-card">
-                        <h3>
-                            <i class="fas fa-graduation-cap"></i>
-                            Nos formations
-                        </h3>
-                        <div class="formations-grid">
-                            <div class="formation-badge">
-                                <i class="fas fa-palette"></i>
-                                <h5>Design Graphique</h5>
-                            </div>
-                            <div class="formation-badge">
-                                <i class="fas fa-bullhorn"></i>
-                                <h5>Community Management</h5>
-                            </div>
-                            <div class="formation-badge">
-                                <i class="fas fa-laptop-code"></i>
-                                <h5>Gestion Informatique</h5>
-                            </div>
-                            <div class="formation-badge">
-                                <i class="fas fa-brain"></i>
-                                <h5>Intelligence Artificielle</h5>
-                            </div>
-                        </div>
+                    <div class="stat-card">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Cours</div>
                     </div>
-
-                    <!-- Profil recherché -->
-                    <div class="info-card">
-                        <h3>
-                            <i class="fas fa-user-check"></i>
-                            Profil recherché
-                        </h3>
-                        <ul>
-                            <li>
-                                <i class="fas fa-award"></i>
-                                <span>Expertise avérée dans votre domaine (3+ ans)</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-comments"></i>
-                                <span>Excellentes capacités de communication</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-lightbulb"></i>
-                                <span>Pédagogie et passion pour l'enseignement</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-clock"></i>
-                                <span>Disponibilité et ponctualité</span>
-                            </li>
-                            <li>
-                                <i class="fas fa-laptop"></i>
-                                <span>Maîtrise des outils digitaux</span>
-                            </li>
-                        </ul>
+                    <div class="stat-card">
+                        <div class="stat-number">1000+</div>
+                        <div class="stat-label">Étudiants</div>
                     </div>
-
-                    <!-- Contact -->
-                    <div class="info-card">
-                        <h3>
-                            <i class="fas fa-envelope"></i>
-                            Contact
-                        </h3>
-                        <p>
-                            <strong>Email :</strong> formateurs@evc.ci<br>
-                            <strong>Téléphone :</strong> +225 XX XX XX XX XX<br>
-                            <strong>Adresse :</strong> Abidjan, Côte d'Ivoire
-                        </p>
+                    <div class="stat-card">
+                        <div class="stat-number">4.8/5</div>
+                        <div class="stat-label">Satisfaction</div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Right Column: Form -->
-                <div class="col-lg-7">
-                    <div class="form-container">
-                        <h2 class="form-title">Candidature Formateur</h2>
+        <!-- Content -->
+        <div class="row">
+            <div class="col-lg-10 offset-lg-1">
+                <div class="content-grid">
+                    <!-- Sidebar -->
+                    <aside class="sidebar">
+                        <div class="info-box">
+                            <h3>Pourquoi enseigner ?</h3>
+                            <ul>
+                                <li>Transmission de savoir</li>
+                                <li>Rémunération attractive</li>
+                                <li>Flexibilité horaire</li>
+                                <li>Impact social</li>
+                                <li>Réseau professionnel</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-box">
+                            <h3>Domaines recherchés</h3>
+                            <ul>
+                                <li>Design Graphique</li>
+                                <li>Community Management</li>
+                                <li>Développement Web</li>
+                                <li>Intelligence Artificielle</li>
+                                <li>Marketing Digital</li>
+                            </ul>
+                        </div>
+
+                        <div class="info-box">
+                            <h3>Contact</h3>
+                            <div class="contact-info">
+                                <strong>Email:</strong><br>
+                                formateurs@evc.ci<br><br>
+                                <strong>Téléphone:</strong><br>
+                                +225 XX XX XX XX
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Form -->
+                    <div class="form-card">
+                        <div class="form-header">
+                            <h2>Candidature formateur</h2>
+                            <p>Remplissez ce formulaire pour rejoindre notre équipe pédagogique</p>
+                        </div>
 
                         @if(session('success'))
-                            <div class="alert-custom">
-                                <i class="fas fa-check-circle me-2"></i>
+                            <div class="alert-success">
+                                <i class="fas fa-check-circle"></i>
                                 {{ session('success') }}
+                            </div>
+                        @endif
+
+                        @if($errors->any())
+                            <div class="alert-error">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <div>
+                                    <strong>Erreur :</strong> Veuillez corriger les champs suivants.
+                                </div>
                             </div>
                         @endif
 
                         <form action="{{ route('rejoignez-nous.formateur.submit') }}" method="POST" enctype="multipart/form-data">
                             @csrf
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Prénom <span class="required">*</span>
-                                        </label>
-                                        <input type="text" name="prenom" class="form-control" placeholder="Votre prénom" required>
-                                    </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Prénom <span class="required">*</span></label>
+                                    <input type="text" name="prenom" class="form-control" placeholder="Votre prénom" required>
                                 </div>
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Nom <span class="required">*</span>
-                                        </label>
-                                        <input type="text" name="nom" class="form-control" placeholder="Votre nom" required>
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">Nom <span class="required">*</span></label>
+                                    <input type="text" name="nom" class="form-control" placeholder="Votre nom" required>
                                 </div>
                             </div>
 
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Email <span class="required">*</span>
-                                        </label>
-                                        <input type="email" name="email" class="form-control" placeholder="votre.email@exemple.com" required>
-                                    </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Email <span class="required">*</span></label>
+                                    <input type="email" name="email" class="form-control" placeholder="votre@email.com" required>
                                 </div>
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Téléphone <span class="required">*</span>
-                                        </label>
-                                        <input type="tel" name="telephone" class="form-control" placeholder="+225 XX XX XX XX XX" required>
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">Téléphone <span class="required">*</span></label>
+                                    <input type="tel" name="telephone" class="form-control" placeholder="+225 XX XX XX XX" required>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label class="form-label">
-                                    Domaine(s) d'expertise <span class="required">*</span>
-                                </label>
-                                <div class="checkbox-group">
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="domaines[]" value="design_graphique" id="design">
-                                        <label for="design">Design Graphique</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="domaines[]" value="community_management" id="cm">
-                                        <label for="cm">Community Management</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="domaines[]" value="gestion_informatique" id="gi">
-                                        <label for="gi">Gestion Informatique</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="domaines[]" value="intelligence_artificielle" id="ia">
-                                        <label for="ia">Intelligence Artificielle</label>
-                                    </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Domaine d'expertise <span class="required">*</span></label>
+                                    <select name="domaine" class="form-select" required>
+                                        <option value="">Sélectionnez</option>
+                                        <option value="design_graphique">Design Graphique</option>
+                                        <option value="community_management">Community Management</option>
+                                        <option value="developpement_web">Développement Web</option>
+                                        <option value="intelligence_artificielle">Intelligence Artificielle</option>
+                                        <option value="marketing_digital">Marketing Digital</option>
+                                        <option value="gestion_projet">Gestion de Projet</option>
+                                        <option value="autre">Autre</option>
+                                    </select>
                                 </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Années d'expérience <span class="required">*</span>
-                                        </label>
-                                        <select name="experience" class="form-select" required>
-                                            <option value="">Sélectionnez</option>
-                                            <option value="3-5">3 à 5 ans</option>
-                                            <option value="5-10">5 à 10 ans</option>
-                                            <option value="10+">Plus de 10 ans</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">
-                                            Niveau d'études <span class="required">*</span>
-                                        </label>
-                                        <select name="niveau_etudes" class="form-select" required>
-                                            <option value="">Sélectionnez</option>
-                                            <option value="licence">Licence / Bachelor</option>
-                                            <option value="master">Master</option>
-                                            <option value="doctorat">Doctorat / PhD</option>
-                                            <option value="autodidacte">Autodidacte (expérience significative)</option>
-                                        </select>
-                                    </div>
+                                <div class="form-group">
+                                    <label class="form-label">Années d'expérience <span class="required">*</span></label>
+                                    <select name="experience" class="form-select" required>
+                                        <option value="">Sélectionnez</option>
+                                        <option value="1-3">1 à 3 ans</option>
+                                        <option value="3-5">3 à 5 ans</option>
+                                        <option value="5-10">5 à 10 ans</option>
+                                        <option value="10+">Plus de 10 ans</option>
+                                    </select>
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">
-                                    Disponibilité <span class="required">*</span>
-                                </label>
-                                <select name="disponibilite" class="form-select" required>
-                                    <option value="">Sélectionnez</option>
-                                    <option value="temps_plein">Temps plein</option>
-                                    <option value="temps_partiel">Temps partiel</option>
-                                    <option value="ponctuel">Interventions ponctuelles</option>
-                                </select>
+                                <label class="form-label">Diplômes et certifications <span class="required">*</span></label>
+                                <textarea name="diplomes" class="form-control" placeholder="Listez vos diplômes et certifications pertinents..." required></textarea>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">
-                                    Présentez votre parcours et votre motivation <span class="required">*</span>
-                                </label>
-                                <textarea name="message" class="form-control" placeholder="Parlez-nous de votre parcours professionnel, vos compétences, votre expérience en enseignement (si applicable) et pourquoi vous souhaitez rejoindre EVC..." required></textarea>
+                                <label class="form-label">Motivation <span class="required">*</span></label>
+                                <textarea name="motivation" class="form-control" placeholder="Pourquoi souhaitez-vous devenir formateur chez EVC ?" required></textarea>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">
-                                    CV (PDF, max 2MB) <span class="required">*</span>
-                                </label>
-                                <div class="file-upload-wrapper">
-                                    <input type="file" name="cv" id="cv" class="file-upload-input" accept=".pdf" required>
-                                    <label for="cv" class="file-upload-label">
+                                <label class="form-label">CV (PDF, max 2MB) <span class="required">*</span></label>
+                                <div class="file-upload" id="fileUpload">
+                                    <input type="file" name="cv" id="cvFile" accept=".pdf" required>
+                                    <div class="file-upload-icon">
                                         <i class="fas fa-cloud-upload-alt"></i>
-                                        <span>Cliquez pour télécharger votre CV</span>
-                                    </label>
-                                    <div class="file-name" id="cv-name"></div>
+                                    </div>
+                                    <div class="file-upload-text">Glissez votre CV ici</div>
+                                    <div class="file-upload-hint">ou cliquez pour parcourir</div>
                                 </div>
+                                <div class="file-name" id="fileName"></div>
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">
-                                    Portfolio / Site web (optionnel)
-                                </label>
+                                <label class="form-label">Portfolio / LinkedIn (optionnel)</label>
                                 <input type="url" name="portfolio" class="form-control" placeholder="https://...">
                             </div>
 
-                            <button type="submit" class="submit-button">
-                                <i class="fas fa-paper-plane me-2"></i>
-                                Envoyer ma candidature
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-paper-plane"></i>
+                                <span>Envoyer ma candidature</span>
                             </button>
                         </form>
                     </div>
                 </div>
-                    </div>
-                </div>
             </div>
         </div>
-    </section>
+    </div>
+</div>
 
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loader-container">
+        <div class="loader"></div>
+        <div class="loader-text">Envoi en cours...</div>
+        <div class="loader-subtext">Veuillez patienter</div>
+    </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    // File upload display
-    document.getElementById('cv').addEventListener('change', function(e) {
-        const fileName = e.target.files[0]?.name || '';
-        document.getElementById('cv-name').textContent = fileName ? `Fichier sélectionné : ${fileName}` : '';
+document.addEventListener('DOMContentLoaded', function() {
+    // Gestion du loader lors de la soumission du formulaire
+    const form = document.querySelector('form[action*="formateur"]');
+    const submitBtn = form ? form.querySelector('.submit-btn') : null;
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    
+    if (form && submitBtn && loadingOverlay) {
+        form.addEventListener('submit', function(e) {
+            // Vérifier si le formulaire est valide
+            if (form.checkValidity()) {
+                // Afficher le loader
+                loadingOverlay.classList.add('active');
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+                
+                // Changer le texte du bouton
+                const btnText = submitBtn.querySelector('span');
+                if (btnText) {
+                    btnText.textContent = 'Envoi en cours...';
+                }
+            }
+        });
+    }
+
+    // Gestion du drag & drop pour le CV
+    const fileUpload = document.getElementById('fileUpload');
+    const fileInput = document.getElementById('cvFile');
+    const fileName = document.getElementById('fileName');
+
+    // File input change
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files[0]) {
+            showFileName(e.target.files[0].name);
+        }
     });
+
+    // Drag & drop
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        fileUpload.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        fileUpload.addEventListener(eventName, () => fileUpload.classList.add('drag-over'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        fileUpload.addEventListener(eventName, () => fileUpload.classList.remove('drag-over'), false);
+    });
+
+    fileUpload.addEventListener('drop', function(e) {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            showFileName(files[0].name);
+        }
+    });
+
+    function showFileName(name) {
+        fileName.textContent = `✓ ${name}`;
+        fileName.classList.add('show');
+    }
+});
 </script>
 @endpush
