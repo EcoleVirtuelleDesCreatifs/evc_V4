@@ -4,13 +4,42 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         const preloader = document.getElementById('preloader');
         if (preloader) {
+            // Cacher le preloader au chargement initial après 15 secondes
             window.addEventListener('load', () => {
                 setTimeout(() => {
                     preloader.style.opacity = '0';
                     setTimeout(() => {
                         preloader.style.display = 'none';
-                    }, 1000); // Match transition duration
-                }, 200); // Short delay
+                    }, 500);
+                }, 10000); // 10 secondes
+            });
+
+            // Afficher le loader lors de la navigation
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    const href = link.getAttribute('href');
+                    // Vérifier si c'est un lien interne (pas un anchor, pas externe, pas javascript)
+                    if (href && 
+                        !href.startsWith('#') && 
+                        !href.startsWith('javascript:') && 
+                        !href.startsWith('mailto:') && 
+                        !href.startsWith('tel:') &&
+                        !link.hasAttribute('target') &&
+                        !link.classList.contains('no-loader')) {
+                        
+                        // Afficher le preloader
+                        preloader.style.display = 'flex';
+                        preloader.style.opacity = '1';
+                    }
+                });
+            });
+
+            // Cacher le loader si l'utilisateur revient en arrière
+            window.addEventListener('pageshow', (event) => {
+                if (event.persisted) {
+                    preloader.style.opacity = '0';
+                    preloader.style.display = 'none';
+                }
             });
         }
     } catch (e) {

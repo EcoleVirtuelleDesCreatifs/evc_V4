@@ -1,5 +1,5 @@
 <!-- Homepage Founder Section -->
-<div class="bg-gray-100 py-24 sm:py-32">
+<div id="fondateur-section" class="bg-gray-100 py-24 sm:py-32">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto grid max-w-5xl grid-cols-1 items-center gap-x-0 gap-y-16 lg:grid-cols-2">
             <!-- Left Column: Image -->

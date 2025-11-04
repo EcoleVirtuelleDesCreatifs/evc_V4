@@ -159,6 +159,7 @@
     </main>
 
     @include('homepage._footer')
+    @include('homepage._popup-preinscription')
 
     <!-- Bouton Retour en Haut -->
     <button id="scrollToTop" class="scroll-to-top" aria-label="Retour en haut">

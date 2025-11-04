@@ -21,7 +21,7 @@
                 </div>
                 <div class="flex flex-col bg-white/5 p-8 transition-all duration-300 hover:bg-gradient-to-br hover:from-orange-600 hover:via-orange-500 hover:to-orange-400 cursor-pointer" data-aos="fade-up" data-aos-delay="400">
                     <dt class="text-sm font-semibold leading-6 text-gray-300">Pays Représentés</dt>
-                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+17</dd>
+                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+18</dd>
                 </div>
             </dl>
             <div class="mt-10 text-center text-lg text-gray-300" data-aos="fade-up" data-aos-delay="500">

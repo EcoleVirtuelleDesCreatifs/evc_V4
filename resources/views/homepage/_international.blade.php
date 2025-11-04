@@ -30,6 +30,7 @@
                         ['code' => 'in', 'name' => 'Inde'],
                         ['code' => 'ga', 'name' => 'Gabon'],
                         ['code' => 'us', 'name' => 'États-Unis'],
+                        ['code' => 'ca', 'name' => 'Canada'],
                     ];
                 @endphp
                 @foreach ($countries as $index => $country)
