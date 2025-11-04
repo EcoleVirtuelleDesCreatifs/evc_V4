@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Nos Formations - EVC - École Virtuelle des Créatifs')
-@section('description', 'Découvrez nos formations certifiantes en Design Graphique, Community Management, et plus, conçues pour vous rendre opérationnel.')
+@section('title', 'Formations Certifiantes Design Graphique, Community Management | EVC Abidjan')
+@section('description', 'Formations professionnelles certifiées par l\'État : Design Graphique (4 mois), Community Management (3 mois), Bureautique (2 mois), IA (1 mois). Tarifs accessibles, paiement échelonné. 95% de réussite à Abidjan.')
+@section('keywords', 'formation design graphique Abidjan, formation community management, formation bureautique, formation intelligence artificielle, Adobe Photoshop, Illustrator, InDesign, formation certifiante Côte d\'Ivoire, école digitale Abidjan, tarif formation')
 
 @push('styles')
 <style>

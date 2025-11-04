@@ -125,7 +125,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
+                        <a href="{{ route('parcours-formateur') }}" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
                             <i class="fas fa-chevron-right text-orange-500 text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
                             Parcours du formateur
                         </a>

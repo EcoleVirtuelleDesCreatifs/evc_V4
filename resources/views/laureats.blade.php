@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Nos Lauréats - EVC - École Virtuelle des Créatifs')
-@section('description', 'Faites la connaissance de nos anciens étudiants qui transforment aujourd\'hui leur passion en carrière dans le monde du digital.')
+@section('title', 'Nos Lauréats | Success Stories EVC | Anciens Étudiants Design & Digital Abidjan')
+@section('description', 'Découvrez les success stories de nos lauréats : designers graphiques, community managers et experts digitaux qui réussissent en Côte d\'Ivoire et à l\'international. Témoignages et parcours inspirants.')
+@section('keywords', 'lauréats EVC, anciens étudiants, success stories, témoignages étudiants, carrière design graphique, emploi digital Abidjan, réussite professionnelle, alumni EVC, parcours étudiants')
 
 @section('content')
 <!-- Hero Section -->

@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'À Propos - EVC - École Virtuelle des Créatifs')
-@section('description', 'Découvrez notre mission, nos valeurs et notre engagement à former les leaders du digital de demain en Afrique.')
+@section('title', 'À Propos de l\'EVC | École Digitale N°1 en Côte d\'Ivoire | Bilé Bossombra')
+@section('description', 'Découvrez l\'EVC, première école digitale certifiée en Côte d\'Ivoire. Notre mission : former les leaders du digital africain. Fondée par Bilé Bossombra, expert 360° avec 10+ ans d\'expérience internationale. 1500+ étudiants formés.')
+@section('keywords', 'école virtuelle créatifs, EVC Abidjan, Bilé Bossombra, école digitale Côte d\'Ivoire, formation professionnelle Afrique, mission EVC, valeurs école digitale, expert digital Abidjan')
 
 @push('styles')
 <style>

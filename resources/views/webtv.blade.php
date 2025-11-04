@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'WebTV - EVC - École Virtuelle des Créatifs')
-@section('description', 'Regardez des conférences, des tutoriels et des interviews exclusives sur le design, le marketing et la technologie sur la WebTV de l\'EVC.')
+@section('title', 'WebTV EVC | Tutoriels Design Graphique & Marketing Digital | Vidéos Formation')
+@section('description', 'Accédez gratuitement à notre WebTV : tutoriels design graphique, masterclass marketing digital, conférences tech et interviews d\'experts. Apprenez le design et le digital en vidéo avec l\'EVC Abidjan.')
+@section('keywords', 'WebTV EVC, tutoriels design graphique, vidéos formation, masterclass digital, conférences tech, tutoriels Photoshop, formation vidéo gratuite, cours en ligne Abidjan, chaîne YouTube EVC')
 
 @section('content')
 <div class="py-24 sm:py-32">

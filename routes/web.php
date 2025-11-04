@@ -64,6 +64,10 @@ Route::get('/rejoignez-nous/formateur', function () {
     return view('rejoignez-nous.formateur');
 })->name('rejoignez-nous.formateur');
 
+Route::get('/parcours-formateur', function () {
+    return view('parcours-formateur');
+})->name('parcours-formateur');
+
 // Routes de soumission des formulaires "Rejoignez-nous"
 Route::post('/rejoignez-nous/collaborateur/submit', [HomepageController::class, 'collaborateurSubmit'])->name('rejoignez-nous.collaborateur.submit');
 Route::post('/rejoignez-nous/partenaire/submit', [HomepageController::class, 'partenaireSubmit'])->name('rejoignez-nous.partenaire.submit');

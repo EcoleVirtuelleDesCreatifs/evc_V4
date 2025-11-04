@@ -102,7 +102,7 @@
 <header id="main-header" class="bg-gradient-to-b fixed top-0 left-0 w-full z-50 transition-all duration-300">
     <nav class="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8">
         <div class="flex lg:flex-1">
-            <a href="#">
+            <a href="{{ url('/') }}">
                 <img class="h-20 lg:h-24 w-auto transition-all duration-300" src="{{ asset('assets/img/logo.png') }}" alt="EVC Logo">
             </a>
         </div>
@@ -131,7 +131,7 @@
     <div class="fixed inset-0 z-[9998] bg-black/30" aria-hidden="true"></div>
     <div class="fixed inset-y-0 right-0 z-[9999] w-full overflow-y-auto bg-gradient-to-b from-[#000033] to-[#000066] px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-white/10">
         <div class="flex items-center justify-between">
-            <a href="#" class="-m-1.5 p-1.5">
+            <a href="{{ url('/') }}" class="-m-1.5 p-1.5">
                 <img class="h-16 w-auto" src="{{ asset('assets/img/logo.png') }}" alt="EVC Logo">
             </a>
             <button type="button" id="mobile-menu-close-button" class="-m-2.5 rounded-md p-2.5 text-gray-400">

@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'EVC - École Virtuelle des Créatifs | Formation en Ligne et en présentiel à Abidjan')
-@section('description', 'Devenez un professionnel créatif avec EVC, la première école digitale en Côte d\'Ivoire et en Afrique francophone. Formations certifiantes en design graphique, marketing digital et plus. Basé à Abidjan, nous formons les talents de demain pour toute l\'Afrique.')
-@section('keywords', 'école virtuelle, formation en ligne, formation en présentiel, design graphique, marketing digital, Abidjan, Côte d\'Ivoire, formation Afrique, certification professionnelle, créatifs, EVC, Adobe Photoshop, Illustrator, InDesign, web design')
+@section('title', 'EVC - École Virtuelle des Créatifs | Formation Design Graphique & Digital à Abidjan')
+@section('description', 'École N°1 du digital en Côte d\'Ivoire. Formations certifiantes en Design Graphique, Community Management, Bureautique et IA. 95% de réussite. Inscriptions ouvertes à Abidjan.')
+@section('keywords', 'école virtuelle, formation design graphique Abidjan, formation community management, école digitale Côte d\'Ivoire, formation certifiante, Adobe Photoshop Abidjan, formation en ligne Afrique, école créatifs, EVC, formation bureautique, intelligence artificielle')
 
 @section('content')
     @include('homepage._hero')
