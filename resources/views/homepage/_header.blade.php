@@ -142,10 +142,12 @@
         <div class="mt-6 flow-root">
             <div class="-my-6 divide-y divide-gray-500/25">
                 <div class="space-y-2 py-6">
-                    <a href="{{ route('preinscription.start') }}" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Préinscription</a>
-                    <a href="#formations" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos Formations</a>
-                    <a href="#creations" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Travaux Étudiants</a>
-                    <a href="#laureats" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos Lauréats</a>
+                    <a href="{{ route('preinscription.start') }}" class="-mx-3 block rounded-full py-3 px-6 text-base font-bold leading-7 text-white text-center" style="background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%); box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4), 0 4px 15px rgba(255, 152, 0, 0.3); border: 2px solid rgba(255, 255, 255, 0.2); margin-bottom: 1rem;">
+                        <i class="fas fa-edit mr-2"></i>Préinscription
+                    </a>
+                    <a href="{{ route('formations') }}" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos Formations</a>
+                    <a href="{{ route('travaux') }}" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Travaux Étudiants</a>
+                    <a href="{{ route('laureats') }}" class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos Lauréats</a>
 
                 </div>
                 <div class="py-6">

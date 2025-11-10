@@ -38,7 +38,7 @@
                     </div>
                     <div>
                         <h3 class="text-white font-semibold mb-1">Formation Certifiante</h3>
-                        <p class="text-gray-400 text-sm">Diplôme reconnu internationalement</p>
+                        <p class="text-gray-400 text-sm">Certificat + Lettre de recommandation</p>
                     </div>
                 </div>
 

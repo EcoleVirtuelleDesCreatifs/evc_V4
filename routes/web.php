@@ -29,6 +29,12 @@ Route::get('/preinscription', function () {
 Route::post('/pre-registration', [HomepageController::class, 'store'])->name('pre-registration.store');
 Route::post('/candidature', [HomepageController::class, 'candidatureStore'])->name('candidature.store');
 Route::get('/webtv', [HomepageController::class, 'webtv'])->name('webtv');
+
+// Routes WebTV Subscription
+Route::post('/webtv/subscribe', [App\Http\Controllers\WebtvSubscriptionController::class, 'subscribe'])->name('webtv.subscribe');
+Route::get('/webtv/verify/{token}', [App\Http\Controllers\WebtvSubscriptionController::class, 'verify'])->name('webtv.verify');
+Route::post('/webtv/unsubscribe', [App\Http\Controllers\WebtvSubscriptionController::class, 'unsubscribe'])->name('webtv.unsubscribe');
+
 Route::get('/presentation', [HomepageController::class, 'presentation'])->name('presentation');
 Route::get('/formations', [HomepageController::class, 'formations'])->name('formations');
 Route::get('/travaux-etudiants', [HomepageController::class, 'travaux'])->name('travaux');

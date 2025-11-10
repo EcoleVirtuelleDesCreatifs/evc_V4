@@ -48,12 +48,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-    color: white;
-    background-image: linear-gradient(to right, #FF9900 0%, #F97316 51%, #FF9900 100%);
-    background-size: 200% auto;
-    border: none;
-    box-shadow: 0 4px 15px 0 rgba(255, 153, 0, 0.3);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    color: white !important;
+    background-image: linear-gradient(to right, #FF9900 0%, #F97316 51%, #FF9900 100%) !important;
+    background-size: 200% auto !important;
+    border: none !important;
+    box-shadow: 0 4px 15px 0 rgba(255, 153, 0, 0.3) !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2) !important;
+    display: inline-block !important;
 }
 
 .btn-primary:hover {

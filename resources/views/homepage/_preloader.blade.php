@@ -52,6 +52,6 @@
 }
 
 .animate-progress {
-    animation: progress 10s ease-out forwards;
+    animation: progress 5s ease-out forwards;
 }
 </style>

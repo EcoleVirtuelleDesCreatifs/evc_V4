@@ -4,14 +4,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         const preloader = document.getElementById('preloader');
         if (preloader) {
-            // Cacher le preloader au chargement initial après 15 secondes
+            // Cacher le preloader au chargement initial après 5 secondes
             window.addEventListener('load', () => {
                 setTimeout(() => {
                     preloader.style.opacity = '0';
                     setTimeout(() => {
                         preloader.style.display = 'none';
                     }, 500);
-                }, 10000); // 10 secondes
+                }, 5000); // 5 secondes
             });
 
             // Afficher le loader lors de la navigation
@@ -83,7 +83,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Swiper Carousels ---
     try {
-        // Hero Sliders
+        // Hero Sliders Desktop
+        const heroBgSlider = new Swiper('.hero-bg-slider', {
+            loop: true,
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
+            },
+        });
+
+        // Hero Slider Mobile
+        const heroBgSliderMobile = new Swiper('.hero-bg-slider-mobile', {
+            loop: true,
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
+            },
+        });
+
+        // Hero Text Slider (contrôle les deux sliders d'images)
         const heroTextSwiper = new Swiper('.hero-text-slider', { 
             loop: true,
             autoplay: { delay: 4000, disableOnInteraction: false },
@@ -92,13 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 crossFade: true
             },
             controller: {
-                control: new Swiper('.hero-bg-slider', {
-                    loop: true,
-                    effect: 'fade',
-                    fadeEffect: {
-                        crossFade: true
-                    },
-                })
+                control: [heroBgSlider, heroBgSliderMobile]
             }
         });
 

@@ -11,7 +11,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="100">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-1.jpg') }}" alt="Lombi Moïse">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">LM</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Lombi Moïse</div>
                             <div class="text-xs text-gray-400 mt-1">République Démocratique du Congo</div>
                         </div>
@@ -25,7 +27,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="150">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-2.jpg') }}" alt="Eddy Marc">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">EM</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Eddy Marc</div>
                             <div class="text-xs text-gray-400 mt-1">France</div>
                         </div>
@@ -39,7 +43,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="200">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-3.jpg') }}" alt="Adingra Eve">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">AE</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Adingra Eve</div>
                             <div class="text-xs text-gray-400 mt-1">Ghana</div>
                         </div>
@@ -53,7 +59,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="250">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-14.jpg') }}" alt="Fatoumata Diarra">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">FD</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Fatoumata Diarra</div>
                             <div class="text-xs text-gray-400 mt-1">Mali</div>
                         </div>
@@ -67,7 +75,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="300">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-13.jpg') }}" alt="Kamanri Serge">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">KS</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Kamanri Serge</div>
                             <div class="text-xs text-gray-400 mt-1">Tchad</div>
                         </div>
@@ -81,7 +91,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="350">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-12.jpg') }}" alt="Yao Marcel">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">YM</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Yao Marcel</div>
                             <div class="text-xs text-gray-400 mt-1">Côte d'Ivoire</div>
                         </div>
@@ -95,7 +107,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="100">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-4.jpg') }}" alt="Alimasi Abdoullah">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">AA</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Alimasi Abdoullah</div>
                             <div class="text-xs text-gray-400 mt-1">Guinée</div>
                         </div>
@@ -109,7 +123,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="150">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-5.jpg') }}" alt="Yocbé Stella">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">YS</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Yocbé Stella</div>
                             <div class="text-xs text-gray-400 mt-1">Belgique</div>
                         </div>
@@ -123,7 +139,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="200">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-6.jpg') }}" alt="Adama Guèye">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">AG</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Adama Guèye</div>
                             <div class="text-xs text-gray-400 mt-1">Sénégal</div>
                         </div>
@@ -137,7 +155,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="250">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-7.jpg') }}" alt="Coulibaly Bakary">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-lime-500 to-lime-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">CB</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Coulibaly Bakary</div>
                             <div class="text-xs text-gray-400 mt-1">Côte d'Ivoire</div>
                         </div>
@@ -151,7 +171,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="300">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-8.jpg') }}" alt="Soumahoro Hadja">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">SH</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Soumahoro Hadja</div>
                             <div class="text-xs text-gray-400 mt-1">Côte d'Ivoire</div>
                         </div>
@@ -165,7 +187,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="350">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-9.jpg') }}" alt="Tog-Yenouba Ngarleita">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">TN</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Tog-Yenouba Ngarleita</div>
                             <div class="text-xs text-gray-400 mt-1">Tchad</div>
                         </div>
@@ -179,7 +203,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="100">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-10.jpg') }}" alt="Dely Ahileu">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">DA</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Dely Ahileu</div>
                             <div class="text-xs text-gray-400 mt-1">Côte d'Ivoire</div>
                         </div>
@@ -193,7 +219,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="150">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-11.jpg') }}" alt="Gossé Eric">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-fuchsia-500 to-fuchsia-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">GE</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Gossé Eric</div>
                             <div class="text-xs text-gray-400 mt-1">Côte d'Ivoire</div>
                         </div>
@@ -207,7 +235,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="200">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-15.jpg') }}" alt="Claudine Ngoa">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">CN</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Claudine Ngoa</div>
                             <div class="text-xs text-gray-400 mt-1">Cameroun</div>
                         </div>
@@ -221,7 +251,9 @@
                 <div class="pt-8 sm:inline-block sm:w-full sm:px-4" data-aos="fade-up" data-aos-delay="250">
                     <figure class="rounded-2xl bg-gray-800/80 p-8 text-sm leading-6 text-center">
                         <div class="flex flex-col items-center mb-6">
-                            <img class="h-16 w-16 rounded-full bg-gray-50 mb-3" src="{{ asset('assets/images/testimonials/testimonials-16.jpg') }}" alt="Kevin N'Guessan">
+                            <div class="h-16 w-16 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center mb-3">
+                                <span class="text-white text-xl font-bold">KN</span>
+                            </div>
                             <div class="font-semibold text-white text-base">Kevin N'Guessan</div>
                             <div class="text-xs text-gray-400 mt-1">Côte d'Ivoire</div>
                         </div>

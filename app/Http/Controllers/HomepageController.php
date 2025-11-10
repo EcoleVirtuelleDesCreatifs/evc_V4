@@ -171,30 +171,58 @@ class HomepageController extends Controller
      */
     public function webtv()
     {
+        // Vidéos de la chaîne YouTube EVC
+        // https://www.youtube.com/@ecolevirtuelledescreatifs459
+        // IMPORTANT: Remplacez ces IDs par les vrais IDs de vos vidéos YouTube
+        // Pour obtenir l'ID: allez sur votre vidéo, l'ID est après "watch?v=" dans l'URL
         $videos = [
             [
-                'id' => 'M7lc1UVf-VE', // A popular design video
-                'title' => 'Introduction au Design UI/UX',
-                'description' => 'Une vue d\'ensemble complète des principes de l\'interface utilisateur et de l\'expérience utilisateur.',
-                'speaker' => 'Jane Doe',
+                'id' => 'M7lc1UVf-VE', // REMPLACER par votre ID réel
+                'title' => 'Tutoriel Photoshop : Créer un Flyer Professionnel',
+                'description' => 'Apprenez à créer un flyer professionnel de A à Z avec Photoshop. Techniques de design graphique pour débutants et intermédiaires.',
+                'speaker' => 'Bilé Bossombra',
             ],
             [
-                'id' => 'Q8TXgCzxEnw', // A popular coding video
-                'title' => 'Maîtriser Tailwind CSS',
-                'description' => 'Apprenez à construire des designs web modernes et responsives avec Tailwind CSS à partir de zéro.',
-                'speaker' => 'John Smith',
+                'id' => 'Q8TXgCzxEnw', // REMPLACER par votre ID réel
+                'title' => 'Community Management : Stratégie de Contenu 2024',
+                'description' => 'Les meilleures pratiques pour gérer vos réseaux sociaux et créer du contenu engageant qui convertit.',
+                'speaker' => 'Équipe EVC',
             ],
             [
-                'id' => '3q3aH7X9-sE', // A popular marketing video
-                'title' => 'Stratégie Social Media pour 2025',
-                'description' => 'Découvrez les dernières tendances et stratégies pour dominer les médias sociaux dans l\'année à venir.',
-                'speaker' => 'Emily White',
+                'id' => '3q3aH7X9-sE', // REMPLACER par votre ID réel
+                'title' => 'Design Graphique : Les Bases de la Typographie',
+                'description' => 'Maîtrisez l\'art de la typographie pour créer des designs percutants. Choix des polices, hiérarchie et lisibilité.',
+                'speaker' => 'Bilé Bossombra',
             ],
             [
-                'id' => 'V74l_zS1x8E', // A popular AI video
-                'title' => 'Le Futur de l\'Intelligence Artificielle',
-                'description' => 'Une conférence sur l\'avenir de l\'IA et son impact sur notre monde.',
-                'speaker' => 'Dr. Alan Grant',
+                'id' => 'V74l_zS1x8E', // REMPLACER par votre ID réel
+                'title' => 'Intelligence Artificielle : ChatGPT pour les Créatifs',
+                'description' => 'Comment utiliser ChatGPT et les outils IA pour booster votre créativité et votre productivité en tant que designer.',
+                'speaker' => 'Équipe EVC',
+            ],
+            [
+                'id' => 'M7lc1UVf-VE', // REMPLACER par votre ID réel
+                'title' => 'Illustrator : Créer un Logo de A à Z',
+                'description' => 'Tutoriel complet pour créer un logo professionnel avec Adobe Illustrator. De l\'esquisse à la vectorisation.',
+                'speaker' => 'Bilé Bossombra',
+            ],
+            [
+                'id' => 'Q8TXgCzxEnw', // REMPLACER par votre ID réel
+                'title' => 'Social Media Marketing : Publicité Facebook & Instagram',
+                'description' => 'Guide complet pour créer et gérer des campagnes publicitaires efficaces sur Facebook et Instagram.',
+                'speaker' => 'Équipe EVC',
+            ],
+            [
+                'id' => '3q3aH7X9-sE', // REMPLACER par votre ID réel
+                'title' => 'Canva Pro : Astuces et Techniques Avancées',
+                'description' => 'Découvrez les fonctionnalités avancées de Canva Pro pour créer des designs professionnels rapidement.',
+                'speaker' => 'Équipe EVC',
+            ],
+            [
+                'id' => 'V74l_zS1x8E', // REMPLACER par votre ID réel
+                'title' => 'Portfolio de Designer : Comment se Démarquer',
+                'description' => 'Conseils pour créer un portfolio qui attire l\'attention des recruteurs et des clients potentiels.',
+                'speaker' => 'Bilé Bossombra',
             ],
         ];
 
