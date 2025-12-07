@@ -2,317 +2,830 @@
 
 @section('title', 'Profil Étudiant - ' . ($data['student']['prenom'] ?? 'Étudiant') . ' ' . ($data['student']['nom'] ?? ''))
 
+@push('styles')
+<style>
+    /* Styles modernes et minimalistes */
+    body {
+        background: #0f172a;
+    }
+
+    .profile-header-card {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid rgba(255,255,255,0.3);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .profile-avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+        border: 4px solid rgba(255,255,255,0.3);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #334155;
+        border-radius: 16px;
+        padding: 1.5rem;
+        color: white;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        border-color: #4fc3f7;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-label {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #334155;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .info-card:hover {
+        border-color: #4fc3f7;
+        box-shadow: 0 8px 25px rgba(79, 195, 247, 0.2);
+    }
+
+    .info-card-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        padding: 1rem 1.5rem;
+        color: white;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-card-body {
+        padding: 1.5rem;
+        color: white;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #334155;
+    }
+
+    .info-item:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #94a3b8;
+        font-size: 0.9rem;
+    }
+
+    .info-value {
+        color: white;
+        font-weight: 600;
+    }
+
+    .progress-modern {
+        height: 8px;
+        border-radius: 10px;
+        background: #334155;
+    }
+
+    .progress-bar-modern {
+        background: linear-gradient(90deg, #56ab2f 0%, #a8e6cf 100%);
+        border-radius: 10px;
+        transition: width 1s ease;
+    }
+
+    .badge-modern {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-success-modern {
+        background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        color: white;
+    }
+
+    .badge-warning-modern {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .badge-danger-modern {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        color: white;
+    }
+
+    .badge-info-modern {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+
+    .table-modern {
+        color: white;
+    }
+
+    .table-modern thead {
+        background: #1e293b;
+        border-bottom: 2px solid #4fc3f7;
+    }
+
+    .table-modern tbody tr {
+        border-bottom: 1px solid #334155;
+        transition: background 0.2s ease;
+    }
+
+    .table-modern tbody tr:hover {
+        background: rgba(79, 195, 247, 0.1);
+    }
+
+    .btn-modern {
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        color: white;
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 195, 247, 0.4);
+        color: white;
+    }
+
+    .btn-success-modern {
+        background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        color: white;
+    }
+
+    .btn-success-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(86, 171, 47, 0.4);
+        color: white;
+    }
+
+    .btn-warning-modern {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+    }
+
+    .btn-warning-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
+        color: white;
+    }
+
+    .project-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #334155;
+        border-radius: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .project-card:hover {
+        transform: translateY(-8px);
+        border-color: #4fc3f7;
+        box-shadow: 0 12px 40px rgba(79, 195, 247, 0.3);
+    }
+
+    .project-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: #0f172a;
+    }
+
+    .project-placeholder {
+        width: 100%;
+        height: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.5s ease;
+    }
+
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+        .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        .profile-header-card {
+            padding: 1rem !important;
+            border-radius: 15px;
+        }
+        .info-card {
+            border-radius: 15px;
+        }
+        .info-card-body {
+            padding: 1rem !important;
+        }
+        .stat-card {
+            padding: 1rem !important;
+            border-radius: 15px;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="container-fluid px-4">
-    <!-- Header avec photo et infos principales -->
-    <div class="profile-header mb-4">
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="row align-items-center">
-                            <!-- Photo de profil -->
-                            <div class="col-auto">
-                                @if(!empty($data['student']['photo_url']))
-                                    <img src="{{ $data['student']['photo_url'] }}" alt="Photo" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;border:4px solid #007bff;">
-                                @else
-                                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:100px;height:100px;font-size:36px;font-weight:bold;border:4px solid #007bff;">
-                                        {{ substr($data['student']['prenom'] ?? 'E', 0, 1) }}{{ substr($data['student']['nom'] ?? 'T', 0, 1) }}
-                                    </div>
-                                @endif
-                            </div>
-                            
-                            <!-- Nom et informations principales -->
-                            <div class="col">
-                                <h2 class="mb-1">{{ $data['student']['prenom'] ?? 'Prénom' }} {{ $data['student']['nom'] ?? 'Nom' }}</h2>
-                                <p class="text-muted mb-2">{{ $data['student']['gender'] ?? 'Homme' }}</p>
-                                
-                                <div class="row mt-3">
-                                    <!-- Contact -->
-                                    <div class="col-md-4">
-                                        <h6 class="text-primary mb-2">Contact</h6>
-                                        <p class="mb-1"><strong>{{ $data['student']['email'] }}</strong></p>
-                                        <p class="mb-1">Tel: {{ $data['student']['phone'] ?? '-' }}</p>
-                                        <p class="mb-0">WhatsApp: {{ $data['student']['whatsapp'] ?? $data['student']['phone'] ?? '-' }}</p>
-                                    </div>
-                                    
-                                    <!-- Localisation -->
-                                    <div class="col-md-4">
-                                        <h6 class="text-primary mb-2">Localisation</h6>
-                                        <p class="mb-1"><strong>{{ $data['student']['pays'] ?? 'Pays' }}</strong></p>
-                                        <p class="mb-0">{{ $data['student']['ville'] ?? 'Ville' }}, {{ $data['student']['pays'] ?? 'Pays' }}</p>
-                                    </div>
-                                    
-                                    <!-- Identité -->
-                                    <div class="col-md-4">
-                                        <h6 class="text-primary mb-2">Identité</h6>
-                                        <p class="mb-0">Date de naissance: {{ $data['student']['date_of_birth'] ? date('d/m/Y', strtotime($data['student']['date_of_birth'])) : '-' }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Actions -->
-                            <div class="col-auto">
-                                <a href="{{ route('admin.students.edit', $data['student']['id']) }}" class="btn btn-warning mb-2">
-                                    <i class="fas fa-edit me-1"></i>Modifier
-                                </a>
-                                <button class="btn btn-success mb-2" onclick="window.print()">
-                                    <i class="fas fa-print me-1"></i>Imprimer
-                                </button>
-                            </div>
-                        </div>
+<div class="container-fluid py-4">
+    <!-- Header Profil -->
+    <div class="profile-header-card fade-in">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                @if(!empty($data['student']['photo_url']))
+                    <img src="{{ $data['student']['photo_url'] }}" alt="Photo" class="profile-avatar">
+                @else
+                    <div class="profile-avatar-placeholder">
+                        {{ strtoupper(substr($data['student']['prenom'] ?? 'E', 0, 1)) }}{{ strtoupper(substr($data['student']['nom'] ?? 'T', 0, 1)) }}
+                    </div>
+                @endif
+            </div>
+            <div class="col">
+                @php
+                    $prenom = !empty($data['student']['prenom']) && $data['student']['prenom'] !== '—' ? $data['student']['prenom'] : 'Étudiant';
+                    $nom = !empty($data['student']['nom']) && $data['student']['nom'] !== '—' ? $data['student']['nom'] : '';
+                    $fullName = trim($prenom . ' ' . $nom);
+                @endphp
+                <h1 class="h2 mb-2">{{ $fullName }}</h1>
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    @if(!empty($data['student']['formation']) && $data['student']['formation'] !== '—')
+                    <span class="badge badge-modern badge-info-modern">
+                        <i class="fas fa-graduation-cap me-1"></i>
+                        {{ $data['student']['formation'] }}
+                    </span>
+                    @endif
+                    <span class="badge badge-modern {{ $data['student']['status'] === 'active' ? 'badge-success-modern' : 'badge-danger-modern' }}">
+                        <i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>
+                        {{ ucfirst($data['student']['status'] ?? 'active') }}
+                    </span>
+                    @if(!empty($data['student']['student_id']))
+                    <span class="badge badge-modern" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <i class="fas fa-id-card me-1"></i>
+                        {{ $data['student']['student_id'] }}
+                    </span>
+                    @endif
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <small class="text-white-50">Email</small>
+                        <p class="mb-0">
+                            <i class="fas fa-envelope me-2"></i>
+                            {{ $data['student']['email'] }}
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-white-50">Téléphone</small>
+                        <p class="mb-0">
+                            <i class="fas fa-phone me-2"></i>
+                            {{ !empty($data['student']['phone']) && $data['student']['phone'] !== '—' ? $data['student']['phone'] : 'Non renseigné' }}
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <small class="text-white-50">Localisation</small>
+                        <p class="mb-0">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            @php
+                                $ville = !empty($data['student']['ville']) && $data['student']['ville'] !== '—' ? $data['student']['ville'] : null;
+                                $pays = !empty($data['student']['pays']) && $data['student']['pays'] !== '—' ? $data['student']['pays'] : null;
+                            @endphp
+                            @if($ville && $pays)
+                                {{ $ville }}, {{ $pays }}
+                            @elseif($ville)
+                                {{ $ville }}
+                            @elseif($pays)
+                                {{ $pays }}
+                            @else
+                                Non renseigné
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="d-flex flex-column gap-2">
+                    <a href="{{ route('admin.students.edit', $data['student']['id']) }}" class="btn btn-modern btn-warning-modern">
+                        <i class="fas fa-edit me-1"></i>Modifier
+                    </a>
+                    <button class="btn btn-modern btn-success-modern" onclick="window.print()">
+                        <i class="fas fa-print me-1"></i>Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="row mb-4 fade-in" style="animation-delay: 0.1s;">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="width: 60px; height: 60px; background: rgba(79, 195, 247, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #4fc3f7; font-size: 1.8rem;">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div>
+                        <h3 class="stat-number">{{ $data['stats']['total_tp'] }}</h3>
+                        <p class="stat-label mb-0">TPs Soumis</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="width: 60px; height: 60px; background: rgba(86, 171, 47, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #56ab2f; font-size: 1.8rem;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="stat-number">{{ $data['stats']['tp_valides'] }}</h3>
+                        <p class="stat-label mb-0">TPs Validés</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="width: 60px; height: 60px; background: rgba(240, 147, 251, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #f093fb; font-size: 1.8rem;">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <div>
+                        <h3 class="stat-number">{{ $data['stats']['total_projects'] }}</h3>
+                        <p class="stat-label mb-0">Projets Design</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="width: 60px; height: 60px; background: rgba(255, 193, 7, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #ffc107; font-size: 1.8rem;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h3 class="stat-number">{{ $data['stats']['progression'] }}%</h3>
+                        <p class="stat-label mb-0">Progression</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Sections organisées -->
     <div class="row">
-        <!-- Colonne gauche -->
-        <div class="col-lg-6">
-            <!-- IDENTITÉ -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>IDENTITÉ</h5>
+        <!-- Colonne Gauche -->
+        <div class="col-lg-4">
+            <!-- Informations Personnelles -->
+            <div class="info-card fade-in" style="animation-delay: 0.2s;">
+                <div class="info-card-header">
+                    <i class="fas fa-user"></i>
+                    <span>Informations Personnelles</span>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">Prénom</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['prenom'] ?? '-' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">Nom</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['nom'] ?? '-' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">Date de naissance</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['date_of_birth'] ? date('d/m/Y', strtotime($data['student']['date_of_birth'])) : '-' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">Sexe</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['gender'] ?? '-' }}</p>
-                        </div>
+                <div class="info-card-body">
+                    <div class="info-item">
+                        <span class="info-label">Prénom</span>
+                        <span class="info-value">{{ $data['student']['prenom'] !== '—' ? $data['student']['prenom'] : '-' }}</span>
                     </div>
+                    <div class="info-item">
+                        <span class="info-label">Nom</span>
+                        <span class="info-value">{{ $data['student']['nom'] !== '—' ? $data['student']['nom'] : '-' }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Date de naissance</span>
+                        <span class="info-value">
+                            @if(!empty($data['student']['date_of_birth']) && $data['student']['date_of_birth'] !== '—')
+                                {{ date('d/m/Y', strtotime($data['student']['date_of_birth'])) }}
+                            @else
+                                -
+                            @endif
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Genre</span>
+                        <span class="info-value">
+                            @if(!empty($data['student']['gender']) && $data['student']['gender'] !== '—')
+                                @if($data['student']['gender'] === 'Homme')
+                                    <i class="fas fa-mars text-primary me-2"></i>Homme
+                                @elseif($data['student']['gender'] === 'Femme')
+                                    <i class="fas fa-venus text-danger me-2"></i>Femme
+                                @else
+                                    {{ $data['student']['gender'] }}
+                                @endif
+                            @else
+                                -
+                            @endif
+                        </span>
+                    </div>
+                    @if(!empty($data['student']['student_id']))
+                    <div class="info-item">
+                        <span class="info-label">ID Étudiant</span>
+                        <span class="info-value">{{ $data['student']['student_id'] }}</span>
+                    </div>
+                    @endif
+                    @if(!empty($data['student']['created_at']))
+                    <div class="info-item">
+                        <span class="info-label">Inscription</span>
+                        <span class="info-value">{{ date('d/m/Y', strtotime($data['student']['created_at'])) }}</span>
+                    </div>
+                    @endif
                 </div>
             </div>
 
-            <!-- ACADÉMIQUE -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>ACADÉMIQUE</h5>
+            <!-- Contact -->
+            <div class="info-card fade-in" style="animation-delay: 0.3s;">
+                <div class="info-card-header">
+                    <i class="fas fa-phone"></i>
+                    <span>Contact</span>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">Nombre d'années d'Expérience</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['years_experience'] ?? '0' }} an(s)</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">Secteur d'activité</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['industry_sector'] ?? 'Digital' }}</p>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label class="text-muted small">Niveau d'études</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['level'] ?? 'Niveau secondaire' }}</p>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label class="text-muted small">Domaine</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['formation'] ?? 'design_graphique' }}</p>
-                        </div>
+                <div class="info-card-body">
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ $data['student']['email'] }}</span>
                     </div>
+                    @if(!empty($data['student']['phone']) && $data['student']['phone'] !== '—')
+                    <div class="info-item">
+                        <span class="info-label">Téléphone</span>
+                        <span class="info-value">
+                            <i class="fas fa-phone text-info me-2"></i>
+                            {{ $data['student']['phone'] }}
+                        </span>
+                    </div>
+                    @endif
+                    @if(!empty($data['student']['whatsapp']) && $data['student']['whatsapp'] !== '—' && $data['student']['whatsapp'] !== $data['student']['phone'])
+                    <div class="info-item">
+                        <span class="info-label">WhatsApp</span>
+                        <span class="info-value">
+                            <i class="fab fa-whatsapp text-success me-2"></i>
+                            {{ $data['student']['whatsapp'] }}
+                        </span>
+                    </div>
+                    @endif
                 </div>
             </div>
 
-            <!-- CONTACT -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-phone me-2"></i>CONTACT</h5>
+            <!-- Formation & Académique -->
+            <div class="info-card fade-in" style="animation-delay: 0.4s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Formation & Académique</span>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <label class="text-muted small">Email</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['email'] }}</p>
+                <div class="info-card-body">
+                    @php
+                        $hasAcademicInfo = (!empty($data['student']['formation']) && $data['student']['formation'] !== '—')
+                                        || (!empty($data['student']['specialization']) && $data['student']['specialization'] !== '—')
+                                        || (!empty($data['student']['level']) && $data['student']['level'] !== '—')
+                                        || (!empty($data['student']['years_experience']) && $data['student']['years_experience'] !== '—')
+                                        || (!empty($data['student']['industry_sector']) && $data['student']['industry_sector'] !== '—');
+                    @endphp
+
+                    @if($hasAcademicInfo)
+                        @if(!empty($data['student']['formation']) && $data['student']['formation'] !== '—')
+                        <div class="info-item">
+                            <span class="info-label">Formation</span>
+                            <span class="info-value">
+                                <i class="fas fa-book text-primary me-2"></i>
+                                {{ $data['student']['formation'] }}
+                            </span>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">Téléphone</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['phone'] ?? '-' }}</p>
+                        @endif
+                        @if(!empty($data['student']['specialization']) && $data['student']['specialization'] !== '—')
+                        <div class="info-item">
+                            <span class="info-label">Spécialisation</span>
+                            <span class="info-value">{{ $data['student']['specialization'] }}</span>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">WhatsApp</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['whatsapp'] ?? $data['student']['phone'] ?? '-' }}</p>
+                        @endif
+                        @if(!empty($data['student']['level']) && $data['student']['level'] !== '—')
+                        <div class="info-item">
+                            <span class="info-label">Niveau</span>
+                            <span class="info-value">{{ $data['student']['level'] }}</span>
                         </div>
+                        @endif
+                        @if(!empty($data['student']['years_experience']) && $data['student']['years_experience'] !== '—')
+                        <div class="info-item">
+                            <span class="info-label">Expérience</span>
+                            <span class="info-value">{{ $data['student']['years_experience'] }} an(s)</span>
+                        </div>
+                        @endif
+                        @if(!empty($data['student']['industry_sector']) && $data['student']['industry_sector'] !== '—')
+                        <div class="info-item">
+                            <span class="info-label">Secteur</span>
+                            <span class="info-value">{{ $data['student']['industry_sector'] }}</span>
+                        </div>
+                        @endif
+                    @else
+                        <p class="text-center text-white-50 py-3 mb-0">Aucune information académique supplémentaire</p>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Localisation -->
+            <div class="info-card fade-in" style="animation-delay: 0.45s;">
+                <div class="info-card-header">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Localisation</span>
+                </div>
+                <div class="info-card-body">
+                    @php
+                        $hasLocation = (!empty($data['student']['quartier']) && $data['student']['quartier'] !== '—')
+                                    || (!empty($data['student']['ville']) && $data['student']['ville'] !== '—')
+                                    || (!empty($data['student']['pays']) && $data['student']['pays'] !== '—');
+                    @endphp
+
+                    @if($hasLocation)
+                        @if(!empty($data['student']['quartier']) && $data['student']['quartier'] !== '—')
+                        <div class="info-item">
+                            <span class="info-label">Quartier</span>
+                            <span class="info-value">
+                                <i class="fas fa-location-arrow text-info me-2"></i>
+                                {{ $data['student']['quartier'] }}
+                            </span>
+                        </div>
+                        @endif
+                        @if(!empty($data['student']['ville']) && $data['student']['ville'] !== '—')
+                        <div class="info-item">
+                            <span class="info-label">Ville</span>
+                            <span class="info-value">
+                                <i class="fas fa-city text-primary me-2"></i>
+                                {{ $data['student']['ville'] }}
+                            </span>
+                        </div>
+                        @endif
+                        @if(!empty($data['student']['pays']) && $data['student']['pays'] !== '—')
+                        <div class="info-item">
+                            <span class="info-label">Pays</span>
+                            <span class="info-value">
+                                <i class="fas fa-flag text-success me-2"></i>
+                                {{ $data['student']['pays'] }}
+                            </span>
+                        </div>
+                        @endif
+                    @else
+                        <p class="text-center text-white-50 py-3 mb-0">Aucune information de localisation</p>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Score CVthèque -->
+            @if(isset($data['cvtheque']) && $data['cvtheque'])
+            <div class="info-card fade-in" style="animation-delay: 0.5s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Score CVthèque</span>
+                </div>
+                <div class="info-card-body">
+                    <div class="text-center mb-3">
+                        @php
+                            $score = $data['cvtheque']['profile_completion_score'] ?? 0;
+                            $scoreColor = $score >= 75 ? '#56ab2f' : ($score >= 50 ? '#ffc107' : '#dc3545');
+                        @endphp
+                        <div style="width: 120px; height: 120px; margin: 0 auto; position: relative;">
+                            <svg width="120" height="120" style="transform: rotate(-90deg);">
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="#334155" stroke-width="8"/>
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="{{ $scoreColor }}" stroke-width="8"
+                                        stroke-dasharray="{{ 2 * 3.14159 * 50 }}"
+                                        stroke-dashoffset="{{ 2 * 3.14159 * 50 * (1 - $score / 100) }}"
+                                        style="transition: stroke-dashoffset 1s ease;"/>
+                            </svg>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                <h2 class="mb-0" style="color: {{ $scoreColor }}; font-size: 2rem; font-weight: 700;">{{ $score }}%</h2>
+                            </div>
+                        </div>
+                        <small class="text-white-50 mt-2 d-block">Profil complet</small>
+                    </div>
+                    <div class="row g-2">
+                        @if(!empty($data['cvtheque']['professional_title']))
+                        <div class="col-6">
+                            <div class="text-center p-2 rounded" style="background: rgba(86, 171, 47, 0.1);">
+                                <i class="fas fa-check-circle text-success mb-1"></i>
+                                <small class="d-block text-white-50">Titre pro</small>
+                            </div>
+                        </div>
+                        @endif
+                        @if(!empty($data['cvtheque']['professional_summary']) || !empty($data['cvtheque']['bio']))
+                        <div class="col-6">
+                            <div class="text-center p-2 rounded" style="background: rgba(86, 171, 47, 0.1);">
+                                <i class="fas fa-check-circle text-success mb-1"></i>
+                                <small class="d-block text-white-50">Bio</small>
+                            </div>
+                        </div>
+                        @endif
+                        @if(!empty($data['cvtheque']['cv_file_path']))
+                        <div class="col-6">
+                            <div class="text-center p-2 rounded" style="background: rgba(86, 171, 47, 0.1);">
+                                <i class="fas fa-check-circle text-success mb-1"></i>
+                                <small class="d-block text-white-50">CV</small>
+                            </div>
+                        </div>
+                        @endif
+                        @if(!empty($data['cvtheque']['motivation_letter_path']))
+                        <div class="col-6">
+                            <div class="text-center p-2 rounded" style="background: rgba(86, 171, 47, 0.1);">
+                                <i class="fas fa-check-circle text-success mb-1"></i>
+                                <small class="d-block text-white-50">Lettre</small>
+                            </div>
+                        </div>
+                        @endif
+                        @php
+                            $allSkillsCheck = [];
+                            if (!empty($data['cvtheque']['technical_skills'])) {
+                                $techSkills = is_string($data['cvtheque']['technical_skills']) ? json_decode($data['cvtheque']['technical_skills'], true) : $data['cvtheque']['technical_skills'];
+                                if (is_array($techSkills)) $allSkillsCheck = array_merge($allSkillsCheck, $techSkills);
+                            }
+                            if (!empty($data['cvtheque']['software_skills'])) {
+                                $softSkills = is_string($data['cvtheque']['software_skills']) ? json_decode($data['cvtheque']['software_skills'], true) : $data['cvtheque']['software_skills'];
+                                if (is_array($softSkills)) $allSkillsCheck = array_merge($allSkillsCheck, $softSkills);
+                            }
+                        @endphp
+                        @if(!empty($allSkillsCheck))
+                        <div class="col-6">
+                            <div class="text-center p-2 rounded" style="background: rgba(86, 171, 47, 0.1);">
+                                <i class="fas fa-check-circle text-success mb-1"></i>
+                                <small class="d-block text-white-50">Compétences</small>
+                            </div>
+                        </div>
+                        @endif
+                        @php
+                            $linkedinCheck = $data['cvtheque']['linkedin_url'] ?? $data['cvtheque']['linkedin_profile'] ?? '';
+                        @endphp
+                        @if(!empty($linkedinCheck))
+                        <div class="col-6">
+                            <div class="text-center p-2 rounded" style="background: rgba(86, 171, 47, 0.1);">
+                                <i class="fas fa-check-circle text-success mb-1"></i>
+                                <small class="d-block text-white-50">LinkedIn</small>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @endif
+
+            <!-- Financier -->
+            <div class="info-card fade-in" style="animation-delay: 0.55s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Financier</span>
+                </div>
+                <div class="info-card-body">
+                    <div class="info-item">
+                        <span class="info-label">Total Factures</span>
+                        <span class="info-value text-danger">{{ number_format($data['stats']['total_factures'], 0, ',', ' ') }} FCFA</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Total Payé</span>
+                        <span class="info-value text-success">{{ number_format($data['stats']['total_paye'], 0, ',', ' ') }} FCFA</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Solde Restant</span>
+                        <span class="info-value {{ $data['stats']['solde_restant'] > 0 ? 'text-danger' : 'text-success' }}">
+                            {{ number_format($data['stats']['solde_restant'], 0, ',', ' ') }} FCFA
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Colonne droite -->
-        <div class="col-lg-6">
-            <!-- ADRESSE -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>ADRESSE</h5>
+        <!-- Colonne Droite -->
+        <div class="col-lg-8">
+            <!-- Progression -->
+            <div class="info-card fade-in" style="animation-delay: 0.6s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Progression Académique</span>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <label class="text-muted small">Quartier</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['quartier'] ?? 'Cocody' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">Ville</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['ville'] ?? 'Abidjan' }}</p>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="text-muted small">Pays</label>
-                            <p class="fw-bold mb-0">{{ $data['student']['pays'] ?? 'Canada' }}</p>
-                        </div>
+                <div class="info-card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Progression globale</span>
+                        <span class="fw-bold">{{ $data['stats']['progression'] }}%</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- STATISTIQUES -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>STATISTIQUES</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <div class="stat-box bg-light p-3 rounded">
-                                <h3 class="text-primary mb-0">{{ $data['stats']['total_tp'] }}</h3>
-                                <small class="text-muted">TPs Soumis</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="stat-box bg-light p-3 rounded">
-                                <h3 class="text-success mb-0">{{ $data['stats']['tp_valides'] }}</h3>
-                                <small class="text-muted">TPs Validés</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="stat-box bg-light p-3 rounded">
-                                <h3 class="text-warning mb-0">{{ $data['stats']['tp_en_cours'] }}</h3>
-                                <small class="text-muted">En Attente</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="stat-box bg-light p-3 rounded">
-                                <h3 class="text-info mb-0">{{ $data['stats']['progression'] }}%</h3>
-                                <small class="text-muted">Progression</small>
-                            </div>
-                        </div>
+                    <div class="progress-modern">
+                        <div class="progress-bar-modern" style="width: {{ $data['stats']['progression'] }}%"></div>
                     </div>
-                    
-                    <!-- Barre de progression -->
-                    <div class="mt-3">
-                        <label class="text-muted small">Progression Globale</label>
-                        <div class="progress" style="height: 25px;">
-                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $data['stats']['progression'] }}%">
-                                {{ $data['stats']['progression'] }}%
+                    <div class="row mt-4">
+                        <div class="col-3 text-center">
+                            <div class="p-3 rounded" style="background: rgba(79, 195, 247, 0.1);">
+                                <h4 class="mb-0" style="color: #4fc3f7;">{{ $data['stats']['total_tp'] }}</h4>
+                                <small class="text-white-50">TPs Total</small>
+                            </div>
+                        </div>
+                        <div class="col-3 text-center">
+                            <div class="p-3 rounded" style="background: rgba(86, 171, 47, 0.1);">
+                                <h4 class="mb-0" style="color: #56ab2f;">{{ $data['stats']['tp_valides'] }}</h4>
+                                <small class="text-white-50">Validés</small>
+                            </div>
+                        </div>
+                        <div class="col-3 text-center">
+                            <div class="p-3 rounded" style="background: rgba(255, 193, 7, 0.1);">
+                                <h4 class="mb-0" style="color: #ffc107;">{{ $data['stats']['tp_en_cours'] }}</h4>
+                                <small class="text-white-50">En attente</small>
+                            </div>
+                        </div>
+                        <div class="col-3 text-center">
+                            <div class="p-3 rounded" style="background: rgba(220, 53, 69, 0.1);">
+                                <h4 class="mb-0" style="color: #dc3545;">{{ $data['stats']['tp_rejetes'] }}</h4>
+                                <small class="text-white-50">Rejetés</small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- FINANCIER -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>FINANCIER</h5>
+            <!-- Travaux Pratiques -->
+            <div class="info-card fade-in" style="animation-delay: 0.7s;">
+                <div class="info-card-header">
+                    <i class="fas fa-tasks"></i>
+                    <span>Travaux Pratiques ({{ $data['stats']['total_tp'] ?? 0 }})</span>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="text-muted small">Total Factures</label>
-                            <p class="fw-bold text-danger mb-0">{{ number_format($data['stats']['total_factures'], 0, ',', ' ') }} FCFA</p>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <label class="text-muted small">Total Payé</label>
-                            <p class="fw-bold text-success mb-0">{{ number_format($data['stats']['total_paye'], 0, ',', ' ') }} FCFA</p>
-                        </div>
-                        <div class="col-12">
-                            <div class="alert {{ $data['stats']['solde_restant'] > 0 ? 'alert-danger' : 'alert-success' }} mb-0">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <strong>Solde Restant:</strong>
-                                    <span class="h5 mb-0">{{ number_format($data['stats']['solde_restant'], 0, ',', ' ') }} FCFA</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TRAVAUX PRATIQUES -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>TRAVAUX PRATIQUES ({{ $data['stats']['total_tp'] }})</h5>
-                </div>
-                <div class="card-body">
-                    @if(count($data['tps']) > 0)
+                <div class="info-card-body">
+                    @if(isset($data['tps']) && is_countable($data['tps']) && count($data['tps']) > 0)
                         <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="table-light">
+                            <table class="table table-modern">
+                                <thead>
                                     <tr>
-                                        <th width="5%">#</th>
-                                        <th width="20%">Titre</th>
-                                        <th width="25%">Description</th>
-                                        <th width="8%">Lien</th>
-                                        <th width="10%">Statut</th>
-                                        <th width="10%">Soumis le</th>
-                                        <th width="10%">Validé le</th>
-                                        <th width="12%">Actions</th>
+                                        <th>Titre</th>
+                                        <th>Statut</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($data['tps'] as $index => $tp)
+                                    @foreach($data['tps'] as $tp)
                                     <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td class="fw-bold">{{ $tp->title ?? 'TP ' . ($index + 1) }}</td>
-                                        <td><small>{!! Str::limit(strip_tags($tp->description ?? '-'), 60) !!}</small></td>
-                                        <td>
-                                            @if($tp->link)
-                                                <a href="{{ $tp->link }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-external-link-alt"></i>
-                                                </a>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
+                                        <td>{{ $tp->title ?? 'TP' }}</td>
                                         <td>
                                             @if($tp->status === 'validated')
-                                                <span class="badge bg-success">✓ Validé</span>
+                                                <span class="badge badge-modern badge-success-modern">✓ Validé</span>
                                             @elseif($tp->status === 'pending')
-                                                <span class="badge bg-warning">⏳ En attente</span>
-                                            @elseif($tp->status === 'rejected')
-                                                <span class="badge bg-danger">✗ Rejeté</span>
+                                                <span class="badge badge-modern badge-warning-modern">⏳ En attente</span>
                                             @else
-                                                <span class="badge bg-secondary">{{ $tp->status }}</span>
+                                                <span class="badge badge-modern badge-danger-modern">✗ Rejeté</span>
                                             @endif
                                         </td>
                                         <td><small>{{ $tp->created_at ? date('d/m/Y', strtotime($tp->created_at)) : '-' }}</small></td>
-                                        <td><small>{{ $tp->validated_at ? date('d/m/Y', strtotime($tp->validated_at)) : '-' }}</small></td>
                                         <td>
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <a href="{{ route('admin.tp.view', $tp->id) }}" class="btn btn-outline-primary" title="Voir">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                @if($tp->status !== 'validated')
-                                                <button type="button" class="btn btn-outline-success" title="Valider" onclick="validateTP({{ $tp->id }})">
-                                                    <i class="fas fa-check"></i>
-                                                </button>
-                                                @endif
-                                                <button type="button" class="btn btn-outline-danger" title="Supprimer" onclick="deleteTP({{ $tp->id }})">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
+                                            <a href="{{ route('admin.tp.view', $tp->id) }}" class="btn btn-sm btn-modern btn-primary-modern">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -320,172 +833,316 @@
                             </table>
                         </div>
                     @else
-                        <p class="text-center text-muted py-4">Aucun TP soumis</p>
+                        <p class="text-center text-white-50 py-4">Aucun TP soumis</p>
                     @endif
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- PROJETS DESIGN -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-palette me-2"></i>PROJETS DESIGN ({{ $data['stats']['total_projects'] }})</h5>
+            <!-- Profil CVthèque -->
+            @if(isset($data['cvtheque']) && $data['cvtheque'])
+            <div class="info-card fade-in" style="animation-delay: 0.75s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Profil CVthèque</span>
                 </div>
-                <div class="card-body">
-                    @if(count($data['projects']) > 0)
+                <div class="info-card-body">
+                    @if(!empty($data['cvtheque']['professional_title']))
+                    <div class="mb-4">
+                        <h5 class="text-white mb-2">
+                            <i class="fas fa-user-tie text-primary me-2"></i>
+                            {{ $data['cvtheque']['professional_title'] }}
+                        </h5>
+                        @if(!empty($data['cvtheque']['current_position']) || !empty($data['cvtheque']['current_company']))
+                        <p class="text-white-50 mb-0">
+                            @if(!empty($data['cvtheque']['current_position']))
+                                {{ $data['cvtheque']['current_position'] }}
+                            @endif
+                            @if(!empty($data['cvtheque']['current_company']))
+                                @if(!empty($data['cvtheque']['current_position'])) chez @endif
+                                <strong>{{ $data['cvtheque']['current_company'] }}</strong>
+                            @endif
+                        </p>
+                        @endif
+                    </div>
+                    @endif
+
+                    @if(!empty($data['cvtheque']['professional_summary']) || !empty($data['cvtheque']['bio']))
+                    <div class="mb-4">
+                        <h6 class="text-white-50 mb-2">
+                            <i class="fas fa-quote-left me-2"></i>
+                            Résumé professionnel
+                        </h6>
+                        <p class="text-white-50 mb-0" style="line-height: 1.6;">
+                            {{ $data['cvtheque']['professional_summary'] ?? $data['cvtheque']['bio'] }}
+                        </p>
+                    </div>
+                    @endif
+
+                    @php
+                        $allSkills = [];
+                        if (!empty($data['cvtheque']['technical_skills'])) {
+                            $techSkills = is_string($data['cvtheque']['technical_skills']) ? json_decode($data['cvtheque']['technical_skills'], true) : $data['cvtheque']['technical_skills'];
+                            if (is_array($techSkills)) $allSkills = array_merge($allSkills, $techSkills);
+                        }
+                        if (!empty($data['cvtheque']['software_skills'])) {
+                            $softSkills = is_string($data['cvtheque']['software_skills']) ? json_decode($data['cvtheque']['software_skills'], true) : $data['cvtheque']['software_skills'];
+                            if (is_array($softSkills)) $allSkills = array_merge($allSkills, $softSkills);
+                        }
+                        if (!empty($data['cvtheque']['skills']) && empty($allSkills)) {
+                            $skills = is_string($data['cvtheque']['skills']) ? json_decode($data['cvtheque']['skills'], true) : $data['cvtheque']['skills'];
+                            if (!is_array($skills)) {
+                                $skills = explode(',', $data['cvtheque']['skills']);
+                            }
+                            $allSkills = $skills;
+                        }
+                    @endphp
+
+                    @if(!empty($allSkills))
+                    <div class="mb-4">
+                        <h6 class="text-white-50 mb-2">
+                            <i class="fas fa-cogs me-2"></i>
+                            Compétences
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach($allSkills as $skill)
+                                <span class="badge badge-modern badge-info-modern">{{ trim($skill) }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    @if(!empty($data['cvtheque']['languages']))
+                    <div class="mb-4">
+                        <h6 class="text-white-50 mb-2">
+                            <i class="fas fa-language me-2"></i>
+                            Langues
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @php
+                                $languages = is_string($data['cvtheque']['languages']) ? json_decode($data['cvtheque']['languages'], true) : $data['cvtheque']['languages'];
+                                if (!is_array($languages)) {
+                                    $languages = explode(',', $data['cvtheque']['languages']);
+                                }
+                            @endphp
+                            @foreach($languages as $language)
+                                <span class="badge badge-modern badge-success-modern">{{ trim($language) }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="row mb-4">
+                        @php
+                            $expYears = $data['cvtheque']['years_experience'] ?? $data['cvtheque']['experience_years'] ?? 0;
+                        @endphp
+                        @if($expYears > 0)
+                        <div class="col-6">
+                            <div class="p-3 rounded text-center" style="background: rgba(79, 195, 247, 0.1);">
+                                <i class="fas fa-calendar-alt d-block mb-2" style="color: #4fc3f7; font-size: 1.5rem;"></i>
+                                <h5 class="mb-0" style="color: #4fc3f7;">{{ $expYears }} ans</h5>
+                                <small class="text-white-50">Expérience</small>
+                            </div>
+                        </div>
+                        @endif
+                        @if(!empty($data['cvtheque']['availability']))
+                        <div class="col-6">
+                            <div class="p-3 rounded text-center" style="background: rgba(86, 171, 47, 0.1);">
+                                <i class="fas fa-clock d-block mb-2" style="color: #56ab2f; font-size: 1.5rem;"></i>
+                                <h6 class="mb-0" style="color: #56ab2f;">{{ ucfirst($data['cvtheque']['availability']) }}</h6>
+                                <small class="text-white-50">Disponibilité</small>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
+                    @if(!empty($data['cvtheque']['job_type']) || !empty($data['cvtheque']['salary_expectation']) || $data['cvtheque']['remote_work'] || $data['cvtheque']['willing_to_relocate'])
+                    <div class="mb-4">
+                        <h6 class="text-white-50 mb-2">
+                            <i class="fas fa-briefcase me-2"></i>
+                            Préférences d'emploi
+                        </h6>
+                        <div class="info-item">
+                            @if(!empty($data['cvtheque']['job_type']))
+                            <span class="info-label">Type de poste</span>
+                            <span class="info-value">{{ ucfirst($data['cvtheque']['job_type']) }}</span>
+                        </div>
+                        @endif
+                        @if(!empty($data['cvtheque']['salary_expectation']))
+                        <div class="info-item">
+                            <span class="info-label">Salaire souhaité</span>
+                            <span class="info-value">{{ $data['cvtheque']['salary_expectation'] }}</span>
+                        </div>
+                        @endif
+                        @if($data['cvtheque']['remote_work'])
+                        <div class="info-item">
+                            <span class="info-label">Télétravail</span>
+                            <span class="info-value text-success">✓ Accepté</span>
+                        </div>
+                        @endif
+                        @if($data['cvtheque']['willing_to_relocate'])
+                        <div class="info-item">
+                            <span class="info-label">Mobilité</span>
+                            <span class="info-value text-success">✓ Ouvert à la relocalisation</span>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+
+                    @php
+                        $linkedinUrl = $data['cvtheque']['linkedin_url'] ?? $data['cvtheque']['linkedin_profile'] ?? '';
+                        $portfolioUrl = $data['cvtheque']['portfolio_url'] ?? $data['cvtheque']['website'] ?? '';
+                        $behanceUrl = $data['cvtheque']['behance_url'] ?? $data['cvtheque']['behance_profile'] ?? '';
+                        $dribbleUrl = $data['cvtheque']['dribbble_profile'] ?? '';
+                        $hasLinks = !empty($linkedinUrl) || !empty($portfolioUrl) || !empty($data['cvtheque']['github_url']) || !empty($behanceUrl) || !empty($dribbleUrl);
+                    @endphp
+
+                    @if($hasLinks)
+                    <div class="mb-4">
+                        <h6 class="text-white-50 mb-2">
+                            <i class="fas fa-link me-2"></i>
+                            Liens professionnels
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if(!empty($linkedinUrl))
+                            <a href="{{ $linkedinUrl }}" target="_blank" class="btn btn-sm btn-modern btn-primary-modern">
+                                <i class="fab fa-linkedin me-1"></i>LinkedIn
+                            </a>
+                            @endif
+                            @if(!empty($portfolioUrl))
+                            <a href="{{ $portfolioUrl }}" target="_blank" class="btn btn-sm btn-modern btn-success-modern">
+                                <i class="fas fa-globe me-1"></i>{{ !empty($data['cvtheque']['website']) ? 'Site Web' : 'Portfolio' }}
+                            </a>
+                            @endif
+                            @if(!empty($data['cvtheque']['github_url']))
+                            <a href="{{ $data['cvtheque']['github_url'] }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #24292e 0%, #0d1117 100%); color: white;">
+                                <i class="fab fa-github me-1"></i>GitHub
+                            </a>
+                            @endif
+                            @if(!empty($behanceUrl))
+                            <a href="{{ $behanceUrl }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #1769ff 0%, #0057ff 100%); color: white;">
+                                <i class="fab fa-behance me-1"></i>Behance
+                            </a>
+                            @endif
+                            @if(!empty($dribbleUrl))
+                            <a href="{{ $dribbleUrl }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #ea4c89 0%, #c32361 100%); color: white;">
+                                <i class="fab fa-dribbble me-1"></i>Dribbble
+                            </a>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+
+                    @if(!empty($data['cvtheque']['professional_email']) || !empty($data['cvtheque']['phone']))
+                    <div class="mb-4">
+                        <h6 class="text-white-50 mb-2">
+                            <i class="fas fa-address-book me-2"></i>
+                            Contact professionnel
+                        </h6>
+                        @if(!empty($data['cvtheque']['professional_email']))
+                        <div class="info-item">
+                            <span class="info-label">Email pro</span>
+                            <span class="info-value">{{ $data['cvtheque']['professional_email'] }}</span>
+                        </div>
+                        @endif
+                        @if(!empty($data['cvtheque']['phone']))
+                        <div class="info-item">
+                            <span class="info-label">Téléphone pro</span>
+                            <span class="info-value">{{ $data['cvtheque']['phone'] }}</span>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+
+                    @php
+                        $rapportPath = $data['cvtheque']['rapport_file_path'] ?? $data['cvtheque']['report_file_path'] ?? '';
+                        $hasDocuments = !empty($data['cvtheque']['cv_file_path'])
+                                     || !empty($data['cvtheque']['motivation_letter_path'])
+                                     || !empty($data['cvtheque']['pressbook_file_path'])
+                                     || !empty($rapportPath)
+                                     || !empty($data['cvtheque']['portfolio_files']);
+                    @endphp
+
+                    @if($hasDocuments)
+                    <div class="mb-0">
+                        <h6 class="text-white-50 mb-2">
+                            <i class="fas fa-file-download me-2"></i>
+                            Documents uploadés
+                        </h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @if(!empty($data['cvtheque']['cv_file_path']))
+                            <a href="{{ asset('storage/' . $data['cvtheque']['cv_file_path']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+                                <i class="fas fa-file-pdf me-1"></i>CV
+                            </a>
+                            @endif
+                            @if(!empty($data['cvtheque']['motivation_letter_path']))
+                            <a href="{{ asset('storage/' . $data['cvtheque']['motivation_letter_path']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white;">
+                                <i class="fas fa-envelope me-1"></i>Lettre de motivation
+                            </a>
+                            @endif
+                            @if(!empty($data['cvtheque']['portfolio_files']))
+                            <a href="{{ asset('storage/' . $data['cvtheque']['portfolio_files']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                                <i class="fas fa-images me-1"></i>Portfolio
+                            </a>
+                            @endif
+                            @if(!empty($data['cvtheque']['pressbook_file_path']))
+                            <a href="{{ asset('storage/' . $data['cvtheque']['pressbook_file_path']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%); color: white;">
+                                <i class="fas fa-book me-1"></i>Pressbook
+                            </a>
+                            @endif
+                            @if(!empty($rapportPath))
+                            <a href="{{ asset('storage/' . $rapportPath) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #198754 0%, #157347 100%); color: white;">
+                                <i class="fas fa-graduation-cap me-1"></i>Rapport de fin de formation
+                            </a>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @endif
+
+            <!-- Projets Design -->
+            <div class="info-card fade-in" style="animation-delay: 0.8s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-palette"></i>
+                    <span>Projets Design ({{ $data['stats']['total_projects'] ?? 0 }})</span>
+                </div>
+                <div class="info-card-body">
+                    @if(isset($data['projects']) && is_countable($data['projects']) && count($data['projects']) > 0)
                         <div class="row">
                             @foreach($data['projects'] as $project)
-                            <div class="col-md-4 mb-4">
-                                <div class="card h-100 shadow-sm hover-shadow">
+                            <div class="col-md-4 mb-3">
+                                <div class="project-card">
                                     @php
                                         $projectFiles = isset($project->project_files) ? $project->project_files : [];
-                                        
-                                        // Fonction pour détecter si c'est une image
-                                        $isImage = function($file) {
-                                            // Vérifier d'abord le file_type
-                                            if (isset($file->file_type) && $file->file_type === 'image') {
-                                                return true;
-                                            }
-                                            
-                                            // Sinon, vérifier l'extension du fichier
-                                            $filePath = $file->file_path ?? $file->original_name ?? '';
-                                            $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
-                                            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico'];
-                                            
-                                            if (in_array($extension, $imageExtensions)) {
-                                                return true;
-                                            }
-                                            
-                                            // Vérifier aussi le mime_type si disponible
-                                            if (isset($file->mime_type) && strpos($file->mime_type, 'image/') === 0) {
-                                                return true;
-                                            }
-                                            
-                                            return false;
-                                        };
-                                        
-                                        $imageFiles = array_filter($projectFiles->toArray(), $isImage);
-                                        $otherFiles = array_filter($projectFiles->toArray(), function($file) use ($isImage) {
-                                            return !$isImage($file);
-                                        });
-                                        $hasImages = !empty($imageFiles);
+                                        $hasImages = $projectFiles->filter(function($file) {
+                                            $ext = strtolower(pathinfo($file->file_path ?? '', PATHINFO_EXTENSION));
+                                            return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                        })->isNotEmpty();
+                                        $firstImage = $hasImages ? $projectFiles->filter(function($file) {
+                                            $ext = strtolower(pathinfo($file->file_path ?? '', PATHINFO_EXTENSION));
+                                            return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                        })->first() : null;
                                     @endphp
-                                    
-                                    <!-- Galerie d'images en haut de la carte -->
-                                    @if($hasImages)
-                                    <div class="project-image-gallery" style="height: 200px; overflow: hidden; position: relative; background: #f8f9fa;">
-                                        @if(count($imageFiles) === 1)
-                                            @php $image = reset($imageFiles); @endphp
-                                            <img src="{{ asset($image->file_path) }}" 
-                                                 alt="" 
-                                                 class="w-100 h-100" 
-                                                 style="object-fit: cover; cursor: pointer; background: #f0f0f0;"
-                                                 onclick="viewImage('{{ asset($image->file_path) }}', '{{ $image->original_name }}')">
-                                            <div class="position-absolute top-50 start-50 translate-middle text-center" style="display: none;" id="placeholder-{{ $project->id }}-0">
-                                                <i class="fas fa-image text-muted fa-3x mb-2"></i>
-                                                <p class="text-muted small">Image non disponible</p>
-                                            </div>
-                                        @else
-                                            <!-- Grille d'images -->
-                                            <div class="row g-1 h-100 p-1">
-                                                @foreach(array_slice($imageFiles, 0, 4) as $index => $image)
-                                                <div class="{{ count($imageFiles) <= 2 ? 'col-6' : 'col-6' }} h-{{ count($imageFiles) <= 2 ? '100' : '50' }} p-0">
-                                                    <div class="position-relative h-100" style="padding: 2px;">
-                                                        <div class="w-100 h-100" style="background: #f0f0f0; border-radius: 4px; overflow: hidden;">
-                                                            <img src="{{ asset($image->file_path) }}" 
-                                                                 alt="" 
-                                                                 class="w-100 h-100 project-image" 
-                                                                 style="object-fit: cover; cursor: pointer;"
-                                                                 onclick="viewImage('{{ asset($image->file_path) }}', '{{ $image->original_name }}')"
-                                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                            <div class="d-none w-100 h-100 align-items-center justify-content-center" style="flex-direction: column; background: #f8f9fa;">
-                                                                <i class="fas fa-image text-muted fa-2x mb-2"></i>
-                                                                <small class="text-muted">Image indisponible</small>
-                                                            </div>
-                                                        </div>
-                                                        @if($index === 3 && count($imageFiles) > 4)
-                                                        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" 
-                                                             style="background: rgba(0,0,0,0.6); color: white; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-radius: 4px;"
-                                                             onclick="showProjectDetails({{ $project->id ?? 0 }})">
-                                                            +{{ count($imageFiles) - 4 }}
-                                                        </div>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                        
-                                        <!-- Badge du nombre total d'images -->
-                                        <div class="position-absolute top-0 end-0 m-2">
-                                            <span class="badge bg-dark bg-opacity-75">
-                                                <i class="fas fa-images"></i> {{ count($imageFiles) }}
-                                            </span>
-                                        </div>
-                                    </div>
+
+                                    @if($firstImage)
+                                        <img src="{{ asset($firstImage->file_path) }}" alt="" class="project-image">
                                     @else
-                                    <!-- Placeholder si pas d'images -->
-                                    <div class="project-image-placeholder d-flex align-items-center justify-content-center" 
-                                         style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                                        <div class="text-center">
-                                            <i class="fas fa-palette fa-3x mb-2 opacity-50"></i>
-                                            <p class="mb-0 small">Aucune image</p>
+                                        <div class="project-placeholder">
+                                            <i class="fas fa-palette fa-3x opacity-50"></i>
                                         </div>
-                                    </div>
                                     @endif
-                                    
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="card-title mb-0 flex-grow-1">{{ $project->title ?? 'Projet' }}</h6>
-                                            @if(($project->status ?? 'en_cours') === 'valide')
-                                                <span class="badge bg-success ms-2">Validé</span>
-                                            @elseif(($project->status ?? 'en_cours') === 'en_cours' || ($project->status ?? '') === 'active')
-                                                <span class="badge bg-warning text-dark ms-2">En cours</span>
-                                            @else
-                                                <span class="badge bg-info ms-2">{{ $project->status }}</span>
-                                            @endif
-                                        </div>
-                                        
-                                        <p class="card-text text-muted small mb-2">{{ Str::limit($project->description ?? '', 100) }}</p>
-                                        
-                                        <div class="d-flex align-items-center text-muted small mb-3">
-                                            <i class="fas fa-calendar me-1"></i>
-                                            <span>{{ date('d/m/Y', strtotime($project->created_at)) }}</span>
-                                            @if(!empty($otherFiles))
-                                            <span class="ms-3">
-                                                <i class="fas fa-file me-1"></i>
-                                                {{ count($otherFiles) }} fichier(s)
+
+                                    <div class="p-3">
+                                        <h6 class="text-white mb-2">{{ $project->title ?? 'Projet' }}</h6>
+                                        <p class="text-white-50 small mb-2">{{ Str::limit($project->description ?? '', 60) }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge badge-modern {{ ($project->status ?? '') === 'valide' ? 'badge-success-modern' : 'badge-warning-modern' }}">
+                                                {{ ucfirst($project->status ?? 'En cours') }}
                                             </span>
-                                            @endif
-                                        </div>
-                                        
-                                        <!-- Boutons d'action -->
-                                        <div class="btn-group btn-group-sm w-100" role="group">
-                                            <button class="btn btn-outline-primary" 
-                                                    onclick="showProjectDetails({{ $project->id ?? 0 }})" 
-                                                    title="Voir les détails">
-                                                <i class="fas fa-eye"></i> Voir
-                                            </button>
-                                            @if(($project->status ?? 'en_cours') !== 'valide')
-                                            <button class="btn btn-outline-success" 
-                                                    onclick="if(confirm('Êtes-vous sûr de vouloir valider ce projet ?')) validateProject({{ $project->id ?? 0 }})" 
-                                                    title="Valider le projet">
-                                                <i class="fas fa-check"></i> Valider
-                                            </button>
-                                            @endif
-                                            <button class="btn btn-outline-secondary" 
-                                                    onclick="downloadProject({{ $project->id ?? 0 }})" 
-                                                    title="Télécharger le projet">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" 
-                                                    onclick="if(confirm('⚠️ Supprimer ce projet ?')) deleteProjectFromProfile({{ $project->id ?? 0 }})" 
-                                                    title="Supprimer le projet">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
+                                            <small class="text-white-50">
+                                                {{ date('d/m/Y', strtotime($project->created_at)) }}
+                                            </small>
                                         </div>
                                     </div>
                                 </div>
@@ -493,717 +1150,29 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-center text-muted py-4">Aucun projet design</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PAIEMENTS ET FACTURES -->
-    <div class="row mt-4 mb-4">
-        <!-- Factures -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0"><i class="fas fa-file-invoice me-2"></i>FACTURES</h5>
-                </div>
-                <div class="card-body">
-                    @if(isset($data['factures']) && count($data['factures']) > 0)
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>N°</th>
-                                        <th>Montant</th>
-                                        <th>Date</th>
-                                        <th>Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($data['factures'] as $facture)
-                                    <tr>
-                                        <td>#{{ $facture->id }}</td>
-                                        <td class="fw-bold">{{ number_format($facture->montant, 0, ',', ' ') }} FCFA</td>
-                                        <td>{{ date('d/m/Y', strtotime($facture->created_at)) }}</td>
-                                        <td><span class="badge bg-warning">{{ $facture->statut ?? 'En attente' }}</span></td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <p class="text-center text-muted py-3">Aucune facture</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-
-        <!-- Paiements -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>PAIEMENTS</h5>
-                </div>
-                <div class="card-body">
-                    @if(isset($data['paiements']) && count($data['paiements']) > 0)
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>N°</th>
-                                        <th>Montant</th>
-                                        <th>Date</th>
-                                        <th>Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($data['paiements'] as $paiement)
-                                    <tr>
-                                        <td>#{{ $paiement->id }}</td>
-                                        <td class="fw-bold text-success">{{ number_format($paiement->montant, 0, ',', ' ') }} FCFA</td>
-                                        <td>{{ date('d/m/Y', strtotime($paiement->created_at)) }}</td>
-                                        <td>
-                                            @if($paiement->statut === 'validé')
-                                                <span class="badge bg-success">✓ Validé</span>
-                                            @else
-                                                <span class="badge bg-warning">{{ $paiement->statut }}</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <p class="text-center text-muted py-3">Aucun paiement</p>
+                        <p class="text-center text-white-50 py-4">Aucun projet design</p>
                     @endif
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-@push('styles')
-<style>
-@media print {
-    .btn, .breadcrumb, nav { display: none !important; }
-}
-
-.profile-header .card {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-
-.stat-box {
-    transition: transform 0.2s;
-}
-
-.stat-box:hover {
-    transform: translateY(-5px);
-}
-
-.card-header {
-    font-weight: 600;
-    border-radius: 0.375rem 0.375rem 0 0 !important;
-}
-
-label.small {
-    font-size: 0.85rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Styles pour la galerie d'images des projets */
-.hover-shadow {
-    transition: all 0.3s ease;
-}
-
-.hover-shadow:hover {
-    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
-    transform: translateY(-5px);
-}
-
-.project-image-gallery img {
-    transition: transform 0.3s ease;
-}
-
-.project-image-gallery img:hover {
-    transform: scale(1.05);
-}
-
-/* Modal lightbox pour les images */
-#imageLightbox {
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    overflow: auto;
-}
-
-#imageLightbox img {
-    margin: auto;
-    display: block;
-    max-width: 90%;
-    max-height: 90%;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    animation: zoomIn 0.3s;
-}
-
-@keyframes zoomIn {
-    from { transform: translate(-50%, -50%) scale(0.5); }
-    to { transform: translate(-50%, -50%) scale(1); }
-}
-
-#imageLightbox .close-lightbox {
-    position: absolute;
-    top: 20px;
-    right: 40px;
-    color: #fff;
-    font-size: 40px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-    z-index: 10000;
-}
-
-#imageLightbox .close-lightbox:hover {
-    color: #ccc;
-}
-</style>
-@endpush
+@endsection
 
 @push('scripts')
 <script>
-// Modal de chargement
-/**
- * Fermer et nettoyer complètement le modal de chargement
- */
-function closeLoadingModal() {
-    // Fermer tous les modals Bootstrap ouverts
-    const loadingModal = document.getElementById('loadingModal');
-    if (loadingModal) {
-        const bsModal = bootstrap.Modal.getInstance(loadingModal);
-        if (bsModal) {
-            bsModal.hide();
-        }
-        // Retirer le modal du DOM après l'animation
-        setTimeout(() => {
-            if (loadingModal.parentNode) {
-                loadingModal.parentNode.removeChild(loadingModal);
-            }
-        }, 500);
-    }
-    
-    // Supprimer tous les backdrops qui pourraient rester
-    document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
-        backdrop.remove();
-    });
-    
-    // Réinitialiser le body
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
-}
-
-function showLoadingModal(message = 'Traitement en cours...') {
-    // Nettoyer d'abord tout modal de chargement existant
-    closeLoadingModal();
-    
-    // Créer un nouveau modal
-    const modal = document.createElement('div');
-    modal.id = 'loadingModal';
-    modal.className = 'modal fade';
-    modal.setAttribute('data-bs-backdrop', 'static');
-    modal.setAttribute('data-bs-keyboard', 'false');
-    modal.innerHTML = `
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body text-center py-5">
-                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">Chargement...</span>
-                    </div>
-                    <h5 id="loadingMessage">${message}</h5>
-                </div>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-    
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
-    return bsModal;
-}
-
-// Notification de succès
-function showSuccessNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
-    notification.style.cssText = 'top: 20px; right: 20px; z-index: 99999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
-    notification.innerHTML = `
-        <i class="fas fa-check-circle me-2"></i>
-        <strong>Succès !</strong>
-        <div class="mt-1">${message}</div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                }
-            }, 150);
-        }
-    }, 3000);
-}
-
-// Notification d'erreur
-function showErrorNotification(message) {
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-danger alert-dismissible fade show position-fixed';
-    notification.style.cssText = 'top: 20px; right: 20px; z-index: 99999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
-    notification.innerHTML = `
-        <i class="fas fa-exclamation-circle me-2"></i>
-        <strong>Erreur !</strong>
-        <div class="mt-1">${message}</div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.classList.remove('show');
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                }
-            }, 150);
-        }
-    }, 5000);
-}
-
-// Valider un TP
-function validateTP(tpId) {
-    if (!confirm('✅ Êtes-vous sûr de vouloir valider ce TP ?')) {
-        return;
-    }
-    
-    const loadingModal = showLoadingModal('Validation du TP en cours...');
-    
-    fetch(`/evc/app/admin/tp/validate/${tpId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        loadingModal.hide();
-        if (data.success) {
-            showSuccessNotification(data.message || 'TP validé avec succès !');
-            setTimeout(() => location.reload(), 2000);
-        } else {
-            showErrorNotification(data.message || 'Impossible de valider le TP');
-        }
-    })
-    .catch(error => {
-        loadingModal.hide();
-        console.error('Erreur:', error);
-        showErrorNotification('Une erreur est survenue lors de la validation.');
-    });
-}
-
-// Rejeter un TP
-function rejectTP(tpId) {
-    const reason = prompt('⚠️ Raison du rejet du TP :\n(Cette information sera envoyée à l\'étudiant)');
-    
-    if (!reason || reason.trim() === '') {
-        showErrorNotification('Vous devez fournir une raison pour rejeter le TP.');
-        return;
-    }
-    
-    const loadingModal = showLoadingModal('Rejet du TP en cours...');
-    
-    fetch(`/evc/app/admin/tp/reject/${tpId}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({ reason: reason.trim() })
-    })
-    .then(response => response.json())
-    .then(data => {
-        loadingModal.hide();
-        if (data.success) {
-            showSuccessNotification(data.message || 'TP rejeté avec succès !');
-            setTimeout(() => location.reload(), 2000);
-        } else {
-            showErrorNotification(data.message || 'Impossible de rejeter le TP');
-        }
-    })
-    .catch(error => {
-        loadingModal.hide();
-        console.error('Erreur:', error);
-        showErrorNotification('Une erreur est survenue lors du rejet.');
-    });
-}
-
-// Supprimer un TP
-function deleteTP(tpId) {
-    console.log('Delete TP called with ID:', tpId); // Debug
-    
-    if (!confirm('⚠️ ATTENTION !\n\nÊtes-vous sûr de vouloir supprimer ce TP ?\nCette action est IRRÉVERSIBLE.')) {
-        return;
-    }
-    
-    const loadingModal = showLoadingModal('Suppression du TP en cours...');
-    const url = `/evc/compte/design-graphique/tp/supprimer/${tpId}`;
-    console.log('DELETE URL:', url); // Debug
-    
-    fetch(url, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        console.log('Response status:', response.status); // Debug
-        if (!response.ok) {
-            return response.text().then(text => {
-                console.error('Error response:', text);
-                throw new Error(`HTTP ${response.status}: ${text}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        loadingModal.hide();
-        console.log('Success data:', data); // Debug
-        if (data.success) {
-            showSuccessNotification(data.message || 'TP supprimé avec succès !');
-            setTimeout(() => location.reload(), 2000);
-        } else {
-            showErrorNotification(data.message || 'Impossible de supprimer le TP');
-        }
-    })
-    .catch(error => {
-        loadingModal.hide();
-        console.error('Erreur complète:', error);
-        showErrorNotification('Une erreur est survenue: ' + error.message);
-    });
-}
-
-// ==================== FONCTIONS POUR PROJETS DESIGN ====================
-
-/**
- * Afficher les détails d'un projet design
- * @param {number} projectId - ID du projet à afficher
- */
-function showProjectDetails(projectId) {
-    const loadingModal = showLoadingModal('Chargement des détails du projet...');
-    
-    console.log('Chargement du projet ID:', projectId);
-    
-    fetch(`/evc/app/admin/projects/${projectId}`, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        console.log('Réponse reçue, status:', response.status);
-        
-        // Essayer de lire la réponse comme texte d'abord pour le debug
-        return response.text().then(text => {
-            console.log('Réponse brute:', text.substring(0, 200));
-            
-            // Essayer de parser comme JSON
-            try {
-                const data = JSON.parse(text);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${data.message || 'Erreur serveur'}`);
-                }
-                return data;
-            } catch (e) {
-                console.error('Erreur de parsing JSON:', e);
-                throw new Error('Réponse invalide du serveur: ' + text.substring(0, 100));
+// Animations au scroll
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
             }
         });
-    })
-    .then(data => {
-        console.log('Données reçues:', data);
-        
-        if (data.success) {
-            // Fermer le modal de chargement complètement avant d'ouvrir le modal des détails
-            closeLoadingModal();
-            
-            // Attendre un court instant pour que le modal de chargement soit complètement fermé
-            setTimeout(() => {
-                showProjectDetailsModal(data.project);
-            }, 300);
-        } else {
-            closeLoadingModal();
-            showErrorNotification(data.message || 'Impossible de charger les détails du projet');
-        }
-    })
-    .catch(error => {
-        console.error('Erreur complète:', error);
-        closeLoadingModal();
-        showErrorNotification('Une erreur est survenue: ' + error.message);
     });
-}
 
-/**
- * Afficher la modal des détails du projet
- * @param {object} project - Données du projet
- */
-function showProjectDetailsModal(project) {
-    // Créer la modal si elle n'existe pas
-    let modal = document.getElementById('projectDetailsModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'projectDetailsModal';
-        modal.className = 'modal fade';
-        modal.innerHTML = `
-            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content">
-                    <div class="modal-header bg-info text-white">
-                        <h5 class="modal-title"><i class="fas fa-palette me-2"></i>Détails du Projet</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body" id="projectDetailsContent">
-                        <!-- Le contenu sera inséré ici -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-    }
-    
-    // Remplir le contenu de la modal
-    const content = `
-        <div class="row">
-            <div class="col-12 mb-4">
-                <h4 class="text-primary fw-bold mb-2">${project.title || 'Sans titre'}</h4>
-                <p class="text-secondary" style="font-size: 1rem; line-height: 1.6;">${project.description || 'Aucune description'}</p>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <strong class="text-dark me-2" style="font-size: 0.95rem;">Statut:</strong> 
-                    <span class="badge ${project.status === 'valide' ? 'bg-success' : 'bg-warning'}" style="font-size: 0.9rem;">
-                        ${project.status === 'valide' ? 'Validé' : 'En cours'}
-                    </span>
-                </div>
-            </div>
-            <div class="col-md-6 mb-3">
-                <div class="d-flex align-items-center">
-                    <strong class="text-dark me-2" style="font-size: 0.95rem;">Date de création:</strong>
-                    <span class="text-secondary">${project.created_at || '-'}</span>
-                </div>
-            </div>
-            ${project.files && project.files.length > 0 ? `
-                <div class="col-12 mt-3">
-                    <h6 class="text-dark fw-bold mb-3"><i class="fas fa-paperclip me-2 text-primary"></i>Fichiers associés (${project.files.length})</h6>
-                    <ul class="list-group">
-                        ${project.files.map(file => `
-                            <li class="list-group-item d-flex justify-content-between align-items-center" style="border-left: 3px solid #0d6efd;">
-                                <span class="text-dark" style="font-size: 0.95rem;">
-                                    <i class="fas fa-file text-primary me-2"></i>${file.name || file}
-                                </span>
-                                <a href="${file.url || '#'}" class="btn btn-sm btn-primary" download title="Télécharger">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            ` : '<div class="col-12 mt-3"><div class="alert alert-info mb-0"><i class="fas fa-info-circle me-2"></i>Aucun fichier associé à ce projet</div></div>'}
-        </div>
-    `;
-    
-    document.getElementById('projectDetailsContent').innerHTML = content;
-    
-    // Afficher la modal
-    const bsModal = new bootstrap.Modal(modal);
-    bsModal.show();
-}
-
-/**
- * Valider un projet design
- * @param {number} projectId - ID du projet à valider
- */
-function validateProject(projectId) {
-    const loadingModal = showLoadingModal('Validation du projet en cours...');
-    
-    fetch(`/evc/app/admin/projects/${projectId}/validate`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        loadingModal.hide();
-        if (data.success) {
-            showSuccessNotification(data.message || 'Projet validé avec succès !');
-            setTimeout(() => location.reload(), 2000);
-        } else {
-            showErrorNotification(data.message || 'Impossible de valider le projet');
-        }
-    })
-    .catch(error => {
-        loadingModal.hide();
-        console.error('Erreur:', error);
-        showErrorNotification('Une erreur est survenue lors de la validation.');
-    });
-}
-
-/**
- * Télécharger un projet design
- * @param {number} projectId - ID du projet à télécharger
- */
-function downloadProject(projectId) {
-    showLoadingModal('Préparation du téléchargement...');
-    
-    // Ouvrir dans un nouvel onglet pour télécharger
-    window.open(`/evc/app/admin/projects/${projectId}/download`, '_blank');
-    
-    // Fermer le modal de chargement après un court délai
-    setTimeout(() => {
-        const loadingModal = document.getElementById('loadingModal');
-        if (loadingModal) {
-            bootstrap.Modal.getInstance(loadingModal)?.hide();
-        }
-    }, 1000);
-}
-
-/**
- * Supprimer un projet depuis le profil étudiant (admin)
- * @param {number} projectId - ID du projet à supprimer
- */
-function deleteProjectFromProfile(projectId) {
-    if (!confirm('⚠️ Êtes-vous sûr de vouloir supprimer ce projet ?\n\nCette action est irréversible et supprimera tous les fichiers associés.')) {
-        return;
-    }
-    
-    const loadingModal = showLoadingModal('Suppression du projet en cours...');
-    
-    fetch(`/evc/app/admin/projects/${projectId}/delete`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
-                console.error('Error response:', text);
-                throw new Error(`HTTP ${response.status}: ${text}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        loadingModal.hide();
-        if (data.success) {
-            showSuccessNotification(data.message || 'Projet supprimé avec succès !');
-            setTimeout(() => location.reload(), 2000);
-        } else {
-            showErrorNotification(data.message || 'Impossible de supprimer le projet');
-        }
-    })
-    .catch(error => {
-        loadingModal.hide();
-        console.error('Erreur complète:', error);
-        showErrorNotification('Une erreur est survenue: ' + error.message);
-    });
-}
-
-/**
- * Afficher une image en plein écran (lightbox)
- * @param {string} imageUrl - URL de l'image
- * @param {string} imageName - Nom de l'image
- */
-function viewImage(imageUrl, imageName) {
-    // Créer le lightbox s'il n'existe pas
-    let lightbox = document.getElementById('imageLightbox');
-    if (!lightbox) {
-        lightbox = document.createElement('div');
-        lightbox.id = 'imageLightbox';
-        lightbox.innerHTML = `
-            <span class="close-lightbox" onclick="closeLightbox()">&times;</span>
-            <img id="lightboxImage" src="" alt="">
-            <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: white; text-align: center; background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 5px;">
-                <span id="lightboxImageName"></span>
-            </div>
-        `;
-        document.body.appendChild(lightbox);
-        
-        // Fermer au clic sur le fond
-        lightbox.onclick = function(e) {
-            if (e.target === lightbox) {
-                closeLightbox();
-            }
-        };
-    }
-    
-    // Afficher l'image
-    document.getElementById('lightboxImage').src = imageUrl;
-    document.getElementById('lightboxImageName').textContent = imageName;
-    lightbox.style.display = 'block';
-    document.body.style.overflow = 'hidden'; // Empêcher le scroll
-}
-
-/**
- * Fermer le lightbox
- */
-function closeLightbox() {
-    const lightbox = document.getElementById('imageLightbox');
-    if (lightbox) {
-        lightbox.style.display = 'none';
-        document.body.style.overflow = 'auto'; // Réactiver le scroll
-    }
-}
-
-// Fermer le lightbox avec la touche Echap
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeLightbox();
-    }
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 });
 </script>
 @endpush
-@endsection

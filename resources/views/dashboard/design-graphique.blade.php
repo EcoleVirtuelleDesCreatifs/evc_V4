@@ -18,7 +18,7 @@
 @section('title', 'Espace Étudiant - Design Graphique')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid pt-4 mt-3 pt-md-5 mt-md-5 px-0 px-md-4">
 
     {{-- Définition des variables du profil --}}
     @php
@@ -30,7 +30,7 @@
         $studentPhoto = $sf->profile_photo;
         $prePhoto = $pr->profile_photo ?? $pr->photo ?? $pr->image ?? $pr->image_url ?? $pr->avatar;
         $rawPhoto = $studentPhoto ?: $prePhoto;
-        
+
         // Générer l'URL correcte de la photo
         if ($rawPhoto) {
             // Si c'est une URL complète (http/https)
@@ -85,20 +85,30 @@
     @endphp
 
     {{-- Profil Étudiant Professionnel --}}
-    
+
     {{-- Cover Header with Avatar --}}
-    <div class="row mb-4">
+    <div class="row g-2 g-md-4 mb-4">
         <div class="col-12">
             <div class="card border-0 shadow-lg overflow-hidden">
-                <div class="position-relative" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%); height: 200px;">
-                    <div class="position-absolute bottom-0 start-0 w-100 p-4">
-                        <div class="row align-items-end">
-                            <div class="col-auto">
-                                <img src="{{ $photoUrl }}" alt="{{ $fullName }}" 
-                                     class="rounded-circle border border-4 border-white shadow-lg"
-                                     style="width: 150px; height: 150px; object-fit: cover; margin-bottom: -50px;">
+                <div class="position-relative d-flex align-items-end" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%); min-height: 220px;">
+                    <div class="w-100 p-4">
+                        <div class="row align-items-center align-items-md-end flex-column flex-md-row text-center text-md-start">
+                            <div class="col-auto mb-3 mb-md-0">
+                                <img src="{{ $photoUrl }}" alt="{{ $fullName }}"
+                                     class="rounded-circle border border-4 border-white shadow-lg profile-photo-responsive"
+                                     style="width: 150px; height: 150px; object-fit: cover; margin-bottom: -70px; position: relative; z-index: 10;"
+                                     onerror="this.src='{{ asset('assets/img/avatar.png') }}'">
+                                <style>
+                                    @media (max-width: 768px) {
+                                        .profile-photo-responsive {
+                                            width: 120px !important;
+                                            height: 120px !important;
+                                            margin-bottom: -60px !important;
+                                        }
+                                    }
+                                </style>
                             </div>
-                            <div class="col text-white pb-3">
+                            <div class="col text-white pb-3 mt-4 mt-md-0 pt-4 pt-md-0">
                                 <h2 class="fw-bold mb-1">{{ $fullName ?: 'Étudiant EVC' }}</h2>
                                 <p class="mb-2 opacity-90">
                                     <i class="fas fa-graduation-cap me-2"></i>{{ $program ?: 'Design Graphique' }}
@@ -106,7 +116,7 @@
                                         • {{ $level }}
                                     @endif
                                 </p>
-                                <div class="d-flex gap-2 flex-wrap">
+                                <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-md-start">
                                     @if($level)
                                         <span class="badge bg-white bg-opacity-25 text-white"><i class="fas fa-layer-group me-1"></i>{{ $level }}</span>
                                     @endif
@@ -126,7 +136,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body" style="padding-top: 70px;">
+                <div class="card-body pt-5 mt-4">
                     {{-- Quick Contact Info --}}
                     <div class="row g-3 mb-4">
                         @if($email)
@@ -175,16 +185,16 @@
     </div>
 
     {{-- Tableau de Bord - Statistiques Principales --}}
-    <div class="row mb-4">
+    <div class="row g-2 g-md-4 mb-4">
         <div class="col-12">
-            <h4 class="mb-3">
+            <h4 class="mb-3 text-white">
                 <i class="fas fa-chart-line me-2 text-primary"></i>
                 Mon Tableau de Bord
             </h4>
         </div>
     </div>
 
-    <div class="row g-3 mb-4">
+    <div class="row g-2 g-md-3 mb-4">
         {{-- Formations Disponibles --}}
         <div class="col-lg-3 col-md-6">
             <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
@@ -272,7 +282,7 @@
 
     {{-- Montant Restant à Solder --}}
     @if(isset($stats['montant_restant']) && $stats['montant_restant'] > 0)
-    <div class="row mb-4">
+    <div class="row g-2 g-md-4 mb-4">
         <div class="col-12">
             <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center" role="alert">
                 <div class="p-3 bg-warning bg-opacity-25 rounded-3 me-3">
@@ -297,7 +307,7 @@
     @endif
 
     {{-- Statistics Cards --}}
-    <div class="row g-4 mb-4">
+    <div class="row g-2 g-md-4 mb-4">
         <div class="col-lg-3 col-md-6">
             <div class="card border-0 shadow-sm h-100 fade-in">
                 <div class="card-body">
@@ -369,7 +379,7 @@
     </div>
 
     {{-- Main Content --}}
-    <div class="row">
+    <div class="row g-2 g-md-4">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-body">
@@ -396,13 +406,13 @@
                             </button>
                         </li>
                     </ul>
-                    
+
                     {{-- Tabs Content --}}
                     <div class="tab-content" id="profileTabsContent">
-                        
+
                         {{-- Tab: Vue d'ensemble --}}
                         <div class="tab-pane fade show active" id="overview" role="tabpanel">
-                            <div class="row g-4">
+                            <div class="row g-2 g-md-4">
                                 {{-- Quick Stats Summary --}}
                                 <div class="col-12">
                                     <div class="alert alert-info border-0">
@@ -478,7 +488,7 @@
 
                         {{-- Tab: Informations personnelles --}}
                         <div class="tab-pane fade" id="informations" role="tabpanel">
-                            <div class="row g-4">
+                            <div class="row g-2 g-md-4">
                                 {{-- Identité --}}
                                 <div class="col-lg-6">
                                     <div class="card border-0 bg-light h-100">
@@ -1664,26 +1674,26 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Get all tab buttons
     const tabButtons = document.querySelectorAll('#profileTabs button[data-bs-toggle="tab"]');
-    
+
     // Add click event listeners to all tab buttons
     tabButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
-            
+
             // Remove active class from all buttons and tab panes
             tabButtons.forEach(btn => {
                 btn.classList.remove('active');
                 btn.setAttribute('aria-selected', 'false');
             });
-            
+
             document.querySelectorAll('.tab-pane').forEach(pane => {
                 pane.classList.remove('show', 'active');
             });
-            
+
             // Add active class to clicked button
             this.classList.add('active');
             this.setAttribute('aria-selected', 'true');
-            
+
             // Show corresponding tab pane
             const targetId = this.getAttribute('data-bs-target');
             const targetPane = document.querySelector(targetId);
@@ -1692,7 +1702,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     console.log('Profile tabs initialized:', tabButtons.length + ' tabs found');
 });
 </script>

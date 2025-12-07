@@ -1,687 +1,1182 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Paramètres - Profil Utilisateur - EVC 2024')
-@section('page-title', 'Paramètres du Profil')
+@section('title', 'Paramètres - Mon Profil')
+@section('page-title', 'Paramètres')
+
+@section('styles')
+<style>
+    /* PALETTE INSTAGRAM */
+    :root {
+        --ig-purple: #833AB4;
+        --ig-pink: #C13584;
+        --ig-red: #E1306C;
+        --ig-orange: #F56040;
+        --ig-yellow: #FCAF45;
+    }
+
+    body {
+        background: linear-gradient(135deg, #fef9f8 0%, #fdf4f5 50%, #f8f9fa 100%);
+        font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+    .container-fluid {
+        overflow-x: hidden;
+    }
+
+    /* HEADER PERCUTANT */
+    .profile-hero {
+        background: linear-gradient(135deg, var(--ig-purple), var(--ig-pink), var(--ig-red));
+        border-radius: 30px;
+        padding: 3rem;
+        color: white;
+        margin-bottom: 2.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(131, 58, 180, 0.4);
+    }
+
+    .profile-hero::before {
+        content: '';
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        top: -250px;
+        right: -150px;
+        animation: pulse 8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.1) rotate(180deg); }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-avatar {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        border: 6px solid white;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        object-fit: cover;
+    }
+
+    /* SECTIONS MODERNES */
+    .modern-section {
+        background: white;
+        border-radius: 25px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .modern-section:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(131, 58, 180, 0.15);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.25rem;
+        border-bottom: 3px solid #f7fafc;
+    }
+
+    .section-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, var(--ig-purple), var(--ig-red));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        box-shadow: 0 8px 20px rgba(131, 58, 180, 0.35);
+    }
+
+    .section-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--ig-purple), var(--ig-red));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* GRILLE DE CHAMPS */
+    .fields-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.75rem;
+    }
+
+    /* INPUTS MODERNES */
+    .input-group-modern {
+        position: relative;
+    }
+
+    .input-label {
+        display: block;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.75rem;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fafafa;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: var(--ig-pink);
+        background: white;
+        box-shadow: 0 0 0 5px rgba(193, 53, 132, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .input-field:hover {
+        border-color: var(--ig-pink);
+        background: white;
+    }
+
+    /* BOUTONS PERCUTANTS */
+    .btn-instagram {
+        background: linear-gradient(135deg, var(--ig-purple), var(--ig-red));
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 1rem 2.5rem;
+        font-weight: 700;
+        font-size: 1.05rem;
+        box-shadow: 0 8px 25px rgba(131, 58, 180, 0.4);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+    }
+
+    .btn-instagram:hover {
+        background: linear-gradient(135deg, var(--ig-pink), var(--ig-orange));
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(193, 53, 132, 0.5);
+        color: white;
+    }
+
+    .btn-instagram:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-outline-instagram {
+        background: white;
+        color: var(--ig-pink);
+        border: 2px solid var(--ig-pink);
+        border-radius: 50px;
+        padding: 1rem 2.5rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-instagram:hover {
+        background: var(--ig-pink);
+        color: white;
+        transform: translateY(-3px);
+    }
+
+    /* PHOTO UPLOAD */
+    .photo-zone {
+        border: 3px dashed #e2e8f0;
+        border-radius: 25px;
+        padding: 2.5rem;
+        text-align: center;
+        background: linear-gradient(135deg, rgba(131, 58, 180, 0.03), rgba(225, 48, 108, 0.03));
+        transition: all 0.3s ease;
+    }
+
+    .photo-zone:hover {
+        border-color: var(--ig-pink);
+        background: linear-gradient(135deg, rgba(131, 58, 180, 0.08), rgba(225, 48, 108, 0.08));
+        transform: scale(1.02);
+    }
+
+    .photo-current {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 6px solid transparent;
+        background-image: linear-gradient(white, white),
+                          linear-gradient(135deg, var(--ig-purple), var(--ig-red));
+        background-origin: border-box;
+        background-clip: padding-box, border-box;
+        box-shadow: 0 15px 40px rgba(131, 58, 180, 0.3);
+        margin: 0 auto 1.5rem;
+    }
+
+    /* SIDEBAR */
+    .completion-widget {
+        background: white;
+        border-radius: 25px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        position: sticky;
+        top: 20px;
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .completion-circle {
+        width: 160px;
+        height: 160px;
+        margin: 0 auto 1.5rem;
+        position: relative;
+    }
+
+    .completion-number {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, var(--ig-purple), var(--ig-red));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        background: linear-gradient(135deg, rgba(131, 58, 180, 0.1), rgba(225, 48, 108, 0.1));
+        transform: translateX(5px);
+    }
+
+    .badge-modern {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .badge-warning {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    /* ANIMATIONS */
+    .fade-in {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+
+    /* ALERT MODERNE */
+    .alert-instagram {
+        background: linear-gradient(135deg, #fef3c7, #fde68a);
+        border: none;
+        border-left: 5px solid var(--ig-orange);
+        border-radius: 15px;
+        padding: 1.25rem;
+        color: #92400e;
+        font-weight: 500;
+    }
+
+    .alert-success-instagram {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        border-left-color: #10b981;
+        color: #065f46;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        /* Layout général */
+        .container-fluid {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        .col-lg-8, .col-lg-4 {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        /* Hero Section */
+        .profile-hero {
+            padding: 1.5rem !important;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+        }
+        .hero-avatar {
+            width: 80px !important;
+            height: 80px !important;
+            border-width: 3px !important;
+        }
+        .profile-hero h1 {
+            font-size: 1.6rem !important;
+        }
+        .profile-hero .badge {
+            font-size: 0.75rem !important;
+            padding: 0.4rem 0.8rem !important;
+        }
+
+        /* Cards & Sections */
+        .modern-section, .completion-widget {
+            padding: 1.25rem !important;
+            border-radius: 15px !important;
+            margin-bottom: 1rem !important;
+        }
+        .completion-widget {
+            position: static !important;
+            width: 100% !important;
+        }
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.4rem;
+        }
+        .section-title {
+            font-size: 1.3rem;
+        }
+
+        /* Forms & Inputs */
+        .fields-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .input-field {
+            padding: 0.8rem 1rem;
+        }
+
+        /* Buttons & Actions */
+        .btn-instagram, .btn-outline-instagram {
+            width: 100%;
+            justify-content: center;
+            padding: 0.8rem 1rem;
+            font-size: 0.95rem;
+        }
+        .d-flex.justify-content-between.align-items-center.flex-wrap.gap-3 {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 1rem !important;
+        }
+        .d-flex.gap-3.flex-wrap {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        /* Photo Zone */
+        .photo-zone {
+            padding: 1.5rem;
+        }
+        .photo-current {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 1rem;
+        }
+        .photo-zone .row {
+            flex-direction: column;
+            text-align: center;
+        }
+        .photo-zone .col-md-4, .photo-zone .col-md-8 {
+            width: 100%;
+        }
+
+        /* Notifications */
+        .notification-container {
+            left: 10px;
+            right: 10px;
+            top: 10px;
+            max-width: none;
+        }
+        .notification {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    /* Fix pour les boutons dans les widgets */
+    .completion-widget .btn-instagram,
+    .completion-widget .btn-outline-instagram {
+        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* NOTIFICATIONS MODERNES */
+    .notification-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 400px;
+    }
+
+    .notification {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        border-left: 6px solid;
+        animation: slideInRight 0.4s ease-out;
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+    }
+
+    .notification.success {
+        border-left-color: #10b981;
+    }
+
+    .notification.error {
+        border-left-color: #ef4444;
+    }
+
+    .notification.warning {
+        border-left-color: #f59e0b;
+    }
+
+    .notification-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .notification.success .notification-icon {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+
+    .notification.error .notification-icon {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+
+    .notification.warning .notification-icon {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+    }
+
+    .notification-content {
+        flex: 1;
+    }
+
+    .notification-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+        color: #1e293b;
+    }
+
+    .notification-message {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .notification-close {
+        background: none;
+        border: none;
+        color: #94a3b8;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+
+    .notification-close:hover {
+        background: #f1f5f9;
+        color: #1e293b;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        to {
+            opacity: 0;
+            transform: translateX(400px);
+        }
+    }
+
+    .notification.fade-out {
+        animation: fadeOut 0.3s ease-out forwards;
+    }
+</style>
+@endsection
 
 @section('content')
+<!-- Conteneur de notifications -->
+<div class="notification-container" id="notificationContainer"></div>
 
+<div class="container-fluid" style="padding-left: 1.5rem; padding-right: 1.5rem; max-width: 100%; overflow-x: hidden;">
 
-
-<!-- En-tête avec photo de profil -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card" style="background: linear-gradient(135deg, #003366 0%, #3399ff 100%); color: white;">
-            <div class="card-body py-4">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <h3 class="mb-2">
-                            <i class="fas fa-user-cog me-3"></i>
-                            @if(isset($user) && property_exists($user, 'first_name') && property_exists($user, 'last_name') && $user->first_name && $user->last_name)
-                                {{ $user->first_name }} {{ $user->last_name }}
-                            @elseif(session('user_prenom') && session('user_nom'))
-                                {{ session('user_prenom') }} {{ session('user_nom') }}
-                            @else
-                                Mon Profil
-                            @endif - {{ session('user_formation_raw', 'design-graphique') }}
-                        </h3>
-                        <p class="mb-0 opacity-75">Gérez vos informations personnelles et préférences de formation</p>
-                        <div class="mt-2">
-                            <span class="badge bg-light text-dark me-2">
-                                <i class="fas fa-calendar me-1"></i>
-                                Inscrit depuis {{ $user->created_at ? \Carbon\Carbon::parse($user->created_at)->format('F Y') : 'Date inconnue' }}
-                            </span>
-                            <span class="badge bg-warning">
-                                <i class="fas fa-graduation-cap me-1"></i>
-                                {{ $user->status ?? 'Étudiant actif' }}
-                            </span>
+    <!-- HERO HEADER -->
+    <div class="profile-hero fade-in">
+        <div class="hero-content">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    @php
+                        $photoUrl = null;
+                        if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo) {
+                            if (strpos($user->profile_photo, 'photos_preregistrations/') !== false) {
+                                $photoUrl = asset('storage/' . $user->profile_photo);
+                            } elseif (strpos($user->profile_photo, '/') === false) {
+                                $photoUrl = asset('uploads/photos/' . $user->profile_photo);
+                            } else {
+                                $photoUrl = asset($user->profile_photo);
+                            }
+                        }
+                    @endphp
+                    @if($photoUrl)
+                        <img src="{{ $photoUrl }}" alt="Avatar" class="hero-avatar">
+                    @else
+                        <div class="hero-avatar" style="background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-user fa-3x"></i>
                         </div>
+                    @endif
+                </div>
+                <div class="col">
+                    <h1 class="mb-2" style="font-size: 2.5rem; font-weight: 800;">
+                        @if(isset($user) && property_exists($user, 'first_name') && $user->first_name)
+                            {{ $user->first_name }} {{ $user->last_name ?? '' }}
+                        @else
+                            Mon Profil
+                        @endif
+                    </h1>
+                    <p class="mb-3" style="font-size: 1.15rem; opacity: 0.95;">✨ Personnalisez votre espace d'apprentissage</p>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <span class="badge" style="background: rgba(255,255,255,0.25); padding: 0.6rem 1.2rem; border-radius: 50px; font-size: 0.9rem;">
+                            <i class="fas fa-calendar me-1"></i>
+                            Depuis {{ $user->created_at ? \Carbon\Carbon::parse($user->created_at)->format('M Y') : 'N/A' }}
+                        </span>
+                        <span class="badge" style="background: rgba(255,255,255,0.25); padding: 0.6rem 1.2rem; border-radius: 50px; font-size: 0.9rem;">
+                            <i class="fas fa-graduation-cap me-1"></i>
+                            {{ ucfirst(str_replace('-', ' ', session('user_formation_raw', 'community-management'))) }}
+                        </span>
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.9); padding: 0.6rem 1.2rem; border-radius: 50px; font-size: 0.9rem;">
+                            <i class="fas fa-check-circle me-1"></i>
+                            {{ $user->status ?? 'Actif' }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Photo de profil - EN DEHORS DU FORMULAIRE -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-camera me-2" style="color: #3399ff;"></i>
-                    Photo de profil
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-4 text-center">
-                        <div id="photoPreviewContainer" style="position: relative; width: 150px; height: 150px; margin: 0 auto;">
-                            @if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo)
-                                <img id="photoPreview" src="{{ asset($user->profile_photo) }}"
-                                     alt="Photo de profil" class="rounded-circle"
-                                     style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #3399ff;">
-                            @elseif(session('user_photo'))
-                                <img id="photoPreview" src="{{ asset(session('user_photo')) }}"
-                                     alt="Photo de profil" class="rounded-circle"
-                                     style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #3399ff;">
+    <div class="row" style="margin-left: 0; margin-right: 0;">
+        <div class="col-lg-8" style="padding-left: 15px; padding-right: 15px;">
+
+            <!-- PHOTO DE PROFIL -->
+            <div class="modern-section fade-in delay-1">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Photo de Profil</h2>
+                        <p class="text-muted mb-0">Ajoutez votre photo pour personnaliser votre profil</p>
+                    </div>
+                </div>
+
+                <div class="photo-zone">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            @php
+                                $currentPhoto = null;
+                                if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo) {
+                                    if (strpos($user->profile_photo, 'photos_preregistrations/') !== false) {
+                                        $currentPhoto = asset('storage/' . $user->profile_photo);
+                                    } elseif (strpos($user->profile_photo, '/') === false) {
+                                        $currentPhoto = asset('uploads/photos/' . $user->profile_photo);
+                                    } else {
+                                        $currentPhoto = asset($user->profile_photo);
+                                    }
+                                }
+                            @endphp
+                            @if($currentPhoto)
+                                <img id="photoPreview" src="{{ $currentPhoto }}" alt="Photo" class="photo-current">
                             @else
-                                <div id="photoPreview" class="rounded-circle bg-light d-flex align-items-center justify-content-center"
-                                     style="width: 150px; height: 150px; border: 3px dashed #3399ff;">
-                                    <i class="fas fa-user fs-1 text-muted"></i>
+                                <div id="photoPreview" class="photo-current" style="background: linear-gradient(135deg, rgba(131, 58, 180, 0.1), rgba(225, 48, 108, 0.1)); display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-user fa-4x" style="color: var(--ig-pink);"></i>
                                 </div>
                             @endif
                         </div>
-                    </div>
-                    <div class="col-md-8">
-                        <h6 class="mb-3">Modifier votre photo de profil</h6>
-                        <p class="text-muted small mb-3">
-                            <i class="fas fa-info-circle me-1"></i>
-                            Formats acceptés : JPG, PNG, GIF (max 5MB)
-                        </p>
-                        <input type="file" id="photoInput" name="photo" accept="image/*" class="form-control mb-3">
-                        <button type="button" class="btn btn-primary" onclick="uploadPhoto()">
-                            <i class="fas fa-upload me-2"></i>
-                            Uploader la photo
-                        </button>
-                        <div id="uploadProgress" class="mt-3" style="display: none;">
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                        <div class="col-md-8">
+                            <h4 class="mb-3" style="color: #1e293b; font-weight: 700;">
+                                <i class="fas fa-sparkles me-2" style="color: var(--ig-orange);"></i>
+                                Changez votre photo
+                            </h4>
+                            <div class="alert-instagram mb-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Formats:</strong> JPG, PNG, GIF • <strong>Max:</strong> 5MB
                             </div>
-                            <small class="text-muted">Upload en cours...</small>
+                            <input type="file" id="photoInput" name="photo" accept="image/*" class="input-field mb-3">
+                            <button type="button" class="btn-instagram" onclick="uploadPhoto()">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                Uploader la photo
+                            </button>
+                            <div id="uploadProgress" class="mt-3" style="display: none;">
+                                <div class="progress" style="height: 10px; border-radius: 10px;">
+                                    <div class="progress-bar" role="progressbar" style="width: 100%; background: linear-gradient(90deg, var(--ig-purple), var(--ig-red));"></div>
+                                </div>
+                                <small class="text-muted mt-2 d-block"><i class="fas fa-spinner fa-spin me-1"></i>Upload en cours...</small>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- FORMULAIRE PRINCIPAL DE MISE À JOUR DU PROFIL -->
-<form id="profileForm" method="POST" action="{{ route(session('user_formation_raw', 'design-graphique') . '.parametres.update') }}">
-@csrf
-<div class="row">
-    <div class="col-md-8">
-        <!-- Informations personnelles -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-id-card me-2" style="color: #003366;"></i>
-                    Informations personnelles
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="firstName" class="form-label"><strong>Prénom</strong> <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="firstName" name="firstName"
-                               value="@if(isset($user) && property_exists($user, 'first_name') && $user->first_name){{ $user->first_name }}@elseif(session('user_prenom')){{ session('user_prenom') }}@endif">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="lastName" class="form-label"><strong>Nom</strong> <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="lastName" name="lastName"
-                               value="@if(isset($user) && property_exists($user, 'last_name') && $user->last_name){{ $user->last_name }}@elseif(session('user_nom')){{ session('user_nom') }}@endif">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label for="age" class="form-label"><strong>Âge</strong></label>
-                        <input type="number" class="form-control" id="age" name="age" value="{{ $user->age ?? '' }}" min="16" max="99">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="country" class="form-label"><strong>Pays</strong> <span class="text-danger">*</span></label>
-                        @php
-                            $userCountry = '';
-                            if(isset($user) && property_exists($user, 'country') && $user->country) {
-                                $userCountry = $user->country;
-                            } elseif(session('user_pays')) {
-                                $userCountry = session('user_pays');
-                            }
-                        @endphp
-                        <select class="form-select" id="country" name="country">
-                            <option value="France" {{ $userCountry === 'France' ? 'selected' : '' }}>France</option>
-                            <option value="Belgique" {{ $userCountry === 'Belgique' ? 'selected' : '' }}>Belgique</option>
-                            <option value="Suisse" {{ $userCountry === 'Suisse' ? 'selected' : '' }}>Suisse</option>
-                            <option value="Canada" {{ $userCountry === 'Canada' ? 'selected' : '' }}>Canada</option>
-                            <option value="Maroc" {{ $userCountry === 'Maroc' ? 'selected' : '' }}>Maroc</option>
-                            <option value="Tunisie" {{ $userCountry === 'Tunisie' ? 'selected' : '' }}>Tunisie</option>
-                            <option value="Algérie" {{ $userCountry === 'Algérie' ? 'selected' : '' }}>Algérie</option>
-                            <option value="Sénégal" {{ $userCountry === 'Sénégal' ? 'selected' : '' }}>Sénégal</option>
-                            <option value="Côte d'Ivoire" {{ $userCountry === 'Côte d\'Ivoire' ? 'selected' : '' }}>Côte d'Ivoire</option>
-                            <option value="Cameroun" {{ $userCountry === 'Cameroun' ? 'selected' : '' }}>Cameroun</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label for="city" class="form-label"><strong>Ville</strong> <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="city" name="city"
-                               value="@if(isset($user) && property_exists($user, 'city') && $user->city){{ $user->city }}@elseif(session('user_ville')){{ session('user_ville') }}@endif">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label for="district" class="form-label"><strong>Quartier</strong></label>
-                    <input type="text" class="form-control" id="district" name="district" value="{{ $user->quartier ?? '' }}" placeholder="Quartier ou arrondissement">
-                </div>
-                <div class="mb-3">
-                    <label for="biography" class="form-label"><strong>Biographie</strong></label>
-                    <textarea class="form-control" id="biography" name="biography" rows="4" placeholder="Parlez-nous de vous, votre parcours, vos passions...">{{ $user->biography ?? '' }}</textarea>
-                    <div class="form-text text-muted"><i class="fas fa-info-circle me-1"></i>Présentez-vous en quelques lignes (optionnel).</div>
-                </div>
-            </div>
-        </div>
+            <!-- FORMULAIRE PRINCIPAL -->
+            <form id="profileForm" method="POST" action="{{ route(session('user_formation_raw', 'design-graphique') . '.parametres.update') }}">
+            @csrf
 
-        <!-- Contact -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-address-book me-2" style="color: #3399ff;"></i>
-                    Informations de contact
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="phone" class="form-label"><strong>Numéro de téléphone</strong></label>
-                        <input type="tel" class="form-control" id="phone" name="phone"
-                               value="@if(isset($user) && property_exists($user, 'phone') && $user->phone){{ $user->phone }}@elseif(session('user_telephone')){{ session('user_telephone') }}@endif"
-                               placeholder="+225 07 12 34 56 78">
-                        <div class="form-text">
-                            <i class="fas fa-phone me-1 text-primary"></i>
-                            Votre numéro de téléphone principal
-                        </div>
+            <!-- INFORMATIONS PERSONNELLES -->
+            <div class="modern-section fade-in delay-2">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-user-circle"></i>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="whatsapp" class="form-label"><strong>WhatsApp</strong></label>
-                        <input type="tel" class="form-control" id="whatsapp" name="whatsapp"
-                               value="@if(isset($user) && property_exists($user, 'whatsapp') && $user->whatsapp){{ $user->whatsapp }}@elseif(session('user_whatsapp')){{ session('user_whatsapp') }}@endif"
-                               placeholder="+225 07 12 34 56 78">
-                        <div class="form-text">
-                            <i class="fab fa-whatsapp text-success me-1"></i>
-                            Numéro WhatsApp pour les communications rapides
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Formation et niveau -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-graduation-cap me-2" style="color: #FF9900;"></i>
-                    Parcours et formation
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="educationLevel" class="form-label"><strong>Niveau d'étude</strong></label>
-                        @php
-                            $userEducationLevel = '';
-                            if(isset($user) && property_exists($user, 'Level_education') && $user->Level_education) {
-                                $userEducationLevel = $user->Level_education;
-                            }
-                        @endphp
-                        <select class="form-control" id="educationLevel" name="educationLevel">
-                            <option value="">Sélectionner votre niveau</option>
-                            <option value="college" {{ $userEducationLevel === 'college' ? 'selected' : '' }}>Collège</option>
-                            <option value="lycee" {{ $userEducationLevel === 'lycee' ? 'selected' : '' }}>Lycée</option>
-                            <option value="bac" {{ $userEducationLevel === 'bac' ? 'selected' : '' }}>Baccalauréat</option>
-                            <option value="bac+2" {{ $userEducationLevel === 'bac+2' ? 'selected' : '' }}>Bac+2 (BTS, DUT, etc.)</option>
-                            <option value="bac+3" {{ $userEducationLevel === 'bac+3' ? 'selected' : '' }}>Bac+3 (Licence, Bachelor)</option>
-                            <option value="bac+5" {{ $userEducationLevel === 'bac+5' ? 'selected' : '' }}>Bac+5 (Master, Ingénieur)</option>
-                            <option value="doctorat" {{ $userEducationLevel === 'doctorat' ? 'selected' : '' }}>Doctorat</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="lastDiploma" class="form-label"><strong>Dernier diplôme obtenu</strong></label>
-                        <input type="text" class="form-control" id="lastDiploma" name="lastDiploma" value="{{ $user->degree ?? '' }}" placeholder="Ex: Bac ES, BTS Communication...">
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Boutons d'action du formulaire principal -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <button type="submit" class="btn btn-primary btn-lg me-3">
-                            <i class="fas fa-save me-2"></i>
-                            Sauvegarder les modifications
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
-                            <i class="fas fa-undo me-2"></i>
+                        <h2 class="section-title">Informations Personnelles</h2>
+                        <p class="text-muted mb-0">Vos données d'identité</p>
+                    </div>
+                </div>
+
+                <div class="fields-grid">
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-id-badge" style="color: var(--ig-purple);"></i>
+                            Prénom <span style="color: var(--ig-red);">*</span>
+                        </label>
+                        <input type="text" name="firstName" class="input-field"
+                               value="{{ $user->first_name ?? session('user_prenom') ?? '' }}">
+                    </div>
+
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-id-badge" style="color: var(--ig-purple);"></i>
+                            Nom <span style="color: var(--ig-red);">*</span>
+                        </label>
+                        <input type="text" name="lastName" class="input-field"
+                               value="{{ $user->last_name ?? session('user_nom') ?? '' }}">
+                    </div>
+
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-calendar-alt" style="color: var(--ig-pink);"></i>
+                            Date de naissance
+                        </label>
+                        <input type="date" name="date_of_birth" class="input-field"
+                               value="{{ $user->date_of_birth ?? '' }}"
+                               max="{{ date('Y-m-d') }}">
+                    </div>
+
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-venus-mars" style="color: var(--ig-purple);"></i>
+                            Sexe
+                        </label>
+                        <select name="gender" class="input-field">
+                            <option value="">Sélectionner...</option>
+                            <option value="Homme" {{ ($user->gender ?? '') === 'Homme' ? 'selected' : '' }}>Homme</option>
+                            <option value="Femme" {{ ($user->gender ?? '') === 'Femme' ? 'selected' : '' }}>Femme</option>
+                            <option value="Autre" {{ ($user->gender ?? '') === 'Autre' ? 'selected' : '' }}>Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-globe" style="color: var(--ig-red);"></i>
+                            Pays <span style="color: var(--ig-red);">*</span>
+                        </label>
+                        @php
+                            $userCountry = $user->country ?? session('user_pays') ?? 'Côte d\'Ivoire';
+                        @endphp
+                        <select name="country" class="input-field">
+                            <option value="Côte d'Ivoire" {{ $userCountry === 'Côte d\'Ivoire' ? 'selected' : '' }}>Côte d'Ivoire</option>
+                            <option value="France" {{ $userCountry === 'France' ? 'selected' : '' }}>France</option>
+                            <option value="Sénégal" {{ $userCountry === 'Sénégal' ? 'selected' : '' }}>Sénégal</option>
+                            <option value="Cameroun" {{ $userCountry === 'Cameroun' ? 'selected' : '' }}>Cameroun</option>
+                            <option value="Canada" {{ $userCountry === 'Canada' ? 'selected' : '' }}>Canada</option>
+                            <option value="Belgique" {{ $userCountry === 'Belgique' ? 'selected' : '' }}>Belgique</option>
+                            <option value="Maroc" {{ $userCountry === 'Maroc' ? 'selected' : '' }}>Maroc</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-city" style="color: var(--ig-orange);"></i>
+                            Ville <span style="color: var(--ig-red);">*</span>
+                        </label>
+                        <input type="text" name="city" class="input-field"
+                               value="{{ $user->city ?? session('user_ville') ?? '' }}">
+                    </div>
+
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-map-marker-alt" style="color: var(--ig-yellow);"></i>
+                            Quartier
+                        </label>
+                        <input type="text" name="district" class="input-field"
+                               value="{{ $user->quartier ?? '' }}" placeholder="Votre quartier">
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <label class="input-label">
+                        <i class="fas fa-pen-fancy" style="color: var(--ig-purple);"></i>
+                        Biographie
+                    </label>
+                    <textarea name="biography" class="input-field" rows="4"
+                              placeholder="Parlez-nous de vous, votre parcours, vos aspirations...">{{ $user->biography ?? '' }}</textarea>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        Une bonne bio aide à créer des connexions professionnelles
+                    </small>
+                </div>
+            </div>
+
+            <!-- CONTACT -->
+            <div class="modern-section fade-in delay-3">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Contact</h2>
+                        <p class="text-muted mb-0">Comment vous joindre</p>
+                    </div>
+                </div>
+
+                <div class="fields-grid">
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-mobile-alt" style="color: var(--ig-purple);"></i>
+                            Téléphone
+                        </label>
+                        <input type="tel" name="phone" class="input-field"
+                               value="{{ $user->phone ?? session('user_telephone') ?? '' }}"
+                               placeholder="+225 07 12 34 56 78">
+                    </div>
+
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+                            WhatsApp
+                        </label>
+                        <input type="tel" name="whatsapp" class="input-field"
+                               value="{{ $user->whatsapp ?? session('user_whatsapp') ?? '' }}"
+                               placeholder="+225 07 12 34 56 78">
+                    </div>
+                </div>
+            </div>
+
+            <!-- FORMATION -->
+            <div class="modern-section fade-in delay-4">
+                <div class="section-header">
+                    <div class="section-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h2 class="section-title">Parcours Académique</h2>
+                        <p class="text-muted mb-0">Votre formation et diplômes</p>
+                    </div>
+                </div>
+
+                <div class="fields-grid">
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-award" style="color: var(--ig-orange);"></i>
+                            Niveau d'étude
+                        </label>
+                        @php
+                            $userLevel = $user->Level_education ?? '';
+                        @endphp
+                        <select name="educationLevel" class="input-field">
+                            <option value="">Sélectionner</option>
+                            <option value="college" {{ $userLevel === 'college' ? 'selected' : '' }}>Collège</option>
+                            <option value="lycee" {{ $userLevel === 'lycee' ? 'selected' : '' }}>Lycée</option>
+                            <option value="bac" {{ $userLevel === 'bac' ? 'selected' : '' }}>Baccalauréat</option>
+                            <option value="bac+2" {{ $userLevel === 'bac+2' ? 'selected' : '' }}>Bac+2</option>
+                            <option value="bac+3" {{ $userLevel === 'bac+3' ? 'selected' : '' }}>Bac+3 (Licence)</option>
+                            <option value="bac+5" {{ $userLevel === 'bac+5' ? 'selected' : '' }}>Bac+5 (Master)</option>
+                            <option value="doctorat" {{ $userLevel === 'doctorat' ? 'selected' : '' }}>Doctorat</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group-modern">
+                        <label class="input-label">
+                            <i class="fas fa-certificate" style="color: var(--ig-yellow);"></i>
+                            Dernier diplôme
+                        </label>
+                        <input type="text" name="lastDiploma" class="input-field"
+                               value="{{ $user->degree ?? '' }}"
+                               placeholder="Ex: Bac ES, BTS Communication...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOUTONS D'ACTION -->
+            <div class="modern-section" style="background: white; border: 3px solid transparent; background-image: linear-gradient(white, white), linear-gradient(135deg, var(--ig-purple), var(--ig-red)); background-origin: border-box; background-clip: padding-box, border-box;">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div>
+                        <h5 class="mb-1" style="font-weight: 700; font-size: 1.3rem; background: linear-gradient(135deg, var(--ig-purple), var(--ig-red)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                            💾 Sauvegarder vos modifications
+                        </h5>
+                        <p class="mb-0" style="color: #475569; font-size: 0.95rem;">Vos changements seront appliqués immédiatement</p>
+                    </div>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <button type="button" class="btn-outline-instagram" onclick="location.reload()">
+                            <i class="fas fa-undo"></i>
                             Annuler
                         </button>
+                        <button type="submit" class="btn-instagram">
+                            <i class="fas fa-save"></i>
+                            Enregistrer
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            </form>
+
+            <!-- SÉCURITÉ -->
+            <div class="modern-section fade-in" style="background: linear-gradient(135deg, #fff5f5, #fef2f2); border-left: 6px solid var(--ig-red);">
+                <div class="section-header">
+                    <div class="section-icon" style="background: linear-gradient(135deg, var(--ig-red), var(--ig-orange));">
+                        <i class="fas fa-shield-alt"></i>
                     </div>
                     <div>
-                        <small class="text-muted">
-                            <i class="fas fa-clock me-1"></i>
-                            Dernière modification : Aujourd'hui à 14:30
-                        </small>
+                        <h2 class="section-title">Sécurité & Connexion</h2>
+                        <p class="text-muted mb-0">Gérez votre email et mot de passe</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Sidebar -->
-    <div class="col-md-4">
-        <!-- Le contenu de la sidebar reste ici -->
-    </div>
-</div>
-</form>
-<!-- FIN DU FORMULAIRE PRINCIPAL -->
-
-<!-- DÉBUT DU FORMULAIRE SÉPARÉ POUR LES INFORMATIONS DE CONNEXION -->
-<div class="row">
-    <div class="col-md-8">
-        <!-- Informations de connexion (Table USERS) -->
-        <div class="card mb-4">
-            <div class="card-header" style="background: linear-gradient(135deg, #ff6633 0%, #ff9966 100%); color: white;">
-                <h5 class="mb-0">
-                    <i class="fas fa-key me-2"></i>
-                    Informations de connexion
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    <strong>Section sensible</strong><br>
-                    Ces informations sont utilisées pour votre connexion. Toute modification nécessite votre mot de passe actuel.
-                </div>
-
-                <!-- Formulaire séparé pour les informations de connexion -->
-                <form id="loginInfoForm" method="POST" action="{{ route(session('user_formation_raw', 'design-graphique') . '.parametres.update-login') }}">
+                <form method="POST" action="{{ route(session('user_formation_raw', 'design-graphique') . '.parametres.update-login') }}">
                     @csrf
-                    
-                    <div class="mb-3">
-                        <label for="loginEmail" class="form-label">
-                            <i class="fas fa-envelope me-1" style="color: #ff6633;"></i>
-                            <strong>Adresse Email</strong>
-                        </label>
-                        <input type="email" class="form-control" id="loginEmail" name="email" 
-                               value="{{ $user->email ?? session('user_email') }}" required>
-                        <small class="text-muted">Utilisé pour la connexion à votre compte</small>
+                    <div class="alert-instagram mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Section sensible</strong> - Votre mot de passe actuel est requis pour toute modification
                     </div>
 
-                    <div class="mb-3">
-                        <label for="username" class="form-label">
-                            <i class="fas fa-user me-1" style="color: #ff6633;"></i>
-                            <strong>Pseudonyme</strong>
-                        </label>
-                        <input type="text" class="form-control" id="username" name="username" 
-                               value="{{ $user->name ?? session('user_nom') }}" 
-                               placeholder="Votre nom d'utilisateur">
-                        <small class="text-muted">Nom affiché sur votre profil</small>
-                    </div>
-
-                    <hr class="my-4">
-
-                    <h6 class="mb-3">
-                        <i class="fas fa-lock me-2" style="color: #ff6633;"></i>
-                        Modification du mot de passe
-                    </h6>
-                    <p class="text-muted small mb-3">Laissez vide si vous ne souhaitez pas changer votre mot de passe</p>
-
-                    <div class="mb-3">
-                        <label for="currentPassword" class="form-label"><strong>Mot de passe actuel</strong> <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="currentPassword" name="current_password" 
-                               placeholder="Requis pour toute modification" required>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="newPassword" class="form-label"><strong>Nouveau mot de passe</strong></label>
-                            <input type="password" class="form-control" id="newPassword" name="new_password" 
-                                   placeholder="Minimum 8 caractères">
-                            <small class="text-muted">Laissez vide pour ne pas changer</small>
+                    <div class="fields-grid">
+                        <div class="input-group-modern">
+                            <label class="input-label">
+                                <i class="fas fa-envelope" style="color: var(--ig-purple);"></i>
+                                Email de connexion
+                            </label>
+                            <input type="email" name="email" class="input-field"
+                                   value="{{ $user->email ?? session('user_email') ?? '' }}" required>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="confirmPassword" class="form-label"><strong>Confirmer le nouveau mot de passe</strong></label>
-                            <input type="password" class="form-control" id="confirmPassword" name="new_password_confirmation" 
+
+                        <div class="input-group-modern">
+                            <label class="input-label">
+                                <i class="fas fa-user-tag" style="color: var(--ig-pink);"></i>
+                                Pseudo
+                            </label>
+                            <input type="text" name="username" class="input-field"
+                                   value="{{ $user->name ?? session('user_nom') ?? '' }}">
+                        </div>
+
+                        <div class="input-group-modern">
+                            <label class="input-label">
+                                <i class="fas fa-lock" style="color: var(--ig-red);"></i>
+                                Mot de passe actuel <span style="color: var(--ig-red);">*</span>
+                            </label>
+                            <input type="password" name="current_password" class="input-field"
+                                   placeholder="Requis pour valider" required>
+                        </div>
+
+                        <div class="input-group-modern">
+                            <label class="input-label">
+                                <i class="fas fa-key" style="color: var(--ig-orange);"></i>
+                                Nouveau mot de passe
+                            </label>
+                            <input type="password" name="new_password" class="input-field"
+                                   placeholder="Min 8 caractères (optionnel)">
+                        </div>
+
+                        <div class="input-group-modern">
+                            <label class="input-label">
+                                <i class="fas fa-check-double" style="color: var(--ig-yellow);"></i>
+                                Confirmer le mot de passe
+                            </label>
+                            <input type="password" name="new_password_confirmation" class="input-field"
                                    placeholder="Répétez le nouveau mot de passe">
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-warning btn-lg">
-                            <i class="fas fa-shield-alt me-2"></i>
+                    <div class="mt-4">
+                        <button type="submit" class="btn-instagram w-100" style="background: linear-gradient(135deg, var(--ig-red), var(--ig-orange));">
+                            <i class="fas fa-lock me-2"></i>
                             Mettre à jour les informations de connexion
                         </button>
                     </div>
                 </form>
             </div>
-        </div>
-    </div>
 
-    <!-- Sidebar pour le formulaire de connexion -->
-    <div class="col-md-4">
-        <!-- Résumé du profil -->
-        @php
-            // Calculer le pourcentage de complétion du profil
-            $totalFields = 13; // Nombre total de champs importants
-            $completedFields = 0;
-
-            // Vérifier les champs obligatoires/importants
-            if (!empty($user->first_name)) $completedFields++;
-            if (!empty($user->last_name)) $completedFields++;
-            if (!empty($user->email)) $completedFields++;
-            if (!empty($user->phone)) $completedFields++;
-            if (!empty($user->whatsapp)) $completedFields++;
-            if (!empty($user->age)) $completedFields++;
-            if (!empty($user->country)) $completedFields++;
-            if (!empty($user->city)) $completedFields++;
-            if (!empty($user->quartier)) $completedFields++;
-            if (!empty($user->biography)) $completedFields++;
-            if (!empty($user->Level_education)) $completedFields++;
-            if (!empty($user->degree)) $completedFields++;
-            if (!empty($user->profile_photo)) $completedFields++;
-
-            $completionPercentage = round(($completedFields / $totalFields) * 100);
-
-            // Calculer le stroke-dashoffset pour le cercle de progression
-            $circumference = 2 * pi() * 40; // 2πr où r=40
-            $dashOffset = $circumference - ($circumference * $completionPercentage / 100);
-
-            // Déterminer la couleur selon le pourcentage
-            $progressColor = $completionPercentage >= 80 ? '#28a745' : ($completionPercentage >= 50 ? '#3399ff' : '#ffc107');
-
-            // Vérifier les sections
-            $hasPersonalInfo = !empty($user->first_name) && !empty($user->last_name) && !empty($user->age);
-            $hasContact = !empty($user->email) && !empty($user->phone);
-            $hasPhoto = !empty($user->profile_photo);
-            $hasEducation = !empty($user->Level_education) || !empty($user->degree);
-        @endphp
-
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-user-circle me-2" style="color: #003366;"></i>
-                    Résumé du profil
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="text-center mb-3">
-                    <div class="progress-circle" style="width: 100px; height: 100px; margin: 0 auto; position: relative;">
-                        <svg width="100" height="100" style="transform: rotate(-90deg);">
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="#e9ecef" stroke-width="8"></circle>
-                            <circle cx="50" cy="50" r="40" fill="none" stroke="{{ $progressColor }}" stroke-width="8"
-                                    stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $dashOffset }}"
-                                    style="transition: stroke-dashoffset 0.5s ease;"></circle>
-                        </svg>
-                        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; color: #003366;">
-                            {{ $completionPercentage }}%
-                        </div>
-                    </div>
-                    <p class="mt-2 mb-0"><strong>Profil complété</strong></p>
-                    @if($completionPercentage < 100)
-                        <small class="text-muted">Ajoutez plus d'informations pour atteindre 100%</small>
-                    @else
-                        <small class="text-success">🎉 Votre profil est complet !</small>
-                    @endif
-                </div>
-
-                <div class="profile-stats">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>
-                            <i class="fas {{ $hasPersonalInfo ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-warning' }} me-1"></i>
-                            Infos personnelles
-                        </span>
-                        <span class="badge {{ $hasPersonalInfo ? 'bg-success' : 'bg-warning' }}">
-                            {{ $hasPersonalInfo ? 'Complété' : 'Incomplet' }}
-                        </span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>
-                            <i class="fas {{ $hasContact ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-warning' }} me-1"></i>
-                            Contact
-                        </span>
-                        <span class="badge {{ $hasContact ? 'bg-success' : 'bg-warning' }}">
-                            {{ $hasContact ? 'Complété' : 'Incomplet' }}
-                        </span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>
-                            <i class="fas {{ $hasPhoto ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-warning' }} me-1"></i>
-                            Photo de profil
-                        </span>
-                        <span class="badge {{ $hasPhoto ? 'bg-success' : 'bg-warning' }}">
-                            {{ $hasPhoto ? 'Complété' : 'Manquant' }}
-                        </span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>
-                            <i class="fas {{ $hasEducation ? 'fa-check-circle text-success' : 'fa-exclamation-circle text-warning' }} me-1"></i>
-                            Formation
-                        </span>
-                        <span class="badge {{ $hasEducation ? 'bg-success' : 'bg-warning' }}">
-                            {{ $hasEducation ? 'Complété' : 'Incomplet' }}
-                        </span>
-                    </div>
-                </div>
-            </div>
         </div>
 
+        <!-- SIDEBAR -->
+        <div class="col-lg-4" style="padding-left: 15px; padding-right: 15px;">
+            @php
+                $totalFields = 15;
+                $completedFields = 0;
+                if (!empty($user->first_name)) $completedFields++;
+                if (!empty($user->last_name)) $completedFields++;
+                if (!empty($user->email)) $completedFields++;
+                if (!empty($user->phone)) $completedFields++;
+                if (!empty($user->whatsapp)) $completedFields++;
+                if (!empty($user->age)) $completedFields++;
+                if (!empty($user->date_of_birth)) $completedFields++;
+                if (!empty($user->gender)) $completedFields++;
+                if (!empty($user->country)) $completedFields++;
+                if (!empty($user->city)) $completedFields++;
+                if (!empty($user->quartier)) $completedFields++;
+                if (!empty($user->biography)) $completedFields++;
+                if (!empty($user->Level_education)) $completedFields++;
+                if (!empty($user->degree)) $completedFields++;
+                if (!empty($user->profile_photo)) $completedFields++;
+                $completionPercentage = round(($completedFields / $totalFields) * 100);
+                $circumference = 2 * pi() * 60;
+                $dashOffset = $circumference - ($circumference * $completionPercentage / 100);
+            @endphp
 
-
-        <!-- Support & Aide -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header" style="background: linear-gradient(135deg, #003366 0%, #3399ff 100%); color: white; border: none;">
-                <h5 class="mb-0">
-                    <i class="fas fa-headset me-2"></i>
-                    Besoin d'aide ?
-                </h5>
-            </div>
-            <div class="card-body">
-                <p class="mb-3 text-muted small">
-                    <i class="fas fa-info-circle me-1 text-primary"></i>
-                    Notre équipe est là pour vous accompagner !
-                </p>
-                
-                <!-- Boutons d'aide -->
-                <div class="d-grid gap-2 mb-3">
-                    <a href="#" class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-start" 
-                       onclick="alert('Redirection vers le centre d\'aide...'); return false;">
-                        <i class="fas fa-book me-2"></i>
-                        Centre d'aide
-                    </a>
-                    <a href="mailto:info@ecolevirtuelledescreatifs.com" 
-                       class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-start">
-                        <i class="fas fa-envelope me-2"></i>
-                        Contacter le support
-                    </a>
-                    <a href="#" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-start"
-                       onclick="alert('Formulaire de signalement...'); return false;">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Signaler un problème
-                    </a>
+            <!-- WIDGET COMPLÉTION -->
+            <div class="completion-widget fade-in delay-1">
+                <div class="completion-circle">
+                    <svg width="160" height="160">
+                        <circle cx="80" cy="80" r="60" fill="none" stroke="#e2e8f0" stroke-width="12"></circle>
+                        <circle cx="80" cy="80" r="60" fill="none"
+                                stroke="url(#gradient)" stroke-width="12"
+                                stroke-dasharray="{{ $circumference }}"
+                                stroke-dashoffset="{{ $dashOffset }}"
+                                stroke-linecap="round"
+                                style="transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 1s ease;">
+                        </circle>
+                        <defs>
+                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="var(--ig-purple)" />
+                                <stop offset="100%" stop-color="var(--ig-red)" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div class="completion-number">{{ $completionPercentage }}%</div>
                 </div>
-                
-                <!-- Contact direct -->
-                <div class="border-top pt-3">
-                    <p class="small text-muted mb-2">
-                        <i class="fas fa-phone-alt me-1"></i>
-                        Contact direct :
-                    </p>
-                    <div class="d-grid gap-2">
-                        <a href="mailto:info@ecolevirtuelledescreatifs.com" 
-                           class="btn btn-sm btn-light text-start" 
-                           style="font-size: 0.85rem;">
-                            <i class="fas fa-envelope me-2 text-primary"></i>
-                            info@ecolevirtuelledescreatifs.com
-                        </a>
-                        <a href="https://wa.me/2250717258602" 
-                           class="btn btn-sm btn-light text-start" 
-                           style="font-size: 0.85rem;"
-                           target="_blank">
-                            <i class="fab fa-whatsapp me-2 text-success"></i>
-                            07 17 25 86 02
-                        </a>
+
+                <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 1rem;">Profil Complété</h4>
+
+                @if($completionPercentage < 100)
+                    <p class="text-muted mb-4">Complétez votre profil pour débloquer toutes les fonctionnalités</p>
+                @else
+                    <div class="alert-success-instagram mb-4">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>Félicitations!</strong> Votre profil est complet
                     </div>
+                @endif
+
+                <div class="stat-item">
+                    <span><i class="fas fa-user me-2" style="color: var(--ig-purple);"></i>Infos personnelles</span>
+                    <span class="badge-modern {{ (!empty($user->first_name) && !empty($user->last_name)) ? 'badge-success' : 'badge-warning' }}">
+                        {{ (!empty($user->first_name) && !empty($user->last_name)) ? '✓ OK' : '⚠ Incomplet' }}
+                    </span>
                 </div>
+
+                <div class="stat-item">
+                    <span><i class="fas fa-phone me-2" style="color: var(--ig-pink);"></i>Contact</span>
+                    <span class="badge-modern {{ (!empty($user->email) && !empty($user->phone)) ? 'badge-success' : 'badge-warning' }}">
+                        {{ (!empty($user->email) && !empty($user->phone)) ? '✓ OK' : '⚠ Incomplet' }}
+                    </span>
+                </div>
+
+                <div class="stat-item">
+                    <span><i class="fas fa-camera me-2" style="color: var(--ig-red);"></i>Photo</span>
+                    <span class="badge-modern {{ !empty($user->profile_photo) ? 'badge-success' : 'badge-warning' }}">
+                        {{ !empty($user->profile_photo) ? '✓ OK' : '⚠ Manquant' }}
+                    </span>
+                </div>
+
+                <div class="stat-item">
+                    <span><i class="fas fa-graduation-cap me-2" style="color: var(--ig-orange);"></i>Formation</span>
+                    <span class="badge-modern {{ !empty($user->Level_education) ? 'badge-success' : 'badge-warning' }}">
+                        {{ !empty($user->Level_education) ? '✓ OK' : '⚠ Incomplet' }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- SUPPORT -->
+            <div class="completion-widget fade-in delay-2" style="margin-top: 2rem; background: linear-gradient(135deg, #833AB4, #C13584, #E1306C); color: white; padding: 1.75rem;">
+                <div class="mb-3">
+                    <i class="fas fa-headset fa-3x mb-3" style="color: white;"></i>
+                    <h5 style="font-weight: 700; color: white; font-size: 1.4rem; margin-bottom: 0.5rem;">Besoin d'aide?</h5>
+                    <p style="color: rgba(255, 255, 255, 0.95); font-size: 0.95rem; margin-bottom: 0;">Notre équipe est à votre écoute</p>
+                </div>
+
+                <a href="mailto:info@ecolevirtuelledescreatifs.com" class="btn-instagram mb-2" style="background: white; color: var(--ig-purple); font-weight: 700; width: 100%; display: flex; justify-content: center; padding: 0.85rem 1.5rem;">
+                    <i class="fas fa-envelope me-2"></i>
+                    <span>Contacter le support</span>
+                </a>
+
+                <a href="https://wa.me/2250717258602" target="_blank" class="btn-outline-instagram" style="background: rgba(255, 255, 255, 0.2); border: 2px solid white; color: white; font-weight: 700; width: 100%; display: flex; justify-content: center; padding: 0.85rem 1.5rem;">
+                    <i class="fab fa-whatsapp me-2"></i>
+                    <span>WhatsApp</span>
+                </a>
             </div>
         </div>
     </div>
 </div>
-<!-- FIN DU FORMULAIRE INFORMATIONS DE CONNEXION -->
-
-<style>
-/* Styles personnalisés pour la page paramètres */
-.profile-photo-container:hover .photo-overlay {
-    display: flex !important;
-}
-
-.form-check-label {
-    cursor: pointer;
-    padding: 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    display: block;
-    width: 100%;
-}
-
-.form-check-input:checked + .form-check-label {
-    border-color: #3399ff;
-    background-color: rgba(51, 153, 255, 0.1);
-}
-
-.form-check-label:hover {
-    border-color: #3399ff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.btn {
-    transition: all 0.3s ease;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.card {
-    transition: all 0.3s ease;
-    border: none;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.progress-circle {
-    animation: fadeInScale 0.8s ease-out;
-}
-
-@keyframes fadeInScale {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.profile-stats > div {
-    animation: slideInLeft 0.6s ease-out;
-    animation-fill-mode: both;
-}
-
-.profile-stats > div:nth-child(1) { animation-delay: 0.1s; }
-.profile-stats > div:nth-child(2) { animation-delay: 0.2s; }
-.profile-stats > div:nth-child(3) { animation-delay: 0.3s; }
-.profile-stats > div:nth-child(4) { animation-delay: 0.4s; }
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInRight {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
-
-@keyframes slideOutRight {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .profile-photo-container {
-        width: 80px !important;
-        height: 80px !important;
-    }
-
-    .profile-photo-container img,
-    .profile-photo-container .photo-overlay {
-        width: 80px !important;
-        height: 80px !important;
-    }
-
-    .progress-circle {
-        width: 80px !important;
-        height: 80px !important;
-    }
-
-    .progress-circle svg {
-        width: 80px !important;
-        height: 80px !important;
-    }
-}
-</style>
 
 <script>
-// UPLOAD DE PHOTO - VERSION ULTRA SIMPLE
-function uploadPhoto() {
-    console.log('🚀 Fonction uploadPhoto() appelée');
+// Fonction de notification moderne
+function showNotification(title, message, type = 'success') {
+    const container = document.getElementById('notificationContainer');
 
-    var input = document.getElementById('photoInput');
-    var preview = document.getElementById('photoPreview');
-    var progress = document.getElementById('uploadProgress');
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+
+    const iconMap = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-times-circle',
+        warning: 'fas fa-exclamation-triangle'
+    };
+
+    notification.innerHTML = `
+        <div class="notification-icon">
+            <i class="${iconMap[type] || iconMap.success}"></i>
+        </div>
+        <div class="notification-content">
+            <div class="notification-title">${title}</div>
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    container.appendChild(notification);
+
+    // Auto-fermeture après 5 secondes
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 300);
+    }, 5000);
+}
+
+// Upload photo
+function uploadPhoto() {
+    const input = document.getElementById('photoInput');
+    const preview = document.getElementById('photoPreview');
+    const progress = document.getElementById('uploadProgress');
 
     if (!input.files || !input.files[0]) {
-        alert('⚠️ Veuillez d\'abord sélectionner une photo');
+        showNotification('Attention', 'Veuillez sélectionner une photo', 'warning');
         return;
     }
 
-    var file = input.files[0];
-    console.log('📁 Fichier:', file.name, file.type, file.size);
+    const file = input.files[0];
 
-    // Validation
     if (!file.type.match('image.*')) {
-        alert('⚠️ Veuillez sélectionner une image');
+        showNotification('Erreur', 'Veuillez sélectionner une image valide', 'error');
         return;
     }
 
-    if (file.size > 5242880) { // 5MB
-        alert('⚠️ L\'image ne doit pas dépasser 5MB');
+    if (file.size > 5242880) {
+        showNotification('Erreur', 'L\'image ne doit pas dépasser 5MB', 'error');
         return;
     }
-
-    console.log('✅ Validation OK');
 
     // Prévisualisation
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function(e) {
-        console.log('🖼️ Prévisualisation...');
         if (preview.tagName === 'DIV') {
-            var img = document.createElement('img');
+            const img = document.createElement('img');
             img.id = 'photoPreview';
-            img.className = 'rounded-circle';
-            img.style.cssText = 'width: 150px; height: 150px; object-fit: cover; border: 3px solid #3399ff;';
+            img.className = 'photo-current';
             img.src = e.target.result;
             preview.parentNode.replaceChild(img, preview);
         } else {
@@ -690,156 +1185,63 @@ function uploadPhoto() {
     };
     reader.readAsDataURL(file);
 
-    // Afficher progression
-    if (progress) progress.style.display = 'block';
-
     // Upload
-    var formData = new FormData();
+    progress.style.display = 'block';
+
+    const formData = new FormData();
     formData.append('photo', file);
     formData.append('_token', '{{ csrf_token() }}');
 
-    var url = '{{ route(session("user_formation_raw", "design-graphique") . ".parametres.upload-photo") }}';
-    console.log('📡 Upload vers:', url);
-
-    fetch(url, {
+    fetch('{{ route(session("user_formation_raw", "design-graphique") . ".parametres.upload-photo") }}', {
         method: 'POST',
         body: formData
     })
-    .then(function(response) {
-        console.log('📥 Réponse:', response.status);
-        return response.json();
-    })
-    .then(function(data) {
-        console.log('📦 Données:', data);
-        if (progress) progress.style.display = 'none';
-
+    .then(response => response.json())
+    .then(data => {
+        progress.style.display = 'none';
         if (data.success) {
-            alert('✅ Photo uploadée avec succès!');
-            setTimeout(function() {
-                location.reload();
-            }, 500);
+            showNotification('Succès', 'Photo uploadée avec succès!', 'success');
+            setTimeout(() => location.reload(), 1000);
         } else {
-            alert('❌ ' + (data.message || 'Erreur'));
+            showNotification('Erreur', data.message || 'Une erreur est survenue', 'error');
         }
     })
-    .catch(function(error) {
-        console.error('❌ Erreur:', error);
-        if (progress) progress.style.display = 'none';
-        alert('❌ Erreur: ' + error.message);
+    .catch(error => {
+        progress.style.display = 'none';
+        showNotification('Erreur', 'Erreur lors de l\'upload: ' + error.message, 'error');
     });
 }
 
-// Fonction de notification
-function showNotification(title, message, type = 'info') {
-    // Créer la notification
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
-    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px;';
-
-    notification.innerHTML = `
-        <strong>${title}</strong><br>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-
-    document.body.appendChild(notification);
-
-    // Auto-remove après 5 secondes
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.remove();
-        }
-    }, 5000);
-}
-
-// Mettre à jour la date de dernière modification
-function updateLastModified() {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('fr-FR') + ' à ' + now.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
-
-    // Chercher et mettre à jour l'élément de dernière modification s'il existe
-    const lastModifiedElement = document.querySelector('.last-modified');
-    if (lastModifiedElement) {
-        lastModifiedElement.textContent = `Dernière modification: ${dateStr}`;
-    }
-}
-
-// Mettre à jour le score de complétion du profil
-function updateProfileCompletion() {
-    // Cette fonction peut être étendue pour calculer dynamiquement le score
-    console.log('Profile completion updated');
-}
-
-// Form submission avec loading state
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('profileForm');
-    const submitBtn = form.querySelector('button[type="submit"]');
-
-    form.addEventListener('submit', function() {
-        // Disable button and show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sauvegarde en cours...';
-    });
+// Loading state on form submit
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sauvegarde...';
 });
-
-// Réinitialiser le formulaire
-function resetForm() {
-    if (confirm('Êtes-vous sûr de vouloir annuler toutes les modifications ?')) {
-        // Recharger la page pour restaurer les valeurs d'origine
-        window.location.reload();
-    }
-}
-
-// Faire défiler vers une section
-function scrollToSection(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        // Effet de surbrillance
-        element.style.transition = 'all 0.3s ease';
-        element.style.transform = 'scale(1.05)';
-        element.style.boxShadow = '0 0 20px rgba(51, 153, 255, 0.3)';
-
-        setTimeout(() => {
-            element.style.transform = 'scale(1)';
-            element.style.boxShadow = 'none';
-        }, 1000);
-    }
-}
-
-// Exporter le profil
-function exportProfile() {
-    showNotification('Info', 'Export du profil en cours...', 'info');
-
-    setTimeout(() => {
-        // Simulation du téléchargement
-        const link = document.createElement('a');
-        link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent('Profil EVC - Jean Dupont\n\nInformations exportées le ' + new Date().toLocaleDateString());
-        link.download = 'profil-evc-jean-dupont.txt';
-        link.click();
-
-        showNotification('Succès', 'Profil exporté avec succès !', 'success');
-    }, 1500);
-}
-
-// Prévisualiser le profil
-function previewProfile() {
-    const firstName = document.getElementById('firstName').value;
-    const lastName = document.getElementById('lastName').value;
-    const email = document.getElementById('email').value;
-    const level = document.querySelector('input[name="currentLevel"]:checked')?.value || 'Non spécifié';
-
-    const previewContent = `
-        <div class="text-center mb-3">
-            <img src="${document.getElementById('photoPreview').src}" class="rounded-circle" width="80" height="80">
-            <h5 class="mt-2">${firstName} ${lastName}</h5>
-            <p class="text-muted">${email}</p>
-            <p class="text-muted">Niveau: ${level}</p>
-        </div>
-    `;
-
-    alert('Prévisualisation du profil:\n\n' + previewContent.replace(/<[^>]*>/g, ''));
-}
 </script>
+
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        showNotification('Succès', '{{ session("success") }}', 'success');
+    });
+</script>
+@endif
+
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        showNotification('Erreur', '{{ session("error") }}', 'error');
+    });
+</script>
+@endif
+
+@if(session('warning'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        showNotification('Attention', '{{ session("warning") }}', 'warning');
+    });
+</script>
+@endif
+
 @endsection

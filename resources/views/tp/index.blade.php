@@ -1,149 +1,220 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Mes Travaux Pratiques - Community Management')
+@section('title', 'Mes Travaux Pratiques')
 @section('page-title', 'Travaux Pratiques')
 
 @section('content')
+@php
+    // Détection automatique de la formation depuis l'URL
+    $currentModule = request()->segment(3); // design-graphique, community-management, etc.
+    $routePrefix = $currentModule;
+@endphp
+
 <style>
-    /* Instagram Color Palette */
-    :root {
-        --instagram-purple: #833AB4;
-        --instagram-pink: #C13584;
-        --instagram-red: #E1306C;
-        --instagram-orange: #F56040;
-        --instagram-yellow: #FCAF45;
+    /* Simple Modern UI/UX Design */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
-    
-    /* Dégradé principal Instagram */
-    .instagram-gradient {
-        background: linear-gradient(135deg, #833AB4 0%, #C13584 25%, #E1306C 50%, #F56040 75%, #FCAF45 100%);
+
+    body {
+        background: #f5f7fa;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: #1a202c;
+        line-height: 1.6;
     }
-    
+
+    .container-fluid {
+        background: #f5f7fa;
+        padding: 2rem 1rem;
+    }
+
+    /* Page Header */
+    .page-header {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1a202c;
+        margin: 0;
+    }
+
+    .page-subtitle {
+        font-size: 0.875rem;
+        color: #718096;
+        margin-top: 0.25rem;
+    }
+
+    /* Simple Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
     .stat-card {
         border: none;
-        border-radius: 20px;
+        border-radius: 15px;
         overflow: hidden;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         position: relative;
-        box-shadow: 0 8px 24px rgba(131, 58, 180, 0.15);
     }
-    
+
     .stat-card:hover {
-        transform: translateY(-8px) scale(1.02);
-        box-shadow: 0 16px 40px rgba(131, 58, 180, 0.25);
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
     }
-    
-    /* Cartes avec dégradés Instagram */
+
     .stat-card.total-tp {
-        background: linear-gradient(135deg, #833AB4 0%, #C13584 100%);
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
     }
-    
+
     .stat-card.en-attente {
-        background: linear-gradient(135deg, #F56040 0%, #FCAF45 100%);
+        background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
     }
-    
+
     .stat-card.valides {
-        background: linear-gradient(135deg, #C13584 0%, #E1306C 100%);
+        background: linear-gradient(135deg, #0ea5e9 0%, #7dd3fc 100%);
     }
-    
+
     .stat-card.taux-reussite {
-        background: linear-gradient(135deg, #833AB4 0%, #E1306C 50%, #FCAF45 100%);
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
     }
-    
+
     .stat-number {
-        font-size: 4rem;
-        font-weight: 900;
-        line-height: 1;
-        text-shadow: 2px 4px 8px rgba(0,0,0,0.2);
-        background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.8) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    
-    .stat-icon {
         font-size: 3.5rem;
-        opacity: 0.15;
-        position: absolute;
-        right: 15px;
-        top: 15px;
+        font-weight: 800;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
-    
+
+    .stat-icon {
+        font-size: 3rem;
+        opacity: 0.3;
+        position: absolute;
+        right: 20px;
+        top: 20px;
+    }
+
     .stat-label {
-        font-size: 0.85rem;
-        font-weight: 600;
+        font-size: 0.9rem;
+        font-weight: 500;
         opacity: 0.95;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
+        letter-spacing: 1px;
     }
 
     .stat-btn {
-        background: rgba(255,255,255,0.25);
-        border: 2px solid rgba(255,255,255,0.4);
+        background: rgba(255,255,255,0.2);
+        border: 2px solid rgba(255,255,255,0.3);
         color: white;
-        font-weight: 700;
+        font-weight: 600;
         transition: all 0.3s ease;
         backdrop-filter: blur(10px);
-        border-radius: 12px;
-        padding: 0.7rem 1.2rem;
     }
-    
+
     .stat-btn:hover {
-        background: rgba(255,255,255,0.35);
+        background: rgba(255,255,255,0.3);
         border-color: white;
         color: white;
         transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(255,255,255,0.3);
     }
-    
-    .section-title {
-        font-size: 2rem;
-        font-weight: 900;
-        background: linear-gradient(135deg, #833AB4 0%, #E1306C 50%, #FCAF45 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+
+    /* Buttons - Simple */
+    .btn {
+        display: inline-block;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-align: center;
+        border-radius: 6px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: #2b6cb0;
+        color: white;
+        border-color: #2b6cb0;
+    }
+
+    .btn-primary:hover {
+        background: #2c5282;
+        color: white;
+    }
+
+    .btn-outline {
+        background: white;
+        color: #4a5568;
+        border-color: #cbd5e0;
+    }
+
+    .btn-outline:hover {
+        background: #f7fafc;
+    }
+
+    /* Section Headers */
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         margin-bottom: 1rem;
-        position: relative;
-        padding-bottom: 0.75rem;
     }
-    
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
     .section-title::after {
         content: '';
         position: absolute;
         bottom: 0;
         left: 0;
-        width: 100px;
-        height: 5px;
-        background: linear-gradient(90deg, #833AB4 0%, #E1306C 50%, #FCAF45 100%);
-        border-radius: 3px;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        border-radius: 2px;
     }
 
+    /* TP Cards - Simple & Clean */
     .tp-card {
         border: none;
-        border-radius: 24px;
+        border-radius: 20px;
         overflow: hidden;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s ease;
         background: white;
-        box-shadow: 0 4px 20px rgba(131, 58, 180, 0.1);
-        border: 2px solid transparent;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
     }
-    
+
     .tp-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 12px 40px rgba(131, 58, 180, 0.2);
-        border-color: rgba(131, 58, 180, 0.3);
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
     }
-    
+
     .tp-header {
-        background: linear-gradient(135deg, #833AB4 0%, #C13584 50%, #E1306C 100%);
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
         color: white;
-        padding: 2.5rem;
+        padding: 2rem;
         position: relative;
         overflow: hidden;
     }
-    
+
     .tp-header::before {
         content: '';
         position: absolute;
@@ -151,262 +222,280 @@
         right: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-        animation: pulse 4s ease-in-out infinite;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 3s ease-in-out infinite;
     }
-    
+
     @keyframes pulse {
-        0%, 100% { transform: scale(1) rotate(0deg); }
-        50% { transform: scale(1.1) rotate(5deg); }
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
     }
+
+    .badge-custom {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+
+    .btn-view-tp {
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.6rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view-tp:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        color: white;
+    }
+
 
     .tp-item {
         border: none;
-        border-radius: 18px;
+        border-radius: 15px;
         overflow: hidden;
         transition: all 0.3s ease;
-        background: white;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         position: relative;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-        border: 2px solid rgba(131, 58, 180, 0.1);
+        margin-bottom: 1rem;
     }
-    
+
     .tp-item:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 28px rgba(131, 58, 180, 0.15);
-        border-color: rgba(131, 58, 180, 0.3);
+        transform: scale(1.02);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     }
-    
+
     .tp-icon-wrapper {
-        width: 75px;
-        height: 75px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+        width: 70px;
+        height: 70px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 6px 20px rgba(131, 58, 180, 0.3);
+        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
     }
-    
+
     .tp-title {
-        font-weight: 800;
+        font-weight: 700;
         color: #2d3748;
         margin-bottom: 0.5rem;
-        font-size: 1.1rem;
     }
-    
-    .badge-custom {
-        padding: 0.5rem 1rem;
-        border-radius: 25px;
-        font-weight: 700;
+
+    /* Badges - Simple */
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.625rem;
         font-size: 0.75rem;
-        letter-spacing: 0.5px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        font-weight: 600;
+        border-radius: 4px;
     }
-    
-    /* Badges avec couleurs Instagram */
-    .badge-validated {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+
+    .badge-success {
+        background: #c6f6d5;
+        color: #22543d;
     }
-    
-    .badge-rejected {
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+
+    .badge-danger {
+        background: #fed7d7;
+        color: #742a2a;
     }
-    
-    .badge-pending {
-        background: linear-gradient(135deg, #F56040 0%, #FCAF45 100%) !important;
+
+    .badge-warning {
+        background: #feebc8;
+        color: #7c2d12;
     }
-    
-    .btn-view-tp {
-        background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
-        border: none;
-        color: white;
-        font-weight: 700;
-        padding: 0.75rem 1.5rem;
-        border-radius: 30px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 16px rgba(131, 58, 180, 0.3);
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
     }
-    
-    .btn-view-tp:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(131, 58, 180, 0.4);
-        color: white;
-        background: linear-gradient(135deg, #C13584 0%, #F56040 100%);
-    }
-    
-    .progress-bar-custom {
-        height: 28px;
-        border-radius: 20px;
-        background: rgba(255,255,255,0.25);
+
+    /* Progress Bar - Simple */
+    .progress {
+        height: 6px;
+        background: #e2e8f0;
+        border-radius: 3px;
         overflow: hidden;
-        position: relative;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
-    
-    .progress-fill {
+
+    .progress-bar {
         height: 100%;
-        background: linear-gradient(90deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,1) 100%);
-        border-radius: 20px;
-        transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(255,255,255,0.3);
+        background: #2b6cb0;
+        border-radius: 3px;
     }
-    
-    .progress-fill::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: 0;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-        animation: shimmer 2.5s infinite;
+
+
+
+    .text-muted {
+        color: #718096;
+        font-size: 0.875rem;
     }
-    
-    @keyframes shimmer {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
+
+    /* Spacing Utilities */
+    .mb-1 { margin-bottom: 0.5rem; }
+    .mb-2 { margin-bottom: 1rem; }
+    .mb-3 { margin-bottom: 1.5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.5rem; }
+
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
     }
-    
+
+    .empty-state-text {
+        color: #718096;
+        font-size: 0.9375rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .page-header {
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+        }
+    }
+
+    /* Table Simple */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table th {
+        font-weight: 600;
+        font-size: 0.8125rem;
+        color: #4a5568;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .table td {
+        color: #2d3748;
+        font-size: 0.9375rem;
+    }
+
+    /* Divider */
+    .divider {
+        height: 1px;
+        background: #e2e8f0;
+        margin: 1.5rem 0;
+    }
+
+    /* Flex Utilities */
+    .d-flex {
+        display: flex;
+    }
+
+    .align-items-center {
+        align-items: center;
+    }
+
+    .justify-between {
+        justify-content: space-between;
+    }
+
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .gap-3 {
+        gap: 1rem;
+    }
+
+    /* Animation fadeInUp from Formations */
     @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(40px);
+            transform: translateY(30px);
         }
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
-    
+
     .fade-in-up {
-        animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: fadeInUp 0.6s ease-out;
     }
-    
-    /* Amélioration des espacements pour une meilleure UX */
-    .card-body {
-        padding: 1.75rem !important;
-    }
-    
-    /* Effet de brillance sur les cartes */
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        transition: left 0.5s;
-    }
-    
-    .stat-card:hover::before {
-        left: 100%;
-    }
-    
-    /* Responsive improvements */
+
+    /* Mobile Optimizations */
     @media (max-width: 768px) {
-        .stat-number {
-            font-size: 3rem;
-        }
-        
         .section-title {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
+            line-height: 1.2;
+            margin-bottom: 1rem !important;
         }
-        
-        .tp-icon-wrapper {
-            width: 60px;
-            height: 60px;
+        .tp-header {
+            padding: 1.2rem !important;
         }
-    }
-
-    /* Pagination Instagram */
-    .pagination-instagram {
-        display: flex;
-        gap: 0.5rem;
-        padding: 0;
-        margin: 0;
-    }
-
-    .pagination-instagram .page-item {
-        list-style: none;
-    }
-
-    .pagination-instagram .page-link {
-        background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink));
-        backdrop-filter: blur(10px);
-        border: 2px solid var(--instagram-pink);
-        color: white !important;
-        padding: 0.75rem 1rem;
-        border-radius: 12px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 45px;
-        height: 45px;
-        box-shadow: 0 4px 15px rgba(131, 58, 180, 0.3);
-    }
-
-    .pagination-instagram .page-link:hover {
-        background: linear-gradient(135deg, var(--instagram-pink), var(--instagram-red));
-        border-color: var(--instagram-red);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(193, 53, 132, 0.5);
-        color: white !important;
-    }
-
-    .pagination-instagram .page-item.active .page-link {
-        background: linear-gradient(135deg, var(--instagram-red), var(--instagram-orange));
-        border-color: var(--instagram-orange);
-        box-shadow: 0 6px 20px rgba(225, 48, 108, 0.6);
-        transform: scale(1.1);
-    }
-
-    .pagination-instagram .page-item.disabled .page-link {
-        background: rgba(131, 58, 180, 0.3);
-        border-color: rgba(131, 58, 180, 0.5);
-        color: rgba(255, 255, 255, 0.5) !important;
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-
-    .pagination-instagram .page-item.disabled .page-link:hover {
-        transform: none;
-        box-shadow: 0 4px 15px rgba(131, 58, 180, 0.3);
-        background: rgba(131, 58, 180, 0.3);
-    }
-
-    /* Animation pour la pagination */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
+        .tp-header h3 {
+            font-size: 1.1rem !important;
+            line-height: 1.2;
+            margin-bottom: 0 !important;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .tp-header i {
+            font-size: 1.2rem !important;
+            margin-right: 0.5rem !important;
+        }
+        .stat-number {
+            font-size: 1.8rem;
+        }
+        .card-body h2, .card-body h3, .card-body h4, .card-body h5 {
+            font-size: 1.1rem !important;
+            line-height: 1.2;
+        }
+        .card-body i.fa-3x, .card-body i.fa-4x, .card-body i.fa-5x {
+            font-size: 1.5rem !important;
+        }
+
+        .d-inline-flex,
+        .icon-circle {
+            width: 40px !important;
+            height: 40px !important;
+            min-width: 40px !important;
+        }
+
+        .d-inline-flex i {
+            font-size: 1rem !important;
+        }
+
+        .card-body {
+            padding: 1rem !important;
         }
     }
-
-    .pagination-instagram {
-        animation: fadeIn 0.5s ease;
-    }
-
 </style>
 
 <!-- Section Statistiques -->
-<div class="row mb-4 mt-3">
+<div class="row mb-5 mt-4">
     <div class="col-12">
-        <h2 class="section-title">
-            <i class="fas fa-chart-bar me-2"></i>
-            Statistiques de vos TP
-        </h2>
-        <p class="text-white opacity-75 mb-0">Suivez votre progression et vos performances</p>
+        <h2 class="section-title">Statistiques de vos TP</h2>
+        <p style="color: white; opacity: 0.75;">Suivez votre progression et vos performances</p>
     </div>
 </div>
 
@@ -415,22 +504,22 @@
         <div class="stat-card total-tp h-100">
             <i class="fas fa-tasks stat-icon"></i>
             <div class="card-body p-4">
-                <div class="stat-label mb-2">Total TP</div>
+                <div class="stat-label">Total TP</div>
                 <div class="stat-number">{{ isset($statistiques) ? $statistiques['tp_realises'] : 0 }}</div>
-                <p class="mb-3 opacity-75">Projets soumis</p>
-                <a href="{{ route('community-management.tp.tous') }}" class="btn stat-btn w-100">
+                <p class="text-muted-custom mb-3">Projets soumis</p>
+                <a href="{{ route($routePrefix . '.tp.tous') }}" class="btn stat-btn w-100">
                     <i class="fas fa-arrow-right me-2"></i>
                     Voir Tous
                 </a>
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 mb-3 fade-in-up" style="animation-delay: 0.2s;">
         <div class="stat-card en-attente h-100">
             <i class="fas fa-clock stat-icon"></i>
             <div class="card-body p-4">
-                <div class="stat-label mb-2">En Attente</div>
+                <div class="stat-label">En Attente</div>
                 <div class="stat-number">
                     @if(isset($validationStats) && is_array($validationStats))
                         {{ $validationStats['tp_en_validation'] ?? 0 }}
@@ -438,7 +527,7 @@
                         0
                     @endif
                 </div>
-                <p class="mb-3 opacity-75">En validation</p>
+                <p class="text-muted-custom mb-3">En validation</p>
                 <button class="btn stat-btn w-100">
                     <i class="fas fa-hourglass-half me-2"></i>
                     En Cours
@@ -446,7 +535,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 mb-3 fade-in-up" style="animation-delay: 0.3s;">
         <div class="stat-card valides h-100">
             <i class="fas fa-check-circle stat-icon"></i>
@@ -467,7 +556,7 @@
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-3 col-md-6 mb-3 fade-in-up" style="animation-delay: 0.4s;">
         <div class="stat-card taux-reussite h-100">
             <i class="fas fa-trophy stat-icon"></i>
@@ -505,8 +594,8 @@
 <div class="row mb-5 g-4">
     <!-- Ajouter Projet Digital -->
     <div class="col-lg-6 mb-3 fade-in-up" style="animation-delay: 0.1s;">
-        <a href="{{ route('community-management.tp.ajouter') }}?type=digital" class="text-decoration-none">
-            <div class="stat-card h-100" style="min-height: 280px; cursor: pointer; background: linear-gradient(135deg, #833AB4 0%, #C13584 50%, #E1306C 100%);">
+        <a href="{{ route($routePrefix . '.tp.ajouter') }}?type=digital" class="text-decoration-none">
+            <div class="stat-card h-100" style="min-height: 280px; cursor: pointer; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%);">
                 <i class="fas fa-laptop stat-icon" style="font-size: 5rem; opacity: 0.15;"></i>
                 <div class="card-body p-5 d-flex flex-column justify-content-center text-center">
                     <div class="mb-4">
@@ -529,31 +618,31 @@
 
     <!-- Carte Info / Aide -->
     <div class="col-lg-6 mb-3 fade-in-up" style="animation-delay: 0.2s;">
-        <div class="tp-card h-100" style="min-height: 280px; border: 3px solid transparent; background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #833AB4, #E1306C, #FCAF45) border-box;">
+        <div class="tp-card h-100" style="min-height: 280px; border: 3px solid transparent; background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #1e3c72, #4fc3f7, #29b6f6) border-box;">
             <div class="card-body p-5 d-flex flex-column justify-content-center">
                 <div class="mb-4 text-center">
-                    <div class="d-inline-flex align-items-center justify-content-center" style="width: 90px; height: 90px; background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); border-radius: 50%;">
+                    <div class="d-inline-flex align-items-center justify-content-center" style="width: 90px; height: 90px; background: linear-gradient(135deg, #1e3c72 0%, #4fc3f7 100%); border-radius: 50%;">
                         <i class="fas fa-info-circle text-white" style="font-size: 3rem;"></i>
                     </div>
                 </div>
-                <h3 class="fw-bold mb-3 text-center" style="font-size: 1.6rem; background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                <h3 class="fw-bold mb-3 text-center" style="font-size: 1.6rem; background: linear-gradient(135deg, #1e3c72 0%, #4fc3f7 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                     Guide de Soumission
                 </h3>
                 <ul class="list-unstyled mb-0" style="color: #4a5568;">
                     <li class="mb-3 d-flex align-items-start">
-                        <i class="fas fa-check-circle me-3 mt-1" style="color: #C13584; font-size: 1.2rem;"></i>
+                        <i class="fas fa-check-circle me-3 mt-1" style="color: #1e3c72; font-size: 1.2rem;"></i>
                         <span><strong>Qualité :</strong> Assurez-vous que votre travail est complet et professionnel</span>
                     </li>
                     <li class="mb-3 d-flex align-items-start">
-                        <i class="fas fa-check-circle me-3 mt-1" style="color: #E1306C; font-size: 1.2rem;"></i>
+                        <i class="fas fa-check-circle me-3 mt-1" style="color: #2a5298; font-size: 1.2rem;"></i>
                         <span><strong>Format :</strong> Respectez les consignes et le format demandé</span>
                     </li>
                     <li class="mb-3 d-flex align-items-start">
-                        <i class="fas fa-check-circle me-3 mt-1" style="color: #F56040; font-size: 1.2rem;"></i>
+                        <i class="fas fa-check-circle me-3 mt-1" style="color: #4fc3f7; font-size: 1.2rem;"></i>
                         <span><strong>Délai :</strong> Soumettez vos projets dans les temps impartis</span>
                     </li>
                     <li class="d-flex align-items-start">
-                        <i class="fas fa-check-circle me-3 mt-1" style="color: #FCAF45; font-size: 1.2rem;"></i>
+                        <i class="fas fa-check-circle me-3 mt-1" style="color: #29b6f6; font-size: 1.2rem;"></i>
                         <span><strong>Validation :</strong> Attendez la validation de votre formateur</span>
                     </li>
                 </ul>
@@ -639,6 +728,49 @@
 
 @if(isset($tps) && count($tps) > 0)
 <!-- Section TP de la Semaine -->
+<style>
+    @media (max-width: 768px) {
+        /* Force font size reduction */
+        .tp-header h3,
+        .section-title,
+        .card-body h1,
+        .card-body h2,
+        .card-body h3,
+        .card-body h4,
+        .card-body h5,
+        .stat-card h3 {
+            font-size: 1.1rem !important;
+            line-height: 1.2 !important;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+
+        /* Force icon size reduction */
+        .tp-header i,
+        .stat-card i,
+        .icon-circle i,
+        .d-inline-flex i,
+        i.fa-3x, i.fa-4x, i.fa-5x {
+            font-size: 1.2rem !important;
+        }
+
+        /* Container adjustments */
+        .d-inline-flex,
+        .icon-circle {
+            width: 40px !important;
+            height: 40px !important;
+            min-width: 40px !important;
+        }
+
+        .card-body {
+            padding: 1rem !important;
+        }
+
+        .stat-number {
+            font-size: 1.5rem !important;
+        }
+    }
+</style>
 <div class="row mt-5 mb-4">
     <div class="col-12">
         <h2 class="section-title">
@@ -668,7 +800,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="card-body p-4">
                 <div class="row g-4">
                     @foreach($tps as $index => $tp)
@@ -689,17 +821,17 @@
                                         @endif
                                     </div>
                                 </div>
-                                
+
                                 @if(!empty($tp->created_at))
                                     <p class="text-muted small mb-3">
                                         <i class="fas fa-calendar-plus me-1"></i>
                                         Ajouté le {{ \Carbon\Carbon::parse($tp->created_at)->format('d/m/Y') }}
                                     </p>
                                 @endif
-                                
+
                                 <div class="mt-auto">
                                     @if(!empty($tp->id))
-                                        <a href="{{ route('community-management.tp.voir', $tp->id) }}" class="btn btn-view-tp w-100">
+                                        <a href="{{ route($routePrefix . '.tp.voir', $tp->id) }}" class="btn btn-view-tp w-100 no-fancybox">
                                             <i class="fas fa-eye me-2"></i>
                                             Voir le TP
                                         </a>
@@ -715,7 +847,7 @@
                     </div>
                     @endforeach
                 </div>
-                
+
                 <!-- Pagination -->
                 @if($tps->hasPages())
                 <div class="row mt-5">
@@ -768,7 +900,7 @@
                                 </ul>
                             </nav>
                         </div>
-                        
+
                         {{-- Info pagination --}}
                         <div class="text-center mt-3">
                             <p class="text-white opacity-75">

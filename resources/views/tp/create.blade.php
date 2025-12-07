@@ -3,12 +3,18 @@
 @section('title', 'Nouveau Projet CM')
 
 @section('content')
+@php
+    // Détection automatique de la formation depuis l'URL
+    $currentModule = request()->segment(3); // design-graphique, community-management, etc.
+    $routePrefix = $currentModule;
+@endphp
+
 <style>
     /* Instagram Color Palette */
     .instagram-gradient {
         background: linear-gradient(135deg, #833AB4 0%, #C13584 25%, #E1306C 50%, #F56040 75%, #FCAF45 100%);
     }
-    
+
     .instagram-header {
         background: linear-gradient(135deg, #833AB4 0%, #C13584 50%, #E1306C 100%);
         border-radius: 24px;
@@ -17,7 +23,7 @@
         overflow: hidden;
         box-shadow: 0 8px 32px rgba(131, 58, 180, 0.3);
     }
-    
+
     .instagram-header::before {
         content: '';
         position: absolute;
@@ -28,12 +34,12 @@
         background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
         animation: pulse 4s ease-in-out infinite;
     }
-    
+
     @keyframes pulse {
         0%, 100% { transform: scale(1) rotate(0deg); }
         50% { transform: scale(1.1) rotate(5deg); }
     }
-    
+
     .instagram-card {
         border: none;
         border-radius: 20px;
@@ -41,19 +47,19 @@
         transition: all 0.3s ease;
         border: 2px solid rgba(131, 58, 180, 0.1);
     }
-    
+
     .instagram-card:hover {
         box-shadow: 0 8px 32px rgba(131, 58, 180, 0.2);
         border-color: rgba(131, 58, 180, 0.3);
     }
-    
+
     .instagram-card-header {
         background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
         border-bottom: 2px solid transparent;
         border-image: linear-gradient(90deg, #833AB4, #E1306C, #FCAF45) 1;
         padding: 1.5rem;
     }
-    
+
     .instagram-btn {
         background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
         border: none;
@@ -64,19 +70,19 @@
         transition: all 0.3s ease;
         box-shadow: 0 4px 16px rgba(131, 58, 180, 0.3);
     }
-    
+
     .instagram-btn:hover {
         background: linear-gradient(135deg, #C13584 0%, #F56040 100%);
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(131, 58, 180, 0.4);
         color: white;
     }
-    
+
     .form-control:focus, .form-select:focus {
         border-color: #C13584;
         box-shadow: 0 0 0 0.25rem rgba(193, 53, 132, 0.15);
     }
-    
+
     .icon-circle {
         width: 80px;
         height: 80px;
@@ -87,19 +93,19 @@
         justify-content: center;
         backdrop-filter: blur(10px);
     }
-    
+
     #globalDropZone:hover {
         border-color: #C13584 !important;
         background: linear-gradient(135deg, rgba(131, 58, 180, 0.1) 0%, rgba(225, 48, 108, 0.1) 100%) !important;
         transform: scale(1.01);
     }
-    
+
     #globalDropZone.drag-over {
         border-color: #E1306C !important;
         background: linear-gradient(135deg, rgba(131, 58, 180, 0.15) 0%, rgba(225, 48, 108, 0.15) 100%) !important;
         transform: scale(1.02);
     }
-    
+
     .btn-outline-secondary {
         border: 2px solid #dee2e6;
         color: #6c757d;
@@ -108,7 +114,7 @@
         padding: 0.75rem 2rem;
         transition: all 0.3s ease;
     }
-    
+
     .btn-outline-secondary:hover {
         background: #6c757d;
         border-color: #6c757d;
@@ -116,22 +122,65 @@
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
     }
-    
+
     .form-label {
         font-weight: 600;
         color: #2d3748;
         margin-bottom: 0.5rem;
     }
-    
+
     .form-control, .form-select {
         border-radius: 12px;
         border: 2px solid #e2e8f0;
         padding: 0.75rem 1rem;
         transition: all 0.3s ease;
     }
-    
+
     .form-control:hover, .form-select:hover {
         border-color: rgba(131, 58, 180, 0.3);
+    }
+
+    /* Mobile Responsive Adjustments */
+    @media (max-width: 768px) {
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+        }
+        .icon-circle i {
+            font-size: 1.2rem !important; /* Reduire la taille de l'icone */
+        }
+        .instagram-header h2 {
+            font-size: 1.3rem !important; /* Reduire le titre */
+        }
+        .instagram-header p {
+            font-size: 0.85rem !important;
+        }
+        .instagram-header .card-body {
+            padding: 1.5rem !important;
+        }
+        .me-4 {
+            margin-right: 1rem !important;
+        }
+        .instagram-btn, .btn-outline-secondary {
+            padding: 0.6rem 0.8rem !important;
+            font-size: 0.75rem !important; /* Police plus petite */
+            white-space: nowrap !important;
+        }
+        /* Cible spécifique pour "Ajouter un fichier" dans le header */
+        .card-header .instagram-btn {
+            padding: 0.3rem 0.6rem !important;
+            font-size: 0.7rem !important;
+            width: auto !important;
+        }
+        /* Cible spécifique pour "Parcourir" */
+        #globalBrowseBtn {
+            font-size: 0.75rem !important;
+            padding: 0.5rem 1rem !important;
+        }
+        #submitBtn {
+            font-size: 1rem !important;
+            padding: 0.8rem 1rem !important;
+        }
     }
 </style>
 
@@ -148,7 +197,7 @@
                             </div>
                         </div>
                         <div>
-                            <h2 class="mb-2 fw-bold" style="font-size: 2rem;">Nouveau projet CM_SMM</h2>
+                            <h2 class="mb-2 fw-bold" style="font-size: 2rem;">Nouveau projet Design Graphique</h2>
                             <p class="mb-0 opacity-90" style="font-size: 1.05rem;">Publiez votre TP pour constituer votre Pressbook</p>
                         </div>
                     </div>
@@ -158,7 +207,7 @@
     </div>
 
     <!-- Formulaire -->
-    <form id="projectForm" method="POST" action="{{ route('community-management.tp.store') }}" enctype="multipart/form-data">
+    <form id="projectForm" method="POST" action="{{ route($routePrefix . '.tp.store') }}" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="type" value="digital">
 
@@ -281,7 +330,7 @@
                             </button>
                             <input type="file" id="globalFileInput" name="files[]" multiple accept="image/*,.pdf,.doc,.docx,.zip,.rar" style="display: none;">
                         </div>
-                        
+
                         <!-- Conteneur pour les fichiers ajoutés -->
                         <div id="filesContainer" class="row g-3 mt-4"></div>
                     </div>
@@ -290,11 +339,11 @@
                 <!-- Boutons d'action -->
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-body p-4">
-                        <div class="d-flex gap-2 justify-content-end">
-                            <a href="{{ route('community-management.tp.index') }}" class="btn btn-outline-secondary btn-lg">
+                        <div class="d-flex flex-column-reverse flex-md-row gap-2 justify-content-end">
+                            <a href="{{ route($routePrefix . '.tp.index') }}" class="btn btn-outline-secondary btn-lg">
                                 <i class="fas fa-times me-2"></i>Annuler
                             </a>
-                            <button type="submit" class="btn instagram-btn btn-lg w-100" id="submitBtn" style="font-size: 1.1rem; padding: 1rem 2rem;">
+                            <button type="submit" class="btn instagram-btn btn-lg w-100 w-md-auto" id="submitBtn" style="font-size: 1.1rem; padding: 1rem 2rem;">
                                 <span class="btn-text">
                                     <i class="fas fa-paper-plane me-2"></i>
                                     Soumettre le Projet
@@ -379,7 +428,7 @@
     .note-editor {
         border-radius: 0.375rem;
     }
-    
+
     .note-toolbar {
         background: #f8f9fa;
     }
@@ -411,10 +460,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 let cleanedContent = contents;
                 cleanedContent = cleanedContent.replace(/\s*data-start="[^"]*"/g, '');
                 cleanedContent = cleanedContent.replace(/\s*data-end="[^"]*"/g, '');
-                
+
                 // Mettre à jour le textarea avec le contenu nettoyé
                 $('#description').val(cleanedContent);
-                
+
                 // Mettre à jour le compteur de caractères
                 const text = $editable.text().trim();
                 const charCount = document.getElementById('charCount');
@@ -595,7 +644,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Fonction pour afficher un fichier
     function displayFile(file, fileInput, fileName, fileSize, fileIcon, filePreview, previewImg) {
         console.log('📁 Affichage du fichier:', file.name, 'Type:', file.type);
-        
+
         fileName.textContent = file.name;
         fileSize.textContent = formatFileSize(file.size);
 
@@ -608,14 +657,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (file.type.startsWith('image/')) {
             console.log('🖼️ Image détectée, chargement de la prévisualisation...');
             fileIcon.className = 'fas fa-image fa-2x text-success';
-            
+
             // Prévisualisation de l'image
             const reader = new FileReader();
             reader.onload = function(e) {
                 console.log('✅ Image chargée, affichage de la prévisualisation');
                 previewImg.src = e.target.result;
                 filePreview.style.display = 'block';
-                
+
                 // Masquer l'icône pour laisser place à l'image
                 if (fileIcon && fileIcon.parentElement) {
                     fileIcon.parentElement.style.display = 'none';

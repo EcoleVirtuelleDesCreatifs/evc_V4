@@ -1,7 +1,10 @@
 @extends('layouts.ki-admin')
 
 @section('title', 'Fin de Formation - EVC 2024')
-@section('page-title', 'Fin de Formation - Infographie')
+
+@section('page-title')
+    Fin de Formation - {{ $student->program ?? "Formation" }}
+@endsection
 
 @section('content')
 <!-- En-tête avec statut global -->
@@ -13,7 +16,7 @@
                     <div class="col-md-8">
                         <h3 class="mb-2">
                             <i class="fas fa-graduation-cap me-3"></i>
-                            Formation Infographie - Bilan de fin de formation
+                            Formation {{ $student->program ?? 'Infographie' }} - Bilan de fin de formation
                         </h3>
                         <p class="mb-0 opacity-75">Suivi de votre progression et critères d'éligibilité à la certification</p>
                     </div>
@@ -21,10 +24,10 @@
                         <div class="progress-circle-large mb-2" style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
                             <svg width="100" height="100" style="transform: rotate(-90deg);">
                                 <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="6"></circle>
-                                <circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="6" 
-                                        stroke-dasharray="251" stroke-dashoffset="63" stroke-linecap="round"></circle>
+                                <circle cx="50" cy="50" r="40" fill="none" stroke="white" stroke-width="6"
+                                        stroke-dasharray="251" stroke-dashoffset="{{ 251 - (251 * $globalProgress / 100) }}" stroke-linecap="round"></circle>
                             </svg>
-                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem; font-weight: bold;">75%</div>
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.2rem; font-weight: bold;">{{ $globalProgress }}%</div>
                         </div>
                         <small class="opacity-75">Progression globale</small>
                     </div>
@@ -48,45 +51,55 @@
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <div class="text-center p-3" style="background-color: #e8f5e8; border-radius: 10px;">
-                            <h2 class="mb-1" style="color: #28a745;">12 / 15</h2>
+                            <h2 class="mb-1" style="color: #28a745;">{{ $tpValidated }} / {{ $minTPRequired }}</h2>
                             <p class="mb-0 text-muted">TP réalisés</p>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="text-center p-3" style="background-color: #fff3e0; border-radius: 10px;">
-                            <h2 class="mb-1" style="color: #FF9900;">3</h2>
+                            <h2 class="mb-1" style="color: #FF9900;">{{ $tpPending }}</h2>
                             <p class="mb-0 text-muted">TP restants</p>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="progress mb-3" style="height: 15px;">
-                    <div class="progress-bar bg-success" style="width: 80%;" role="progressbar">
-                        <span class="fw-bold">80% complétés</span>
+                    <div class="progress-bar bg-success" style="width: {{ $tpProgress }}%;" role="progressbar">
+                        <span class="fw-bold">{{ $tpProgress }}% complétés</span>
                     </div>
                 </div>
-                
+
                 <div class="row">
                     <div class="col-md-6">
                         <h6 class="text-success mb-2">
                             <i class="fas fa-check-circle me-1"></i>
-                            TP validés (12)
+                            TP validés ({{ $tpValidated }})
                         </h6>
                         <ul class="list-unstyled small">
-                            <li class="mb-1"><i class="fas fa-check text-success me-2"></i>TP Photoshop - Retouche photo (4/4)</li>
-                            <li class="mb-1"><i class="fas fa-check text-success me-2"></i>TP Illustrator - Création logo (4/4)</li>
-                            <li class="mb-1"><i class="fas fa-check text-success me-2"></i>TP InDesign - Mise en page (4/4)</li>
+                            @forelse($tpValidatedList->take(5) as $tp)
+                                <li class="mb-1"><i class="fas fa-check text-success me-2"></i>{{ $tp->title }}</li>
+                            @empty
+                                <li class="mb-1 text-muted"><i class="fas fa-info-circle me-2"></i>Aucun TP validé</li>
+                            @endforelse
+                            @if($tpValidated > 5)
+                                <li class="mb-1 text-muted"><i class="fas fa-ellipsis-h me-2"></i>Et {{ $tpValidated - 5 }} autres...</li>
+                            @endif
                         </ul>
                     </div>
                     <div class="col-md-6">
                         <h6 class="text-warning mb-2">
                             <i class="fas fa-clock me-1"></i>
-                            TP en attente (3)
+                            TP en attente ({{ $tpPending }})
                         </h6>
                         <ul class="list-unstyled small">
-                            <li class="mb-1"><i class="fas fa-hourglass-half text-warning me-2"></i>TP Strategy Business - Analyse marché (1/1)</li>
-                            <li class="mb-1"><i class="fas fa-hourglass-half text-warning me-2"></i>TP Portfolio - Présentation (1/1)</li>
-                            <li class="mb-1"><i class="fas fa-hourglass-half text-warning me-2"></i>TP Projet final - Intégration (1/1)</li>
+                            @forelse($tpPendingList->take(5) as $tp)
+                                <li class="mb-1"><i class="fas fa-hourglass-half text-warning me-2"></i>{{ $tp->title }}</li>
+                            @empty
+                                <li class="mb-1 text-muted"><i class="fas fa-info-circle me-2"></i>Aucun TP en attente</li>
+                            @endforelse
+                            @if($tpPending > 5)
+                                <li class="mb-1 text-muted"><i class="fas fa-ellipsis-h me-2"></i>Et {{ $tpPending - 5 }} autres...</li>
+                            @endif
                         </ul>
                     </div>
                 </div>
@@ -105,24 +118,24 @@
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <div class="text-center p-3" style="background-color: #e3f2fd; border-radius: 10px;">
-                            <h2 class="mb-1" style="color: #3399ff;">3 / 4</h2>
+                            <h2 class="mb-1" style="color: #3399ff;">{{ $projectsCompleted }} / {{ $minProjectsRequired }}</h2>
                             <p class="mb-0 text-muted">Projets réalisés</p>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="text-center p-3" style="background-color: #fff3e0; border-radius: 10px;">
-                            <h2 class="mb-1" style="color: #FF9900;">1</h2>
-                            <p class="mb-0 text-muted">Projet final</p>
+                            <h2 class="mb-1" style="color: #FF9900;">{{ $projectsInProgress }}</h2>
+                            <p class="mb-0 text-muted">Projet(s) en cours</p>
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="progress mb-3" style="height: 15px;">
-                    <div class="progress-bar" style="width: 75%; background-color: #3399ff;" role="progressbar">
-                        <span class="fw-bold">75% complétés</span>
+                    <div class="progress-bar" style="width: {{ $projectProgress }}%; background-color: #3399ff;" role="progressbar">
+                        <span class="fw-bold">{{ $projectProgress }}% complétés</span>
                     </div>
                 </div>
-                
+
                 <div class="table-responsive">
                     <table class="table table-sm">
                         <thead class="table-light">
@@ -134,30 +147,28 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td><strong>Identité visuelle complète</strong></td>
-                                <td><span class="badge" style="background-color: #ff6633;">Photoshop + Illustrator</span></td>
-                                <td><span class="text-success fw-bold">16/20</span></td>
-                                <td><span class="badge bg-success">Validé</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Magazine 20 pages</strong></td>
-                                <td><span class="badge" style="background-color: #9c27b0;">InDesign</span></td>
-                                <td><span class="text-success fw-bold">18/20</span></td>
-                                <td><span class="badge bg-success">Validé</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Campagne publicitaire</strong></td>
-                                <td><span class="badge" style="background-color: #FF9900;">Strategy Business</span></td>
-                                <td><span class="text-success fw-bold">15/20</span></td>
-                                <td><span class="badge bg-success">Validé</span></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Portfolio professionnel</strong></td>
-                                <td><span class="badge" style="background-color: #003366;">Projet final</span></td>
-                                <td><span class="text-muted">-</span></td>
-                                <td><span class="badge bg-warning">En cours</span></td>
-                            </tr>
+                            @forelse($projects as $project)
+                                <tr>
+                                    <td><strong>{{ $project->title }}</strong></td>
+                                    <td><span class="badge" style="background-color: #ff6633;">{{ $project->category }}</span></td>
+                                    <td><span class="text-muted">-</span></td>
+                                    <td>
+                                        @if($project->status === 'valide')
+                                            <span class="badge bg-success">Validé</span>
+                                        @elseif($project->status === 'termine')
+                                            <span class="badge bg-info">Terminé</span>
+                                        @elseif($project->status === 'en_cours')
+                                            <span class="badge bg-warning">En cours</span>
+                                        @else
+                                            <span class="badge bg-danger">Rejeté</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Aucun projet enregistré</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -173,66 +184,142 @@
                 </h5>
             </div>
             <div class="card-body">
-                <div class="alert alert-warning">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                        <div>
-                            <h6 class="mb-1">Rapport en cours de rédaction</h6>
-                            <p class="mb-0 small">Le rapport de fin de formation doit être rédigé et soumis avant la certification</p>
-                        </div>
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="fas fa-check-circle me-2"></i>
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-md-8">
-                        <h6 class="mb-3">Contenu requis du rapport :</h6>
-                        <ul class="list-unstyled">
-                            <li class="mb-2">
-                                <i class="fas fa-square-check text-muted me-2"></i>
-                                Bilan de compétences acquises
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-square-check text-muted me-2"></i>
-                                Analyse des projets réalisés
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-square-check text-muted me-2"></i>
-                                Perspectives professionnelles
-                            </li>
-                            <li class="mb-2">
-                                <i class="fas fa-square-check text-muted me-2"></i>
-                                Retour d'expérience sur la formation
-                            </li>
-                        </ul>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <i class="fas fa-times-circle me-2"></i>
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
-                    <div class="col-md-4 text-center">
-                        <div class="mb-3">
-                            <i class="fas fa-upload" style="font-size: 3rem; color: #ff6633;"></i>
-                        </div>
-                        
-                        <!-- Zone d'upload -->
-                        <div class="upload-zone mb-3" id="reportUploadZone" 
-                             style="border: 2px dashed #ff6633; border-radius: 10px; padding: 20px; cursor: pointer; transition: all 0.3s ease;"
-                             onclick="document.getElementById('reportFile').click()">
-                            <input type="file" id="reportFile" accept=".pdf" style="display: none;" onchange="handleReportUpload(this)">
-                            <div id="uploadContent">
-                                <i class="fas fa-file-pdf mb-2" style="font-size: 2rem; color: #ff6633;"></i>
-                                <p class="mb-1"><strong>Cliquez pour uploader</strong></p>
-                                <small class="text-muted">ou glissez-déposez votre rapport PDF</small>
+                @endif
+
+                @if($reportUploaded && $report)
+                    <!-- Rapport déjà uploadé -->
+                    <div class="alert alert-success">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-check-circle fa-2x me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Rapport déjà soumis</h6>
+                                    <p class="mb-0 small">
+                                        Fichier : <strong>{{ $report->original_filename }}</strong><br>
+                                        Uploadé le : {{ \Carbon\Carbon::parse($report->submitted_at)->format('d/m/Y à H:i') }}<br>
+                                        Statut :
+                                        @if($report->status === 'approved')
+                                            <span class="badge bg-success">Approuvé</span>
+                                        @elseif($report->status === 'rejected')
+                                            <span class="badge bg-danger">Rejeté</span>
+                                        @else
+                                            <span class="badge bg-warning">En attente de validation</span>
+                                        @endif
+                                    </p>
+                                </div>
+                            </div>
+                            <div>
+                                <a href="{{ route('community-management.fin-formation.download-report', $report->id) }}"
+                                   class="btn btn-sm btn-primary mb-2">
+                                    <i class="fas fa-download me-1"></i> Télécharger
+                                </a>
+                                <button type="button" class="btn btn-sm btn-warning" onclick="showReplaceForm()">
+                                    <i class="fas fa-sync-alt me-1"></i> Remplacer
+                                </button>
                             </div>
                         </div>
-                        
-                        <!-- Statut d'upload -->
-                        <div id="uploadStatus" class="d-none">
-                            <div class="alert alert-success py-2">
-                                <i class="fas fa-check-circle me-1"></i>
-                                <small>Rapport uploadé avec succès !</small>
+                        @if($report->admin_comment)
+                            <div class="mt-3 p-2" style="background-color: #f8f9fa; border-left: 3px solid #ff6633;">
+                                <strong>Commentaire administrateur :</strong><br>
+                                {{ $report->admin_comment }}
+                            </div>
+                        @endif
+                    </div>
+
+                    <!-- Formulaire de remplacement (masqué par défaut) -->
+                    <div id="replaceFormContainer" style="display: none;">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Vous pouvez remplacer votre rapport actuel en uploadant un nouveau fichier.
+                        </div>
+                        <form action="{{ route('community-management.fin-formation.upload-report') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="text-center">
+                                <input type="file" name="report_file" id="reportFileReplace" accept=".pdf" class="form-control mb-3" required>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-upload me-1"></i> Remplacer le rapport
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" onclick="hideReplaceForm()">
+                                        Annuler
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                @else
+                    <!-- Aucun rapport uploadé -->
+                    <div class="alert alert-warning">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                            <div>
+                                <h6 class="mb-1">Rapport en cours de rédaction</h6>
+                                <p class="mb-0 small">Le rapport de fin de formation doit être rédigé et soumis avant la certification</p>
                             </div>
                         </div>
-                        
-                        <small class="text-muted">Format PDF - 5-10 pages minimum</small>
                     </div>
-                </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h6 class="mb-3">Contenu requis du rapport :</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-square-check text-muted me-2"></i>
+                                    Bilan de compétences acquises
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-square-check text-muted me-2"></i>
+                                    Analyse des projets réalisés
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-square-check text-muted me-2"></i>
+                                    Perspectives professionnelles
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-square-check text-muted me-2"></i>
+                                    Retour d'expérience sur la formation
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <form action="{{ route('community-management.fin-formation.upload-report') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="text-center">
+                                    <div class="mb-3">
+                                        <i class="fas fa-upload" style="font-size: 3rem; color: #ff6633;"></i>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <input type="file" name="report_file" id="reportFile" accept=".pdf" class="form-control" required>
+                                        @error('report_file')
+                                            <small class="text-danger">{{ $message }}</small>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100 mb-2">
+                                        <i class="fas fa-upload me-1"></i> Uploader le rapport
+                                    </button>
+
+                                    <small class="text-muted">Format PDF - Max 10 MB</small>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -256,11 +343,15 @@
                                 <i class="fas fa-credit-card text-warning me-2"></i>
                                 <strong>Paiement intégral</strong>
                             </div>
-                            <span class="badge bg-warning">En attente</span>
+                            @if($paymentComplete)
+                                <span class="badge bg-success">Soldé</span>
+                            @else
+                                <span class="badge bg-warning">En attente</span>
+                            @endif
                         </div>
-                        <small class="text-muted">300€ restants à régler</small>
+                        <small class="text-muted">{{ number_format($paymentRemaining, 0, ',', ' ') }} FCFA restants à régler</small>
                         <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar bg-warning" style="width: 75%;" role="progressbar"></div>
+                            <div class="progress-bar bg-warning" style="width: {{ $paymentProgress }}%;" role="progressbar"></div>
                         </div>
                     </div>
 
@@ -271,11 +362,15 @@
                                 <i class="fas fa-laptop-code text-warning me-2"></i>
                                 <strong>15 TP obligatoires</strong>
                             </div>
-                            <span class="badge bg-warning">12/15</span>
+                            @if($tpEligible)
+                                <span class="badge bg-success">{{ $tpValidated }}/{{ $minTPRequired }}</span>
+                            @else
+                                <span class="badge bg-warning">{{ $tpValidated }}/{{ $minTPRequired }}</span>
+                            @endif
                         </div>
-                        <small class="text-muted">3 TP restants à valider</small>
+                        <small class="text-muted">{{ $minTPRequired - $tpValidated }} TP restants à valider</small>
                         <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar bg-success" style="width: 80%;" role="progressbar"></div>
+                            <div class="progress-bar bg-success" style="width: {{ $tpProgress }}%;" role="progressbar"></div>
                         </div>
                     </div>
 
@@ -286,11 +381,15 @@
                                 <i class="fas fa-project-diagram text-warning me-2"></i>
                                 <strong>4 projets obligatoires</strong>
                             </div>
-                            <span class="badge bg-warning">3/4</span>
+                            @if($projectsEligible)
+                                <span class="badge bg-success">{{ $projectsCompleted }}/{{ $minProjectsRequired }}</span>
+                            @else
+                                <span class="badge bg-warning">{{ $projectsCompleted }}/{{ $minProjectsRequired }}</span>
+                            @endif
                         </div>
-                        <small class="text-muted">Portfolio professionnel en cours</small>
+                        <small class="text-muted">{{ $minProjectsRequired - $projectsCompleted }} projet(s) restant(s)</small>
                         <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar" style="width: 75%; background-color: #3399ff;" role="progressbar"></div>
+                            <div class="progress-bar" style="width: {{ $projectProgress }}%; background-color: #3399ff;" role="progressbar"></div>
                         </div>
                     </div>
 
@@ -301,11 +400,15 @@
                                 <i class="fas fa-file-alt text-danger me-2"></i>
                                 <strong>Rapport de fin de formation</strong>
                             </div>
-                            <span class="badge bg-danger">Non rédigé</span>
+                            @if($reportUploaded)
+                                <span class="badge bg-success">Uploadé</span>
+                            @else
+                                <span class="badge bg-danger">Non rédigé</span>
+                            @endif
                         </div>
                         <small class="text-muted">À rédiger et soumettre</small>
                         <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar bg-danger" style="width: 0%;" role="progressbar"></div>
+                            <div class="progress-bar bg-danger" style="width: {{ $reportUploaded ? 100 : 0 }}%;" role="progressbar"></div>
                         </div>
                     </div>
                 </div>
@@ -313,13 +416,41 @@
                 <hr>
 
                 <!-- Statut global d'éligibilité -->
-                <div class="text-center p-3" style="background-color: #fff3e0; border-radius: 8px; border: 2px solid #FF9900;">
-                    <div class="mb-2">
-                        <i class="fas fa-hourglass-half" style="color: #FF9900; font-size: 2rem;"></i>
+                @if($isEligible)
+                    <div class="text-center p-3" style="background-color: #e8f5e8; border-radius: 8px; border: 2px solid #28a745;">
+                        <div class="mb-2">
+                            <i class="fas fa-check-circle" style="color: #28a745; font-size: 2rem;"></i>
+                        </div>
+                        <h6 class="fw-bold" style="color: #28a745;">ÉLIGIBLE</h6>
+                        <small class="text-muted">Félicitations ! Vous remplissez tous les critères</small>
                     </div>
-                    <h6 class="fw-bold" style="color: #e65100;">NON ÉLIGIBLE</h6>
-                    <small class="text-muted">Finalisez tous les critères pour obtenir votre certification</small>
-                </div>
+
+                    <!-- Boutons d'actions pour le certificat -->
+                    <div class="mt-3">
+                        <a href="{{ route('certificate.preview') }}" target="_blank" class="btn btn-lg w-100 text-white mb-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.3)'">
+                            <i class="fas fa-eye me-2"></i>
+                            Voir mon certificat
+                        </a>
+                        <a href="{{ route('certificate.download') }}" class="btn btn-lg w-100 text-white" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); border: none; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 215, 0, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 215, 0, 0.3)'">
+                            <i class="fas fa-download me-2"></i>
+                            Télécharger mon certificat
+                        </a>
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                <i class="fas fa-award me-1"></i>
+                                Votre certificat est prêt
+                            </small>
+                        </div>
+                    </div>
+                @else
+                    <div class="text-center p-3" style="background-color: #fff3e0; border-radius: 8px; border: 2px solid #FF9900;">
+                        <div class="mb-2">
+                            <i class="fas fa-hourglass-half" style="color: #FF9900; font-size: 2rem;"></i>
+                        </div>
+                        <h6 class="fw-bold" style="color: #e65100;">NON ÉLIGIBLE</h6>
+                        <small class="text-muted">Finalisez tous les critères pour obtenir votre certification</small>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -335,11 +466,11 @@
                 <div class="requirement-summary">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted">TP minimum requis :</span>
-                        <strong style="color: #28a745;">15 TP</strong>
+                        <strong style="color: #28a745;">{{ $minTPRequired }} TP</strong>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted">Projets minimum requis :</span>
-                        <strong style="color: #3399ff;">4 projets</strong>
+                        <strong style="color: #3399ff;">{{ $minProjectsRequired }} projets</strong>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted">Note minimum :</span>
@@ -438,7 +569,7 @@
     .criteria-item {
         margin-bottom: 1rem;
     }
-    
+
     .requirement-summary {
         font-size: 0.8rem;
     }
@@ -448,192 +579,50 @@
 <script>
 // Fonction pour voir les TP restants
 function viewTP() {
-    showNotification('Redirection vers la page des TP...', 'info');
-    setTimeout(() => {
-        window.location.href = '/tp';
-    }, 1000);
+    window.location.href = "{{ route('community-management.tp.index') }}";
 }
 
 // Fonction pour voir les projets
 function viewProjects() {
-    showNotification('Redirection vers la page des projets...', 'info');
-    setTimeout(() => {
-        window.location.href = '/projets';
-    }, 1000);
+    window.location.href = "{{ route('community-management.projets.index') }}";
 }
 
-// Fonction pour faire défiler vers la zone d'upload du rapport
+// Fonction pour faire défiler vers le rapport
 function scrollToReportUpload() {
-    document.getElementById('reportUploadZone').scrollIntoView({ behavior: 'smooth' });
-    showNotification('Faites défiler vers la zone d\'upload du rapport', 'info');
-}
-
-// Fonction pour gérer l'upload du rapport
-function handleReportUpload(input) {
-    const file = input.files[0];
-    if (file) {
-        // Vérifier le type de fichier
-        if (file.type !== 'application/pdf') {
-            showNotification('Veuillez sélectionner un fichier PDF', 'danger');
-            return;
-        }
-        
-        // Vérifier la taille (max 10MB)
-        if (file.size > 10 * 1024 * 1024) {
-            showNotification('Le fichier est trop volumineux (max 10MB)', 'danger');
-            return;
-        }
-        
-        // Simuler l'upload
-        showNotification('Upload du rapport en cours...', 'info');
-        
-        // Changer l'apparence de la zone d'upload
-        const uploadZone = document.getElementById('reportUploadZone');
-        const uploadContent = document.getElementById('uploadContent');
-        const uploadStatus = document.getElementById('uploadStatus');
-        
-        uploadZone.style.borderColor = '#28a745';
-        uploadZone.style.backgroundColor = '#f8f9fa';
-        
-        uploadContent.innerHTML = `
-            <i class="fas fa-file-pdf mb-2" style="font-size: 2rem; color: #28a745;"></i>
-            <p class="mb-1"><strong>${file.name}</strong></p>
-            <small class="text-success">Fichier sélectionné</small>
-        `;
-        
-        // Simuler l'upload avec une barre de progression
-        setTimeout(() => {
-            uploadStatus.classList.remove('d-none');
-            showNotification('Rapport uploadé avec succès !', 'success');
-            
-            // Mettre à jour le statut dans la sidebar
-            updateReportStatus();
-        }, 2000);
+    const reportSection = document.querySelector('.card-header h5 i.fa-file-alt')?.closest('.card');
+    if (reportSection) {
+        reportSection.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
-// Fonction pour mettre à jour le statut du rapport dans la sidebar
-function updateReportStatus() {
-    const reportCriteria = document.querySelector('.criteria-item:last-child');
-    if (reportCriteria) {
-        const badge = reportCriteria.querySelector('.badge');
-        const progressBar = reportCriteria.querySelector('.progress-bar');
-        const description = reportCriteria.querySelector('small');
-        
-        badge.className = 'badge bg-success';
-        badge.textContent = 'Uploadé';
-        
-        progressBar.style.width = '100%';
-        progressBar.className = 'progress-bar bg-success';
-        
-        description.textContent = 'Rapport soumis pour validation';
-        
-        // Mettre à jour l'icône
-        const icon = reportCriteria.querySelector('i');
-        icon.className = 'fas fa-file-alt text-success me-2';
-    }
+// Afficher le formulaire de remplacement du rapport
+function showReplaceForm() {
+    document.getElementById('replaceFormContainer').style.display = 'block';
 }
 
-// Gestion du drag & drop
-function setupDragAndDrop() {
-    const uploadZone = document.getElementById('reportUploadZone');
-    
-    uploadZone.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        this.style.borderColor = '#007bff';
-        this.style.backgroundColor = '#f8f9fa';
-    });
-    
-    uploadZone.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        this.style.borderColor = '#ff6633';
-        this.style.backgroundColor = 'transparent';
-    });
-    
-    uploadZone.addEventListener('drop', function(e) {
-        e.preventDefault();
-        this.style.borderColor = '#ff6633';
-        this.style.backgroundColor = 'transparent';
-        
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            document.getElementById('reportFile').files = files;
-            handleReportUpload(document.getElementById('reportFile'));
-        }
-    });
+// Masquer le formulaire de remplacement du rapport
+function hideReplaceForm() {
+    document.getElementById('replaceFormContainer').style.display = 'none';
 }
 
 // Fonction pour finaliser le paiement
 function payRemaining() {
-    showNotification('Redirection vers la page de paiement...', 'info');
-    setTimeout(() => {
-        window.location.href = '/paiement';
-    }, 1000);
-}
-
-// Fonction pour afficher les notifications
-function showNotification(message, type) {
-    const toast = document.createElement('div');
-    toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 350px;';
-    toast.innerHTML = `
-        <div class="d-flex align-items-center">
-            <i class="fas fa-${getIconForType(type)} me-2"></i>
-            ${message}
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.parentNode.removeChild(toast);
-        }
-    }, 3000);
-}
-
-// Fonction pour obtenir l'icône selon le type de notification
-function getIconForType(type) {
-    switch(type) {
-        case 'success': return 'check-circle';
-        case 'info': return 'info-circle';
-        case 'warning': return 'exclamation-triangle';
-        case 'danger': return 'times-circle';
-        default: return 'info-circle';
-    }
+    window.location.href = "{{ route('community-management.paiements.index') }}";
 }
 
 // Animation des cartes au chargement
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialiser le drag & drop
-    setupDragAndDrop();
-    
     // Animation des critères d'éligibilité
     const criteriaItems = document.querySelectorAll('.criteria-item');
     criteriaItems.forEach((item, index) => {
         item.style.opacity = '0';
         item.style.transform = 'translateX(20px)';
-        
+
         setTimeout(() => {
             item.style.transition = 'all 0.5s ease';
             item.style.opacity = '1';
             item.style.transform = 'translateX(0)';
         }, index * 200);
-    });
-    
-    // Animation des boutons au survol
-    const buttons = document.querySelectorAll('.btn');
-    buttons.forEach(button => {
-        button.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-            this.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-        });
-        
-        button.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-            this.style.boxShadow = 'none';
-        });
     });
 });
 </script>
