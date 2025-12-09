@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AdminAccountCreated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class AdminManagementController extends Controller
@@ -17,9 +19,9 @@ class AdminManagementController extends Controller
     public function create()
     {
         $this->checkSuperAdminPermission();
-        
+
         $roles = $this->getRolesWithPermissions();
-        
+
         return view('admin.admins.create', compact('roles'));
     }
 
@@ -29,7 +31,7 @@ class AdminManagementController extends Controller
     public function store(Request $request)
     {
         $this->checkSuperAdminPermission();
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:admins,email',
@@ -51,7 +53,10 @@ class AdminManagementController extends Controller
 
         try {
             $permissions = $this->getPermissionsByRole($validated['role']);
-            
+
+            // Sauvegarder le mot de passe en clair pour l'email (avant le hachage)
+            $plainPassword = $validated['password'];
+
             DB::table('admins')->insert([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
@@ -65,6 +70,26 @@ class AdminManagementController extends Controller
                 'updated_at' => now(),
             ]);
 
+            // Envoyer l'email avec les identifiants
+            try {
+                Mail::to($validated['email'])->send(
+                    new AdminAccountCreated(
+                        $validated['name'],
+                        $validated['email'],
+                        $plainPassword,
+                        $validated['role']
+                    )
+                );
+
+                Log::info('Email d\'identifiants envoyé', [
+                    'admin_id' => session('admin_id'),
+                    'new_admin_email' => $validated['email']
+                ]);
+            } catch (\Exception $mailException) {
+                Log::error('Erreur lors de l\'envoi de l\'email: ' . $mailException->getMessage());
+                // On continue même si l'email échoue
+            }
+
             Log::info('Nouvel administrateur créé', [
                 'admin_id' => session('admin_id'),
                 'new_admin_email' => $validated['email'],
@@ -72,7 +97,7 @@ class AdminManagementController extends Controller
             ]);
 
             return redirect()->route('admin.statistics.total-admins')
-                ->with('success', 'Administrateur créé avec succès.');
+                ->with('success', 'Administrateur créé avec succès. Un email avec les identifiants a été envoyé à ' . $validated['email']);
 
         } catch (\Exception $e) {
             Log::error('Erreur lors de la création d\'un administrateur: ' . $e->getMessage());
@@ -86,17 +111,17 @@ class AdminManagementController extends Controller
     public function edit($id)
     {
         $this->checkSuperAdminPermission();
-        
+
         $admin = DB::table('admins')->where('id', $id)->first();
-        
+
         if (!$admin) {
             return redirect()->route('admin.statistics.total-admins')
                 ->with('error', 'Administrateur introuvable.');
         }
-        
+
         $roles = $this->getRolesWithPermissions();
         $currentAdminId = session('admin_id');
-        
+
         return view('admin.admins.edit', compact('admin', 'roles', 'currentAdminId'));
     }
 
@@ -106,14 +131,14 @@ class AdminManagementController extends Controller
     public function update(Request $request, $id)
     {
         $this->checkSuperAdminPermission();
-        
+
         $admin = DB::table('admins')->where('id', $id)->first();
-        
+
         if (!$admin) {
             return redirect()->route('admin.statistics.total-admins')
                 ->with('error', 'Administrateur introuvable.');
         }
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => [
@@ -140,7 +165,7 @@ class AdminManagementController extends Controller
 
         try {
             $permissions = $this->getPermissionsByRole($validated['role']);
-            
+
             $updateData = [
                 'name' => $validated['name'],
                 'email' => $validated['email'],
@@ -151,12 +176,12 @@ class AdminManagementController extends Controller
                 'is_active' => $validated['is_active'],
                 'updated_at' => now(),
             ];
-            
+
             // Mettre à jour le mot de passe uniquement si fourni
             if (!empty($validated['password'])) {
                 $updateData['password'] = Hash::make($validated['password']);
             }
-            
+
             DB::table('admins')->where('id', $id)->update($updateData);
 
             Log::info('Administrateur mis à jour', [
@@ -180,21 +205,21 @@ class AdminManagementController extends Controller
     public function destroy($id)
     {
         $this->checkSuperAdminPermission();
-        
+
         $currentAdminId = session('admin_id');
-        
+
         // Empêcher la suppression de son propre compte
         if ($id == $currentAdminId) {
             return back()->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
-        
+
         try {
             $admin = DB::table('admins')->where('id', $id)->first();
-            
+
             if (!$admin) {
                 return back()->with('error', 'Administrateur introuvable.');
             }
-            
+
             DB::table('admins')->where('id', $id)->delete();
 
             Log::info('Administrateur supprimé', [
@@ -232,8 +257,8 @@ class AdminManagementController extends Controller
                 'label' => 'Super Admin',
                 'description' => 'Accès complet à toutes les fonctionnalités',
                 'access' => [
-                    'Dashboard', 'Formations', 'Pré-inscriptions', 'Étudiants', 'Évènements', 
-                    'Actualités', 'Bibliothèque', 'TP', 'Projets', 'Paiements', 
+                    'Dashboard', 'Formations', 'Pré-inscriptions', 'Étudiants', 'Évènements',
+                    'Actualités', 'Bibliothèque', 'TP', 'Projets', 'Paiements',
                     'Rapports', 'Statistiques', 'Gestion des Admins'
                 ],
                 'color' => '#1e3c72',

@@ -19,12 +19,184 @@ class StudentAdminController extends Controller
     {
         // Récupérer le paramètre formation depuis la query string
         $formation = $request->query('formation');
-        
-        // Si pas de formation spécifiée, afficher tous les étudiants ou rediriger
+
+        // Si pas de formation spécifiée, afficher tous les étudiants
         if (!$formation) {
-            abort(400, 'Paramètre formation requis');
+            // Récupérer tous les étudiants
+            $students = DB::table('students')
+                ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+                ->orderBy('id', 'desc')
+                ->get();
+
+            // Récupérer les user_id depuis users via email
+            $studentEmails = $students->pluck('email')->toArray();
+            $userIds = [];
+            if (!empty($studentEmails)) {
+                $userIds = DB::table('users')
+                    ->whereIn('email', $studentEmails)
+                    ->pluck('id', 'email')
+                    ->toArray();
+            }
+
+            // Récupérer les compteurs de TP
+            $tpCounts = [];
+            if (!empty($userIds) && Schema::hasTable('tp')) {
+                $tpCounts = DB::table('tp')
+                    ->select('user_id', DB::raw('COUNT(*) as total'))
+                    ->whereIn('user_id', array_values($userIds))
+                    ->groupBy('user_id')
+                    ->pluck('total', 'user_id')
+                    ->toArray();
+            }
+
+            // Préparer les données des étudiants
+            $studentsData = [];
+            $totalProgression = 0;
+            $activeCount = 0;
+
+            foreach ($students as $student) {
+                $userId = $userIds[$student->email] ?? null;
+                $tpCount = $tpCounts[$userId] ?? 0;
+
+                // Calculer la progression (basée sur TP/20 comme référence)
+                $progression = min(($tpCount / 20) * 100, 100);
+                $totalProgression += $progression;
+
+                if ($student->status === 'active') {
+                    $activeCount++;
+                }
+
+                // Photo de profil - multiples chemins possibles
+                $photoUrl = null;
+                if (!empty($student->profile_photo)) {
+                    $photo = $student->profile_photo;
+
+                    // Option 1: Chemin complet déjà présent
+                    if (str_starts_with($photo, 'uploads/') ||
+                        str_starts_with($photo, 'photos_preregistrations/') ||
+                        str_starts_with($photo, 'storage/')) {
+                        $photoUrl = asset($photo);
+                    }
+                    // Option 2: Chemin avec profile_photos/
+                    elseif (str_starts_with($photo, 'profile_photos/')) {
+                        $photoUrl = asset('storage/' . $photo);
+                    }
+                    // Option 3: Juste le nom du fichier
+                    else {
+                        $filename = basename($photo);
+                        if (file_exists(public_path('storage/profile_photos/' . $filename))) {
+                            $photoUrl = asset('storage/profile_photos/' . $filename);
+                        }
+                        elseif (file_exists(public_path('uploads/photos/' . $filename))) {
+                            $photoUrl = asset('uploads/photos/' . $filename);
+                        }
+                        elseif (file_exists(public_path('photos_preregistrations/' . $filename))) {
+                            $photoUrl = asset('photos_preregistrations/' . $filename);
+                        }
+                        else {
+                            $photoUrl = asset('storage/profile_photos/' . $filename);
+                        }
+                    }
+                }
+
+                // Calculer les jours restants avant expiration
+                $daysRemaining = null;
+                $isExpired = false;
+                $expirationDate = null;
+
+                // Essayer d'abord avec expiration_date de la table students
+                if (!empty($student->expiration_date)) {
+                    try {
+                        $expirationDate = \Carbon\Carbon::parse($student->expiration_date);
+                    } catch (\Exception $e) {
+                        $expirationDate = null;
+                    }
+                }
+
+                // Fallback : calculer depuis created_at + 4 mois
+                if (!$expirationDate && !empty($student->created_at)) {
+                    try {
+                        $createdAt = \Carbon\Carbon::parse($student->created_at);
+                        $expirationDate = $createdAt->copy()->addMonths(4);
+                    } catch (\Exception $e) {
+                        $expirationDate = null;
+                    }
+                }
+
+                // Calculer les jours restants
+                if ($expirationDate) {
+                    $now = \Carbon\Carbon::now();
+
+                    if ($expirationDate->isFuture()) {
+                        $daysRemaining = (int) $now->diffInDays($expirationDate);
+                        $isExpired = false;
+                    } else {
+                        $daysRemaining = 0;
+                        $isExpired = true;
+                    }
+                }
+
+                // Déterminer le statut : si expiré, le compte doit être inactif, sinon actif
+                $status = $student->status;
+
+                // Si le compte est expiré ET actuellement actif → mettre en inactif
+                if ($isExpired && $status === 'active') {
+                    DB::table('students')
+                        ->where('id', $student->id)
+                        ->update([
+                            'status' => 'inactive',
+                            'updated_at' => now()
+                            // Pas de deactivation_reason ni deactivated_at
+                        ]);
+                    $status = 'inactive';
+                }
+
+                // Si le compte n'est PAS expiré ET actuellement inactif (sans raison) → réactiver
+                if (!$isExpired && $status === 'inactive' && empty($student->deactivation_reason)) {
+                    DB::table('students')
+                        ->where('id', $student->id)
+                        ->update([
+                            'status' => 'active',
+                            'updated_at' => now()
+                        ]);
+                    $status = 'active';
+                }
+
+                $studentsData[] = [
+                    'id' => $student->id,
+                    'student_id' => $student->student_id,
+                    'prenom' => $student->first_name,
+                    'nom' => $student->last_name,
+                    'email' => $student->email,
+                    'pays' => $student->country ?? 'N/A',
+                    'photo_url' => $photoUrl,
+                    'created_at' => $student->created_at,
+                    'tp_realises' => $tpCount,
+                    'tp_count' => $tpCount,
+                    'progression' => round($progression),
+                    'status' => $status,
+                    'days_remaining' => $daysRemaining,
+                    'is_expired' => $isExpired,
+                    'expiration_date' => $expirationDate,
+                ];
+            }
+
+            $avgProgression = count($studentsData) > 0 ? round($totalProgression / count($studentsData)) : 0;
+
+            return view('admin.students.by-formation', [
+                'data' => [
+                    'formation_name' => 'Toutes les formations',
+                    'formation_slug' => 'all',
+                    'students' => $studentsData,
+                    'stats' => [
+                        'total' => count($studentsData),
+                        'active' => $activeCount,
+                        'avg_progression' => $avgProgression
+                    ]
+                ]
+            ]);
         }
-        
+
         // Map des formations query string vers slug URL
         $formationMap = [
             'design_graphique' => 'design-graphique',
@@ -32,16 +204,16 @@ class StudentAdminController extends Controller
             'intelligence_artificielle' => 'intelligence-artificielle',
             'gestion_informatique' => 'gestion-informatique',
         ];
-        
+
         // Vérifier que la formation existe
         if (!isset($formationMap[$formation])) {
             abort(404, 'Formation non trouvée');
         }
-        
+
         // Rediriger vers la route existante avec le bon format
         return redirect()->route('admin.students.by-formation', ['formation' => $formationMap[$formation]]);
     }
-    
+
     /**
      * Lister les étudiants d'une formation (slug): design-graphique, community-manager, intelligence-artificielle, gestion-informatique
      */
@@ -52,6 +224,7 @@ class StudentAdminController extends Controller
             'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique','design_graphique','infographie','design-graphique']],
             'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager']],
             'community-management' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager','community-management']],
+            'design-graphique-community-manager' => ['label' => 'Design Graphique & Community Manager', 'keys' => ['Design Graphique & Community Manager','design_graphique_community_manager','design-graphique-community-manager']],
             'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'keys' => ['Intelligence Artificielle','intelligence_artificielle','intelligence-artificielle']],
             'gestion-informatique' => ['label' => 'Gestion Informatique', 'keys' => ['Gestion Informatique','gestion_informatique','informatique','gestion-informatique']],
         ];
@@ -66,19 +239,19 @@ class StudentAdminController extends Controller
             $query = DB::table('students')
                 ->select('students.*');
             // NE PAS filtrer par statut - afficher actifs ET inactifs
-            
+
             // Filtrer par formation (program ou specialization)
             $query->where(function($q) use ($keys) {
                 $q->whereIn('program', $keys)
                   ->orWhereIn('specialization', $keys);
             });
-            
+
             // Trier par statut (actifs d'abord) puis par id
             $students = $query->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
                              ->orderBy('id','desc')
                              ->get();
         }
-        
+
         // Récupérer les user_id depuis users via email pour les TPs
         $studentEmails = $students->pluck('email')->toArray();
         $userIds = [];
@@ -88,7 +261,7 @@ class StudentAdminController extends Controller
                 ->pluck('id', 'email')
                 ->toArray();
         }
-        
+
         // Récupérer les compteurs de TP pour tous les étudiants
         $tpCounts = [];
         if (!empty($userIds) && Schema::hasTable('tp')) {
@@ -105,23 +278,115 @@ class StudentAdminController extends Controller
             // Récupérer le user_id correspondant
             $userId = $userIds[$s->email] ?? null;
             $tpCount = $userId ? ($tpCounts[$userId] ?? 0) : 0;
-            
+
             // Calculer la progression
             $totalTpRequis = 20;
             $progression = $tpCount > 0 ? min(100, round(($tpCount / $totalTpRequis) * 100)) : 0;
-            
-            // Photo de profil - utiliser le même chemin que les autres pages admin
+
+            // Photo de profil - Même logique que profile()
             $photoUrl = null;
             if (!empty($s->profile_photo)) {
-                // Vérifier si le chemin commence déjà par uploads/ ou photos_preregistrations/
-                if (str_starts_with($s->profile_photo, 'uploads/') || str_starts_with($s->profile_photo, 'photos_preregistrations/')) {
-                    $photoUrl = asset($s->profile_photo);
-                } else {
-                    // Sinon, utiliser le pattern standard uploads/photos/
+                // Vérifier si c'est un chemin absolu
+                if (str_starts_with($s->profile_photo, 'http://') || str_starts_with($s->profile_photo, 'https://')) {
+                    $photoUrl = $s->profile_photo;
+                }
+                // Vérifier si c'est un chemin relatif
+                elseif (str_starts_with($s->profile_photo, 'uploads/') ||
+                        str_starts_with($s->profile_photo, 'photos_preregistrations/') ||
+                        str_starts_with($s->profile_photo, 'photos/')) {
+                    // Essayer d'abord storage/app/public/
+                    $storagePath = storage_path('app/public/' . $s->profile_photo);
+                    if (file_exists($storagePath)) {
+                        $photoUrl = asset('storage/' . $s->profile_photo);
+                    } else {
+                        // Sinon essayer directement public/
+                        $photoUrl = asset($s->profile_photo);
+                    }
+                }
+                // Sinon, considérer que c'est juste le nom de fichier
+                else {
                     $photoUrl = asset('uploads/photos/' . basename($s->profile_photo));
                 }
             }
-            
+
+            // Calculer les jours restants avant expiration
+            $daysRemaining = null;
+            $isExpired = false;
+            $expirationDate = null;
+
+            // Essayer d'abord avec expiration_date de la table students
+            if (!empty($s->expiration_date)) {
+                try {
+                    $expirationDate = \Carbon\Carbon::parse($s->expiration_date);
+                } catch (\Exception $e) {
+                    $expirationDate = null;
+                }
+            }
+
+            // Fallback : calculer depuis created_at + 4 mois
+            if (!$expirationDate && !empty($s->created_at)) {
+                try {
+                    $createdAt = \Carbon\Carbon::parse($s->created_at);
+                    $expirationDate = $createdAt->copy()->addMonths(4);
+                } catch (\Exception $e) {
+                    // Si créated_at aussi échoue, essayer avec users.created_at
+                    if ($userId) {
+                        $userRecord = DB::table('users')->where('id', $userId)->first();
+                        if ($userRecord && !empty($userRecord->created_at)) {
+                            $createdAt = \Carbon\Carbon::parse($userRecord->created_at);
+                            $expirationDate = $createdAt->copy()->addMonths(4);
+                        }
+                    }
+                }
+            }
+
+            // Calculer les jours restants
+            if ($expirationDate) {
+                $now = \Carbon\Carbon::now();
+
+                if ($expirationDate->isFuture()) {
+                    $daysRemaining = (int) $now->diffInDays($expirationDate);
+                    $isExpired = false;
+                } else {
+                    $daysRemaining = 0;
+                    $isExpired = true;
+                }
+            }
+
+            // Déterminer le statut : si expiré, le compte doit être inactif, sinon actif
+            $status = $s->status ?? 'active';
+
+            // Si le compte est expiré ET actuellement actif → mettre en inactif
+            if ($isExpired && $status === 'active') {
+                DB::table('students')
+                    ->where('id', $s->id)
+                    ->update([
+                        'status' => 'inactive',
+                        'updated_at' => now()
+                        // Pas de deactivation_reason ni deactivated_at
+                    ]);
+                $status = 'inactive';
+            }
+
+            // Si le compte n'est PAS expiré ET actuellement inactif (sans raison) → réactiver
+            if (!$isExpired && $status === 'inactive') {
+                // Vérifier qu'il n'y a pas de raison de désactivation manuelle
+                $hasManualDeactivation = DB::table('students')
+                    ->where('id', $s->id)
+                    ->whereNotNull('deactivation_reason')
+                    ->exists();
+
+                if (!$hasManualDeactivation) {
+                    DB::table('students')
+                        ->where('id', $s->id)
+                        ->update([
+                            'status' => 'active',
+                            'updated_at' => now()
+                        ]);
+                    $status = 'active';
+                }
+            }
+
             return [
                 'id' => $userId ?? $s->id, // Utiliser le user_id si disponible pour les routes
                 'student_id' => $s->id,
@@ -134,12 +399,16 @@ class StudentAdminController extends Controller
                 'tp_count' => $tpCount,
                 'progression' => $progression,
                 'photo_url' => $photoUrl,
-                'status' => $s->status ?? 'active', // Ajouter le statut
+                'status' => $status,
+                'days_remaining' => $daysRemaining,
+                'is_expired' => $isExpired,
+                'expiration_date' => $expirationDate,
             ];
         })->values();
-        
-        // Calculer la progression moyenne
+
+        // Calculer les statistiques
         $avgProgression = $rows->count() > 0 ? round($rows->avg('progression')) : 0;
+        $activeCount = $rows->where('status', 'active')->count();
 
         $data = [
             'formation' => $formation,
@@ -147,7 +416,7 @@ class StudentAdminController extends Controller
             'students' => $rows,
             'stats' => [
                 'total' => $rows->count(),
-                'active' => $rows->count(),
+                'active' => $activeCount,
                 'avg_progression' => $avgProgression,
             ],
         ];
@@ -160,13 +429,22 @@ class StudentAdminController extends Controller
      */
     public function profile(int $id)
     {
-        // Récupérer l'utilisateur
-        $user = DB::table('users')->where('id', $id)->first();
-        abort_unless($user, 404);
-        
-        // Récupérer les données complètes depuis la table students via user_id
-        $student = DB::table('students')->where('user_id', $user->id)->first();
-        
+        // Essayer d'abord comme student_id
+        $student = DB::table('students')->where('id', $id)->first();
+
+        if ($student) {
+            // Récupérer l'utilisateur via user_id
+            $user = DB::table('users')->where('id', $student->user_id)->first();
+        } else {
+            // Sinon essayer comme user_id
+            $user = DB::table('users')->where('id', $id)->first();
+            if ($user) {
+                $student = DB::table('students')->where('user_id', $user->id)->first();
+            }
+        }
+
+        abort_unless($user, 404, 'Utilisateur non trouvé');
+
         if (!$student) {
             // Fallback: utiliser les données de users si pas dans students
             $student = (object) [
@@ -194,7 +472,7 @@ class StudentAdminController extends Controller
                 $photoUrl = $student->profile_photo;
             }
             // Vérifier si c'est un chemin relatif qui commence par uploads/ ou photos_
-            elseif (str_starts_with($student->profile_photo, 'uploads/') || 
+            elseif (str_starts_with($student->profile_photo, 'uploads/') ||
                     str_starts_with($student->profile_photo, 'photos_preregistrations/') ||
                     str_starts_with($student->profile_photo, 'photos/')) {
                 // Essayer d'abord storage/app/public/
@@ -211,7 +489,7 @@ class StudentAdminController extends Controller
                 $photoUrl = asset('uploads/photos/' . basename($student->profile_photo));
             }
         }
-        
+
         // Récupérer les TPs de l'étudiant
         $tps = [];
         if (Schema::hasTable('tp')) {
@@ -220,13 +498,13 @@ class StudentAdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
         }
-        
+
         // Statistiques des TPs
         $totalTp = $tps->count();
         $tpValides = $tps->where('status', 'validated')->count();
         $tpEnCours = $tps->where('status', 'pending')->count();
         $tpRejetes = $tps->where('status', 'rejected')->count();
-        
+
         // Récupérer les projets design
         $designProjects = [];
         if (Schema::hasTable('design_projects')) {
@@ -234,7 +512,7 @@ class StudentAdminController extends Controller
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
-            
+
             // Charger les fichiers pour chaque projet depuis design_project_files
             if (Schema::hasTable('design_project_files')) {
                 foreach ($designProjects as $project) {
@@ -247,14 +525,14 @@ class StudentAdminController extends Controller
                 }
             }
         }
-        
+
         // Récupérer les paiements et factures
         $paiements = [];
         $factures = [];
         $totalPaye = 0;
         $totalFactures = 0;
         $soldeRestant = 0;
-        
+
         if (Schema::hasTable('paiements')) {
             $paiements = DB::table('paiements')
                 ->where('user_id', $user->id)
@@ -262,7 +540,7 @@ class StudentAdminController extends Controller
                 ->get();
             $totalPaye = $paiements->where('statut', 'validé')->sum('montant');
         }
-        
+
         // Récupérer les factures si la table existe
         if (Schema::hasTable('factures')) {
             $factures = DB::table('factures')
@@ -272,11 +550,19 @@ class StudentAdminController extends Controller
             $totalFactures = $factures->sum('montant');
             $soldeRestant = $totalFactures - $totalPaye;
         }
-        
+
+        // Récupérer les données du profil CVthèque
+        $cvthequeProfile = null;
+        if (Schema::hasTable('cvtheque_profiles')) {
+            $cvthequeProfile = DB::table('cvtheque_profiles')
+                ->where('user_id', $user->id)
+                ->first();
+        }
+
         // Calculer la progression (basée sur les TPs validés)
         $totalTpRequis = 20; // Nombre de TPs requis pour 100%
         $progression = $totalTp > 0 ? min(100, round(($tpValides / $totalTpRequis) * 100)) : 0;
-        
+
         // Préparer les données pour la vue
         $data = [
             'student' => [
@@ -303,6 +589,43 @@ class StudentAdminController extends Controller
                 'years_experience' => $student->years_experience ?? null,
                 'industry_sector' => $student->industry_sector ?? '',
             ],
+            'cvtheque' => $cvthequeProfile ? [
+                'professional_title' => $cvthequeProfile->professional_title ?? '',
+                'bio' => $cvthequeProfile->bio ?? '',
+                'professional_summary' => $cvthequeProfile->professional_summary ?? '',
+                'skills' => $cvthequeProfile->skills ?? '',
+                'software_skills' => $cvthequeProfile->software_skills ?? '',
+                'technical_skills' => $cvthequeProfile->technical_skills ?? '',
+                'languages' => $cvthequeProfile->languages ?? '',
+                'experience_years' => $cvthequeProfile->experience_years ?? 0,
+                'years_experience' => $cvthequeProfile->years_experience ?? 0,
+                'current_position' => $cvthequeProfile->current_position ?? '',
+                'current_company' => $cvthequeProfile->current_company ?? '',
+                'linkedin_url' => $cvthequeProfile->linkedin_url ?? '',
+                'linkedin_profile' => $cvthequeProfile->linkedin_profile ?? '',
+                'portfolio_url' => $cvthequeProfile->portfolio_url ?? '',
+                'website' => $cvthequeProfile->website ?? '',
+                'github_url' => $cvthequeProfile->github_url ?? '',
+                'behance_url' => $cvthequeProfile->behance_url ?? '',
+                'behance_profile' => $cvthequeProfile->behance_profile ?? '',
+                'dribbble_profile' => $cvthequeProfile->dribbble_profile ?? '',
+                'professional_email' => $cvthequeProfile->professional_email ?? '',
+                'phone' => $cvthequeProfile->phone ?? '',
+                'availability' => $cvthequeProfile->availability ?? '',
+                'job_type' => $cvthequeProfile->job_type ?? '',
+                'salary_expectation' => $cvthequeProfile->salary_expectation ?? '',
+                'remote_work' => $cvthequeProfile->remote_work ?? false,
+                'willing_to_relocate' => $cvthequeProfile->willing_to_relocate ?? false,
+                'profile_visible' => $cvthequeProfile->profile_visible ?? false,
+                'allow_contact' => $cvthequeProfile->allow_contact ?? false,
+                'cv_file_path' => $cvthequeProfile->cv_file_path ?? '',
+                'motivation_letter_path' => $cvthequeProfile->motivation_letter_path ?? '',
+                'portfolio_files' => $cvthequeProfile->portfolio_files ?? '',
+                'pressbook_file_path' => $cvthequeProfile->pressbook_file_path ?? '',
+                'report_file_path' => $cvthequeProfile->report_file_path ?? '',
+                'rapport_file_path' => $cvthequeProfile->rapport_file_path ?? '',
+                'profile_completion_score' => $cvthequeProfile->profile_completion_score ?? 0,
+            ] : null,
             'stats' => [
                 'total_tp' => $totalTp,
                 'tp_valides' => $tpValides,
@@ -337,51 +660,125 @@ class StudentAdminController extends Controller
         $u = DB::table('users')->select($select)->where('id', $id)->first();
         abort_unless($u, 404);
 
-        // Hydrater prenom/nom
-        $prenom = property_exists($u,'first_name') ? ($u->first_name ?? '') : '';
-        $nom = property_exists($u,'last_name') ? ($u->last_name ?? '') : '';
-        if ((!$prenom || !$nom) && property_exists($u,'name')) {
-            $parts = preg_split('/\s+/', (string)($u->name ?? ''), 2);
+        // Récupérer l'enregistrement student une seule fois
+        $studentRecord = null;
+        if (Schema::hasTable('students')) {
+            $studentRecord = DB::table('students')->where('user_id', $id)->first();
+        }
+
+        // Hydrater prenom/nom - Prioriser students puis users
+        $prenom = '';
+        $nom = '';
+
+        if ($studentRecord && !empty($studentRecord->first_name)) {
+            $prenom = $studentRecord->first_name;
+        } elseif (property_exists($u,'first_name') && !empty($u->first_name)) {
+            $prenom = $u->first_name;
+        }
+
+        if ($studentRecord && !empty($studentRecord->last_name)) {
+            $nom = $studentRecord->last_name;
+        } elseif (property_exists($u,'last_name') && !empty($u->last_name)) {
+            $nom = $u->last_name;
+        }
+
+        // Si toujours vide, essayer de split le name
+        if ((!$prenom || !$nom) && property_exists($u,'name') && !empty($u->name)) {
+            $parts = preg_split('/\s+/', (string)$u->name, 2);
             $prenom = $prenom ?: ($parts[0] ?? '');
             $nom = $nom ?: ($parts[1] ?? '');
         }
 
-        $ville = property_exists($u,'city') ? ($u->city ?? '') : (property_exists($u,'ville') ? ($u->ville ?? '') : '');
-        $pays = property_exists($u,'country') ? ($u->country ?? '') : (property_exists($u,'pays') ? ($u->pays ?? '') : '');
+        // Ville - Prioriser students puis users
+        $ville = '';
+        if ($studentRecord && !empty($studentRecord->city)) {
+            $ville = $studentRecord->city;
+        } elseif (property_exists($u,'city') && !empty($u->city)) {
+            $ville = $u->city;
+        } elseif (property_exists($u,'ville') && !empty($u->ville)) {
+            $ville = $u->ville;
+        }
+
+        // Pays - Prioriser students puis users
+        $pays = '';
+        if ($studentRecord && !empty($studentRecord->country)) {
+            $pays = $studentRecord->country;
+        } elseif (property_exists($u,'country') && !empty($u->country)) {
+            $pays = $u->country;
+        } elseif (property_exists($u,'pays') && !empty($u->pays)) {
+            $pays = $u->pays;
+        }
+
+        // Téléphone - Prioriser students puis users
+        $phone = '';
+        if ($studentRecord && !empty($studentRecord->phone)) {
+            $phone = $studentRecord->phone;
+        } elseif (property_exists($u,'phone') && !empty($u->phone)) {
+            $phone = $u->phone;
+        }
+
+        // Récupérer la formation depuis users ou students
         $formationKey = '';
-        if (property_exists($u,'formation_souhaitee')) $formationKey = (string)($u->formation_souhaitee ?? '');
-        elseif (property_exists($u,'choix_formation')) $formationKey = (string)($u->choix_formation ?? '');
-        $formationMap = [
-            'design_graphique' => 'Design Graphique',
-            'community_management' => 'Community Management',
-            'intelligence_artificielle' => 'Intelligence Artificielle',
-            'gestion_informatique' => 'Gestion Informatique',
-            'infographie' => 'Design Graphique',
-            'informatique' => 'Gestion Informatique',
-            'design-graphique' => 'Design Graphique',
-            'community-manager' => 'Community Management',
-            'intelligence-artificielle' => 'Intelligence Artificielle',
-            'gestion-informatique' => 'Gestion Informatique',
+        if (property_exists($u,'formation_souhaitee') && !empty($u->formation_souhaitee)) {
+            $formationKey = (string)$u->formation_souhaitee;
+        } elseif (property_exists($u,'choix_formation') && !empty($u->choix_formation)) {
+            $formationKey = (string)$u->choix_formation;
+        } elseif ($studentRecord && !empty($studentRecord->program)) {
+            $formationKey = $studentRecord->program;
+        } elseif ($studentRecord && !empty($studentRecord->specialization)) {
+            $formationKey = $studentRecord->specialization;
+        }
+
+        // Normaliser la clé de formation pour correspondre aux valeurs du select
+        $formationNormalizeMap = [
+            'design-graphique' => 'design_graphique',
+            'community-manager' => 'community_management',
+            'community-management' => 'community_management',
+            'intelligence-artificielle' => 'intelligence_artificielle',
+            'gestion-informatique' => 'gestion_informatique',
+            'infographie' => 'design_graphique',
+            'informatique' => 'gestion_informatique',
+            'Design Graphique' => 'design_graphique',
+            'Community Management' => 'community_management',
+            'Intelligence Artificielle' => 'intelligence_artificielle',
+            'Gestion Informatique' => 'gestion_informatique',
         ];
-        $formationLabel = $formationMap[$formationKey] ?? $formationKey;
+
+        // Normaliser la clé si nécessaire
+        $normalizedFormation = $formationNormalizeMap[$formationKey] ?? $formationKey;
 
         $photoUrl = null;
         if (in_array('profile_photo', $cols, true) && !empty($u->profile_photo)) {
             $photoUrl = asset('storage/' . ltrim($u->profile_photo, '/'));
         }
 
+        // Récupérer la date d'expiration depuis la table students
+        $expirationDate = null;
+        if ($studentRecord && !empty($studentRecord->expiration_date)) {
+            $expirationDate = $studentRecord->expiration_date;
+        }
+
+        // Email - Prioriser students puis users
+        $email = '';
+        if ($studentRecord && !empty($studentRecord->email)) {
+            $email = $studentRecord->email;
+        } elseif (!empty($u->email)) {
+            $email = $u->email;
+        }
+
         // Tableau attendu par la vue
         $student = [
             'id' => $u->id,
-            'email' => $u->email,
-            'prenom' => $prenom ?: '—',
-            'nom' => $nom ?: '—',
-            'phone' => property_exists($u,'phone') ? ($u->phone ?? '') : '',
-            'ville' => $ville ?: '—',
-            'pays' => $pays ?: '—',
+            'email' => $email,
+            'prenom' => $prenom ?: '',
+            'nom' => $nom ?: '',
+            'phone' => $phone ?: '',
+            'ville' => $ville ?: '',
+            'pays' => $pays ?: '',
             'created_at' => $u->created_at,
-            'formation_souhaitee' => $formationLabel ?: '—',
+            'formation_souhaitee' => $normalizedFormation ?: '',
             'photo_url' => $photoUrl,
+            'expiration_date' => $expirationDate,
         ];
 
         return view('admin.students.edit', compact('student'));
@@ -403,7 +800,7 @@ class StudentAdminController extends Controller
 
             // Récupérer l'étudiant
             $student = DB::table('students')->where('id', $id)->first();
-            
+
             if (!$student) {
                 return response()->json([
                     'success' => false,
@@ -414,12 +811,12 @@ class StudentAdminController extends Controller
             // Basculer le statut
             $newStatus = $student->status === 'active' ? 'inactive' : 'active';
             $reason = $request->input('reason', '');
-            
+
             $updateData = [
                 'status' => $newStatus,
                 'updated_at' => now()
             ];
-            
+
             // Si on désactive, enregistrer la raison et la date
             if ($newStatus === 'inactive') {
                 $updateData['deactivation_reason'] = $reason;
@@ -429,7 +826,7 @@ class StudentAdminController extends Controller
                 $updateData['deactivation_reason'] = null;
                 $updateData['deactivated_at'] = null;
             }
-            
+
             DB::table('students')
                 ->where('id', $id)
                 ->update($updateData);
@@ -466,8 +863,8 @@ class StudentAdminController extends Controller
                 }
             }
 
-            $message = $newStatus === 'inactive' 
-                ? 'Le compte de l\'étudiant a été désactivé avec succès. Un email a été envoyé à l\'étudiant.' 
+            $message = $newStatus === 'inactive'
+                ? 'Le compte de l\'étudiant a été désactivé avec succès. Un email a été envoyé à l\'étudiant.'
                 : 'Le compte de l\'étudiant a été réactivé avec succès. Un email de confirmation a été envoyé à l\'étudiant.';
 
             return response()->json([
@@ -486,7 +883,7 @@ class StudentAdminController extends Controller
 
     /**
      * Afficher les détails d'un projet design (admin)
-     * 
+     *
      * @param int $projectId
      * @return \Illuminate\Http\JsonResponse
      */
@@ -512,7 +909,7 @@ class StudentAdminController extends Controller
                     ->where('project_id', $projectId)
                     ->orderBy('created_at', 'desc')
                     ->get();
-                
+
                 $files = $projectFiles->map(function($file) {
                     return [
                         'id' => $file->id,
@@ -551,7 +948,7 @@ class StudentAdminController extends Controller
 
     /**
      * Valider un projet design (admin)
-     * 
+     *
      * @param int $projectId
      * @return \Illuminate\Http\JsonResponse
      */
@@ -639,7 +1036,7 @@ class StudentAdminController extends Controller
 
     /**
      * Télécharger un projet design (admin)
-     * 
+     *
      * @param int $projectId
      * @return \Illuminate\Http\Response
      */
@@ -710,7 +1107,7 @@ class StudentAdminController extends Controller
 
     /**
      * Supprimer un projet design (admin)
-     * 
+     *
      * @param int $projectId
      * @return \Illuminate\Http\JsonResponse
      */
@@ -734,7 +1131,7 @@ class StudentAdminController extends Controller
                 $projectFiles = DB::table('design_project_files')
                     ->where('project_id', $projectId)
                     ->get();
-                
+
                 // Supprimer les fichiers physiques
                 foreach ($projectFiles as $file) {
                     $filePath = public_path($file->file_path);
@@ -743,7 +1140,7 @@ class StudentAdminController extends Controller
                         Log::info('Fichier supprimé', ['file' => $file->file_path]);
                     }
                 }
-                
+
                 // Supprimer les entrées de la table design_project_files
                 DB::table('design_project_files')
                     ->where('project_id', $projectId)
@@ -776,6 +1173,121 @@ class StudentAdminController extends Controller
     }
 
     /**
+     * Mettre à jour les informations d'un étudiant (admin)
+     */
+    public function update(Request $request, int $id)
+    {
+        try {
+            // Validation des données
+            $validated = $request->validate([
+                'prenom' => 'required|string|max:255',
+                'nom' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone' => 'nullable|string|max:20',
+                'formation_souhaitee' => 'required|string',
+                'ville' => 'nullable|string|max:255',
+                'pays' => 'nullable|string|max:255',
+                'expiration_date' => 'nullable|date',
+            ]);
+
+            // Vérifier que l'utilisateur existe
+            $user = DB::table('users')->where('id', $id)->first();
+            if (!$user) {
+                return redirect()->back()->with('error', '❌ Utilisateur introuvable.');
+            }
+
+            // Préparer les données à mettre à jour
+            $updateData = [
+                'email' => $validated['email'],
+                'updated_at' => now(),
+            ];
+
+            // Ajouter les champs si ils existent dans la table
+            $cols = Schema::getColumnListing('users');
+
+            if (in_array('first_name', $cols)) {
+                $updateData['first_name'] = $validated['prenom'];
+            }
+            if (in_array('last_name', $cols)) {
+                $updateData['last_name'] = $validated['nom'];
+            }
+            if (in_array('phone', $cols)) {
+                $updateData['phone'] = $validated['phone'];
+            }
+            if (in_array('city', $cols)) {
+                $updateData['city'] = $validated['ville'];
+            }
+            if (in_array('country', $cols)) {
+                $updateData['country'] = $validated['pays'];
+            }
+            if (in_array('formation_souhaitee', $cols)) {
+                $updateData['formation_souhaitee'] = $validated['formation_souhaitee'];
+            }
+
+            // Mettre à jour dans la table users
+            DB::table('users')
+                ->where('id', $id)
+                ->update($updateData);
+
+            // Mettre à jour aussi dans la table students si l'entrée existe
+            if (Schema::hasTable('students')) {
+                $student = DB::table('students')->where('user_id', $id)->first();
+                if ($student) {
+                    $studentUpdateData = [
+                        'first_name' => $validated['prenom'],
+                        'last_name' => $validated['nom'],
+                        'email' => $validated['email'],
+                        'phone' => $validated['phone'] ?: null,
+                        'city' => $validated['ville'] ?: null,
+                        'country' => $validated['pays'] ?: 'Non spécifié',
+                        'updated_at' => now(),
+                    ];
+
+                    // Map formation_souhaitee vers program
+                    $formationMap = [
+                        'design_graphique' => 'Design Graphique',
+                        'community_management' => 'Community Management',
+                        'intelligence_artificielle' => 'Intelligence Artificielle',
+                        'gestion_informatique' => 'Gestion Informatique',
+                    ];
+
+                    if (isset($formationMap[$validated['formation_souhaitee']])) {
+                        $studentUpdateData['program'] = $formationMap[$validated['formation_souhaitee']];
+                    }
+
+                    // Gérer la date d'expiration
+                    if (!empty($validated['expiration_date'])) {
+                        $studentUpdateData['expiration_date'] = $validated['expiration_date'];
+                    }
+
+                    DB::table('students')
+                        ->where('user_id', $id)
+                        ->update($studentUpdateData);
+                }
+            }
+
+            // Logger l'action
+            Log::info('Étudiant modifié par admin', [
+                'user_id' => $id,
+                'updated_fields' => array_keys($updateData)
+            ]);
+
+            return redirect()->route('admin.students.profile', $id)
+                ->with('success', '✅ Les informations de l\'étudiant ont été mises à jour avec succès.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la mise à jour de l\'étudiant: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', '❌ Erreur lors de la mise à jour : ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
      * Supprimer définitivement un étudiant et toutes ses données
      */
     public function destroy($id)
@@ -783,7 +1295,7 @@ class StudentAdminController extends Controller
         try {
             // Récupérer l'étudiant
             $student = DB::table('students')->where('id', $id)->first();
-            
+
             if (!$student) {
                 return redirect()->back()->with('error', '❌ Étudiant introuvable.');
             }

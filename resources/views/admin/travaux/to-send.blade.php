@@ -10,7 +10,7 @@
     .stats-row {
         margin-bottom: 2rem;
     }
-    
+
     .stat-card {
         background: var(--form-surface);
         border: 1px solid var(--form-border);
@@ -20,33 +20,33 @@
         transition: all 0.3s ease;
         height: 100%;
     }
-    
+
     .stat-card:hover {
         border-color: var(--form-primary);
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
     }
-    
+
     .stat-card .stat-header {
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
         margin-bottom: 0.75rem;
     }
-    
+
     .stat-card .stat-title {
         font-size: 0.875rem;
         color: var(--form-text-muted);
         margin-bottom: 0.5rem;
     }
-    
+
     .stat-card .stat-value {
         font-size: 2rem;
         font-weight: 700;
         color: var(--form-text);
         margin-bottom: 0;
     }
-    
+
     .stat-card .stat-icon {
         width: 50px;
         height: 50px;
@@ -57,7 +57,7 @@
         font-size: 1.5rem;
         color: white;
     }
-    
+
     .stat-card .stat-footer {
         display: flex;
         align-items: center;
@@ -66,7 +66,7 @@
         color: var(--form-text-muted);
         margin-top: 0.75rem;
     }
-    
+
     /* Upload Zone */
     .upload-zone {
         border: 2px dashed var(--form-border);
@@ -77,34 +77,34 @@
         transition: all 0.3s ease;
         background: rgba(15, 23, 42, 0.5);
     }
-    
+
     .upload-zone:hover {
         border-color: var(--form-primary);
         background: rgba(56, 189, 248, 0.1);
     }
-    
+
     .upload-zone.drag-over {
         border-color: var(--form-primary);
         background: rgba(56, 189, 248, 0.2);
         border-style: solid;
     }
-    
+
     .upload-icon {
         font-size: 3rem;
         color: var(--form-primary);
         margin-bottom: 1rem;
     }
-    
+
     .upload-zone h5 {
         color: var(--form-text);
         margin-bottom: 0.5rem;
     }
-    
+
     .upload-zone p {
         color: var(--form-text-muted);
         margin-bottom: 1rem;
     }
-    
+
     .upload-info {
         margin-top: 1rem;
         padding-top: 1rem;
@@ -112,7 +112,7 @@
         font-size: 0.875rem;
         color: var(--form-text-muted);
     }
-    
+
     /* Files Preview */
     .file-item {
         background: rgba(15, 23, 42, 0.8);
@@ -125,46 +125,46 @@
         gap: 1rem;
         transition: all 0.3s ease;
     }
-    
+
     .file-item:hover {
         border-color: var(--form-primary);
         transform: translateX(5px);
     }
-    
+
     .file-icon {
         font-size: 2rem;
         min-width: 40px;
         text-align: center;
     }
-    
+
     .file-icon.image { color: #10b981; }
     .file-icon.pdf { color: #ef4444; }
-    
+
     .file-info {
         flex-grow: 1;
     }
-    
+
     .file-name {
         color: var(--form-text);
         font-weight: 600;
         margin-bottom: 0.25rem;
     }
-    
+
     .file-size {
         color: var(--form-text-muted);
         font-size: 0.875rem;
     }
-    
+
     .file-remove {
         color: #ef4444;
         cursor: pointer;
         transition: all 0.2s ease;
     }
-    
+
     .file-remove:hover {
         transform: scale(1.2);
     }
-    
+
     /* Recipients Info */
     .recipients-info {
         background: rgba(56, 189, 248, 0.1);
@@ -173,15 +173,15 @@
         padding: 1rem;
         margin-top: 1rem;
     }
-    
+
     .recipients-info i {
         color: var(--form-primary);
     }
-    
+
     .recipients-info strong {
         color: var(--form-text);
     }
-    
+
     /* Badge personnalisé */
     .badge-custom {
         display: inline-flex;
@@ -192,7 +192,7 @@
         font-weight: 600;
         font-size: 0.875rem;
     }
-    
+
     #quill-editor {
         height: 300px;
     }
@@ -224,7 +224,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-header">
@@ -242,7 +242,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-header">
@@ -260,7 +260,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-header">
@@ -297,11 +297,11 @@
                                 <label for="tp_title">
                                     Titre du TP <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" 
-                                       class="form-control @error('tp_title') is-invalid @enderror" 
-                                       id="tp_title" 
-                                       name="tp_title" 
-                                       value="{{ old('tp_title') }}" 
+                                <input type="text"
+                                       class="form-control @error('tp_title') is-invalid @enderror"
+                                       id="tp_title"
+                                       name="tp_title"
+                                       value="{{ old('tp_title') }}"
                                        required
                                        placeholder="Ex: Créer une affiche publicitaire">
                                 @error('tp_title')
@@ -314,11 +314,11 @@
                                 <label for="tp_deadline">
                                     Date limite de rendu <span class="text-danger">*</span>
                                 </label>
-                                <input type="datetime-local" 
-                                       class="form-control @error('tp_deadline') is-invalid @enderror" 
-                                       id="tp_deadline" 
-                                       name="tp_deadline" 
-                                       value="{{ old('tp_deadline') }}" 
+                                <input type="datetime-local"
+                                       class="form-control @error('tp_deadline') is-invalid @enderror"
+                                       id="tp_deadline"
+                                       name="tp_deadline"
+                                       value="{{ old('tp_deadline') }}"
                                        required>
                                 @error('tp_deadline')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -341,16 +341,19 @@
                                 <label for="formation">
                                     Formation cible <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select @error('formation') is-invalid @enderror" 
-                                        id="formation" 
+                                <select class="form-select @error('formation') is-invalid @enderror"
+                                        id="formation"
                                         name="formation"
                                         required>
                                     <option value="">-- Sélectionner --</option>
-                                    <option value="all">📚 Toutes les formations</option>
-                                    <option value="Design Graphique">🎨 Design Graphique</option>
-                                    <option value="Community Management">📱 Community Management</option>
-                                    <option value="Gestion Informatique">💻 Gestion Informatique</option>
-                                    <option value="Intelligence Artificielle">🤖 Intelligence Artificielle</option>
+                                    <option value="all">📚 Toutes les formations ({{ $stats['total_students'] }})</option>
+                                    <option value="Design Graphique">🎨 Design Graphique ({{ $stats['design_graphique'] }})</option>
+                                    <option value="Community Management">📱 Community Management ({{ $stats['community_management'] }})</option>
+                                    <option value="Gestion Informatique">💻 Gestion Informatique ({{ $stats['gestion_informatique'] }})</option>
+                                    <option value="Intelligence Artificielle">🤖 Intelligence Artificielle ({{ $stats['intelligence_artificielle'] }})</option>
+                                    @if(isset($stats['sans_formation']) && $stats['sans_formation'] > 0)
+                                        <option value="Sans formation">❓ Sans formation ({{ $stats['sans_formation'] }})</option>
+                                    @endif
                                 </select>
                                 @error('formation')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -362,18 +365,23 @@
                                 <label for="students">
                                     Étudiants spécifiques
                                 </label>
-                                <select class="form-select" 
-                                        id="students" 
-                                        name="students[]" 
-                                        multiple 
-                                        size="6">
+                                <select class="form-select"
+                                        id="students"
+                                        name="students[]"
+                                        multiple
+                                        size="10">
                                     @foreach($all_students as $student)
-                                        <option value="{{ $student->id }}" data-formation="{{ $student->formation }}">
-                                            {{ $student->prenom }} {{ $student->nom }} ({{ $student->formation }})
+                                        <option value="{{ $student->id }}" data-formation="{{ $student->formation_normalized }}">
+                                            {{ $student->prenom }} {{ $student->nom }}
+                                            @if($student->user_email)
+                                                ({{ $student->user_email }})
+                                            @endif
+                                            - {{ $student->formation }}
                                         </option>
                                     @endforeach
                                 </select>
                                 <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>
                                     Maintenez Ctrl/Cmd pour sélectionner plusieurs étudiants
                                 </small>
                             </div>
@@ -438,13 +446,13 @@
                             <i class="fas fa-folder-open me-2"></i>
                             Parcourir les fichiers
                         </button>
-                        <input type="file" 
-                               id="tp_files" 
-                               name="tp_files[]" 
-                               multiple 
+                        <input type="file"
+                               id="tp_files"
+                               name="tp_files[]"
+                               multiple
                                accept="image/*,.pdf"
                                class="d-none">
-                        
+
                         <div class="upload-info">
                             <i class="fas fa-info-circle me-1"></i>
                             <strong>Formats :</strong> JPG, PNG, GIF, PDF
@@ -457,7 +465,7 @@
 
                     <!-- Aperçu des fichiers -->
                     <div id="filesPreview" class="mt-3"></div>
-                    
+
                     @error('tp_files')
                         <div class="alert alert-danger mt-2">
                             <i class="fas fa-exclamation-triangle me-2"></i>{{ $message }}
@@ -474,7 +482,7 @@
                     <i class="fas fa-arrow-left me-2"></i>
                     Annuler
                 </a>
-                
+
                 <div class="d-flex gap-3">
                     <button type="button" class="btn btn-warning" id="previewBtn">
                         <i class="fas fa-eye me-2"></i>
@@ -551,44 +559,44 @@ dropZone.addEventListener('drop', (e) => {
 
 function handleFiles(files) {
     const filesArray = Array.from(files);
-    
+
     // Vérifier le nombre de fichiers
     if (selectedFiles.length + filesArray.length > maxFiles) {
         alert(`⚠️ Vous ne pouvez sélectionner que ${maxFiles} fichiers maximum`);
         return;
     }
-    
+
     filesArray.forEach(file => {
         // Vérifier la taille
         if (file.size > maxFileSize) {
             alert(`⚠️ ${file.name} est trop volumineux (max 5 Mo)`);
             return;
         }
-        
+
         // Vérifier le type
         const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
         if (!validTypes.includes(file.type)) {
             alert(`⚠️ ${file.name} n'est pas un format valide`);
             return;
         }
-        
+
         selectedFiles.push(file);
     });
-    
+
     updateFilesPreview();
     updateFilesCount();
 }
 
 function updateFilesPreview() {
     filesPreview.innerHTML = '';
-    
+
     selectedFiles.forEach((file, index) => {
         const fileItem = document.createElement('div');
         fileItem.className = 'file-item';
-        
+
         const icon = file.type.startsWith('image/') ? 'fa-file-image image' : 'fa-file-pdf pdf';
         const size = (file.size / 1024).toFixed(1);
-        
+
         fileItem.innerHTML = `
             <div class="file-icon ${icon.split(' ')[1]}">
                 <i class="fas ${icon.split(' ')[0]}"></i>
@@ -601,7 +609,7 @@ function updateFilesPreview() {
                 <i class="fas fa-times-circle fa-lg"></i>
             </div>
         `;
-        
+
         filesPreview.appendChild(fileItem);
     });
 }
@@ -631,16 +639,17 @@ const stats = {
     'Design Graphique': {{ $stats['design_graphique'] }},
     'Community Management': {{ $stats['community_management'] }},
     'Gestion Informatique': {{ $stats['gestion_informatique'] }},
-    'Intelligence Artificielle': {{ $stats['intelligence_artificielle'] }}
+    'Intelligence Artificielle': {{ $stats['intelligence_artificielle'] }},
+    'Sans formation': {{ $stats['sans_formation'] ?? 0 }}
 };
 
 formationSelect.addEventListener('change', function() {
     const selectedFormation = this.value;
-    
+
     if (selectedFormation && selectedFormation !== 'all') {
         // Afficher le sélecteur d'étudiants
         studentsSelectContainer.style.display = 'block';
-        
+
         // Filtrer les options
         const options = studentsSelect.querySelectorAll('option');
         options.forEach(option => {
@@ -652,7 +661,7 @@ formationSelect.addEventListener('change', function() {
                 option.selected = false;
             }
         });
-        
+
         updateRecipientsCount();
     } else if (selectedFormation === 'all') {
         studentsSelectContainer.style.display = 'none';
@@ -670,7 +679,7 @@ studentsSelect.addEventListener('change', function() {
 function updateRecipientsCount() {
     const selectedFormation = formationSelect.value;
     const selectedStudents = Array.from(studentsSelect.selectedOptions);
-    
+
     if (selectedStudents.length > 0) {
         recipientsCount.textContent = `${selectedStudents.length} étudiant(s) sélectionné(s)`;
     } else if (selectedFormation && selectedFormation !== 'all') {
@@ -684,10 +693,10 @@ document.getElementById('sendTpForm').addEventListener('submit', function(e) {
     // IMPORTANT: Synchroniser le contenu de Quill avec le champ hidden
     const quillContent = quill.root.innerHTML;
     document.getElementById('tp_description').value = quillContent;
-    
+
     console.log('Contenu Quill:', quillContent);
     console.log('Valeur champ hidden:', document.getElementById('tp_description').value);
-    
+
     // Vérifier que la description n'est pas vide
     const textContent = quill.getText().trim();
     if (!textContent || textContent.length === 0) {
@@ -696,7 +705,7 @@ document.getElementById('sendTpForm').addEventListener('submit', function(e) {
         quill.focus();
         return false;
     }
-    
+
     const formation = formationSelect.value;
     if (!formation) {
         e.preventDefault();
@@ -704,18 +713,18 @@ document.getElementById('sendTpForm').addEventListener('submit', function(e) {
         formationSelect.focus();
         return false;
     }
-    
+
     // Synchroniser les fichiers avec le formulaire
     const dataTransfer = new DataTransfer();
     selectedFiles.forEach(file => {
         dataTransfer.items.add(file);
     });
     fileInput.files = dataTransfer.files;
-    
+
     // Confirmation
     const selectedStudents = Array.from(studentsSelect.selectedOptions);
     let message = '';
-    
+
     if (selectedStudents.length > 0) {
         message = `Envoyer ce TP à ${selectedStudents.length} étudiant(s) sélectionné(s) ?`;
     } else if (formation === 'all') {
@@ -724,7 +733,7 @@ document.getElementById('sendTpForm').addEventListener('submit', function(e) {
         const count = stats[formation] || 0;
         message = `Envoyer ce TP à tous les étudiants de ${formation} (${count} étudiants) ?`;
     }
-    
+
     if (!confirm(message)) {
         e.preventDefault();
         return false;
@@ -736,12 +745,12 @@ document.getElementById('previewBtn').addEventListener('click', function() {
     const title = document.getElementById('tp_title').value;
     const description = quill.root.innerHTML;
     const deadline = document.getElementById('tp_deadline').value;
-    
+
     if (!title || !description || !deadline) {
         alert('⚠️ Veuillez remplir tous les champs obligatoires');
         return;
     }
-    
+
     // Créer une modale d'aperçu (simplifiée)
     alert(`Aperçu du TP:\n\nTitre: ${title}\nDate limite: ${deadline}\nNombre de fichiers: ${selectedFiles.length}`);
 });

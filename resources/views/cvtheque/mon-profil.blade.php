@@ -57,7 +57,7 @@
         border-radius: 50%;
         animation: pulse 4s ease-in-out infinite;
     }
-    
+
     @keyframes pulse {
         0%, 100% { transform: scale(1); opacity: 0.5; }
         50% { transform: scale(1.1); opacity: 0.8; }
@@ -484,18 +484,284 @@
         animation: fadeInUp 0.6s ease-out;
     }
 
-    /* Print styles */
+    /* Print styles - CV Professionnel Classique */
     @media print {
-        .floating-actions {
-            display: none;
+        /* Reset et configuration de base */
+        * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
-        
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
         body {
+            background: white !important;
+            margin: 0;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            color: #2c3e50;
+            font-size: 11pt;
+            line-height: 1.6;
+        }
+
+        /* Cacher les éléments non nécessaires */
+        .floating-actions,
+        .profile-hero-badges,
+        .section-icon,
+        .fab-button,
+        nav,
+        .navbar,
+        header,
+        footer,
+        .breadcrumb {
+            display: none !important;
+        }
+
+        .profile-wrapper {
+            max-width: 100%;
+            padding: 0;
             background: white;
         }
-        
+
         .profile-main-card {
-            box-shadow: none;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            page-break-after: avoid;
+        }
+
+        /* Header professionnel avec bande latérale */
+        .profile-hero {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+            color: white !important;
+            padding: 30pt 40pt !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            page-break-inside: avoid;
+            position: relative;
+        }
+
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 8pt;
+            background: #3498db;
+        }
+
+        .profile-hero-content {
+            display: flex !important;
+            align-items: center !important;
+            gap: 20pt !important;
+        }
+
+        .profile-avatar-large,
+        .profile-avatar-placeholder {
+            width: 90pt !important;
+            height: 90pt !important;
+            border-radius: 50% !important;
+            border: 4pt solid white !important;
+            flex-shrink: 0;
+            object-fit: cover;
+        }
+
+        .profile-avatar-placeholder {
+            background: #3498db !important;
+            color: white !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 32pt !important;
+            font-weight: bold !important;
+        }
+
+        .profile-hero-info h1 {
+            font-size: 24pt !important;
+            font-weight: 700 !important;
+            margin: 0 0 6pt 0 !important;
+            color: white !important;
+            letter-spacing: 0.5pt;
+            text-transform: uppercase;
+        }
+
+        .profile-hero-title {
+            font-size: 14pt !important;
+            font-weight: 400 !important;
+            color: #ecf0f1 !important;
+            margin: 0 !important;
+            font-style: italic;
+        }
+
+        /* Grid layout professionnel */
+        .profile-grid {
+            display: block !important;
+            padding: 30pt 40pt !important;
+            background: white !important;
+        }
+
+        .section-card {
+            page-break-inside: avoid;
+            margin-bottom: 20pt !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            background: white !important;
+            border-left: 3pt solid #3498db !important;
+            padding-left: 15pt !important;
+        }
+
+        .section-header {
+            margin-bottom: 12pt !important;
+            padding: 0 !important;
+            background: none !important;
+            border-bottom: 1pt solid #ecf0f1 !important;
+            padding-bottom: 8pt !important;
+        }
+
+        .section-title {
+            font-size: 16pt !important;
+            font-weight: 700 !important;
+            color: #2c3e50 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1pt !important;
+            margin: 0 !important;
+        }
+
+        /* À propos section */
+        .professional-summary {
+            font-size: 11pt !important;
+            line-height: 1.8 !important;
+            color: #34495e !important;
+            text-align: justify !important;
+            margin: 12pt 0 !important;
+        }
+
+        /* Compétences - affichage élégant */
+        .skills-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 8pt !important;
+            margin-top: 12pt !important;
+        }
+
+        .skill-item {
+            background: #f8f9fa !important;
+            padding: 6pt 10pt !important;
+            border-radius: 4pt !important;
+            border-left: 2pt solid #3498db !important;
+            font-size: 10pt !important;
+            color: #2c3e50 !important;
+            box-shadow: none !important;
+        }
+
+        /* Documents */
+        .documents-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10pt !important;
+        }
+
+        .document-item {
+            background: #f8f9fa !important;
+            padding: 10pt !important;
+            border-radius: 4pt !important;
+            border-left: 3pt solid #3498db !important;
+            page-break-inside: avoid;
+        }
+
+        .document-name {
+            font-weight: 600 !important;
+            color: #2c3e50 !important;
+            font-size: 10pt !important;
+        }
+
+        .document-badge {
+            font-size: 9pt !important;
+            margin-top: 4pt !important;
+        }
+
+        .download-link {
+            display: none !important;
+        }
+
+        /* Coordonnées et infos */
+        .contact-grid,
+        .preferences-grid {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 12pt !important;
+            margin-top: 12pt !important;
+        }
+
+        .contact-item,
+        .preference-item {
+            padding: 8pt !important;
+            background: #f8f9fa !important;
+            border-radius: 4pt !important;
+            border-left: 2pt solid #3498db !important;
+        }
+
+        .contact-label,
+        .preference-label {
+            font-size: 9pt !important;
+            color: #7f8c8d !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5pt !important;
+            margin-bottom: 4pt !important;
+        }
+
+        .contact-value,
+        .preference-value {
+            font-size: 11pt !important;
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+        }
+
+        /* Footer avec date de génération */
+        .profile-main-card::after {
+            content: "CV généré le " attr(data-date) " - École Virtuelle des Créatifs";
+            display: block;
+            text-align: center;
+            font-size: 8pt;
+            color: #95a5a6;
+            padding: 15pt 0;
+            border-top: 1pt solid #ecf0f1;
+            margin-top: 20pt;
+        }
+
+        /* Icônes dans le texte */
+        .fas, .fab {
+            font-weight: normal !important;
+            margin-right: 6pt;
+            color: #3498db !important;
+        }
+
+        /* Links */
+        a {
+            color: #3498db !important;
+            text-decoration: none !important;
+        }
+
+        a:after {
+            content: " (" attr(href) ")";
+            font-size: 9pt;
+            color: #7f8c8d;
+        }
+
+        /* Page breaks */
+        .section-card {
+            page-break-inside: avoid;
+        }
+
+        h1, h2, h3 {
+            page-break-after: avoid;
         }
     }
 </style>
@@ -504,7 +770,7 @@
 @section('content')
 <div class="profile-wrapper">
     <!-- Carte principale -->
-    <div class="profile-main-card animate-in">
+    <div class="profile-main-card animate-in" data-date="{{ date('d/m/Y') }}">
         <!-- Hero Section -->
         <div class="profile-hero">
             <div class="profile-hero-content">
@@ -517,8 +783,8 @@
                                 $photoPath = 'students/photos/' . $photoPath;
                             }
                         @endphp
-                        <img src="{{ asset('storage/' . $photoPath) }}" 
-                             alt="{{ $userInfo->first_name }}" 
+                        <img src="{{ asset('storage/' . $photoPath) }}"
+                             alt="{{ $userInfo->first_name }}"
                              class="profile-avatar-large"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                         <div class="profile-avatar-placeholder" style="display: none;">
@@ -530,11 +796,11 @@
                         </div>
                     @endif
                 </div>
-                
+
                 <div class="profile-hero-info">
                     <h1>{{ $userInfo->first_name ?? 'Prénom' }} {{ $userInfo->last_name ?? 'Nom' }}</h1>
                     <p class="profile-hero-title">{{ $cvthequeProfile->professional_title ?? $userInfo->program ?? 'Étudiant' }}</p>
-                    
+
                     <div class="profile-hero-badges">
                         <div class="hero-badge">
                             <i class="fas fa-briefcase"></i>
@@ -593,8 +859,8 @@
                 </div>
                 <div class="skills-list">
                     @php
-                        $skillsArray = is_string($cvthequeProfile->skills) 
-                            ? json_decode($cvthequeProfile->skills, true) 
+                        $skillsArray = is_string($cvthequeProfile->skills)
+                            ? json_decode($cvthequeProfile->skills, true)
                             : $cvthequeProfile->skills;
                     @endphp
                     @if(is_array($skillsArray))
@@ -733,29 +999,29 @@
                                 'name' => 'CV',
                                 'icon' => 'fa-file-pdf',
                                 'color' => 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                                'file' => $cvthequeProfile->cv_file ?? null
+                                'file' => $cvthequeProfile->cv_file_path ?? null
                             ],
                             [
                                 'name' => 'Lettre de motivation',
                                 'icon' => 'fa-envelope',
                                 'color' => 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-                                'file' => $cvthequeProfile->motivation_file ?? null
+                                'file' => $cvthequeProfile->motivation_letter_path ?? null
                             ],
                             [
                                 'name' => 'Pressbook',
                                 'icon' => 'fa-book',
                                 'color' => 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                                'file' => $cvthequeProfile->pressbook_file ?? null
+                                'file' => $cvthequeProfile->pressbook_file_path ?? null
                             ],
                             [
                                 'name' => 'Rapport de formation',
                                 'icon' => 'fa-graduation-cap',
                                 'color' => 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                'file' => $cvthequeProfile->rapport_file ?? null
+                                'file' => $cvthequeProfile->report_file_path ?? null
                             ]
                         ];
                     @endphp
-                    
+
                     @foreach($documentsToShow as $doc)
                     <div class="document-item">
                         <div class="document-icon" style="background: {{ $doc['color'] }};">
@@ -764,16 +1030,16 @@
                         <div class="document-name">{{ $doc['name'] }}</div>
                         @if(!empty($doc['file']))
                             <span class="document-badge badge-available">✓ Disponible</span>
-                            <a href="{{ asset('storage/' . $doc['file']) }}" 
-                               class="download-link" 
+                            <a href="{{ asset('storage/' . $doc['file']) }}"
+                               class="download-link"
                                target="_blank"
                                download>
                                 <i class="fas fa-download me-1"></i>Télécharger
                             </a>
                         @else
                             <span class="document-badge badge-missing">Non ajouté</span>
-                            <a href="{{ route($routePrefix . '.cvtheque.index') }}" 
-                               class="download-link" 
+                            <a href="{{ route($routePrefix . '.cvtheque.index') }}"
+                               class="download-link"
                                style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);">
                                 <i class="fas fa-plus me-1"></i>Ajouter
                             </a>
@@ -843,7 +1109,7 @@
     // Animation au scroll
     document.addEventListener('DOMContentLoaded', function() {
         const cards = document.querySelectorAll('.section-card');
-        
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -851,7 +1117,7 @@
                 }
             });
         }, { threshold: 0.1 });
-        
+
         cards.forEach(card => observer.observe(card));
     });
 

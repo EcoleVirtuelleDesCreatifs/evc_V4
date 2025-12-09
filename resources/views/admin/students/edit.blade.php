@@ -2,12 +2,217 @@
 
 @section('title', 'Modifier Étudiant - ' . ($student['prenom'] ?? 'Étudiant') . ' ' . ($student['nom'] ?? ''))
 
+@section('styles')
+<link rel="stylesheet" href="{{ asset('css/admin/formation-create.css') }}">
+<style>
+body {
+    background: var(--form-bg);
+    color: var(--form-text);
+}
+.breadcrumb {
+    background: transparent;
+}
+.breadcrumb-item a {
+    color: var(--form-primary);
+    text-decoration: none;
+}
+.breadcrumb-item.active {
+    color: var(--form-text-muted);
+}
+.sidebar-sticky {
+    position: sticky;
+    top: 20px;
+}
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--form-border);
+}
+.stat-item:last-child {
+    border-bottom: none;
+}
+.stat-label {
+    color: var(--form-text-muted);
+    font-size: 0.875rem;
+}
+.stat-value {
+    color: var(--form-text);
+    font-weight: 600;
+}
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.status-badge.active {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+.status-badge.inactive {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+.btn-secondary {
+    background: rgba(74, 85, 104, 0.3);
+    border: 1px solid var(--form-border);
+    color: var(--form-text);
+}
+.btn-secondary:hover {
+    background: rgba(74, 85, 104, 0.5);
+    border-color: var(--form-text-muted);
+    color: var(--form-text);
+}
+.btn-outline-primary {
+    background: transparent;
+    border: 1px solid var(--form-primary);
+    color: var(--form-primary);
+}
+.btn-outline-primary:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: var(--form-primary);
+    color: var(--form-primary);
+}
+.btn-success {
+    background: #10b981;
+    border: none;
+    color: white;
+}
+.btn-success:hover {
+    background: #059669;
+    color: white;
+    transform: translateY(-1px);
+}
+.alert-danger {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+.alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #6ee7b7;
+}
+.text-danger {
+    color: #ef4444 !important;
+}
+.form-text {
+    color: var(--form-text-muted);
+    font-size: 0.875rem;
+}
+
+/* Styles optimisés pour la section Durée de Formation */
+.expiration-status-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px solid;
+    transition: all 0.3s ease;
+}
+.expiration-status-card.alert-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%);
+    border-color: rgba(16, 185, 129, 0.4);
+}
+.expiration-status-card.alert-warning {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+    border-color: rgba(251, 191, 36, 0.4);
+}
+.expiration-status-card.alert-danger {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+    border-color: rgba(239, 68, 68, 0.4);
+}
+.expiration-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 1.5rem;
+}
+.alert-success .expiration-icon {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+.alert-warning .expiration-icon {
+    background: rgba(251, 191, 36, 0.2);
+    color: #f59e0b;
+}
+.alert-danger .expiration-icon {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+.alert-success h4 { color: #10b981; }
+.alert-warning h4 { color: #f59e0b; }
+.alert-danger h4 { color: #ef4444; }
+
+.btn-duration {
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    border: 2px solid;
+}
+.btn-duration-success {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #10b981;
+}
+.btn-duration-success:hover {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: #10b981;
+    color: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+.btn-duration-primary {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #38bdf8;
+}
+.btn-duration-primary:hover {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: #38bdf8;
+    color: #0ea5e9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+.btn-duration-info {
+    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #6366f1;
+}
+.btn-duration-info:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: #6366f1;
+    color: #4f46e5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+.form-control:focus {
+    border-color: var(--form-primary);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+}
+.border-success {
+    animation: successPulse 0.5s ease-in-out;
+}
+@keyframes successPulse {
+    0%, 100% { border-color: var(--form-border); }
+    50% {
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+}
+</style>
+@endsection
+
 @section('content')
-<div class="container-fluid px-4">
-    <!-- Header avec breadcrumb -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
+<div class="container-fluid px-4 interactive-dashboard-form">
+    <!-- Header -->
+    <div class="form-header">
+        <div>
+            <nav aria-label="breadcrumb" class="mb-3">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Dashboard</a></li>
                     <li class="breadcrumb-item"><a href="{{ route('admin.statistics.detail', 'total-students') }}">Étudiants</a></li>
@@ -15,25 +220,30 @@
                     <li class="breadcrumb-item active">Modifier</li>
                 </ol>
             </nav>
-            <h1 class="h3 mb-0 text-primary">
-                <i class="fas fa-user-edit me-2"></i>Modifier Étudiant
+            <h1 class="h2 mb-0" style="color: var(--form-text);">
+                <i class="fas fa-user-edit me-2" style="color: var(--form-primary);"></i>Modifier Étudiant
             </h1>
+            <p class="mt-2 mb-0" style="color: var(--form-text-muted);">
+                <i class="fas fa-info-circle me-1"></i>Modifiez les informations de l'étudiant
+            </p>
         </div>
+        <a href="{{ route('admin.students.profile', $student['id']) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Retour au profil
+        </a>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-user me-2"></i>Informations de l'Étudiant
-                    </h5>
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="form-card mb-4">
+                <div class="form-card-header">
+                    <i class="fas fa-user"></i>
+                    <h3>Informations de l'Étudiant</h3>
                 </div>
-                <div class="card-body">
+                <div class="form-card-body">
                     @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Erreurs de validation</h6>
-                            <ul class="mb-0">
+                        <div class="alert alert-danger mb-4">
+                            <h6 class="mb-2"><i class="fas fa-exclamation-triangle me-2"></i>Erreurs de validation</h6>
+                            <ul class="mb-0" style="padding-left: 1.5rem;">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -42,7 +252,7 @@
                     @endif
 
                     @if (session('success'))
-                        <div class="alert alert-success">
+                        <div class="alert alert-success mb-4">
                             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
                         </div>
                     @endif
@@ -51,14 +261,14 @@
                         @csrf
                         @method('PUT')
 
-                        <div class="row">
+                        <div class="row g-4">
                             <!-- Informations personnelles -->
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="prenom" class="form-label">
                                         <i class="fas fa-user text-muted me-1"></i>Prénom <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control @error('prenom') is-invalid @enderror" 
+                                    <input type="text" class="form-control @error('prenom') is-invalid @enderror"
                                            id="prenom" name="prenom" value="{{ old('prenom', $student['prenom'] ?? '') }}" required>
                                     @error('prenom')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -67,11 +277,11 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="nom" class="form-label">
                                         <i class="fas fa-user text-muted me-1"></i>Nom <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text" class="form-control @error('nom') is-invalid @enderror" 
+                                    <input type="text" class="form-control @error('nom') is-invalid @enderror"
                                            id="nom" name="nom" value="{{ old('nom', $student['nom'] ?? '') }}" required>
                                     @error('nom')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -80,11 +290,11 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="email" class="form-label">
                                         <i class="fas fa-envelope text-muted me-1"></i>Email <span class="text-danger">*</span>
                                     </label>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror" 
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
                                            id="email" name="email" value="{{ old('email', $student['email'] ?? '') }}" required>
                                     @error('email')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -93,11 +303,11 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="phone" class="form-label">
                                         <i class="fas fa-phone text-muted me-1"></i>Téléphone
                                     </label>
-                                    <input type="tel" class="form-control @error('phone') is-invalid @enderror" 
+                                    <input type="tel" class="form-control @error('phone') is-invalid @enderror"
                                            id="phone" name="phone" value="{{ old('phone', $student['phone'] ?? '') }}">
                                     @error('phone')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -106,11 +316,11 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="formation_souhaitee" class="form-label">
                                         <i class="fas fa-graduation-cap text-muted me-1"></i>Formation <span class="text-danger">*</span>
                                     </label>
-                                    <select class="form-select @error('formation_souhaitee') is-invalid @enderror" 
+                                    <select class="form-select @error('formation_souhaitee') is-invalid @enderror"
                                             id="formation_souhaitee" name="formation_souhaitee" required>
                                         <option value="">Sélectionner une formation</option>
                                         <option value="design_graphique" {{ old('formation_souhaitee', $student['formation_souhaitee'] ?? '') == 'design_graphique' ? 'selected' : '' }}>
@@ -133,11 +343,11 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="ville" class="form-label">
                                         <i class="fas fa-map-marker-alt text-muted me-1"></i>Ville
                                     </label>
-                                    <input type="text" class="form-control @error('ville') is-invalid @enderror" 
+                                    <input type="text" class="form-control @error('ville') is-invalid @enderror"
                                            id="ville" name="ville" value="{{ old('ville', $student['ville'] ?? '') }}">
                                     @error('ville')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -146,7 +356,7 @@
                             </div>
 
                             <div class="col-md-6">
-                                <div class="mb-3">
+                                <div class="form-group">
                                     <label for="pays" class="form-label">
                                         <i class="fas fa-globe text-muted me-1"></i>Pays
                                     </label>
@@ -171,53 +381,104 @@
                                     @enderror
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Informations système (lecture seule) -->
-                        <div class="row mt-4">
-                            <div class="col-12">
-                                <h6 class="text-muted mb-3">
-                                    <i class="fas fa-info-circle me-2"></i>Informations Système
-                                </h6>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label text-muted">ID Étudiant</label>
-                                    <input type="text" class="form-control-plaintext" readonly value="#{{ $student['id'] }}">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label text-muted">Date d'inscription</label>
-                                    <input type="text" class="form-control-plaintext" readonly 
-                                           value="{{ isset($student['created_at']) ? date('d/m/Y à H:i', strtotime($student['created_at'])) : '-' }}">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label text-muted">Dernière modification</label>
-                                    <input type="text" class="form-control-plaintext" readonly 
-                                           value="{{ isset($student['updated_at']) ? date('d/m/Y à H:i', strtotime($student['updated_at'])) : '-' }}">
-                                </div>
-                            </div>
-                        </div>
+                            @php
+                                // Calculer la date d'expiration actuelle
+                                $expirationDate = null;
+                                $daysRemaining = null;
 
-                        <!-- Boutons d'action -->
-                        <div class="row mt-4">
+                                if (isset($student['expiration_date'])) {
+                                    $expirationDate = \Carbon\Carbon::parse($student['expiration_date'])->format('Y-m-d');
+                                    $daysRemaining = (int) \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($student['expiration_date']), false);
+                                } elseif (isset($student['created_at'])) {
+                                    $createdAt = \Carbon\Carbon::parse($student['created_at']);
+                                    $expirationDate = $createdAt->copy()->addMonths(4)->format('Y-m-d');
+                                    $daysRemaining = (int) \Carbon\Carbon::now()->diffInDays($createdAt->copy()->addMonths(4), false);
+                                }
+                            @endphp
+
                             <div class="col-12">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <a href="{{ route('admin.students.profile', $student['id']) }}" class="btn btn-secondary">
-                                            <i class="fas fa-arrow-left me-1"></i>Retour au profil
-                                        </a>
+                                <div class="form-card mt-4">
+                                    <div class="form-card-header">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <h3>Durée de Formation</h3>
                                     </div>
-                                    <div class="d-flex gap-2">
-                                        <button type="button" class="btn btn-outline-primary" onclick="resetForm()">
-                                            <i class="fas fa-undo me-1"></i>Réinitialiser
-                                        </button>
-                                        <button type="submit" class="btn btn-success" id="saveBtn">
-                                            <i class="fas fa-save me-1"></i>Enregistrer les modifications
-                                        </button>
+                                    <div class="form-card-body">
+                                        @if($daysRemaining !== null)
+                                            <div class="expiration-status-card mb-4 alert-{{ $daysRemaining < 0 ? 'danger' : ($daysRemaining <= 30 ? 'warning' : 'success') }}">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="expiration-icon me-3">
+                                                            <i class="fas fa-{{ $daysRemaining < 0 ? 'times-circle' : 'clock' }}"></i>
+                                                        </div>
+                                                        <div>
+                                                            <h4 class="mb-1" style="font-weight: 700; font-size: 1.5rem;">
+                                                                @if($daysRemaining < 0)
+                                                                    Expiré depuis {{ abs($daysRemaining) }} jour{{ abs($daysRemaining) > 1 ? 's' : '' }}
+                                                                @else
+                                                                    {{ $daysRemaining }} jour{{ $daysRemaining > 1 ? 's' : '' }} restant{{ $daysRemaining > 1 ? 's' : '' }}
+                                                                @endif
+                                                            </h4>
+                                                            <p class="mb-0" style="font-size: 0.875rem; opacity: 0.9;">
+                                                                <i class="fas fa-calendar-day me-1"></i>Date d'expiration : {{ \Carbon\Carbon::parse($expirationDate)->format('d/m/Y') }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    @if($daysRemaining < 0)
+                                                        <span class="badge bg-danger" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                                                            <i class="fas fa-exclamation-triangle me-1"></i>EXPIRÉ
+                                                        </span>
+                                                    @elseif($daysRemaining <= 7)
+                                                        <span class="badge bg-danger" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                                                            <i class="fas fa-exclamation-triangle me-1"></i>URGENT
+                                                        </span>
+                                                    @elseif($daysRemaining <= 30)
+                                                        <span class="badge bg-warning text-dark" style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                                                            <i class="fas fa-clock me-1"></i>ATTENTION
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="expiration_date" class="form-label" style="font-weight: 600; color: var(--form-text);">
+                                                        <i class="fas fa-calendar-check me-2"></i>Date d'Expiration
+                                                    </label>
+                                                    <input type="date"
+                                                           class="form-control @error('expiration_date') is-invalid @enderror"
+                                                           id="expiration_date"
+                                                           name="expiration_date"
+                                                           value="{{ old('expiration_date', $expirationDate) }}"
+                                                           style="padding: 0.75rem; font-size: 1rem;">
+                                                    @error('expiration_date')
+                                                        <div class="invalid-feedback">{{ $message }}</div>
+                                                    @enderror
+                                                    <small class="form-text" style="color: var(--form-text-muted); margin-top: 0.5rem; display: block;">
+                                                        <i class="fas fa-info-circle me-1"></i>Modifiez cette date pour ajuster la durée
+                                                    </small>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label class="form-label" style="font-weight: 600; color: var(--form-text);">
+                                                    <i class="fas fa-bolt me-2"></i>Actions Rapides
+                                                </label>
+                                                <div class="d-grid gap-2">
+                                                    <button type="button" class="btn btn-duration btn-duration-success" onclick="addMonths(1)">
+                                                        <i class="fas fa-plus-circle me-2"></i>Prolonger de 1 mois
+                                                    </button>
+                                                    <button type="button" class="btn btn-duration btn-duration-primary" onclick="addMonths(3)">
+                                                        <i class="fas fa-plus-circle me-2"></i>Prolonger de 3 mois
+                                                    </button>
+                                                    <button type="button" class="btn btn-duration btn-duration-info" onclick="addMonths(6)">
+                                                        <i class="fas fa-plus-circle me-2"></i>Prolonger de 6 mois
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -226,15 +487,82 @@
                 </div>
             </div>
         </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Informations système -->
+            <div class="form-card mb-4 sidebar-sticky">
+                <div class="form-card-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Informations Système</h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="stat-item">
+                        <span class="stat-label">ID Étudiant</span>
+                        <span class="stat-value">#{{ $student['id'] }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Date d'inscription</span>
+                        <span class="stat-value">{{ isset($student['created_at']) ? date('d/m/Y', strtotime($student['created_at'])) : '-' }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Dernière modification</span>
+                        <span class="stat-value">{{ isset($student['updated_at']) ? date('d/m/Y', strtotime($student['updated_at'])) : '-' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions Rapides -->
+            <div class="form-card">
+                <div class="form-card-header">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Actions</h3>
+                </div>
+                <div class="form-card-body">
+                    <p class="mb-3" style="color: var(--form-text-muted); font-size: 0.875rem;">
+                        <i class="fas fa-info-circle me-1"></i>Cliquez sur Enregistrer pour sauvegarder vos modifications
+                    </p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-primary" onclick="resetForm()">
+                            <i class="fas fa-undo me-2"></i>Réinitialiser le formulaire
+                        </button>
+                        <button type="submit" class="btn btn-success" id="saveBtn" form="editStudentForm">
+                            <i class="fas fa-save me-2"></i>Enregistrer les modifications
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 @push('scripts')
 <script>
+// Fonction pour ajouter des mois à la date d'expiration
+function addMonths(months) {
+    const dateInput = document.getElementById('expiration_date');
+    const currentDate = dateInput.value ? new Date(dateInput.value) : new Date();
+
+    currentDate.setMonth(currentDate.getMonth() + months);
+
+    // Format YYYY-MM-DD
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+
+    dateInput.value = `${year}-${month}-${day}`;
+
+    // Visual feedback
+    dateInput.classList.add('border-success');
+    setTimeout(() => {
+        dateInput.classList.remove('border-success');
+    }, 1000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('editStudentForm');
     const saveBtn = document.getElementById('saveBtn');
-    
+
     // Validation en temps réel
     const inputs = form.querySelectorAll('input[required], select[required]');
     inputs.forEach(input => {
@@ -242,15 +570,15 @@ document.addEventListener('DOMContentLoaded', function() {
             validateField(this);
         });
     });
-    
+
     // Soumission du formulaire
     form.addEventListener('submit', function(e) {
         e.preventDefault();
-        
+
         if (validateForm()) {
             saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Enregistrement...';
             saveBtn.disabled = true;
-            
+
             // Soumettre le formulaire
             this.submit();
         }
@@ -260,7 +588,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function validateField(field) {
     const value = field.value.trim();
     const isRequired = field.hasAttribute('required');
-    
+
     if (isRequired && !value) {
         field.classList.add('is-invalid');
         return false;
@@ -275,13 +603,13 @@ function validateForm() {
     const form = document.getElementById('editStudentForm');
     const requiredFields = form.querySelectorAll('input[required], select[required]');
     let isValid = true;
-    
+
     requiredFields.forEach(field => {
         if (!validateField(field)) {
             isValid = false;
         }
     });
-    
+
     // Validation email
     const emailField = document.getElementById('email');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -289,14 +617,14 @@ function validateForm() {
         emailField.classList.add('is-invalid');
         isValid = false;
     }
-    
+
     return isValid;
 }
 
 function resetForm() {
     if (confirm('Êtes-vous sûr de vouloir réinitialiser le formulaire ? Toutes les modifications non sauvegardées seront perdues.')) {
         document.getElementById('editStudentForm').reset();
-        
+
         // Supprimer les classes de validation
         const fields = document.querySelectorAll('.is-valid, .is-invalid');
         fields.forEach(field => {
@@ -306,44 +634,5 @@ function resetForm() {
 }
 </script>
 
-<style>
-.form-control-plaintext {
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 0.375rem;
-    padding: 0.375rem 0.75rem;
-}
-
-.card-header.bg-primary {
-    border-radius: 0.375rem 0.375rem 0 0 !important;
-}
-
-.is-valid {
-    border-color: #198754;
-}
-
-.is-invalid {
-    border-color: #dc3545;
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.alert {
-    border: none;
-    border-radius: 0.5rem;
-}
-
-.form-label {
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-}
-
-.text-danger {
-    color: #dc3545 !important;
-}
-</style>
 @endpush
 @endsection

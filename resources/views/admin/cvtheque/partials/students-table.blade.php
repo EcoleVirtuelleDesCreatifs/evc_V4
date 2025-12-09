@@ -22,26 +22,32 @@
                         @php
                             // Gérer différents formats de chemins de photos
                             $photoPath = $student->profile_photo;
-                            if (str_starts_with($photoPath, 'uploads/')) {
+                            if (str_starts_with($photoPath, 'photos_preregistrations/')) {
+                                $photoUrl = asset('storage/' . $photoPath);
+                            } elseif (str_starts_with($photoPath, 'uploads/')) {
                                 $photoUrl = asset($photoPath);
-                            } elseif (str_starts_with($photoPath, 'students/photos/')) {
+                            } elseif (str_starts_with($photoPath, 'storage/')) {
+                                $photoUrl = asset($photoPath);
+                            } elseif (str_contains($photoPath, '/')) {
                                 $photoUrl = asset('storage/' . $photoPath);
                             } else {
-                                $photoUrl = asset('storage/students/photos/' . $photoPath);
+                                $photoUrl = asset('uploads/photos/' . $photoPath);
                             }
                         @endphp
-                        <img src="{{ $photoUrl }}" 
-                             class="rounded-circle" 
-                             alt="{{ $student->first_name }}" 
-                             style="width: 40px; height: 40px; object-fit: cover;"
-                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                        <div class="rounded-circle bg-primary text-white align-items-center justify-content-center" 
-                             style="width: 40px; height: 40px; display: none;">
-                            {{ strtoupper(substr($student->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($student->last_name ?? 'S', 0, 1)) }}
+                        <div style="display: inline-block; position: relative;">
+                            <img src="{{ $photoUrl }}"
+                                 class="rounded-circle"
+                                 alt="{{ $student->first_name }} {{ $student->last_name }}"
+                                 style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #667eea;"
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                                 style="width: 45px; height: 45px; display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.85rem;">
+                                {{ strtoupper(substr($student->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($student->last_name ?? 'S', 0, 1)) }}
+                            </div>
                         </div>
                     @else
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
-                             style="width: 40px; height: 40px;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                             style="width: 45px; height: 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.85rem;">
                             {{ strtoupper(substr($student->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($student->last_name ?? 'S', 0, 1)) }}
                         </div>
                     @endif
@@ -55,18 +61,26 @@
                 <td>
                     @php
                         $formation = $student->program ?: $student->specialization;
-                        $badgeClass = 'bg-secondary';
+                        $badgeStyle = 'background: linear-gradient(135deg, #6c757d 0%, #495057 100%);';
+                        $badgeIcon = 'fa-graduation-cap';
+
                         if (stripos($formation, 'design') !== false) {
-                            $badgeClass = 'bg-primary';
+                            $badgeStyle = 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);';
+                            $badgeIcon = 'fa-palette';
                         } elseif (stripos($formation, 'community') !== false) {
-                            $badgeClass = 'bg-info';
+                            $badgeStyle = 'background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);';
+                            $badgeIcon = 'fa-users';
                         } elseif (stripos($formation, 'gestion') !== false) {
-                            $badgeClass = 'bg-warning';
+                            $badgeStyle = 'background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);';
+                            $badgeIcon = 'fa-laptop-code';
                         } elseif (stripos($formation, 'intelligence') !== false) {
-                            $badgeClass = 'bg-success';
+                            $badgeStyle = 'background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);';
+                            $badgeIcon = 'fa-brain';
                         }
                     @endphp
-                    <span class="badge {{ $badgeClass }}">{{ $formation ?: 'Non défini' }}</span>
+                    <span class="badge text-white px-3 py-2" style="{{ $badgeStyle }} border-radius: 20px; font-size: 0.85rem;">
+                        <i class="fas {{ $badgeIcon }} me-1"></i>{{ $formation ?: 'Non défini' }}
+                    </span>
                 </td>
                 <td>
                     @if($student->professional_title)
@@ -83,45 +97,60 @@
                     @endif
                 </td>
                 <td>
-                    <div class="d-flex gap-1">
+                    <div class="d-flex gap-2 flex-wrap">
                         @if($student->cv_file)
-                            <i class="fas fa-file-pdf text-danger" title="CV"></i>
+                            <span class="badge text-white px-2 py-1" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border-radius: 12px; font-size: 0.75rem;" title="CV">
+                                <i class="fas fa-file-pdf"></i>
+                            </span>
                         @endif
                         @if($student->motivation_file)
-                            <i class="fas fa-envelope text-primary" title="Lettre de motivation"></i>
+                            <span class="badge text-white px-2 py-1" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); border-radius: 12px; font-size: 0.75rem;" title="Lettre de motivation">
+                                <i class="fas fa-envelope"></i>
+                            </span>
                         @endif
                         @if($student->pressbook_file)
-                            <i class="fas fa-book text-warning" title="Pressbook"></i>
+                            <span class="badge text-white px-2 py-1" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%); border-radius: 12px; font-size: 0.75rem;" title="Pressbook">
+                                <i class="fas fa-book"></i>
+                            </span>
                         @endif
                         @if($student->rapport_file)
-                            <i class="fas fa-graduation-cap text-success" title="Rapport"></i>
+                            <span class="badge text-white px-2 py-1" style="background: linear-gradient(135deg, #198754 0%, #157347 100%); border-radius: 12px; font-size: 0.75rem;" title="Rapport">
+                                <i class="fas fa-graduation-cap"></i>
+                            </span>
                         @endif
                         @if(!$student->cv_file && !$student->motivation_file && !$student->pressbook_file && !$student->rapport_file)
-                            <span class="text-muted">Aucun</span>
+                            <span class="text-muted small">-</span>
                         @endif
                     </div>
                 </td>
                 <td>
                     @php
                         $completion = $student->profile_completion_score ?? 0;
-                        $progressClass = 'bg-danger';
+                        $progressStyle = 'background: linear-gradient(90deg, #dc3545 0%, #c82333 100%);';
+                        $textColor = 'text-danger';
+
                         if ($completion >= 75) {
-                            $progressClass = 'bg-success';
+                            $progressStyle = 'background: linear-gradient(90deg, #56ab2f 0%, #a8e6cf 100%);';
+                            $textColor = 'text-success';
                         } elseif ($completion >= 50) {
-                            $progressClass = 'bg-warning';
+                            $progressStyle = 'background: linear-gradient(90deg, #ffc107 0%, #ffb300 100%);';
+                            $textColor = 'text-warning';
                         } elseif ($completion >= 25) {
-                            $progressClass = 'bg-info';
+                            $progressStyle = 'background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);';
+                            $textColor = 'text-info';
                         }
                     @endphp
-                    <div class="progress" style="height: 20px;">
-                        <div class="progress-bar {{ $progressClass }}" 
-                             role="progressbar" 
-                             style="width: {{ $completion }}%;" 
-                             aria-valuenow="{{ $completion }}" 
-                             aria-valuemin="0" 
-                             aria-valuemax="100">
-                            {{ $completion }}%
+                    <div style="min-width: 100px;">
+                        <div class="progress" style="height: 8px; border-radius: 10px; background: rgba(0,0,0,0.1);">
+                            <div class="progress-bar"
+                                 role="progressbar"
+                                 style="width: {{ $completion }}%; {{ $progressStyle }} border-radius: 10px;"
+                                 aria-valuenow="{{ $completion }}"
+                                 aria-valuemin="0"
+                                 aria-valuemax="100">
+                            </div>
                         </div>
+                        <small class="{{ $textColor }} fw-bold mt-1 d-block text-center">{{ $completion }}%</small>
                     </div>
                 </td>
                 <td>
@@ -136,21 +165,13 @@
                     @endif
                 </td>
                 <td>
-                    <div class="btn-group" role="group">
-                        <a href="{{ url('/evc/app/admin/students/' . $student->id . '/profile') }}" 
-                           class="btn btn-sm btn-primary" 
-                           title="Voir le profil">
+                    <div class="d-flex gap-1">
+                        <a href="{{ url('/evc/app/admin/students/' . $student->user_id . '/profile') }}"
+                           class="btn btn-sm text-white"
+                           style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; border-radius: 8px; padding: 0.4rem 0.8rem;"
+                           title="Voir le profil CVthèque">
                             <i class="fas fa-eye"></i>
                         </a>
-                        @if(!empty($student->cv_file))
-                        <a href="{{ asset('storage/' . $student->cv_file) }}" 
-                           class="btn btn-sm btn-success" 
-                           target="_blank"
-                           download
-                           title="Télécharger CV">
-                            <i class="fas fa-download"></i>
-                        </a>
-                        @endif
                     </div>
                 </td>
             </tr>

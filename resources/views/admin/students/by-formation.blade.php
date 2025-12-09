@@ -21,28 +21,37 @@
     </div>
 
     <!-- Statistiques de la formation -->
-    <div class="row mb-4">
+    <div class="row mb-4 g-3">
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm bg-gradient-primary text-white">
-                <div class="card-body text-center">
-                    <div class="h2 fw-bold mb-1">{{ $data['stats']['total'] }}</div>
-                    <small>Total Étudiants</small>
+            <div class="card border-0 shadow-sm stat-card stat-card-primary h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                    <div class="h2 fw-bold mb-1 stat-number">{{ $data['stats']['total'] }}</div>
+                    <div class="text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">Total Étudiants</div>
                 </div>
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm bg-gradient-success text-white">
-                <div class="card-body text-center">
-                    <div class="h2 fw-bold mb-1">{{ $data['stats']['active'] }}</div>
-                    <small>Étudiants Actifs</small>
+            <div class="card border-0 shadow-sm stat-card stat-card-success h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-user-check fa-2x"></i>
+                    </div>
+                    <div class="h2 fw-bold mb-1 stat-number">{{ $data['stats']['active'] }}</div>
+                    <div class="text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">Étudiants Actifs</div>
                 </div>
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm bg-gradient-info text-white">
-                <div class="card-body text-center">
-                    <div class="h2 fw-bold mb-1">{{ $data['stats']['avg_progression'] }}%</div>
-                    <small>Progression Moyenne</small>
+            <div class="card border-0 shadow-sm stat-card stat-card-info h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                    <div class="h2 fw-bold mb-1 stat-number">{{ $data['stats']['avg_progression'] }}%</div>
+                    <div class="text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">Progression Moyenne</div>
                 </div>
             </div>
         </div>
@@ -52,14 +61,24 @@
     <div class="row">
         <div class="col-12">
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="fas fa-users text-primary me-2"></i>Liste des Étudiants - {{ $data['formation_name'] }}
-                    </h5>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
-                            <i class="fas fa-sync-alt me-1"></i>Actualiser
-                        </button>
+                <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <div>
+                            <h5 class="card-title mb-1" style="font-weight: 600; color: #2d3748;">
+                                <i class="fas fa-list text-primary me-2"></i>Liste des Étudiants
+                            </h5>
+                            <p class="text-muted mb-0" style="font-size: 0.875rem;">
+                                {{ $data['formation_name'] }} • {{ $data['stats']['total'] }} étudiant{{ $data['stats']['total'] > 1 ? 's' : '' }}
+                            </p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary btn-sm" onclick="location.reload()">
+                                <i class="fas fa-sync-alt me-1"></i>Actualiser
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="window.print()">
+                                <i class="fas fa-print me-1"></i>Imprimer
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -67,52 +86,65 @@
                         <table class="table table-hover" id="formationStudentsTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="60">#</th>
-                                    <th>Nom & Prénom</th>
-                                    <th>Pays</th>
-                                    <th>Inscription</th>
-                                    <th>TP Réalisés</th>
-                                    <th>Progression</th>
-                                    <th width="120">Actions</th>
+                                    <th width="50" class="text-center" style="font-weight: 600; color: #2d3748;">#</th>
+                                    <th width="280" style="font-weight: 600; color: #2d3748;">Nom & Prénom</th>
+                                    <th width="120" style="font-weight: 600; color: #2d3748;">Pays</th>
+                                    <th width="110" style="font-weight: 600; color: #2d3748;">Inscription</th>
+                                    <th width="90" class="text-center" style="font-weight: 600; color: #2d3748;">TP</th>
+                                    <th width="130" style="font-weight: 600; color: #2d3748;">Progression</th>
+                                    <th width="140" class="text-center" style="font-weight: 600; color: #2d3748;">Jours Restants</th>
+                                    <th width="160" class="text-center" style="font-weight: 600; color: #2d3748;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($data['students'] as $index => $student)
-                                <tr class="{{ isset($student['status']) && $student['status'] === 'inactive' ? 'table-secondary opacity-75' : '' }}">
-                                    <td>{{ $index + 1 }}</td>
+                                <tr class="{{ isset($student['status']) && $student['status'] === 'inactive' ? 'table-secondary opacity-75' : '' }}" style="vertical-align: middle;">
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark" style="font-size: 0.85rem; font-weight: 600;">{{ $index + 1 }}</span>
+                                    </td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            @if(isset($student['photo_url']) && $student['photo_url'])
-                                                <img src="{{ $student['photo_url'] }}" 
-                                                     alt="Photo de {{ $student['prenom'] }} {{ $student['nom'] }}" 
-                                                     class="rounded-circle me-2" 
-                                                     style="width: 40px; height: 40px; object-fit: cover;"
-                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                <div class="avatar-sm bg-primary rounded-circle text-white d-flex align-items-center justify-content-center me-2" style="display: none; width: 40px; height: 40px;">
-                                                    {{ substr($student['prenom'] ?? 'E', 0, 1) }}{{ substr($student['nom'] ?? 'T', 0, 1) }}
+                                        <div class="d-flex align-items-center gap-2">
+                                            @php
+                                                // Debug - afficher le chemin
+                                                $hasPhoto = isset($student['photo_url']) && !empty($student['photo_url']);
+                                            @endphp
+
+                                            @if($hasPhoto)
+                                                <div class="profile-photo-wrapper position-relative">
+                                                    <img src="{{ $student['photo_url'] }}"
+                                                         alt="Photo de {{ $student['prenom'] }} {{ $student['nom'] }}"
+                                                         class="profile-photo rounded-circle"
+                                                         title="{{ $student['photo_url'] }}"
+                                                         onerror="console.error('Image error:', this.src); this.onerror=null; this.style.display='none'; this.nextElementSibling.classList.remove('d-none'); this.nextElementSibling.classList.add('d-flex');">
+                                                    <div class="avatar-fallback bg-gradient-primary rounded-circle text-white d-none align-items-center justify-content-center position-absolute" style="top: 0; left: 0;">
+                                                        <span class="fw-bold">{{ substr($student['prenom'] ?? 'E', 0, 1) }}{{ substr($student['nom'] ?? 'T', 0, 1) }}</span>
+                                                    </div>
                                                 </div>
                                             @else
-                                                <div class="avatar-sm bg-primary rounded-circle text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
-                                                    {{ substr($student['prenom'] ?? 'E', 0, 1) }}{{ substr($student['nom'] ?? 'T', 0, 1) }}
+                                                <div class="avatar-fallback bg-gradient-primary rounded-circle text-white d-flex align-items-center justify-content-center">
+                                                    <span class="fw-bold">{{ substr($student['prenom'] ?? 'E', 0, 1) }}{{ substr($student['nom'] ?? 'T', 0, 1) }}</span>
                                                 </div>
                                             @endif
-                                            <div>
-                                                <div class="fw-semibold">
+
+                                            <div class="flex-grow-1">
+                                                <div class="fw-semibold text-dark" style="font-size: 0.95rem;">
                                                     {{ $student['prenom'] ?? 'Prénom' }} {{ $student['nom'] ?? 'Nom' }}
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mt-1">
+                                                    <small class="text-muted" style="font-size: 0.75rem;">ID: {{ $student['id'] }}</small>
                                                     @if(isset($student['status']) && $student['status'] === 'inactive')
-                                                        <span class="badge bg-danger ms-2">Inactif</span>
+                                                        <span class="badge bg-danger" style="font-size: 0.65rem; padding: 2px 6px;">Inactif</span>
                                                     @else
-                                                        <span class="badge bg-success ms-2">Actif</span>
+                                                        <span class="badge bg-success" style="font-size: 0.65rem; padding: 2px 6px;">Actif</span>
                                                     @endif
                                                 </div>
-                                                <small class="text-muted">ID: {{ $student['id'] }}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td>{{ $student['pays'] ?? '-' }}</td>
                                     <td>{{ date('d/m/Y', strtotime($student['created_at'])) }}</td>
-                                    <td>
-                                        <span class="badge bg-success">{{ $student['tp_count'] ?? 0 }}</span>
+                                    <td class="text-center">
+                                        <span class="badge bg-success px-2 py-1" style="font-size: 0.9rem;">{{ $student['tp_count'] ?? 0 }}</span>
                                     </td>
                                     <td>
                                         <div class="progress" style="height: 8px;">
@@ -120,32 +152,86 @@
                                         </div>
                                         <small class="text-muted">{{ $student['progression'] ?? 0 }}%</small>
                                     </td>
-                                    <td>
-                                        <div class="btn-group btn-group-sm">
-                                            <a href="{{ route('admin.students.profile', $student['id']) }}" class="btn btn-outline-primary" title="Voir profil">
+                                    <td class="text-center">
+                                        @if(isset($student['days_remaining']) && $student['days_remaining'] !== null)
+                                            @php
+                                                $daysInt = (int) $student['days_remaining'];
+                                                $expDate = isset($student['expiration_date']) ? $student['expiration_date']->format('d/m/Y à H:i') : '';
+                                            @endphp
+                                            @if($student['is_expired'])
+                                                <span class="badge bg-danger px-3 py-2"
+                                                      data-bs-toggle="tooltip"
+                                                      data-bs-placement="top"
+                                                      title="Expiré le {{ $expDate }}"
+                                                      style="font-size: 0.9rem; min-width: 120px;">
+                                                    <i class="fas fa-times-circle me-1"></i>Expiré
+                                                </span>
+                                            @elseif($daysInt <= 7)
+                                                <span class="badge bg-danger px-3 py-2"
+                                                      data-bs-toggle="tooltip"
+                                                      data-bs-placement="top"
+                                                      title="Expire le {{ $expDate }}"
+                                                      style="font-size: 0.9rem; min-width: 120px;">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ $daysInt }} jour{{ $daysInt > 1 ? 's' : '' }}
+                                                </span>
+                                            @elseif($daysInt <= 30)
+                                                <span class="badge bg-warning text-dark px-3 py-2"
+                                                      data-bs-toggle="tooltip"
+                                                      data-bs-placement="top"
+                                                      title="Expire le {{ $expDate }}"
+                                                      style="font-size: 0.9rem; min-width: 120px;">
+                                                    <i class="fas fa-clock me-1"></i>{{ $daysInt }} jours
+                                                </span>
+                                            @else
+                                                <span class="badge bg-success px-3 py-2"
+                                                      data-bs-toggle="tooltip"
+                                                      data-bs-placement="top"
+                                                      title="Expire le {{ $expDate }}"
+                                                      style="font-size: 0.9rem; min-width: 120px;">
+                                                    <i class="fas fa-check-circle me-1"></i>{{ $daysInt }} jours
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="badge bg-secondary px-3 py-2" style="font-size: 0.9rem; min-width: 120px;">
+                                                <i class="fas fa-question-circle me-1"></i>Non défini
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{{ route('admin.students.profile', $student['id']) }}"
+                                               class="btn btn-outline-primary btn-action"
+                                               title="Voir profil"
+                                               data-bs-toggle="tooltip">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('admin.students.edit', $student['id']) }}" class="btn btn-outline-warning" title="Modifier">
+                                            <a href="{{ route('admin.students.edit', $student['id']) }}"
+                                               class="btn btn-outline-warning btn-action"
+                                               title="Modifier"
+                                               data-bs-toggle="tooltip">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @if(isset($student['status']) && $student['status'] === 'inactive')
-                                                <button type="button" 
-                                                        class="btn btn-outline-success" 
+                                                <button type="button"
+                                                        class="btn btn-outline-success btn-action"
                                                         title="Réactiver le compte"
+                                                        data-bs-toggle="tooltip"
                                                         onclick="reactivateStudent({{ $student['student_id'] ?? $student['id'] }}, '{{ addslashes($student['prenom']) }} {{ addslashes($student['nom']) }}')">
                                                     <i class="fas fa-check-circle"></i>
                                                 </button>
                                             @else
-                                                <button type="button" 
-                                                        class="btn btn-outline-secondary" 
+                                                <button type="button"
+                                                        class="btn btn-outline-secondary btn-action"
                                                         title="Désactiver le compte"
+                                                        data-bs-toggle="tooltip"
                                                         onclick="openDeactivateModal({{ $student['student_id'] ?? $student['id'] }}, '{{ addslashes($student['prenom']) }} {{ addslashes($student['nom']) }}', '{{ $student['email'] }}')">
                                                     <i class="fas fa-ban"></i>
                                                 </button>
                                             @endif
-                                            <button type="button" 
-                                                    class="btn btn-outline-danger" 
+                                            <button type="button"
+                                                    class="btn btn-outline-danger btn-action"
                                                     title="Supprimer définitivement"
+                                                    data-bs-toggle="tooltip"
                                                     onclick="deleteStudent({{ $student['student_id'] ?? $student['id'] }}, '{{ addslashes($student['prenom']) }} {{ addslashes($student['nom']) }}')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
@@ -154,7 +240,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4">
+                                    <td colspan="8" class="text-center py-4">
                                         <div class="text-muted">
                                             <i class="fas fa-users fa-2x mb-2"></i>
                                             <p>Aucun étudiant trouvé pour cette formation</p>
@@ -183,34 +269,34 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <div class="custom-modal-body">
             <div class="alert alert-warning">
                 <i class="fas fa-info-circle me-2"></i>
                 <strong>Attention :</strong> Cette action bloquera l'accès de l'étudiant à son compte.
             </div>
-            
+
             <p class="mb-3">
                 <strong>Étudiant :</strong> <span id="studentNameDisplay"></span><br>
                 <strong>Email :</strong> <span id="studentEmailDisplay"></span>
             </p>
-            
+
             <div class="mb-3">
                 <label for="deactivationReason" class="form-label">
                     <strong>Raison de la désactivation *</strong>
                 </label>
-                <textarea 
-                    class="form-control" 
-                    id="deactivationReason" 
-                    rows="4" 
+                <textarea
+                    class="form-control"
+                    id="deactivationReason"
+                    rows="4"
                     placeholder="Veuillez expliquer la raison de la désactivation du compte. Cette information sera envoyée à l'étudiant par email."></textarea>
                 <small class="text-muted">Cette raison sera envoyée par email à l'étudiant.</small>
             </div>
-            
+
             <input type="hidden" id="studentIdToDeactivate">
             <input type="hidden" id="studentEmailToDeactivate">
         </div>
-        
+
         <div class="custom-modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeDeactivateModal()">
                 <i class="fas fa-times me-1"></i>Annuler
@@ -235,10 +321,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
             },
             columnDefs: [
-                { orderable: false, targets: [6] }
+                { orderable: false, targets: [7] } // Colonne Actions non triable
             ]
         });
     }
+
+    // Initialiser les tooltips Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 });
 
 
@@ -250,11 +342,11 @@ function openDeactivateModal(studentId, studentName, email) {
     document.getElementById('studentNameDisplay').textContent = studentName;
     document.getElementById('studentEmailDisplay').textContent = email;
     document.getElementById('deactivationReason').value = '';
-    
+
     // Afficher le modal
     document.getElementById('customDeactivateModal').style.display = 'block';
     document.body.style.overflow = 'hidden';
-    
+
     // Focus sur le textarea
     setTimeout(function() {
         document.getElementById('deactivationReason').focus();
@@ -273,14 +365,14 @@ function reactivateStudent(studentId, studentName) {
     if (!confirm(`Êtes-vous sûr de vouloir réactiver le compte de ${studentName} ?`)) {
         return;
     }
-    
+
     // Afficher un indicateur de chargement
     const loadingMsg = document.createElement('div');
     loadingMsg.className = 'alert alert-info position-fixed top-0 start-50 translate-middle-x mt-3';
     loadingMsg.style.zIndex = '99999';
     loadingMsg.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Réactivation en cours...';
     document.body.appendChild(loadingMsg);
-    
+
     fetch(`/evc/app/admin/students/${studentId}/toggle-status`, {
         method: 'POST',
         headers: {
@@ -288,7 +380,7 @@ function reactivateStudent(studentId, studentName) {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
             student_id: studentId,
             reason: 'Compte réactivé par l\'administration',
             email: ''
@@ -329,29 +421,29 @@ function confirmDeactivation() {
     const studentId = document.getElementById('studentIdToDeactivate').value;
     const email = document.getElementById('studentEmailToDeactivate').value;
     const reason = document.getElementById('deactivationReason').value.trim();
-    
+
     if (!reason) {
         alert('Veuillez saisir une raison pour la désactivation.');
         document.getElementById('deactivationReason').focus();
         return;
     }
-    
+
     if (reason.length < 10) {
         alert('La raison doit contenir au moins 10 caractères.');
         document.getElementById('deactivationReason').focus();
         return;
     }
-    
+
     // Fermer le modal
     closeDeactivateModal();
-    
+
     // Afficher un indicateur de chargement
     const loadingMsg = document.createElement('div');
     loadingMsg.className = 'alert alert-info position-fixed top-0 start-50 translate-middle-x mt-3';
     loadingMsg.style.zIndex = '99999';
     loadingMsg.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Désactivation en cours...';
     document.body.appendChild(loadingMsg);
-    
+
     fetch(`/evc/app/admin/students/${studentId}/toggle-status`, {
         method: 'POST',
         headers: {
@@ -359,7 +451,7 @@ function confirmDeactivation() {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             'Accept': 'application/json'
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
             student_id: studentId,
             reason: reason,
             email: email
@@ -412,7 +504,7 @@ function showSuccessNotification(message) {
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
     document.body.appendChild(notification);
-    
+
     // Retirer automatiquement après 3 secondes
     setTimeout(() => {
         if (notification.parentNode) {
@@ -438,7 +530,7 @@ function showErrorNotification(message) {
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     `;
     document.body.appendChild(notification);
-    
+
     // Retirer automatiquement après 5 secondes
     setTimeout(() => {
         if (notification.parentNode) {
@@ -467,7 +559,7 @@ function deleteStudent(studentId, studentName) {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `/evc/app/admin/students/${studentId}/delete`;
-    
+
     // Token CSRF
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const csrfInput = document.createElement('input');
@@ -475,14 +567,14 @@ function deleteStudent(studentId, studentName) {
     csrfInput.name = '_token';
     csrfInput.value = csrfToken;
     form.appendChild(csrfInput);
-    
+
     // Méthode DELETE
     const methodInput = document.createElement('input');
     methodInput.type = 'hidden';
     methodInput.name = '_method';
     methodInput.value = 'DELETE';
     form.appendChild(methodInput);
-    
+
     // Ajouter au body et soumettre
     document.body.appendChild(form);
     form.submit();
@@ -501,16 +593,40 @@ function deleteStudent(studentId, studentName) {
     background-color: #e9ecef;
 }
 
-.bg-gradient-primary {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+/* Cartes de statistiques modernes */
+.stat-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    overflow: hidden;
 }
 
-.bg-gradient-success {
-    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.15) !important;
 }
 
-.bg-gradient-info {
-    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+.stat-card-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stat-card-success {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: white;
+}
+
+.stat-card-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.stat-icon {
+    opacity: 0.9;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
 }
 
 /* Modal Custom Styles */
@@ -621,6 +737,243 @@ function deleteStudent(studentId, studentName) {
     outline: none;
     border-color: #86b7fe;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Badges jours restants - Style optimisé */
+.badge {
+    font-size: 0.875rem;
+    padding: 0.35rem 0.65rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.badge i {
+    font-size: 0.75rem;
+}
+
+/* Badges avec taille fixe pour uniformité */
+.badge.px-3 {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+/* Optimisation des couleurs */
+.badge.bg-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+}
+
+.badge.bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%) !important;
+}
+
+.badge.bg-danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+}
+
+/* Tooltips pour les dates d'expiration */
+[data-bs-toggle="tooltip"] {
+    cursor: help;
+}
+
+/* Centrage et alignement des colonnes */
+.table td.text-center {
+    vertical-align: middle;
+}
+
+/* Animation hover sur badges */
+.badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+}
+
+/* Photos de profil */
+.profile-photo-wrapper {
+    position: relative;
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+}
+
+.profile-photo {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+    border: 2px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.profile-photo:hover {
+    transform: scale(1.1);
+    border-color: var(--bs-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-fallback {
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+    font-size: 0.875rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.avatar-fallback:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Amélioration de l'affichage du nom */
+.flex-grow-1 .fw-semibold {
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+.flex-grow-1 small {
+    font-size: 0.75rem;
+}
+
+/* Optimisation du tableau */
+.table {
+    font-size: 0.9rem;
+}
+
+.table thead th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    padding: 0.75rem 0.5rem;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.table tbody td {
+    padding: 0.75rem 0.5rem;
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease;
+}
+
+/* Boutons d'action optimisés */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.btn-action i {
+    font-size: 0.875rem;
+}
+
+.btn-action:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Badge numéro de ligne */
+.badge.bg-light {
+    border: 1px solid #dee2e6;
+}
+
+/* Optimisation des espacements */
+.card-body {
+    padding: 1.25rem;
+}
+
+/* Card styling */
+.card {
+    border-radius: 12px;
+}
+
+.card-header {
+    border-radius: 12px 12px 0 0 !important;
+}
+
+/* Amélioration du breadcrumb */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 1rem;
+}
+
+.breadcrumb-item a {
+    color: #667eea;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumb-item a:hover {
+    color: #764ba2;
+}
+
+.breadcrumb-item.active {
+    color: #6c757d;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .btn-action {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+
+    .table {
+        font-size: 0.8rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .btn, .btn-group {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #dee2e6 !important;
+        box-shadow: none !important;
+    }
+
+    .stat-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .table {
+        font-size: 10pt;
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
 }
 </style>
 @endpush

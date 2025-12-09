@@ -2,6 +2,28 @@
 
 @section('content')
 <div class="container-fluid py-4">
+    <!-- Messages Flash -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if(session('warning'))
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>{{ session('warning') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="d-flex align-items-center justify-content-between mb-4">
         <h1 class="h4 mb-0">Pré-inscriptions</h1>
         <div class="d-flex align-items-center gap-2">
@@ -14,6 +36,7 @@
                         <option value="">Toutes formations</option>
                         <option value="design_graphique" @selected(request('formation')==='design_graphique')>Design Graphique</option>
                         <option value="community_management" @selected(request('formation')==='community_management')>Community Management</option>
+                        <option value="design_graphique_community_manager" @selected(request('formation')==='design_graphique_community_manager')>Design Graphique & Community Manager</option>
                         <option value="gestion_informatique" @selected(request('formation')==='gestion_informatique')>Gestion Informatique</option>
                         <option value="intelligence_artificielle" @selected(request('formation')==='intelligence_artificielle')>Intelligence Artificielle</option>
                     </select>
@@ -34,16 +57,19 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ route('admin.preinscriptions.bulk-status') }}" class="mb-3">
+    <form method="POST" action="{{ route('admin.preinscriptions.bulk-status') }}" class="mb-3" id="bulkActionForm" onsubmit="return confirmBulkAction()">
         @csrf
         <div class="d-flex align-items-center gap-2">
-            <select name="action" required class="form-select w-auto">
-                <option value="">Action de statut</option>
-                <option value="accepted">Marquer comme Accepté</option>
-                <option value="rejected">Marquer comme Rejeté</option>
-                <option value="pending">Remettre en attente</option>
+            <select name="action" required class="form-select w-auto" id="bulkAction">
+                <option value="">-- Sélectionner une action --</option>
+                <option value="accepted">✅ Marquer comme Accepté</option>
+                <option value="rejected">❌ Marquer comme Rejeté</option>
+                <option value="pending">⏳ Remettre en attente</option>
+                <option value="delete" style="color: #dc3545; font-weight: bold;">🗑️ Supprimer définitivement</option>
             </select>
-            <button class="btn btn-outline-primary"><i class="fas fa-check me-2"></i>Appliquer</button>
+            <button type="submit" class="btn btn-primary" id="bulkActionBtn">
+                <i class="fas fa-check me-2"></i>Appliquer à <span id="selectedCount">0</span> élément(s)
+            </button>
         </div>
         <input type="hidden" name="q" value="{{ request('q') }}">
         <input type="hidden" name="formation" value="{{ request('formation') }}">
@@ -94,12 +120,12 @@
                             <td>{{ $pre->created_at->format('Y-m-d H:i') }}</td>
                             <td class="text-nowrap">
                                 <div class="btn-group" role="group" aria-label="Actions">
-                                    
-                                    <form action="{{ route('admin.preinscriptions.destroy', $pre->id) }}" method="POST" onsubmit="return confirm('Supprimer cette pré-inscription ?');" class="d-inline">
+
+                                    <form action="{{ route('admin.preinscriptions.destroy', $pre->id) }}" method="POST" onsubmit="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer définitivement cette pré-inscription ?\n\nNom: {{ $pre->nom }} {{ $pre->prenom }}\nEmail: {{ $pre->email }}\n\nCette action est irréversible.');" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer" aria-label="Supprimer">
-                                            <i class="fas fa-trash-alt"></i>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer définitivement" aria-label="Supprimer">
+                                            <i class="fas fa-trash-alt"></i> Supprimer
                                         </button>
                                     </form>
                                     @if(!in_array($pre->status, ['accepted','Validé','Actif']))
@@ -131,4 +157,64 @@
 
     <div class="mt-3">{{ $pres->links() }}</div>
 </div>
+
+<script>
+// Mettre à jour le compteur d'éléments sélectionnés
+function updateSelectedCount() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    const count = checked.length;
+    document.getElementById('selectedCount').textContent = count;
+    document.getElementById('bulkActionBtn').disabled = count === 0;
+}
+
+// Ajouter des listeners sur toutes les checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.row-check').forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+
+    // Désactiver le bouton au départ
+    document.getElementById('bulkActionBtn').disabled = true;
+});
+
+// Confirmer l'action groupée
+function confirmBulkAction() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    const action = document.getElementById('bulkAction').value;
+
+    if (checked.length === 0) {
+        alert('⚠️ Veuillez sélectionner au moins un élément.');
+        return false;
+    }
+
+    if (!action) {
+        alert('⚠️ Veuillez sélectionner une action.');
+        return false;
+    }
+
+    let actionText = '';
+    let warningMessage = '';
+
+    switch(action) {
+        case 'accepted':
+            actionText = 'accepter';
+            warningMessage = `✅ Marquer ${checked.length} pré-inscription(s) comme ACCEPTÉE(S) ?`;
+            break;
+        case 'rejected':
+            actionText = 'rejeter';
+            warningMessage = `❌ Marquer ${checked.length} pré-inscription(s) comme REJETÉE(S) ?`;
+            break;
+        case 'pending':
+            actionText = 'remettre en attente';
+            warningMessage = `⏳ Remettre ${checked.length} pré-inscription(s) EN ATTENTE ?`;
+            break;
+        case 'delete':
+            actionText = 'supprimer DÉFINITIVEMENT';
+            warningMessage = `🗑️ ⚠️ ATTENTION ⚠️\n\nVous êtes sur le point de SUPPRIMER DÉFINITIVEMENT ${checked.length} pré-inscription(s).\n\nCette action est IRRÉVERSIBLE !\n\nÊtes-vous absolument sûr de vouloir continuer ?`;
+            break;
+    }
+
+    return confirm(warningMessage);
+}
+</script>
 @endsection

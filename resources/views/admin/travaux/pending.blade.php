@@ -311,10 +311,10 @@
                                                         $studentData = DB::table('students')->where('user_id', $student['user_id'])->first();
                                                         $hasPhoto = $studentData && $studentData->profile_photo;
                                                     @endphp
-                                                    
+
                                                     @if($hasPhoto)
                                                         <div class="me-3" style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden; box-shadow: 0 4px 12px rgba(30, 60, 114, 0.4);">
-                                                            <img src="{{ asset($studentData->profile_photo) }}" 
+                                                            <img src="{{ asset($studentData->profile_photo) }}"
                                                                  alt="{{ $student['first_name'] ?? '' }} {{ $student['last_name'] ?? '' }}"
                                                                  style="width: 100%; height: 100%; object-fit: cover;">
                                                         </div>
@@ -323,7 +323,7 @@
                                                             {{ strtoupper(substr($student['first_name'] ?? $student['user_name'], 0, 1)) }}{{ strtoupper(substr($student['last_name'] ?? '', 0, 1)) }}
                                                         </div>
                                                     @endif
-                                                    
+
                                                     <div>
                                                         <div class="fw-bold fs-6 mb-1">
                                                             {{ $student['first_name'] ?? '' }} {{ $student['last_name'] ?? $student['user_name'] }}
@@ -359,10 +359,10 @@
                                                 </small>
                                             </td>
                                             <td class="align-middle text-center">
-                                                <button class="btn btn-primary btn-modern rounded-pill px-4" 
-                                                        type="button" 
-                                                        data-bs-toggle="collapse" 
-                                                        data-bs-target="#student-{{ $student['user_id'] }}" 
+                                                <button class="btn btn-primary btn-modern rounded-pill px-4"
+                                                        type="button"
+                                                        data-bs-toggle="collapse"
+                                                        data-bs-target="#student-{{ $student['user_id'] }}"
                                                         aria-expanded="false">
                                                     <i class="fas fa-eye me-2"></i>
                                                     Voir les TP
@@ -383,7 +383,7 @@
                                                                     <th style="width: 50px;">#</th>
                                                                     <th>Titre du TP</th>
                                                                     <th style="width: 150px;">Date</th>
-                                                                    <th style="width: 100px;">Lien</th>
+                                                                    <th style="width: 120px;" class="text-center">Statut</th>
                                                                     <th style="width: 180px;" class="text-center">Actions</th>
                                                                 </tr>
                                                             </thead>
@@ -401,34 +401,43 @@
                                                                             <small>{{ \Carbon\Carbon::parse($tp->created_at)->format('d/m/Y H:i') }}</small>
                                                                         </td>
                                                                         <td class="align-middle text-center">
-                                                                            @if($tp->link)
-                                                                                <a href="{{ $tp->link }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                                                                                    <i class="fas fa-link"></i>
-                                                                                </a>
+                                                                            @if($tp->status === 'submitted')
+                                                                                <span class="badge bg-success">
+                                                                                    <i class="fas fa-check-circle me-1"></i>
+                                                                                    Déjà fait
+                                                                                </span>
+                                                                            @elseif($tp->status === 'pending')
+                                                                                <span class="badge bg-warning text-dark">
+                                                                                    <i class="fas fa-clock me-1"></i>
+                                                                                    En attente
+                                                                                </span>
                                                                             @else
-                                                                                <span class="text-muted">-</span>
+                                                                                <span class="badge bg-info">
+                                                                                    <i class="fas fa-tasks me-1"></i>
+                                                                                    À faire
+                                                                                </span>
                                                                             @endif
                                                                         </td>
                                                                         <td class="align-middle text-center">
                                                                             <div class="btn-group btn-group-sm">
-                                                                                <a href="{{ route('admin.tp.view', $tp->id) }}" 
+                                                                                <a href="{{ route('admin.tp.view', $tp->id) }}"
                                                                                    class="btn btn-outline-primary"
                                                                                    title="Voir">
                                                                                     <i class="fas fa-eye"></i>
                                                                                 </a>
-                                                                                <button type="button" 
+                                                                                <button type="button"
                                                                                         class="btn btn-outline-success"
                                                                                         onclick="validateTp({{ $tp->id }})"
                                                                                         title="Valider">
                                                                                     <i class="fas fa-check"></i>
                                                                                 </button>
-                                                                                <button type="button" 
+                                                                                <button type="button"
                                                                                         class="btn btn-outline-warning"
                                                                                         onclick="rejectTp({{ $tp->id }})"
                                                                                         title="Rejeter">
                                                                                     <i class="fas fa-times"></i>
                                                                                 </button>
-                                                                                <button type="button" 
+                                                                                <button type="button"
                                                                                         class="btn btn-outline-danger"
                                                                                         onclick="deleteTp({{ $tp->id }})"
                                                                                         title="Supprimer">
@@ -468,7 +477,7 @@ function validateTp(tpId) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = `/evc/app/admin/tp/validate/${tpId}`;
-        
+
         // Ajouter le token CSRF
         const csrfToken = document.querySelector('meta[name="csrf-token"]');
         if (csrfToken) {
@@ -478,7 +487,7 @@ function validateTp(tpId) {
             csrfInput.value = csrfToken.content;
             form.appendChild(csrfInput);
         }
-        
+
         // Ajouter le formulaire au body et le soumettre
         document.body.appendChild(form);
         form.submit();
@@ -496,7 +505,7 @@ function deleteTp(tpId) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = `/evc/app/admin/tp/delete/${tpId}`;
-        
+
         // Ajouter le token CSRF
         const csrfToken = document.querySelector('meta[name="csrf-token"]');
         if (csrfToken) {
@@ -506,14 +515,14 @@ function deleteTp(tpId) {
             csrfInput.value = csrfToken.content;
             form.appendChild(csrfInput);
         }
-        
+
         // Ajouter la méthode DELETE
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
         methodInput.value = 'DELETE';
         form.appendChild(methodInput);
-        
+
         // Ajouter le formulaire au body et le soumettre
         document.body.appendChild(form);
         form.submit();

@@ -17,6 +17,7 @@ class ActualiteController extends Controller
     public function index()
     {
         $actualites = Actualite::with('author')
+            ->orderBy('is_featured', 'desc') // Mettre en avant les actualités à la une
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -205,7 +206,7 @@ class ActualiteController extends Controller
     public function toggleStatus(Actualite $actualite)
     {
         $newStatus = $actualite->status === 'published' ? 'draft' : 'published';
-        
+
         $actualite->update([
             'status' => $newStatus,
             'published_at' => $newStatus === 'published' ? now() : null,

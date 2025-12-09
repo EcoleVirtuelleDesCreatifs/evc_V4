@@ -191,6 +191,10 @@
                         <i class="fas fa-check-circle text-orange-500"></i>
                         <span>Certificat Reconnu avec lettre de recommandation</span>
                     </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-300">
+                        <i class="fas fa-check-circle text-orange-500"></i>
+                        <span>Stratégie business, des programmes orientés entreprises</span>
+                    </div>
                 </div>
 
                 <div class="mb-6 p-4 bg-slate-800/50 rounded-xl border-l-4 border-orange-500">
@@ -262,6 +266,10 @@
                         <i class="fas fa-check-circle text-blue-500"></i>
                         <span>T-shirt EVC offert</span>
                     </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-300">
+                        <i class="fas fa-check-circle text-blue-500"></i>
+                        <span>Stratégie business, des programmes orientés entreprises</span>
+                    </div>
                 </div>
 
                 <div class="mb-6 p-4 bg-slate-800/50 rounded-xl border-l-4 border-blue-500">
@@ -329,6 +337,10 @@
                         <i class="fas fa-check-circle text-green-500"></i>
                         <span>T-shirt EVC offert</span>
                     </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-300">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        <span>Stratégie business, des programmes orientés entreprises</span>
+                    </div>
                 </div>
 
                 <div class="mb-6 p-4 bg-slate-800/50 rounded-xl border-l-4 border-green-500">
@@ -395,6 +407,10 @@
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-purple-500"></i>
                         <span>T-shirt EVC offert</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-300">
+                        <i class="fas fa-check-circle text-purple-500"></i>
+                        <span>Stratégie business, des programmes orientés entreprises</span>
                     </div>
                 </div>
 

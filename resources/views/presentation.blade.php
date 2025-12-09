@@ -376,7 +376,7 @@
                 Bilé <span class="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">Bossombra</span>
             </h2>
             <p class="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed">
-                Chef de projet digital, Brand Designer, Directeur Artistique, Publicitaire, Écrivain et Rédacteur.
+                Chef de projet digital, Brand Designer, Directeur Artistique, Publicitaire, Écrivain, Rédacteur et Développeur Fullstack.
             </p>
         </div>
 
@@ -387,7 +387,7 @@
                 <div class="relative group">
                     <!-- Effet glow animé -->
                     <div class="absolute -inset-4 bg-gradient-to-r from-orange-500 via-orange-600 to-blue-500 rounded-3xl blur-2xl opacity-30 group-hover:opacity-50 transition duration-500 animate-pulse"></div>
-                    
+
                     <!-- Cadre avec bordure gradient -->
                     <div class="relative">
                         <div class="absolute -inset-1 bg-gradient-to-r from-orange-500 to-blue-500 rounded-3xl opacity-75"></div>
@@ -403,7 +403,7 @@
                 <div class="relative">
                     <!-- Effet de profondeur -->
                     <div class="absolute -inset-1 bg-gradient-to-r from-orange-500/20 to-blue-500/20 rounded-3xl blur-xl"></div>
-                    
+
                     <div class="formateur-card relative bg-slate-800/80 backdrop-blur-xl rounded-3xl p-10 border border-slate-700/50 hover:border-orange-500/50 transition-all duration-500 shadow-2xl">
                         <div class="flex items-start gap-6">
                             <!-- Icône percutante -->
@@ -412,7 +412,7 @@
                                     <i class="fas fa-briefcase text-white text-2xl"></i>
                                 </div>
                             </div>
-                            
+
                             <div class="flex-1">
                                 <h3 class="text-3xl font-black text-white mb-4 flex items-center gap-3">
                                     Parcours & Expérience
@@ -424,7 +424,7 @@
                                 <p class="text-gray-300 text-lg leading-relaxed mt-4">
                                     Véritable <span class="text-orange-500 font-bold">expert à 360°</span> du digital, combinant compétences techniques et vision stratégique pour répondre aux défis de la transformation digitale.
                                 </p>
-                                
+
                                 <!-- Stats rapides -->
                                 <div class="stats-grid grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-slate-700">
                                     <div class="text-center">
@@ -440,7 +440,7 @@
                                         <div class="text-xs text-gray-400 uppercase tracking-wider">Pays</div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Pays d'intervention -->
                                 <div class="mt-6 pt-6 border-t border-slate-700/50">
                                     <p class="text-sm text-gray-400 mb-3 font-semibold">Expérience internationale :</p>

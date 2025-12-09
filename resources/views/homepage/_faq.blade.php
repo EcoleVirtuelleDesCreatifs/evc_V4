@@ -7,7 +7,7 @@
                 <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Tout ce que vous devez savoir</p>
                 <p class="mt-4 text-lg leading-8 text-gray-300">Nous répondons aux questions les plus courantes sur nos formations</p>
             </div>
-            
+
             <dl class="mt-10 space-y-6 divide-y divide-white/10">
                 <!-- Question 1 -->
                 <div class="pt-6" data-aos="fade-up" data-aos-delay="100">
@@ -39,7 +39,7 @@
                         </button>
                     </dt>
                     <dd class="faq-answer mt-2 pr-12 hidden" id="faq-1">
-                        <p class="text-base leading-7 text-gray-300">Les formations en présentiel se déroulent selon un planning établi par la direction de l'École Virtuelle des Créatifs selon le programme du module de la formation. Elles ont lieu à Bloom Squares Akwaba Center, situé à Abidjan Palmeraie (Côte d'Ivoire), près du Supermarché Ivoire Center (Carrefour Guirrau). Les locaux, équipés de salles dédiées, garantissent un suivi optimal des formations. Toutefois, chaque étudiant doit disposer de son propre ordinateur.</p>
+                        <p class="text-base leading-7 text-gray-300">Les formations en présentiel se déroulent selon un planning établi par la direction de l'École Virtuelle des Créatifs selon le programme du module de la formation. Elles ont lieu à Bloom Squares Akwaba Center, situé à Abidjan Palmeraie (Côte d'Ivoire), près du Supermarché Ivoire Center (Carrefour Guirraud). Les locaux, équipés de salles dédiées, garantissent un suivi optimal des formations. Toutefois, chaque étudiant doit disposer de son propre ordinateur.</p>
                     </dd>
                 </div>
 
@@ -150,32 +150,32 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const faqQuestions = document.querySelectorAll('.faq-question');
-    
+
     faqQuestions.forEach(question => {
         question.addEventListener('click', function() {
             const answer = this.parentElement.nextElementSibling;
             const icon = this.querySelector('.faq-icon');
             const isExpanded = this.getAttribute('aria-expanded') === 'true';
-            
+
             // Close all other answers
             document.querySelectorAll('.faq-answer').forEach(ans => {
                 if (ans !== answer) {
                     ans.classList.add('hidden');
                 }
             });
-            
+
             document.querySelectorAll('.faq-icon').forEach(ic => {
                 if (ic !== icon) {
                     ic.style.transform = 'rotate(0deg)';
                 }
             });
-            
+
             document.querySelectorAll('.faq-question').forEach(q => {
                 if (q !== this) {
                     q.setAttribute('aria-expanded', 'false');
                 }
             });
-            
+
             // Toggle current answer
             if (isExpanded) {
                 answer.classList.add('hidden');

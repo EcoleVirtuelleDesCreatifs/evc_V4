@@ -19,7 +19,7 @@
 
     <form action="{{ route('admin.articles.actualites.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        
+
         <div class="row">
             <!-- Colonne principale -->
             <div class="col-lg-8">
@@ -32,8 +32,8 @@
                         <!-- Titre -->
                         <div class="mb-4">
                             <label for="title" class="form-label">Titre de l'actualité <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control modern-input @error('title') is-invalid @enderror" 
-                                   id="title" name="title" value="{{ old('title') }}" required 
+                            <input type="text" class="form-control modern-input @error('title') is-invalid @enderror"
+                                   id="title" name="title" value="{{ old('title') }}" required
                                    placeholder="Ex: Conférence sur le Design Thinking">
                             @error('title')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -48,7 +48,7 @@
                             </button>
                             <div id="slug-field" style="display: none;" class="mt-3">
                                 <label for="slug" class="form-label">URL (Slug)</label>
-                                <input type="text" class="form-control modern-input" id="slug" name="slug" 
+                                <input type="text" class="form-control modern-input" id="slug" name="slug"
                                        value="{{ old('slug') }}" placeholder="conference-design-thinking">
                                 <small class="text-muted">Généré automatiquement à partir du titre. Laissez vide pour génération automatique.</small>
                             </div>
@@ -57,8 +57,8 @@
                         <!-- Description courte -->
                         <div class="mb-4">
                             <label for="excerpt" class="form-label">Description courte <span class="text-danger">*</span></label>
-                            <textarea class="form-control modern-input @error('excerpt') is-invalid @enderror" 
-                                      id="excerpt" name="excerpt" rows="3" required 
+                            <textarea class="form-control modern-input @error('excerpt') is-invalid @enderror"
+                                      id="excerpt" name="excerpt" rows="3" required
                                       placeholder="Résumé de l'actualité (150-200 caractères)">{{ old('excerpt') }}</textarea>
                             @error('excerpt')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -70,12 +70,42 @@
                         <div class="mb-4">
                             <label for="content" class="form-label">Contenu complet <span class="text-danger">*</span></label>
                             <input type="hidden" name="content" id="content-input">
-                            <div id="quill-editor" style="min-height: 300px; background-color: #0f172a; color: #e2e8f0; border: 2px solid #334155; border-radius: 12px;"></div>
+                            <div id="quill-editor"></div>
                             @error('content')
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                             <small class="text-muted">Utilisez l'éditeur pour formater votre contenu (gras, italique, listes, liens, etc.)</small>
                         </div>
+
+                        <!-- Script Quill -->
+                        <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const quill = new Quill('#quill-editor', {
+                                    theme: 'snow',
+                                    modules: {
+                                        toolbar: [
+                                            [{ 'header': [1, 2, 3, false] }],
+                                            ['bold', 'italic', 'underline'],
+                                            [{'list': 'ordered'}, {'list': 'bullet'}],
+                                            ['link'],
+                                            ['clean']
+                                        ]
+                                    },
+                                    placeholder: 'Décrivez l\'actualité en détail : programme, intervenants, objectifs, public cible...',
+                                });
+
+                                const contentInput = document.getElementById('content-input');
+                                quill.on('text-change', function() {
+                                    contentInput.value = quill.root.innerHTML;
+                                });
+
+                                // Restaurer le contenu précédent si erreur de validation
+                                @if(old('content'))
+                                    quill.root.innerHTML = {!! json_encode(old('content')) !!};
+                                @endif
+                            });
+                        </script>
                     </div>
                 </div>
 
@@ -108,33 +138,64 @@
 
                 <!-- SEO -->
                 <div class="card modern-card mb-4">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="position: relative; padding: 1.5rem;">
                         <h5 class="mb-0"><i class="fas fa-search me-2"></i>Optimisation SEO</h5>
+
+                        <!-- Bouton Génération IA -->
+                        <button type="button" id="generate-seo-btn" onclick="generateSEO()" class="btn btn-gradient-ai" style="position: relative; z-index: 10; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; border: none; border-radius: 8px; color: white; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);">
+                            <i class="fas fa-magic"></i>
+                            <span>Générer avec IA</span>
+                        </button>
                     </div>
                     <div class="card-body">
+                        <!-- Statut de génération -->
+                        <div id="ai-status" class="alert alert-info" style="display: none;">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border spinner-border-sm me-2" role="status">
+                                    <span class="visually-hidden">Génération...</span>
+                                </div>
+                                <span>L'IA génère votre contenu SEO optimisé...</span>
+                            </div>
+                        </div>
+
                         <!-- Meta Title -->
                         <div class="mb-4">
-                            <label for="meta_title" class="form-label">Meta Title</label>
-                            <input type="text" class="form-control modern-input" 
-                                   id="meta_title" name="meta_title" value="{{ old('meta_title') }}" 
+                            <label for="meta_title" class="form-label">
+                                Meta Title
+                                <span class="badge bg-success ms-2" id="meta-title-ai-badge" style="display: none;">
+                                    <i class="fas fa-robot"></i> Généré par IA
+                                </span>
+                            </label>
+                            <input type="text" class="form-control modern-input"
+                                   id="meta_title" name="meta_title" value="{{ old('meta_title') }}"
                                    placeholder="Titre optimisé pour les moteurs de recherche">
                             <small class="text-muted"><span id="meta-title-count">0</span>/60 caractères recommandés</small>
                         </div>
 
                         <!-- Meta Description -->
                         <div class="mb-4">
-                            <label for="meta_description" class="form-label">Meta Description</label>
-                            <textarea class="form-control modern-input" 
-                                      id="meta_description" name="meta_description" rows="3" 
+                            <label for="meta_description" class="form-label">
+                                Meta Description
+                                <span class="badge bg-success ms-2" id="meta-desc-ai-badge" style="display: none;">
+                                    <i class="fas fa-robot"></i> Généré par IA
+                                </span>
+                            </label>
+                            <textarea class="form-control modern-input"
+                                      id="meta_description" name="meta_description" rows="3"
                                       placeholder="Description pour les résultats de recherche">{{ old('meta_description') }}</textarea>
                             <small class="text-muted"><span id="meta-desc-count">0</span>/160 caractères recommandés</small>
                         </div>
 
                         <!-- Mots-clés -->
                         <div class="mb-4">
-                            <label for="keywords" class="form-label">Mots-clés (séparés par des virgules)</label>
-                            <input type="text" class="form-control modern-input" 
-                                   id="keywords" name="keywords" value="{{ old('keywords') }}" 
+                            <label for="meta_keywords" class="form-label">
+                                Mots-clés (séparés par des virgules)
+                                <span class="badge bg-success ms-2" id="keywords-ai-badge" style="display: none;">
+                                    <i class="fas fa-robot"></i> Généré par IA
+                                </span>
+                            </label>
+                            <input type="text" class="form-control modern-input"
+                                   id="meta_keywords" name="meta_keywords" value="{{ old('meta_keywords') }}"
                                    placeholder="actualité, design, conférence, abidjan">
                         </div>
                     </div>
@@ -162,7 +223,7 @@
                         <!-- Date de publication -->
                         <div class="mb-4">
                             <label for="published_at" class="form-label">Date de publication</label>
-                            <input type="datetime-local" class="form-control modern-input" 
+                            <input type="datetime-local" class="form-control modern-input"
                                    id="published_at" name="published_at" value="{{ old('published_at') }}">
                             <small class="text-muted">Laisser vide pour publier immédiatement</small>
                         </div>
@@ -188,7 +249,7 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="cover_image" class="form-label">Image principale <span class="text-danger">*</span></label>
-                            <input type="file" class="form-control modern-input @error('cover_image') is-invalid @enderror" 
+                            <input type="file" class="form-control modern-input @error('cover_image') is-invalid @enderror"
                                    id="cover_image" name="cover_image" accept="image/*" required>
                             @error('cover_image')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -278,7 +339,7 @@
 </div>
 
 @push('styles')
-<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<link href="{{ asset('vendor/quill/quill.snow.css') }}" rel="stylesheet">
 <style>
     .modern-card {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
@@ -376,114 +437,155 @@
     }
 
     /* Quill Editor Custom Styles */
+    #quill-editor {
+        display: block !important;
+        height: auto !important;
+        min-height: 300px !important;
+        background-color: #0f172a !important;
+        border-radius: 0 0 12px 12px !important;
+        border: 2px solid #334155 !important;
+        border-top: none !important;
+    }
+
     .ql-toolbar.ql-snow {
-        background-color: #1e293b;
-        border: 2px solid #334155;
-        border-bottom: none;
-        border-radius: 12px 12px 0 0;
+        background-color: #1e293b !important;
+        border: 2px solid #334155 !important;
+        border-bottom: none !important;
+        border-radius: 12px 12px 0 0 !important;
+        position: relative;
+        z-index: 2;
     }
 
     .ql-container.ql-snow {
-        background-color: #0f172a;
-        border: 2px solid #334155;
-        border-top: none;
-        border-radius: 0 0 12px 12px;
+        border: none !important;
+        background-color: transparent !important;
     }
 
     .ql-editor {
-        color: #e2e8f0;
-        min-height: 300px;
+        color: #e2e8f0 !important;
+        min-height: 300px !important;
+        font-size: 1rem;
+        line-height: 1.6;
+        padding: 1rem !important;
+        cursor: text !important;
     }
 
     .ql-editor.ql-blank::before {
-        color: #64748b;
+        color: #64748b !important;
+        font-style: italic;
+        left: 1rem !important; /* Alignement du placeholder */
     }
 
-    .ql-snow .ql-stroke {
-        stroke: #cbd5e1;
+    /* CKEditor Dark Mode Overrides */
+    .ck.ck-editor__main>.ck-editor__editable {
+        background-color: #0f172a !important;
+        color: #e2e8f0 !important;
+        border-color: #334155 !important;
     }
-
-    .ql-snow .ql-fill {
-        fill: #cbd5e1;
+    .ck.ck-toolbar {
+        background-color: #1e293b !important;
+        border-color: #334155 !important;
     }
-
-    .ql-snow .ql-picker-label {
-        color: #cbd5e1;
+    .ck.ck-button {
+        color: #e2e8f0 !important;
+        cursor: pointer !important;
     }
-
-    .ql-toolbar.ql-snow .ql-picker-label:hover,
-    .ql-toolbar.ql-snow .ql-picker-label.ql-active,
-    .ql-toolbar.ql-snow button:hover,
-    .ql-toolbar.ql-snow button.ql-active {
-        color: #4fc3f7;
+    .ck.ck-button:hover {
+        background-color: #334155 !important;
     }
-
-    .ql-toolbar.ql-snow .ql-picker-label:hover .ql-stroke,
-    .ql-toolbar.ql-snow .ql-picker-label.ql-active .ql-stroke,
-    .ql-toolbar.ql-snow button:hover .ql-stroke,
-    .ql-toolbar.ql-snow button.ql-active .ql-stroke {
-        stroke: #4fc3f7;
+    .ck.ck-button.ck-on {
+        background-color: #4fc3f7 !important;
+        color: #000 !important;
     }
-
-    .ql-toolbar.ql-snow .ql-picker-label:hover .ql-fill,
-    .ql-toolbar.ql-snow .ql-picker-label.ql-active .ql-fill,
-    .ql-toolbar.ql-snow button:hover .ql-fill,
-    .ql-toolbar.ql-snow button.ql-active .ql-fill {
-        fill: #4fc3f7;
-    }
-
-    .ql-snow .ql-picker-options {
-        background-color: #1e293b;
-        border: 1px solid #334155;
-    }
-
-    .ql-snow .ql-picker-options .ql-picker-item:hover {
-        background-color: #334155;
-        color: #4fc3f7;
+    /* Masquer le label powered by */
+    .ck.ck-powered-by {
+        display: none !important;
     }
 </style>
 @endpush
 
 @push('scripts')
-<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialiser Quill Editor
-    const quill = new Quill('#quill-editor', {
-        theme: 'snow',
-        modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                [{ 'color': [] }, { 'background': [] }],
-                ['link', 'blockquote', 'code-block'],
-                ['clean']
-            ]
-        },
-        placeholder: 'Décrivez l\'actualité en détail : programme, intervenants, objectifs, public cible...',
-    });
+    console.log('=== DÉMARRAGE SCRIPTS ===');
 
-    // Restaurer le contenu depuis old() en cas d'erreur de validation
-    @if(old('content'))
-        quill.root.innerHTML = {!! json_encode(old('content')) !!};
-    @endif
+    // ============ FONCTION GLOBALE GÉNÉRATION IA ============
+    window.generateSEO = async function() {
+        console.log('🚀 Démarrage fonction generateSEO()');
 
-    // Synchroniser le contenu de Quill avec le champ hidden
-    const contentInput = document.getElementById('content-input');
-    quill.on('text-change', function() {
-        contentInput.value = quill.root.innerHTML;
-    });
-    
-    // Initialiser le champ hidden avec le contenu existant si présent
-    if (quill.root.innerHTML) {
-        contentInput.value = quill.root.innerHTML;
-    }
+        // Récupérer les éléments
+        const btn = document.getElementById('generate-seo-btn');
+        const aiStatus = document.getElementById('ai-status');
+        const titleInput = document.getElementById('title');
+        const excerptInput = document.getElementById('excerpt');
+        const metaTitleInput = document.getElementById('meta_title');
+        const metaDescInput = document.getElementById('meta_description');
+        const keywordsInput = document.getElementById('meta_keywords');
+
+        const title = titleInput.value.trim();
+        const excerpt = excerptInput.value.trim();
+
+        console.log('Données:', { title, excerpt });
+
+        // Validation
+        if (!title || !excerpt) {
+            alert('Veuillez d\'abord remplir le "Titre" et la "Description courte" !');
+            return;
+        }
+
+        // UI Loading
+        const originalBtnContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+        aiStatus.style.display = 'block';
+
+        try {
+            console.log('Envoi requête API...');
+            const response = await fetch('{{ route("admin.api.generate-seo") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ title, excerpt })
+            });
+
+            const data = await response.json();
+            console.log('Réponse API:', data);
+
+            if (data.success) {
+                // Remplir les champs
+                metaTitleInput.value = data.data.meta_title;
+                metaDescInput.value = data.data.meta_description;
+                keywordsInput.value = data.data.keywords;
+
+                // Mettre à jour les compteurs
+                if(document.getElementById('meta-title-count'))
+                    document.getElementById('meta-title-count').textContent = data.data.meta_title.length;
+                if(document.getElementById('meta-desc-count'))
+                    document.getElementById('meta-desc-count').textContent = data.data.meta_description.length;
+
+                // Feedback visuel
+                alert('✨ SEO généré avec succès !');
+            } else {
+                throw new Error(data.message || 'Erreur inconnue');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('❌ Erreur: ' + error.message);
+        } finally {
+            // Restaurer bouton
+            btn.disabled = false;
+            btn.innerHTML = originalBtnContent;
+            aiStatus.style.display = 'none';
+        }
+    };
 
     // Toggle slug field visibility
-    const toggleSlugBtn = document.getElementById('toggle-slug-btn');
-    const slugField = document.getElementById('slug-field');
-    
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleSlugBtn = document.getElementById('toggle-slug-btn');
+        const slugField = document.getElementById('slug-field');
+
     toggleSlugBtn.addEventListener('click', function() {
         if (slugField.style.display === 'none') {
             slugField.style.display = 'block';
@@ -497,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Génération automatique du slug
     const titleInput = document.getElementById('title');
     const slugInput = document.getElementById('slug');
-    
+
     titleInput.addEventListener('input', function() {
         const slug = this.value
             .toLowerCase()
@@ -511,7 +613,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Compteur de caractères pour excerpt
     const excerptInput = document.getElementById('excerpt');
     const excerptCount = document.getElementById('excerpt-count');
-    
+
     excerptInput.addEventListener('input', function() {
         excerptCount.textContent = this.value.length;
     });
@@ -519,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Compteur de caractères pour meta title
     const metaTitleInput = document.getElementById('meta_title');
     const metaTitleCount = document.getElementById('meta-title-count');
-    
+
     metaTitleInput.addEventListener('input', function() {
         metaTitleCount.textContent = this.value.length;
     });
@@ -527,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Compteur de caractères pour meta description
     const metaDescInput = document.getElementById('meta_description');
     const metaDescCount = document.getElementById('meta-desc-count');
-    
+
     metaDescInput.addEventListener('input', function() {
         metaDescCount.textContent = this.value.length;
     });
@@ -537,7 +639,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const imagePreview = document.getElementById('image-preview');
     const previewImg = document.getElementById('preview-img');
     const removeImageBtn = document.getElementById('remove-image');
-    
+
     coverImageInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -549,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsDataURL(file);
         }
     });
-    
+
     removeImageBtn.addEventListener('click', function() {
         coverImageInput.value = '';
         imagePreview.style.display = 'none';
@@ -559,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Afficher/masquer la sélection des formations
     const visibilityRadios = document.querySelectorAll('input[name="visibility"]');
     const formationsSelect = document.getElementById('formations-select');
-    
+
     visibilityRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.value === 'specific') {

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Détails du TP Soumis')
+@section('title', 'Détails du Projet Soumis')
 
 @push('styles')
 <style>
@@ -9,7 +9,7 @@
         --admin-blue-light: #4fc3f7;
         --admin-blue-mid: #2a5298;
     }
-    
+
     .page-header {
         background: linear-gradient(135deg, var(--admin-blue-dark), var(--admin-blue-mid), var(--admin-blue-light));
         padding: 2.5rem 2rem;
@@ -19,13 +19,13 @@
         box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
         animation: fadeInDown 0.6s ease;
     }
-    
+
     .page-header h1 {
         font-size: 2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
     }
-    
+
     .back-button {
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
@@ -40,13 +40,13 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
+
     .back-button:hover {
         background: rgba(255, 255, 255, 0.3);
         transform: translateX(-5px);
         color: white;
     }
-    
+
     @keyframes fadeInDown {
         from {
             opacity: 0;
@@ -57,7 +57,7 @@
             transform: translateY(0);
         }
     }
-    
+
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -68,7 +68,7 @@
             transform: translateY(0);
         }
     }
-    
+
     .info-card {
         background: white;
         border-radius: 20px;
@@ -78,12 +78,12 @@
         animation: fadeInUp 0.5s ease;
         animation-fill-mode: both;
     }
-    
+
     .info-card:nth-child(1) { animation-delay: 0.1s; }
     .info-card:nth-child(2) { animation-delay: 0.2s; }
     .info-card:nth-child(3) { animation-delay: 0.3s; }
     .info-card:nth-child(4) { animation-delay: 0.4s; }
-    
+
     .card-header-custom {
         background: linear-gradient(135deg, var(--admin-blue-dark), var(--admin-blue-mid));
         color: white;
@@ -94,13 +94,13 @@
         align-items: center;
         gap: 1rem;
     }
-    
+
     .card-header-custom h3 {
         margin: 0;
         font-size: 1.5rem;
         font-weight: 700;
     }
-    
+
     .card-header-custom .icon {
         width: 50px;
         height: 50px;
@@ -112,7 +112,7 @@
         justify-content: center;
         font-size: 1.5rem;
     }
-    
+
     .status-badge {
         padding: 0.5rem 1.5rem;
         border-radius: 20px;
@@ -122,36 +122,36 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
+
     .status-submitted {
         background: linear-gradient(135deg, #fbbf24, #f59e0b);
         color: white;
     }
-    
+
     .status-validated {
         background: linear-gradient(135deg, #1cc88a, #13855c);
         color: white;
     }
-    
+
     .status-rejected {
         background: linear-gradient(135deg, #e74a3b, #be2617);
         color: white;
     }
-    
+
     .info-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 1.5rem;
         margin-bottom: 2rem;
     }
-    
+
     .info-item {
         background: linear-gradient(135deg, rgba(30, 60, 114, 0.05), rgba(79, 195, 247, 0.05));
         padding: 1.25rem;
         border-radius: 12px;
         border-left: 4px solid var(--admin-blue-mid);
     }
-    
+
     .info-label {
         font-size: 0.75rem;
         text-transform: uppercase;
@@ -163,13 +163,13 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
+
     .info-value {
         font-size: 1.1rem;
         font-weight: 600;
         color: #1a202c;
     }
-    
+
     .description-box {
         background: #f8f9fa;
         padding: 1.5rem;
@@ -178,13 +178,13 @@
         line-height: 1.8;
         color: #4a5568;
     }
-    
+
     .file-list {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 1rem;
     }
-    
+
     .file-item {
         background: linear-gradient(135deg, rgba(30, 60, 114, 0.05), rgba(79, 195, 247, 0.05));
         padding: 1.25rem;
@@ -195,13 +195,13 @@
         align-items: center;
         gap: 1rem;
     }
-    
+
     .file-item:hover {
         border-color: var(--admin-blue-light);
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(30, 60, 114, 0.1);
     }
-    
+
     .file-icon {
         width: 50px;
         height: 50px;
@@ -214,12 +214,12 @@
         color: white;
         flex-shrink: 0;
     }
-    
+
     .file-info {
         flex: 1;
         min-width: 0;
     }
-    
+
     .file-name {
         font-weight: 600;
         color: #1a202c;
@@ -228,19 +228,19 @@
         overflow: hidden;
         text-overflow: ellipsis;
     }
-    
+
     .file-size {
         font-size: 0.875rem;
         color: #718096;
     }
-    
+
     .action-buttons {
         display: flex;
         gap: 1rem;
         margin-top: 2rem;
         flex-wrap: wrap;
     }
-    
+
     .btn-action {
         padding: 1rem 2rem;
         border-radius: 30px;
@@ -254,29 +254,29 @@
         font-size: 1rem;
         text-decoration: none;
     }
-    
+
     .btn-validate {
         background: linear-gradient(135deg, #1cc88a, #13855c);
         color: white;
     }
-    
+
     .btn-validate:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(28, 200, 138, 0.3);
         color: white;
     }
-    
+
     .btn-reject {
         background: linear-gradient(135deg, #e74a3b, #be2617);
         color: white;
     }
-    
+
     .btn-reject:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(231, 74, 59, 0.3);
         color: white;
     }
-    
+
     .btn-download {
         background: linear-gradient(135deg, var(--admin-blue-dark), var(--admin-blue-mid));
         color: white;
@@ -289,13 +289,13 @@
         gap: 0.5rem;
         transition: all 0.3s ease;
     }
-    
+
     .btn-download:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(30, 60, 114, 0.3);
         color: white;
     }
-    
+
     .student-avatar {
         width: 80px;
         height: 80px;
@@ -309,14 +309,14 @@
         color: white;
         box-shadow: 0 8px 20px rgba(30, 60, 114, 0.3);
     }
-    
+
     .timeline-item {
         display: flex;
         gap: 1rem;
         margin-bottom: 1.5rem;
         position: relative;
     }
-    
+
     .timeline-item::before {
         content: '';
         position: absolute;
@@ -326,11 +326,11 @@
         width: 2px;
         background: linear-gradient(180deg, var(--admin-blue-mid), transparent);
     }
-    
+
     .timeline-item:last-child::before {
         display: none;
     }
-    
+
     .timeline-icon {
         width: 40px;
         height: 40px;
@@ -343,20 +343,20 @@
         flex-shrink: 0;
         z-index: 1;
     }
-    
+
     .timeline-content {
         flex: 1;
         background: #f8f9fa;
         padding: 1rem 1.5rem;
         border-radius: 12px;
     }
-    
+
     .timeline-date {
         font-size: 0.875rem;
         color: #718096;
         margin-bottom: 0.25rem;
     }
-    
+
     .timeline-text {
         font-weight: 600;
         color: #1a202c;
@@ -380,20 +380,25 @@
                 </p>
             </div>
             <div>
-                @if($tp->status === 'submitted')
+                @if($tp->status === 'termine')
                     <span class="status-badge status-submitted">
                         <i class="fas fa-hourglass-half"></i>
                         En attente
                     </span>
-                @elseif($tp->status === 'validated')
+                @elseif($tp->status === 'valide')
                     <span class="status-badge status-validated">
                         <i class="fas fa-check-circle"></i>
                         Validé
                     </span>
-                @elseif($tp->status === 'rejected')
+                @elseif($tp->status === 'rejete')
                     <span class="status-badge status-rejected">
                         <i class="fas fa-times-circle"></i>
                         Rejeté
+                    </span>
+                @elseif($tp->status === 'en_cours')
+                    <span class="status-badge" style="background: linear-gradient(135deg, #36b9cc, #258391); color: white;">
+                        <i class="fas fa-spinner"></i>
+                        En cours
                     </span>
                 @endif
             </div>
@@ -403,18 +408,18 @@
     <div class="row">
         <!-- Colonne principale -->
         <div class="col-lg-8">
-            <!-- Informations du TP -->
+            <!-- Informations du Projet -->
             <div class="info-card">
                 <div class="card-header-custom">
                     <div class="icon">📋</div>
-                    <h3>Détails du Travail Pratique</h3>
+                    <h3>Détails du Projet</h3>
                 </div>
 
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-label">
                             <i class="fas fa-calendar-alt"></i>
-                            Date d'assignation
+                            Date de création
                         </div>
                         <div class="info-value">
                             {{ \Carbon\Carbon::parse($tp->created_at)->format('d/m/Y à H:i') }}
@@ -424,20 +429,20 @@
                     <div class="info-item">
                         <div class="info-label">
                             <i class="fas fa-clock"></i>
-                            Date limite
+                            Dernière modification
                         </div>
                         <div class="info-value">
-                            {{ \Carbon\Carbon::parse($tp->deadline)->format('d/m/Y à H:i') }}
+                            {{ \Carbon\Carbon::parse($tp->updated_at)->format('d/m/Y à H:i') }}
                         </div>
                     </div>
 
                     <div class="info-item">
                         <div class="info-label">
-                            <i class="fas fa-paper-plane"></i>
-                            Date de soumission
+                            <i class="fas fa-tag"></i>
+                            Catégorie
                         </div>
                         <div class="info-value">
-                            {{ \Carbon\Carbon::parse($tp->updated_at)->format('d/m/Y à H:i') }}
+                            {{ $tp->category ?? 'Non spécifiée' }}
                         </div>
                     </div>
 
@@ -453,7 +458,7 @@
                 </div>
 
                 <h4 class="mb-3" style="color: var(--admin-blue-dark);">
-                    <i class="fas fa-align-left me-2"></i>Description du TP
+                    <i class="fas fa-align-left me-2"></i>Description du Projet
                 </h4>
                 <div class="description-box">
                     {!! $tp->description !!}
@@ -471,7 +476,7 @@
                             </div>
                             <div class="file-info">
                                 <div class="file-name" title="{{ $file->file_name }}">{{ $file->file_name }}</div>
-                                <div class="file-size">{{ number_format($file->file_size / 1024, 2) }} KB</div>
+                                <div class="file-size">{{ $file->file_size ? number_format($file->file_size / 1024, 2) . ' KB' : 'N/A' }}</div>
                             </div>
                             <a href="/storage/{{ $file->file_path }}" target="_blank" class="btn-download">
                                 <i class="fas fa-download"></i>
@@ -514,20 +519,20 @@
                     </div>
                 @endif
 
-                @if($tp->submission_link)
+                @if(isset($tp->link) && $tp->link)
                     <h4 class="mt-4 mb-3" style="color: var(--admin-blue-dark);">
-                        <i class="fas fa-link me-2"></i>Lien de soumission
+                        <i class="fas fa-link me-2"></i>Lien du projet
                     </h4>
                     <div class="description-box">
-                        <a href="{{ $tp->submission_link }}" target="_blank" style="color: var(--admin-blue-mid); font-weight: 600;">
-                            <i class="fas fa-external-link-alt me-2"></i>{{ $tp->submission_link }}
+                        <a href="{{ $tp->link }}" target="_blank" style="color: var(--admin-blue-mid); font-weight: 600;">
+                            <i class="fas fa-external-link-alt me-2"></i>{{ $tp->link }}
                         </a>
                     </div>
                 @endif
             </div>
 
             <!-- Actions -->
-            @if($tp->status === 'submitted')
+            @if($tp->status === 'termine')
             <div class="info-card">
                 <h4 class="mb-3" style="color: var(--admin-blue-dark);">
                     <i class="fas fa-cog me-2"></i>Actions
@@ -535,14 +540,14 @@
                 <div class="action-buttons">
                     <form action="{{ route('admin.projets.pending.validate', $tp->id) }}" method="POST" style="display: inline;">
                         @csrf
-                        <button type="submit" class="btn-action btn-validate" onclick="return confirm('Êtes-vous sûr de vouloir valider ce TP ?')">
+                        <button type="submit" class="btn-action btn-validate" onclick="return confirm('Êtes-vous sûr de vouloir valider ce projet ?')">
                             <i class="fas fa-check-circle"></i>
-                            Valider ce TP
+                            Valider ce Projet
                         </button>
                     </form>
                     <button class="btn-action btn-reject" onclick="openRejectModal()">
                         <i class="fas fa-times-circle"></i>
-                        Rejeter ce TP
+                        Rejeter ce Projet
                     </button>
                 </div>
             </div>
@@ -563,7 +568,7 @@
                         {{ substr($tp->first_name, 0, 1) }}{{ substr($tp->last_name, 0, 1) }}
                     </div>
                     <h4 style="color: var(--admin-blue-dark);">{{ $tp->first_name }} {{ $tp->last_name }}</h4>
-                    <p class="text-muted mb-0">{{ $tp->program }}</p>
+                    <p class="text-muted mb-0">{{ $tp->formation }}</p>
                 </div>
 
                 <div class="info-item mb-3">
@@ -612,32 +617,30 @@
                     </div>
                     <div class="timeline-content">
                         <div class="timeline-date">{{ \Carbon\Carbon::parse($tp->created_at)->format('d/m/Y à H:i') }}</div>
-                        <div class="timeline-text">TP assigné
-                            @if($assignedBy)
-                                par {{ $assignedBy->name }}
-                            @endif
-                        </div>
+                        <div class="timeline-text">Projet créé par l'étudiant</div>
                     </div>
                 </div>
 
+                @if($tp->updated_at != $tp->created_at)
                 <div class="timeline-item">
                     <div class="timeline-icon">
-                        <i class="fas fa-paper-plane"></i>
+                        <i class="fas fa-edit"></i>
                     </div>
                     <div class="timeline-content">
                         <div class="timeline-date">{{ \Carbon\Carbon::parse($tp->updated_at)->format('d/m/Y à H:i') }}</div>
-                        <div class="timeline-text">TP soumis par l'étudiant</div>
+                        <div class="timeline-text">Dernière modification</div>
                     </div>
                 </div>
+                @endif
 
-                @if($tp->status === 'validated' || $tp->status === 'rejected')
+                @if($tp->status === 'valide' || $tp->status === 'rejete')
                 <div class="timeline-item">
                     <div class="timeline-icon">
-                        <i class="fas fa-{{ $tp->status === 'validated' ? 'check' : 'times' }}"></i>
+                        <i class="fas fa-{{ $tp->status === 'valide' ? 'check' : 'times' }}"></i>
                     </div>
                     <div class="timeline-content">
                         <div class="timeline-date">{{ \Carbon\Carbon::parse($tp->updated_at)->format('d/m/Y à H:i') }}</div>
-                        <div class="timeline-text">TP {{ $tp->status === 'validated' ? 'validé' : 'rejeté' }}</div>
+                        <div class="timeline-text">Projet {{ $tp->status === 'valide' ? 'validé' : 'rejeté' }}</div>
                     </div>
                 </div>
                 @endif
@@ -650,9 +653,9 @@
 <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden;">
-            <div class="modal-header" style="background: linear-gradient(135deg, #e74a3b, #be2617); color: white; border: none;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #e74a3b, #be2617); color: white; border: none;">
                 <h5 class="modal-title" id="rejectModalLabel">
-                    <i class="fas fa-times-circle me-2"></i>Rejeter le TP
+                    <i class="fas fa-times-circle me-2"></i>Rejeter le Projet
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -663,17 +666,17 @@
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Attention :</strong> L'étudiant recevra un email avec votre commentaire.
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="rejectionReason" class="form-label" style="font-weight: 600; color: #1a202c;">
                             <i class="fas fa-comment-alt me-2"></i>Raison du rejet <span class="text-danger">*</span>
                         </label>
-                        <textarea 
-                            class="form-control" 
-                            id="rejectionReason" 
-                            name="reason" 
-                            rows="5" 
-                            required 
+                        <textarea
+                            class="form-control"
+                            id="rejectionReason"
+                            name="reason"
+                            rows="5"
+                            required
                             minlength="10"
                             placeholder="Expliquez clairement les points à améliorer pour aider l'étudiant..."
                             style="border-radius: 12px; border: 2px solid #e9ecef; padding: 1rem;"
@@ -707,41 +710,41 @@
     .modal {
         z-index: 1055 !important;
     }
-    
+
     .modal-backdrop {
         z-index: 1050 !important;
     }
-    
+
     .modal-dialog-centered {
         display: flex;
         align-items: center;
         min-height: calc(100% - 1rem);
     }
-    
+
     .modal-content {
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         border: none;
     }
-    
+
     .modal-header {
         padding: 1.5rem 2rem;
     }
-    
+
     .modal-title {
         font-weight: 700;
         font-size: 1.25rem;
     }
-    
+
     #rejectionReason:focus {
         border-color: #e74a3b;
         box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25);
     }
-    
+
     .modal-body {
         max-height: calc(100vh - 300px);
         overflow-y: auto;
     }
-    
+
     /* Ensure button is clickable */
     .btn-action {
         cursor: pointer;

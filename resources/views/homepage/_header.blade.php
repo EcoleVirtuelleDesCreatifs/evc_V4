@@ -121,7 +121,7 @@
         <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-6">
              <a href="{{ route('preinscription.start') }}" class="preinscription-btn whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 shadow transition">Préinscription</a>
 
-            <a href="{{ route('login') }}" class="btn btn-secondary whitespace-nowrap">Espace Étudiant</a>
+            <a href="{{ route('login') }}" target="_blank" class="btn btn-secondary whitespace-nowrap">Espace Étudiant</a>
         </div>
     </nav>
 </header>
@@ -151,7 +151,7 @@
 
                 </div>
                 <div class="py-6">
-                    <a href="{{ route('login') }}" class="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6 text-white hover:bg-gray-800">Espace Étudiant</a>
+                    <a href="{{ route('login') }}" target="_blank" class="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6 text-white hover:bg-gray-800">Espace Étudiant</a>
                 </div>
             </div>
         </div>

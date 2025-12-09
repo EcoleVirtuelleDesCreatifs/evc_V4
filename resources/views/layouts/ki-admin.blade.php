@@ -39,18 +39,20 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #000066;
+            background-color: #001a33;
             color: var(--dark-color);
+            overflow-x: hidden;
+            max-width: 100%;
         }
 
-        /* Sidebar Styles */
+        /* Sidebar Styles - BLEU NUIT */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
             width: var(--sidebar-width);
-            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 50%, #3399ff 100%);
+            background: linear-gradient(180deg, #001f3f 0%, #003366 50%, #004080 100%) !important;
             box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
             z-index: 1000;
             transition: all 0.3s ease;
@@ -230,18 +232,20 @@
             margin-left: var(--sidebar-width);
             min-height: 100vh;
             transition: all 0.3s ease;
+            overflow-x: hidden;
+            max-width: calc(100vw - var(--sidebar-width));
         }
 
-        /* Top Navigation - Dynamic Version */
+        /* Top Navigation - Dynamic Version - BLEU NUIT */
         .dynamic-topbar {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%);
+            background: linear-gradient(135deg, #001f3f 0%, #003366 50%, #004080 100%);
             padding: 1rem 2rem;
-            box-shadow: 0 4px 20px rgba(0, 51, 102, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 31, 63, 0.4);
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             z-index: 1000;
         }
 
@@ -411,7 +415,7 @@
         /* Profile Dropdown Container */
         .profile-dropdown {
             position: relative;
-            z-index: 99999;
+            z-index: 9999999;
         }
 
         /* Profile Menu */
@@ -424,11 +428,14 @@
             margin-top: 0.5rem;
             min-width: 280px;
             animation: dropdownSlide 0.3s ease-out;
-            z-index: 999999 !important;
-            position: fixed !important;
-            right: 20px;
-            top: 70px;
+            z-index: 99999999 !important;
+            position: absolute !important;
+            right: 0;
+            top: calc(100% + 5px);
+            left: auto;
             display: none;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .profile-dropdown.show .profile-menu {
@@ -447,12 +454,12 @@
         }
 
         .profile-menu .dropdown-header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%);
+            background: linear-gradient(135deg, #001f3f 0%, #003366 50%, #004080 100%);
             color: white;
             padding: 1.5rem;
             margin: 0;
             border-radius: 15px 15px 0 0;
-            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 31, 63, 0.3);
         }
 
         .profile-menu .user-info {
@@ -517,7 +524,7 @@
         /* Content Area */
         .content-wrapper {
             padding: 2rem;
-            background: #000066;
+            background: #001a33;
             min-height: 100vh;
         }
 
@@ -745,6 +752,8 @@
             .main-content {
                 margin-left: 0;
                 width: 100%;
+                max-width: 100vw;
+                overflow-x: hidden;
             }
 
             .sidebar.show {
@@ -783,8 +792,8 @@
 
             /* Profile dropdown mobile */
             .profile-menu {
-                right: 10px;
-                top: 60px;
+                right: 0;
+                top: 100%;
                 min-width: 250px;
             }
 
@@ -816,7 +825,7 @@
         $currentRoute = request()->route()->getName() ?? '';
         $formationPrefix = 'design-graphique'; // Par défaut
         $isCommunityManagement = false;
-        
+
         // Détecter depuis l'URL
         if (str_contains($currentRoute, 'community-manager') || str_contains($currentRoute, 'community-management')) {
             $formationPrefix = 'community-management';
@@ -826,7 +835,7 @@
         } elseif (str_contains($currentRoute, 'gestion-informatique')) {
             $formationPrefix = 'gestion-informatique';
         }
-        
+
         // Mapper le préfixe de route au nom de route du dashboard
         $dashboardRoute = match($formationPrefix) {
             'community-management' => 'dashboard.community-management',
@@ -839,7 +848,7 @@
     @if($isCommunityManagement)
     <style>
         /* Thème Instagram complet pour Community Management */
-        
+
         /* Sidebar et Topbar */
         .sidebar {
             background: linear-gradient(180deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
@@ -1071,13 +1080,20 @@
                 </div>
             </div>
 
-            <!-- Bibliothèque CM_SMM -->
+            <!-- Bibliothèque (masqué si compte expiré) -->
+            @php
+                // Vérifier et désactiver automatiquement le compte si expiré
+                \App\Helpers\AccountExpirationHelper::checkAndDeactivateIfExpired();
+                $isExpired = \App\Helpers\AccountExpirationHelper::isAccountExpired();
+            @endphp
+            @if(!$isExpired)
             <div class="nav-item">
                 <a href="{{ route($formationPrefix . '.bibliotheque.index') }}" class="nav-link {{ request()->routeIs($formationPrefix . '.bibliotheque.*') ? 'active' : '' }}">
                     <i class="fas fa-book-open"></i>
-                    <span>Bibliothèque CM_SMM</span>
+                    <span>Bibliothèque</span>
                 </a>
             </div>
+            @endif
 
             <!-- Mes Évènements (avec sous-menus) -->
             <div class="nav-item-dropdown">
@@ -1274,12 +1290,12 @@
         <!-- Content Wrapper -->
         <div class="content-wrapper">
             @if(session('success'))
-                <div class="alert alert-dismissible fade show" role="alert" 
-                     style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); 
-                            color: white; 
-                            border: none; 
-                            border-radius: 16px; 
-                            padding: 1.2rem 1.5rem; 
+                <div class="alert alert-dismissible fade show" role="alert"
+                     style="background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 16px;
+                            padding: 1.2rem 1.5rem;
                             box-shadow: 0 8px 24px rgba(86, 171, 47, 0.25);
                             font-weight: 500;
                             margin-bottom: 1.5rem;">
@@ -1296,12 +1312,12 @@
             @endif
 
             @if(session('error'))
-                <div class="alert alert-dismissible fade show" role="alert" 
-                     style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); 
-                            color: white; 
-                            border: none; 
-                            border-radius: 16px; 
-                            padding: 1.2rem 1.5rem; 
+                <div class="alert alert-dismissible fade show" role="alert"
+                     style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+                            color: white;
+                            border: none;
+                            border-radius: 16px;
+                            padding: 1.2rem 1.5rem;
                             box-shadow: 0 8px 24px rgba(235, 51, 73, 0.25);
                             font-weight: 500;
                             margin-bottom: 1.5rem;">
@@ -1381,10 +1397,10 @@
         function toggleSubmenu(element) {
             const submenu = element.nextElementSibling;
             const arrow = element.querySelector('.dropdown-arrow');
-            
+
             // Toggle open class on submenu
             submenu.classList.toggle('open');
-            
+
             // Rotate arrow
             arrow.classList.toggle('rotated');
         }

@@ -20,10 +20,18 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-end">
-                    @if($tp->status === 'submitted' || $tp->status === 'pending')
+                    @if($tp->status === 'assigned')
+                        <span class="status-badge assigned"><i class="fas fa-tasks"></i> À faire</span>
+                    @elseif($tp->status === 'submitted')
+                        <span class="status-badge submitted"><i class="fas fa-check-circle"></i> Déjà fait</span>
+                    @elseif($tp->status === 'pending')
                         <span class="status-badge pending"><i class="fas fa-clock"></i> En attente</span>
-                    @else
+                    @elseif($tp->status === 'validated')
                         <span class="status-badge validated"><i class="fas fa-check-circle"></i> Validé</span>
+                    @elseif($tp->status === 'rejected')
+                        <span class="status-badge rejected"><i class="fas fa-times-circle"></i> Rejeté</span>
+                    @else
+                        <span class="status-badge pending"><i class="fas fa-question"></i> {{ ucfirst($tp->status) }}</span>
                     @endif
                 </div>
             </div>
@@ -42,16 +50,6 @@
                 </div>
                 @endif
 
-                <!-- Lien -->
-                @if($tp->link)
-                <div class="content-card">
-                    <h5><i class="fas fa-link"></i> Lien de soumission</h5>
-                    <a href="{{ $tp->link }}" target="_blank" class="external-link">
-                        <i class="fas fa-external-link-alt"></i> {{ $tp->link }}
-                    </a>
-                </div>
-                @endif
-
                 <!-- Fichiers -->
                 @if($files && $files->count() > 0)
                 <div class="content-card">
@@ -59,7 +57,8 @@
                     <div class="files-grid">
                         @foreach($files as $file)
                             @php
-                                $ext = strtolower(pathinfo($file->original_name, PATHINFO_EXTENSION));
+                                $fileName = $file->file_name ?? $file->original_name ?? 'fichier';
+                                $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                                 $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
                                 $url = $file->file_path;
                                 if (!str_starts_with($url, 'http') && !str_starts_with($url, '/')) {
@@ -71,8 +70,8 @@
                             <div class="file-item">
                                 @if($isImage)
                                     <div class="file-preview">
-                                        <img src="{{ $url }}" alt="{{ $file->original_name }}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23ddd\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3EImage%3C/text%3E%3C/svg%3E">
-                                        <div class="image-overlay" onclick="openLightbox('{{ $url }}', '{{ $file->original_name }}')">
+                                        <img src="{{ $url }}" alt="{{ $fileName }}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23ddd\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\' fill=\'%23999\'%3EImage%3C/text%3E%3C/svg%3E">
+                                        <div class="image-overlay" onclick="openLightbox('{{ $url }}', '{{ $fileName }}')">
                                             <i class="fas fa-search-plus"></i>
                                         </div>
                                     </div>
@@ -83,10 +82,10 @@
                                     </div>
                                 @endif
                                 <div class="file-info">
-                                    <div class="file-name" title="{{ $file->original_name }}">{{ Str::limit($file->original_name, 25) }}</div>
+                                    <div class="file-name" title="{{ $fileName }}">{{ Str::limit($fileName, 25) }}</div>
                                     <div class="file-actions">
                                         @if($isImage)
-                                            <button onclick="openLightbox('{{ $url }}', '{{ $file->original_name }}')" class="btn-view" title="Voir l'image">
+                                            <button onclick="openLightbox('{{ $url }}', '{{ $fileName }}')" class="btn-view" title="Voir l'image">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         @endif
@@ -107,13 +106,13 @@
                 <!-- Info étudiant -->
                 <div class="sidebar-card">
                     <h5><i class="fas fa-user-circle"></i> Étudiant</h5>
-                    
+
                     <!-- Photo et nom de l'étudiant -->
                     <div class="student-profile">
                         <div class="student-avatar">
                             @php
                                 $photoUrl = 'https://ui-avatars.com/api/?name=' . urlencode(($student->first_name ?? 'E') . ' ' . ($student->last_name ?? 'T')) . '&background=833AB4&color=fff&size=120';
-                                
+
                                 if ($student->profile_photo ?? false) {
                                     // Essayer différents chemins possibles
                                     if (file_exists(public_path('uploads/photos/' . basename($student->profile_photo)))) {
@@ -129,11 +128,11 @@
                         </div>
                         <div class="student-name">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</div>
                     </div>
-                    
+
                     <div class="info-list">
                         <div class="info-item">
                             <span class="label">Email</span>
-                            <span class="value">{{ $user->email ?? 'N/A' }}</span>
+                            <span class="value">{{ $student->email ?? 'N/A' }}</span>
                         </div>
                         <div class="info-item">
                             <span class="label">Formation</span>
@@ -164,7 +163,7 @@
                             <button type="submit" class="action-btn delete"><i class="fas fa-trash"></i> Supprimer</button>
                         </form>
                     </div>
-                    
+
                     <div id="rejectForm" style="display:none;margin-top:1rem">
                         <form action="{{ route('admin.tp.reject', $tp->id) }}" method="POST">
                             @csrf
@@ -197,8 +196,11 @@
 .tp-meta span { margin-right: 1.5rem; font-size: 0.9rem; }
 .tp-meta i { margin-right: 0.5rem; }
 .status-badge { display: inline-block; padding: 0.6rem 1.5rem; border-radius: 50px; font-weight: 600; font-size: 0.9rem; }
+.status-badge.assigned { background: linear-gradient(135deg, #17a2b8, #138496); color: white; }
+.status-badge.submitted { background: linear-gradient(135deg, #28a745, #20c997); color: white; }
 .status-badge.pending { background: linear-gradient(135deg, #ff9800, #fb8c00); color: white; }
 .status-badge.validated { background: linear-gradient(135deg, #28a745, #20c997); color: white; }
+.status-badge.rejected { background: linear-gradient(135deg, #dc3545, #c82333); color: white; }
 .content-card, .sidebar-card { background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: 0.3s; }
 .content-card:hover, .sidebar-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); transform: translateY(-2px); }
 .content-card h5, .sidebar-card h5 { font-weight: 700; color: #1e3c72; margin-bottom: 1rem; font-size: 1.1rem; }
@@ -268,11 +270,11 @@ function openLightbox(imageUrl, imageName) {
     const modal = document.getElementById('lightboxModal');
     const modalImg = document.getElementById('lightboxImage');
     const caption = document.getElementById('lightboxCaption');
-    
+
     modal.style.display = 'block';
     modalImg.src = imageUrl;
     caption.textContent = imageName;
-    
+
     // Empêcher le scroll du body
     document.body.style.overflow = 'hidden';
 }
@@ -281,7 +283,7 @@ function openLightbox(imageUrl, imageName) {
 function closeLightbox() {
     const modal = document.getElementById('lightboxModal');
     modal.style.display = 'none';
-    
+
     // Réactiver le scroll du body
     document.body.style.overflow = 'auto';
 }

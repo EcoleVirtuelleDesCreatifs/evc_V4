@@ -2,1071 +2,795 @@
 
 @section('title', 'Espace Étudiant - Community Management')
 
-@section('page-title', 'Mon Tableau de Bord')
-
-@section('styles')
+@section('content')
 <style>
-    /* ===================================
-       DESIGN DYNAMIQUE INSTAGRAM
-       ================================== */
-
-    body {
-        background: linear-gradient(135deg, #fdf4f5 0%, #fef9f8 50%, #f8f9fa 100%);
-        font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
-        color: #1a1a1a;
-        line-height: 1.6;
-        min-height: 100vh;
-    }
-
-    /* Container principal */
-    .minimal-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 1rem 2rem 2rem;
-    }
-
-    /* Header dynamique avec dégradé */
-    .minimal-header {
-        background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-        border-radius: 25px;
-        padding: 2.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 20px 60px rgba(240, 148, 51, 0.3);
-        color: white;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .minimal-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0;
-        letter-spacing: -0.02em;
-        color: white;
-    }
-
-    .minimal-header h1 strong {
-        font-weight: 800;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .minimal-header .date {
-        font-size: 1rem;
-        opacity: 0.9;
-        background: rgba(255, 255, 255, 0.2);
-        padding: 0.75rem 1.5rem;
-        border-radius: 50px;
-        backdrop-filter: blur(10px);
-    }
-
-    /* Layout en grille optimisé */
-    .minimal-grid {
-        display: grid;
-        grid-template-columns: 350px 1fr;
-        gap: 2.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    @media (max-width: 1400px) {
-        .minimal-grid {
-            grid-template-columns: 320px 1fr;
-            gap: 2rem;
-        }
-    }
-
-    @media (max-width: 1200px) {
-        .minimal-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-    }
-
-    /* Section profil avec dégradé */
-    .minimal-profile {
-        background: white;
-        border-radius: 25px;
-        padding: 2.5rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        text-align: center;
-        position: relative;
+    /* Style from formations page */
+    .stat-card {
+        border: none;
+        border-radius: 15px;
         overflow: hidden;
-    }
-
-    .minimal-profile::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 120px;
-        background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-        z-index: 0;
-    }
-
-    .minimal-avatar {
-        width: 140px;
-        height: 140px;
-        border-radius: 50%;
-        margin: 0 auto 1.5rem;
-        border: 5px solid white;
-        object-fit: cover;
-        position: relative;
-        z-index: 1;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    .minimal-name {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 1rem 0 0.5rem;
-        background: linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        position: relative;
-        z-index: 1;
-    }
-
-    .minimal-role {
-        font-size: 0.95rem;
-        color: #666;
-        margin: 0 0 2rem;
-        font-weight: 500;
-        position: relative;
-        z-index: 1;
-    }
-
-    .minimal-stats {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        text-align: left;
-        padding-top: 1.5rem;
-        border-top: 2px solid #f0f0f0;
-    }
-
-    .minimal-stat-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem;
-        background: linear-gradient(135deg, #fef5f1 0%, #fce4ec 100%);
-        border-radius: 12px;
-        transition: transform 0.2s ease;
-    }
-
-    .minimal-stat-item:hover {
-        transform: translateX(5px);
-    }
-
-    .minimal-stat-label {
-        font-size: 0.9rem;
-        color: #666;
-        font-weight: 500;
-    }
-
-    .minimal-stat-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    /* Actions dynamiques avec dégradé */
-    .minimal-actions {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    @media (max-width: 1400px) {
-        .minimal-actions {
-            grid-template-columns: repeat(4, 1fr);
-        }
-    }
-
-    @media (max-width: 1200px) {
-        .minimal-actions {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .minimal-actions {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    .minimal-action {
-        border: 2px solid transparent;
-        background-image: linear-gradient(white, white),
-                          linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        background-origin: border-box;
-        background-clip: padding-box, border-box;
-        padding: 1.75rem 1rem;
-        border-radius: 18px;
-        text-align: center;
-        text-decoration: none;
         transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.75rem;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .minimal-action::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        z-index: 0;
-    }
-
-    .minimal-action:hover::before {
-        opacity: 1;
-    }
-
-    .minimal-action:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(240, 148, 51, 0.3);
-    }
-
-    .minimal-action:hover i,
-    .minimal-action:hover span {
         color: white;
         position: relative;
-        z-index: 1;
     }
 
-    .minimal-action i {
-        font-size: 2rem;
-        background: linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        transition: all 0.3s ease;
-        position: relative;
-        z-index: 1;
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
     }
 
-    .minimal-action span {
-        font-size: 0.9rem;
-        font-weight: 600;
-        position: relative;
-        z-index: 1;
+    .stat-card.formations {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
     }
 
-    /* Stats cards avec dégradés */
-    .minimal-stats-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+    .stat-card.tp {
+        background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
     }
 
-    @media (max-width: 1400px) {
-        .minimal-stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
+    .stat-card.projets {
+        background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%);
     }
 
-    @media (max-width: 768px) {
-        .minimal-stats-grid {
-            grid-template-columns: 1fr;
-        }
+    .stat-card.evenements {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
 
-    .minimal-stat-card {
-        background: white;
-        padding: 2.5rem;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-        text-align: center;
-    }
-
-    .minimal-stat-card::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 5px;
-        background: linear-gradient(90deg, #f09433 0%, #dc2743 100%);
-    }
-
-    .minimal-stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 20px 50px rgba(240, 148, 51, 0.2);
-    }
-
-    .minimal-stat-card-value {
+    .stat-number {
         font-size: 3.5rem;
-        font-weight: 700;
-        margin: 0 0 0.5rem;
-        background: linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        line-height: 1;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
 
-    .minimal-stat-card-label {
-        font-size: 0.85rem;
-        color: #666;
+    .stat-icon {
+        font-size: 3rem;
+        opacity: 0.3;
+        position: absolute;
+        right: 20px;
+        top: 20px;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        opacity: 0.95;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-weight: 600;
+        letter-spacing: 1px;
     }
 
-    /* Info section avec dégradé */
-    .minimal-info {
+    .stat-btn {
+        background: rgba(255,255,255,0.2);
+        border: 2px solid rgba(255,255,255,0.3);
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .stat-btn:hover {
+        background: rgba(255,255,255,0.3);
+        border-color: white;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .formation-card {
+        border: none;
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
         background: white;
-        padding: 3rem 2rem;
-        border-radius: 25px;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .formation-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+
+    .formation-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        padding: 2rem;
         position: relative;
         overflow: hidden;
     }
 
-    .minimal-info h3 {
-        background: linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 700;
-    }
-
-    .minimal-info::before {
+    .formation-header::before {
         content: '';
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-    }
-
-    .minimal-info h3 {
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin: 0 0 2rem;
-        background: linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .minimal-info-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 2rem;
-    }
-
-    .minimal-info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .minimal-info-label {
-        font-size: 0.85rem;
-        color: #999;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .minimal-info-value {
-        font-size: 1rem;
-        color: #000;
-        font-weight: 500;
-    }
-
-    /* Progress bar minimaliste */
-    .minimal-progress {
-        margin-top: 3rem;
-        padding-top: 3rem;
-        border-top: 1px solid #e0e0e0;
-    }
-
-    .minimal-progress-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-    }
-
-    .minimal-progress-label {
-        font-size: 0.9rem;
-        color: #666;
-    }
-
-    .minimal-progress-value {
-        font-size: 1.2rem;
-        font-weight: 600;
-        color: #000;
-    }
-
-    .minimal-progress-bar {
-        height: 2px;
-        background: #e0e0e0;
-        position: relative;
-    }
-
-    .minimal-progress-fill {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        background: #000;
-        transition: width 0.3s ease;
-    }
-
-    /* Animations subtiles */
-    * {
-        transition: all 0.2s ease;
-    }
-
-    /* Accent Instagram sur éléments clés */
-    .minimal-header h1 strong {
-        background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .minimal-avatar {
-        border: 3px solid transparent;
-        background-image: linear-gradient(#FAFAFA, #FAFAFA),
-                          linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-        background-origin: border-box;
-        background-clip: padding-box, border-box;
-    }
-
-    .minimal-action:hover {
-        border-color: #f09433;
-        transform: translateY(-2px);
-    }
-
-    .minimal-action:hover i {
-        background: linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .minimal-progress-fill {
-        background: linear-gradient(90deg, #f09433 0%, #dc2743 100%);
-    }
-
-    /* Stat value avec accent Instagram */
-    .minimal-stat-value {
-        background: linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        transform: rotate(360deg) scale(0.8);
-    }
-
-    /* Progress Card - Transparent glass effect */
-    .progress-card-new {
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 1.25rem;
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .progress-title-new {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        font-size: 1rem;
-        color: white;
-    }
-
-    .progress-bar-new {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 10px;
-        height: 10px;
-        overflow: hidden;
-        margin-bottom: 0.75rem;
-    }
-
-    .progress-fill-new {
-        background: white;
-        height: 100%;
-        border-radius: 10px;
-        transition: width 0.3s ease;
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    }
-
-    .progress-text {
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.9);
-        margin: 0;
-        line-height: 1.4;
-    }
-
-    /* Welcome Banner - Instagram */
-    .welcome-banner {
-        background: linear-gradient(135deg, #fef5f1 0%, #fce4ec 100%);
-        border-left: 4px solid #f09433;
-        border-radius: 15px;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
-
-    .welcome-icon {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #f09433 0%, #dc2743 100%);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-    }
-
-    .welcome-content h6 {
-        color: #dc2743;
-        font-weight: 700;
-        margin-bottom: 0.25rem;
-    }
-
-    .welcome-content p {
-        color: #8e44ad;
-        margin: 0;
-        font-size: 0.9rem;
-    }
-
-    /* Bulles animées de réseaux sociaux */
-    .social-bubbles {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 999;
-        overflow: hidden;
-    }
-
-    .bubble {
-        position: absolute;
-        font-size: 3rem;
-        opacity: 0.25;
-        animation: float 20s infinite ease-in-out;
-        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-        will-change: transform, opacity;
-    }
-
-    .bubble:nth-child(1) {
-        left: 10%;
-        animation-delay: 0s;
-        animation-duration: 25s;
-    }
-
-    .bubble:nth-child(2) {
-        left: 20%;
-        animation-delay: 2s;
-        animation-duration: 22s;
-    }
-
-    .bubble:nth-child(3) {
-        left: 30%;
-        animation-delay: 4s;
-        animation-duration: 28s;
-    }
-
-    .bubble:nth-child(4) {
-        left: 40%;
-        animation-delay: 1s;
-        animation-duration: 24s;
-    }
-
-    .bubble:nth-child(5) {
-        left: 50%;
-        animation-delay: 3s;
-        animation-duration: 26s;
-    }
-
-    .bubble:nth-child(6) {
-        left: 60%;
-        animation-delay: 5s;
-        animation-duration: 23s;
-    }
-
-    .bubble:nth-child(7) {
-        left: 70%;
-        animation-delay: 2.5s;
-        animation-duration: 27s;
-    }
-
-    .bubble:nth-child(8) {
-        left: 80%;
-        animation-delay: 4.5s;
-        animation-duration: 21s;
-    }
-
-    .bubble:nth-child(9) {
-        left: 90%;
-        animation-delay: 1.5s;
-        animation-duration: 29s;
-    }
-
-    .bubble:nth-child(10) {
-        left: 15%;
-        animation-delay: 6s;
-        animation-duration: 25s;
-    }
-
-    @keyframes float {
-        0% {
-            transform: translateY(100vh) rotate(0deg) scale(0.8);
-            opacity: 0;
-        }
-        5% {
-            opacity: 0.25;
-        }
-        50% {
-            transform: translateY(50vh) rotate(180deg) scale(1.1);
-            opacity: 0.3;
-        }
-        95% {
-            opacity: 0.25;
-        }
-        100% {
-            transform: translateY(-10vh) rotate(360deg) scale(0.8);
-            opacity: 0;
-        }
-    }
-
-    /* Animation de rotation douce */
-    @keyframes rotate {
-        0% {
-            transform: rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Effet de pulsation pour certaines bulles */
-    .bubble.pulse {
-        animation: float 20s infinite ease-in-out, pulse 3s infinite ease-in-out;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 3s ease-in-out infinite;
     }
 
     @keyframes pulse {
-        0%, 100% {
-            transform: scale(1);
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    .info-item {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        position: relative;
+    }
+
+    .info-item:hover {
+        transform: scale(1.02);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .info-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 2rem;
+        position: relative;
+        padding-bottom: 1rem;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        border-radius: 2px;
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border-radius: 20px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 3s ease-in-out infinite;
+    }
+
+    .avatar-pro {
+        width: 100px;
+        height: 100px;
+        border-radius: 15px;
+        object-fit: cover;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .badge-contact {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 25px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s;
+        text-decoration: none;
+        color: white;
+    }
+
+    .badge-contact:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .btn-edit {
+        background: white;
+        color: #1e40af;
+        border: none;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        transition: all 0.3s;
+    }
+
+    .btn-edit:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+        color: #1e40af;
+    }
+
+    .action-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        position: relative;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+        color: inherit;
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+
+    .action-icon-wrapper {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        transition: all 0.3s;
+    }
+
+    .action-card:hover .action-icon-wrapper {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .action-title {
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .action-subtitle {
+        font-size: 0.875rem;
+        color: #718096;
+    }
+
+    .progress-bar-custom {
+        height: 8px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.3);
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 10px;
+        background: white;
+        transition: width 0.6s ease;
+    }
+
+    .countdown-card {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        margin-bottom: 2rem;
+    }
+
+    .countdown-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
         }
-        50% {
-            transform: scale(1.1);
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    @media (max-width: 768px) {
+        .stat-number {
+            font-size: 2.5rem;
+        }
+
+        .profile-header {
+            padding: 1.5rem;
+        }
+
+        .avatar-pro {
+            width: 80px;
+            height: 80px;
         }
     }
 </style>
-@endsection
 
-@section('content')
-{{-- Toile digitale animée --}}
-<canvas id="digitalCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0;"></canvas>
+@php
+    $sf = optional($student ?? null);
+    $pr = optional($preReg ?? null);
+    $userObj = isset($user) ? $user : (auth()->check() ? auth()->user() : null);
 
-<div class="container-fluid" style="position: relative; z-index: 10;">
-    @php
-        $student = $student ?? null;
-        $user = auth()->user();
+    $studentPhoto = $sf->profile_photo;
+    $prePhoto = $pr->profile_photo ?? $pr->photo ?? $pr->image ?? $pr->image_url ?? $pr->avatar;
+    $rawPhoto = $studentPhoto ?: $prePhoto;
 
+    if ($rawPhoto) {
+        if (preg_match('/^https?:\/\//', $rawPhoto)) {
+            $photoUrl = $rawPhoto;
+        } elseif (str_starts_with($rawPhoto, 'photos_preregistrations/')) {
+            $photoUrl = asset('storage/' . $rawPhoto);
+        } elseif (str_starts_with($rawPhoto, 'uploads/')) {
+            $photoUrl = asset($rawPhoto);
+        } else {
+            $photoUrl = asset('storage/' . $rawPhoto);
+        }
+    } else {
         $photoUrl = asset('assets/img/avatar.png');
-        if ($student && $student->profile_photo) {
-            $photoUrl = asset('uploads/photos/' . basename($student->profile_photo));
-        } elseif ($user && $user->profile_photo) {
-            $photoUrl = asset('uploads/photos/' . basename($user->profile_photo));
-        } elseif (session('user_photo')) {
-            $photoUrl = asset('uploads/photos/' . basename(session('user_photo')));
-        }
+    }
 
-        $fullName = $student ? trim($student->first_name . ' ' . $student->last_name) : ($user->name ?? 'Étudiant');
-        $firstName = $student->first_name ?? ($user->first_name ?? 'N/A');
-        $lastName = $student->last_name ?? ($user->last_name ?? 'N/A');
-        $email = $student->email ?? $user->email ?? 'N/A';
-        $phone = $student->phone ?? 'N/A';
-        $country = $student->country ?? 'Côte d\'Ivoire';
-        $age = $student->age ?? 'N/A';
-        $city = $student->city ?? 'N/A';
-        $lastDiploma = $student->last_diploma ?? 'N/A';
-        $educationLevel = $student->education_level ?? 'N/A';
+    $fullName = trim(($sf->first_name ?? '') . ' ' . ($sf->last_name ?? ''));
+    if ($fullName === '') {
+        $fullName = ($userObj->name ?? '') ?: trim(($pr->first_name ?? '') . ' ' . ($pr->last_name ?? ''));
+    }
 
-        // Gérer la date d'inscription
-        $registrationDate = 'N/A';
-        if ($student && isset($student->created_at)) {
-            if (is_object($student->created_at) && method_exists($student->created_at, 'format')) {
-                $registrationDate = $student->created_at->format('d/m/Y');
-            } elseif (is_string($student->created_at)) {
-                $registrationDate = date('d/m/Y', strtotime($student->created_at));
-            }
-        }
+    $email = ($sf->email ?? '') ?: (($userObj->email ?? '') ?: ($pr->email ?? ''));
+    $phone = ($sf->phone ?? '') ?: ($pr->phone ?? '');
+    $program = ($sf->program ?? '') ?: ($pr->program ?? '');
+    $level = ($sf->level ?? '') ?: ($pr->level ?? '');
+    $studentId = $sf->student_id ?? '';
+@endphp
 
-        $remainingBalance = $student->remaining_balance ?? 0;
+<div class="container-fluid px-lg-4">
 
-        $formationsCount = 12;
-        $tpRendus = 0;
-        $tpTotal = 10;
-        $evenementsCount = 4;
-        $profileCompletion = 85;
-    @endphp
-
-
-    {{-- DESIGN MINIMALISTE RÉVOLUTIONNAIRE --}}
-    <div class="minimal-container">
-
-        {{-- Header --}}
-        <div class="minimal-header">
-            <h1>Bonjour, <strong>{{ explode(' ', $fullName)[0] }}</strong></h1>
-            <div class="date">Inscrit le {{ $registrationDate }}</div>
-        </div>
-
-        {{-- Grille Profil + Actions --}}
-        <div class="minimal-grid">
-            {{-- Profil --}}
-            <div class="minimal-profile">
-                <img src="{{ $photoUrl }}" alt="{{ $fullName }}" class="minimal-avatar">
-                <h2 class="minimal-name">{{ $fullName }}</h2>
-                <p class="minimal-role">Community Management</p>
-
-                <div class="minimal-stats">
-                    <div class="minimal-stat-item">
-                        <span class="minimal-stat-label">Formations</span>
-                        <span class="minimal-stat-value">{{ $formationsCount }}</span>
-                    </div>
-                    <div class="minimal-stat-item">
-                        <span class="minimal-stat-label">TP Rendus</span>
-                        <span class="minimal-stat-value">{{ $tpRendus }}/{{ $tpTotal }}</span>
-                    </div>
-                    <div class="minimal-stat-item">
-                        <span class="minimal-stat-label">Évènements</span>
-                        <span class="minimal-stat-value">{{ $evenementsCount }}</span>
+    {{-- Profile Header --}}
+    <div class="profile-header fade-in-up">
+        <div class="row align-items-center position-relative" style="z-index: 1;">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-4 flex-column flex-lg-row text-center text-lg-start">
+                    <img src="{{ $photoUrl }}" alt="{{ $fullName }}" class="avatar-pro"
+                         onerror="this.src='{{ asset('assets/img/avatar.png') }}'">
+                    <div>
+                        <h1 class="text-white mb-2" style="font-size: 2rem; font-weight: 700;">
+                            {{ $fullName ?: 'Étudiant EVC' }}
+                        </h1>
+                        <p class="text-white mb-3" style="opacity: 0.9; font-size: 1.125rem;">
+                            {{ $program ?: 'Design Graphique' }}
+                            @if($level)
+                                <span class="mx-2">•</span>{{ $level }}
+                            @endif
+                        </p>
+                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start">
+                            @if($email)
+                            <a href="mailto:{{ $email }}" class="badge-contact">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ $email }}</span>
+                            </a>
+                            @endif
+                            @if($phone)
+                            <a href="tel:{{ $phone }}" class="badge-contact">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ $phone }}</span>
+                            </a>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
+            <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
+                <a href="{{ route('design-graphique.profil.editer') }}" class="btn btn-edit">
+                    <i class="fas fa-edit me-2"></i>
+                    Modifier mon profil
+                </a>
+            </div>
+        </div>
+    </div>
 
-            {{-- Grille Historique + Actualités --}}
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
-                {{-- HISTORIQUE D'INSCRIPTION --}}
-                <div class="minimal-info" style="padding: 2rem;">
-                        <h3 style="font-size: 1.1rem; margin-bottom: 1.25rem;">📋 Historique</h3>
-                        <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            {{-- Statut Paiement --}}
-                            <div style="padding: 1.75rem; background: {{ $remainingBalance > 0 ? 'linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%)' : 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' }}; border-radius: 15px; text-align: center; border: 2px solid {{ $remainingBalance > 0 ? '#dc2743' : '#10b981' }};">
-                                <div style="width: 65px; height: 65px; background: {{ $remainingBalance > 0 ? 'linear-gradient(135deg, #dc2743 0%, #cc2366 100%)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                                    <i class="fas {{ $remainingBalance > 0 ? 'fa-exclamation-triangle' : 'fa-check-circle' }}" style="color: white; font-size: 2rem;"></i>
-                                </div>
-                                <h4 style="margin: 0 0 0.75rem; font-size: 1.2rem; font-weight: 700; color: {{ $remainingBalance > 0 ? '#dc2743' : '#10b981' }};">
-                                    {{ $remainingBalance > 0 ? 'Reste à Payer' : 'À Jour' }}
-                                </h4>
-                                @if($remainingBalance > 0)
-                                    <p style="margin: 0 0 0.5rem; font-size: 1.75rem; font-weight: 700; color: #dc2743;">
-                                        {{ number_format($remainingBalance, 0, ',', ' ') }} FCFA
-                                    </p>
-                                    <small style="color: #666; font-size: 0.85rem;">Montant restant à régler</small>
-                                @else
-                                    <p style="margin: 0; font-size: 1rem; font-weight: 600; color: #10b981;">
-                                        Tous les paiements sont à jour
-                                    </p>
-                                @endif
-                            </div>
+    {{-- Statistics Cards --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="section-title">
+                <i class="fas fa-chart-bar me-2"></i>
+                Votre Tableau de Bord
+            </h2>
+        </div>
+    </div>
 
-                            {{-- Informations d'inscription --}}
-                            <div style="padding: 1.5rem; background: white; border-radius: 15px; border: 1px solid #e0e0e0;">
-                                <div style="display: flex; flex-direction: column; gap: 1rem;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid #f0f0f0;">
-                                        <span style="color: #666; font-size: 0.9rem;">Date d'inscription</span>
-                                        <span style="font-weight: 600; color: #1a1a1a; font-size: 0.9rem;">{{ $registrationDate }}</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid #f0f0f0;">
-                                        <span style="color: #666; font-size: 0.9rem;">Formation</span>
-                                        <span style="font-weight: 600; color: #1a1a1a; font-size: 0.9rem;">Community Management</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; border-bottom: 1px solid #f0f0f0;">
-                                        <span style="color: #666; font-size: 0.9rem;">Niveau</span>
-                                        <span style="font-weight: 600; color: #1a1a1a; font-size: 0.9rem;">{{ $educationLevel }}</span>
-                                    </div>
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <span style="color: #666; font-size: 0.9rem;">Statut</span>
-                                        <span style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #f09433 0%, #dc2743 100%); color: white; border-radius: 50px; font-size: 0.85rem; font-weight: 600;">Actif</span>
+    <div class="row mb-5">
+        <div class="col-lg-3 col-md-6 mb-4 fade-in-up" style="animation-delay: 0.1s;">
+            <div class="stat-card formations h-100">
+                <i class="fas fa-graduation-cap stat-icon"></i>
+                <div class="card-body p-4">
+                    <div class="stat-number mb-2">{{ $stats['formations_disponibles'] ?? 0 }}</div>
+                    <div class="stat-label mb-3">Formations Disponibles</div>
+                    <a href="#" class="btn stat-btn w-100">
+                        <i class="fas fa-arrow-right me-2"></i>
+                        Explorer
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="stat-card tp h-100">
+                <i class="fas fa-tasks stat-icon"></i>
+                <div class="card-body p-4">
+                    <div class="stat-number mb-2">
+                        {{ $stats['tp_realises'] ?? 0 }}<span style="font-size: 1.5rem; opacity: 0.7;">/{{ $stats['tp_total'] ?? 0 }}</span>
+                    </div>
+                    <div class="stat-label mb-2">Travaux Pratiques</div>
+                    @if(($stats['tp_total'] ?? 0) > 0)
+                    <div class="progress-bar-custom mb-3">
+                        <div class="progress-bar-fill" style="width: {{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}%;"></div>
+                    </div>
+                    <small class="text-white" style="opacity: 0.8;">{{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}% complétés</small>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4 fade-in-up" style="animation-delay: 0.3s;">
+            <div class="stat-card projets h-100">
+                <i class="fas fa-project-diagram stat-icon"></i>
+                <div class="card-body p-4">
+                    <div class="stat-number mb-2">
+                        {{ $stats['projets_realises'] ?? 0 }}<span style="font-size: 1.5rem; opacity: 0.7;">/{{ $stats['projets_total'] ?? 0 }}</span>
+                    </div>
+                    <div class="stat-label mb-2">Projets Réalisés</div>
+                    @if(($stats['projets_total'] ?? 0) > 0)
+                    <div class="progress-bar-custom mb-3">
+                        <div class="progress-bar-fill" style="width: {{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}%;"></div>
+                    </div>
+                    <small class="text-white" style="opacity: 0.8;">{{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}% réalisés</small>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4 fade-in-up" style="animation-delay: 0.4s;">
+            <div class="stat-card evenements h-100">
+                <i class="fas fa-calendar-alt stat-icon"></i>
+                <div class="card-body p-4">
+                    <div class="stat-label mb-3">Événements</div>
+                    <div class="row g-0 text-center">
+                        <div class="col-6">
+                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['webinaires_en_cours'] ?? 0 }}</div>
+                            <small style="opacity: 0.8;">Webinaires</small>
+                        </div>
+                        <div class="col-6" style="border-left: 1px solid rgba(255,255,255,0.3);">
+                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['actualites_en_cours'] ?? 0 }}</div>
+                            <small style="opacity: 0.8;">Actualités</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Countdown Section --}}
+    @if(!$isExpired)
+    <div class="countdown-card fade-in-up mb-5">
+        <div class="row align-items-center position-relative" style="z-index: 1;">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span style="font-size: 2.5rem;">⏰</span>
+                    <div>
+                        <h3 class="text-white mb-1" style="font-size: 1.75rem; font-weight: 700;">
+                            Votre formation expire bientôt
+                        </h3>
+                        <p class="text-white mb-0" style="opacity: 0.9;">
+                            Maximisez votre apprentissage avant la fin de votre accès
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row g-3 mt-3">
+                    <div class="col-md-4 text-center text-lg-start">
+                        <div style="font-size: 3rem; font-weight: 900; color: white;">{{ $daysRemaining }}</div>
+                        <div style="color: white; opacity: 0.9; font-weight: 500;">jours restants</div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="text-white small" style="opacity: 0.8; text-transform: uppercase; font-weight: 600;">Expire le</div>
+                        <div class="text-white" style="font-size: 1.5rem; font-weight: 700;">{{ $expirationDate->format('d/m/Y') }}</div>
+                        <div class="text-white" style="opacity: 0.8;">{{ $expirationDate->format('H:i') }}</div>
+                    </div>
+                    <div class="col-md-4">
+                        @php
+                            $totalDays = 120;
+                            $progress = ($daysRemaining / $totalDays) * 100;
+                        @endphp
+                        <div class="text-white small mb-2" style="opacity: 0.8; text-transform: uppercase; font-weight: 600;">Progression</div>
+                        <div class="progress-bar-custom">
+                            <div class="progress-bar-fill" style="width: {{ $progress }}%;"></div>
+                        </div>
+                        <div class="text-white mt-2" style="font-weight: 600;">{{ round($progress) }}% de votre formation</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center mt-4 mt-lg-0">
+                <div class="info-item p-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <span style="font-size: 2rem;">💡</span>
+                        <div class="text-start">
+                            <strong style="color: #2d3748;">Conseil Pro</strong>
+                            <p class="mb-0 small" style="color: #4a5568;">Complétez vos TP et projets pour valider vos compétences</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- Bannière Compte Expiré --}}
+    @if($isExpired)
+    <div class="alert alert-danger border-0 shadow-lg mb-5 fade-in-up" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 16px;">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <span style="font-size: 3rem;">⚠️</span>
+                    <div>
+                        <h3 class="text-white mb-1" style="font-size: 1.75rem; font-weight: 700;">
+                            Votre compte a expiré
+                        </h3>
+                        <p class="text-white mb-0" style="opacity: 0.95; font-size: 1.1rem;">
+                            Votre période de formation est terminée
+                        </p>
+                    </div>
+                </div>
+
+                <div class="alert alert-light mb-0" style="background: rgba(255,255,255,0.95); border-radius: 12px;">
+                    <h5 class="mb-3" style="color: #dc2626; font-weight: 600;">
+                        <i class="fas fa-info-circle me-2"></i>Restrictions d'accès
+                    </h5>
+                    <ul class="mb-0" style="color: #1f2937;">
+                        <li class="mb-2"><strong>✅ Vous pouvez :</strong> Consulter vos cours, TP et projets déjà réalisés</li>
+                        <li class="mb-2"><strong>❌ Vous ne pouvez plus :</strong>
+                            <ul class="mt-2">
+                                <li>Accéder à de nouvelles formations</li>
+                                <li>Soumettre de nouveaux TP ou projets</li>
+                                <li>Publier des rapports</li>
+                                <li>Accéder à la bibliothèque de ressources</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-lg-4 text-center mt-4 mt-lg-0">
+                <div class="p-4" style="background: rgba(255,255,255,0.15); border-radius: 12px; backdrop-filter: blur(10px);">
+                    <div style="font-size: 2.5rem; color: white; margin-bottom: 1rem;">📞</div>
+                    <h5 class="text-white mb-3" style="font-weight: 600;">Renouveler votre accès</h5>
+                    <p class="text-white mb-3" style="opacity: 0.9; font-size: 0.95rem;">
+                        Contactez l'administration pour prolonger votre formation
+                    </p>
+                    <a href="mailto:contact@ecolevirtuelle.ci" class="btn btn-light btn-lg" style="font-weight: 600; border-radius: 10px;">
+                        <i class="fas fa-envelope me-2"></i>Nous contacter
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    {{-- Quick Actions --}}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="section-title">
+                <i class="fas fa-bolt me-2"></i>
+                Actions Rapides
+            </h2>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.1s;">
+            <a href="{{ route('community-management.profil.editer') }}" class="action-card text-decoration-none">
+                <div class="card-body p-4 text-center">
+                    <div class="action-icon-wrapper">
+                        <i class="fas fa-user-edit fa-2x text-white"></i>
+                    </div>
+                    <h5 class="action-title">Modifier Profil</h5>
+                    <p class="action-subtitle mb-0">Mettre à jour vos informations</p>
+                </div>
+            </a>
+        </div>
+
+        @if(!$isExpired)
+        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.2s;">
+            <a href="{{ route('community-management.documents.index') }}" class="action-card text-decoration-none">
+                <div class="card-body p-4 text-center">
+                    <div class="action-icon-wrapper">
+                        <i class="fas fa-folder-open fa-2x text-white"></i>
+                    </div>
+                    <h5 class="action-title">Documents</h5>
+                    <p class="action-subtitle mb-0">CV, lettres, réalisations</p>
+                </div>
+            </a>
+        </div>
+        @else
+        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.2s;">
+            <div class="action-card text-decoration-none" style="opacity: 0.6; cursor: not-allowed; position: relative;">
+                <div class="card-body p-4 text-center">
+                    <div class="action-icon-wrapper" style="background: #6b7280;">
+                        <i class="fas fa-lock fa-2x text-white"></i>
+                    </div>
+                    <h5 class="action-title">Documents</h5>
+                    <p class="action-subtitle mb-0 text-muted">Compte expiré</p>
+                    <span class="badge bg-danger position-absolute top-0 end-0 m-2" style="font-size: 0.7rem;">
+                        <i class="fas fa-ban me-1"></i>Bloqué
+                    </span>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.3s;">
+            <a href="{{ route('community-management.parametres.index') }}" class="action-card text-decoration-none">
+                <div class="card-body p-4 text-center">
+                    <div class="action-icon-wrapper">
+                        <i class="fas fa-cog fa-2x text-white"></i>
+                    </div>
+                    <h5 class="action-title">Paramètres</h5>
+                    <p class="action-subtitle mb-0">Configuration du compte</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.4s;">
+            <a href="#" class="action-card text-decoration-none">
+                <div class="card-body p-4 text-center">
+                    <div class="action-icon-wrapper">
+                        <i class="fas fa-chart-line fa-2x text-white"></i>
+                    </div>
+                    <h5 class="action-title">Statistiques</h5>
+                    <p class="action-subtitle mb-0">Suivi de progression</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    {{-- Profile Info --}}
+    <div class="row">
+        <div class="col-12">
+            <div class="formation-card fade-in-up">
+                <div class="formation-header">
+                    <h3 class="mb-0 position-relative">
+                        <i class="fas fa-info-circle me-3"></i>
+                        Informations de Formation
+                    </h3>
+                    <p class="mb-0 mt-2 opacity-75">Détails de votre parcours académique</p>
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="info-item h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="info-icon-wrapper flex-shrink-0">
+                                            <i class="fas fa-book text-white"></i>
+                                        </div>
+                                        <div>
+                                            <div class="small text-muted" style="text-transform: uppercase; font-weight: 600; font-size: 0.75rem;">Programme</div>
+                                            <div style="font-weight: 700; color: #2d3748;">{{ $program ?: 'Design Graphique' }}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                </div>
 
-                {{-- DERNIÈRES ACTUALITÉS EVC --}}
-                <div class="minimal-info" style="padding: 2rem;">
-                    <h3 style="font-size: 1.1rem; margin-bottom: 1.25rem;">📰 Actualités</h3>
-                    <div style="display: flex; flex-direction: column; gap: 1rem;">
-                        @php
-                            // Icônes et couleurs par catégorie
-                            $categoryStyles = [
-                                'general' => ['icon' => 'fa-info-circle', 'color' => '#6c757d'],
-                                'formation' => ['icon' => 'fa-graduation-cap', 'color' => '#f09433'],
-                                'evenement' => ['icon' => 'fa-calendar-alt', 'color' => '#dc2743'],
-                                'partenariat' => ['icon' => 'fa-handshake', 'color' => '#28a745'],
-                                'succes' => ['icon' => 'fa-trophy', 'color' => '#ffc107'],
-                            ];
-                        @endphp
-
-                        @forelse($actualites as $actualite)
-                            @php
-                                $style = $categoryStyles[$actualite->category] ?? $categoryStyles['general'];
-                                $publishedDate = \Carbon\Carbon::parse($actualite->published_at);
-                                $timeAgo = $publishedDate->diffForHumans();
-                                $excerpt = \Illuminate\Support\Str::limit(strip_tags($actualite->content), 80);
-                            @endphp
-                            
-                            <div style="padding: 1rem; background: white; border-radius: 12px; border-left: 4px solid {{ $style['color'] }}; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s ease;">
-                                <div style="display: flex; gap: 1rem;">
-                                    {{-- Miniature de l'image --}}
-                                    @if($actualite->cover_image)
-                                        <div style="width: 80px; height: 80px; flex-shrink: 0; border-radius: 8px; overflow: hidden; background: #f5f5f5;">
-                                            <img src="{{ asset('storage/' . $actualite->cover_image) }}" 
-                                                 alt="{{ $actualite->title }}" 
-                                                 style="width: 100%; height: 100%; object-fit: cover;">
+                        <div class="col-lg-3 col-md-6">
+                            <div class="info-item h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="info-icon-wrapper flex-shrink-0">
+                                            <i class="fas fa-layer-group text-white"></i>
                                         </div>
-                                    @else
-                                        <div style="width: 80px; height: 80px; flex-shrink: 0; border-radius: 8px; background: linear-gradient(135deg, {{ $style['color'] }}20, {{ $style['color'] }}40); display: flex; align-items: center; justify-content: center;">
-                                            <i class="fas {{ $style['icon'] }}" style="color: {{ $style['color'] }}; font-size: 1.5rem;"></i>
+                                        <div>
+                                            <div class="small text-muted" style="text-transform: uppercase; font-weight: 600; font-size: 0.75rem;">Niveau</div>
+                                            <div style="font-weight: 700; color: #2d3748;">{{ $level ?: 'Débutant' }}</div>
                                         </div>
-                                    @endif
-                                    
-                                    {{-- Contenu --}}
-                                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.5rem;">
-                                        {{-- Catégorie et date --}}
-                                        <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                                            <span style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: {{ $style['color'] }}15; color: {{ $style['color'] }}; border-radius: 4px; font-size: 0.7rem; font-weight: 600;">
-                                                <i class="fas {{ $style['icon'] }}" style="font-size: 0.65rem;"></i>
-                                                {{ ucfirst($actualite->category) }}
-                                            </span>
-                                            <small style="color: #999; font-size: 0.7rem;">{{ $timeAgo }}</small>
-                                        </div>
-                                        
-                                        {{-- Titre --}}
-                                        <h4 style="margin: 0; font-size: 0.9rem; font-weight: 600; color: #1a1a1a; line-height: 1.3;">
-                                            {{ $actualite->title }}
-                                        </h4>
-                                        
-                                        {{-- Extrait --}}
-                                        <p style="margin: 0; font-size: 0.75rem; color: #666; line-height: 1.4;">
-                                            {{ $excerpt }}
-                                        </p>
-                                        
-                                        {{-- Bouton Lire la suite --}}
-                                        <a href="{{ route(session('user_formation_raw', 'community-management') . '.actualites.show', $actualite->id) }}"
-                                           style="display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.4rem 0.75rem; background: linear-gradient(135deg, {{ $style['color'] }}, {{ $style['color'] }}dd); color: white; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-decoration: none; align-self: flex-start; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                            <i class="fas fa-arrow-right" style="font-size: 0.7rem;"></i>
-                                            Lire la suite
-                                        </a>
                                     </div>
                                 </div>
                             </div>
-                        @empty
-                            <div style="padding: 1.5rem; text-align: center; color: #999;">
-                                <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5;"></i>
-                                <p style="margin: 0; font-size: 0.85rem;">Aucune actualité pour le moment</p>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="info-item h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="info-icon-wrapper flex-shrink-0">
+                                            <i class="fas fa-id-card text-white"></i>
+                                        </div>
+                                        <div>
+                                            <div class="small text-muted" style="text-transform: uppercase; font-weight: 600; font-size: 0.75rem;">Matricule</div>
+                                            <div style="font-weight: 700; color: #2d3748;">{{ $studentId ?: 'N/A' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        @endforelse
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="info-item h-100">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="info-icon-wrapper flex-shrink-0">
+                                            <i class="fas fa-check-circle text-white"></i>
+                                        </div>
+                                        <div>
+                                            <div class="small text-muted" style="text-transform: uppercase; font-weight: 600; font-size: 0.75rem;">Statut</div>
+                                            <div style="font-weight: 700; color: #10b981;">Actif</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 mt-4">
+                            <div class="info-item text-center">
+                                <div class="card-body p-4">
+                                    <i class="fas fa-trophy mb-3" style="font-size: 2.5rem; color: #f97316;"></i>
+                                    @php
+                                        $globalProgress = 0;
+                                        $tpTotal = $stats['tp_total'] ?? 0;
+                                        $projetsTotal = $stats['projets_total'] ?? 0;
+
+                                        if($tpTotal > 0) {
+                                            $globalProgress += (($stats['tp_realises'] ?? 0) / $tpTotal) * 50;
+                                        }
+                                        if($projetsTotal > 0) {
+                                            $globalProgress += (($stats['projets_realises'] ?? 0) / $projetsTotal) * 50;
+                                        }
+                                    @endphp
+                                    <div style="font-size: 3.5rem; font-weight: 900; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;">
+                                        {{ round($globalProgress) }}%
+                                    </div>
+                                    <div class="text-muted mb-3">De votre formation complétée</div>
+                                    <div class="progress-bar-custom mx-auto" style="max-width: 400px; background: #e5e7eb;">
+                                        <div style="height: 100%; border-radius: 10px; background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); width: {{ $globalProgress }}%; transition: width 0.6s ease;"></div>
+                                    </div>
+                                    <p class="mt-3 mb-0">
+                                        <i class="fas fa-fire" style="color: #ef4444;"></i>
+                                        Continuez comme ça, vous êtes sur la bonne voie !
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        {{-- Actions (pleine largeur) --}}
-        <div class="minimal-actions">
-                    <a href="{{ route('community-management.parametres.index') }}" class="minimal-action">
-                        <i class="fas fa-user-edit"></i>
-                        <span>Profil</span>
-                    </a>
-                    <a href="{{ route('community-management.formations.index') }}" class="minimal-action">
-                        <i class="fas fa-graduation-cap"></i>
-                        <span>Formations</span>
-                    </a>
-                    <a href="{{ route('community-management.tp.index') }}" class="minimal-action">
-                        <i class="fas fa-tasks"></i>
-                        <span>TP</span>
-                    </a>
-                    <a href="{{ route('community-management.events.index') }}" class="minimal-action">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Évènements</span>
-                    </a>
-                    <a href="{{ route('community-management.documents.index') }}" class="minimal-action">
-                        <i class="fas fa-folder-open"></i>
-                        <span>Rapports</span>
-                    </a>
-                    <a href="{{ route('community-management.communaute.index') }}" class="minimal-action">
-                        <i class="fas fa-users"></i>
-                        <span>Communauté</span>
-                    </a>
-                    <a href="{{ route('community-management.cvtheque.index') }}" class="minimal-action">
-                        <i class="fas fa-file-alt"></i>
-                        <span>CVthèque</span>
-                    </a>
-                    <a href="{{ route('community-management.programme.index') }}" class="minimal-action">
-                        <i class="fas fa-book-open"></i>
-                        <span>Programme</span>
-                    </a>
-                    <a href="{{ route('community-management.paiements.index') }}" class="minimal-action">
-                        <i class="fas fa-credit-card"></i>
-                        <span>Paiement</span>
-                    </a>
-        </div>
-
-
-
-
-
     </div>
-    {{-- Fin du container minimaliste --}}
+
 </div>
-@endsection
-
-@section('scripts')
-<script>
-    // Effet de toile digitale animée avec particules connectées
-    (function() {
-        const canvas = document.getElementById('digitalCanvas');
-        if (!canvas) return;
-
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        let animationId;
-
-        // Redimensionner le canvas
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        // Classe Particule
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.radius = Math.random() * 2 + 1;
-
-                // Couleurs Instagram
-                const colors = ['#f09433', '#e6683c', '#dc2743', '#cc2366', '#bc1888'];
-                this.color = colors[Math.floor(Math.random() * colors.length)];
-            }
-
-            update() {
-                this.x += this.vx;
-                this.y += this.vy;
-
-                // Rebondir sur les bords
-                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-            }
-
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-            }
-        }
-
-        // Créer les particules
-        function createParticles() {
-            const particleCount = Math.min(Math.floor((canvas.width * canvas.height) / 15000), 100);
-            particles = [];
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        // Dessiner les connexions entre particules proches
-        function drawConnections() {
-            const maxDistance = 150;
-
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x;
-                    const dy = particles[i].y - particles[j].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < maxDistance) {
-                        const opacity = (1 - distance / maxDistance) * 0.3;
-
-                        // Créer un dégradé pour la ligne
-                        const gradient = ctx.createLinearGradient(
-                            particles[i].x, particles[i].y,
-                            particles[j].x, particles[j].y
-                        );
-                        gradient.addColorStop(0, particles[i].color);
-                        gradient.addColorStop(1, particles[j].color);
-
-                        ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y);
-                        ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = gradient;
-                        ctx.globalAlpha = opacity;
-                        ctx.lineWidth = 1;
-                        ctx.stroke();
-                        ctx.globalAlpha = 1;
-                    }
-                }
-            }
-        }
-
-        // Animation principale
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Mettre à jour et dessiner les particules
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
-
-            // Dessiner les connexions
-            drawConnections();
-
-            animationId = requestAnimationFrame(animate);
-        }
-
-        // Initialisation
-        resizeCanvas();
-        createParticles();
-        animate();
-
-        // Redimensionner au changement de taille de fenêtre
-        window.addEventListener('resize', () => {
-            resizeCanvas();
-            createParticles();
-        });
-
-        // Nettoyer à la destruction
-        window.addEventListener('beforeunload', () => {
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-            }
-        });
-    })();
-</script>
 @endsection

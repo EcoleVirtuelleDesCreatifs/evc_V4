@@ -16,44 +16,62 @@ class CVThequeAdminController extends Controller
      */
     public function index(): View
     {
-        // Récupérer tous les profils CV avec les informations utilisateur
-        $profiles = CVThequeProfile::with('user')
-            ->join('users', 'cvtheque_profiles.user_id', '=', 'users.id')
-            ->leftJoin('students', 'users.id', '=', 'students.user_id')
+        // Récupérer tous les étudiants avec leurs profils CVthèque
+        $students = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->leftJoin('cvtheque_profiles', 'users.id', '=', 'cvtheque_profiles.user_id')
             ->select(
-                'cvtheque_profiles.*',
-                'users.email as user_email',
+                'students.id',
+                'students.user_id',
                 'students.first_name',
                 'students.last_name',
-                'students.phone',
                 'students.profile_photo',
-                'students.program as formation',
+                'students.phone',
+                'students.program',
                 'students.specialization',
-                'students.status as student_status'
+                'students.status',
+                'users.id as user_id_full',
+                'users.email',
+                'cvtheque_profiles.id as profile_id',
+                'cvtheque_profiles.professional_title',
+                'cvtheque_profiles.experience_years as years_experience',
+                'cvtheque_profiles.cv_file_path as cv_file',
+                'cvtheque_profiles.motivation_letter_path as motivation_file',
+                'cvtheque_profiles.pressbook_file_path as pressbook_file',
+                'cvtheque_profiles.report_file_path as rapport_file',
+                'cvtheque_profiles.profile_completion_score',
+                'cvtheque_profiles.availability',
+                'cvtheque_profiles.created_at as profile_created_at'
             )
+            ->where('students.status', 'active')
             ->orderBy('cvtheque_profiles.created_at', 'desc')
             ->get();
 
+        // Grouper par formation
+        $studentsByFormation = $students->groupBy('program');
+
         // Calculer les statistiques
+        $totalStudents = $students->count();
+        $withProfile = $students->whereNotNull('profile_id')->count();
+        $withoutProfile = $totalStudents - $withProfile;
+
+        // Calculer le taux de complétion moyen
+        $avgCompletion = $students->whereNotNull('profile_completion_score')->avg('profile_completion_score');
+        $visibleProfiles = $students->where('profile_completion_score', '>=', 75)->count();
+
         $stats = [
-            'total' => $profiles->count(),
-            'complete' => $profiles->where('profile_completion_score', '>=', 80)->count(),
-            'with_cv' => $profiles->whereNotNull('cv_file_path')->count(),
-            'with_motivation' => $profiles->whereNotNull('motivation_letter_path')->count(),
-            'with_portfolio' => $profiles->whereNotNull('portfolio_files')->count(),
-            'with_pressbook' => $profiles->whereNotNull('pressbook_file_path')->count(),
-            'with_report' => $profiles->whereNotNull('report_file_path')->count(),
+            'total_students' => $totalStudents,
+            'with_profile' => $withProfile,
+            'without_profile' => $withoutProfile,
+            'avg_completion' => round($avgCompletion ?? 0),
+            'visible_profiles' => $visibleProfiles,
+            'with_cv' => $students->whereNotNull('cv_file')->count(),
+            'with_motivation' => $students->whereNotNull('motivation_file')->count(),
+            'with_pressbook' => $students->whereNotNull('pressbook_file')->count(),
+            'with_report' => $students->whereNotNull('rapport_file')->count(),
         ];
 
-        // Statistiques par formation
-        $formationStats = [
-            'design_graphique' => $profiles->where('formation', 'Design Graphique')->count(),
-            'community_management' => $profiles->where('formation', 'Community Management')->count(),
-            'gestion_informatique' => $profiles->where('formation', 'Gestion Informatique')->count(),
-            'intelligence_artificielle' => $profiles->where('formation', 'Intelligence Artificielle')->count(),
-        ];
-
-        return view('admin.cvtheque.profiles', compact('profiles', 'stats', 'formationStats'));
+        return view('admin.cvtheque.index', compact('students', 'studentsByFormation', 'stats'));
     }
 
     /**
@@ -86,8 +104,8 @@ class CVThequeAdminController extends Controller
         // Décoder les fichiers portfolio si présents
         $portfolioFiles = [];
         if ($profile->portfolio_files) {
-            $portfolioFiles = is_string($profile->portfolio_files) 
-                ? json_decode($profile->portfolio_files, true) 
+            $portfolioFiles = is_string($profile->portfolio_files)
+                ? json_decode($profile->portfolio_files, true)
                 : $profile->portfolio_files;
         }
 
@@ -100,7 +118,7 @@ class CVThequeAdminController extends Controller
     public function downloadFile($id, $fileType)
     {
         $profile = CVThequeProfile::findOrFail($id);
-        
+
         $filePath = null;
         $fileName = null;
 
@@ -157,7 +175,7 @@ class CVThequeAdminController extends Controller
 
         $callback = function() use ($profiles) {
             $file = fopen('php://output', 'w');
-            
+
             // En-têtes CSV
             fputcsv($file, [
                 'ID',

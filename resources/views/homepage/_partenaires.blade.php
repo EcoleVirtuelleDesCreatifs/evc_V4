@@ -3,13 +3,13 @@
     <div class="absolute inset-0 opacity-20">
         <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, rgba(255, 152, 0, 0.15) 1px, transparent 0); background-size: 40px 40px;"></div>
     </div>
-    
+
     <div class="relative z-10 mx-auto max-w-7xl px-6 lg:px-8">
         <!-- Header -->
         <div class="mx-auto max-w-2xl text-center mb-16" data-aos="fade-up">
             <h2 class="text-base font-semibold leading-7 evc-orange">Partenaires & Accréditations</h2>
             <p class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Ils nous font confiance</p>
-            <p class="mt-4 text-lg leading-8 text-gray-300">Reconnus et soutenus par les acteurs majeurs du digital en Afrique</p>
+            <p class="mt-4 text-lg leading-8 text-gray-300">Reconnus et soutenus par les acteurs majeurs du digital dans le monde</p>
         </div>
 
         <!-- Accréditations & Certifications -->
@@ -161,11 +161,7 @@
         </div>
 
         <!-- Statistiques Partenariats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="300">
-            <div class="text-center p-8 bg-gradient-to-br from-orange-500/10 to-orange-600/10 rounded-2xl border border-orange-500/20">
-                <div class="text-4xl font-bold text-white mb-2">+50</div>
-                <p class="text-gray-300">Entreprises Partenaires</p>
-            </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8" data-aos="fade-up" data-aos-delay="300">
             <div class="text-center p-8 bg-gradient-to-br from-blue-500/10 to-blue-600/10 rounded-2xl border border-blue-500/20">
                 <div class="text-4xl font-bold text-white mb-2">+90</div>
                 <p class="text-gray-300">Étudiants Embauchés</p>

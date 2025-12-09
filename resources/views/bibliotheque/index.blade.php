@@ -1,7 +1,7 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Bibliothèque CM_SMM - EVC 2024')
-@section('page-title', 'Bibliothèque CM_SMM')
+@section('title', 'Bibliothèque - EVC 2024')
+@section('page-title', 'Bibliothèque')
 
 @section('content')
 <!-- Header avec palette Instagram -->
@@ -16,7 +16,7 @@
                         </div>
                         <div>
                             <h3 class="mb-1" style="font-weight: 700; font-size: 1.8rem;">
-                                Bibliothèque CM_SMM
+                                Bibliothèque
                             </h3>
                             <p class="mb-0 text-white-50">Ressources et supports de cours</p>
                         </div>
@@ -109,7 +109,7 @@
             </div>
         </div>
     @endforeach
-    
+
     <!-- Bouton pour afficher tous les livres -->
     <div class="col-12 text-center mt-3">
         <button class="instagram-btn-outline" onclick="showAllBooks()">
@@ -142,19 +142,19 @@
                             <!-- Image de couverture -->
                             <div class="resource-image-container mb-3">
                                 @if($item->cover_image)
-                                    <img src="{{ asset('storage/' . $item->cover_image) }}" 
-                                         alt="{{ $item->title }}" 
+                                    <img src="{{ asset('storage/' . $item->cover_image) }}"
+                                         alt="{{ $item->title }}"
                                          class="resource-image">
                                 @elseif(in_array(strtolower($item->file_type), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']))
-                                    <img src="{{ asset('storage/' . $item->path) }}" 
-                                         alt="{{ $item->title }}" 
+                                    <img src="{{ asset('storage/' . $item->path) }}"
+                                         alt="{{ $item->title }}"
                                          class="resource-image">
                                 @else
                                     <div class="resource-placeholder">
                                         <i class="fas fa-file-pdf"></i>
                                     </div>
                                 @endif
-                                
+
                                 <!-- Badge catégorie -->
                                 @if($item->libraryCategory)
                                     <div class="category-badge">
@@ -163,12 +163,12 @@
                                     </div>
                                 @endif
                             </div>
-                            
+
                             <!-- Titre -->
                             <h4 class="resource-title mb-2">
                                 {{ $item->title }}
                             </h4>
-                            
+
                             <!-- Informations -->
                             <div class="resource-info mb-3">
                                 <div class="d-flex align-items-center gap-2 mb-2">
@@ -192,7 +192,7 @@
                                     }
                                 @endphp
                                 @if($hasFile)
-                                    <a href="{{ route($formationPrefix . '.bibliotheque.download', $item->id) }}" 
+                                    <a href="{{ route($formationPrefix . '.bibliotheque.download', $item->id) }}"
                                        class="instagram-btn w-100 mb-2">
                                         <i class="fas fa-download me-2"></i>
                                         Télécharger
@@ -203,7 +203,7 @@
                     </div>
                 @endforeach
             </div>
-            
+
             <!-- Bouton Charger plus -->
             <div class="text-center mt-5" id="load-more-container">
                 <button id="load-more-btn" class="instagram-btn" onclick="loadMoreResources()">
@@ -575,35 +575,35 @@
     .instagram-header h3 {
         font-size: 1.5rem;
     }
-    
+
     .icon-circle {
         width: 60px;
         height: 60px;
         font-size: 1.5rem;
     }
-    
+
     .resource-card {
         padding: 1.25rem;
     }
-    
+
     .resource-image-container {
         height: 180px;
     }
-    
+
     .resource-title {
         font-size: 1.05rem;
     }
-    
+
     .category-stat-card {
         padding: 1.25rem;
     }
-    
+
     .category-icon {
         width: 50px;
         height: 50px;
         font-size: 1.25rem;
     }
-    
+
     .category-count {
         font-size: 1.5rem;
     }
@@ -638,18 +638,18 @@ let currentlyShown = itemsPerPage;
 function initializeResourcesDisplay() {
     const allItems = document.querySelectorAll('.resource-item');
     const totalCount = allItems.length;
-    
+
     // Cacher tous les items au-delà des 8 premiers
     allItems.forEach((item, index) => {
         if (index >= itemsPerPage) {
             item.style.display = 'none';
         }
     });
-    
+
     // Mettre à jour le compteur
     document.getElementById('shown-count').textContent = Math.min(itemsPerPage, totalCount);
     document.getElementById('total-count').textContent = totalCount;
-    
+
     // Cacher le bouton si tous les items sont déjà affichés
     if (totalCount <= itemsPerPage) {
         document.getElementById('load-more-container').style.display = 'none';
@@ -662,23 +662,23 @@ function initializeResourcesDisplay() {
 function loadMoreResources() {
     const allItems = document.querySelectorAll('.resource-item');
     const hiddenItems = Array.from(allItems).filter(item => item.style.display === 'none');
-    
+
     // Afficher les prochains items
     hiddenItems.slice(0, itemsToLoad).forEach(item => {
         item.style.display = 'block';
         item.style.animation = 'fadeInUp 0.6s ease';
     });
-    
+
     // Mettre à jour le compteur
     currentlyShown = Array.from(allItems).filter(item => item.style.display !== 'none').length;
     document.getElementById('shown-count').textContent = currentlyShown;
-    
+
     // Cacher le bouton si tous les items sont affichés
     if (hiddenItems.length <= itemsToLoad) {
         document.getElementById('load-more-btn').style.display = 'none';
         document.getElementById('resources-counter').innerHTML = '<span class="text-success"><i class="fas fa-check-circle me-2"></i>Tous les livres sont affichés</span>';
     }
-    
+
     // Notification
     showNotification(`${Math.min(itemsToLoad, hiddenItems.length)} livre(s) supplémentaire(s) chargé(s)`, 'success');
 }
@@ -690,14 +690,14 @@ function filterByCategory(categoryName) {
     const cards = document.querySelectorAll('.resource-card');
     const categoryCards = document.querySelectorAll('.category-stat-card');
     let visibleCount = 0;
-    
+
     // Mettre à jour le filtre actuel
     currentFilter = categoryName;
-    
+
     // Parcourir toutes les cartes
     cards.forEach(card => {
         const cardCategory = card.getAttribute('data-category');
-        
+
         if (cardCategory === categoryName) {
             card.style.display = 'block';
             card.style.animation = 'fadeIn 0.5s ease';
@@ -706,7 +706,7 @@ function filterByCategory(categoryName) {
             card.style.display = 'none';
         }
     });
-    
+
     // Mettre en surbrillance la carte sélectionnée
     categoryCards.forEach(card => {
         const cardCat = card.getAttribute('data-category');
@@ -720,14 +720,14 @@ function filterByCategory(categoryName) {
             card.style.transform = 'translateY(0)';
         }
     });
-    
+
     // Afficher une notification
     showNotification(`${visibleCount} livre(s) dans la catégorie "${categoryName}"`, 'info');
-    
+
     // Scroll vers les ressources
-    document.querySelector('.resource-card')?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
+    document.querySelector('.resource-card')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
     });
 }
 
@@ -737,23 +737,23 @@ function filterByCategory(categoryName) {
 function showAllBooks() {
     const cards = document.querySelectorAll('.resource-card');
     const categoryCards = document.querySelectorAll('.category-stat-card');
-    
+
     // Réinitialiser le filtre
     currentFilter = null;
-    
+
     // Afficher toutes les cartes
     cards.forEach(card => {
         card.style.display = 'block';
         card.style.animation = 'fadeIn 0.5s ease';
     });
-    
+
     // Réinitialiser le style des cartes de catégorie
     categoryCards.forEach(card => {
         card.style.borderColor = 'transparent';
         card.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.08)';
         card.style.transform = 'translateY(0)';
     });
-    
+
     // Afficher une notification
     showNotification(`Tous les livres sont maintenant affichés (${cards.length} au total)`, 'success');
 }
@@ -766,20 +766,20 @@ function showNotification(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
     toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; animation: slideInRight 0.5s ease;';
-    
+
     // Icône selon le type
     let icon = 'fa-info-circle';
     if (type === 'success') icon = 'fa-check-circle';
     if (type === 'warning') icon = 'fa-exclamation-triangle';
     if (type === 'danger') icon = 'fa-times-circle';
-    
+
     toast.innerHTML = `
         <i class="fas ${icon} me-2"></i>${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
+
     document.body.appendChild(toast);
-    
+
     // Supprimer automatiquement après 4 secondes
     setTimeout(() => {
         toast.style.animation = 'slideOutRight 0.5s ease';
@@ -795,7 +795,7 @@ function showNotification(message, type = 'info') {
 document.addEventListener('DOMContentLoaded', function() {
     // Initialiser l'affichage des ressources (afficher seulement les 8 premiers)
     initializeResourcesDisplay();
-    
+
     // Animation au scroll
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {

@@ -315,8 +315,8 @@
                                             <td class="px-4 py-3">
                                                 <div class="d-flex align-items-center">
                                                     @if($student['profile_photo'])
-                                                        <img src="{{ asset($student['profile_photo']) }}" 
-                                                             alt="Photo de profil" 
+                                                        <img src="{{ asset($student['profile_photo']) }}"
+                                                             alt="Photo de profil"
                                                              class="rounded-circle me-3"
                                                              style="width: 50px; height: 50px; object-fit: cover; border: 3px solid #1e3c72; box-shadow: 0 4px 12px rgba(30, 60, 114, 0.4);">
                                                     @else
@@ -374,9 +374,9 @@
                                                 </small>
                                             </td>
                                             <td class="text-center align-middle">
-                                                <button class="btn btn-sm btn-outline-primary" 
-                                                        type="button" 
-                                                        data-bs-toggle="collapse" 
+                                                <button class="btn btn-sm btn-outline-primary"
+                                                        type="button"
+                                                        data-bs-toggle="collapse"
                                                         data-bs-target="#student-{{ $student['user_id'] }}"
                                                         aria-expanded="false">
                                                     <i class="fas fa-eye me-1"></i>
@@ -413,19 +413,29 @@
                                                                                 @endif
                                                                             </td>
                                                                             <td class="text-center align-middle">
-                                                                                @if($tp->status === 'pending')
+                                                                                @if($tp->status === 'assigned')
+                                                                                    <span class="badge bg-info text-white">
+                                                                                        <i class="fas fa-tasks me-1"></i>
+                                                                                        À faire
+                                                                                    </span>
+                                                                                @elseif($tp->status === 'submitted')
+                                                                                    <span class="badge bg-success">
+                                                                                        <i class="fas fa-check-circle me-1"></i>
+                                                                                        Déjà fait
+                                                                                    </span>
+                                                                                @elseif($tp->status === 'pending')
                                                                                     <span class="badge bg-warning text-dark">
                                                                                         <i class="fas fa-clock me-1"></i>
                                                                                         En attente
                                                                                     </span>
                                                                                 @elseif($tp->status === 'validated')
                                                                                     <span class="badge bg-success">
-                                                                                        <i class="fas fa-check me-1"></i>
+                                                                                        <i class="fas fa-check-circle me-1"></i>
                                                                                         Validé
                                                                                     </span>
                                                                                 @elseif($tp->status === 'rejected')
                                                                                     <span class="badge bg-danger">
-                                                                                        <i class="fas fa-times me-1"></i>
+                                                                                        <i class="fas fa-times-circle me-1"></i>
                                                                                         Rejeté
                                                                                     </span>
                                                                                 @else
@@ -437,28 +447,28 @@
                                                                             </td>
                                                                             <td class="text-center align-middle">
                                                                                 <div class="btn-group btn-group-sm" role="group">
-                                                                                    <a href="{{ route('admin.tp.view', $tp->id) }}" 
+                                                                                    <a href="{{ route('admin.tp.view', $tp->id) }}"
                                                                                        class="btn btn-outline-primary"
                                                                                        title="Voir les détails">
                                                                                         <i class="fas fa-eye"></i>
                                                                                     </a>
-                                                                                    <a href="{{ route('admin.tp.edit', $tp->id) }}" 
+                                                                                    <a href="{{ route('admin.tp.edit', $tp->id) }}"
                                                                                        class="btn btn-outline-warning"
                                                                                        title="Modifier">
                                                                                         <i class="fas fa-edit"></i>
                                                                                     </a>
-                                                                                    <button type="button" 
+                                                                                    <button type="button"
                                                                                             class="btn btn-outline-danger"
                                                                                             onclick="confirmDelete({{ $tp->id }}, '{{ $tp->title ?? 'ce TP' }}')"
                                                                                             title="Supprimer">
                                                                                         <i class="fas fa-trash"></i>
                                                                                     </button>
                                                                                 </div>
-                                                                                
+
                                                                                 <!-- Formulaire de suppression caché -->
-                                                                                <form id="delete-form-{{ $tp->id }}" 
-                                                                                      action="{{ route('admin.tp.delete', $tp->id) }}" 
-                                                                                      method="POST" 
+                                                                                <form id="delete-form-{{ $tp->id }}"
+                                                                                      action="{{ route('admin.tp.delete', $tp->id) }}"
+                                                                                      method="POST"
                                                                                       style="display: none;">
                                                                                     @csrf
                                                                                     @method('DELETE')

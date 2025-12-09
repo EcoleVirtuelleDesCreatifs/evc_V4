@@ -110,6 +110,7 @@
             @php $prog = old('programme'); @endphp
             <option value="design-graphique" {{ ($prog==='design-graphique') ? 'selected' : '' }}>Design Graphique</option>
             <option value="community-manager" {{ ($prog==='community-manager') ? 'selected' : '' }}>Community Manager</option>
+            <option value="design-graphique-community-manager" {{ ($prog==='design-graphique-community-manager') ? 'selected' : '' }}>Design Graphique & Community Manager</option>
             <option value="intelligence-artificielle" {{ ($prog==='intelligence-artificielle') ? 'selected' : '' }}>Intelligence Artificielle</option>
             <option value="gestion-informatique" {{ ($prog==='gestion-informatique') ? 'selected' : '' }}>Gestion Informatique</option>
         </select>

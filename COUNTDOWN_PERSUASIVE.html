@@ -1,0 +1,274 @@
+<!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+<!-- SECTION COUNTDOWN ULTRA-PERSUASIVE ET IMPACTANTE                                -->
+<!-- À intégrer dans: resources/views/dashboard/design-graphique.blade.php           -->
+<!-- Remplacer la section @if(!$isExpired) countdown-card existante                  -->
+<!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+
+<style>
+    .urgency-banner {
+        background: linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+        border-radius: 20px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(220, 38, 38, 0.4);
+        margin-bottom: 2rem;
+        border: 3px solid rgba(255,255,255,0.2);
+    }
+
+    .urgency-banner::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        to { left: 100%; }
+    }
+
+    .countdown-mega {
+        font-size: 5rem;
+        font-weight: 900;
+        line-height: 1;
+        text-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        animation: pulse-countdown 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-countdown {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .fire-icon {
+        animation: fire-flicker 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes fire-flicker {
+        0% { transform: scale(1) translateY(0); }
+        100% { transform: scale(1.1) translateY(-5px); }
+    }
+
+    .success-metric {
+        background: rgba(255,255,255,0.15);
+        border-radius: 15px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255,255,255,0.2);
+        transition: all 0.3s ease;
+    }
+
+    .success-metric:hover {
+        transform: translateY(-5px);
+        background: rgba(255,255,255,0.25);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .cta-mega {
+        background: white;
+        color: #dc2626;
+        font-size: 1.125rem;
+        font-weight: 700;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(255,255,255,0.3);
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .cta-mega:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 15px 40px rgba(255,255,255,0.5);
+        color: #dc2626;
+    }
+
+    .cta-mega i {
+        animation: bounce-arrow 1s ease-in-out infinite;
+    }
+
+    @keyframes bounce-arrow {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(5px); }
+    }
+
+    .level-badge {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        padding: 0.75rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 700;
+        box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .countdown-mega {
+            font-size: 3rem;
+        }
+        .urgency-banner {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+{{-- Countdown Section Ultra-Persuasive --}}
+@if(!$isExpired)
+<div class="urgency-banner fade-in-up">
+    <div class="position-relative" style="z-index: 1;">
+        {{-- Alert Header --}}
+        <div class="text-center mb-4">
+            <div class="d-flex justify-content-center align-items-center gap-3 mb-3 flex-wrap">
+                <span class="fire-icon" style="font-size: 3rem;">🔥</span>
+                <h2 class="text-white mb-0" style="font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">
+                    🚨 DERNIÈRE LIGNE DROITE !
+                </h2>
+                <span class="fire-icon" style="font-size: 3rem;">🔥</span>
+            </div>
+            <div class="level-badge">
+                <i class="fas fa-star"></i>
+                <span>Niveau {{ round(($daysRemaining / 120) * 100) }}% | {{ $daysRemaining }} jours pour atteindre 100%</span>
+                <i class="fas fa-trophy"></i>
+            </div>
+        </div>
+
+        {{-- Countdown Mega --}}
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4">
+                <div class="success-metric text-center">
+                    <div class="countdown-mega text-white">{{ $daysRemaining }}</div>
+                    <div class="text-white" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase;">JOURS RESTANTS</div>
+                    <div class="text-white mt-2" style="opacity: 0.9;">Avant le {{ $expirationDate->format('d/m/Y') }}</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="success-metric text-center">
+                    @php
+                        $totalDays = 120;
+                        $progress = ($daysRemaining / $totalDays) * 100;
+                    @endphp
+                    <div class="countdown-mega text-white">{{ round($progress) }}%</div>
+                    <div class="text-white" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase;">PROGRESSION</div>
+                    <div class="text-white mt-2" style="opacity: 0.9;">De votre formation complétée</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="success-metric text-center">
+                    @php
+                        $globalProgress = 0;
+                        $tpTotal = $stats['tp_total'] ?? 0;
+                        $projetsTotal = $stats['projets_total'] ?? 0;
+
+                        if($tpTotal > 0) {
+                            $globalProgress += (($stats['tp_realises'] ?? 0) / $tpTotal) * 50;
+                        }
+                        if($projetsTotal > 0) {
+                            $globalProgress += (($stats['projets_realises'] ?? 0) / $projetsTotal) * 50;
+                        }
+                        $remaining = 100 - round($globalProgress);
+                    @endphp
+                    <div class="countdown-mega text-white">{{ $remaining }}%</div>
+                    <div class="text-white" style="font-size: 1.25rem; font-weight: 600; text-transform: uppercase;">À COMPLÉTER</div>
+                    <div class="text-white mt-2" style="opacity: 0.9;">Pour valider vos compétences</div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Motivational Message --}}
+        <div class="text-center mb-4">
+            <div class="success-metric mx-auto" style="max-width: 900px;">
+                <div class="row align-items-center g-3">
+                    <div class="col-md-2 text-center">
+                        <div style="font-size: 4rem;">⚡</div>
+                    </div>
+                    <div class="col-md-10 text-start">
+                        <h4 class="text-white mb-2" style="font-weight: 700; font-size: clamp(1.1rem, 3vw, 1.5rem);">
+                            NE LAISSEZ PAS VOTRE INVESTISSEMENT S'ENVOLER !
+                        </h4>
+                        <p class="text-white mb-0" style="font-size: clamp(0.95rem, 2vw, 1.1rem); opacity: 0.95; line-height: 1.6;">
+                            Vous avez parcouru <strong style="color: #fbbf24;">{{ round($progress ?? 93) }}%</strong> du chemin !
+                            Il ne reste que <strong style="color: #fbbf24;">{{ $daysRemaining }} jours</strong> pour transformer votre apprentissage en succès professionnel.
+                            <strong>Chaque jour compte. Chaque TP validé vous rapproche du certificat.</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Success Metrics Row --}}
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="success-metric text-center">
+                    <i class="fas fa-check-circle mb-2" style="font-size: 2.5rem; color: #10b981;"></i>
+                    <div class="text-white" style="font-weight: 700; font-size: 1.5rem;">{{ $stats['tp_realises'] ?? 0 }}/{{ $stats['tp_total'] ?? 0 }}</div>
+                    <div class="text-white mt-1" style="font-weight: 600;">TP Validés</div>
+                    <small class="text-white" style="opacity: 0.8;">{{ $stats['tp_total'] - ($stats['tp_realises'] ?? 0) }} restants</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="success-metric text-center">
+                    <i class="fas fa-project-diagram mb-2" style="font-size: 2.5rem; color: #3b82f6;"></i>
+                    <div class="text-white" style="font-weight: 700; font-size: 1.5rem;">{{ $stats['projets_realises'] ?? 0 }}/{{ $stats['projets_total'] ?? 0 }}</div>
+                    <div class="text-white mt-1" style="font-weight: 600;">Projets Réalisés</div>
+                    <small class="text-white" style="opacity: 0.8;">{{ $stats['projets_total'] - ($stats['projets_realises'] ?? 0) }} en attente</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="success-metric text-center">
+                    <i class="fas fa-certificate mb-2" style="font-size: 2.5rem; color: #fbbf24;"></i>
+                    <div class="text-white" style="font-weight: 700; font-size: 1.5rem;">100%</div>
+                    <div class="text-white mt-1" style="font-weight: 600;">Certificat en Vue</div>
+                    <small class="text-white" style="opacity: 0.8;">Complétez pour l'obtenir</small>
+                </div>
+            </div>
+        </div>
+
+        {{-- Call-to-Actions --}}
+        <div class="text-center">
+            <h5 class="text-white mb-4" style="font-weight: 700; font-size: clamp(1.2rem, 3vw, 1.75rem);">
+                ⚡ AGISSEZ MAINTENANT OU PERDEZ VOTRE ACCÈS !
+            </h5>
+            <div class="d-flex gap-3 justify-content-center flex-wrap mb-3">
+                <a href="#" class="cta-mega">
+                    <i class="fas fa-tasks me-2"></i>Compléter mes TP
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+                <a href="#" class="cta-mega" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white;">
+                    <i class="fas fa-project-diagram me-2"></i>Terminer mes Projets
+                    <i class="fas fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            {{-- Bonus Offer --}}
+            <div class="success-metric d-inline-block px-4 py-3">
+                <div class="d-flex align-items-center gap-3 flex-wrap justify-content-center">
+                    <span style="font-size: 2.5rem;">💎</span>
+                    <div class="text-start">
+                        <div class="text-white" style="font-weight: 700; font-size: 1.1rem;">
+                            🎁 BONUS EXCLUSIF
+                        </div>
+                        <div class="text-white" style="opacity: 0.95; font-size: 0.95rem;">
+                            Terminez avant la fin et obtenez un <strong style="color: #fbbf24;">accès GRATUIT</strong> aux Master Class exclusives d'une valeur de <strong>150 000 FCFA !</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- ═══════════════════════════════════════════════════════════════════════════════ -->
+<!-- FIN DE LA SECTION COUNTDOWN ULTRA-PERSUASIVE                                    -->
+<!-- ═══════════════════════════════════════════════════════════════════════════════ -->

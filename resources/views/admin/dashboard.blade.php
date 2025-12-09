@@ -4,1040 +4,1178 @@
 
 @push('styles')
 <style>
-/* Styles modernes uniformes pour toutes les pages admin */
-.page-header {
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-    border-radius: 15px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-/* Animation clignotante pour les badges "En ligne" */
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
+    body {
+        background: #0f172a;
+        overflow-x: hidden;
     }
-    50% {
-        opacity: 0.6;
-        transform: scale(0.95);
+
+    /* Header moderne */
+    .dashboard-header {
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        border-radius: 24px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(37, 99, 235, 0.3);
+        animation: fadeInDown 0.6s ease;
     }
-}
 
-.pulse-badge {
-    animation: pulse 2s ease-in-out infinite;
-}
-
-/* Indicateur en ligne sur l'avatar */
-.online-indicator {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    background: #4caf50;
-    border: 2px solid white;
-    border-radius: 50%;
-    animation: pulse-dot 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse-dot {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #f97316 0%, #fb923c 100%);
     }
-    50% {
-        box-shadow: 0 0 0 6px rgba(76, 175, 80, 0);
+
+    .dashboard-header::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
     }
-}
 
-.page-title {
-    font-size: 2rem;
-    font-weight: 600;
-    color: white;
-    margin-bottom: 0.5rem;
-}
+    .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
 
-.page-subtitle {
-    color: rgba(255,255,255,0.7);
-    font-size: 1.1rem;
-    margin-bottom: 0;
-}
+    .header-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
 
-.quick-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-start;
-    margin-top: 1.5rem;
-    flex-wrap: wrap;
-}
+    .header-time {
+        position: absolute;
+        top: 2.5rem;
+        right: 2.5rem;
+        text-align: right;
+        z-index: 1;
+    }
 
-.btn-quick {
-    background: linear-gradient(45deg, #007bff, #0056b3);
-    border: none;
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 10px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    font-size: 0.9rem;
-}
+    .header-time .time {
+        font-size: 2rem;
+        font-weight: 700;
+    }
 
-.btn-quick:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
-    color: white;
-    text-decoration: none;
-}
+    .header-time .date {
+        font-size: 0.9rem;
+        opacity: 0.8;
+    }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.stat-card {
-    border-radius: 15px;
-    padding: 1.5rem;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-
-.stat-card.primary { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); }
-.stat-card.success { background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); }
-.stat-card.warning { background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); }
-.stat-card.danger { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
-.stat-card.info { background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); }
-.stat-card.secondary { background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); }
-
-.stat-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    opacity: 0.9;
-}
-
-.stat-number {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.stat-label {
-    font-size: 1rem;
-    opacity: 0.9;
-    margin-bottom: 1rem;
-}
-
-.btn-stat {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    text-decoration: none;
-    font-size: 0.85rem;
-    transition: all 0.3s ease;
-}
-
-.btn-stat:hover {
-    background: rgba(255,255,255,0.3);
-    color: white;
-    text-decoration: none;
-}
-
-.content-section {
-    background: rgba(255,255,255,0.05);
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-.section-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: white;
-    margin-bottom: 1rem;
-}
-
-@media (max-width: 768px) {
+    /* Stats cards */
     .stats-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
 
-    .page-header {
-        padding: 1.5rem;
+    .stat-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #334155;
+        border-radius: 20px;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: fadeInUp 0.6s ease;
+        animation-fill-mode: both;
     }
 
-    .page-title {
-        font-size: 1.5rem;
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .stat-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        border-color: #f97316;
+        box-shadow: 0 20px 40px rgba(249, 115, 22, 0.2);
     }
 
-    .quick-actions {
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6 0%, #f97316 100%);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
         justify-content: center;
+        font-size: 28px;
+        color: white;
+        margin-bottom: 1rem;
+        box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3);
     }
-}
 
-/* Styles spécifiques pour les statistiques */
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
-    font-weight: bold;
-}
+    .stat-card:hover .stat-icon {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        box-shadow: 0 8px 16px rgba(249, 115, 22, 0.4);
+        transform: rotate(360deg);
+        transition: all 0.6s ease;
+    }
 
-.card {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
-}
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 0.5rem;
+        font-family: 'Segoe UI', sans-serif;
+    }
 
-.table-dark {
-    --bs-table-bg: rgba(255, 255, 255, 0.05);
-}
+    .stat-label {
+        color: #94a3b8;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
 
-.table-primary {
-    --bs-table-bg: rgba(13, 110, 253, 0.2);
-}
+    .stat-change {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
 
-.progress {
-    background-color: rgba(255, 255, 255, 0.2);
-}
+    .stat-change.positive {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
 
-.btn-group .btn {
-    margin-right: 2px;
-}
+    .stat-change.negative {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
 
-/* Animation pour les cartes */
-.card {
-    transition: transform 0.2s ease-in-out;
-}
+    /* Activity section */
+    .activity-section {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #334155;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        animation: fadeIn 0.8s ease;
+    }
 
-.card:hover {
-    transform: translateY(-2px);
-}
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #334155;
+    }
 
-/* Quick Actions */
-.quick-actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-}
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .table-responsive {
+    .section-title .icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+
+    .view-all-btn {
+        background: rgba(249, 115, 22, 0.1);
+        color: #f97316;
+        border: 1px solid rgba(249, 115, 22, 0.3);
+        padding: 0.5rem 1.25rem;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .view-all-btn:hover {
+        background: #f97316;
+        color: white;
+        text-decoration: none;
+        transform: translateX(5px);
+    }
+
+    /* Activity item */
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.25rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        border-left: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
+
+    .activity-item:hover {
+        background: rgba(255, 255, 255, 0.04);
+        border-left-color: #f97316;
+        transform: translateX(5px);
+    }
+
+    .activity-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    .activity-avatar.online::after {
+        content: '';
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
+        background: #22c55e;
+        border: 2px solid #0f172a;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-name {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-description {
+        color: #94a3b8;
         font-size: 0.875rem;
     }
 
-    .avatar-sm {
-        width: 24px;
-        height: 24px;
-        font-size: 10px;
+    .activity-time {
+        color: #64748b;
+        font-size: 0.875rem;
+        white-space: nowrap;
     }
 
-    .quick-actions {
-        justify-content: center;
-        margin-top: 1rem;
+    .activity-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
     }
-}
+
+    .badge-pending {
+        background: rgba(251, 191, 36, 0.1);
+        color: #fbbf24;
+    }
+
+    .badge-validated {
+        background: rgba(34, 197, 94, 0.1);
+        color: #22c55e;
+    }
+
+    .badge-rejected {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    /* Quick actions */
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .quick-action-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #334155;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: white;
+    }
+
+    .quick-action-card:hover {
+        transform: translateY(-5px);
+        border-color: #f97316;
+        box-shadow: 0 12px 24px rgba(249, 115, 22, 0.2);
+        text-decoration: none;
+        color: white;
+    }
+
+    .quick-action-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .quick-action-card:hover .quick-action-icon {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    }
+
+    .quick-action-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        }
+        50% {
+            box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .header-title {
+            font-size: 1.75rem;
+        }
+
+        .header-time {
+            position: static;
+            margin-top: 1rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+        }
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="container-fluid">
-
+<div class="container-fluid py-4">
     <!-- Header -->
-    <div class="page-header mb-4">
-        <h1 class="page-title text-white">
-            <i class="fas fa-tachometer-alt text-primary me-2"></i>
-            Dashboard Administrateur
-        </h1>
-        <div class="quick-actions">
-            <button class="btn btn-success btn-sm" onclick="exportData()">
-                <i class="fas fa-download me-1"></i>Exporter
-            </button>
-            <button class="btn btn-info btn-sm" onclick="generateReport()">
-                <i class="fas fa-chart-line me-1"></i>Rapport
-            </button>
+    <div class="dashboard-header">
+        <div>
+            <h1 class="header-title">
+                <i class="fas fa-tachometer-alt me-3"></i>Dashboard Admin
+            </h1>
+            <p class="header-subtitle mb-0">
+                Bienvenue, <strong>{{ session('admin_name') ?? 'Administrateur' }}</strong> •
+                <span id="greeting"></span>
+            </p>
+        </div>
+        <div class="header-time">
+            <div class="time" id="currentTime"></div>
+            <div class="date" id="currentDate"></div>
         </div>
     </div>
 
-    @if(session('admin_role') === 'super_admin')
-    <!-- Section Activité de la Plateforme -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card" style="background: linear-gradient(135deg, rgba(30, 60, 114, 0.95) 0%, rgba(42, 82, 152, 0.95) 100%); border: none; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
-                <div class="card-header border-0" style="background: rgba(255,255,255,0.1);">
-                    <h5 class="text-white mb-0">
-                        <i class="fas fa-chart-line me-2"></i>Activité de la Plateforme
-                    </h5>
-                </div>
+    <!-- Accounting Stats Section -->
+    <div class="row g-4 mb-4">
+        <!-- Recettes -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden position-relative bg-white" style="border-radius: 20px;">
                 <div class="card-body p-4">
-                    <div class="row g-3">
-                        <!-- Total Étudiants -->
-                        <div class="col-md-3">
-                            <div class="p-3 rounded" style="background: rgba(255,255,255,0.1); border-left: 4px solid #4fc3f7;">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <div class="text-white-50 small mb-1">Total Étudiants</div>
-                                        <h3 class="text-white mb-0 fw-bold">{{ DB::table('students')->where('status', 'active')->count() }}</h3>
-                                    </div>
-                                    <div class="text-info" style="font-size: 2rem; opacity: 0.5;">
-                                        <i class="fas fa-user-graduate"></i>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <p class="text-uppercase fw-bold text-muted text-xs mb-1 ls-1" style="font-size: 0.75rem; letter-spacing: 1px;">Recettes Totales</p>
+                            <h3 class="display-6 fw-bold text-success mb-0" style="font-size: 2.5rem;">{{ number_format($totalIncome, 0, ',', ' ') }} <span class="fs-6 text-muted">FCFA</span></h3>
                         </div>
-
-                        <!-- TP en Attente -->
-                        <div class="col-md-3">
-                            <div class="p-3 rounded" style="background: rgba(255,255,255,0.1); border-left: 4px solid #4caf50;">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <div class="text-white-50 small mb-1">
-                                            <i class="fas fa-clock text-warning me-1" style="font-size: 8px;"></i>
-                                            TP en Attente
-                                        </div>
-                                        <h3 class="text-white mb-0 fw-bold">{{ DB::table('tp')->where('status', 'pending')->count() }}</h3>
-                                    </div>
-                                    <div class="text-success" style="font-size: 2rem; opacity: 0.5;">
-                                        <i class="fas fa-hourglass-half"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TP Cette Semaine -->
-                        <div class="col-md-3">
-                            <div class="p-3 rounded" style="background: rgba(255,255,255,0.1); border-left: 4px solid #ff9800;">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <div class="text-white-50 small mb-1">TP Cette Semaine</div>
-                                        <h3 class="text-white mb-0 fw-bold">{{ DB::table('tp')->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()])->count() }}</h3>
-                                    </div>
-                                    <div class="text-warning" style="font-size: 2rem; opacity: 0.5;">
-                                        <i class="fas fa-file-alt"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Projets Actifs -->
-                        <div class="col-md-3">
-                            <div class="p-3 rounded" style="background: rgba(255,255,255,0.1); border-left: 4px solid #9c27b0;">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <div class="text-white-50 small mb-1">Total Projets</div>
-                                        @php
-                                            try {
-                                                $projectsCount = DB::table('design_projects')->count();
-                                            } catch (\Exception $e) {
-                                                $projectsCount = 0;
-                                            }
-                                        @endphp
-                                        <h3 class="text-white mb-0 fw-bold">{{ $projectsCount }}</h3>
-                                    </div>
-                                    <div style="font-size: 2rem; opacity: 0.5; color: #9c27b0;">
-                                        <i class="fas fa-project-diagram"></i>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="icon-shape bg-success bg-opacity-10 text-success rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-wallet fa-2x"></i>
                         </div>
                     </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-success bg-opacity-10 text-success me-2" style="padding: 0.5em 0.8em;">
+                            <i class="fas fa-arrow-up me-1"></i>{{ number_format($incomeThisMonth, 0, ',', ' ') }}
+                        </span>
+                        <span class="text-muted text-sm">ce mois-ci</span>
+                    </div>
+                </div>
+                <div class="position-absolute bottom-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, #198754 0%, #a3cfbb 100%);"></div>
+            </div>
+        </div>
 
-                    <!-- Étudiants En Ligne -->
-                    <div class="mt-4">
-                        <h6 class="text-white mb-3">
-                            <i class="fas fa-users me-2"></i>Étudiants En Ligne
-                            <span class="badge bg-success ms-2 pulse-badge">
-                                <i class="fas fa-circle" style="font-size: 6px;"></i>
-                                {{ DB::table('sessions')->whereNotNull('user_id')->distinct('user_id')->count('user_id') }}
-                            </span>
-                        </h6>
-                        <div class="row g-2">
-                            @php
-                                $onlineStudents = DB::table('sessions')
-                                    ->join('users', 'sessions.user_id', '=', 'users.id')
-                                    ->leftJoin('students', 'users.id', '=', 'students.user_id')
-                                    ->whereNotNull('sessions.user_id')
-                                    ->whereNotNull('students.id')
-                                    ->select('students.id', 'students.first_name', 'students.last_name', 'students.program', 'students.student_id', DB::raw('MAX(sessions.last_activity) as last_activity'))
-                                    ->groupBy('students.id', 'students.first_name', 'students.last_name', 'students.program', 'students.student_id')
-                                    ->orderBy('last_activity', 'desc')
-                                    ->limit(8)
-                                    ->get();
-                            @endphp
-
-                            @forelse($onlineStudents as $student)
-                            <div class="col-md-6">
-                                <div class="p-2 rounded d-flex align-items-center" style="background: rgba(255,255,255,0.05); border-left: 3px solid #4caf50;">
-                                    <div class="me-3 position-relative">
-                                        @php
-                                            $avatarColor = 'linear-gradient(135deg, #4fc3f7, #29b6f6)';
-                                            if(str_contains($student->program ?? '', 'Design')) {
-                                                $avatarColor = 'linear-gradient(135deg, #1e3c72, #2a5298)';
-                                            } elseif(str_contains($student->program ?? '', 'Community')) {
-                                                $avatarColor = 'linear-gradient(135deg, #4caf50, #66bb6a)';
-                                            } elseif(str_contains($student->program ?? '', 'Gestion')) {
-                                                $avatarColor = 'linear-gradient(135deg, #ff9800, #fb8c00)';
-                                            } elseif(str_contains($student->program ?? '', 'Intelligence')) {
-                                                $avatarColor = 'linear-gradient(135deg, #9c27b0, #7b1fa2)';
-                                            }
-                                        @endphp
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" 
-                                             style="width: 40px; height: 40px; background: {{ $avatarColor }};">
-                                            {{ strtoupper(substr($student->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($student->last_name ?? 'N', 0, 1)) }}
-                                        </div>
-                                        <span class="online-indicator"></span>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="text-white small fw-bold">
-                                            {{ $student->first_name }} {{ $student->last_name }}
-                                        </div>
-                                        <div class="text-white-50" style="font-size: 0.75rem;">
-                                            {{ $student->program ?? 'Formation non définie' }}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <span class="badge bg-success pulse-badge">
-                                            <i class="fas fa-circle me-1" style="font-size: 6px;"></i>
-                                            En ligne
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            @empty
-                            <div class="col-12">
-                                <div class="text-center text-white-50 py-3">
-                                    <i class="fas fa-user-slash me-2"></i>Aucun étudiant en ligne actuellement
-                                </div>
-                            </div>
-                            @endforelse
+        <!-- Dépenses -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden position-relative bg-white" style="border-radius: 20px;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <p class="text-uppercase fw-bold text-muted text-xs mb-1 ls-1" style="font-size: 0.75rem; letter-spacing: 1px;">Dépenses Totales</p>
+                            <h3 class="display-6 fw-bold text-danger mb-0" style="font-size: 2.5rem;">{{ number_format($totalExpenses, 0, ',', ' ') }} <span class="fs-6 text-muted">FCFA</span></h3>
+                        </div>
+                        <div class="icon-shape bg-danger bg-opacity-10 text-danger rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-shopping-cart fa-2x"></i>
                         </div>
                     </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-danger bg-opacity-10 text-danger me-2" style="padding: 0.5em 0.8em;">
+                            <i class="fas fa-arrow-up me-1"></i>{{ number_format($expensesThisMonth, 0, ',', ' ') }}
+                        </span>
+                        <span class="text-muted text-sm">ce mois-ci</span>
+                    </div>
+                </div>
+                <div class="position-absolute bottom-0 start-0 w-100" style="height: 4px; background: linear-gradient(90deg, #dc3545 0%, #f1aeb5 100%);"></div>
+            </div>
+        </div>
 
-                    <!-- Dernières Activités -->
-                    <div class="mt-4">
-                        <h6 class="text-white mb-3">
-                            <i class="fas fa-history me-2"></i>Dernières Activités
-                        </h6>
-                        <div class="row g-2">
-                            @php
-                                $recentActivities = DB::table('tp')
-                                    ->join('users', 'tp.user_id', '=', 'users.id')
-                                    ->leftJoin('students', 'users.id', '=', 'students.user_id')
-                                    ->select('tp.created_at', 'tp.title', 'students.first_name', 'students.last_name', 'tp.status')
-                                    ->orderBy('tp.created_at', 'desc')
-                                    ->limit(5)
-                                    ->get();
-                            @endphp
-
-                            @forelse($recentActivities as $activity)
-                            <div class="col-12">
-                                <div class="p-2 rounded d-flex align-items-center" style="background: rgba(255,255,255,0.05);">
-                                    <div class="me-3">
-                                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" 
-                                             style="width: 40px; height: 40px; background: linear-gradient(135deg, #4fc3f7, #29b6f6);">
-                                            {{ strtoupper(substr($activity->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($activity->last_name ?? 'N', 0, 1)) }}
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="text-white small">
-                                            <strong>{{ $activity->first_name }} {{ $activity->last_name }}</strong> a soumis un TP
-                                        </div>
-                                        <div class="text-white-50" style="font-size: 0.75rem;">
-                                            {{ $activity->title }} • {{ \Carbon\Carbon::parse($activity->created_at)->diffForHumans() }}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        @if($activity->status === 'validated')
-                                            <span class="badge bg-success">Validé</span>
-                                        @elseif($activity->status === 'pending')
-                                            <span class="badge bg-warning">En attente</span>
-                                        @else
-                                            <span class="badge bg-danger">Rejeté</span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            @empty
-                            <div class="col-12">
-                                <div class="text-center text-white-50 py-3">
-                                    <i class="fas fa-inbox me-2"></i>Aucune activité récente
-                                </div>
-                            </div>
-                            @endforelse
+        <!-- Solde -->
+        <div class="col-lg-4 col-md-12">
+            <div class="card border-0 shadow-sm h-100 overflow-hidden position-relative bg-dark text-white" style="border-radius: 20px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <p class="text-uppercase fw-bold text-white-50 text-xs mb-1 ls-1" style="font-size: 0.75rem; letter-spacing: 1px;">CAISSE</p>
+                            <h3 class="display-6 fw-bold text-white mb-0" style="font-size: 2.5rem;">{{ number_format($balance, 0, ',', ' ') }} <span class="fs-6 text-white-50">FCFA</span></h3>
+                        </div>
+                        <div class="icon-shape bg-white bg-opacity-25 text-white rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-chart-pie fa-2x"></i>
                         </div>
                     </div>
+                    <div>
+                        @if($balance >= 0)
+                            <div class="d-flex align-items-center text-success">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <span class="fw-medium">Situation saine</span>
+                            </div>
+                        @else
+                            <div class="d-flex align-items-center text-warning">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <span class="fw-medium">Attention requise</span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+                <!-- Background Decoration -->
+                <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                    <i class="fas fa-chart-pie fa-5x text-white"></i>
                 </div>
             </div>
         </div>
     </div>
-    @endif
 
-    <!-- KPI Cards -->
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <div class="stat-number" data-target="{{ DB::table('students')->where('status', 'active')->count() }}">0</div>
+            <div class="stat-label">Étudiants Actifs</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>+12%</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="stat-number" data-target="{{ DB::table('tp')->where('status', 'pending')->count() }}">0</div>
+            <div class="stat-label">TP en Attente</div>
+            <div class="stat-change negative">
+                <i class="fas fa-arrow-down"></i>
+                <span>-5%</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="stat-number" data-target="8">0</div>
+            <div class="stat-label">Formations</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>+2</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number" data-target="{{ DB::table('sessions')->whereNotNull('user_id')->distinct('user_id')->count('user_id') }}">0</div>
+            <div class="stat-label">Utilisateurs En Ligne</div>
+            <div class="stat-change positive">
+                <i class="fas fa-circle"></i>
+                <span>Live</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-tv"></i>
+            </div>
+            <div class="stat-number" data-target="{{ DB::table('webtv_subscribers')->where('is_active', true)->count() }}">0</div>
+            <div class="stat-label">Abonnés WebTV</div>
+            <div class="stat-change positive">
+                <i class="fas fa-bell"></i>
+                <span>{{ DB::table('webtv_subscribers')->whereNotNull('verified_at')->count() }} vérifiés</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="activity-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span class="icon">
+                    <i class="fas fa-bolt"></i>
+                </span>
+                Actions Rapides
+            </h2>
+        </div>
+
+        <div class="quick-actions-grid">
+            <a href="{{ route('admin.students.index') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="quick-action-label">Gérer Étudiants</div>
+            </a>
+
+            <a href="{{ route('admin.travaux.pending') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="quick-action-label">Valider TP</div>
+            </a>
+
+            <a href="{{ route('admin.travaux.all') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="quick-action-label">Tous les TP</div>
+            </a>
+
+            <a href="{{ route('admin.rapports') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="quick-action-label">Rapports</div>
+            </a>
+
+            <a href="{{ route('admin.bibliotheque.index') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="quick-action-label">Bibliothèque</div>
+            </a>
+
+            <a href="{{ route('admin.parametres.index') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="quick-action-label">Paramètres</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
     <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-primary bg-gradient text-white h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-users fa-3x mb-3 opacity-75"></i>
-                    <h2 class="fw-bold" data-counter="{{ $stats['total_students_active'] ?? 0 }}">{{ number_format($stats['total_students_active'] ?? 0) }}</h2>
-                    <p class="mb-0">Étudiants Actifs</p>
+        <div class="col-lg-6">
+            <div class="activity-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="icon">
+                            <i class="fas fa-chart-line"></i>
+                        </span>
+                        Inscriptions (7 derniers jours)
+                    </h2>
                 </div>
+                <canvas id="inscriptionsChart" style="max-height: 300px;"></canvas>
             </div>
         </div>
-        @if(session('admin_role') === 'super_admin')
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-success bg-gradient text-white h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-graduation-cap fa-3x mb-3 opacity-75"></i>
-                    <h2 class="fw-bold" data-counter="{{ $stats['total_formations'] ?? '8' }}">{{ $stats['total_formations'] ?? '8' }}</h2>
-                    <p class="mb-0">Formations Disponibles</p>
+        <div class="col-lg-6">
+            <div class="activity-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </span>
+                        Répartition par Formation
+                    </h2>
                 </div>
-            </div>
-        </div>
-        @endif
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-info bg-gradient text-white h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-project-diagram fa-3x mb-3 opacity-75"></i>
-                    <h2 class="fw-bold" data-counter="{{ $stats['total_projects'] ?? '456' }}">{{ $stats['total_projects'] ?? '456' }}</h2>
-                    <p class="mb-0">Projets Étudiants</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card bg-warning bg-gradient text-white h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-tasks fa-3x mb-3 opacity-75"></i>
-                    <h2 class="fw-bold" data-counter="{{ $stats['total_tp'] ?? '2340' }}">{{ $stats['total_tp'] ?? '2,340' }}</h2>
-                    <p class="mb-0">Travaux Pratiques</p>
-                </div>
+                <canvas id="formationsChart" style="max-height: 300px;"></canvas>
             </div>
         </div>
     </div>
 
-    <!-- Statistiques Détaillées -->
-    <div class="card mb-4" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
-        <div class="card-header" style="background: rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.1);">
-            <h5 class="text-white mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques Détaillées</h5>
+    <div class="row">
+        <!-- Historique Connexions -->
+        <div class="col-lg-8">
+            <div class="activity-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="icon">
+                            <i class="fas fa-user-clock"></i>
+                        </span>
+                        Dernières Connexions Étudiants
+                    </h2>
+                </div>
+
+                @if(isset($studentHistory) && count($studentHistory) > 0)
+                    @foreach($studentHistory as $history)
+                    <div class="activity-item">
+                        <div class="activity-avatar" style="{{ $history->profile_photo ? 'background: none; padding: 0; overflow: hidden;' : '' }}">
+                            @if($history->profile_photo)
+                                @php
+                                    $photoUrl = $history->profile_photo;
+                                    if (strpos($photoUrl, 'photos_preregistrations/') !== false) {
+                                        $photoUrl = asset('storage/' . $photoUrl);
+                                    } elseif (strpos($photoUrl, '/') === false) {
+                                        $photoUrl = asset('uploads/photos/' . $photoUrl);
+                                    } else {
+                                        $photoUrl = asset($photoUrl);
+                                    }
+                                @endphp
+                                <img src="{{ $photoUrl }}" alt="{{ $history->full_name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            @else
+                                {{ strtoupper(substr($history->full_name, 0, 1)) }}
+                            @endif
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-name">
+                                {{ $history->full_name }}
+                            </div>
+                            <div class="activity-description" style="color: #f97316;">
+                                <i class="fas fa-graduation-cap me-1"></i> {{ $history->module ?? 'Non assigné' }}
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="activity-time text-white mb-1">
+                                <small class="text-muted me-1">Connexion:</small>
+                                {{ \Carbon\Carbon::parse($history->last_login)->diffForHumans() }}
+                            </div>
+                            @if($history->last_activity)
+                            <div class="activity-time" style="font-size: 0.8rem; color: #94a3b8;">
+                                <small class="me-1">Dernière activité:</small>
+                                {{ \Carbon\Carbon::parse($history->last_activity)->diffForHumans() }}
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                @else
+                    <div style="text-align: center; padding: 2rem; color: #64748b;">
+                        <i class="fas fa-history" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                        <p>Aucune connexion récente enregistrée</p>
+                    </div>
+                @endif
+            </div>
+
+            <div class="activity-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="icon">
+                            <i class="fas fa-history"></i>
+                        </span>
+                        Activités Récentes
+                    </h2>
+                    <a href="{{ route('admin.activites.index') }}" class="view-all-btn">
+                        Tout voir
+                        <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+
+                @php
+                    $recentActivities = DB::table('tp')
+                        ->join('users', 'tp.user_id', '=', 'users.id')
+                        ->leftJoin('students', 'users.id', '=', 'students.user_id')
+                        ->select('tp.created_at', 'tp.title', 'students.first_name', 'students.last_name', 'tp.status')
+                        ->orderBy('tp.created_at', 'desc')
+                        ->limit(8)
+                        ->get();
+                @endphp
+
+                @forelse($recentActivities as $activity)
+                <div class="activity-item">
+                    <div class="activity-avatar online">
+                        {{ strtoupper(substr($activity->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($activity->last_name ?? 'N', 0, 1)) }}
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-name">
+                            {{ $activity->first_name }} {{ $activity->last_name }}
+                        </div>
+                        <div class="activity-description">
+                            a soumis un TP : {{ $activity->title }}
+                        </div>
+                    </div>
+                    <div class="activity-time">
+                        {{ \Carbon\Carbon::parse($activity->created_at)->diffForHumans() }}
+                    </div>
+                    <div>
+                        @if($activity->status === 'validated')
+                            <span class="activity-badge badge-validated">
+                                <i class="fas fa-check me-1"></i>Validé
+                            </span>
+                        @elseif($activity->status === 'pending')
+                            <span class="activity-badge badge-pending">
+                                <i class="fas fa-clock me-1"></i>En attente
+                            </span>
+                        @else
+                            <span class="activity-badge badge-rejected">
+                                <i class="fas fa-times me-1"></i>Rejeté
+                            </span>
+                        @endif
+                    </div>
+                </div>
+                @empty
+                <div style="text-align: center; padding: 3rem; color: #64748b;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p>Aucune activité récente</p>
+                </div>
+                @endforelse
+            </div>
         </div>
-        <div class="card-body">
-            <!-- Section: Étudiants par Formation -->
-            <div class="mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-white mb-0"><i class="fas fa-graduation-cap me-2"></i>Étudiants par Formation</h6>
-                    @php
-                        $total_etudiants_formations = ($stats['students_design_graphique'] ?? 0) + ($stats['students_community_management'] ?? 0) + ($stats['students_gestion_informatique'] ?? 0) + ($stats['students_intelligence_artificielle'] ?? 0);
-                    @endphp
-                    <span class="badge" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); font-size: 1.1rem; padding: 0.5rem 1rem;">
-                        <i class="fas fa-users me-1"></i>Total: {{ number_format($total_etudiants_formations) }} étudiants
-                    </span>
+
+        <!-- Étudiants En Ligne -->
+        <div class="col-lg-4">
+            <div class="activity-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="icon">
+                            <i class="fas fa-users"></i>
+                        </span>
+                        En Ligne
+                    </h2>
                 </div>
-            <div class="row">
-                <!-- Étudiants Design Graphique -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-palette fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['students_design_graphique'] ?? '456' }}">{{ $stats['students_design_graphique'] ?? '456' }}</h3>
-                            <h6 class="mb-3">Étudiants Design Graphique</h6>
-                            <a href="{{ route('admin.students.index', ['formation' => 'design_graphique']) }}" class="btn btn-sm btn-light">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
+
+                @php
+                    $onlineStudents = DB::table('sessions')
+                        ->join('users', 'sessions.user_id', '=', 'users.id')
+                        ->leftJoin('students', 'users.id', '=', 'students.user_id')
+                        ->whereNotNull('sessions.user_id')
+                        ->whereNotNull('students.id')
+                        ->select('students.id', 'students.first_name', 'students.last_name', 'students.program')
+                        ->groupBy('students.id', 'students.first_name', 'students.last_name', 'students.program')
+                        ->limit(6)
+                        ->get();
+                @endphp
+
+                @forelse($onlineStudents as $student)
+                <div class="activity-item">
+                    <div class="activity-avatar online">
+                        {{ strtoupper(substr($student->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($student->last_name ?? 'N', 0, 1)) }}
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-name">
+                            {{ $student->first_name }} {{ $student->last_name }}
+                        </div>
+                        <div class="activity-description">
+                            {{ $student->program ?? 'Formation non définie' }}
                         </div>
                     </div>
                 </div>
-
-                <!-- Étudiants Community Management -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-users-cog fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['students_community_management'] ?? '298' }}">{{ $stats['students_community_management'] ?? '298' }}</h3>
-                            <h6 class="mb-3">Étudiants CM</h6>
-                            <a href="{{ route('admin.students.index', ['formation' => 'community_management']) }}" class="btn btn-sm btn-light">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
+                @empty
+                <div style="text-align: center; padding: 2rem; color: #64748b;">
+                    <i class="fas fa-user-slash" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p>Aucun étudiant en ligne</p>
                 </div>
-
-                <!-- Étudiants Gestion Informatique -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-server fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['students_gestion_informatique'] ?? '124' }}">{{ $stats['students_gestion_informatique'] ?? '124' }}</h3>
-                            <h6 class="mb-3">Étudiants Gestion Informatique</h6>
-                            <a href="{{ route('admin.students.index', ['formation' => 'gestion_informatique']) }}" class="btn btn-sm btn-light">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Étudiants Intelligence Artificielle -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-brain fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['students_intelligence_artificielle'] ?? '187' }}">{{ $stats['students_intelligence_artificielle'] ?? '187' }}</h3>
-                            <h6 class="mb-3">Étudiants Intelligence Artificielle</h6>
-                            <a href="{{ route('admin.students.index', ['formation' => 'intelligence_artificielle']) }}" class="btn btn-sm btn-light">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
+                @endforelse
             </div>
-            </div>
-
-            @if(session('admin_role') === 'super_admin')
-            <!-- Section: Ressources & Contenus -->
-            <div class="mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-white mb-0"><i class="fas fa-book me-2"></i>Ressources & Contenus</h6>
-                    @php
-                        $total_ressources = ($stats['total_bibliotheque_documents'] ?? 0) + ($stats['total_events'] ?? 0) + ($stats['total_actualites'] ?? 0);
-                    @endphp
-                    <span class="badge" style="background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%); font-size: 1.1rem; padding: 0.5rem 1rem;">
-                        <i class="fas fa-folder me-1"></i>Total: {{ number_format($total_ressources) }} items
-                    </span>
-                </div>
-            <div class="row">
-                <!-- Bibliothèque -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #1e3c72 0%, #4fc3f7 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-book-open fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['total_bibliotheque_documents'] ?? '234' }}">{{ $stats['total_bibliotheque_documents'] ?? '234' }}</h3>
-                            <h6 class="mb-3">Bibliothèque (Documents)</h6>
-                            <a href="{{ route('admin.bibliotheque.index') }}" class="btn btn-sm btn-light">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Évènements -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #29b6f6 0%, #4fc3f7 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-calendar-alt fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['total_events'] ?? '45' }}">{{ $stats['total_events'] ?? '45' }}</h3>
-                            <h6 class="mb-3">Évènements</h6>
-                            <a href="#" class="btn btn-sm btn-light" onclick="alert('Fonctionnalité en développement'); return false;">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Actualités -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-newspaper fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['total_actualites'] ?? '89' }}">{{ $stats['total_actualites'] ?? '89' }}</h3>
-                            <h6 class="mb-3">Actualités</h6>
-                            <a href="#" class="btn btn-sm btn-light" onclick="alert('Fonctionnalité en développement'); return false;">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            </div>
-            @endif
-
-            @if(in_array(session('admin_role'), ['super_admin', 'comptable']))
-            <!-- Section: Gestion Administrative -->
-            <div class="mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="text-white mb-0"><i class="fas fa-tasks me-2"></i>Gestion Administrative</h6>
-                    @php
-                        $total_admin = ($stats['total_payments'] ?? 0) + ($stats['total_reports'] ?? 0) + ($stats['total_pre_inscriptions'] ?? 0) + ($stats['total_admins'] ?? 0);
-                    @endphp
-                    <span class="badge" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); font-size: 1.1rem; padding: 0.5rem 1rem;">
-                        <i class="fas fa-clipboard-list me-1"></i>Total: {{ number_format($total_admin) }} items
-                    </span>
-                </div>
-            <div class="row">
-                <!-- Paiements -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-credit-card fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['total_payments'] ?? '1247' }}">{{ $stats['total_payments'] ?? '1247' }}</h3>
-                            <h6 class="mb-3">Paiements</h6>
-                            <a href="#" class="btn btn-sm btn-light" onclick="alert('Fonctionnalité en développement'); return false;">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Rapports -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-file-chart-line fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['total_reports'] ?? '156' }}">{{ $stats['total_reports'] ?? '156' }}</h3>
-                            <h6 class="mb-3">Rapports</h6>
-                            <a href="#" class="btn btn-sm btn-light" onclick="alert('Fonctionnalité en développement'); return false;">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pré-inscris -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #ff9800 0%, #ff6f00 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-user-clock fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['total_pre_inscriptions'] ?? '342' }}">{{ $stats['total_pre_inscriptions'] ?? '342' }}</h3>
-                            <h6 class="mb-3">Pré-inscris</h6>
-                            <a href="#" class="btn btn-sm btn-light" onclick="alert('Fonctionnalité en développement'); return false;">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Admins -->
-                <div class="col-xl-3 col-md-6 mb-3">
-                    <div class="card text-white h-100" style="background: linear-gradient(135deg, #29b6f6 0%, #1e3c72 100%); border: none;">
-                        <div class="card-body text-center p-4">
-                            <i class="fas fa-user-shield fa-3x mb-3 opacity-75"></i>
-                            <h3 class="fw-bold mb-2" data-counter="{{ $stats['total_admins'] ?? '8' }}">{{ $stats['total_admins'] ?? '8' }}</h3>
-                            <h6 class="mb-3">Admins</h6>
-                            <a href="{{ route('admin.statistics.detail', 'total-admins') }}" class="btn btn-sm btn-light">
-                                <i class="fas fa-eye me-1"></i>Voir plus
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-            @endif
-
-            @if(session('admin_role') === 'super_admin')
-            <!-- Récapitulatif Général -->
-            <div class="mt-4 p-4" style="background: linear-gradient(135deg, rgba(30,60,114,0.3) 0%, rgba(42,82,152,0.3) 100%); border-radius: 15px; border: 2px solid rgba(255,255,255,0.2);">
-                <div class="row text-center">
-                    <div class="col-md-3 mb-3">
-                        <div class="text-white">
-                            <i class="fas fa-graduation-cap fa-2x mb-2" style="opacity: 0.8;"></i>
-                            <h3 class="fw-bold mb-1">{{ number_format($total_etudiants_formations) }}</h3>
-                            <p class="mb-0 small" style="opacity: 0.9;">Étudiants Formations</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="text-white">
-                            <i class="fas fa-book-open fa-2x mb-2" style="opacity: 0.8;"></i>
-                            <h3 class="fw-bold mb-1">{{ number_format($total_ressources) }}</h3>
-                            <p class="mb-0 small" style="opacity: 0.9;">Ressources & Contenus</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="text-white">
-                            <i class="fas fa-clipboard-list fa-2x mb-2" style="opacity: 0.8;"></i>
-                            <h3 class="fw-bold mb-1">{{ number_format($total_admin) }}</h3>
-                            <p class="mb-0 small" style="opacity: 0.9;">Gestion Administrative</p>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="text-white">
-                            <i class="fas fa-chart-line fa-2x mb-2" style="opacity: 0.8;"></i>
-                            @php
-                                $total_global = $total_etudiants_formations + $total_ressources + $total_admin;
-                            @endphp
-                            <h3 class="fw-bold mb-1">{{ number_format($total_global) }}</h3>
-                            <p class="mb-0 small" style="opacity: 0.9;">Total Général</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
-
-            @if(session('admin_role') === 'super_admin')
-            <!-- Bouton pour voir toutes les statistiques -->
-            <div class="text-center mt-4">
-                <a href="{{ route('admin.statistics.all') }}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-list me-2"></i>Voir Toutes les Statistiques
-                </a>
-            </div>
-            @endif
         </div>
     </div>
-
-
 </div>
+@endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-// Animations des compteurs
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Initialisation des animations de compteurs...');
+// Update time and date
+function updateDateTime() {
+    const now = new Date();
+    const time = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const date = now.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    const counters = document.querySelectorAll('[data-counter]');
-    console.log('Compteurs trouvés:', counters.length);
+    document.getElementById('currentTime').textContent = time;
+    document.getElementById('currentDate').textContent = date;
+}
 
-    counters.forEach(counter => {
-        const target = parseInt(counter.getAttribute('data-counter'));
-        console.log('Animation compteur vers:', target);
+// Update greeting based on time
+function updateGreeting() {
+    const hour = new Date().getHours();
+    let greeting;
 
-        let current = 0;
-        const increment = target / 50;
-        const timer = setInterval(() => {
-            current += increment;
-            if (current >= target) {
-                counter.textContent = target;
-                clearInterval(timer);
-            } else {
-                counter.textContent = Math.ceil(current);
+    if (hour < 12) greeting = 'Bon matin';
+    else if (hour < 18) greeting = 'Bon après-midi';
+    else greeting = 'Bonsoir';
+
+    document.getElementById('greeting').textContent = greeting;
+}
+
+// Animate numbers with easing
+function animateNumbers() {
+    document.querySelectorAll('.stat-number').forEach(element => {
+        const target = parseInt(element.getAttribute('data-target'));
+        const duration = 2000;
+        const start = 0;
+        const startTime = performance.now();
+
+        function easeOutQuart(x) {
+            return 1 - Math.pow(1 - x, 4);
+        }
+
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = easeOutQuart(progress);
+            const current = Math.floor(start + (target - start) * eased);
+
+            element.textContent = current.toLocaleString('fr-FR');
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
             }
-        }, 20);
-    });
+        }
 
-    console.log('Animations des compteurs terminées');
+        requestAnimationFrame(update);
+    });
+}
+
+// Refresh activities
+function refreshActivities() {
+    // Simulation de rafraîchissement (vous pouvez ajouter un appel AJAX ici)
+    console.log('Actualisation des activités...');
+
+    // Animation de refresh
+    const activitySection = document.querySelector('.activity-section');
+    if (activitySection) {
+        activitySection.style.opacity = '0.5';
+        setTimeout(() => {
+            activitySection.style.opacity = '1';
+        }, 500);
+    }
+}
+
+// Auto-refresh data every 30 seconds
+setInterval(() => {
+    refreshActivities();
+}, 30000);
+
+// Add ripple effect to cards
+document.querySelectorAll('.stat-card, .quick-action-card, .activity-item').forEach(card => {
+    card.addEventListener('click', function(e) {
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        ripple.style.cssText = `
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(249, 115, 22, 0.5);
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+            pointer-events: none;
+            left: ${x}px;
+            top: ${y}px;
+        `;
+
+        this.style.position = 'relative';
+        this.style.overflow = 'hidden';
+        this.appendChild(ripple);
+
+        setTimeout(() => ripple.remove(), 600);
+    });
 });
 
+// Add ripple animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(20);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
 
+// Intersection Observer for scroll animations
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, {
+    threshold: 0.1
+});
 
-function exportData() {
-    console.log('Export des données...');
-    alert('Export en cours de développement...');
-}
+document.querySelectorAll('.activity-item').forEach(item => {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(20px)';
+    item.style.transition = 'all 0.5s ease';
+    observer.observe(item);
+});
 
-function generateReport() {
-    console.log('Génération de rapport...');
-    alert('Génération de rapport en cours de développement...');
-}
-
-// ========== ÉTUDIANTS CONNECTÉS EN TEMPS RÉEL ==========
-function loadOnlineStudents() {
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const refreshIcon = document.getElementById('refreshIcon');
-    const tableBody = document.getElementById('onlineStudentsTable');
-    const onlineCount = document.getElementById('onlineCount');
-    const lastUpdate = document.getElementById('lastUpdate');
-    
-    if (!tableBody) return; // Si l'élément n'existe pas, sortir
-    
-    // Afficher le spinner
-    if (loadingSpinner) loadingSpinner.style.display = 'inline-block';
-    if (refreshIcon) refreshIcon.classList.add('fa-spin');
-    
-    fetch('{{ route("admin.api.online-students") }}')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Mettre à jour le compteur
-                if (onlineCount) onlineCount.textContent = data.total;
-                
-                // Mettre à jour l'heure
-                if (lastUpdate) lastUpdate.textContent = data.timestamp;
-                
-                // Générer le HTML du tableau
-                if (data.students.length === 0) {
-                    tableBody.innerHTML = `
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">
-                                <i class="fas fa-user-slash me-2"></i>Aucun étudiant connecté actuellement
-                            </td>
-                        </tr>
-                    `;
-                } else {
-                    let html = '';
-                    data.students.forEach(student => {
-                        const initials = (student.first_name?.charAt(0) || '') + (student.last_name?.charAt(0) || '');
-                        const fullName = `${student.first_name || ''} ${student.last_name || ''}`;
-                        const lastActivity = new Date(student.last_activity);
-                        const now = new Date();
-                        const diffMinutes = Math.floor((now - lastActivity) / 60000);
-                        const timeAgo = diffMinutes === 0 ? 'À l\'instant' : `Il y a ${diffMinutes} min`;
-                        
-                        // Couleur de l'avatar selon la formation
-                        let avatarColor = 'bg-primary';
-                        if (student.program?.includes('Design')) avatarColor = 'bg-info';
-                        else if (student.program?.includes('Community')) avatarColor = 'bg-success';
-                        else if (student.program?.includes('Gestion')) avatarColor = 'bg-warning';
-                        else if (student.program?.includes('Intelligence')) avatarColor = 'bg-danger';
-                        
-                        html += `
-                            <tr class="fade-in">
-                                <td>
-                                    <small class="text-success">
-                                        <i class="fas fa-circle me-1" style="font-size: 8px;"></i>
-                                        ${timeAgo}
-                                    </small>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm ${avatarColor} rounded-circle d-flex align-items-center justify-content-center me-2 text-white fw-bold">
-                                            ${initials}
-                                        </div>
-                                        <div>
-                                            <span class="text-white">${fullName}</span>
-                                            <br>
-                                            <small class="text-muted">${student.email || ''}</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-white">${student.program || 'Non défini'}</td>
-                                <td><small class="text-muted">${student.student_id || 'N/A'}</small></td>
-                                <td><span class="badge bg-success"><i class="fas fa-circle me-1" style="font-size: 6px;"></i>En ligne</span></td>
-                            </tr>
-                        `;
-                    });
-                    tableBody.innerHTML = html;
-                }
-            } else {
-                console.error('Erreur lors du chargement des étudiants:', data.error);
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center text-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Erreur lors du chargement
-                        </td>
-                    </tr>
-                `;
+// Initialize Charts
+function initCharts() {
+    // Graphique des inscriptions (7 derniers jours)
+    const inscriptionsCtx = document.getElementById('inscriptionsChart');
+    if (inscriptionsCtx) {
+        @php
+            $last7Days = [];
+            $inscriptionsData = [];
+            for ($i = 6; $i >= 0; $i--) {
+                $date = \Carbon\Carbon::now()->subDays($i);
+                $last7Days[] = $date->format('d M');
+                $count = DB::table('students')
+                    ->whereDate('created_at', $date->format('Y-m-d'))
+                    ->count();
+                $inscriptionsData[] = $count;
             }
-        })
-        .catch(error => {
-            console.error('Erreur réseau:', error);
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="text-center text-danger">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Erreur de connexion
-                    </td>
-                </tr>
-            `;
-        })
-        .finally(() => {
-            // Masquer le spinner
-            if (loadingSpinner) loadingSpinner.style.display = 'none';
-            if (refreshIcon) refreshIcon.classList.remove('fa-spin');
-        });
-}
+        @endphp
 
-// Charger les étudiants au démarrage
-if (document.getElementById('onlineStudentsTable')) {
-    loadOnlineStudents();
-    
-    // Rafraîchir automatiquement toutes les 10 secondes
-    setInterval(loadOnlineStudents, 10000);
-}
-</script>
-@endpush
-            <div class="stat-actions">
-                <a href="{{ route('admin.statistics.detail', 'total-documents') }}" class="btn-stat">
-                    <i class="fas fa-eye me-1"></i>Voir plus
-                </a>
-            </div>
-        </div>
-    </div>
-
-
-</div>
-@endsection
-
-@section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Graphique d'activité
-    const activityCtx = document.getElementById('activityChart').getContext('2d');
-    new Chart(activityCtx, {
-        type: 'line',
-        data: {
-            labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-            datasets: [{
-                label: 'Connexions',
-                data: [65, 78, 85, 92, 88, 45, 32],
-                borderColor: '#007bff',
-                backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    labels: {
-                        color: 'white'
-                    }
-                }
+        new Chart(inscriptionsCtx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($last7Days) !!},
+                datasets: [{
+                    label: 'Nouvelles inscriptions',
+                    data: {!! json_encode($inscriptionsData) !!},
+                    borderColor: '#f97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#f97316',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
             },
-            scales: {
-                x: {
-                    ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)'
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
                     },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        padding: 12,
+                        titleColor: '#fff',
+                        bodyColor: '#94a3b8',
+                        borderColor: '#f97316',
+                        borderWidth: 1
                     }
                 },
-                y: {
-                    ticks: {
-                        color: 'rgba(255, 255, 255, 0.7)'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#94a3b8',
+                            stepSize: 1
+                        },
+                        grid: {
+                            color: 'rgba(51, 65, 85, 0.3)'
+                        }
                     },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
+                    x: {
+                        ticks: {
+                            color: '#94a3b8'
+                        },
+                        grid: {
+                            color: 'rgba(51, 65, 85, 0.3)'
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 
-    // Graphique formations
-    const formationCtx = document.getElementById('formationChart').getContext('2d');
-    new Chart(formationCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Design Graphique', 'Community Management', 'Intelligence Artificielle', 'Gestion Informatique'],
-            datasets: [{
-                data: [45, 25, 20, 10],
-                backgroundColor: ['#007bff', '#28a745', '#ffc107', '#dc3545'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        color: 'white',
-                        padding: 20
+    // Graphique répartition par formation
+    const formationsCtx = document.getElementById('formationsChart');
+    if (formationsCtx) {
+        @php
+            // Compter les étudiants par formation de manière précise
+            $designCount = DB::table('students')->where('program', 'LIKE', 'Design Graphique')->count();
+            $cmCount = DB::table('students')->where('program', 'LIKE', 'Community%')->whereNotLike('program', '%Design%')->count();
+            $designCmCount = DB::table('students')->where('program', 'LIKE', '%Design%')->where('program', 'LIKE', '%Community%')->count();
+            $infoCount = DB::table('students')->where(function($q) {
+                $q->where('program', 'LIKE', '%Gestion%')->orWhere('program', 'LIKE', '%Informatique%');
+            })->whereNotLike('program', '%Design%')->whereNotLike('program', '%Community%')->count();
+            $iaCount = DB::table('students')->where(function($q) {
+                $q->where('program', 'LIKE', '%Intelligence%')->orWhere('program', 'LIKE', '%IA%');
+            })->whereNotLike('program', '%Design%')->whereNotLike('program', '%Community%')->count();
+        @endphp
+
+        new Chart(formationsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Design Graphique', 'Community Management', 'Design & Community', 'Gestion Informatique', 'Intelligence Artificielle'],
+                datasets: [{
+                    data: [{{ $designCount }}, {{ $cmCount }}, {{ $designCmCount }}, {{ $infoCount }}, {{ $iaCount }}],
+                    backgroundColor: [
+                        '#667eea',
+                        '#f093fb',
+                        '#ff6b6b',
+                        '#4facfe',
+                        '#43e97b'
+                    ],
+                    borderColor: '#0f172a',
+                    borderWidth: 3,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#94a3b8',
+                            padding: 15,
+                            font: {
+                                size: 12
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        padding: 12,
+                        titleColor: '#fff',
+                        bodyColor: '#94a3b8',
+                        borderColor: '#f97316',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': ' + value + ' (' + percentage + '%)';
+                            }
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    updateDateTime();
+    updateGreeting();
+    animateNumbers();
+    initCharts();
+    setInterval(updateDateTime, 1000);
+
+    // Show success message
+    console.log('✅ Dashboard chargé avec succès');
+    console.log('🔄 Auto-refresh activé (30s)');
+    console.log('📊 Graphiques initialisés');
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+    // Ctrl/Cmd + R pour rafraîchir les activités
+    if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        refreshActivities();
+    }
 });
 </script>
-
-
-@endsection
+@endpush

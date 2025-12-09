@@ -68,7 +68,7 @@
                                 <div class="mb-2">
                                     <span class="badge bg-success">892 abonnés</span>
                                 </div>
-                                <a href="https://t.me/evc2024_canal" target="_blank" class="btn btn-primary btn-sm">
+                                <a href="https://t.me/c/1544085173/1" target="_blank" class="btn btn-primary btn-sm">
                                     <i class="fab fa-telegram-plane me-1"></i>
                                     Rejoindre
                                 </a>
@@ -88,7 +88,7 @@
                                 <div class="mb-2">
                                     <span class="badge bg-info">456 membres</span>
                                 </div>
-                                <a href="https://t.me/evc2024_groupe" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <a href="https://t.me/+zr1VQTfsElhmZWE8" target="_blank" class="btn btn-outline-primary btn-sm">
                                     <i class="fab fa-telegram-plane me-1"></i>
                                     Rejoindre
                                 </a>
@@ -108,7 +108,7 @@
                                 <div class="mb-2">
                                     <span class="badge bg-success">1,123 abonnés</span>
                                 </div>
-                                <a href="https://whatsapp.com/channel/evc2024" target="_blank" class="btn btn-success btn-sm">
+                                <a href="https://whatsapp.com/channel/0029Va9RABj2ER6dFnFLNp2Y" target="_blank" class="btn btn-success btn-sm">
                                     <i class="fab fa-whatsapp me-1"></i>
                                     S'abonner
                                 </a>
@@ -124,11 +124,11 @@
                                     <i class="fab fa-whatsapp fa-3x" style="color: #25D366;"></i>
                                 </div>
                                 <h6 class="mb-2">Groupe WhatsApp</h6>
-                                <p class="text-muted small mb-3">Chat communautaire</p>
+                                <p class="text-muted small mb-3">Classe de travail</p>
                                 <div class="mb-2">
                                     <span class="badge bg-warning">256 membres</span>
                                 </div>
-                                <a href="https://chat.whatsapp.com/evc2024groupe" target="_blank" class="btn btn-outline-success btn-sm">
+                                <a href="https://chat.whatsapp.com/D523MT1hBENE0vQZkrH9qb" target="_blank" class="btn btn-outline-success btn-sm">
                                     <i class="fab fa-whatsapp me-1"></i>
                                     Rejoindre
                                 </a>
@@ -172,7 +172,7 @@
                                         @endif
                                     </span>
                                 </div>
-                                <a href="https://www.facebook.com/bilebossombraofficiel" target="_blank" class="btn btn-primary btn-sm">
+                                <a href="https://web.facebook.com/bilebossombraofficiel?_rdc=1&_rdr" target="_blank" class="btn btn-primary btn-sm">
                                     <i class="fab fa-facebook me-1"></i>
                                     Suivre
                                 </a>

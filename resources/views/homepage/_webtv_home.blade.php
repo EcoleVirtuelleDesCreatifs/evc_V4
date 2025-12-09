@@ -9,6 +9,10 @@
       0%, 100% { box-shadow: 0 0 20px rgba(249,115,22,.3); }
       50% { box-shadow: 0 0 40px rgba(249,115,22,.5); }
     }
+    @keyframes glow-pulse-red {
+      0%, 100% { box-shadow: 0 0 40px rgba(239,68,68,0.6), 0 0 80px rgba(239,68,68,0.3); }
+      50% { box-shadow: 0 0 60px rgba(239,68,68,0.8), 0 0 120px rgba(239,68,68,0.5); }
+    }
     @keyframes blink {
       0%, 49% { opacity: 1; }
       50%, 100% { opacity: .6; }
@@ -19,7 +23,7 @@
       100% { transform: translate3d(0,0,0); }
     }
   </style>
-  
+
   <!-- Decorative background -->
   <div class="pointer-events-none absolute inset-0 -z-10">
     <div class="absolute -top-40 -left-40 h-80 w-80 rounded-full bg-orange-500/10 blur-3xl" style="animation: float-slow 15s ease-in-out infinite;"></div>
@@ -29,15 +33,6 @@
   <div class="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
     <!-- Header Section -->
     <div class="flex flex-col items-center text-center mb-8 md:mb-12" data-aos="fade-up">
-      <!-- Badge -->
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-orange-500/10 border border-orange-500/30 rounded-full mb-4 md:mb-6">
-        <span class="relative flex h-2.5 w-2.5 md:h-3 md:w-3">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2.5 w-2.5 md:h-3 md:w-3 bg-red-500"></span>
-        </span>
-        <span class="text-orange-400 font-semibold text-xs md:text-sm" style="animation: blink 1.6s steps(2,end) infinite;">En Direct</span>
-      </div>
-
       <!-- Titre -->
       <h2 class="relative flex items-center justify-center gap-2 md:gap-3 mb-4 md:mb-6">
         <span class="text-5xl sm:text-6xl md:text-6xl lg:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-orange-400 via-orange-500 to-orange-400 bg-clip-text text-transparent"
@@ -49,7 +44,7 @@
       </h2>
 
       <p class="text-base md:text-lg lg:text-xl text-gray-300 max-w-3xl mb-6 md:mb-8 px-4">
-        Découvrez nos tutoriels exclusifs, masterclass et interviews d'experts pour booster vos compétences en design et digital
+        Ne manquez rien, suivez toute l'actualité de l'Ecole Virtuelle des Créatifs (EVC) en temps réel
       </p>
 
       <!-- Stats -->
@@ -69,47 +64,136 @@
       </div>
     </div>
 
-    <!-- Featured Video -->
+    <!-- Featured Video - Grid Layout -->
     <div class="mt-8 md:mt-12" data-aos="fade-up">
-      <div id="webtv-featured-wrap" class="group relative rounded-3xl overflow-hidden bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-lg border border-white/10 transition-all duration-500 hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/20">
-        <div class="relative aspect-video">
-          <iframe id="webtv-featured-player" class="absolute inset-0 w-full h-full rounded-3xl" src="https://player.vimeo.com/video/000000000?title=0&byline=0&portrait=0" title="EVC WebTV" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-          
-          <!-- Overlay info -->
-          <div class="absolute left-3 md:left-6 bottom-3 md:bottom-6 flex items-center gap-2 md:gap-4 bg-black/60 backdrop-blur-md rounded-xl md:rounded-2xl px-3 py-2 md:px-6 md:py-4 border border-white/10">
-            <div class="relative">
-              <span class="absolute inset-0 rounded-full bg-orange-500/40 blur-lg animate-ping"></span>
-              <span class="relative inline-flex h-8 w-8 md:h-12 md:w-12 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-lg">
-                <i class="fas fa-play text-xs md:text-base"></i>
-              </span>
+      @if($activePlaylist)
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
+        <!-- Vidéo - 8 colonnes -->
+        <div class="lg:col-span-8">
+          <div id="webtv-featured-wrap"
+               class="group relative rounded-3xl overflow-hidden bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-lg border border-white/10 transition-all duration-500 hover:border-orange-500/50 hover:shadow-2xl hover:shadow-orange-500/20"
+               data-next-video="{{ (isset($nextVideo) && $nextVideo) ? route('webtv', ['video' => $nextVideo->id]) : '' }}"
+               data-current-title="{{ $activePlaylist->title }}">
+            <div class="relative aspect-video">
+              {!! $activePlaylist->generateEmbedCode() !!}
             </div>
-            <div>
-              <p class="text-white font-bold text-base md:text-lg">Épisode à la Une</p>
-              <p class="text-gray-300 text-sm md:text-sm">Les coulisses de l'EVC</p>
+          </div>
+        </div>
+
+        <!-- Informations - 4 colonnes -->
+        <div class="lg:col-span-4 flex flex-col justify-center">
+          <div class="bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-lg rounded-3xl p-6 md:p-8 border border-white/10">
+            <!-- Badge type -->
+            <div id="webtv-badge-container">
+            @if($activePlaylist->type === 'live')
+            <div class="inline-flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-green-500/30 to-emerald-500/30 border-2 border-green-400 rounded-full mb-4 shadow-lg shadow-green-500/50" style="animation: glow-pulse 2s ease-in-out infinite;">
+              <span class="relative flex h-3 w-3">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-3 w-3 bg-green-400"></span>
+              </span>
+              <span class="text-green-300 font-extrabold text-sm uppercase tracking-wider">EN DIRECT</span>
+            </div>
+            @else
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 border border-orange-500/40 rounded-full mb-4">
+              <i class="fas fa-infinity text-orange-500"></i>
+              <span class="text-orange-400 font-bold text-xs uppercase">En Boucle</span>
+            </div>
+            @endif
+            </div>
+
+            <!-- Titre -->
+            <h3 id="webtv-title" class="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">
+              {{ $activePlaylist->title }}
+            </h3>
+
+            <!-- Description -->
+            <p id="webtv-description" class="text-gray-300 text-base md:text-lg mb-6 leading-relaxed">
+              @if($activePlaylist->description)
+                {{ $activePlaylist->description }}
+              @else
+                Découvrez ce contenu exclusif conçu pour développer vos compétences et propulser votre carrière dans le digital.
+              @endif
+            </p>
+
+            <!-- CTA -->
+            <div class="space-y-3">
+              <button onclick="openSubscriptionModal()" class="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full text-white text-base font-bold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-xl">
+                <i class="fas fa-bell text-xl"></i>
+                <span>Ne Manquez Rien</span>
+              </button>
+              <a href="{{ route('webtv') }}" class="w-full inline-flex items-center justify-center gap-3 px-6 py-4 bg-white/5 border border-white/20 rounded-full text-white text-base font-semibold hover:bg-white/10 transition-all duration-300">
+                <i class="fas fa-video"></i>
+                <span>Voir Toutes Les Vidéos</span>
+              </a>
+            </div>
+
+            <!-- Stats rapides -->
+            <div class="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/10">
+              <div class="text-center">
+                <div id="webtv-view-count" class="text-xl font-bold text-orange-500">{{ number_format($activePlaylist->view_count) }}+</div>
+                <div class="text-xs text-gray-400">Vues</div>
+              </div>
+              <div class="text-center">
+                <div id="webtv-loop-icon" class="text-xl font-bold text-orange-500">
+                  @if($activePlaylist->loop_enabled)
+                    <i class="fas fa-infinity"></i>
+                  @else
+                    24/7
+                  @endif
+                </div>
+                <div class="text-xs text-gray-400">Disponible</div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+      @else
+      <!-- Message si aucune playlist -->
+      <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-lg border border-white/10 p-12 text-center">
+        <i class="fas fa-tv text-gray-600 text-6xl mb-6"></i>
+        <h3 class="text-2xl font-bold text-white mb-4">Aucune diffusion en cours</h3>
+        <p class="text-gray-400 mb-8">Revenez bientôt pour découvrir nos prochaines vidéos et lives !</p>
+      </div>
+      @endif
     </div>
 
-    <!-- Autres Vidéos -->
-    <div class="relative mt-8 md:mt-12" data-aos="fade-up" data-aos-delay="100">
-      <div class="flex items-center justify-between mb-4 md:mb-6">
-        <h3 class="text-xl md:text-2xl font-bold text-white">Autres Épisodes</h3>
-        <div class="flex gap-2">
-          <button id="webtv-rail-prev" class="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full bg-white/5 hover:bg-orange-500/20 border border-white/10 hover:border-orange-500/50 text-white transition-all duration-300" aria-label="Précédent">
-            <i class="fas fa-chevron-left text-xs md:text-base"></i>
-          </button>
-          <button id="webtv-rail-next" class="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-full bg-white/5 hover:bg-orange-500/20 border border-white/10 hover:border-orange-500/50 text-white transition-all duration-300" aria-label="Suivant">
-            <i class="fas fa-chevron-right text-xs md:text-base"></i>
-          </button>
+    <!-- Statistiques de la playlist -->
+    @if($activePlaylist)
+    <div class="relative mt-8 md:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4" data-aos="fade-up" data-aos-delay="100">
+      <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 text-center">
+        <div class="text-2xl font-bold text-orange-500 mb-1">
+          @if($activePlaylist->loop_enabled)
+            <i class="fas fa-infinity"></i>
+          @else
+            <i class="fas fa-play"></i>
+          @endif
+        </div>
+        <div class="text-xs text-gray-400">
+          {{ $activePlaylist->loop_enabled ? 'Lecture en Boucle' : 'Lecture Simple' }}
         </div>
       </div>
-      
-      <div id="webtv-rail" class="flex gap-3 md:gap-6 overflow-x-auto overscroll-x-contain snap-x snap-mandatory scroll-smooth px-1 py-2 hide-scrollbar">
-        <!-- Items rendus dynamiquement -->
+      <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 text-center">
+        <div class="text-2xl font-bold text-orange-500 mb-1">{{ number_format($activePlaylist->loop_count) }}</div>
+        <div class="text-xs text-gray-400">Boucles</div>
+      </div>
+      <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 text-center">
+        <div class="text-2xl font-bold text-orange-500 mb-1">{{ number_format($activePlaylist->view_count) }}</div>
+        <div class="text-xs text-gray-400">Vues</div>
+      </div>
+      <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10 text-center">
+        <div class="text-2xl font-bold text-orange-500 mb-1">
+          @if($activePlaylist->type === 'live')
+            LIVE
+          @else
+            24/7
+          @endif
+        </div>
+        <div class="text-xs text-gray-400">
+          {{ $activePlaylist->type === 'live' ? 'En direct' : 'Accessible' }}
+        </div>
       </div>
     </div>
+    @endif
 
     <!-- CTA Section -->
     <div class="mt-10 md:mt-16 text-center" data-aos="fade-up" data-aos-delay="200">
@@ -118,14 +202,14 @@
           <i class="fas fa-bell text-orange-500 text-sm md:text-base"></i>
           <span class="text-orange-400 font-semibold text-xs md:text-sm">Ne Manquez Rien</span>
         </div>
-        
+
         <h3 class="text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 md:mb-4">
           Abonnez-vous à la WEBTV
         </h3>
         <p class="text-base md:text-lg text-gray-300 mb-6 md:mb-8 max-w-2xl mx-auto px-4">
           Recevez une notification à chaque nouvelle vidéo et accédez à des contenus exclusifs pour développer vos compétences
         </p>
-        
+
         <div class="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
           <button onclick="openSubscriptionModal()" class="inline-flex items-center gap-2 md:gap-3 px-8 py-4 md:px-8 md:py-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full text-white text-base md:text-lg font-bold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-orange-500/50">
             <i class="fas fa-bell text-xl md:text-2xl"></i>
@@ -133,126 +217,128 @@
           </button>
           <a href="{{ route('webtv') }}" class="inline-flex items-center gap-2 md:gap-3 px-8 py-4 md:px-8 md:py-4 bg-white/5 backdrop-blur-sm border border-white/20 rounded-full text-white text-base md:text-lg font-semibold hover:bg-white/10 transition-all duration-300">
             <i class="fas fa-video"></i>
-            <span>Voir Toutes les Vidéos</span>
+            <span>Voir la WEBTV</span>
           </a>
         </div>
       </div>
     </div>
   </div>
 
-      <script>
-          document.addEventListener('DOMContentLoaded', async function(){
-            const featured = document.getElementById('webtv-featured-player');
-            const rail = document.getElementById('webtv-rail');
-            const btnPrev = document.getElementById('webtv-rail-prev');
-            const btnNext = document.getElementById('webtv-rail-next');
-            const userFeed = 'https://vimeo.com/api/v2/user186497486/videos.json';
-            let loadedVideos = [];
-            let currentIdx = 0;
-            try {
-              const res = await fetch(userFeed, {headers: {'Accept': 'application/json'}});
-              const videos = Array.isArray(await res.json()) ? await res.json() : [];
-              if (!videos.length) throw new Error('No videos');
-              loadedVideos = videos;
-              // Set featured to first video
-              const first = videos[0];
-              const firstId = (first && first.id) ? first.id : null;
-              if (firstId) featured.src = `https://player.vimeo.com/video/${firstId}?title=0&byline=0&portrait=0`;
+  <script src="https://player.vimeo.com/api/player.js"></script>
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          var wrapper = document.getElementById('webtv-featured-wrap');
+          var iframe = wrapper ? wrapper.querySelector('iframe') : null;
 
-              // Render up to 10 items in horizontal rail
-              const maxItems = Math.min(10, videos.length);
-              const listFrag = document.createDocumentFragment();
-              for (let i = 0; i < maxItems; i++) {
-                const v = videos[i];
-                if (i === 0) currentIdx = 0;
-                const card = document.createElement('a');
-                card.href = `https://vimeo.com/${v.id}`;
-                card.target = '_blank';
-                card.rel = 'noopener';
-                card.className = 'group min-w-[280px] md:min-w-[320px] snap-start';
-                card.innerHTML = `
-                  <div class="relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-lg rounded-3xl overflow-hidden border border-white/10 transition-all duration-500 hover:border-orange-500/50 hover:transform hover:scale-[1.02] hover:shadow-2xl hover:shadow-orange-500/20">
-                    <div class="relative w-full aspect-video overflow-hidden bg-black">
-                      <img src="${v.thumbnail_large || v.thumbnail_medium || v.thumbnail_small}" alt="${v.title}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                      <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <div class="w-16 h-16 rounded-full bg-orange-500/90 flex items-center justify-center">
-                          <i class="fas fa-play text-white text-xl"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="p-4">
-                      <p class="text-white text-base font-semibold line-clamp-2 mb-2 group-hover:text-orange-400 transition-colors">${v.title}</p>
-                      <div class="flex items-center justify-between">
-                        <span class="text-xs text-gray-400"><i class="fas fa-clock mr-1"></i>${v.duration ? new Date(v.duration * 1000).toISOString().substring(14,19) : ''}</span>
-                        <span class="text-xs text-orange-500 font-semibold">Regarder <i class="fas fa-arrow-right ml-1"></i></span>
-                      </div>
-                    </div>
-                  </div>`;
-                // Clicking the card (thumbnail/title area) swaps featured inline without opening new tab (unless arrow or ctrl click)
-                card.addEventListener('click', (e) => {
-                  // If user holds meta/ctrl or clicks middle button, let default behavior open new tab
-                  if (e.metaKey || e.ctrlKey || e.button === 1) return;
-                  e.preventDefault();
-                  if (featured) featured.src = `https://player.vimeo.com/video/${v.id}?title=0&byline=0&portrait=0`;
-                  currentIdx = i;
-                });
-                listFrag.appendChild(card);
-              }
-              rail.appendChild(listFrag);
-              if (btnPrev && btnNext) { btnPrev.classList.remove('hidden'); btnNext.classList.remove('hidden'); }
-            } catch (err) {
-              console.warn('Vimeo API fetch failed or returned no data:', err);
-              // Fallback: leave CTA only; featured will stay placeholder
-            }
+          if (iframe && wrapper) {
+              console.log('WebTV Homepage: Player initialisé (Mode SPA)');
+              var player = new Vimeo.Player(iframe);
+              var isRedirecting = false;
+              var nextVideoUrl = wrapper.dataset.nextVideo;
 
-            // Keyboard navigation (← / →)
-            window.addEventListener('keydown', (ev) => {
-              if (!loadedVideos.length) return;
-              if (ev.key === 'ArrowRight') {
-                currentIdx = (currentIdx + 1) % loadedVideos.length;
-                const id = loadedVideos[currentIdx].id;
-                featured.src = `https://player.vimeo.com/video/${id}?title=0&byline=0&portrait=0`;
-              } else if (ev.key === 'ArrowLeft') {
-                currentIdx = (currentIdx - 1 + loadedVideos.length) % loadedVideos.length;
-                const id = loadedVideos[currentIdx].id;
-                featured.src = `https://player.vimeo.com/video/${id}?title=0&byline=0&portrait=0`;
-              }
-            });
-
-            // Swipe navigation on featured (mobile)
-            const wrap = document.getElementById('webtv-featured-wrap');
-            if (wrap && 'ontouchstart' in window) {
-              let startX = 0, endX = 0;
-              wrap.addEventListener('touchstart', (e) => { startX = e.changedTouches[0].screenX; });
-              wrap.addEventListener('touchend', (e) => {
-                endX = e.changedTouches[0].screenX;
-                const dx = endX - startX;
-                if (Math.abs(dx) > 40 && loadedVideos.length) {
-                  if (dx < 0) {
-                    // swipe left -> next
-                    currentIdx = (currentIdx + 1) % loadedVideos.length;
-                  } else {
-                    // swipe right -> prev
-                    currentIdx = (currentIdx - 1 + loadedVideos.length) % loadedVideos.length;
+              // Gestionnaires d'événements
+              function handleTimeUpdate(data) {
+                  // Si URL suivante existe ET qu'on est proche de la fin (3s)
+                  if (nextVideoUrl && (data.duration > 0) && (data.duration - data.seconds < 3)) {
+                      triggerRedirect();
                   }
-                  const id = loadedVideos[currentIdx].id;
-                  featured.src = `https://player.vimeo.com/video/${id}?title=0&byline=0&portrait=0`;
-                }
-              });
-            }
+              }
 
-            // Rail navigation buttons
-            const scrollByAmount = () => Math.max(rail.clientWidth * 0.9, 240);
-            if (btnPrev && btnNext) {
-              btnPrev.addEventListener('click', () => { rail.scrollBy({left: -scrollByAmount(), behavior: 'smooth'}); });
-              btnNext.addEventListener('click', () => { rail.scrollBy({left: scrollByAmount(), behavior: 'smooth'}); });
-            }
-          });
-      </script>
-      </div>
-    </div>
-  </div>
+              function handleEnded() {
+                  console.log('Vidéo terminée (event ended)');
+                  triggerRedirect();
+              }
+
+              // Fonction de redirection fluide (AJAX)
+              function triggerRedirect() {
+                  if (!isRedirecting && nextVideoUrl) {
+                      isRedirecting = true;
+                      console.log('>>> CHARGEMENT AJAX DE :', nextVideoUrl);
+
+                      fetch(nextVideoUrl, {
+                          headers: {
+                              'X-Requested-With': 'XMLHttpRequest',
+                              'Accept': 'application/json'
+                          }
+                      })
+                      .then(response => response.json())
+                      .then(data => {
+                          console.log('Données reçues:', data);
+
+                          // NOTE: Sur la homepage, on ne change PAS l'URL du navigateur
+                          // pour ne pas désorienter l'utilisateur.
+
+                          // 2. Mettre à jour le DOM
+                          document.getElementById('webtv-title').textContent = data.title;
+                          document.getElementById('webtv-description').textContent = data.description || 'Découvrez ce contenu exclusif...';
+                          document.getElementById('webtv-view-count').textContent = data.view_count + '+';
+
+                          // Icone Loop
+                          var loopIconContainer = document.getElementById('webtv-loop-icon');
+                          if (data.loop_enabled) {
+                              loopIconContainer.innerHTML = '<i class="fas fa-infinity"></i>';
+                          } else {
+                              loopIconContainer.innerHTML = '24/7';
+                          }
+
+                          // Badge (Live vs Boucle)
+                          var badgeContainer = document.getElementById('webtv-badge-container');
+                          if (data.type === 'live') {
+                              badgeContainer.innerHTML = `
+                              <div class="inline-flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-green-500/30 to-emerald-500/30 border-2 border-green-400 rounded-full mb-4 shadow-lg shadow-green-500/50" style="animation: glow-pulse 2s ease-in-out infinite;">
+                                  <span class="relative flex h-3 w-3">
+                                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                      <span class="relative inline-flex rounded-full h-3 w-3 bg-green-400"></span>
+                                  </span>
+                                  <span class="text-green-300 font-extrabold text-sm uppercase tracking-wider">EN DIRECT</span>
+                              </div>`;
+                          } else {
+                              badgeContainer.innerHTML = `
+                              <div class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 border border-orange-500/40 rounded-full mb-4">
+                                  <i class="fas fa-infinity text-orange-500"></i>
+                                  <span class="text-orange-400 font-bold text-xs uppercase">En Boucle</span>
+                              </div>`;
+                          }
+
+                          // 3. Remplacer l'iframe
+                          var embedContainer = wrapper.querySelector('.aspect-video');
+                          embedContainer.innerHTML = data.embed_code;
+
+                          // 4. Mettre à jour les variables d'état
+                          wrapper.dataset.nextVideo = data.next_video_url || '';
+                          wrapper.dataset.currentTitle = data.title;
+                          nextVideoUrl = data.next_video_url;
+
+                          // 5. Réinitialiser le player Vimeo
+                          var newIframe = embedContainer.querySelector('iframe');
+                          player = new Vimeo.Player(newIframe);
+
+                          // Réattacher les écouteurs
+                          player.on('timeupdate', handleTimeUpdate);
+                          player.on('ended', handleEnded);
+
+                          // Reset flag pour permettre la prochaine transition
+                          isRedirecting = false;
+
+                          console.log('Transition terminée vers:', data.title);
+                      })
+                      .catch(error => {
+                          console.error('Erreur chargement AJAX:', error);
+                          // Fallback (on ne fait rien sur la homepage pour ne pas casser la nav)
+                          // window.location.href = nextVideoUrl;
+                      });
+                  }
+              }
+
+              // Attacher les écouteurs initiaux
+              player.on('timeupdate', handleTimeUpdate);
+              player.on('ended', handleEnded);
+
+          } else {
+              // console.warn('WebTV: Impossible de trouver l\'iframe ou le wrapper');
+          }
+      });
+  </script>
 </section>
 
 <!-- Modal d'abonnement WebTV -->
@@ -287,7 +373,7 @@
                         <label for="subscriber_name" class="block text-sm font-medium text-gray-300 mb-2">
                             Nom (optionnel)
                         </label>
-                        <input type="text" id="subscriber_name" name="name" 
+                        <input type="text" id="subscriber_name" name="name"
                             class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 transition-all"
                             placeholder="Votre nom">
                     </div>
@@ -332,11 +418,11 @@
 function openSubscriptionModal() {
     const modal = document.getElementById('subscriptionModal');
     const modalContent = modal.querySelector('.transform');
-    
+
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     document.body.style.overflow = 'hidden';
-    
+
     // Trigger animation
     setTimeout(() => {
         modal.classList.remove('opacity-0');
@@ -349,19 +435,19 @@ function openSubscriptionModal() {
 function closeSubscriptionModal() {
     const modal = document.getElementById('subscriptionModal');
     const modalContent = modal.querySelector('.transform');
-    
+
     // Trigger closing animation
     modal.classList.remove('opacity-100');
     modal.classList.add('opacity-0');
     modalContent.classList.remove('scale-100');
     modalContent.classList.add('scale-95');
-    
+
     // Wait for animation to complete before hiding
     setTimeout(() => {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
         document.body.style.overflow = 'auto';
-        
+
         // Reset form
         document.getElementById('subscriptionForm').reset();
         document.getElementById('subscriptionError').classList.add('hidden');
@@ -371,23 +457,23 @@ function closeSubscriptionModal() {
 
 async function handleSubscription(event) {
     event.preventDefault();
-    
+
     const form = event.target;
     const btn = document.getElementById('subscribeBtn');
     const btnText = document.getElementById('subscribeBtnText');
     const btnLoading = document.getElementById('subscribeBtnLoading');
     const errorDiv = document.getElementById('subscriptionError');
     const successDiv = document.getElementById('subscriptionSuccess');
-    
+
     // Hide messages
     errorDiv.classList.add('hidden');
     successDiv.classList.add('hidden');
-    
+
     // Show loading
     btn.disabled = true;
     btnText.classList.add('hidden');
     btnLoading.classList.remove('hidden');
-    
+
     try {
         const formData = new FormData(form);
         const response = await fetch('{{ route("webtv.subscribe") }}', {
@@ -398,14 +484,14 @@ async function handleSubscription(event) {
             },
             body: formData
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             successDiv.querySelector('p').textContent = data.message;
             successDiv.classList.remove('hidden');
             form.reset();
-            
+
             // Close modal after 3 seconds
             setTimeout(() => {
                 closeSubscriptionModal();

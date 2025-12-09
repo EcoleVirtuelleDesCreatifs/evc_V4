@@ -29,6 +29,8 @@ class UpdateProfileRequest extends FormRequest
             'phone' => 'nullable|string|max:20|regex:/^[\+]?[0-9\s\-\(\)]+$/',
             'whatsapp' => 'nullable|string|max:20|regex:/^[\+]?[0-9\s\-\(\)]+$/',
             'age' => 'nullable|integer|min:16|max:100',
+            'date_of_birth' => 'nullable|date|before:today|after:1900-01-01',
+            'gender' => 'nullable|string|in:Homme,Femme,Autre',
             'country' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:255',
             'district' => 'nullable|string|max:255',
@@ -48,31 +50,37 @@ class UpdateProfileRequest extends FormRequest
             'firstName.required' => 'Le prénom est obligatoire.',
             'firstName.min' => 'Le prénom doit contenir au moins 2 caractères.',
             'firstName.max' => 'Le prénom ne peut pas dépasser 255 caractères.',
-            
+
             'lastName.required' => 'Le nom est obligatoire.',
             'lastName.min' => 'Le nom doit contenir au moins 2 caractères.',
             'lastName.max' => 'Le nom ne peut pas dépasser 255 caractères.',
-            
+
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.email' => 'L\'adresse email doit être valide.',
             'email.max' => 'L\'adresse email ne peut pas dépasser 255 caractères.',
-            
+
             'phone.regex' => 'Le numéro de téléphone n\'est pas valide.',
             'phone.max' => 'Le numéro de téléphone ne peut pas dépasser 20 caractères.',
-            
+
             'whatsapp.regex' => 'Le numéro WhatsApp n\'est pas valide.',
             'whatsapp.max' => 'Le numéro WhatsApp ne peut pas dépasser 20 caractères.',
-            
+
             'age.integer' => 'L\'âge doit être un nombre entier.',
             'age.min' => 'L\'âge minimum est de 16 ans.',
             'age.max' => 'L\'âge maximum est de 100 ans.',
-            
+
+            'date_of_birth.date' => 'La date de naissance doit être une date valide.',
+            'date_of_birth.before' => 'La date de naissance doit être antérieure à aujourd\'hui.',
+            'date_of_birth.after' => 'La date de naissance doit être postérieure au 1er janvier 1900.',
+
+            'gender.in' => 'Le sexe doit être Homme, Femme ou Autre.',
+
             'country.required' => 'Le pays est obligatoire.',
             'country.max' => 'Le pays ne peut pas dépasser 255 caractères.',
-            
+
             'city.required' => 'La ville est obligatoire.',
             'city.max' => 'La ville ne peut pas dépasser 255 caractères.',
-            
+
             'district.max' => 'Le quartier ne peut pas dépasser 255 caractères.',
             'address.max' => 'L\'adresse ne peut pas dépasser 1000 caractères.',
             'biography.max' => 'La biographie ne peut pas dépasser 1000 caractères.',
@@ -93,6 +101,8 @@ class UpdateProfileRequest extends FormRequest
             'phone' => 'numéro de téléphone',
             'whatsapp' => 'numéro WhatsApp',
             'age' => 'âge',
+            'date_of_birth' => 'date de naissance',
+            'gender' => 'sexe',
             'country' => 'pays',
             'city' => 'ville',
             'district' => 'quartier',

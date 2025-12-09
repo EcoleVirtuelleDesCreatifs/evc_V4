@@ -18,14 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('a').forEach(link => {
                 link.addEventListener('click', (e) => {
                     const href = link.getAttribute('href');
-                    // Vérifier si c'est un lien interne (pas un anchor, pas externe, pas javascript)
+                    // Vérifier si c'est un lien interne (pas un anchor, pas externe, pas javascript, pas fancybox)
                     if (href && 
                         !href.startsWith('#') && 
                         !href.startsWith('javascript:') && 
                         !href.startsWith('mailto:') && 
                         !href.startsWith('tel:') &&
                         !link.hasAttribute('target') &&
-                        !link.classList.contains('no-loader')) {
+                        !link.classList.contains('no-loader') &&
+                        !link.hasAttribute('data-fancybox')) {
                         
                         // Afficher le preloader
                         preloader.style.display = 'flex';

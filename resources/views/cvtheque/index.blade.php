@@ -7,7 +7,7 @@
     // Détecter automatiquement la formation de l'utilisateur pour les routes
     // Utiliser user_formation_raw qui contient déjà le format correct (ex: community-management)
     $routePrefix = session('user_formation_raw', 'design-graphique');
-    
+
     // Si user_formation_raw n'existe pas, utiliser user_formation et le convertir
     if (!$routePrefix || $routePrefix === 'design-graphique') {
         $formation = session('user_formation', 'Design Graphique');
@@ -1466,7 +1466,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gestion du formulaire de profil en AJAX avec fichiers
     $('#profile-form').on('submit', function(e) {
         e.preventDefault();
-        
+
         console.log('🚀 Formulaire soumis !');
 
         // Valider avant soumission
@@ -1475,7 +1475,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showNotification('error', 'Veuillez remplir tous les champs obligatoires');
             return;
         }
-        
+
         console.log('✅ Validation réussie');
 
         const $form = $(this);
@@ -1487,10 +1487,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Préparer les données du formulaire avec fichiers
         const formData = new FormData(this);
-        
+
         console.log('📦 FormData créé');
         console.log('🔗 URL:', $form.attr('action'));
-        
+
         // Debug: Afficher toutes les données du formulaire
         for (let pair of formData.entries()) {
             console.log('📝', pair[0], ':', pair[1]);
@@ -1530,7 +1530,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (response.success) {
                     // Afficher un message de succès avec bouton
                     showNotification('success', response.message);
-                    
+
                     // Afficher un modal de succès avec option de voir le profil
                     const successModal = `
                         <div class="modal fade" id="successModal" tabindex="-1">
@@ -1555,12 +1555,12 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
                         </div>
                     `;
-                    
+
                     // Ajouter et afficher le modal
                     $('body').append(successModal);
                     const modal = new bootstrap.Modal(document.getElementById('successModal'));
                     modal.show();
-                    
+
                     // Nettoyer le modal après fermeture
                     $('#successModal').on('hidden.bs.modal', function() {
                         $(this).remove();
@@ -1786,35 +1786,61 @@ document.addEventListener('DOMContentLoaded', function() {
         $saveBtn.prop('disabled', true);
         $spinner.removeClass('d-none');
 
-        // Étape 1: Sauvegarder le profil
+        // Créer un FormData avec toutes les données du profil ET les fichiers
         const profileForm = document.getElementById('profile-form');
         const profileFormData = new FormData(profileForm);
 
+        // Ajouter les fichiers s'ils sont présents
+        const fileInputs = [
+            { id: 'cv-file', name: 'cv_file' },
+            { id: 'motivation-file', name: 'motivation_file' },
+            { id: 'pressbook-file', name: 'pressbook_file' },
+            { id: 'rapport-file', name: 'rapport_file' },
+            { id: 'realisations-file', name: 'realisations_files' }
+        ];
+
+        fileInputs.forEach(function(input) {
+            const fileInput = document.getElementById(input.id);
+            if (fileInput && fileInput.files.length > 0) {
+                if (input.id === 'realisations-file') {
+                    // Fichiers multiples pour les réalisations
+                    for (let i = 0; i < fileInput.files.length; i++) {
+                        profileFormData.append('realisations_files[]', fileInput.files[i]);
+                    }
+                } else {
+                    profileFormData.append(input.name, fileInput.files[0]);
+                }
+            }
+        });
+
+        // Envoyer tout en une seule requête
         $.ajax({
             url: '{{ route($routePrefix . ".cvtheque.update-profile") }}',
             type: 'POST',
             data: profileFormData,
             processData: false,
             contentType: false,
-            success: function(profileResponse) {
-                console.log('Profil sauvegardé avec succès');
+            success: function(response) {
+                console.log('Profil et documents sauvegardés avec succès:', response);
+                showNotification('success', 'Profil et documents sauvegardés avec succès !');
 
-                // Étape 2: Sauvegarder les documents uploadés
-                saveAllDocuments().then(function() {
-                    // Succès complet
-                    showNotification('success', 'Profil et documents sauvegardés avec succès !');
+                // Mettre à jour les indicateurs de progression
+                updateProgressIndicators();
 
-                    // Mettre à jour les indicateurs de progression
-                    updateProgressIndicators();
-
-                }).catch(function(error) {
-                    console.error('Erreur lors de la sauvegarde des documents:', error);
-                    showNotification('warning', 'Profil sauvegardé, mais erreur lors de la sauvegarde des documents');
-                });
+                // Recharger la page après 2 secondes pour afficher les fichiers uploadés
+                setTimeout(function() {
+                    location.reload();
+                }, 2000);
             },
             error: function(xhr, status, error) {
-                console.error('Erreur lors de la sauvegarde du profil:', xhr, status, error);
-                showNotification('error', 'Erreur lors de la sauvegarde du profil');
+                console.error('Erreur lors de la sauvegarde:', xhr, status, error);
+                let errorMessage = 'Erreur lors de la sauvegarde du profil';
+
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                }
+
+                showNotification('error', errorMessage);
             },
             complete: function() {
                 // Réactiver le bouton

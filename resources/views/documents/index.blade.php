@@ -12,22 +12,22 @@
         --instagram-orange: #e6683c;
         --instagram-yellow: #f09433;
     }
-    
+
     .instagram-gradient {
         background: linear-gradient(135deg, var(--instagram-yellow) 0%, var(--instagram-orange) 25%, var(--instagram-red) 50%, var(--instagram-pink) 75%, var(--instagram-purple) 100%);
     }
-    
+
     .instagram-gradient-reverse {
         background: linear-gradient(135deg, var(--instagram-purple) 0%, var(--instagram-pink) 25%, var(--instagram-red) 50%, var(--instagram-orange) 75%, var(--instagram-yellow) 100%);
     }
-    
+
     .hero-section {
         border-radius: 24px;
         padding: 3rem 2rem;
         position: relative;
         overflow: hidden;
     }
-    
+
     .hero-section::before {
         content: '';
         position: absolute;
@@ -38,7 +38,7 @@
         background: rgba(255,255,255,0.1);
         border-radius: 50%;
     }
-    
+
     .hero-section::after {
         content: '';
         position: absolute;
@@ -49,7 +49,7 @@
         background: rgba(255,255,255,0.08);
         border-radius: 50%;
     }
-    
+
     .stat-card {
         border-radius: 20px;
         padding: 2rem;
@@ -58,7 +58,7 @@
         position: relative;
         overflow: hidden;
     }
-    
+
     .stat-card::before {
         content: '';
         position: absolute;
@@ -70,16 +70,16 @@
         opacity: 0;
         transition: opacity 0.4s ease;
     }
-    
+
     .stat-card:hover {
         transform: translateY(-10px) scale(1.02);
         box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
-    
+
     .stat-card:hover::before {
         opacity: 0.1;
     }
-    
+
     .stat-icon {
         width: 80px;
         height: 80px;
@@ -92,7 +92,7 @@
         background: rgba(255,255,255,0.2);
         backdrop-filter: blur(10px);
     }
-    
+
     .report-card {
         border-radius: 20px;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -101,12 +101,12 @@
         height: 100%;
         background: white;
     }
-    
+
     .report-card:hover {
         transform: translateY(-12px);
         box-shadow: 0 25px 70px rgba(0,0,0,0.25);
     }
-    
+
     .report-header {
         height: 200px;
         display: flex;
@@ -115,7 +115,7 @@
         position: relative;
         overflow: hidden;
     }
-    
+
     .report-header::before {
         content: '';
         position: absolute;
@@ -126,12 +126,12 @@
         background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
         animation: pulse 3s ease-in-out infinite;
     }
-    
+
     @keyframes pulse {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.1); }
     }
-    
+
     .status-badge {
         position: absolute;
         top: 1rem;
@@ -143,7 +143,7 @@
         backdrop-filter: blur(10px);
         z-index: 10;
     }
-    
+
     .btn-create {
         border-radius: 16px;
         padding: 1rem 2.5rem;
@@ -154,7 +154,7 @@
         position: relative;
         overflow: hidden;
     }
-    
+
     .btn-create::before {
         content: '';
         position: absolute;
@@ -167,17 +167,17 @@
         transform: translate(-50%, -50%);
         transition: width 0.6s, height 0.6s;
     }
-    
+
     .btn-create:hover::before {
         width: 300px;
         height: 300px;
     }
-    
+
     .btn-create:hover {
         transform: scale(1.05);
         box-shadow: 0 15px 40px rgba(0,0,0,0.3);
     }
-    
+
     .btn-action {
         border-radius: 12px;
         padding: 0.7rem 1.5rem;
@@ -185,11 +185,11 @@
         transition: all 0.3s ease;
         border: none;
     }
-    
+
     .btn-action:hover {
         transform: scale(1.08);
     }
-    
+
     .section-title {
         border-radius: 16px;
         padding: 1.5rem 2rem;
@@ -197,7 +197,7 @@
         position: relative;
         overflow: hidden;
     }
-    
+
     .section-title::before {
         content: '';
         position: absolute;
@@ -207,14 +207,14 @@
         height: 100%;
         background: rgba(255,255,255,0.5);
     }
-    
+
     .empty-state {
         padding: 5rem 2rem;
         text-align: center;
         border-radius: 24px;
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     }
-    
+
     .floating-btn {
         position: fixed;
         bottom: 2rem;
@@ -231,12 +231,12 @@
         transition: all 0.3s ease;
         border: none;
     }
-    
+
     .floating-btn:hover {
         transform: scale(1.15) rotate(90deg);
         box-shadow: 0 15px 50px rgba(0,0,0,0.4);
     }
-    
+
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -247,11 +247,11 @@
             transform: translateY(0);
         }
     }
-    
+
     .animate-in {
         animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    
+
     .report-meta {
         display: flex;
         align-items: center;
@@ -259,15 +259,61 @@
         padding: 0.5rem 0;
         border-bottom: 1px solid #f0f0f0;
     }
-    
+
     .report-meta:last-child {
         border-bottom: none;
+    }
+
+    /* Correction du débordement horizontal */
+    body {
+        overflow-x: hidden;
+    }
+
+    .container-fluid {
+        max-width: 100%;
+        overflow-x: hidden;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Optimisation des colonnes du tableau */
+    .table thead th:nth-child(1) { width: 20%; min-width: 150px; }
+    .table thead th:nth-child(2) { width: 30%; min-width: 200px; }
+    .table thead th:nth-child(3) { width: 12%; min-width: 100px; }
+    .table thead th:nth-child(4) { width: 8%; min-width: 80px; }
+    .table thead th:nth-child(5) { width: 10%; min-width: 100px; }
+    .table thead th:nth-child(6) { width: 20%; min-width: 150px; }
+
+    .table td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Responsive: permettre le retour à la ligne sur mobile */
+    @media (max-width: 768px) {
+        .table td {
+            white-space: normal;
+        }
+
+        .hero-section h1 {
+            font-size: 2rem !important;
+        }
+
+        .stat-card h2 {
+            font-size: 2rem !important;
+        }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid" style="max-width: 100%; overflow-x: hidden; padding: 0 15px;">
     <!-- Hero Section avec dégradé Instagram -->
     <div class="row mb-5 animate-in">
         <div class="col-12">
@@ -305,7 +351,7 @@
                 <p class="text-center mb-0 opacity-90" style="font-size: 1.1rem; font-weight: 600;">Validés</p>
             </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="stat-card instagram-gradient-reverse shadow-lg text-white">
                 <div class="stat-icon">
@@ -315,7 +361,7 @@
                 <p class="text-center mb-0 opacity-90" style="font-size: 1.1rem; font-weight: 600;">En Attente</p>
             </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="stat-card shadow-lg text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                 <div class="stat-icon">
@@ -325,7 +371,7 @@
                 <p class="text-center mb-0 opacity-90" style="font-size: 1.1rem; font-weight: 600;">Rejetés</p>
             </div>
         </div>
-        
+
         <div class="col-lg-3 col-md-6 mb-4">
             <div class="stat-card shadow-lg text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                 <div class="stat-icon">
@@ -367,12 +413,12 @@
                     <tbody>
                         @foreach($documents as $doc)
                         <tr style="transition: all 0.3s ease; border-bottom: 1px solid #f5f5f5;">
-                            <td style="padding: 1.2rem; font-weight: 600; color: #262626; font-size: 0.95rem;">
+                            <td style="padding: 1.2rem; font-weight: 600; color: #262626; font-size: 0.95rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                 <i class="fas fa-file-pdf me-2" style="color: #E1306C;"></i>
-                                {{ Str::limit($doc['titre'], 45) }}
+                                {{ Str::limit($doc['titre'], 30) }}
                             </td>
-                            <td style="padding: 1.2rem; color: #8e8e8e; font-size: 0.9rem;">
-                                {{ Str::limit(strip_tags($doc['description']), 70) }}
+                            <td style="padding: 1.2rem; color: #8e8e8e; font-size: 0.9rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                {{ Str::limit(strip_tags($doc['description']), 50) }}
                             </td>
                             <td style="padding: 1.2rem; text-align: center;">
                                 @if($doc['status'] === 'validated')
@@ -400,9 +446,9 @@
                             <td style="padding: 1.2rem; text-align: center;">
                                 <div class="d-flex gap-2 justify-content-center">
                                     @if($doc['lien'] !== '#')
-                                        <a href="{{ $doc['lien'] }}" 
-                                           target="_blank" 
-                                           class="btn btn-sm text-white" 
+                                        <a href="{{ $doc['lien'] }}"
+                                           target="_blank"
+                                           class="btn btn-sm text-white"
                                            style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(131, 58, 180, 0.2);"
                                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(131, 58, 180, 0.3)';"
                                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(131, 58, 180, 0.2)';"
@@ -410,17 +456,17 @@
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     @endif
-                                    
+
                                     @if($doc['status'] === 'pending')
-                                        <a href="{{ route($currentModule . '.tp.modifier', $doc['id']) }}" 
-                                           class="btn btn-sm text-white" 
+                                        <a href="{{ route($currentModule . '.tp.modifier', $doc['id']) }}"
+                                           class="btn btn-sm text-white"
                                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);"
                                            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.3)';"
                                            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.2)';"
                                            title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn btn-sm text-white" 
+                                        <button class="btn btn-sm text-white"
                                                 style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.2);"
                                                 onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(240, 147, 251, 0.3)';"
                                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(240, 147, 251, 0.2)';"
@@ -480,10 +526,10 @@
                         <label for="title" class="form-label" style="font-weight: 600; font-size: 1.1rem;">
                             <i class="fas fa-heading me-2 text-primary"></i>Titre du rapport <span class="text-danger">*</span>
                         </label>
-                        <input type="text" 
-                               class="form-control form-control-lg" 
-                               id="title" 
-                               name="title" 
+                        <input type="text"
+                               class="form-control form-control-lg"
+                               id="title"
+                               name="title"
                                placeholder="Ex: Rapport de stage - Design graphique"
                                required
                                style="border-radius: 12px; border: 2px solid #e9ecef; padding: 1rem;">
@@ -500,10 +546,10 @@
                         <div class="upload-area" style="border: 3px dashed #e9ecef; border-radius: 16px; padding: 2rem; text-align: center; background: #f8f9fa; transition: all 0.3s ease;">
                             <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                             <p class="mb-3 text-muted">Cliquez pour sélectionner ou glissez-déposez vos fichiers</p>
-                            <input type="file" 
-                                   class="form-control" 
-                                   id="files" 
-                                   name="files[]" 
+                            <input type="file"
+                                   class="form-control"
+                                   id="files"
+                                   name="files[]"
                                    multiple
                                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                    required
@@ -520,9 +566,9 @@
                         <label for="description" class="form-label" style="font-weight: 600; font-size: 1.1rem;">
                             <i class="fas fa-align-left me-2 text-info"></i>Description <span class="text-muted">(optionnel)</span>
                         </label>
-                        <textarea class="form-control" 
-                                  id="description" 
-                                  name="description" 
+                        <textarea class="form-control"
+                                  id="description"
+                                  name="description"
                                   rows="4"
                                   placeholder="Ajoutez une description détaillée de votre rapport (contexte, objectifs, résultats...)"
                                   style="border-radius: 12px; border: 2px solid #e9ecef; padding: 1rem;"></textarea>
@@ -617,7 +663,7 @@ if (fileInput) {
         e.preventDefault();
         this.style.borderColor = '#e9ecef';
         this.style.background = '#f8f9fa';
-        
+
         const files = e.dataTransfer.files;
         fileInput.files = files;
         displayFiles(files);
@@ -626,24 +672,24 @@ if (fileInput) {
 
 function displayFiles(files) {
     filesList.innerHTML = '';
-    
+
     if (files.length === 0) return;
-    
+
     const filesArray = Array.from(files);
-    
+
     filesArray.forEach((file, index) => {
         const fileItem = document.createElement('div');
         fileItem.className = 'alert alert-success d-flex justify-content-between align-items-center';
         fileItem.style.borderRadius = '12px';
         fileItem.style.marginBottom = '0.5rem';
-        
+
         const fileInfo = document.createElement('div');
         fileInfo.innerHTML = `
             <i class="fas fa-file-${getFileIcon(file.name)} me-2"></i>
             <strong>${file.name}</strong>
             <small class="text-muted ms-2">(${formatFileSize(file.size)})</small>
         `;
-        
+
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'btn btn-sm btn-outline-danger';
@@ -652,7 +698,7 @@ function displayFiles(files) {
             // Remove file from input (complex, so we'll just hide the item)
             fileItem.remove();
         };
-        
+
         fileItem.appendChild(fileInfo);
         fileItem.appendChild(removeBtn);
         filesList.appendChild(fileItem);
@@ -724,14 +770,14 @@ function deleteReport(reportId, reportTitle) {
             </div>
         </div>
     `;
-    
+
     // Ajouter le modal au DOM
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Afficher le modal
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
     deleteModal.show();
-    
+
     // Nettoyer le modal après fermeture
     document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function () {
         this.remove();
@@ -744,7 +790,7 @@ function confirmDelete(reportId) {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `{{ url('/') }}/evc/compte/{{ $currentModule }}/tp/${reportId}`;
-    
+
     // Token CSRF
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     if (csrfToken) {
@@ -754,14 +800,14 @@ function confirmDelete(reportId) {
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
     }
-    
+
     // Méthode DELETE
     const methodInput = document.createElement('input');
     methodInput.type = 'hidden';
     methodInput.name = '_method';
     methodInput.value = 'DELETE';
     form.appendChild(methodInput);
-    
+
     // Ajouter au DOM et soumettre
     document.body.appendChild(form);
     form.submit();

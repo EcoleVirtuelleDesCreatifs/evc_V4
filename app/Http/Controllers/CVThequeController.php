@@ -25,7 +25,7 @@ class CVThequeController extends Controller
         try {
             $userId = (int) session('user_id');
             $profileService = new CVThequeProfileService();
-            
+
             // Récupérer les informations utilisateur et profil CVThèque
             $userInfo = $this->getUserInfo($userId);
             $cvthequeProfile = $profileService->getOrCreateUserProfile($userId);
@@ -39,7 +39,7 @@ class CVThequeController extends Controller
                 'skillsOptions' => $profileService->getSkillsOptions(),
                 'languageOptions' => $profileService->getLanguageOptions()
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur CVThèque index: ' . $e->getMessage());
             return view('cvtheque.index', [
@@ -64,7 +64,7 @@ class CVThequeController extends Controller
 
         try {
             $userId = (int) session('user_id');
-            
+
             // Validation des données du formulaire
             $validatedData = $request->validate([
                 'professional_title' => 'nullable|string|max:255',
@@ -145,9 +145,9 @@ class CVThequeController extends Controller
             try {
                 $profileService = new CVThequeProfileService();
                 Log::info('Appel du service avec fichiers:', ['files_count' => count($files)]);
-                
+
                 $result = $profileService->createOrUpdateProfile($userId, $validatedData, $files);
-                
+
                 Log::info('Résultat du service:', ['success' => $result['success'], 'message' => $result['message'] ?? 'N/A']);
 
                 if ($result['success']) {
@@ -170,7 +170,7 @@ class CVThequeController extends Controller
                     'line' => $e->getLine(),
                     'trace' => $e->getTraceAsString()
                 ]);
-                
+
                 return response()->json([
                     'success' => false,
                     'message' => 'Erreur serveur lors de la mise à jour du profil: ' . $e->getMessage()
@@ -183,7 +183,7 @@ class CVThequeController extends Controller
                 'input' => $request->except(['cv_file', 'motivation_file', 'pressbook_file', 'rapport_file', 'realisations_files']),
                 'files' => array_keys($request->allFiles())
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Erreur de validation: ' . implode(', ', array_map(function($errors) {
@@ -216,7 +216,7 @@ class CVThequeController extends Controller
 
             $userId = (int) session('user_id');
             $profileService = new CVThequeProfileService();
-            
+
             $files = ['cv' => $request->file('cv_file')];
             $result = $profileService->createOrUpdateProfile($userId, [], $files);
 
@@ -257,7 +257,7 @@ class CVThequeController extends Controller
 
             $userId = (int) session('user_id');
             $profileService = new CVThequeProfileService();
-            
+
             $files = ['motivation_letter' => $request->file('motivation_file')];
             $result = $profileService->createOrUpdateProfile($userId, [], $files);
 
@@ -299,7 +299,7 @@ class CVThequeController extends Controller
 
             $userId = (int) session('user_id');
             $profileService = new CVThequeProfileService();
-            
+
             $files = ['realisations' => $request->file('realisations_files')];
             $result = $profileService->createOrUpdateProfile($userId, [], $files);
 
@@ -340,7 +340,7 @@ class CVThequeController extends Controller
 
             $userId = (int) session('user_id');
             $profileService = new CVThequeProfileService();
-            
+
             $files = ['pressbook' => $request->file('pressbook_file')];
             $result = $profileService->createOrUpdateProfile($userId, [], $files);
 
@@ -381,7 +381,7 @@ class CVThequeController extends Controller
 
             $userId = (int) session('user_id');
             $profileService = new CVThequeProfileService();
-            
+
             $files = ['rapport' => $request->file('rapport_file')];
             $result = $profileService->createOrUpdateProfile($userId, [], $files);
 
@@ -418,7 +418,7 @@ class CVThequeController extends Controller
         try {
             $userId = (int) session('user_id');
             $profileService = new CVThequeProfileService();
-            
+
             // Récupérer les informations utilisateur et profil CVThèque
             $userInfo = $this->getUserInfo($userId);
             $cvthequeProfile = $profileService->getOrCreateUserProfile($userId);
@@ -428,23 +428,23 @@ class CVThequeController extends Controller
             $documents = [
                 [
                     'name' => 'CV',
-                    'available' => !empty($cvthequeProfile->cv_file),
-                    'url' => $cvthequeProfile->cv_file ? asset('storage/' . $cvthequeProfile->cv_file) : null
+                    'available' => !empty($cvthequeProfile->cv_file_path),
+                    'url' => $cvthequeProfile->cv_file_path ? asset('storage/' . $cvthequeProfile->cv_file_path) : null
                 ],
                 [
                     'name' => 'Lettre de motivation',
-                    'available' => !empty($cvthequeProfile->motivation_file),
-                    'url' => $cvthequeProfile->motivation_file ? asset('storage/' . $cvthequeProfile->motivation_file) : null
+                    'available' => !empty($cvthequeProfile->motivation_letter_path),
+                    'url' => $cvthequeProfile->motivation_letter_path ? asset('storage/' . $cvthequeProfile->motivation_letter_path) : null
                 ],
                 [
                     'name' => 'Pressbook',
-                    'available' => !empty($cvthequeProfile->pressbook_file),
-                    'url' => $cvthequeProfile->pressbook_file ? asset('storage/' . $cvthequeProfile->pressbook_file) : null
+                    'available' => !empty($cvthequeProfile->pressbook_file_path),
+                    'url' => $cvthequeProfile->pressbook_file_path ? asset('storage/' . $cvthequeProfile->pressbook_file_path) : null
                 ],
                 [
                     'name' => 'Rapport de formation',
-                    'available' => !empty($cvthequeProfile->rapport_file),
-                    'url' => $cvthequeProfile->rapport_file ? asset('storage/' . $cvthequeProfile->rapport_file) : null
+                    'available' => !empty($cvthequeProfile->report_file_path),
+                    'url' => $cvthequeProfile->report_file_path ? asset('storage/' . $cvthequeProfile->report_file_path) : null
                 ]
             ];
 
@@ -457,16 +457,16 @@ class CVThequeController extends Controller
                 'skillsOptions' => $profileService->getSkillsOptions(),
                 'languageOptions' => $profileService->getLanguageOptions()
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur CVThèque monProfil: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Déterminer la route de retour selon la formation
             $formation = session('user_formation_raw', 'design-graphique');
             $returnRoute = $formation . '.cvtheque.index';
-            
+
             return redirect()->route($returnRoute)
                 ->with('error', 'Erreur lors de l\'affichage du profil: ' . $e->getMessage());
         }
@@ -484,7 +484,7 @@ class CVThequeController extends Controller
         try {
             $userId = (int) session('user_id');
             $profileService = new CVThequeProfileService();
-            
+
             // Récupérer les informations utilisateur et profil CVThèque
             $userInfo = $this->getUserInfo($userId);
             $cvthequeProfile = $profileService->getOrCreateUserProfile($userId);
@@ -494,23 +494,23 @@ class CVThequeController extends Controller
             $documents = [
                 [
                     'name' => 'CV',
-                    'available' => !empty($cvthequeProfile->cv_file),
-                    'url' => $cvthequeProfile->cv_file ? asset('storage/' . $cvthequeProfile->cv_file) : null
+                    'available' => !empty($cvthequeProfile->cv_file_path),
+                    'url' => $cvthequeProfile->cv_file_path ? asset('storage/' . $cvthequeProfile->cv_file_path) : null
                 ],
                 [
                     'name' => 'Lettre de motivation',
-                    'available' => !empty($cvthequeProfile->motivation_file),
-                    'url' => $cvthequeProfile->motivation_file ? asset('storage/' . $cvthequeProfile->motivation_file) : null
+                    'available' => !empty($cvthequeProfile->motivation_letter_path),
+                    'url' => $cvthequeProfile->motivation_letter_path ? asset('storage/' . $cvthequeProfile->motivation_letter_path) : null
                 ],
                 [
                     'name' => 'Pressbook',
-                    'available' => !empty($cvthequeProfile->pressbook_file),
-                    'url' => $cvthequeProfile->pressbook_file ? asset('storage/' . $cvthequeProfile->pressbook_file) : null
+                    'available' => !empty($cvthequeProfile->pressbook_file_path),
+                    'url' => $cvthequeProfile->pressbook_file_path ? asset('storage/' . $cvthequeProfile->pressbook_file_path) : null
                 ],
                 [
                     'name' => 'Rapport de formation',
-                    'available' => !empty($cvthequeProfile->rapport_file),
-                    'url' => $cvthequeProfile->rapport_file ? asset('storage/' . $cvthequeProfile->rapport_file) : null
+                    'available' => !empty($cvthequeProfile->report_file_path),
+                    'url' => $cvthequeProfile->report_file_path ? asset('storage/' . $cvthequeProfile->report_file_path) : null
                 ]
             ];
 
@@ -523,7 +523,7 @@ class CVThequeController extends Controller
                 'skillsOptions' => $profileService->getSkillsOptions(),
                 'languageOptions' => $profileService->getLanguageOptions()
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur CVThèque profileDisplay: ' . $e->getMessage());
             return redirect()->route('design-graphique.cvtheque.index')
@@ -543,16 +543,16 @@ class CVThequeController extends Controller
         try {
             $userId = (int) session('user_id');
             $userInfo = $this->getUserInfo($userId);
-            
+
             // Récupérer le profil CVThèque complet
             $profileService = new CVThequeProfileService();
             $profile = $profileService->getUserProfile($userId);
-            
+
             // Récupérer l'historique des documents avec validation
             $documentHistoryService = new \App\Services\DocumentHistoryService();
             $documentsHistory = $documentHistoryService->getUserDocumentHistory($userId);
             $documentStats = $documentHistoryService->getDocumentStatistics($userId);
-            
+
             // Si pas de profil, créer un profil vide pour l'affichage
             if (!$profile) {
                 $profile = (object) [
@@ -586,19 +586,19 @@ class CVThequeController extends Controller
             }
 
             return view('cvtheque.preview', compact(
-                'userInfo', 
-                'profile', 
+                'userInfo',
+                'profile',
                 'documentsHistory',
                 'documentStats'
             ));
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur lors de la récupération du profil pour prévisualisation', [
                 'user_id' => session('user_id'),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Retourner une vue avec des données vides en cas d'erreur
             return view('cvtheque.preview', [
                 'userInfo' => (object) ['name' => 'Utilisateur', 'email' => ''],
@@ -622,12 +622,12 @@ class CVThequeController extends Controller
         try {
             $userId = (int) session('user_id');
             $userInfo = $this->getUserInfo($userId);
-            
+
             // Utiliser le service dédié pour l'historique
             $documentHistoryService = new \App\Services\DocumentHistoryService();
             $documentsHistory = $documentHistoryService->getUserDocumentHistory($userId);
             $documentStats = $documentHistoryService->getDocumentStatistics($userId);
-            
+
             // Récupérer le profil pour les informations générales
             $profileService = new CVThequeProfileService();
             $profile = $profileService->getUserProfile($userId) ?? (object) [
@@ -636,19 +636,19 @@ class CVThequeController extends Controller
             ];
 
             return view('cvtheque.historique', compact(
-                'userInfo', 
-                'documentsHistory', 
-                'profile', 
+                'userInfo',
+                'documentsHistory',
+                'profile',
                 'documentStats'
             ));
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur lors de la récupération de l\'historique des documents', [
                 'user_id' => session('user_id'),
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Retourner une vue avec des données vides en cas d'erreur
             return view('cvtheque.historique', [
                 'userInfo' => (object) ['name' => 'Utilisateur', 'email' => ''],
@@ -674,7 +674,7 @@ class CVThequeController extends Controller
             $fileName = $request->input('file_name');
 
             $profileService = new CVThequeProfileService();
-            
+
             if ($fileType === 'portfolio' && $fileName) {
                 $result = $profileService->deletePortfolioFile($userId, $fileName);
             } else {
@@ -713,7 +713,7 @@ class CVThequeController extends Controller
 
             if (!$documentType || !$documentName) {
                 return response()->json([
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'Type de document et nom requis'
                 ], 400);
             }
@@ -723,12 +723,12 @@ class CVThequeController extends Controller
 
             if ($success) {
                 return response()->json([
-                    'success' => true, 
+                    'success' => true,
                     'message' => 'Document supprimé avec succès'
                 ]);
             } else {
                 return response()->json([
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'Impossible de supprimer le document'
                 ], 500);
             }
@@ -740,9 +740,9 @@ class CVThequeController extends Controller
                 'name' => $request->input('name'),
                 'error' => $e->getMessage()
             ]);
-            
+
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Erreur serveur lors de la suppression'
             ], 500);
         }
@@ -774,7 +774,7 @@ class CVThequeController extends Controller
                 'user_id' => session('user_id'),
                 'error' => $e->getMessage()
             ]);
-            
+
             return redirect()->back()->with('error', 'Erreur lors de l\'export des documents');
         }
     }
@@ -786,8 +786,8 @@ class CVThequeController extends Controller
     {
         // Récupérer depuis la table students car c'est là que sont stockées les infos complètes
         $user = DB::table('students')
-            ->select('id', 'user_id', 'first_name', 'last_name', 'email', 'phone', 'whatsapp', 
-                    'country', 'city', 'quartier as district', 'profile_photo', 'Level_education as education_level', 
+            ->select('id', 'user_id', 'first_name', 'last_name', 'email', 'phone', 'whatsapp',
+                    'country', 'city', 'quartier as district', 'profile_photo', 'Level_education as education_level',
                     'degree as last_diploma', 'biography', 'level as current_level', 'program')
             ->where('user_id', $userId)
             ->first();
@@ -827,10 +827,10 @@ class CVThequeController extends Controller
 
         // Champs de base utilisateur (poids: 40%)
         $userFields = [
-            'first_name', 'last_name', 'email', 'phone', 'country', 
+            'first_name', 'last_name', 'email', 'phone', 'country',
             'city', 'profile_photo', 'education_level', 'biography'
         ];
-        
+
         foreach ($userFields as $field) {
             $totalFields++;
             if (!empty($userInfo->$field)) {

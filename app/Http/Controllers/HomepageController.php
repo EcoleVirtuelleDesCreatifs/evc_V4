@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\Mail\PreRegistrationSubmitted;
 use App\Mail\AdminPreRegistrationNotification;
 use App\Http\Requests\StoreCandidatureRequest;
@@ -38,7 +39,49 @@ class HomepageController extends Controller
             ->take(3)
             ->get();
 
-        return view('welcome', compact('evenements', 'actualites'));
+        // Récupérer la playlist Vimeo pour la WebTV
+        // Prendre la première vidéo active
+        $activePlaylist = \App\Models\WebtvVideo::where('is_active', true)
+            ->where(function($query) {
+                $query->whereNotNull('vimeo_playlist_id')
+                      ->orWhereNotNull('video_url');
+            })
+            ->orderBy('order', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        // Incrementer les vues des communiqués actifs
+        \App\Models\Communique::active()->increment('view_count');
+
+        // Déterminer la PROCHAINE vidéo pour la lecture continue (Homepage)
+        $nextVideo = null;
+        if ($activePlaylist) {
+            // Récupérer toutes les vidéos actives de la MÊME catégorie
+            $query = \App\Models\WebtvVideo::where('is_active', true)
+                ->orderBy('order', 'asc')
+                ->orderBy('created_at', 'desc');
+
+            if ($activePlaylist->category) {
+                $query->where('category', $activePlaylist->category);
+            }
+
+            $videos = $query->get();
+
+            // Trouver l'index de la vidéo actuelle
+            $currentIndex = $videos->search(function($item) use ($activePlaylist) {
+                return $item->id === $activePlaylist->id;
+            });
+
+            // Si trouvée et qu'il y en a une après
+            if ($currentIndex !== false && isset($videos[$currentIndex + 1])) {
+                $nextVideo = $videos[$currentIndex + 1];
+            } elseif ($videos->count() > 1) {
+                // Boucle au début
+                $nextVideo = $videos[0];
+            }
+        }
+
+        return view('welcome', compact('evenements', 'actualites', 'activePlaylist', 'nextVideo'));
     }
 
     /**
@@ -88,8 +131,8 @@ class HomepageController extends Controller
             'domaine_etude' => 'required|string|max:255',
             'competences' => 'required|string|max:1500',
             // Formation
-            'programme' => 'required|in:infographie,community_management,informatique,infographie_cm',
-            'choix_formation' => 'required|in:design_graphique,community_management,gestion_informatique,intelligence_artificielle',
+            'programme' => 'required|in:design-graphique,community-manager,design-graphique-community-manager,intelligence-artificielle,gestion-informatique',
+            'choix_formation' => 'required|in:design_graphique,community_management,design_graphique_community_manager,gestion_informatique,intelligence_artificielle',
             'niveau_dans_formation' => 'required|in:aucune_notion,quelques_notions,me_perfectionner',
             'how_known' => 'required|in:reseaux,ami,publicite,autre',
             'motivation' => 'required|string|max:5000',
@@ -169,64 +212,157 @@ class HomepageController extends Controller
     /**
      * Affiche la page de la WebTV.
      */
-    public function webtv()
+    public function webtv(Request $request)
     {
-        // Vidéos de la chaîne YouTube EVC
-        // https://www.youtube.com/@ecolevirtuelledescreatifs459
-        // IMPORTANT: Remplacez ces IDs par les vrais IDs de vos vidéos YouTube
-        // Pour obtenir l'ID: allez sur votre vidéo, l'ID est après "watch?v=" dans l'URL
-        $videos = [
-            [
-                'id' => 'M7lc1UVf-VE', // REMPLACER par votre ID réel
-                'title' => 'Tutoriel Photoshop : Créer un Flyer Professionnel',
-                'description' => 'Apprenez à créer un flyer professionnel de A à Z avec Photoshop. Techniques de design graphique pour débutants et intermédiaires.',
-                'speaker' => 'Bilé Bossombra',
-            ],
-            [
-                'id' => 'Q8TXgCzxEnw', // REMPLACER par votre ID réel
-                'title' => 'Community Management : Stratégie de Contenu 2024',
-                'description' => 'Les meilleures pratiques pour gérer vos réseaux sociaux et créer du contenu engageant qui convertit.',
-                'speaker' => 'Équipe EVC',
-            ],
-            [
-                'id' => '3q3aH7X9-sE', // REMPLACER par votre ID réel
-                'title' => 'Design Graphique : Les Bases de la Typographie',
-                'description' => 'Maîtrisez l\'art de la typographie pour créer des designs percutants. Choix des polices, hiérarchie et lisibilité.',
-                'speaker' => 'Bilé Bossombra',
-            ],
-            [
-                'id' => 'V74l_zS1x8E', // REMPLACER par votre ID réel
-                'title' => 'Intelligence Artificielle : ChatGPT pour les Créatifs',
-                'description' => 'Comment utiliser ChatGPT et les outils IA pour booster votre créativité et votre productivité en tant que designer.',
-                'speaker' => 'Équipe EVC',
-            ],
-            [
-                'id' => 'M7lc1UVf-VE', // REMPLACER par votre ID réel
-                'title' => 'Illustrator : Créer un Logo de A à Z',
-                'description' => 'Tutoriel complet pour créer un logo professionnel avec Adobe Illustrator. De l\'esquisse à la vectorisation.',
-                'speaker' => 'Bilé Bossombra',
-            ],
-            [
-                'id' => 'Q8TXgCzxEnw', // REMPLACER par votre ID réel
-                'title' => 'Social Media Marketing : Publicité Facebook & Instagram',
-                'description' => 'Guide complet pour créer et gérer des campagnes publicitaires efficaces sur Facebook et Instagram.',
-                'speaker' => 'Équipe EVC',
-            ],
-            [
-                'id' => '3q3aH7X9-sE', // REMPLACER par votre ID réel
-                'title' => 'Canva Pro : Astuces et Techniques Avancées',
-                'description' => 'Découvrez les fonctionnalités avancées de Canva Pro pour créer des designs professionnels rapidement.',
-                'speaker' => 'Équipe EVC',
-            ],
-            [
-                'id' => 'V74l_zS1x8E', // REMPLACER par votre ID réel
-                'title' => 'Portfolio de Designer : Comment se Démarquer',
-                'description' => 'Conseils pour créer un portfolio qui attire l\'attention des recruteurs et des clients potentiels.',
-                'speaker' => 'Bilé Bossombra',
-            ],
+        $activePlaylist = null;
+
+        // 1. Si une vidéo spécifique est demandée via l'ID
+        if ($request->has('video')) {
+            $activePlaylist = \App\Models\WebtvVideo::where('id', $request->video)
+                ->where('is_active', true)
+                ->first();
+        }
+
+        // 2. Sinon, prendre la vidéo par défaut (la plus récente ou la première de l'ordre)
+        if (!$activePlaylist) {
+            $activePlaylist = \App\Models\WebtvVideo::where('is_active', true)
+                ->where(function($query) {
+                    $query->whereNotNull('vimeo_playlist_id')
+                          ->orWhereNotNull('video_url');
+                })
+                ->orderBy('order', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+
+        // 3. Incrémenter le compteur de vues
+        if ($activePlaylist) {
+            $activePlaylist->incrementViewCount();
+        }
+
+        // 4. Déterminer la PROCHAINE vidéo pour la lecture continue
+        $nextVideo = null;
+        if ($activePlaylist) {
+            // Récupérer toutes les vidéos actives de la MÊME catégorie (ou toutes si pas de catégorie)
+            $query = \App\Models\WebtvVideo::where('is_active', true)
+                ->orderBy('order', 'asc')
+                ->orderBy('created_at', 'desc');
+
+            if ($activePlaylist->category) {
+                $query->where('category', $activePlaylist->category);
+            }
+
+            $videos = $query->get();
+
+            // Trouver l'index de la vidéo actuelle
+            $currentIndex = $videos->search(function($item) use ($activePlaylist) {
+                return $item->id === $activePlaylist->id;
+            });
+
+            // Si trouvée et qu'il y en a une après
+            if ($currentIndex !== false && isset($videos[$currentIndex + 1])) {
+                $nextVideo = $videos[$currentIndex + 1];
+            } elseif ($videos->count() > 1) {
+                // Optionnel : Boucler au début (lecture infinie)
+                $nextVideo = $videos[0];
+            }
+        }
+
+        // Récupérer les catégories dynamiquement avec le nombre de vidéos
+        $categories = \App\Models\WebtvVideo::select('category', \DB::raw('count(*) as video_count'))
+            ->where('is_active', true)
+            ->whereNotNull('category')
+            ->groupBy('category')
+            ->orderBy('video_count', 'desc')
+            ->get()
+            ->map(function($item) {
+                // Mapping des catégories avec leurs icônes et couleurs
+                $categoryMap = [
+                    'design-graphique' => [
+                        'icon' => 'fa-palette',
+                        'name' => 'Design Graphique',
+                        'color' => 'from-orange-500 to-orange-600',
+                        'description' => 'Photoshop, Illustrator, UI/UX'
+                    ],
+                    'community-management' => [
+                        'icon' => 'fa-bullhorn',
+                        'name' => 'Community Management',
+                        'color' => 'from-blue-500 to-blue-600',
+                        'description' => 'Réseaux sociaux, Stratégie digitale'
+                    ],
+                    'intelligence-artificielle' => [
+                        'icon' => 'fa-robot',
+                        'name' => 'Intelligence Artificielle',
+                        'color' => 'from-orange-400 to-orange-500',
+                        'description' => 'ChatGPT, Midjourney, Automatisation'
+                    ],
+                    'gestion-informatique' => [
+                        'icon' => 'fa-laptop-code',
+                        'name' => 'Gestion Informatique',
+                        'color' => 'from-blue-400 to-blue-500',
+                        'description' => 'Maintenance, Réseaux, Sécurité'
+                    ],
+                ];
+
+                $categorySlug = $item->category;
+                $categoryInfo = $categoryMap[$categorySlug] ?? [
+                    'icon' => 'fa-video',
+                    'name' => ucwords(str_replace('-', ' ', $categorySlug)),
+                    'color' => 'from-gray-500 to-gray-600',
+                    'description' => 'Découvrez nos vidéos'
+                ];
+
+                return array_merge($categoryInfo, [
+                    'slug' => $categorySlug,
+                    'count' => $item->video_count . ' vidéo' . ($item->video_count > 1 ? 's' : '')
+                ]);
+            });
+
+        // Si requête AJAX (pour transition fluide), renvoyer JSON
+        if ($request->ajax()) {
+            return response()->json([
+                'id' => $activePlaylist->id,
+                'title' => $activePlaylist->title,
+                'description' => $activePlaylist->description,
+                'embed_code' => $activePlaylist->generateEmbedCode(),
+                'view_count' => number_format($activePlaylist->view_count),
+                'type' => $activePlaylist->type,
+                'loop_enabled' => $activePlaylist->loop_enabled,
+                'category_slug' => $activePlaylist->category, // Pour mettre à jour l'UI si besoin
+                'next_video_url' => (isset($nextVideo) && $nextVideo) ? route('webtv', ['video' => $nextVideo->id]) : null,
+            ]);
+        }
+
+        return view('webtv', compact('activePlaylist', 'categories', 'nextVideo'));
+    }
+
+    /**
+     * Affiche la page des vidéos par thématique.
+     */
+    public function webtvThematique($category)
+    {
+        // Mapping des catégories
+        $categoryMap = [
+            'design-graphique' => 'Design Graphique',
+            'community-management' => 'Community Management',
+            'intelligence-artificielle' => 'Intelligence Artificielle',
+            'gestion-informatique' => 'Gestion Informatique',
         ];
 
-        return view('webtv', compact('videos'));
+        // Vérifier si la catégorie existe
+        if (!isset($categoryMap[$category])) {
+            abort(404);
+        }
+
+        $categoryName = $categoryMap[$category];
+
+        // Récupérer les vidéos actives filtrées par catégorie
+        $videos = \App\Models\WebtvVideo::where('is_active', true)
+            ->where('category', $category)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('webtv-thematique', compact('videos', 'category', 'categoryName'));
     }
 
     /**
@@ -250,7 +386,71 @@ class HomepageController extends Controller
      */
     public function travaux()
     {
-        return view('travaux');
+        // Scanner tous les fichiers dans les dossiers de travaux
+        $basePath = public_path('assets/img/tp_etudiant_evc');
+
+        $categories = [
+            'affiches' => [
+                'folder' => 'affiches',
+                'label' => 'Affiches'
+            ],
+            'crea' => [
+                'folder' => 'crea',
+                'label' => 'Crea'
+            ],
+            'events' => [
+                'folder' => 'events',
+                'label' => 'Events'
+            ],
+            'logos' => [
+                'folder' => 'logos',
+                'label' => 'Logos'
+            ],
+            'identité' => [
+                'folder' => 'identité',
+                'label' => 'Identité'
+            ],
+            'reseaux_sociaux' => [
+                'folder' => 'reseaux_sociaux',
+                'label' => 'Réseaux Sociaux'
+            ]
+        ];
+
+        $travaux = [];
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+
+        foreach ($categories as $key => $data) {
+            $folderPath = $basePath . '/' . $data['folder'];
+            $images = [];
+
+            if (is_dir($folderPath)) {
+                $files = scandir($folderPath);
+                foreach ($files as $file) {
+                    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    if (in_array($extension, $allowedExtensions)) {
+                        $images[] = [
+                            'filename' => $file,
+                            'path' => 'assets/img/tp_etudiant_evc/' . $data['folder'] . '/' . $file,
+                            'extension' => $extension
+                        ];
+                    }
+                }
+
+                // Trier les images par nom de fichier
+                usort($images, function($a, $b) {
+                    return strnatcmp($a['filename'], $b['filename']);
+                });
+            }
+
+            $travaux[$key] = [
+                'label' => $data['label'],
+                'folder' => $data['folder'],
+                'images' => $images,
+                'total' => count($images)
+            ];
+        }
+
+        return view('travaux', compact('travaux'));
     }
 
     /**
@@ -262,6 +462,14 @@ class HomepageController extends Controller
     }
 
     /**
+     * Affiche la page des membres du jury.
+     */
+    public function jury()
+    {
+        return view('jury');
+    }
+
+    /**
      * Affiche le détail d'un événement.
      */
     public function showEvenement($slug)
@@ -270,10 +478,10 @@ class HomepageController extends Controller
         $evenement = Evenement::where('slug', $slug)
             ->where('status', 'published')
             ->firstOrFail();
-        
+
         // Incrémenter le compteur de vues
         $evenement->incrementViews();
-        
+
         return view('evenement-detail', compact('evenement'));
     }
 
@@ -300,10 +508,10 @@ class HomepageController extends Controller
         $actualite = Actualite::where('slug', $slug)
             ->where('status', 'published')
             ->firstOrFail();
-        
+
         // Incrémenter le compteur de vues
         $actualite->increment('views_count');
-        
+
         return view('actualite-detail', compact('actualite'));
     }
 
@@ -337,7 +545,7 @@ class HomepageController extends Controller
         try {
             // Utiliser l'email depuis .env ou une valeur par défaut
             $adminEmail = env('MAIL_ADMIN_ADDRESS') ?: env('MAIL_FROM_ADDRESS', 'recrutement@evc.ci');
-            
+
             // Vérifier que l'email est valide avant d'envoyer
             if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
                 Mail::send('emails.collaborateur-candidature', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
@@ -378,7 +586,7 @@ class HomepageController extends Controller
         try {
             // Utiliser l'email depuis .env ou une valeur par défaut
             $adminEmail = env('MAIL_ADMIN_ADDRESS') ?: env('MAIL_FROM_ADDRESS', 'partenariats@evc.ci');
-            
+
             // Vérifier que l'email est valide avant d'envoyer
             if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
                 Mail::send('emails.partenaire-demande', ['data' => $validated], function ($message) use ($adminEmail, $validated) {
@@ -427,7 +635,7 @@ class HomepageController extends Controller
         try {
             // Utiliser l'email depuis .env ou une valeur par défaut
             $adminEmail = env('MAIL_ADMIN_ADDRESS') ?: env('MAIL_FROM_ADDRESS', 'formateurs@evc.ci');
-            
+
             // Vérifier que l'email est valide avant d'envoyer
             if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
                 Mail::send('emails.formateur-candidature', ['data' => $validated], function ($message) use ($adminEmail, $validated) {

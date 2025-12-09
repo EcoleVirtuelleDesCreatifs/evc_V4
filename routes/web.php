@@ -18,6 +18,9 @@ use App\Http\Controllers\Api\ProjectApiController;
 use App\Http\Controllers\AdminStatisticsDetailController;
 use App\Http\Controllers\StudentConfirmationController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -152,7 +155,7 @@ Route::get('/evc/app/admin/students', [\App\Http\Controllers\Admin\StudentAdminC
 
 // Admin: liste des étudiants par formation
 Route::get('/evc/app/admin/etudiants/{formation}', [\App\Http\Controllers\Admin\StudentAdminController::class, 'listByFormation'])
-    ->whereIn('formation', ['design-graphique','community-manager','community-management','intelligence-artificielle','gestion-informatique'])
+    ->whereIn('formation', ['design-graphique','community-manager','community-management','design-graphique-community-manager','intelligence-artificielle','gestion-informatique'])
     ->name('admin.students.by-formation');
 
 // (Nettoyage) On conserve seulement les routes admin.students.*
@@ -160,6 +163,10 @@ Route::get('/evc/app/admin/etudiants/{formation}', [\App\Http\Controllers\Admin\
 Route::get('/evc/app/admin/students/{id}/edit', [\App\Http\Controllers\Admin\StudentAdminController::class, 'edit'])
     ->whereNumber('id')
     ->name('admin.students.edit');
+
+Route::put('/evc/app/admin/students/{id}', [\App\Http\Controllers\Admin\StudentAdminController::class, 'update'])
+    ->whereNumber('id')
+    ->name('admin.students.update');
 
 Route::post('/evc/app/admin/students/{id}/toggle-status', [\App\Http\Controllers\Admin\StudentAdminController::class, 'toggleStatus'])
     ->whereNumber('id')
@@ -186,6 +193,7 @@ Route::get('/compte-desactive', function() {
             $formationMap = [
                 'Design Graphique' => 'dashboard.design-graphique',
                 'Community Management' => 'dashboard.community-management',
+                'Design Graphique & Community Manager' => 'dashboard.design-graphique-community-manager',
                 'Intelligence Artificielle' => 'dashboard.intelligence-artificielle',
                 'Gestion Informatique' => 'dashboard.gestion-informatique',
             ];
@@ -212,6 +220,7 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::get('/evc/compte/design-graphique/espace-etudiant', [DashboardController::class, 'designGraphique'])->name('dashboard.design-graphique');
     Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
     Route::get('/evc/compte/community-management/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-management');
+    Route::get('/evc/compte/design-graphique-community-manager/espace-etudiant', [DashboardController::class, 'designGraphique'])->name('dashboard.design-graphique-community-manager');
     Route::get('/evc/compte/intelligence-artificielle/espace-etudiant', [DashboardController::class, 'intelligenceArtificielle'])->name('dashboard.intelligence-artificielle');
     Route::get('/evc/compte/gestion-informatique/espace-etudiant', [DashboardController::class, 'gestionInformatique'])->name('dashboard.gestion-informatique');
 });
@@ -326,6 +335,103 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     Route::get('/actualites/{id}', [DashboardController::class, 'actualitesShow'])->name('actualites.show');
 
     // Documents - Structure: /evc/compte/design-graphique/documents/{action}
+    Route::get('/documents/index', [DashboardController::class, 'documentsIndex'])->name('documents.index');
+    Route::get('/documents/download/{id}', [DashboardController::class, 'downloadDocument'])->name('documents.download');
+});
+
+// Groupe de routes pour Design Graphique & Community Manager (Formation combinée)
+Route::prefix('/evc/compte/design-graphique-community-manager')->name('design-graphique-community-manager.')->middleware(['auth', 'student.active', 'formation.access'])->group(function () {
+    // Profil
+    Route::get('/profil/editer/{id?}', [DashboardController::class, 'editProfile'])->name('profil.editer');
+    Route::post('/profil/editer/{id?}', [DashboardController::class, 'updateProfile'])->name('profil.update');
+
+    // CVThèque
+    Route::get('/cvtheque/index', [CVThequeController::class, 'index'])->name('cvtheque.index');
+    Route::get('/cvtheque/historique', [CVThequeController::class, 'historique'])->name('cvtheque.historique');
+    Route::post('/cvtheque/update-profile', [CVThequeController::class, 'updateProfile'])->name('cvtheque.update-profile');
+    Route::delete('/cvtheque/documents/delete', [CVThequeController::class, 'deleteDocument'])->name('cvtheque.documents.delete');
+    Route::get('/cvtheque/documents/export', [CVThequeController::class, 'exportDocuments'])->name('cvtheque.documents.export');
+    Route::get('/cvtheque/preview', [CVThequeController::class, 'preview'])->name('cvtheque.preview');
+    Route::get('/cvtheque/profile-display', [CVThequeController::class, 'profileDisplay'])->name('cvtheque.profile-display');
+    Route::get('/cvtheque/mon-profil', [CVThequeController::class, 'monProfil'])->name('cvtheque.mon-profil');
+    Route::post('/cvtheque/upload-cv', [CVThequeController::class, 'uploadCV'])->name('cvtheque.upload-cv');
+    Route::post('/cvtheque/upload-motivation', [CVThequeController::class, 'uploadMotivation'])->name('cvtheque.upload-motivation');
+    Route::post('/cvtheque/upload-realisation', [CVThequeController::class, 'uploadRealisations'])->name('cvtheque.upload-realisation');
+    Route::post('/cvtheque/upload-pressbook', [CVThequeController::class, 'uploadPressbook'])->name('cvtheque.upload-pressbook');
+    Route::post('/cvtheque/upload-rapport', [CVThequeController::class, 'uploadRapport'])->name('cvtheque.upload-rapport');
+
+    // TP (Travaux Pratiques)
+    Route::get('/tp/index', [DashboardController::class, 'listTP'])->name('tp.index');
+    Route::get('/tp/tous', [DashboardController::class, 'showAllTP'])->name('tp.tous');
+    Route::get('/tp/voir/{id}', [DashboardController::class, 'viewTP'])->name('tp.voir');
+    Route::get('/tp/ajouter', [DashboardController::class, 'createTP'])->name('tp.ajouter');
+    Route::post('/tp/ajouter', [DashboardController::class, 'storeTP'])->name('tp.store');
+    Route::get('/tp/modifier/{id}', [DashboardController::class, 'editTP'])->name('tp.modifier');
+    Route::get('/tp/{id}/soumettre', [DashboardController::class, 'showSubmitPage'])->name('tp.soumettre');
+    Route::post('/tp/{id}/submit', [DashboardController::class, 'submitTP'])->name('tp.submit');
+    Route::put('/tp/modifier/{id}', [DashboardController::class, 'updateProject'])->name('tp.update');
+    Route::post('/tp/modifier/{id}/images', [DashboardController::class, 'updateProjectWithImages'])->name('tp.update.images');
+    Route::delete('/tp/supprimer/{id}', [DashboardController::class, 'deleteProject'])->name('tp.supprimer');
+
+    // Projets
+    Route::get('/projets', [DashboardController::class, 'projets'])->name('projets.index');
+    Route::post('/projets', [App\Http\Controllers\DesignProjectController::class, 'store'])->name('projets.store');
+    Route::get('/projets/stats/json', [App\Http\Controllers\DesignProjectController::class, 'getStats'])->name('projets.stats');
+    Route::get('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'show'])->name('projets.show');
+    Route::get('/projets/{id}/edit', [App\Http\Controllers\DesignProjectController::class, 'edit'])->name('projets.edit');
+    Route::put('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'update'])->name('projets.update');
+    Route::delete('/projets/{projectId}/files/{fileId}', [App\Http\Controllers\DesignProjectController::class, 'removeFile'])->name('projets.removeFile');
+    Route::patch('/projets/{id}/status', [App\Http\Controllers\DesignProjectController::class, 'updateStatus'])->name('projets.updateStatus');
+    Route::delete('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'destroy'])->name('projets.destroy');
+    Route::get('/projets/solo/liste', [App\Http\Controllers\DesignProjectController::class, 'soloProjects'])->name('projets.solo');
+    Route::get('/projets/groupe/liste', [App\Http\Controllers\DesignProjectController::class, 'groupProjects'])->name('projets.groupe');
+    Route::get('/projets/tous/liste', [App\Http\Controllers\DesignProjectController::class, 'allProjects'])->name('projets.tous');
+
+    // To Do List
+    Route::get('/todo/index', [DashboardController::class, 'todoIndex'])->name('todo.index');
+
+    // Programme
+    Route::get('/programme/index', [DashboardController::class, 'programmeIndex'])->name('programme.index');
+
+    // Paiements
+    Route::get('/paiements/index', [DashboardController::class, 'paiementsIndex'])->name('paiements.index');
+
+    // Fin de formation
+    Route::get('/fin-formation/index', [DashboardController::class, 'finFormationIndex'])->name('fin-formation.index');
+
+    // Certificat
+    Route::get('/certificate/preview', [DashboardController::class, 'previewCertificateStudent'])->name('certificate.preview');
+    Route::get('/certificate/download', [DashboardController::class, 'downloadCertificate'])->name('certificate.download');
+
+    // Paramètres
+    Route::get('/parametres/index', [App\Http\Controllers\ProfileController::class, 'index'])->name('parametres.index');
+    Route::post('/parametres', [App\Http\Controllers\ProfileController::class, 'update'])->name('parametres.update');
+    Route::post('/parametres/update-login', [App\Http\Controllers\ProfileController::class, 'updateLoginInfo'])->name('parametres.update-login');
+    Route::post('/parametres/upload-photo', [App\Http\Controllers\ProfileController::class, 'uploadPhoto'])->name('parametres.upload-photo');
+
+    // Communauté
+    Route::get('/communaute/index', [DashboardController::class, 'communauteIndex'])->name('communaute.index');
+
+    // Bibliothèque
+    Route::get('/bibliotheque/index', [DashboardController::class, 'bibliothequeIndex'])->name('bibliotheque.index');
+    Route::get('/bibliotheque/download/{id}', [DashboardController::class, 'downloadDocument'])->name('bibliotheque.download');
+
+    // Formations
+    Route::get('/formations/index', [DashboardController::class, 'formationsIndex'])->name('formations.index');
+    Route::get('/formations/category/{category}', [DashboardController::class, 'formationsCategory'])->name('formations.category');
+    Route::get('/formations/show/{id}', [DashboardController::class, 'formationsShow'])->name('formations.show');
+    Route::get('/formations/download/{id}', [DashboardController::class, 'formationsDownload'])->name('formations.download');
+    Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
+
+    // Events
+    Route::get('/events/index', [DashboardController::class, 'eventsIndex'])->name('events.index');
+    Route::get('/events/{id}', [DashboardController::class, 'eventsShow'])->name('events.show');
+
+    // Actualités
+    Route::get('/actualites/index', [DashboardController::class, 'actualitesIndex'])->name('actualites.index');
+    Route::get('/actualites/{id}', [DashboardController::class, 'actualitesShow'])->name('actualites.show');
+
+    // Documents
     Route::get('/documents/index', [DashboardController::class, 'documentsIndex'])->name('documents.index');
     Route::get('/documents/download/{id}', [DashboardController::class, 'downloadDocument'])->name('documents.download');
 });
@@ -451,6 +557,13 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
 
+        // Routes pour les boutons "Actions Rapides" du dashboard
+        Route::get('/travaux/pending', [AdminDashboardController::class, 'travauxPending'])->name('travaux.pending');
+        Route::get('/travaux/all', [AdminDashboardController::class, 'travauxAll'])->name('travaux.all');
+        Route::get('/rapports', [AdminDashboardController::class, 'rapports'])->name('rapports');
+        Route::get('/bibliotheque', [AdminDashboardController::class, 'bibliotheque'])->name('bibliotheque.index');
+        Route::get('/parametres', [AdminDashboardController::class, 'parametres'])->name('parametres.index');
+
         // Page toutes les statistiques
         Route::get('/statistiques/all', [AdminStatisticsDetailController::class, 'allStatistics'])->name('statistics.all');
 
@@ -492,7 +605,64 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         // Route::post('/students/activate/{id}', [AdminDashboardController::class, 'activateStudent'])->name('students.activate');
 
         // Formations - Gestion
-        Route::post('/formations/add', [AdminDashboardController::class, 'addFormation'])->name('formations.add');
+        Route::get('/formations/index', [AdminDashboardController::class, 'index'])->name('formations.index');
+        Route::get('/formations/create', [AdminDashboardController::class, 'create'])->name('formations.create');
+
+        // Catégories de formations (AVANT les routes avec paramètres dynamiques)
+        Route::get('/formations/categories', [AdminDashboardController::class, 'categoriesIndex'])->name('formations.categories.index');
+        Route::get('/formations/categories/create', [AdminDashboardController::class, 'createCategory'])->name('formations.categories.create');
+        Route::post('/formations/categories', [AdminDashboardController::class, 'storeCategory'])->name('formations.categories.store');
+        Route::get('/formations/categories/{id}/edit', [AdminDashboardController::class, 'editCategory'])->name('formations.categories.edit');
+        Route::put('/formations/categories/{id}', [AdminDashboardController::class, 'updateCategory'])->name('formations.categories.update');
+        Route::delete('/formations/categories/{id}', [AdminDashboardController::class, 'deleteCategory'])->name('formations.categories.destroy');
+
+        // Routes avec paramètres dynamiques (APRÈS les routes spécifiques)
+        Route::post('/formations', [AdminDashboardController::class, 'store'])->name('formations.store');
+        Route::delete('/formations/{formation}', [AdminDashboardController::class, 'destroy'])->name('formations.destroy');
+        Route::get('/formations/{formation}/edit', [AdminDashboardController::class, 'edit'])->name('formations.edit');
+        Route::put('/formations/{formation}', [AdminDashboardController::class, 'update'])->name('formations.update');
+        Route::get('/formations/{formation}', [AdminDashboardController::class, 'show'])->name('formations.show');
+        Route::patch('/formations/{formation}/toggle-status', [AdminDashboardController::class, 'toggleStatus'])->name('formations.toggle-status');
+
+        // Programmes
+        Route::get('/programmes', [AdminDashboardController::class, 'programmes'])->name('programmes');
+        Route::get('/programmes/create', [AdminDashboardController::class, 'createProgramme'])->name('programmes.create');
+        Route::post('/programmes', [AdminDashboardController::class, 'storeProgramme'])->name('programmes.store');
+        Route::delete('/programmes/{id}', [AdminDashboardController::class, 'destroyProgramme'])->name('programmes.destroy');
+
+        // Bibliothèque
+        Route::get('/bibliotheque', [AdminDashboardController::class, 'bibliotheque'])->name('bibliotheque.index');
+        Route::get('/bibliotheque/categories', [AdminDashboardController::class, 'bibliothequeCategories'])->name('bibliotheque.categories.index');
+        Route::get('/bibliotheque/create', [AdminDashboardController::class, 'createBibliothequeItem'])->name('bibliotheque.create');
+        Route::post('/bibliotheque', [AdminDashboardController::class, 'storeBibliothequeItem'])->name('bibliotheque.store');
+        Route::get('/bibliotheque/{item}', [AdminDashboardController::class, 'showBibliothequeItem'])->name('bibliotheque.show');
+        Route::get('/bibliotheque/{item}/edit', [AdminDashboardController::class, 'editBibliothequeItem'])->name('bibliotheque.edit');
+        Route::put('/bibliotheque/{item}', [AdminDashboardController::class, 'updateBibliothequeItem'])->name('bibliotheque.update');
+        Route::delete('/bibliotheque/{item}', [AdminDashboardController::class, 'destroyBibliothequeItem'])->name('bibliotheque.destroy');
+        Route::patch('/bibliotheque/{item}/toggle-status', [AdminDashboardController::class, 'toggleBibliothequeItemStatus'])->name('bibliotheque.toggle-status');
+
+        // Actualités
+        Route::get('/articles/actualites', [App\Http\Controllers\Admin\ArticleController::class, 'actualitesIndex'])->name('articles.actualites');
+
+        // Communiqués
+        Route::resource('communiques', App\Http\Controllers\Admin\CommuniqueController::class)->except(['show']);
+        Route::patch('/communiques/{communique}/toggle-status', [App\Http\Controllers\Admin\CommuniqueController::class, 'toggleStatus'])->name('communiques.toggle-status');
+
+        // Gestion de la Comptabilité
+        Route::get('/comptabilite', [App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounting.index');
+        Route::get('/comptabilite/depenses', [App\Http\Controllers\Admin\AccountingController::class, 'expenses'])->name('accounting.expenses');
+        Route::get('/comptabilite/depenses/create', [App\Http\Controllers\Admin\AccountingController::class, 'createExpense'])->name('accounting.expenses.create');
+        Route::get('/comptabilite/ventes', [App\Http\Controllers\Admin\AccountingController::class, 'sales'])->name('accounting.sales');
+        Route::get('/comptabilite/ventes/create', [App\Http\Controllers\Admin\AccountingController::class, 'createSale'])->name('accounting.sales.create');
+        Route::get('/comptabilite/rapport', [App\Http\Controllers\Admin\AccountingController::class, 'report'])->name('accounting.report');
+        Route::get('/comptabilite/export', [App\Http\Controllers\Admin\AccountingController::class, 'export'])->name('accounting.export');
+        Route::get('/comptabilite/grand-livre', [App\Http\Controllers\Admin\AccountingController::class, 'generalLedger'])->name('accounting.general-ledger');
+        Route::get('/comptabilite/budgets', [App\Http\Controllers\Admin\AccountingController::class, 'budgets'])->name('accounting.budgets');
+        Route::get('/comptabilite/budgets/create', [App\Http\Controllers\Admin\AccountingController::class, 'createBudget'])->name('accounting.budgets.create');
+        Route::post('/comptabilite/budgets', [App\Http\Controllers\Admin\AccountingController::class, 'storeBudget'])->name('accounting.budgets.store');
+        Route::post('/comptabilite/transaction', [App\Http\Controllers\Admin\AccountingController::class, 'store'])->name('accounting.store');
+        Route::delete('/comptabilite/transaction/{id}', [App\Http\Controllers\Admin\AccountingController::class, 'destroy'])->name('accounting.destroy');
+
         Route::get('/formations/create', [AdminDashboardController::class, 'create'])->name('formations.create');
         // Gestion des Catégories de Formations (Nomenclature Corrigée)
         Route::get('/formations/categories', [AdminDashboardController::class, 'categoriesIndex'])->name('formations.categories.index');
@@ -619,6 +789,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         // Gestion des Étudiants par formation
         Route::get('/etudiants/design-graphique', [AdminDashboardController::class, 'studentsDesignGraphique'])->name('etudiants.design-graphique');
         Route::get('/etudiants/community-management', [AdminDashboardController::class, 'studentsCommunityManagement'])->name('etudiants.community-management');
+        Route::get('/etudiants/design-graphique-community-manager', [AdminDashboardController::class, 'studentsDesignGraphiqueCommunityManager'])->name('etudiants.design-graphique-community-manager');
         Route::get('/etudiants/intelligence-artificielle', [AdminDashboardController::class, 'studentsIA'])->name('etudiants.intelligence-artificielle');
         Route::get('/etudiants/gestion-informatique', [AdminDashboardController::class, 'studentsGestionInfo'])->name('etudiants.gestion-informatique');
 
@@ -679,6 +850,10 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/tp/edit/{id}', [AdminDashboardController::class, 'editTp'])->name('tp.edit');
         Route::put('/tp/update/{id}', [AdminDashboardController::class, 'updateTp'])->name('tp.update');
         Route::delete('/tp/delete/{id}', [AdminDashboardController::class, 'deleteTp'])->name('tp.delete');
+
+        // Gestion des Activités
+        Route::get('/activites', [AdminDashboardController::class, 'activites'])->name('activites.index');
+
         // Route de debug pour les étudiants
         Route::get('/debug/students', [AdminDashboardController::class, 'debugStudents'])->name('debug.students');
         // Route de diagnostic complet
@@ -735,6 +910,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/paiements/a-jour', [AdminDashboardController::class, 'paiementsAJour'])->name('paiements.a-jour');
         Route::get('/paiements/a-solder', [AdminDashboardController::class, 'paiementsASolder'])->name('paiements.a-solder');
         Route::get('/paiements/reste-a-payer', [AdminDashboardController::class, 'paiementsResteAPayer'])->name('paiements.reste-a-payer');
+        Route::post('/paiements/send-reminder/{id}', [AdminDashboardController::class, 'sendPaymentReminder'])->name('paiements.send-reminder');
 
         // Gestion des CVthèque
         Route::get('/cvtheque', [CVThequeAdminController::class, 'index'])->name('cvtheque.profiles');
@@ -752,6 +928,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         // Gestion des Rapports
         Route::get('/rapports', [AdminDashboardController::class, 'rapports'])->name('rapports');
         Route::get('/rapports/index', [AdminDashboardController::class, 'rapports'])->name('reports.index');
+        Route::get('/rapports/financier', [AdminDashboardController::class, 'rapportFinancier'])->name('rapports.financier');
+        Route::get('/rapports/formations', [AdminDashboardController::class, 'rapportFormations'])->name('rapports.formations');
         Route::get('/rapports/analytics', [AdminDashboardController::class, 'analytics'])->name('rapports.analytics');
         Route::get('/rapports/exports', [AdminDashboardController::class, 'exports'])->name('rapports.exports');
         Route::post('/rapports/generate', [AdminDashboardController::class, 'generateReport'])->name('rapports.generate');

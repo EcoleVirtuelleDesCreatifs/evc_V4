@@ -318,6 +318,32 @@
         border: none;
         cursor: pointer;
         font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #ff9800, #fb8c00);
+        color: white;
+        padding: 0.6rem 1.5rem;
+        border-radius: 25px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
     }
 
     .btn-delete {
@@ -541,6 +567,9 @@
                                 <a href="{{ route('admin.travaux.assignment.detail', ['title' => urlencode($title)]) }}" class="btn-view">
                                     <i class="fas fa-eye"></i> Voir détails
                                 </a>
+                                <a href="{{ route('admin.travaux.assignment.edit', ['title' => urlencode($title)]) }}" class="btn-edit">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
                                 <form action="{{ route('admin.travaux.assignment.delete', ['title' => urlencode($title)]) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce TP pour {{ $tpItems->count() }} étudiant(s) ?')">
                                     @csrf
                                     @method('DELETE')
@@ -561,7 +590,7 @@
 function toggleFormation(formationId) {
     const content = document.getElementById('content-' + formationId);
     const chevron = document.getElementById('chevron-' + formationId);
-    
+
     if (content.classList.contains('show')) {
         content.classList.remove('show');
         chevron.classList.add('rotated');

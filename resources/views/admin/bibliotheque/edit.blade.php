@@ -120,6 +120,10 @@
                             <label class="form-check-label text-white" for="dest_cm">Community Management</label>
                         </div>
                         <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="recipients[]" value="design-graphique-community-manager" id="dest_dgcm" {{ in_array('design-graphique-community-manager', old('recipients', $item->recipients ?? [])) ? 'checked' : '' }}>
+                            <label class="form-check-label text-white" for="dest_dgcm">Design Graphique & Community Manager</label>
+                        </div>
+                        <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="recipients[]" value="intelligence-artificielle" id="dest_ia" {{ in_array('intelligence-artificielle', old('recipients', $item->recipients ?? [])) ? 'checked' : '' }}>
                             <label class="form-check-label text-white" for="dest_ia">Intelligence Artificielle</label>
                         </div>
@@ -158,7 +162,7 @@ function previewCoverImage(event) {
     const file = event.target.files[0];
     const previewContainer = document.getElementById('cover-preview');
     const previewImg = document.getElementById('cover-preview-img');
-    
+
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {

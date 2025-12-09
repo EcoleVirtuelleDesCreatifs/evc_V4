@@ -22,37 +22,46 @@ class CheckStudentActive
         if ($request->is('evc/app/admin/*') || $request->is('admin/*')) {
             return $next($request);
         }
-        
+
         // Vérifier si l'utilisateur est authentifié
         if (Auth::check()) {
             $user = Auth::user();
-            
+
             // NE PAS vérifier si l'utilisateur a un rôle admin
             if (property_exists($user, 'role') && in_array($user->role, ['admin', 'super_admin', 'moderator'])) {
                 return $next($request);
             }
-            
+
             // Vérifier si la table students existe et si l'étudiant a un compte désactivé
             if (Schema::hasTable('students')) {
                 $student = DB::table('students')
                     ->where('email', $user->email)
                     ->first();
-                
+
                 // Si l'étudiant existe et que son statut est inactive
                 if ($student && $student->status === 'inactive') {
                     // Si l'utilisateur tente d'accéder à la page de désactivation, le laisser passer
                     if ($request->is('compte-desactive')) {
                         return $next($request);
                     }
-                    
-                    // Sinon, le rediriger vers la page de compte désactivé
-                    return redirect()->route('account.deactivated')
-                        ->with('reason', $student->deactivation_reason ?? '')
-                        ->with('deactivatedAt', $student->deactivated_at ?? null);
+
+                    // Vérifier s'il s'agit d'une désactivation manuelle (avec raison)
+                    // ou d'une expiration automatique (sans raison)
+                    $hasDeactivationReason = !empty($student->deactivation_reason);
+
+                    // Si c'est une désactivation manuelle, bloquer complètement l'accès
+                    if ($hasDeactivationReason) {
+                        return redirect()->route('account.deactivated')
+                            ->with('reason', $student->deactivation_reason)
+                            ->with('deactivatedAt', $student->deactivated_at ?? null);
+                    }
+
+                    // Si c'est juste une expiration (pas de raison), laisser passer
+                    // Les restrictions seront gérées par le middleware CheckAccountExpiration
                 }
             }
         }
-        
+
         return $next($request);
     }
 }

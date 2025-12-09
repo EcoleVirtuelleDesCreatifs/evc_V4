@@ -39,6 +39,10 @@
                             <label class="form-check-label text-white" for="dest_cm">Community Management</label>
                         </div>
                         <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="recipients[]" value="design-graphique-community-manager" id="dest_dgcm">
+                            <label class="form-check-label text-white" for="dest_dgcm">Design Graphique & Community Manager</label>
+                        </div>
+                        <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="recipients[]" value="intelligence-artificielle" id="dest_ia">
                             <label class="form-check-label text-white" for="dest_ia">Intelligence Artificielle</label>
                         </div>
@@ -85,7 +89,7 @@
 
                 <div class="mb-3">
                     <label for="pdf_file" class="form-label text-white">
-                        <i class="fas fa-file-pdf me-2"></i>Joindre le fichier 
+                        <i class="fas fa-file-pdf me-2"></i>Joindre le fichier
                         <span class="text-warning">(PDF, DOC, DOCX, etc.)</span>
                     </label>
                     <input type="file" class="form-control bg-dark text-white @error('pdf_file') is-invalid @enderror" id="pdf_file" name="pdf_file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx">
@@ -126,15 +130,15 @@ function previewCoverImage(event) {
     const file = event.target.files[0];
     const previewContainer = document.getElementById('cover-preview');
     const previewImage = document.getElementById('preview-image');
-    
+
     if (file && file.type.startsWith('image/')) {
         const reader = new FileReader();
-        
+
         reader.onload = function(e) {
             previewImage.src = e.target.result;
             previewContainer.style.display = 'block';
         };
-        
+
         reader.readAsDataURL(file);
     } else {
         previewContainer.style.display = 'none';
@@ -146,21 +150,21 @@ function previewCoverImage(event) {
 document.querySelector('form').addEventListener('submit', function(e) {
     const pdfFile = document.getElementById('pdf_file');
     const externalLink = document.getElementById('external_link');
-    
+
     const hasFile = pdfFile.files.length > 0;
     const hasLink = externalLink.value.trim() !== '';
-    
+
     if (!hasFile && !hasLink) {
         e.preventDefault();
         alert('⚠️ Vous devez fournir soit un fichier, soit un lien de téléchargement !');
-        
+
         // Mettre en évidence les champs
         pdfFile.classList.add('is-invalid');
         externalLink.classList.add('is-invalid');
-        
+
         return false;
     }
-    
+
     // Retirer les classes d'erreur si la validation passe
     pdfFile.classList.remove('is-invalid');
     externalLink.classList.remove('is-invalid');

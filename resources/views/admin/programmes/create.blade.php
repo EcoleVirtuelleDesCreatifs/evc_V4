@@ -16,7 +16,7 @@
                 <i class="fas fa-arrow-left me-2"></i>
                 Retour à la liste
             </a>
-            
+
             <h1 style="color: var(--form-text); font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">
                 <i class="fas fa-plus-circle me-3"></i>
                 Ajouter un Programme
@@ -44,7 +44,7 @@
     <!-- Formulaire -->
     <form action="{{ route('admin.programmes.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        
+
         <div class="row g-4">
             <!-- Informations principales -->
             <div class="col-lg-8">
@@ -59,10 +59,10 @@
                             <label for="titre" class="form-label">
                                 Titre du programme <span class="text-danger">*</span>
                             </label>
-                            <input type="text" 
-                                   class="form-control @error('titre') is-invalid @enderror" 
-                                   id="titre" 
-                                   name="titre" 
+                            <input type="text"
+                                   class="form-control @error('titre') is-invalid @enderror"
+                                   id="titre"
+                                   name="titre"
                                    required
                                    value="{{ old('titre') }}"
                                    placeholder="Ex: Introduction au Design Graphique">
@@ -76,9 +76,9 @@
                             <label for="description" class="form-label">
                                 Description (optionnel)
                             </label>
-                            <textarea class="form-control" 
-                                      id="description" 
-                                      name="description" 
+                            <textarea class="form-control"
+                                      id="description"
+                                      name="description"
                                       rows="5"
                                       placeholder="Décrivez brièvement le contenu du programme, les objectifs pédagogiques...">{{ old('description') }}</textarea>
                             <small class="text-muted">
@@ -103,9 +103,9 @@
                             <label for="formation" class="form-label">
                                 Formation destinataire <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select @error('formation') is-invalid @enderror" 
-                                    id="formation" 
-                                    name="formation" 
+                            <select class="form-select @error('formation') is-invalid @enderror"
+                                    id="formation"
+                                    name="formation"
                                     required>
                                 <option value="">-- Sélectionner --</option>
                                 <option value="Design Graphique" {{ old('formation') == 'Design Graphique' ? 'selected' : '' }}>
@@ -113,6 +113,9 @@
                                 </option>
                                 <option value="Community Management" {{ old('formation') == 'Community Management' ? 'selected' : '' }}>
                                     📱 Community Management
+                                </option>
+                                <option value="Design Graphique & Community Manager" {{ old('formation') == 'Design Graphique & Community Manager' ? 'selected' : '' }}>
+                                    🎨📱 Design Graphique & Community Manager
                                 </option>
                                 <option value="Gestion Informatique" {{ old('formation') == 'Gestion Informatique' ? 'selected' : '' }}>
                                     💻 Gestion Informatique
@@ -142,10 +145,10 @@
                             <label for="fichier_pdf" class="form-label">
                                 Document PDF <span class="text-danger">*</span>
                             </label>
-                            <input type="file" 
-                                   class="form-control @error('fichier_pdf') is-invalid @enderror" 
-                                   id="fichier_pdf" 
-                                   name="fichier_pdf" 
+                            <input type="file"
+                                   class="form-control @error('fichier_pdf') is-invalid @enderror"
+                                   id="fichier_pdf"
+                                   name="fichier_pdf"
                                    accept=".pdf"
                                    required>
                             <div class="upload-info mt-3">

@@ -109,8 +109,8 @@ document.addEventListener('DOMContentLoaded', function () {
         imageUploadZone.classList.remove('d-none');
     });
 
-    // Vimeo code validation
-    vimeoCodeInput.addEventListener('input', validateVimeoCode);
+    // YouTube link validation
+    vimeoCodeInput.addEventListener('input', validateYouTubeLink);
 
     submitButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -119,10 +119,10 @@ document.addEventListener('DOMContentLoaded', function () {
             selectStatus(action);
 
             // Perform validation before submitting
-            const isVimeoValid = validateVimeoCode();
-            if (!form.checkValidity() || !isVimeoValid) {
+            const isYouTubeValid = validateYouTubeLink();
+            if (!form.checkValidity() || !isYouTubeValid) {
                 // If validation fails, prevent the form from submitting
-                e.preventDefault(); 
+                e.preventDefault();
                 form.reportValidity();
             }
             // If validation passes, the form submits naturally with the button's 'action' value
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function generateSlug(text) {
         return text.toString().toLowerCase().trim()
             .replace(/\s+/g, '-')           // Replace spaces with -
-            .replace(/[^a-z0-9-]/g, '')   // Remove all non-alphanumeric chars except - 
+            .replace(/[^a-z0-9-]/g, '')   // Remove all non-alphanumeric chars except -
             .replace(/--+/g, '-');        // Replace multiple - with single -
     }
 
@@ -147,11 +147,11 @@ document.addEventListener('DOMContentLoaded', function () {
         handleFile(e.dataTransfer.files[0]);
     }
 
-    function validateVimeoCode() {
+    function validateYouTubeLink() {
         const value = vimeoCodeInput.value;
-        if (value && !value.includes('vimeo.com/event/') && !value.includes('player.vimeo.com/video/')) {
+        if (value && !value.includes('youtube.com') && !value.includes('youtu.be')) {
             vimeoCodeInput.classList.add('is-invalid');
-            vimeoValidationMessage.textContent = 'Le code d\'intégration doit être un code Vimeo valide.';
+            vimeoValidationMessage.textContent = 'Le lien doit être une URL YouTube valide.';
             return false;
         } else {
             vimeoCodeInput.classList.remove('is-invalid');

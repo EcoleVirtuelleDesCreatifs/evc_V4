@@ -151,7 +151,6 @@
 <body class="bg-black font-sans antialiased">
     <div id="particles-js"></div>
     
-    @include('homepage._preloader')
     @include('homepage._header')
 
     <main>

@@ -76,6 +76,9 @@
                                 <li><a href="{{ route('admin.etudiants.community-management') }}" class="admin-nav-sublink {{ request()->routeIs('admin.etudiants.community-management') ? 'active' : '' }}">
                                     <i class="fas fa-share-alt"></i>Community Management
                                 </a></li>
+                                <li><a href="{{ route('admin.etudiants.design-graphique-community-manager') }}" class="admin-nav-sublink {{ request()->routeIs('admin.etudiants.design-graphique-community-manager') ? 'active' : '' }}">
+                                    <i class="fas fa-palette-alt"></i>Design Graphique & Community Manager
+                                </a></li>
                                 <li><a href="{{ route('admin.etudiants.intelligence-artificielle') }}" class="admin-nav-sublink {{ request()->routeIs('admin.etudiants.intelligence-artificielle') ? 'active' : '' }}">
                                     <i class="fas fa-robot"></i>Intelligence Artificielle
                                 </a></li>
@@ -233,12 +236,44 @@
                             Actualités
                         </a>
                     </li>
+
+                    <!-- Communiqués -->
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.communiques.index') }}" class="admin-nav-link {{ request()->routeIs('admin.communiques.*') ? 'active' : '' }}">
+                            <i class="fas fa-bullhorn"></i>
+                            Communiqués
+                        </a>
+                    </li>
                     @endif
 
                     <!-- Séparateur : Finances & Certificats -->
                     <li class="nav-section-title">
                         <i class="fas fa-coins me-2"></i>Finances & Certificats
                     </li>
+
+                    @if(in_array(session('admin_role'), ['super_admin', 'comptable']))
+                    <!-- Comptabilité -->
+                    <li class="admin-nav-item dropdown">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.accounting.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#accountingMenu">
+                            <i class="fas fa-calculator"></i>
+                            Comptabilité
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <div class="collapse {{ request()->routeIs('admin.accounting.*') ? 'show' : '' }}" id="accountingMenu">
+                            <ul class="admin-nav-submenu">
+                                <li><a href="{{ route('admin.accounting.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.accounting.index') ? 'active' : '' }}">
+                                    <i class="fas fa-tachometer-alt"></i>Vue d'ensemble
+                                </a></li>
+                                <li><a href="{{ route('admin.accounting.expenses') }}" class="admin-nav-sublink {{ request()->routeIs('admin.accounting.expenses') ? 'active' : '' }}">
+                                    <i class="fas fa-file-invoice-dollar"></i>Dépenses
+                                </a></li>
+                                <li><a href="{{ route('admin.accounting.sales') }}" class="admin-nav-sublink {{ request()->routeIs('admin.accounting.sales') ? 'active' : '' }}">
+                                    <i class="fas fa-chart-line"></i>Ventes
+                                </a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    @endif
 
                     @if(in_array(session('admin_role'), ['super_admin', 'comptable']))
                     <!-- Paiements -->
@@ -292,6 +327,27 @@
                             <i class="fas fa-briefcase"></i>
                             CVthèque - Profils
                         </a>
+                    </li>
+                    @endif
+
+                    @if(session('admin_role') === 'super_admin')
+                    <!-- Gestion WebTV -->
+                    <li class="admin-nav-item dropdown">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.webtv.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#webtvMenu">
+                            <i class="fas fa-tv"></i>
+                            WebTV
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <div class="collapse {{ request()->routeIs('admin.webtv.*') ? 'show' : '' }}" id="webtvMenu">
+                            <ul class="admin-nav-submenu">
+                                <li><a href="{{ route('admin.webtv.videos') }}" class="admin-nav-sublink {{ request()->routeIs('admin.webtv.videos*') ? 'active' : '' }}">
+                                    <i class="fas fa-video"></i>Programmer un Live
+                                </a></li>
+                                <li><a href="{{ route('admin.webtv.subscribers') }}" class="admin-nav-sublink {{ request()->routeIs('admin.webtv.subscribers') || request()->routeIs('admin.webtv.show') ? 'active' : '' }}">
+                                    <i class="fas fa-users"></i>Abonnés
+                                </a></li>
+                            </ul>
+                        </div>
                     </li>
                     @endif
 
