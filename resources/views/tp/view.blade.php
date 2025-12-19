@@ -139,15 +139,15 @@
 
                     // Fonction pour obtenir l'URL correcte du fichier
                     $getFileUrl = function($filePath) {
-                        // Nettoyer le chemin
-                        $path = str_replace('public/', '', $filePath);
+                        // Nettoyer le chemin pour avoir le relatif (ex: tp_files/image.jpg)
+                        $path = str_replace(['public/', 'storage/'], '', $filePath);
+                        $path = ltrim($path, '/');
 
-                        // Vérifier si le fichier existe avec différents chemins possibles
+                        // Chemins à tester
                         $possiblePaths = [
-                            $path,
-                            'storage/' . $path,
-                            'uploads/' . basename($path),
-                            'storage/tp_files/' . basename($path),
+                            'storage/' . $path,           // Standard Laravel: public/storage/tp_files/...
+                            $path,                        // Direct: public/tp_files/...
+                            'uploads/' . basename($path), // Dossier uploads
                         ];
 
                         foreach ($possiblePaths as $testPath) {
@@ -156,8 +156,14 @@
                             }
                         }
 
-                        // Par défaut, retourner le chemin original
-                        return asset($path);
+                        // Fallback intelligent :
+                        // Si le chemin commence par tp_files, c'est très probablement dans storage
+                        if (str_starts_with($path, 'tp_files/')) {
+                            return asset('storage/' . $path);
+                        }
+
+                        // Sinon par défaut on essaie storage car c'est le standard
+                        return asset('storage/' . $path);
                     };
 
                     $imageFiles = $project->files->filter($isImage);
