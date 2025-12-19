@@ -406,8 +406,8 @@ class HomepageController extends Controller
                 'folder' => 'logos',
                 'label' => 'Logos'
             ],
-            'identité' => [
-                'folder' => 'identité',
+            'identite' => [
+                'folder' => 'identite',
                 'label' => 'Identité'
             ],
             'reseaux_sociaux' => [
