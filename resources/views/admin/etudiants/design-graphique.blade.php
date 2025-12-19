@@ -30,13 +30,26 @@
                                 <td>{{ $index + 1 }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        @if($student->profile_photo)
-                                            <img src="{{ asset('storage/' . $student->profile_photo) }}" 
-                                                 alt="{{ $student->name }}" 
+                                        @php
+                                            $photoUrl = null;
+                                            if (!empty($student->profile_photo)) {
+                                                $filename = basename($student->profile_photo);
+                                                if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                                    $photoUrl = asset('uploads/photos/' . $filename);
+                                                } elseif (file_exists(public_path($student->profile_photo))) {
+                                                    $photoUrl = asset($student->profile_photo);
+                                                } elseif (file_exists(public_path('storage/' . $student->profile_photo))) {
+                                                    $photoUrl = asset('storage/' . $student->profile_photo);
+                                                }
+                                            }
+                                        @endphp
+                                        @if($photoUrl)
+                                            <img src="{{ $photoUrl }}"
+                                                 alt="{{ $student->name }}"
                                                  class="rounded-circle me-2"
                                                  style="width: 40px; height: 40px; object-fit: cover;">
                                         @else
-                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" 
+                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2"
                                                  style="width: 40px; height: 40px; font-weight: 600;">
                                                 {{ strtoupper(substr($student->first_name ?? $student->name, 0, 1)) }}{{ strtoupper(substr($student->last_name ?? '', 0, 1)) }}
                                             </div>
@@ -58,10 +71,10 @@
                                 </td>
                                 <td>
                                     <div class="progress" style="height: 8px;">
-                                        <div class="progress-bar bg-success" role="progressbar" 
-                                             style="width: {{ $student->progress ?? 5 }}%;" 
-                                             aria-valuenow="{{ $student->progress ?? 5 }}" 
-                                             aria-valuemin="0" 
+                                        <div class="progress-bar bg-success" role="progressbar"
+                                             style="width: {{ $student->progress ?? 5 }}%;"
+                                             aria-valuenow="{{ $student->progress ?? 5 }}"
+                                             aria-valuemin="0"
                                              aria-valuemax="100"></div>
                                     </div>
                                     <small>{{ $student->progress ?? 5 }}%</small>

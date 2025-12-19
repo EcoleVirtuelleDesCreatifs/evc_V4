@@ -95,8 +95,21 @@
                 <div class="card-body p-4">
                     <!-- Photo et nom -->
                     <div class="text-center mb-3">
-                        @if($student->profile_photo)
-                            <img src="{{ asset('storage/' . $student->profile_photo) }}"
+                        @php
+                            $photoUrl = null;
+                            if (!empty($student->profile_photo)) {
+                                $filename = basename($student->profile_photo);
+                                if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                    $photoUrl = asset('uploads/photos/' . $filename);
+                                } elseif (file_exists(public_path($student->profile_photo))) {
+                                    $photoUrl = asset($student->profile_photo);
+                                } elseif (file_exists(public_path('storage/' . $student->profile_photo))) {
+                                    $photoUrl = asset('storage/' . $student->profile_photo);
+                                }
+                            }
+                        @endphp
+                        @if($photoUrl)
+                            <img src="{{ $photoUrl }}"
                                  alt="{{ $student->first_name }}"
                                  style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #4fc3f7; margin-bottom: 1rem;">
                         @else

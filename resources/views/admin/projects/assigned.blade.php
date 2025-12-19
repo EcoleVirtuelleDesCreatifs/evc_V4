@@ -91,8 +91,21 @@
                                 <td>{{ $work->category ?? '' }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        @if($work->profile_photo)
-                                            <img src="{{ asset('storage/' . $work->profile_photo) }}" alt="{{ $work->first_name }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                        @php
+                                            $photoUrl = null;
+                                            if (!empty($work->profile_photo)) {
+                                                $filename = basename($work->profile_photo);
+                                                if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                                    $photoUrl = asset('uploads/photos/' . $filename);
+                                                } elseif (file_exists(public_path($work->profile_photo))) {
+                                                    $photoUrl = asset($work->profile_photo);
+                                                } elseif (file_exists(public_path('storage/' . $work->profile_photo))) {
+                                                    $photoUrl = asset('storage/' . $work->profile_photo);
+                                                }
+                                            }
+                                        @endphp
+                                        @if($photoUrl)
+                                            <img src="{{ $photoUrl }}" alt="{{ $work->first_name }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
                                         @else
                                             <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-weight: 600;">
                                                 {{ strtoupper(substr($work->first_name ?? 'E', 0, 1)) }}{{ strtoupper(substr($work->last_name ?? '', 0, 1)) }}

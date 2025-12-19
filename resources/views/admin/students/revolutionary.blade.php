@@ -28,7 +28,7 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Stats Dynamiques -->
         <div class="dynamic-stats">
             <div class="stat-card" data-stat="total">
@@ -79,7 +79,7 @@
                 <div class="search-suggestions" id="searchSuggestions"></div>
             </div>
         </div>
-        
+
         <div class="filter-zone">
             <div class="filter-group">
                 <button class="filter-btn active" data-filter="all">
@@ -95,7 +95,7 @@
                     <div class="filter-count">{{ $stats['nouveaux_ce_mois'] ?? 0 }}</div>
                 </button>
             </div>
-            
+
             <div class="view-toggle">
                 <button class="view-btn active" data-view="grid">
                     <i class="fas fa-th"></i>
@@ -115,8 +115,21 @@
             <div class="student-card" data-student-id="{{ $student->id }}">
                 <div class="card-header">
                     <div class="student-avatar">
-                        @if($student->profile_photo)
-                            <img src="{{ asset('storage/' . $student->profile_photo) }}" alt="Photo">
+                        @php
+                            $photoUrl = null;
+                            if (!empty($student->profile_photo)) {
+                                $filename = basename($student->profile_photo);
+                                if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                    $photoUrl = asset('uploads/photos/' . $filename);
+                                } elseif (file_exists(public_path($student->profile_photo))) {
+                                    $photoUrl = asset($student->profile_photo);
+                                } elseif (file_exists(public_path('storage/' . $student->profile_photo))) {
+                                    $photoUrl = asset('storage/' . $student->profile_photo);
+                                }
+                            }
+                        @endphp
+                        @if($photoUrl)
+                            <img src="{{ $photoUrl }}" alt="Photo">
                         @else
                             <div class="avatar-placeholder">
                                 {{ strtoupper(substr($student->prenoms ?? $student->first_name, 0, 1)) }}{{ strtoupper(substr($student->nom ?? $student->last_name, 0, 1)) }}
@@ -131,11 +144,11 @@
                         @endif
                     </div>
                 </div>
-                
+
                 <div class="card-body">
                     <h3 class="student-name">{{ $student->prenoms ?? $student->first_name }} {{ $student->nom ?? $student->last_name }}</h3>
                     <p class="student-formation">{{ $student->formations ?? $student->formation_souhaitee }}</p>
-                    
+
                     <div class="student-metrics">
                         <div class="metric">
                             <span class="metric-label">Progression</span>
@@ -143,7 +156,7 @@
                                 <div class="progress-fill" style="width: {{ rand(20, 95) }}%"></div>
                             </div>
                         </div>
-                        
+
                         <div class="metric">
                             <span class="metric-label">Abonnement</span>
                             @php
@@ -156,7 +169,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="card-actions">
                     <button class="action-btn primary" onclick="viewStudent({{ $student->id }})">
                         <i class="fas fa-eye"></i>
@@ -181,14 +194,27 @@
                 <div class="col-header">Progression</div>
                 <div class="col-header">Actions</div>
             </div>
-            
+
             @foreach($students as $student)
             <div class="list-row" data-student-id="{{ $student->id }}">
                 <div class="col-student">
                     <div class="student-info">
                         <div class="student-avatar-small">
-                            @if($student->profile_photo)
-                                <img src="{{ asset('storage/' . $student->profile_photo) }}" alt="Photo">
+                            @php
+                                $photoUrl2 = null;
+                                if (!empty($student->profile_photo)) {
+                                    $filename2 = basename($student->profile_photo);
+                                    if (file_exists(public_path('uploads/photos/' . $filename2))) {
+                                        $photoUrl2 = asset('uploads/photos/' . $filename2);
+                                    } elseif (file_exists(public_path($student->profile_photo))) {
+                                        $photoUrl2 = asset($student->profile_photo);
+                                    } elseif (file_exists(public_path('storage/' . $student->profile_photo))) {
+                                        $photoUrl2 = asset('storage/' . $student->profile_photo);
+                                    }
+                                }
+                            @endphp
+                            @if($photoUrl2)
+                                <img src="{{ $photoUrl2 }}" alt="Photo">
                             @else
                                 <div class="avatar-placeholder-small">
                                     {{ strtoupper(substr($student->prenoms ?? $student->first_name, 0, 1)) }}
@@ -201,11 +227,11 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="col-formation">
                     <span class="formation-badge">{{ $student->formations ?? $student->formation_souhaitee }}</span>
                 </div>
-                
+
                 <div class="col-status">
                     @if($student->online_status)
                         <span class="status-badge online">En ligne</span>
@@ -213,7 +239,7 @@
                         <span class="status-badge offline">Hors ligne</span>
                     @endif
                 </div>
-                
+
                 <div class="col-progress">
                     <div class="progress-container">
                         <div class="progress-bar-small">
@@ -222,7 +248,7 @@
                         <span class="progress-text">{{ rand(20, 95) }}%</span>
                     </div>
                 </div>
-                
+
                 <div class="col-actions">
                     <button class="action-btn-small primary" onclick="viewStudent({{ $student->id }})">
                         <i class="fas fa-eye"></i>
@@ -754,32 +780,32 @@
     .revolutionary-container {
         padding: 1rem;
     }
-    
+
     .header-content {
         flex-direction: column;
         gap: 1.5rem;
         align-items: stretch;
     }
-    
+
     .header-actions {
         justify-content: stretch;
     }
-    
+
     .rev-btn {
         flex: 1;
         justify-content: center;
     }
-    
+
     .smart-controls {
         flex-direction: column;
         gap: 1rem;
         align-items: stretch;
     }
-    
+
     .filter-zone {
         justify-content: space-between;
     }
-    
+
     .students-grid {
         grid-template-columns: 1fr;
     }
@@ -796,7 +822,7 @@ function animateCounters() {
         const duration = 2000;
         const step = target / (duration / 16);
         let current = 0;
-        
+
         const timer = setInterval(() => {
             current += step;
             if (current >= target) {
@@ -812,11 +838,11 @@ function animateCounters() {
 document.getElementById('smartSearch').addEventListener('input', function(e) {
     const query = e.target.value.toLowerCase();
     const cards = document.querySelectorAll('.student-card');
-    
+
     cards.forEach(card => {
         const name = card.querySelector('.student-name').textContent.toLowerCase();
         const formation = card.querySelector('.student-formation').textContent.toLowerCase();
-        
+
         if (name.includes(query) || formation.includes(query)) {
             card.style.display = 'block';
             card.style.animation = 'fadeIn 0.3s ease';
@@ -831,7 +857,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-        
+
         const filter = this.dataset.filter;
         // Logique de filtrage ici
         console.log('Filtrer par:', filter);
@@ -843,11 +869,11 @@ document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
-        
+
         const view = this.dataset.view;
         const grid = document.getElementById('studentsGrid');
         const list = document.getElementById('studentsList');
-        
+
         if (view === 'grid') {
             grid.style.display = 'grid';
             list.style.display = 'none';

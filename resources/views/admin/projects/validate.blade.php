@@ -151,8 +151,21 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="text-center mb-3">
-                                        @if($project->user->profile_photo)
-                                            <img src="{{ asset('storage/' . $project->user->profile_photo) }}"
+                                        @php
+                                            $photoUrl = null;
+                                            if (!empty($project->user->profile_photo)) {
+                                                $filename = basename($project->user->profile_photo);
+                                                if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                                    $photoUrl = asset('uploads/photos/' . $filename);
+                                                } elseif (file_exists(public_path($project->user->profile_photo))) {
+                                                    $photoUrl = asset($project->user->profile_photo);
+                                                } elseif (file_exists(public_path('storage/' . $project->user->profile_photo))) {
+                                                    $photoUrl = asset('storage/' . $project->user->profile_photo);
+                                                }
+                                            }
+                                        @endphp
+                                        @if($photoUrl)
+                                            <img src="{{ $photoUrl }}"
                                                  alt="Photo de profil"
                                                  class="rounded-circle mb-2"
                                                  style="width: 80px; height: 80px; object-fit: cover;">

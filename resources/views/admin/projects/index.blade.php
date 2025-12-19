@@ -483,8 +483,21 @@
                         <div class="col-md-6 col-lg-4 mb-3">
                             <div class="card h-100" style="background-color: #0f172a; border: 1px solid #334155;">
                                 <div class="card-body d-flex gap-3">
-                                    @if(($profile->profile_photo ?? null))
-                                        <img src="{{ asset('storage/' . ltrim($profile->profile_photo, '/')) }}" alt="{{ $fullName }}" class="rounded-circle" style="width: 56px; height: 56px; object-fit: cover;">
+                                    @php
+                                        $photoUrl = null;
+                                        if (!empty($profile->profile_photo)) {
+                                            $filename = basename($profile->profile_photo);
+                                            if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                                $photoUrl = asset('uploads/photos/' . $filename);
+                                            } elseif (file_exists(public_path($profile->profile_photo))) {
+                                                $photoUrl = asset($profile->profile_photo);
+                                            } elseif (file_exists(public_path('storage/' . $profile->profile_photo))) {
+                                                $photoUrl = asset('storage/' . $profile->profile_photo);
+                                            }
+                                        }
+                                    @endphp
+                                    @if($photoUrl)
+                                        <img src="{{ $photoUrl }}" alt="{{ $fullName }}" class="rounded-circle" style="width: 56px; height: 56px; object-fit: cover;">
                                     @else
                                         <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; font-weight: 700;">
                                             @php

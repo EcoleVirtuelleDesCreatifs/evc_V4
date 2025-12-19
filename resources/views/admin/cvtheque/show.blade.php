@@ -31,20 +31,33 @@
             <!-- Carte profil -->
             <div class="card shadow mb-4">
                 <div class="card-body text-center">
-                    @if($profile->profile_photo)
-                        <img src="{{ asset('storage/' . $profile->profile_photo) }}" 
-                             alt="{{ $profile->first_name }}" 
-                             class="rounded-circle mb-3" 
+                    @php
+                        $photoUrl = null;
+                        if (!empty($profile->profile_photo)) {
+                            $filename = basename($profile->profile_photo);
+                            if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                $photoUrl = asset('uploads/photos/' . $filename);
+                            } elseif (file_exists(public_path($profile->profile_photo))) {
+                                $photoUrl = asset($profile->profile_photo);
+                            } elseif (file_exists(public_path('storage/' . $profile->profile_photo))) {
+                                $photoUrl = asset('storage/' . $profile->profile_photo);
+                            }
+                        }
+                    @endphp
+                    @if($photoUrl)
+                        <img src="{{ $photoUrl }}"
+                             alt="{{ $profile->first_name }}"
+                             class="rounded-circle mb-3"
                              style="width: 150px; height: 150px; object-fit: cover;">
                     @else
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" 
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3"
                              style="width: 150px; height: 150px; font-size: 3rem;">
                             {{ strtoupper(substr($profile->first_name ?? 'U', 0, 1)) }}
                         </div>
                     @endif
-                    
+
                     <h4 class="mb-1">{{ $profile->first_name }} {{ $profile->last_name }}</h4>
-                    
+
                     @if($profile->professional_title)
                         <p class="text-muted mb-3">{{ $profile->professional_title }}</p>
                     @endif
@@ -59,7 +72,7 @@
                         };
                     @endphp
                     <span class="badge badge-{{ $badgeColor }} mb-3">{{ $profile->formation }}</span>
-                    
+
                     @if($profile->specialization)
                         <p class="text-muted small">{{ $profile->specialization }}</p>
                     @endif
@@ -72,11 +85,11 @@
                             $progressColor = $score >= 80 ? 'success' : ($score >= 50 ? 'warning' : 'danger');
                         @endphp
                         <div class="progress" style="height: 25px;">
-                            <div class="progress-bar bg-{{ $progressColor }}" 
-                                 role="progressbar" 
-                                 style="width: {{ $score }}%;" 
-                                 aria-valuenow="{{ $score }}" 
-                                 aria-valuemin="0" 
+                            <div class="progress-bar bg-{{ $progressColor }}"
+                                 role="progressbar"
+                                 style="width: {{ $score }}%;"
+                                 aria-valuenow="{{ $score }}"
+                                 aria-valuemin="0"
                                  aria-valuemax="100">
                                 <strong>{{ $score }}%</strong>
                             </div>
@@ -97,7 +110,7 @@
                         <small class="text-muted d-block">Email</small>
                         <a href="mailto:{{ $profile->user_email }}">{{ $profile->user_email }}</a>
                     </div>
-                    
+
                     @if($profile->phone)
                     <div class="mb-3">
                         <small class="text-muted d-block">Téléphone</small>
@@ -211,7 +224,7 @@
                                     </div>
                                 </div>
                                 @if($profile->cv_file_path)
-                                    <a href="{{ route('admin.cvtheque.download', ['id' => $profile->id, 'type' => 'cv']) }}" 
+                                    <a href="{{ route('admin.cvtheque.download', ['id' => $profile->id, 'type' => 'cv']) }}"
                                        class="btn btn-sm btn-outline-danger w-100">
                                         <i class="fas fa-download me-2"></i>Télécharger
                                     </a>
@@ -236,7 +249,7 @@
                                     </div>
                                 </div>
                                 @if($profile->motivation_letter_path)
-                                    <a href="{{ route('admin.cvtheque.download', ['id' => $profile->id, 'type' => 'motivation']) }}" 
+                                    <a href="{{ route('admin.cvtheque.download', ['id' => $profile->id, 'type' => 'motivation']) }}"
                                        class="btn btn-sm btn-outline-info w-100">
                                         <i class="fas fa-download me-2"></i>Télécharger
                                     </a>
@@ -263,7 +276,7 @@
                                 @if($profile->portfolio_files && count($portfolioFiles) > 0)
                                     <div class="mt-2">
                                         @foreach($portfolioFiles as $file)
-                                            <a href="{{ asset('storage/' . $file) }}" 
+                                            <a href="{{ asset('storage/' . $file) }}"
                                                target="_blank"
                                                class="btn btn-sm btn-outline-warning w-100 mb-1">
                                                 <i class="fas fa-external-link-alt me-2"></i>Voir fichier {{ $loop->iteration }}
@@ -291,7 +304,7 @@
                                     </div>
                                 </div>
                                 @if($profile->pressbook_file_path)
-                                    <a href="{{ route('admin.cvtheque.download', ['id' => $profile->id, 'type' => 'pressbook']) }}" 
+                                    <a href="{{ route('admin.cvtheque.download', ['id' => $profile->id, 'type' => 'pressbook']) }}"
                                        class="btn btn-sm btn-outline-success w-100">
                                         <i class="fas fa-download me-2"></i>Télécharger
                                     </a>
@@ -316,7 +329,7 @@
                                     </div>
                                 </div>
                                 @if($profile->report_file_path)
-                                    <a href="{{ route('admin.cvtheque.download', ['id' => $profile->id, 'type' => 'report']) }}" 
+                                    <a href="{{ route('admin.cvtheque.download', ['id' => $profile->id, 'type' => 'report']) }}"
                                        class="btn btn-sm btn-outline-primary w-100">
                                         <i class="fas fa-download me-2"></i>Télécharger
                                     </a>

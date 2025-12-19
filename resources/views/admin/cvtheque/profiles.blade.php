@@ -14,24 +14,24 @@
         gap: 1rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    
+
     .stat-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
     }
-    
+
     .stat-card-primary {
         background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
     }
-    
+
     .stat-card-success {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
-    
+
     .stat-card-warning {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
-    
+
     .stat-card-danger {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     }
@@ -43,7 +43,7 @@
     .stat-card-purple {
         background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
     }
-    
+
     .stat-icon {
         width: 60px;
         height: 60px;
@@ -54,17 +54,17 @@
         justify-content: center;
         font-size: 1.8rem;
     }
-    
+
     .stat-content {
         flex: 1;
     }
-    
+
     .stat-number {
         font-size: 2.5rem;
         font-weight: 700;
         margin: 0;
     }
-    
+
     .stat-label {
         margin: 0;
         opacity: 0.9;
@@ -425,9 +425,22 @@
                         @forelse($profiles as $profile)
                         <tr>
                             <td class="text-center">
-                                @if($profile->profile_photo)
-                                    <img src="{{ asset('storage/' . $profile->profile_photo) }}" 
-                                         alt="{{ $profile->first_name }}" 
+                                @php
+                                    $photoUrl = null;
+                                    if (!empty($profile->profile_photo)) {
+                                        $filename = basename($profile->profile_photo);
+                                        if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                            $photoUrl = asset('uploads/photos/' . $filename);
+                                        } elseif (file_exists(public_path($profile->profile_photo))) {
+                                            $photoUrl = asset($profile->profile_photo);
+                                        } elseif (file_exists(public_path('storage/' . $profile->profile_photo))) {
+                                            $photoUrl = asset('storage/' . $profile->profile_photo);
+                                        }
+                                    }
+                                @endphp
+                                @if($photoUrl)
+                                    <img src="{{ $photoUrl }}"
+                                         alt="{{ $profile->first_name }}"
                                          class="profile-avatar">
                                 @else
                                     <div class="profile-avatar-placeholder mx-auto">
@@ -482,7 +495,7 @@
                                     $progressColor = $score >= 80 ? '#10b981' : ($score >= 50 ? '#f59e0b' : '#ef4444');
                                 @endphp
                                 <div class="progress-custom">
-                                    <div class="progress-bar-custom" 
+                                    <div class="progress-bar-custom"
                                          style="width: {{ $score }}%; background: linear-gradient(90deg, {{ $progressColor }}, {{ $progressColor }}dd);">
                                         {{ $score }}%
                                     </div>
@@ -511,8 +524,8 @@
                                 </div>
                             </td>
                             <td class="text-center">
-                                <a href="{{ route('admin.cvtheque.show', $profile->id) }}" 
-                                   class="btn-view btn-sm" 
+                                <a href="{{ route('admin.cvtheque.show', $profile->id) }}"
+                                   class="btn-view btn-sm"
                                    title="Voir le profil complet">
                                     <i class="fas fa-eye"></i>
                                 </a>

@@ -281,8 +281,21 @@
             @forelse($projectsAssigned as $project)
                 <div class="project-card">
                     <div class="student-info">
-                        @if($project->profile_photo)
-                            <img src="{{ asset('storage/' . $project->profile_photo) }}" alt="Photo" class="student-avatar">
+                        @php
+                            $photoUrl = null;
+                            if (!empty($project->profile_photo)) {
+                                $filename = basename($project->profile_photo);
+                                if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                    $photoUrl = asset('uploads/photos/' . $filename);
+                                } elseif (file_exists(public_path($project->profile_photo))) {
+                                    $photoUrl = asset($project->profile_photo);
+                                } elseif (file_exists(public_path('storage/' . $project->profile_photo))) {
+                                    $photoUrl = asset('storage/' . $project->profile_photo);
+                                }
+                            }
+                        @endphp
+                        @if($photoUrl)
+                            <img src="{{ $photoUrl }}" alt="Photo" class="student-avatar">
                         @else
                             <div class="student-avatar-placeholder">
                                 @if($project->prenom && $project->nom)
@@ -341,8 +354,21 @@
             @forelse($projectsSubmitted as $project)
                 <div class="project-card">
                     <div class="student-info">
-                        @if($project->profile_photo)
-                            <img src="{{ asset('storage/' . $project->profile_photo) }}" alt="Photo" class="student-avatar">
+                        @php
+                            $photoUrl = null;
+                            if (!empty($project->profile_photo)) {
+                                $filename = basename($project->profile_photo);
+                                if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                    $photoUrl = asset('uploads/photos/' . $filename);
+                                } elseif (file_exists(public_path($project->profile_photo))) {
+                                    $photoUrl = asset($project->profile_photo);
+                                } elseif (file_exists(public_path('storage/' . $project->profile_photo))) {
+                                    $photoUrl = asset('storage/' . $project->profile_photo);
+                                }
+                            }
+                        @endphp
+                        @if($photoUrl)
+                            <img src="{{ $photoUrl }}" alt="Photo" class="student-avatar">
                         @else
                             <div class="student-avatar-placeholder">
                                 @if($project->prenom && $project->nom)
@@ -401,8 +427,21 @@
             @forelse($projectsValidated as $project)
                 <div class="project-card">
                     <div class="student-info">
-                        @if($project->profile_photo)
-                            <img src="{{ asset('storage/' . $project->profile_photo) }}" alt="Photo" class="student-avatar">
+                        @php
+                            $photoUrl = null;
+                            if (!empty($project->profile_photo)) {
+                                $filename = basename($project->profile_photo);
+                                if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                    $photoUrl = asset('uploads/photos/' . $filename);
+                                } elseif (file_exists(public_path($project->profile_photo))) {
+                                    $photoUrl = asset($project->profile_photo);
+                                } elseif (file_exists(public_path('storage/' . $project->profile_photo))) {
+                                    $photoUrl = asset('storage/' . $project->profile_photo);
+                                }
+                            }
+                        @endphp
+                        @if($photoUrl)
+                            <img src="{{ $photoUrl }}" alt="Photo" class="student-avatar">
                         @else
                             <div class="student-avatar-placeholder">
                                 @if($project->prenom && $project->nom)
@@ -462,8 +501,21 @@
             @foreach($projectsRejected as $project)
                 <div class="project-card">
                     <div class="student-info">
-                        @if($project->profile_photo)
-                            <img src="{{ asset('storage/' . $project->profile_photo) }}" alt="Photo" class="student-avatar">
+                        @php
+                            $photoUrl = null;
+                            if (!empty($project->profile_photo)) {
+                                $filename = basename($project->profile_photo);
+                                if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                    $photoUrl = asset('uploads/photos/' . $filename);
+                                } elseif (file_exists(public_path($project->profile_photo))) {
+                                    $photoUrl = asset($project->profile_photo);
+                                } elseif (file_exists(public_path('storage/' . $project->profile_photo))) {
+                                    $photoUrl = asset('storage/' . $project->profile_photo);
+                                }
+                            }
+                        @endphp
+                        @if($photoUrl)
+                            <img src="{{ $photoUrl }}" alt="Photo" class="student-avatar">
                         @else
                             <div class="student-avatar-placeholder">
                                 @if($project->prenom && $project->nom)

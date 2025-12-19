@@ -163,8 +163,21 @@
         <div class="profile-accordion">
             <div class="profile-header" onclick="toggleProfile({{ $loop->index }})">
                 <div class="profile-info">
-                    @if($profile['profile_photo'])
-                        <img src="{{ asset('storage/' . $profile['profile_photo']) }}" class="profile-avatar">
+                    @php
+                        $photoUrl = null;
+                        if (!empty($profile['profile_photo'])) {
+                            $filename = basename($profile['profile_photo']);
+                            if (file_exists(public_path('uploads/photos/' . $filename))) {
+                                $photoUrl = asset('uploads/photos/' . $filename);
+                            } elseif (file_exists(public_path($profile['profile_photo']))) {
+                                $photoUrl = asset($profile['profile_photo']);
+                            } elseif (file_exists(public_path('storage/' . $profile['profile_photo']))) {
+                                $photoUrl = asset('storage/' . $profile['profile_photo']);
+                            }
+                        }
+                    @endphp
+                    @if($photoUrl)
+                        <img src="{{ $photoUrl }}" class="profile-avatar">
                     @else
                         <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700;">
                             {{ strtoupper(substr($profile['email'], 0, 2)) }}

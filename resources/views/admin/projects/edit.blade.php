@@ -266,8 +266,21 @@
                                     <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
-                                                @if(!empty($rpStudent?->profile_photo))
-                                                    <img src="{{ asset('storage/' . $rpStudent->profile_photo) }}" alt="{{ $rpName }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                                @php
+                                                    $rpPhotoUrl = null;
+                                                    if (!empty($rpStudent?->profile_photo)) {
+                                                        $rpFilename = basename($rpStudent->profile_photo);
+                                                        if (file_exists(public_path('uploads/photos/' . $rpFilename))) {
+                                                            $rpPhotoUrl = asset('uploads/photos/' . $rpFilename);
+                                                        } elseif (file_exists(public_path($rpStudent->profile_photo))) {
+                                                            $rpPhotoUrl = asset($rpStudent->profile_photo);
+                                                        } elseif (file_exists(public_path('storage/' . $rpStudent->profile_photo))) {
+                                                            $rpPhotoUrl = asset('storage/' . $rpStudent->profile_photo);
+                                                        }
+                                                    }
+                                                @endphp
+                                                @if($rpPhotoUrl)
+                                                    <img src="{{ $rpPhotoUrl }}" alt="{{ $rpName }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
                                                 @else
                                                     <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-weight: 600;">
                                                         {{ strtoupper(substr($rpName, 0, 1)) }}

@@ -455,8 +455,21 @@
         <!-- Header avec photo et infos principales -->
         <div class="profile-header">
             <div class="profile-photo-container">
-                @if($userInfo->profile_photo)
-                    <img src="{{ asset('storage/' . $userInfo->profile_photo) }}" alt="{{ $userInfo->first_name }}" class="profile-photo">
+                @php
+                    $photoUrl = null;
+                    if (!empty($userInfo->profile_photo)) {
+                        $filename = basename($userInfo->profile_photo);
+                        if (file_exists(public_path('uploads/photos/' . $filename))) {
+                            $photoUrl = asset('uploads/photos/' . $filename);
+                        } elseif (file_exists(public_path($userInfo->profile_photo))) {
+                            $photoUrl = asset($userInfo->profile_photo);
+                        } elseif (file_exists(public_path('storage/' . $userInfo->profile_photo))) {
+                            $photoUrl = asset('storage/' . $userInfo->profile_photo);
+                        }
+                    }
+                @endphp
+                @if($photoUrl)
+                    <img src="{{ $photoUrl }}" alt="{{ $userInfo->first_name }}" class="profile-photo">
                 @else
                     <div class="profile-photo-placeholder">
                         {{ strtoupper(substr($userInfo->first_name ?? 'U', 0, 1)) }}
@@ -703,7 +716,7 @@
     // Animation au scroll
     document.addEventListener('DOMContentLoaded', function() {
         const sections = document.querySelectorAll('.profile-section');
-        
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -711,7 +724,7 @@
                 }
             });
         }, { threshold: 0.1 });
-        
+
         sections.forEach(section => observer.observe(section));
     });
 
