@@ -92,7 +92,41 @@
 
 @section('content')
 
-<form id="sendProjectForm" action="{{ route('admin.projets.send') }}" method="POST" class="interactive-dashboard-form">
+@if(session('success'))
+    <div class="alert alert-success mx-4 mt-4 mb-0">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="alert alert-danger mx-4 mt-4 mb-0">
+        {{ session('error') }}
+    </div>
+@endif
+
+@if(session('errors_list') && is_array(session('errors_list')) && count(session('errors_list')))
+    <div class="alert alert-warning mx-4 mt-3 mb-0">
+        <strong>Détails des erreurs :</strong>
+        <ul class="mb-0">
+            @foreach(session('errors_list') as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if(session('emails_failures') && is_array(session('emails_failures')) && count(session('emails_failures')))
+    <div class="alert alert-warning mx-4 mt-3 mb-0">
+        <strong>Emails non envoyés :</strong>
+        <ul class="mb-0">
+            @foreach(session('emails_failures') as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+<form id="sendProjectForm" action="{{ route('admin.projets.send') }}" method="POST" class="interactive-dashboard-form" enctype="multipart/form-data">
     @csrf
 
     <!-- Statistiques par formation -->
@@ -235,7 +269,7 @@
                                        name="tags"
                                        value="{{ old('tags') }}"
                                        placeholder="Ex: logo, branding, print (séparés par des virgules)">
-                                <small class="text-muted d-block mt-2">
+                                <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Séparez les tags par des virgules
                                 </small>
@@ -263,12 +297,13 @@
                                         required>
                                     <option value="">-- Sélectionner --</option>
                                     <option value="all">📚 Toutes les formations</option>
-                                    <option value="Design Graphique">🎨 Design Graphique ({{ $stats['design_graphique'] }})</option>
-                                    <option value="Community Management">📱 Community Management ({{ $stats['community_management'] }})</option>
-                                    <option value="Gestion Informatique">💻 Gestion Informatique ({{ $stats['gestion_informatique'] }})</option>
-                                    <option value="Intelligence Artificielle">🤖 Intelligence Artificielle ({{ $stats['intelligence_artificielle'] ?? 0 }})</option>
+                                    <option value="Design Graphique" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Design Graphique' ? 'selected' : '' }}>🎨 Design Graphique ({{ $stats['design_graphique'] }})</option>
+                                    <option value="Design Graphique & Community Management" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Design Graphique & Community Management' ? 'selected' : '' }}>🎨📱 Design Graphique & Community Management ({{ $stats['design_graphique_cm'] ?? 0 }})</option>
+                                    <option value="Community Management" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Community Management' ? 'selected' : '' }}>📱 Community Management ({{ $stats['community_management'] }})</option>
+                                    <option value="Gestion Informatique" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Gestion Informatique' ? 'selected' : '' }}>💻 Gestion Informatique ({{ $stats['gestion_informatique'] }})</option>
+                                    <option value="Intelligence Artificielle" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Intelligence Artificielle' ? 'selected' : '' }}>🤖 Intelligence Artificielle ({{ $stats['intelligence_artificielle'] ?? 0 }})</option>
                                     @if($stats['sans_formation'] > 0)
-                                        <option value="Sans formation">❓ Sans formation ({{ $stats['sans_formation'] }})</option>
+                                        <option value="Sans formation" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Sans formation' ? 'selected' : '' }}>❓ Sans formation ({{ $stats['sans_formation'] }})</option>
                                     @endif
                                 </select>
                                 @error('formation')
@@ -296,7 +331,7 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <small class="text-muted d-block mt-2">
+                                <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Maintenez Ctrl/Cmd pour sélectionner plusieurs étudiants
                                 </small>
@@ -330,7 +365,7 @@
                         @error('description')
                             <div class="text-danger mt-2">{{ $message }}</div>
                         @enderror
-                        <small class="text-muted d-block mt-2">
+                        <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
                             <i class="fas fa-info-circle me-1"></i>
                             Utilisez l'éditeur pour formater votre texte (gras, italique, listes, liens, etc.)
                         </small>
@@ -350,6 +385,26 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
+                                <label for="deadline">
+                                    Délai (deadline) <span class="text-danger">*</span>
+                                </label>
+                                <input type="date"
+                                       class="form-control @error('deadline') is-invalid @enderror"
+                                       id="deadline"
+                                       name="deadline"
+                                       value="{{ old('deadline') }}"
+                                       required>
+                                @error('deadline')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    Date limite de rendu du projet
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <label for="software_used">
                                     Logiciels à Utiliser
                                 </label>
@@ -359,7 +414,7 @@
                                        name="software_used"
                                        value="{{ old('software_used') }}"
                                        placeholder="Ex: Photoshop, Illustrator, Figma">
-                                <small class="text-muted d-block mt-2">
+                                <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
                                     <i class="fas fa-info-circle me-1"></i>
                                     Séparez par des virgules
                                 </small>
@@ -376,9 +431,31 @@
                                        name="reference_link"
                                        value="{{ old('reference_link') }}"
                                        placeholder="https://example.com/references">
-                                <small class="text-muted d-block mt-2">
+                                <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
                                     <i class="fas fa-link me-1"></i>
                                     Lien vers ressources, exemples ou brief
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group mb-0">
+                                <label for="attachments">Fichiers (images ou PDF)</label>
+                                <input type="file"
+                                       class="form-control @error('attachments') is-invalid @enderror @error('attachments.*') is-invalid @enderror"
+                                       id="attachments"
+                                       name="attachments[]"
+                                       multiple
+                                       accept="image/*,application/pdf">
+                                @error('attachments')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                @error('attachments.*')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
+                                    <i class="fas fa-paperclip me-1"></i>
+                                    Vous pouvez joindre plusieurs fichiers (JPG/PNG/WebP/PDF)
                                 </small>
                             </div>
                         </div>
@@ -430,6 +507,8 @@ quill.on('text-change', function() {
     document.getElementById('description').value = quill.root.innerHTML;
 });
 
+document.getElementById('description').value = quill.root.innerHTML;
+
 // Gestion de la sélection de formation
 const formationSelect = document.getElementById('formation');
 const studentsSelectContainer = document.getElementById('studentsSelectContainer');
@@ -439,6 +518,7 @@ const recipientsCount = document.getElementById('recipientsCount');
 const stats = {
     'all': {{ $stats['total_students'] }},
     'Design Graphique': {{ $stats['design_graphique'] }},
+    'Design Graphique & Community Management': {{ $stats['design_graphique_cm'] ?? 0 }},
     'Community Management': {{ $stats['community_management'] }},
     'Gestion Informatique': {{ $stats['gestion_informatique'] }},
     'Intelligence Artificielle': {{ $stats['intelligence_artificielle'] ?? 0 }},
@@ -477,6 +557,10 @@ formationSelect.addEventListener('change', function() {
 studentsSelect.addEventListener('change', function() {
     updateRecipientsCount();
 });
+
+if (formationSelect.value) {
+    formationSelect.dispatchEvent(new Event('change'));
+}
 
 function updateRecipientsCount() {
     const selectedFormation = formationSelect.value;

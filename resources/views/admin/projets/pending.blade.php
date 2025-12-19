@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'TP en Attente de Validation')
+@section('title', 'TP en Cours de Validation')
 
 @push('styles')
 <style>
@@ -69,7 +69,7 @@
                 📋
             </div>
             <div>
-                <h1 class="mb-0">TP en Attente de Validation</h1>
+                <h1 class="mb-0">TP en Cours de Validation</h1>
                 <p class="mb-0" style="opacity: 0.95;">Évaluez et validez les travaux pratiques soumis par les étudiants</p>
             </div>
         </div>
@@ -131,14 +131,14 @@
     <!-- Liste des TP soumis -->
     <div class="tp-list-card">
         <div class="tp-list-header">
-            <h5 class="mb-0"><i class="fas fa-hourglass-half me-2"></i>TP Soumis en Attente</h5>
-            <span class="badge-count">{{ $tpSubmissions->count() }} en attente</span>
+            <h5 class="mb-0"><i class="fas fa-hourglass-half me-2"></i>TP Soumis - EN COURS DE VALIDATION</h5>
+            <span class="badge-count">{{ $tpSubmissions->count() }} en cours</span>
         </div>
         <div class="tp-list-body">
             @if($tpSubmissions->isEmpty())
                 <div class="text-center py-5">
                     <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                    <h5>Aucun TP en attente</h5>
+                    <h5>Aucun TP en cours de validation</h5>
                     <p class="text-muted">Tous les TP ont été évalués !</p>
                 </div>
             @else
@@ -243,17 +243,17 @@
                         <i class="fas fa-exclamation-triangle me-2"></i>
                         <strong>Attention :</strong> L'étudiant recevra un email avec votre commentaire.
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="rejectionReason" class="form-label" style="font-weight: 600; color: #1a202c; display: block; margin-bottom: 0.5rem;">
                             <i class="fas fa-comment-alt me-2"></i>Raison du rejet <span class="text-danger">*</span>
                         </label>
-                        <textarea 
-                            class="form-control" 
-                            id="rejectionReason" 
-                            name="reason" 
-                            rows="5" 
-                            required 
+                        <textarea
+                            class="form-control"
+                            id="rejectionReason"
+                            name="reason"
+                            rows="5"
+                            required
                             minlength="10"
                             placeholder="Expliquez clairement les points à améliorer pour aider l'étudiant..."
                             style="width: 100%; border-radius: 12px; border: 2px solid #e9ecef; padding: 1rem; font-family: inherit; resize: vertical;"
@@ -297,7 +297,7 @@
         justify-content: center;
         animation: fadeIn 0.3s ease;
     }
-    
+
     .custom-modal-container {
         width: 90%;
         max-width: 600px;
@@ -305,14 +305,14 @@
         overflow-y: auto;
         animation: slideDown 0.3s ease;
     }
-    
+
     .custom-modal-content {
         background: white;
         border-radius: 20px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         overflow: hidden;
     }
-    
+
     .custom-modal-header {
         background: linear-gradient(135deg, #e74a3b, #be2617);
         color: white;
@@ -321,13 +321,13 @@
         justify-content: space-between;
         align-items: center;
     }
-    
+
     .custom-modal-title {
         font-weight: 700;
         font-size: 1.25rem;
         margin: 0;
     }
-    
+
     .custom-modal-close {
         background: transparent;
         border: none;
@@ -344,16 +344,16 @@
         border-radius: 50%;
         transition: all 0.2s ease;
     }
-    
+
     .custom-modal-close:hover {
         background: rgba(255, 255, 255, 0.2);
         transform: rotate(90deg);
     }
-    
+
     .custom-modal-body {
         padding: 2rem;
     }
-    
+
     .custom-modal-footer {
         border-top: 1px solid #e9ecef;
         padding: 1.5rem 2rem;
@@ -361,12 +361,12 @@
         gap: 1rem;
         justify-content: flex-end;
     }
-    
+
     @keyframes fadeIn {
         from { opacity: 0; }
         to { opacity: 1; }
     }
-    
+
     @keyframes slideDown {
         from {
             opacity: 0;
@@ -377,19 +377,19 @@
             transform: translateY(0);
         }
     }
-    
+
     #rejectionReason:focus {
         border-color: #e74a3b !important;
         box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25) !important;
         outline: none !important;
     }
-    
+
     /* Ensure button is clickable */
     .btn-action {
         cursor: pointer;
         z-index: 1;
     }
-    
+
     /* Cartes statistiques */
     .stat-card {
         background: white;
@@ -673,14 +673,14 @@ function validateTP(tpId) {
         // Utiliser une URL template Laravel pour garantir la route correcte
         const validateUrl = '{{ route("admin.projets.pending.validate", ["id" => "__ID__"]) }}'.replace('__ID__', tpId);
         form.action = validateUrl;
-        
+
         // Ajouter le token CSRF
         const csrfToken = document.createElement('input');
         csrfToken.type = 'hidden';
         csrfToken.name = '_token';
         csrfToken.value = '{{ csrf_token() }}';
         form.appendChild(csrfToken);
-        
+
         document.body.appendChild(form);
         form.submit();
     }
@@ -691,10 +691,10 @@ function rejectTP(tpId) {
     // Stocker l'ID du TP dans le formulaire de rejet
     const rejectUrl = '{{ route("admin.projets.pending.reject", ["id" => "__ID__"]) }}'.replace('__ID__', tpId);
     document.getElementById('rejectForm').action = rejectUrl;
-    
+
     // Ouvrir le modal personnalisé
     document.getElementById('customRejectModal').style.display = 'flex';
-    
+
     // Focus sur le textarea après un court délai pour l'animation
     setTimeout(() => {
         const textarea = document.getElementById('rejectionReason');
@@ -722,7 +722,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Fermer avec la touche Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {

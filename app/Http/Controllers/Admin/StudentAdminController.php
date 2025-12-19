@@ -526,29 +526,56 @@ class StudentAdminController extends Controller
             }
         }
 
-        // Récupérer les paiements et factures
-        $paiements = [];
-        $factures = [];
+        // Récupérer les paiements depuis la nouvelle table payments
+        $paiements = collect();
+        $factures = collect();
         $totalPaye = 0;
-        $totalFactures = 0;
+        $totalFactures = 77000; // Total formation : 50 000 (1ère tranche) + 27 000 (2ème tranche)
         $soldeRestant = 0;
-
-        if (Schema::hasTable('paiements')) {
-            $paiements = DB::table('paiements')
-                ->where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get();
-            $totalPaye = $paiements->where('statut', 'validé')->sum('montant');
+        
+        // Récupérer la pré-inscription de l'étudiant pour ses paiements
+        $preRegistration = null;
+        if (Schema::hasTable('pre_registrations')) {
+            $preRegistration = DB::table('pre_registrations')
+                ->where('email', $student->email)
+                ->first();
         }
 
-        // Récupérer les factures si la table existe
-        if (Schema::hasTable('factures')) {
-            $factures = DB::table('factures')
+        if ($preRegistration && Schema::hasTable('payments')) {
+            $paiements = DB::table('payments')
+                ->where('pre_registration_id', $preRegistration->id)
+                ->orderBy('installment_number', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            // Calculer le total payé (uniquement les paiements completed)
+            $totalPaye = $paiements->where('status', 'completed')->sum('amount');
+            
+            // Calculer le solde restant
+            $soldeRestant = $totalFactures - $totalPaye;
+        }
+
+        // Anciens paiements (table paiements - pour compatibilité)
+        if ($paiements->isEmpty() && Schema::hasTable('paiements')) {
+            $anciensPaiements = DB::table('paiements')
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
-            $totalFactures = $factures->sum('montant');
-            $soldeRestant = $totalFactures - $totalPaye;
+            
+            if ($anciensPaiements->isNotEmpty()) {
+                $paiements = $anciensPaiements;
+                $totalPaye = $anciensPaiements->where('statut', 'validé')->sum('montant');
+                
+                // Récupérer les factures si la table existe
+                if (Schema::hasTable('factures')) {
+                    $factures = DB::table('factures')
+                        ->where('user_id', $user->id)
+                        ->orderBy('created_at', 'desc')
+                        ->get();
+                    $totalFactures = $factures->sum('montant');
+                    $soldeRestant = $totalFactures - $totalPaye;
+                }
+            }
         }
 
         // Récupérer les données du profil CVthèque

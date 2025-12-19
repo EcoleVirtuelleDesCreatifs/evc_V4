@@ -95,6 +95,23 @@ class CertificateGenerator
     }
 
     /**
+     * Générer un certificat pour Design Graphique
+     *
+     * @param array $data
+     * @return string
+     */
+    public function generateDesignGraphique(array $data): string
+    {
+        $templatePath = public_path('assets/certificats/design_graphic/certificat_design_graphic.pdf');
+
+        if (!file_exists($templatePath)) {
+            throw new \Exception('Template de certificat introuvable : ' . $templatePath);
+        }
+
+        return $this->generate($templatePath, $data);
+    }
+
+    /**
      * Générer un certificat pour Community Management / Social Media Marketing
      *
      * @param array $data
@@ -103,6 +120,40 @@ class CertificateGenerator
     public function generateCommunityManagement(array $data): string
     {
         $templatePath = public_path('assets/certificats/cm_smm/certificat_cm_smm.pdf');
+
+        if (!file_exists($templatePath)) {
+            throw new \Exception('Template de certificat introuvable : ' . $templatePath);
+        }
+
+        return $this->generate($templatePath, $data);
+    }
+
+    /**
+     * Générer un certificat pour Gestion Informatique
+     *
+     * @param array $data
+     * @return string
+     */
+    public function generateGestionInformatique(array $data): string
+    {
+        $templatePath = public_path('assets/certificats/gestion_informatique/certificat_gestion_informatique.pdf');
+
+        if (!file_exists($templatePath)) {
+            throw new \Exception('Template de certificat introuvable : ' . $templatePath);
+        }
+
+        return $this->generate($templatePath, $data);
+    }
+
+    /**
+     * Générer un certificat pour Intelligence Artificielle
+     *
+     * @param array $data
+     * @return string
+     */
+    public function generateIntelligenceArtificielle(array $data): string
+    {
+        $templatePath = public_path('assets/certificats/intelligence_artificielle/certificat_intelligence_artificielle.pdf');
 
         if (!file_exists($templatePath)) {
             throw new \Exception('Template de certificat introuvable : ' . $templatePath);

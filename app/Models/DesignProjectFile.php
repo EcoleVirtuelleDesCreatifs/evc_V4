@@ -17,7 +17,7 @@ class DesignProjectFile extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'design_project_id',
+        'project_id',
         'original_name',
         'stored_name',
         'file_path',
@@ -51,7 +51,7 @@ class DesignProjectFile extends Model
      */
     public function designProject()
     {
-        return $this->belongsTo(DesignProject::class);
+        return $this->belongsTo(DesignProject::class, 'project_id');
     }
 
     /**
@@ -68,7 +68,7 @@ class DesignProjectFile extends Model
     public function getFormattedSizeAttribute()
     {
         $bytes = $this->file_size;
-        
+
         if ($bytes >= 1073741824) {
             return number_format($bytes / 1073741824, 2) . ' GB';
         } elseif ($bytes >= 1048576) {

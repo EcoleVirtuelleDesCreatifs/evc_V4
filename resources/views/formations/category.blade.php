@@ -1,9 +1,16 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Formations {{ ucfirst($category) }} - EVC 2024')
-@section('page-title', 'Formations {{ ucfirst($category) }}')
+@section('title', 'Formations ' . ucfirst($category) . ' - EVC 2024')
+@section('page-title', 'Formations ' . ucfirst($category))
 
 @section('content')
+@php
+    $routePrefix = 'design-graphique';
+    $path = request()->path();
+    if (preg_match('#^evc/compte/([^/]+)#', $path, $matches)) {
+        $routePrefix = $matches[1];
+    }
+@endphp
 <div class="row">
     <div class="col-12">
         <!-- En-tête de la catégorie -->
@@ -41,7 +48,7 @@
                     </div>
                     <div class="col-md-4 text-end">
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="{{ route('design-graphique.formations.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route($routePrefix . '.formations.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-1"></i>
                                 Retour
                             </a>
@@ -112,13 +119,13 @@
             @forelse($formations as $formation)
                 <div class="col-md-6 col-lg-4 mb-4">
                     <div class="card h-100 shadow-sm" style="border-radius: 15px; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow=''">
-                        
+
                         <!-- Image de la formation -->
                         <div class="position-relative" style="height: 200px; overflow: hidden;">
                             @if(isset($formation->image_url) && $formation->image_url)
                                 <img src="{{ asset('storage/' . $formation->image_url) }}" class="w-100 h-100" alt="{{ $formation->name }}" style="object-fit: cover;">
                             @else
-                                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, 
+                                <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg,
                                     @if($category == 'photoshop') #667eea 0%, #764ba2 100%
                                     @elseif($category == 'illustrator') #f093fb 0%, #f5576c 100%
                                     @elseif($category == 'indesign') #4facfe 0%, #00f2fe 100%
@@ -127,7 +134,7 @@
                                     <i class="fas fa-graduation-cap fa-4x text-white opacity-75"></i>
                                 </div>
                             @endif
-                            
+
                             <!-- Badge du niveau -->
                             <span class="position-absolute top-0 end-0 m-3 badge bg-dark bg-opacity-75 px-3 py-2" style="border-radius: 10px; font-size: 0.85rem;">
                                 {{ ucfirst($formation->level ?? 'débutant') }}
@@ -161,14 +168,14 @@
 
                             <!-- Boutons d'action -->
                             <div class="d-grid gap-2">
-                                <a href="{{ route('design-graphique.formations.show', $formation->id) }}" class="btn btn-primary d-flex align-items-center justify-content-center gap-2" style="border-radius: 10px; padding: 12px; font-weight: 500;">
+                                <a href="{{ route($routePrefix . '.formations.show', $formation->id) }}" class="btn btn-primary d-flex align-items-center justify-content-center gap-2" style="border-radius: 10px; padding: 12px; font-weight: 500;">
                                     <i class="fas fa-play-circle"></i>
                                     Voir la formation
                                 </a>
-                                
+
                                 <div class="d-flex gap-2">
                                     @if(!empty($formation->video_url) || !empty($formation->vimeo_code))
-                                        <a href="{{ route('design-graphique.formations.download', $formation->id) }}" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-1" style="border-radius: 10px; font-size: 0.9rem;" title="Télécharger la vidéo" target="_blank">
+                                        <a href="{{ route($routePrefix . '.formations.download', $formation->id) }}" class="btn btn-outline-secondary flex-fill d-flex align-items-center justify-content-center gap-1" style="border-radius: 10px; font-size: 0.9rem;" title="Télécharger la vidéo" target="_blank">
                                             <i class="fas fa-download"></i>
                                             <span class="d-none d-md-inline">Télécharger</span>
                                         </a>
@@ -178,7 +185,7 @@
                                             <span class="d-none d-md-inline">Télécharger</span>
                                         </button>
                                     @endif
-                                    
+
                                     <button class="btn btn-outline-info flex-fill d-flex align-items-center justify-content-center gap-1" style="border-radius: 10px; font-size: 0.9rem;" title="Favoris">
                                         <i class="fas fa-bookmark"></i>
                                         <span class="d-none d-md-inline">Favoris</span>

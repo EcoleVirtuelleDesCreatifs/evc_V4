@@ -254,6 +254,12 @@
 @endpush
 
 @php
+    $routePrefix = 'design-graphique';
+    $path = request()->path();
+    if (preg_match('#^evc/compte/([^/]+)#', $path, $matches)) {
+        $routePrefix = $matches[1];
+    }
+
     // --- Video Logic (Preserved) ---
     $description = strip_tags($formation->short_description ?? $formation->description ?? '');
     $description = preg_replace('/^Description\s*:\s*[^.]*\.?\s*/i', '', $description);
@@ -342,7 +348,7 @@
 
         <!-- Breadcrumb -->
         <div class="mb-6">
-            <a href="{{ route('design-graphique.formations.index') }}" class="text-white-50 hover:text-white text-decoration-none small fw-medium d-flex align-items-center gap-2">
+            <a href="{{ route($routePrefix . '.formations.index') }}" class="text-white-50 hover:text-white text-decoration-none small fw-medium d-flex align-items-center gap-2">
                 <i class="fas fa-arrow-left"></i> Retour aux formations
             </a>
         </div>
@@ -453,7 +459,7 @@
                     <!-- Actions -->
                     <div class="mt-auto d-grid gap-3">
                         @if($files->count() > 0)
-                            <a href="{{ route('design-graphique.formations.download-all', $formation->id) }}" class="btn-webtv-primary">
+                            <a href="{{ route($routePrefix . '.formations.download-all', $formation->id) }}" class="btn-webtv-primary">
                                 <i class="fas fa-download"></i> Télécharger les ressources
                             </a>
                         @else

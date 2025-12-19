@@ -20,19 +20,19 @@
     }
 
     .stat-card.formations {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        background: linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #FCAF45 100%);
     }
 
     .stat-card.tp {
-        background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+        background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%);
     }
 
     .stat-card.projets {
-        background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%);
+        background: linear-gradient(135deg, #515BD4 0%, #C13584 55%, #FCAF45 100%);
     }
 
     .stat-card.evenements {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        background: linear-gradient(135deg, #833AB4 0%, #FD1D1D 45%, #F77737 100%);
     }
 
     .stat-number {
@@ -74,6 +74,17 @@
         transform: scale(1.05);
     }
 
+    @keyframes pulse-glow {
+        0%, 100% {
+            box-shadow: 0 20px 60px rgba(131, 58, 180, 0.4);
+            transform: scale(1);
+        }
+        50% {
+            box-shadow: 0 25px 80px rgba(131, 58, 180, 0.6), 0 0 30px rgba(193, 53, 132, 0.4);
+            transform: scale(1.02);
+        }
+    }
+
     .formation-card {
         border: none;
         border-radius: 20px;
@@ -89,7 +100,7 @@
     }
 
     .formation-header {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        background: linear-gradient(135deg, #833AB4 0%, #FD1D1D 50%, #FCAF45 100%);
         color: white;
         padding: 2rem;
         position: relative;
@@ -117,7 +128,7 @@
         border-radius: 15px;
         overflow: hidden;
         transition: all 0.3s ease;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background: linear-gradient(135deg, #fff1f7 0%, #fff7ed 100%);
         position: relative;
     }
 
@@ -130,11 +141,11 @@
         width: 60px;
         height: 60px;
         border-radius: 12px;
-        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        box-shadow: 0 5px 15px rgba(225, 48, 108, 0.35);
     }
 
     .section-title {
@@ -153,12 +164,12 @@
         left: 0;
         width: 80px;
         height: 4px;
-        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%);
         border-radius: 2px;
     }
 
     .profile-header {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        background: linear-gradient(135deg, #833AB4 0%, #C13584 40%, #E1306C 70%, #FCAF45 100%);
         border-radius: 20px;
         padding: 2.5rem;
         position: relative;
@@ -210,7 +221,7 @@
 
     .btn-edit {
         background: white;
-        color: #1e40af;
+        color: #833AB4;
         border: none;
         font-weight: 600;
         padding: 0.75rem 1.5rem;
@@ -221,7 +232,7 @@
     .btn-edit:hover {
         transform: scale(1.05);
         box-shadow: 0 5px 15px rgba(255,255,255,0.3);
-        color: #1e40af;
+        color: #833AB4;
     }
 
     .action-card {
@@ -247,11 +258,11 @@
         height: 60px;
         margin: 0 auto 1rem;
         border-radius: 12px;
-        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4);
+        box-shadow: 0 5px 15px rgba(225, 48, 108, 0.35);
         transition: all 0.3s;
     }
 
@@ -284,7 +295,7 @@
     }
 
     .countdown-card {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        background: linear-gradient(135deg, #833AB4 0%, #C13584 40%, #E1306C 70%, #FCAF45 100%);
         border-radius: 20px;
         padding: 2rem;
         position: relative;
@@ -406,7 +417,7 @@
                 </div>
             </div>
             <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
-                <a href="{{ route('design-graphique.profil.editer') }}" class="btn btn-edit">
+                <a href="{{ route('community-management.profil.editer') }}" class="btn btn-edit">
                     <i class="fas fa-edit me-2"></i>
                     Modifier mon profil
                 </a>
@@ -435,6 +446,27 @@
                         <i class="fas fa-arrow-right me-2"></i>
                         Explorer
                     </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-md-12 mb-4 fade-in-up" style="animation-delay: 0.15s;">
+            <div class="stat-card projets h-100" style="box-shadow: 0 20px 60px rgba(131, 58, 180, 0.4); border: 3px solid rgba(255, 255, 255, 0.3); animation: pulse-glow 2s ease-in-out infinite;">
+                <i class="fas fa-folder-open" style="position: absolute; right: 30px; top: 30px; font-size: 4rem; opacity: 0.2;"></i>
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-badge" style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin-right: 1.5rem;">
+                            <i class="fas fa-folder-open" style="font-size: 2.5rem; color: white;"></i>
+                        </div>
+                        <div>
+                            <div class="stat-number" style="font-size: 4rem; line-height: 1;">{{ $stats['projets_a_faire'] ?? 0 }}</div>
+                            <div class="stat-label" style="font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">Projets À Faire</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 mt-3">
+                        <i class="fas fa-info-circle" style="font-size: 1.2rem;"></i>
+                        <span style="font-size: 1rem; opacity: 0.95;">Projets assignés par le formateur principal</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -482,11 +514,11 @@
                     <div class="stat-label mb-3">Événements</div>
                     <div class="row g-0 text-center">
                         <div class="col-6">
-                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['webinaires_en_cours'] ?? 0 }}</div>
-                            <small style="opacity: 0.8;">Webinaires</small>
+                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['evenements'] ?? 0 }}</div>
+                            <small style="opacity: 0.8;">Événements</small>
                         </div>
                         <div class="col-6" style="border-left: 1px solid rgba(255,255,255,0.3);">
-                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['actualites_en_cours'] ?? 0 }}</div>
+                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['actualites'] ?? 0 }}</div>
                             <small style="opacity: 0.8;">Actualités</small>
                         </div>
                     </div>
@@ -592,7 +624,7 @@
                     <p class="text-white mb-3" style="opacity: 0.9; font-size: 0.95rem;">
                         Contactez l'administration pour prolonger votre formation
                     </p>
-                    <a href="mailto:contact@ecolevirtuelle.ci" class="btn btn-light btn-lg" style="font-weight: 600; border-radius: 10px;">
+                    <a href="mailto:info@ecolevirtuelledescreatifs.com" class="btn btn-light btn-lg" style="font-weight: 600; border-radius: 10px;">
                         <i class="fas fa-envelope me-2"></i>Nous contacter
                     </a>
                 </div>
@@ -772,12 +804,12 @@
                                             $globalProgress += (($stats['projets_realises'] ?? 0) / $projetsTotal) * 50;
                                         }
                                     @endphp
-                                    <div style="font-size: 3.5rem; font-weight: 900; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;">
+                                    <div style="font-size: 3.5rem; font-weight: 900; background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;">
                                         {{ round($globalProgress) }}%
                                     </div>
                                     <div class="text-muted mb-3">De votre formation complétée</div>
                                     <div class="progress-bar-custom mx-auto" style="max-width: 400px; background: #e5e7eb;">
-                                        <div style="height: 100%; border-radius: 10px; background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); width: {{ $globalProgress }}%; transition: width 0.6s ease;"></div>
+                                        <div style="height: 100%; border-radius: 10px; background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%); width: {{ $globalProgress }}%; transition: width 0.6s ease;"></div>
                                     </div>
                                     <p class="mt-3 mb-0">
                                         <i class="fas fa-fire" style="color: #ef4444;"></i>

@@ -168,32 +168,44 @@ class AiSeoController extends Controller
 
     private function generateExpertMetaTitle($title, $focusKeyword)
     {
-        // Power words pour augmenter le CTR
-        $powerWords = ['Guide', 'Formation', 'Expert', 'Astuces', 'Stratégie', 'Meilleur', 'Nouveau', date('Y')];
+        $title = $this->cleanText($title);
 
-        // Nettoyage du titre original pour éviter les répétitions
-        $optimizedTitle = $title;
+        // Templates orientés bénéfice + différenciation
+        $year = date('Y');
+        $templates = [
+            'Maîtrisez %s : stratégie & outils (%s)',
+            '%s : programme intensif & résultats (%s)',
+            '%s : méthodes concrètes + cas pratiques (%s)',
+            'Devenez expert en %s : boostez votre profil (%s)',
+            '%s : formation pratique à Abidjan (%s)'
+        ];
 
-        // Ajouter un Power Word si absent
-        $hasPowerWord = false;
-        foreach($powerWords as $pw) {
-            if (stripos($optimizedTitle, $pw) !== false) $hasPowerWord = true;
+        $subject = $focusKeyword ?: $title;
+        $subject = mb_substr($subject, 0, 70);
+        $template = $templates[array_rand($templates)];
+        $core = sprintf($template, $subject, $year);
+
+        // Variantes de marque (on ne force pas si ça casse la longueur)
+        $brandSuffixes = [' | EVC Abidjan', ' - EVC Abidjan', ' | École EVC Abidjan'];
+        $suffix = $brandSuffixes[array_rand($brandSuffixes)];
+
+        // Déjà présent ?
+        if (stripos($core, 'EVC') !== false || stripos($core, 'Abidjan') !== false) {
+            $suffix = '';
         }
 
-        if (!$hasPowerWord && strlen($optimizedTitle) < 40) {
-            $optimizedTitle = "Formation " . $optimizedTitle;
+        // Ajuster la longueur sans "..." (on coupe sur frontière de mots)
+        $max = 60;
+        $metaTitle = $core . $suffix;
+        if (mb_strlen($metaTitle) > $max) {
+            // Essayer sans suffixe
+            $metaTitle = $core;
+        }
+        if (mb_strlen($metaTitle) > $max) {
+            $metaTitle = $this->truncateOnWord($metaTitle, $max);
         }
 
-        // Suffixe de marque optimisé
-        $suffix = ' | EVC Abidjan';
-
-        // Si trop long, on tronque intelligemment
-        if (strlen($optimizedTitle . $suffix) > 60) {
-            $available = 57 - strlen($suffix);
-            $optimizedTitle = substr($optimizedTitle, 0, $available) . '...';
-        }
-
-        return $optimizedTitle . $suffix;
+        return $metaTitle;
     }
 
     private function generateExpertMetaDescription($title, $excerpt, $focusKeyword)
@@ -208,35 +220,74 @@ class AiSeoController extends Controller
         ];
         $cta = $ctas[array_rand($ctas)];
 
-        // Accroche (Hook)
-        $hook = $this->generateHook($title);
+        $cleanTitle = $this->cleanText($title);
+        $cleanExcerpt = $this->cleanText($excerpt);
 
-        // Construction de la description
-        // 1. Hook (contient le mot-clé)
-        // 2. Extrait nettoyé (Bénéfice)
-        // 3. Autorité (EVC)
-        // 4. CTA
+        // Accroches variées (évite les répétitions type "Découvrez")
+        $kw = $focusKeyword ?: $cleanTitle;
+        $hooks = [
+            "Objectif : réussir {$kw} avec une méthode claire.",
+            "Envie de passer un cap sur {$kw} ?",
+            "Le plan d'action pour {$kw} (concret, actionnable).",
+            "Apprenez {$kw} avec une approche orientée résultats.",
+            "Un format pratique pour maîtriser {$kw} rapidement."
+        ];
+        $hook = $hooks[array_rand($hooks)];
 
-        // Essayer de construire une phrase fluide
-        $description = $hook . ' ' . ucfirst(substr($excerpt, 0, 80));
+        // Bénéfice depuis l'extrait (phrase courte, sans copier-coller brut)
+        $benefit = mb_substr($cleanExcerpt, 0, 120);
+        $benefit = preg_replace('/\s*\b(d\'écouvrez|découvrez|tout savoir|en savoir plus)\b\s*/iu', ' ', $benefit);
+        $benefit = trim($benefit);
+        if ($benefit !== '' && mb_substr($benefit, -1) !== '.') {
+            $benefit .= '.';
+        }
 
-        // S'assurer que ça finit par un point
-        if (substr($description, -1) !== '.') $description = trim($description) . '.';
+        // Autorité courte + CTA
+        $authority = 'EVC Abidjan.';
+        $parts = array_filter([$hook, $benefit, $authority, $cta]);
+        $finalDesc = implode(' ', $parts);
 
-        $finalDesc = $description . ' 🚀 EVC Abidjan. ' . $cta;
-
-        // Tronquer à 160 caractères max tout en gardant le sens
-        if (strlen($finalDesc) > 160) {
-            // On sacrifie d'abord l'autorité "EVC Abidjan" pour garder le CTA
-            $finalDesc = $description . ' ' . $cta;
-
-            if (strlen($finalDesc) > 160) {
-                $available = 157 - strlen($cta);
-                $finalDesc = substr($description, 0, $available) . '... ' . $cta;
-            }
+        // Ajuster à 160 sans "..." (on coupe sur mots)
+        $max = 160;
+        if (mb_strlen($finalDesc) > $max) {
+            // 1) enlever l'autorité si besoin
+            $parts = array_filter([$hook, $benefit, $cta]);
+            $finalDesc = implode(' ', $parts);
+        }
+        if (mb_strlen($finalDesc) > $max) {
+            // 2) réduire bénéfice
+            $benefitMax = 160 - (mb_strlen($hook) + 1 + mb_strlen($cta) + 1);
+            $benefitMax = max(0, $benefitMax);
+            $benefitShort = $benefitMax > 0 ? $this->truncateOnWord($benefit, $benefitMax) : '';
+            $parts = array_filter([$hook, $benefitShort, $cta]);
+            $finalDesc = implode(' ', $parts);
+        }
+        if (mb_strlen($finalDesc) > $max) {
+            $finalDesc = $this->truncateOnWord($finalDesc, $max);
         }
 
         return $finalDesc;
+    }
+
+    private function truncateOnWord($text, $maxLen)
+    {
+        $text = trim($text);
+        if (mb_strlen($text) <= $maxLen) {
+            return $text;
+        }
+
+        $cut = mb_substr($text, 0, $maxLen);
+        $cut = preg_replace('/\s+\S*$/u', '', $cut);
+        $cut = trim($cut);
+
+        // Si on a tout supprimé (mot trop long), fallback brute
+        if ($cut === '') {
+            return trim(mb_substr($text, 0, $maxLen));
+        }
+
+        // éviter fin avec séparateurs
+        $cut = rtrim($cut, "-|:|,|");
+        return trim($cut);
     }
 
     private function generateHook($title)

@@ -15,7 +15,9 @@
 
             <p><strong>Informations:</strong></p>
             <ul>
-                <li><strong>Nom:</strong> {{ ($user->first_name ?? '') . ' ' . ($user->last_name ?? '') }}</li>
+                @php($fullName = trim((($user->first_name ?? $user->prenom ?? '') . ' ' . ($user->last_name ?? $user->nom ?? ''))))
+                @php($fullName = $fullName !== '' ? $fullName : trim($user->name ?? ''))
+                <li><strong>Nom:</strong> {{ $fullName !== '' ? $fullName : 'Non renseigné' }}</li>
                 <li><strong>Email:</strong> {{ $user->email }}</li>
                 <li><strong>Date:</strong> {{ now()->format('Y-m-d H:i') }}</li>
             </ul>

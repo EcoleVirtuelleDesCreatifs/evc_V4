@@ -114,7 +114,14 @@
 
                     <div class="row">
                         <div class="col-12">
-                    <form action="{{ route('design-graphique.profil.update', isset($student->id) ? ['id' => $student->id] : []) }}" method="POST" enctype="multipart/form-data" class="row g-3" id="profileForm">
+                    @php
+                        $routePrefix = 'design-graphique';
+                        $path = request()->path();
+                        if (preg_match('#^evc/compte/([^/]+)#', $path, $matches)) {
+                            $routePrefix = $matches[1];
+                        }
+                    @endphp
+                    <form action="{{ route($routePrefix . '.profil.update', isset($student->id) ? ['id' => $student->id] : []) }}" method="POST" enctype="multipart/form-data" class="row g-3" id="profileForm">
                         @csrf
 
                         <!-- Grille 2 colonnes de cartes -->
@@ -260,7 +267,7 @@
                                                 </div>
                                                 <input type="file" class="form-control @error('profile_photo') is-invalid @enderror" id="profile_photo" name="profile_photo" accept="image/*" style="display:none;">
                                                 @error('profile_photo')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                                                
+
                                                 <div class="mt-3">
                                                     <small class="text-muted d-block mb-2">Aperçu de la photo:</small>
                                                     @php
@@ -293,12 +300,12 @@
                         </div>
 
                         <div class="col-12 d-flex gap-2 mt-3">
-                            <button type="submit" class="btn btn-primary" id="saveBtn">
-                                <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true" id="saveSpinner"></span>
+                            <div class="d-flex justify-content-end gap-2">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-1"></i>
                                 Enregistrer
                             </button>
-                            <a href="{{ route('dashboard.design-graphique') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('dashboard.' . $routePrefix) }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-1"></i>
                                 Retour à l'espace étudiant
                             </a>

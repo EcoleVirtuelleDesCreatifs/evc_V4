@@ -19,12 +19,14 @@ class Project extends Model
         'link',
         'tags',
         'software_used',
+        'deadline',
         'thumbnail_image',
         'status'
     ];
 
     protected $casts = [
         'software_used' => 'array', // Cast JSON en array automatiquement
+        'deadline' => 'date',
     ];
 
     /**

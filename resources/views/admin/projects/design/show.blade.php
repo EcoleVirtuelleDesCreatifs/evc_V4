@@ -224,6 +224,22 @@
                             @endif
                         </div>
 
+                        <!-- Bouton Rejeter -->
+                        <div class="col-12 col-md-3">
+                            @if($project->status !== 'rejected')
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-lg w-100 px-3 py-2"
+                                        onclick="rejectDesignProject({{ $project->id }})"
+                                        title="Rejeter le projet">
+                                    <i class="fas fa-times-circle me-2"></i>Rejeter
+                                </button>
+                            @else
+                                <button type="button" class="btn btn-danger btn-lg w-100 px-3 py-2" disabled>
+                                    <i class="fas fa-times-circle me-2"></i>Rejeté
+                                </button>
+                            @endif
+                        </div>
+
                         <!-- Bouton Modifier -->
                         <div class="col-12 col-md-3">
                             <button type="button"
@@ -267,8 +283,13 @@
                 </div>
                 <div class="card-body text-center">
                     <div class="mb-3">
-                        @if(isset($project->user->profile_photo) && $project->user->profile_photo)
-                            <img src="{{ asset('uploads/photos/' . basename($project->user->profile_photo)) }}"
+                        @php
+                            $studentProfilePhoto = $project->user->student->profile_photo ?? null;
+                            $userProfilePhoto = $project->user->profile_photo ?? null;
+                            $profilePhotoPath = $studentProfilePhoto ?: $userProfilePhoto;
+                        @endphp
+                        @if(!empty($profilePhotoPath))
+                            <img src="{{ asset('storage/' . ltrim($profilePhotoPath, '/')) }}"
                                  alt="Photo de {{ $project->user->first_name ?? 'N/A' }}"
                                  class="rounded-circle"
                                  style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #17a2b8;"
@@ -326,7 +347,7 @@
                     </div>
 
                     <div class="d-grid mt-3">
-                        <a href="{{ route('admin.students.show', $project->user->id) }}" class="btn btn-outline-info">
+                        <a href="{{ route('admin.students.profile', $project->user->id) }}" class="btn btn-outline-info">
                             <i class="fas fa-user-graduate me-2"></i>Voir le Profil Étudiant
                         </a>
                     </div>
@@ -676,7 +697,7 @@
                             <i class="fas fa-search-plus"></i>
                         </button>
                     </div>
-                    
+
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-sm btn-outline-success" onclick="downloadCurrentPdf()" title="Télécharger">
                             <i class="fas fa-download"></i>
@@ -685,7 +706,7 @@
                             <i class="fas fa-external-link-alt"></i>
                         </button>
                     </div>
-                    
+
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
                 </div>
             </div>
@@ -699,16 +720,16 @@
                         <i class="fas fa-file-pdf text-danger me-2"></i>Chargement du PDF...
                     </div>
                 </div>
-                
+
                 <!-- PDF Container -->
                 <div id="pdfContainer" class="w-100 h-100 d-flex justify-content-center align-items-center" style="min-height: 80vh; background: #2c2c2c;">
-                    <iframe id="pdfFrame" 
-                            class="w-100 h-100 border-0" 
+                    <iframe id="pdfFrame"
+                            class="w-100 h-100 border-0"
                             style="min-height: 80vh; display: none;"
                             onload="onPdfLoad()"
                             onerror="onPdfError()">
                     </iframe>
-                    
+
                     <!-- Error message -->
                     <div id="pdfErrorMessage" class="text-center text-white" style="display: none;">
                         <i class="fas fa-exclamation-triangle text-warning fa-3x mb-3"></i>
@@ -818,24 +839,24 @@
                             <div class="spinner-glow"></div>
                         </div>
                     </div>
-                    
+
                     <h4 class="text-white mb-3">
                         <i class="fas fa-cogs me-2 text-info"></i>
                         Validation en cours...
                     </h4>
-                    
+
                     <div class="progress mb-4" style="height: 8px;">
-                        <div class="progress-bar bg-gradient-info progress-bar-animated progress-bar-striped" 
-                             role="progressbar" 
-                             style="width: 0%" 
+                        <div class="progress-bar bg-gradient-info progress-bar-animated progress-bar-striped"
+                             role="progressbar"
+                             style="width: 0%"
                              id="validationProgressBar">
                         </div>
                     </div>
-                    
+
                     <p class="text-white-50 mb-3" id="loadingStatusText">
                         Initialisation de la validation...
                     </p>
-                    
+
                     <div class="loading-steps">
                         <div class="step-item" id="step1">
                             <i class="fas fa-circle-notch fa-spin text-info me-2"></i>
@@ -855,7 +876,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Phase de Succès -->
                 <div id="successPhase" class="validation-phase" style="display: none;">
                     <div class="success-animation mb-4">
@@ -868,17 +889,17 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <h4 class="text-success mb-3">
                         <i class="fas fa-check-circle me-2"></i>
                         Validation Réussie !
                     </h4>
-                    
+
                     <p class="text-white mb-4">
                         Le projet a été validé avec succès.<br>
                         Un email de félicitations a été envoyé à l'étudiant.
                     </p>
-                    
+
                     <div class="success-confetti">
                         <div class="confetti-piece"></div>
                         <div class="confetti-piece"></div>
@@ -887,7 +908,7 @@
                         <div class="confetti-piece"></div>
                     </div>
                 </div>
-                
+
                 <!-- Phase d'Erreur -->
                 <div id="errorPhase" class="validation-phase" style="display: none;">
                     <div class="error-animation mb-4">
@@ -895,16 +916,16 @@
                             <i class="fas fa-exclamation-triangle text-danger"></i>
                         </div>
                     </div>
-                    
+
                     <h4 class="text-danger mb-3">
                         <i class="fas fa-times-circle me-2"></i>
                         Erreur de Validation
                     </h4>
-                    
+
                     <p class="text-white mb-4" id="errorMessage">
                         Une erreur s'est produite lors de la validation.
                     </p>
-                    
+
                     <button type="button" class="btn btn-outline-light" onclick="closeValidationModal()">
                         <i class="fas fa-arrow-left me-2"></i>Retour
                     </button>
@@ -1710,10 +1731,43 @@ function validateDesignProject(projectId) {
     if (confirm('Êtes-vous sûr de vouloir valider ce projet design ?\n\nUn email de félicitations sera envoyé à l\'étudiant.')) {
         // Show validation modal
         showValidationModal();
-        
+
         // Start validation process
         startValidationProcess(projectId);
     }
+}
+
+function rejectDesignProject(projectId) {
+    if (!confirm('Êtes-vous sûr de vouloir rejeter ce projet design ?')) {
+        return;
+    }
+
+    const rejectUrl = `{{ url('evc/app/admin/design-projects/reject') }}/${projectId}`;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+    fetch(rejectUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message || 'Projet rejeté avec succès.', 'success');
+            setTimeout(() => window.location.reload(), 800);
+            return;
+        }
+        throw new Error(data.error || 'Erreur de rejet');
+    })
+    .catch(err => {
+        console.error(err);
+        showNotification(err.message || 'Erreur lors du rejet', 'error');
+    });
 }
 
 // Show validation modal
@@ -1722,10 +1776,10 @@ function showValidationModal() {
         backdrop: 'static',
         keyboard: false
     });
-    
+
     // Reset modal to loading phase
     resetModalToLoading();
-    
+
     // Show modal
     modal.show();
 }
@@ -1736,17 +1790,17 @@ function resetModalToLoading() {
     document.getElementById('loadingPhase').style.display = 'block';
     document.getElementById('successPhase').style.display = 'none';
     document.getElementById('errorPhase').style.display = 'none';
-    
+
     // Reset progress bar
     document.getElementById('validationProgressBar').style.width = '0%';
-    
+
     // Reset steps
     const steps = document.querySelectorAll('.step-item');
     steps.forEach((step, index) => {
         step.classList.remove('active', 'completed');
         const icon = step.querySelector('i');
         const text = step.querySelector('span');
-        
+
         if (index === 0) {
             step.classList.add('active');
             icon.className = 'fas fa-circle-notch fa-spin text-info me-2';
@@ -1756,7 +1810,7 @@ function resetModalToLoading() {
             text.className = 'text-secondary';
         }
     });
-    
+
     // Reset status text
     document.getElementById('loadingStatusText').textContent = 'Initialisation de la validation...';
 }
@@ -1769,9 +1823,9 @@ function startValidationProcess(projectId) {
         { id: 'step3', text: 'Envoi de l\'email...', progress: 75 },
         { id: 'step4', text: 'Finalisation...', progress: 100 }
     ];
-    
+
     let currentStep = 0;
-    
+
     // Animate steps
     const stepInterval = setInterval(() => {
         if (currentStep < steps.length) {
@@ -1792,28 +1846,28 @@ function animateStep(step) {
     const text = stepElement.querySelector('span');
     const statusText = document.getElementById('loadingStatusText');
     const progressBar = document.getElementById('validationProgressBar');
-    
+
     // Remove active from previous step
     document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
-    
+
     // Activate current step
     stepElement.classList.add('active');
     icon.className = 'fas fa-circle-notch fa-spin text-info me-2';
     text.className = 'text-white-50';
-    
+
     // Update status text
     statusText.textContent = step.text;
-    
+
     // Update progress bar
     progressBar.style.width = step.progress + '%';
-    
+
     // Complete previous steps
     const stepIndex = parseInt(step.id.replace('step', '')) - 1;
     for (let i = 0; i < stepIndex; i++) {
         const prevStep = document.getElementById(`step${i + 1}`);
         prevStep.classList.remove('active');
         prevStep.classList.add('completed');
-        
+
         const prevIcon = prevStep.querySelector('i');
         const prevText = prevStep.querySelector('span');
         prevIcon.className = 'fas fa-check-circle text-success me-2';
@@ -1860,11 +1914,11 @@ function performValidationRequest(projectId) {
         if (data.success) {
             // Complete all steps
             completeAllSteps();
-            
+
             // Show success phase after a delay
             setTimeout(() => {
                 showSuccessPhase();
-                
+
                 // Auto-close and reload after success
                 setTimeout(() => {
                     closeValidationModal();
@@ -1894,13 +1948,13 @@ function completeAllSteps() {
     steps.forEach(step => {
         step.classList.remove('active');
         step.classList.add('completed');
-        
+
         const icon = step.querySelector('i');
         const text = step.querySelector('span');
         icon.className = 'fas fa-check-circle text-success me-2';
         text.className = 'text-success';
     });
-    
+
     // Complete progress bar
     document.getElementById('validationProgressBar').style.width = '100%';
     document.getElementById('loadingStatusText').textContent = 'Validation terminée avec succès !';
@@ -1918,7 +1972,7 @@ function showErrorPhase(errorMessage) {
     document.getElementById('loadingPhase').style.display = 'none';
     document.getElementById('successPhase').style.display = 'none';
     document.getElementById('errorPhase').style.display = 'block';
-    
+
     // Update error message
     document.getElementById('errorMessage').textContent = errorMessage;
 }
@@ -1940,23 +1994,23 @@ let currentZoom = 100;
 function openPdfViewer(pdfUrl, fileName) {
     currentPdfUrl = pdfUrl;
     currentPdfName = fileName || 'Document PDF';
-    
+
     // Update modal title and filename
     document.getElementById('pdfFileName').textContent = currentPdfName;
-    
+
     // Show loading indicator
     document.getElementById('pdfLoadingIndicator').style.display = 'block';
     document.getElementById('pdfFrame').style.display = 'none';
     document.getElementById('pdfErrorMessage').style.display = 'none';
-    
+
     // Reset zoom
     currentZoom = 100;
     document.getElementById('zoomLevel').textContent = '100%';
-    
+
     // Load PDF in iframe
     const iframe = document.getElementById('pdfFrame');
     iframe.src = pdfUrl + '#toolbar=1&navpanes=1&scrollbar=1&page=1&view=FitH';
-    
+
     // Show modal
     const modal = new bootstrap.Modal(document.getElementById('pdfViewerModal'));
     modal.show();
@@ -2035,10 +2089,10 @@ function openPdfInNewTab() {
 function createProgressBar() {
     const progressContainer = document.createElement('div');
     progressContainer.className = 'validation-progress';
-    
+
     const progressBar = document.createElement('div');
     progressBar.className = 'validation-progress-bar';
-    
+
     progressContainer.appendChild(progressBar);
     return progressContainer;
 }
@@ -2052,10 +2106,10 @@ function startValidationLoading(btn, progressBar) {
         <span class="loading-text">Validation en cours...</span>
     `;
     btn.disabled = true;
-    
+
     // Show progress bar
     progressBar.classList.add('active');
-    
+
     // Animate loading text
     animateLoadingText(btn);
 }
@@ -2068,7 +2122,7 @@ function animateLoadingText(btn) {
         'Envoi de l\'email...',
         'Finalisation...'
     ];
-    
+
     let textIndex = 0;
     const textInterval = setInterval(() => {
         const textElement = btn.querySelector('.loading-text');
@@ -2079,7 +2133,7 @@ function animateLoadingText(btn) {
             clearInterval(textInterval);
         }
     }, 800);
-    
+
     // Store interval for cleanup
     btn.dataset.textInterval = textInterval;
 }
@@ -2090,7 +2144,7 @@ function showValidationSuccess(btn, progressBar) {
     if (btn.dataset.textInterval) {
         clearInterval(btn.dataset.textInterval);
     }
-    
+
     // Success button animation
     btn.classList.remove('btn-loading');
     btn.classList.add('btn-success-animated');
@@ -2098,12 +2152,12 @@ function showValidationSuccess(btn, progressBar) {
         <i class="fas fa-check-circle me-2"></i>
         <span>Validé avec succès !</span>
     `;
-    
+
     // Complete progress bar
     const progressBarElement = progressBar.querySelector('.validation-progress-bar');
     progressBarElement.style.width = '100%';
     progressBarElement.style.background = 'linear-gradient(90deg, #28a745, #20c997)';
-    
+
     // Remove progress bar after animation
     setTimeout(() => {
         progressBar.classList.remove('active');
@@ -2117,7 +2171,7 @@ function showValidationError(btn, progressBar, originalContent) {
     if (btn.dataset.textInterval) {
         clearInterval(btn.dataset.textInterval);
     }
-    
+
     // Error button animation
     btn.classList.remove('btn-loading');
     btn.classList.add('btn-danger');
@@ -2125,18 +2179,18 @@ function showValidationError(btn, progressBar, originalContent) {
         <i class="fas fa-exclamation-triangle me-2"></i>
         <span>Erreur de validation</span>
     `;
-    
+
     // Error progress bar
     const progressBarElement = progressBar.querySelector('.validation-progress-bar');
     progressBarElement.style.background = 'linear-gradient(90deg, #dc3545, #c82333)';
     progressBarElement.style.width = '100%';
-    
+
     // Restore button after delay
     setTimeout(() => {
         btn.classList.remove('btn-danger');
         btn.innerHTML = originalContent;
         btn.disabled = false;
-        
+
         progressBar.classList.remove('active');
         setTimeout(() => progressBar.remove(), 300);
     }, 3000);
@@ -2157,9 +2211,9 @@ function showSuccessNotification(message) {
         <i class="fas fa-check-circle me-2"></i>
         ${message.replace('\n', '<br>')}
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.5s ease';
         setTimeout(() => notification.remove(), 500);
@@ -2181,9 +2235,9 @@ function showErrorNotification(message) {
         <i class="fas fa-exclamation-triangle me-2"></i>
         ${message}
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.5s ease';
         setTimeout(() => notification.remove(), 500);
@@ -2209,7 +2263,8 @@ function deleteDesignProject(projectId) {
             btn.disabled = true;
 
             // Send AJAX request
-            fetch(`/admin/design-projects/${projectId}/delete`, {
+            const deleteUrl = '{{ route("admin.design-projects.delete", ["id" => "__ID__"]) }}'.replace('__ID__', projectId);
+            fetch(deleteUrl, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',

@@ -429,7 +429,7 @@
             <div class="stat-card formations h-100">
                 <i class="fas fa-graduation-cap stat-icon"></i>
                 <div class="card-body p-4">
-                    <div class="stat-number mb-2">{{ $stats['formations_disponibles'] ?? 0 }}</div>
+                    <div class="stat-number mb-2" id="dg_formations_disponibles">{{ $stats['formations_disponibles'] ?? 0 }}</div>
                     <div class="stat-label mb-3">Formations Disponibles</div>
                     <a href="#" class="btn stat-btn w-100">
                         <i class="fas fa-arrow-right me-2"></i>
@@ -444,14 +444,14 @@
                 <i class="fas fa-tasks stat-icon"></i>
                 <div class="card-body p-4">
                     <div class="stat-number mb-2">
-                        {{ $stats['tp_realises'] ?? 0 }}<span style="font-size: 1.5rem; opacity: 0.7;">/{{ $stats['tp_total'] ?? 0 }}</span>
+                        <span id="dg_tp_realises">{{ $stats['tp_realises'] ?? 0 }}</span><span style="font-size: 1.5rem; opacity: 0.7;">/<span id="dg_tp_total">{{ $stats['tp_total'] ?? 0 }}</span></span>
                     </div>
                     <div class="stat-label mb-2">Travaux Pratiques</div>
                     @if(($stats['tp_total'] ?? 0) > 0)
                     <div class="progress-bar-custom mb-3">
-                        <div class="progress-bar-fill" style="width: {{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}%;"></div>
+                        <div class="progress-bar-fill" id="dg_tp_progress_fill" style="width: {{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}%;"></div>
                     </div>
-                    <small class="text-white" style="opacity: 0.8;">{{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}% complétés</small>
+                    <small class="text-white" id="dg_tp_progress_text" style="opacity: 0.8;">{{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}% complétés</small>
                     @endif
                 </div>
             </div>
@@ -462,14 +462,14 @@
                 <i class="fas fa-project-diagram stat-icon"></i>
                 <div class="card-body p-4">
                     <div class="stat-number mb-2">
-                        {{ $stats['projets_realises'] ?? 0 }}<span style="font-size: 1.5rem; opacity: 0.7;">/{{ $stats['projets_total'] ?? 0 }}</span>
+                        <span id="dg_projets_realises">{{ $stats['projets_realises'] ?? 0 }}</span><span style="font-size: 1.5rem; opacity: 0.7;">/<span id="dg_projets_total">{{ $stats['projets_total'] ?? 0 }}</span></span>
                     </div>
                     <div class="stat-label mb-2">Projets Réalisés</div>
                     @if(($stats['projets_total'] ?? 0) > 0)
                     <div class="progress-bar-custom mb-3">
-                        <div class="progress-bar-fill" style="width: {{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}%;"></div>
+                        <div class="progress-bar-fill" id="dg_projets_progress_fill" style="width: {{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}%;"></div>
                     </div>
-                    <small class="text-white" style="opacity: 0.8;">{{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}% réalisés</small>
+                    <small class="text-white" id="dg_projets_progress_text" style="opacity: 0.8;">{{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}% réalisés</small>
                     @endif
                 </div>
             </div>
@@ -482,11 +482,11 @@
                     <div class="stat-label mb-3">Événements</div>
                     <div class="row g-0 text-center">
                         <div class="col-6">
-                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['webinaires_en_cours'] ?? 0 }}</div>
+                            <div class="stat-number" id="dg_webinaires_en_cours" style="font-size: 2rem;">{{ $stats['webinaires_en_cours'] ?? 0 }}</div>
                             <small style="opacity: 0.8;">Webinaires</small>
                         </div>
                         <div class="col-6" style="border-left: 1px solid rgba(255,255,255,0.3);">
-                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['actualites_en_cours'] ?? 0 }}</div>
+                            <div class="stat-number" id="dg_actualites_en_cours" style="font-size: 2rem;">{{ $stats['actualites_en_cours'] ?? 0 }}</div>
                             <small style="opacity: 0.8;">Actualités</small>
                         </div>
                     </div>
@@ -592,7 +592,7 @@
                     <p class="text-white mb-3" style="opacity: 0.9; font-size: 0.95rem;">
                         Contactez l'administration pour prolonger votre formation
                     </p>
-                    <a href="mailto:contact@ecolevirtuelle.ci" class="btn btn-light btn-lg" style="font-weight: 600; border-radius: 10px;">
+                    <a href="mailto:info@ecolevirtuelledescreatifs.com" class="btn btn-light btn-lg" style="font-weight: 600; border-radius: 10px;">
                         <i class="fas fa-envelope me-2"></i>Nous contacter
                     </a>
                 </div>
@@ -773,11 +773,11 @@
                                         }
                                     @endphp
                                     <div style="font-size: 3.5rem; font-weight: 900; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1;">
-                                        {{ round($globalProgress) }}%
+                                        <span id="dg_global_progress">{{ round($globalProgress) }}</span>%
                                     </div>
                                     <div class="text-muted mb-3">De votre formation complétée</div>
                                     <div class="progress-bar-custom mx-auto" style="max-width: 400px; background: #e5e7eb;">
-                                        <div style="height: 100%; border-radius: 10px; background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); width: {{ $globalProgress }}%; transition: width 0.6s ease;"></div>
+                                        <div id="dg_global_progress_fill" style="height: 100%; border-radius: 10px; background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); width: {{ $globalProgress }}%; transition: width 0.6s ease;"></div>
                                     </div>
                                     <p class="mt-3 mb-0">
                                         <i class="fas fa-fire" style="color: #ef4444;"></i>
@@ -793,4 +793,103 @@
     </div>
 
 </div>
+
+@section('scripts')
+<script>
+    (function() {
+        const statsUrl = @json(route('dashboard.design-graphique.stats'));
+
+        const el = {
+            formations: document.getElementById('dg_formations_disponibles'),
+            tpRealises: document.getElementById('dg_tp_realises'),
+            tpTotal: document.getElementById('dg_tp_total'),
+            tpProgressFill: document.getElementById('dg_tp_progress_fill'),
+            tpProgressText: document.getElementById('dg_tp_progress_text'),
+            projetsRealises: document.getElementById('dg_projets_realises'),
+            projetsTotal: document.getElementById('dg_projets_total'),
+            projetsProgressFill: document.getElementById('dg_projets_progress_fill'),
+            projetsProgressText: document.getElementById('dg_projets_progress_text'),
+            webinaires: document.getElementById('dg_webinaires_en_cours'),
+            actualites: document.getElementById('dg_actualites_en_cours'),
+            globalProgress: document.getElementById('dg_global_progress'),
+            globalProgressFill: document.getElementById('dg_global_progress_fill'),
+        };
+
+        function safeInt(v) {
+            const n = parseInt(v, 10);
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        function clampPercent(v) {
+            const n = Number(v);
+            if (!Number.isFinite(n)) return 0;
+            return Math.max(0, Math.min(100, n));
+        }
+
+        function setText(node, value) {
+            if (!node) return;
+            node.textContent = String(value);
+        }
+
+        function setWidth(node, percent) {
+            if (!node) return;
+            node.style.width = clampPercent(percent) + '%';
+        }
+
+        async function refreshStats() {
+            try {
+                const res = await fetch(statsUrl, {
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                });
+
+                if (!res.ok) return;
+
+                const data = await res.json();
+                if (!data || !data.stats) return;
+
+                const stats = data.stats;
+                const tpRealises = safeInt(stats.tp_realises);
+                const tpTotal = safeInt(stats.tp_total);
+                const projetsRealises = safeInt(stats.projets_realises);
+                const projetsTotal = safeInt(stats.projets_total);
+
+                setText(el.formations, safeInt(stats.formations_disponibles));
+                setText(el.tpRealises, tpRealises);
+                setText(el.tpTotal, tpTotal);
+                setText(el.projetsRealises, projetsRealises);
+                setText(el.projetsTotal, projetsTotal);
+                setText(el.webinaires, safeInt(stats.webinaires_en_cours));
+                setText(el.actualites, safeInt(stats.actualites_en_cours));
+
+                if (tpTotal > 0) {
+                    const tpPct = Math.round((tpRealises / tpTotal) * 100);
+                    setWidth(el.tpProgressFill, tpPct);
+                    setText(el.tpProgressText, tpPct + '% complétés');
+                }
+
+                if (projetsTotal > 0) {
+                    const projetsPct = Math.round((projetsRealises / projetsTotal) * 100);
+                    setWidth(el.projetsProgressFill, projetsPct);
+                    setText(el.projetsProgressText, projetsPct + '% réalisés');
+                }
+
+                if (typeof data.global_progress !== 'undefined') {
+                    const gp = clampPercent(data.global_progress);
+                    setText(el.globalProgress, Math.round(gp));
+                    setWidth(el.globalProgressFill, gp);
+                }
+            } catch (e) {
+                // silent
+            }
+        }
+
+        refreshStats();
+        window.setInterval(refreshStats, 30000);
+    })();
+</script>
+@endsection
+
 @endsection

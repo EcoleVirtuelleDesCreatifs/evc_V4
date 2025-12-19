@@ -1,17 +1,17 @@
 <div class="table-responsive">
-    <table class="table table-hover align-middle">
+    <table class="table table-hover align-middle" style="table-layout: fixed; width: 100%;">
         <thead class="table-light">
             <tr>
-                <th>Photo</th>
-                <th>Nom Complet</th>
-                <th>Email</th>
-                <th>Formation</th>
-                <th>Titre Professionnel</th>
-                <th>Expérience</th>
-                <th>Documents</th>
-                <th>Complétion</th>
-                <th>Visibilité</th>
-                <th>Actions</th>
+                <th style="width: 60px;">Photo</th>
+                <th style="width: 150px;">Nom Complet</th>
+                <th style="width: 180px;">Email</th>
+                <th style="width: 200px;">Formation</th>
+                <th style="width: 150px;">Titre Professionnel</th>
+                <th style="width: 100px;">Expérience</th>
+                <th style="width: 120px;">Documents</th>
+                <th style="width: 120px;">Complétion</th>
+                <th style="width: 100px;">Visibilité</th>
+                <th style="width: 80px;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -34,17 +34,11 @@
                                 $photoUrl = asset('uploads/photos/' . $photoPath);
                             }
                         @endphp
-                        <div style="display: inline-block; position: relative;">
-                            <img src="{{ $photoUrl }}"
-                                 class="rounded-circle"
-                                 alt="{{ $student->first_name }} {{ $student->last_name }}"
-                                 style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #667eea;"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
-                                 style="width: 45px; height: 45px; display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.85rem;">
-                                {{ strtoupper(substr($student->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($student->last_name ?? 'S', 0, 1)) }}
-                            </div>
-                        </div>
+                        <img src="{{ $photoUrl }}"
+                             class="rounded-circle"
+                             alt="{{ $student->first_name }} {{ $student->last_name }}"
+                             style="width: 45px; height: 45px; object-fit: cover; border: 2px solid #667eea;"
+                             onerror="this.onerror=null; this.outerHTML='<div class=\'rounded-circle d-flex align-items-center justify-content-center text-white fw-bold\' style=\'width: 45px; height: 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.85rem;\'>{{ strtoupper(substr($student->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($student->last_name ?? 'S', 0, 1)) }}</div>';">
                     @else
                         <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
                              style="width: 45px; height: 45px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); font-size: 0.85rem;">
@@ -53,10 +47,10 @@
                     @endif
                 </td>
                 <td>
-                    <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
+                    <strong style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $student->first_name }} {{ $student->last_name }}">{{ $student->first_name }} {{ $student->last_name }}</strong>
                 </td>
                 <td>
-                    <small class="text-muted">{{ $student->email }}</small>
+                    <small class="text-muted" style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $student->email }}">{{ $student->email }}</small>
                 </td>
                 <td>
                     @php
@@ -78,13 +72,13 @@
                             $badgeIcon = 'fa-brain';
                         }
                     @endphp
-                    <span class="badge text-white px-3 py-2" style="{{ $badgeStyle }} border-radius: 20px; font-size: 0.85rem;">
+                    <span class="badge text-white px-2 py-1" style="{{ $badgeStyle }} border-radius: 12px; font-size: 0.75rem; display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: middle;" title="{{ $formation ?: 'Non défini' }}">
                         <i class="fas {{ $badgeIcon }} me-1"></i>{{ $formation ?: 'Non défini' }}
                     </span>
                 </td>
                 <td>
                     @if($student->professional_title)
-                        <span class="text-dark">{{ $student->professional_title }}</span>
+                        <span class="text-dark" style="display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ $student->professional_title }}">{{ $student->professional_title }}</span>
                     @else
                         <span class="text-muted fst-italic">Non renseigné</span>
                     @endif

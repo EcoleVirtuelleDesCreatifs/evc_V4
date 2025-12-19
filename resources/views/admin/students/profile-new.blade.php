@@ -720,27 +720,130 @@
             </div>
             @endif
 
-            <!-- Financier -->
+            <!-- Paiements Formation -->
             <div class="info-card fade-in" style="animation-delay: 0.55s;">
-                <div class="info-card-header" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                     <i class="fas fa-money-bill-wave"></i>
-                    <span>Financier</span>
+                    <span>Paiements Formation</span>
                 </div>
                 <div class="info-card-body">
-                    <div class="info-item">
-                        <span class="info-label">Total Factures</span>
-                        <span class="info-value text-danger">{{ number_format($data['stats']['total_factures'], 0, ',', ' ') }} FCFA</span>
+                    <!-- Résumé Financier - Toujours affiché -->
+                    <div class="row g-3 mb-4">
+                        <!-- Total Formation -->
+                        <div class="col-12">
+                            <div class="p-3 rounded text-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);">
+                                <small class="d-block text-white opacity-75 mb-1">
+                                    <i class="fas fa-graduation-cap me-1"></i>Montant Total Formation
+                                </small>
+                                <h2 class="mb-0 text-white fw-bold" style="font-size: 2rem;">
+                                    {{ number_format($data['stats']['total_factures'], 0, ',', ' ') }} <small>FCFA</small>
+                                </h2>
+                            </div>
+                        </div>
+
+                        <!-- Total Payé -->
+                        <div class="col-6">
+                            <div class="p-3 rounded text-center" style="background: rgba(34, 197, 94, 0.15); border: 2px solid #22c55e;">
+                                <small class="d-block text-white-50 mb-1">
+                                    <i class="fas fa-check-circle me-1"></i>Total Payé
+                                </small>
+                                <h4 class="mb-0 text-success fw-bold">
+                                    {{ number_format($data['stats']['total_paye'], 0, ',', ' ') }}
+                                </h4>
+                                <small class="text-success">FCFA</small>
+                            </div>
+                        </div>
+
+                        <!-- Reste à Payer -->
+                        <div class="col-6">
+                            <div class="p-3 rounded text-center" style="background: {{ $data['stats']['solde_restant'] > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)' }}; border: 2px solid {{ $data['stats']['solde_restant'] > 0 ? '#ef4444' : '#22c55e' }};">
+                                <small class="d-block text-white-50 mb-1">
+                                    <i class="fas {{ $data['stats']['solde_restant'] > 0 ? 'fa-exclamation-circle' : 'fa-check-circle' }} me-1"></i>Reste à Payer
+                                </small>
+                                <h4 class="mb-0 fw-bold {{ $data['stats']['solde_restant'] > 0 ? 'text-danger' : 'text-success' }}">
+                                    {{ number_format($data['stats']['solde_restant'], 0, ',', ' ') }}
+                                </h4>
+                                <small class="{{ $data['stats']['solde_restant'] > 0 ? 'text-danger' : 'text-success' }}">FCFA</small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Total Payé</span>
-                        <span class="info-value text-success">{{ number_format($data['stats']['total_paye'], 0, ',', ' ') }} FCFA</span>
+
+                    <!-- Barre de progression du paiement -->
+                    @php
+                        $pourcentagePaye = $data['stats']['total_factures'] > 0 ? round(($data['stats']['total_paye'] / $data['stats']['total_factures']) * 100) : 0;
+                    @endphp
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-white-50">Progression Paiement</small>
+                            <strong style="color: {{ $pourcentagePaye >= 100 ? '#22c55e' : '#10b981' }};">{{ $pourcentagePaye }}%</strong>
+                        </div>
+                        <div class="progress-modern">
+                            <div class="progress-bar-modern" style="width: {{ $pourcentagePaye }}%; background: linear-gradient(90deg, #10b981 0%, {{ $pourcentagePaye >= 100 ? '#22c55e' : '#059669' }} 100%);"></div>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Solde Restant</span>
-                        <span class="info-value {{ $data['stats']['solde_restant'] > 0 ? 'text-danger' : 'text-success' }}">
-                            {{ number_format($data['stats']['solde_restant'], 0, ',', ' ') }} FCFA
-                        </span>
-                    </div>
+
+                    <!-- Détail des tranches -->
+                    @if(isset($data['paiements']) && count($data['paiements']) > 0)
+                        <hr style="border-color: #334155; margin: 1.5rem 0;">
+                        <h6 class="text-white mb-3">
+                            <i class="fas fa-list-ul me-2"></i>Détail des Paiements ({{ count($data['paiements']) }})
+                        </h6>
+                        @foreach($data['paiements'] as $paiement)
+                            @php
+                                $isCompleted = isset($paiement->status) ? $paiement->status === 'completed' : (isset($paiement->statut) && $paiement->statut === 'validé');
+                                $isPending = isset($paiement->status) ? $paiement->status === 'pending' : (isset($paiement->statut) && $paiement->statut === 'en attente');
+                                $amount = $paiement->amount ?? $paiement->montant ?? 0;
+                                $tranche = $paiement->installment_number ?? null;
+                                $date = isset($paiement->created_at) ? \Carbon\Carbon::parse($paiement->created_at)->format('d/m/Y') : '-';
+                            @endphp
+                            <div class="p-3 mb-2 rounded" style="background: rgba(30, 41, 59, 0.5); border: 1px solid #334155;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if($tranche)
+                                            <span class="badge" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+                                                <i class="fas fa-layer-group me-1"></i>Tranche {{ $tranche }}
+                                            </span>
+                                        @endif
+                                        @if($isCompleted)
+                                            <span class="badge badge-modern badge-success-modern">
+                                                <i class="fas fa-check-circle"></i> Payé
+                                            </span>
+                                        @elseif($isPending)
+                                            <span class="badge badge-modern badge-warning-modern">
+                                                <i class="fas fa-clock"></i> En attente
+                                            </span>
+                                        @else
+                                            <span class="badge badge-modern badge-danger-modern">
+                                                <i class="fas fa-times-circle"></i> Annulé
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold {{ $isCompleted ? 'text-success' : 'text-warning' }}" style="font-size: 1.1rem;">
+                                            {{ number_format($amount, 0, ',', ' ') }} FCFA
+                                        </div>
+                                        <small class="text-white-50">
+                                            <i class="fas fa-calendar me-1"></i>{{ $date }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
+                        <!-- Lien vers page complète des paiements -->
+                        <div class="mt-3 text-center">
+                            <a href="{{ route('admin.payments.index') }}" class="btn btn-modern btn-primary-modern w-100">
+                                <i class="fas fa-file-invoice-dollar me-2"></i>Voir tous les paiements de la plateforme
+                            </a>
+                        </div>
+                    @else
+                        <hr style="border-color: #334155; margin: 1.5rem 0;">
+                        <div class="text-center py-4" style="background: rgba(239, 68, 68, 0.1); border-radius: 12px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #ef4444; margin-bottom: 1rem;"></i>
+                            <p class="text-white mb-2"><strong>Aucun paiement enregistré</strong></p>
+                            <p class="text-white-50 mb-0 small">Cet étudiant n'a pas encore effectué de paiement pour sa formation.</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

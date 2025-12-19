@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Communique;
+use App\Models\Actualite;
+use App\Models\Evenement;
 use App\Models\Student;
 use App\Mail\CommuniqueNotification;
 use Illuminate\Http\Request;
@@ -108,7 +110,17 @@ class CommuniqueController extends Controller
     public function create()
     {
         $studentCounts = $this->getStudentCounts();
-        return view('admin.communiques.create', compact('studentCounts'));
+        $actualites = Actualite::query()
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get(['id', 'title', 'status', 'published_at']);
+
+        $evenements = Evenement::query()
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get(['id', 'title', 'status', 'event_date', 'published_at']);
+
+        return view('admin.communiques.create', compact('studentCounts', 'actualites', 'evenements'));
     }
 
     public function store(Request $request)
@@ -119,7 +131,18 @@ class CommuniqueController extends Controller
             'start_at' => 'nullable|date',
             'end_at' => 'nullable|date|after_or_equal:start_at',
             'target_audience' => 'required|string',
+            'actualite_id' => 'nullable|integer|exists:actualites,id',
+            'evenement_id' => 'nullable|integer|exists:evenements,id',
         ]);
+
+        if (!empty($request->actualite_id) && !empty($request->evenement_id)) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'actualite_id' => 'Veuillez choisir soit une actualité, soit un évènement (pas les deux).',
+                    'evenement_id' => 'Veuillez choisir soit une actualité, soit un évènement (pas les deux).',
+                ]);
+        }
 
         $communique = Communique::create([
             'content' => $request->content,
@@ -128,6 +151,8 @@ class CommuniqueController extends Controller
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
             'target_audience' => $request->target_audience,
+            'actualite_id' => $request->actualite_id,
+            'evenement_id' => $request->evenement_id,
         ]);
 
         // Envoyer un email à tous les étudiants actifs si le communiqué est actif
@@ -163,7 +188,17 @@ class CommuniqueController extends Controller
     public function edit(Communique $communique)
     {
         $studentCounts = $this->getStudentCounts();
-        return view('admin.communiques.edit', compact('communique', 'studentCounts'));
+        $actualites = Actualite::query()
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get(['id', 'title', 'status', 'published_at']);
+
+        $evenements = Evenement::query()
+            ->orderByDesc('id')
+            ->limit(100)
+            ->get(['id', 'title', 'status', 'event_date', 'published_at']);
+
+        return view('admin.communiques.edit', compact('communique', 'studentCounts', 'actualites', 'evenements'));
     }
 
     public function update(Request $request, Communique $communique)
@@ -174,7 +209,18 @@ class CommuniqueController extends Controller
             'start_at' => 'nullable|date',
             'end_at' => 'nullable|date|after_or_equal:start_at',
             'target_audience' => 'required|string',
+            'actualite_id' => 'nullable|integer|exists:actualites,id',
+            'evenement_id' => 'nullable|integer|exists:evenements,id',
         ]);
+
+        if (!empty($request->actualite_id) && !empty($request->evenement_id)) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'actualite_id' => 'Veuillez choisir soit une actualité, soit un évènement (pas les deux).',
+                    'evenement_id' => 'Veuillez choisir soit une actualité, soit un évènement (pas les deux).',
+                ]);
+        }
 
         $communique->update([
             'content' => $request->content,
@@ -183,6 +229,8 @@ class CommuniqueController extends Controller
             'start_at' => $request->start_at,
             'end_at' => $request->end_at,
             'target_audience' => $request->target_audience,
+            'actualite_id' => $request->actualite_id,
+            'evenement_id' => $request->evenement_id,
         ]);
 
         return redirect()->route('admin.communiques.index')->with('success', 'Communiqué mis à jour.');

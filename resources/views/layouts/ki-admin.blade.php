@@ -825,9 +825,13 @@
         $currentRoute = request()->route()->getName() ?? '';
         $formationPrefix = 'design-graphique'; // Par défaut
         $isCommunityManagement = false;
+        $isDesignCm = false;
 
         // Détecter depuis l'URL
-        if (str_contains($currentRoute, 'community-manager') || str_contains($currentRoute, 'community-management')) {
+        if (str_contains($currentRoute, 'design-graphique-cm')) {
+            $formationPrefix = 'design-graphique-cm';
+            $isDesignCm = true;
+        } elseif (str_contains($currentRoute, 'community-manager') || str_contains($currentRoute, 'community-management')) {
             $formationPrefix = 'community-management';
             $isCommunityManagement = true;
         } elseif (str_contains($currentRoute, 'intelligence-artificielle')) {
@@ -838,6 +842,7 @@
 
         // Mapper le préfixe de route au nom de route du dashboard
         $dashboardRoute = match($formationPrefix) {
+            'design-graphique-cm' => 'dashboard.design-graphique-cm',
             'community-management' => 'dashboard.community-management',
             'intelligence-artificielle' => 'dashboard.intelligence-artificielle',
             'gestion-informatique' => 'dashboard.gestion-informatique',
@@ -998,6 +1003,139 @@
         .fab.text-primary,
         i.text-primary {
             background: linear-gradient(135deg, #f09433 0%, #dc2743 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+        }
+    </style>
+    @endif
+
+    @if($isDesignCm)
+    <style>
+        /* Thème Blue-Orange pour Design & Community Management */
+
+        /* Sidebar et Topbar */
+        .sidebar {
+            background: linear-gradient(180deg, #2563eb 0%, #f97316 100%) !important;
+            box-shadow: 4px 0 20px rgba(37, 99, 235, 0.4) !important;
+        }
+
+        .dynamic-topbar {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4) !important;
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.15) 100%) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+        }
+
+        /* Boutons */
+        .btn-primary,
+        button.btn-primary,
+        a.btn-primary,
+        input[type="submit"].btn-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
+            border: none !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3) !important;
+            color: white !important;
+        }
+
+        .btn-primary:hover,
+        button.btn-primary:hover,
+        a.btn-primary:hover,
+        input[type="submit"].btn-primary:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #ea580c 100%) !important;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+            color: white !important;
+        }
+
+        /* Cartes */
+        .card-header,
+        .card-header.bg-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
+            color: white !important;
+        }
+
+        /* Badges */
+        .badge-primary,
+        .badge.bg-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
+            color: white !important;
+        }
+
+        /* Progress bars */
+        .progress-bar,
+        .progress-bar.bg-primary {
+            background: linear-gradient(90deg, #2563eb 0%, #f97316 100%) !important;
+        }
+
+        /* Liens */
+        a.text-primary,
+        .text-primary {
+            color: #2563eb !important;
+        }
+
+        a.text-primary:hover {
+            color: #f97316 !important;
+        }
+
+        /* Backgrounds */
+        .bg-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
+        }
+
+        /* Bordures */
+        .border-primary {
+            border-color: #2563eb !important;
+        }
+
+        /* Alertes */
+        .alert-primary {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%) !important;
+            border-left: 4px solid #2563eb !important;
+            color: #2563eb !important;
+        }
+
+        /* Tables */
+        .table thead th {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
+            color: white !important;
+        }
+
+        /* Pagination */
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
+            border-color: #2563eb !important;
+        }
+
+        /* Forms */
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.25) !important;
+        }
+
+        /* Tabs */
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
+            color: white !important;
+            border-color: #2563eb !important;
+        }
+
+        /* Liste groupée */
+        .list-group-item.active {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
+            border-color: #2563eb !important;
+        }
+
+        /* Icônes avec couleur primaire */
+        .fas.text-primary,
+        .far.text-primary,
+        .fab.text-primary,
+        i.text-primary {
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%) !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;
@@ -1167,14 +1305,44 @@
             </div>
             <div class="topbar-right">
                 <!-- Notifications -->
-                <div class="notification-bell me-3">
-                    <button class="btn btn-link text-white position-relative notification-btn">
+                <div class="dropdown notification-bell me-3">
+                    <button class="btn btn-link text-white position-relative notification-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" id="notificationBellBtn">
                         <i class="fas fa-bell fa-lg"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success notification-badge">
-                            3
+                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success notification-badge" style="display:none;">
+                            <span id="notificationBadgeCount">0</span>
                             <span class="visually-hidden">notifications non lues</span>
                         </span>
                     </button>
+                    <div class="dropdown-menu dropdown-menu-end" style="min-width: 360px; max-width: 92vw;">
+                        <div class="px-3 py-2 d-flex align-items-center justify-content-between">
+                            <strong>Notifications</strong>
+                            <button class="btn btn-sm btn-outline-light" type="button" id="notificationsRefreshBtn" style="border-color: rgba(255,255,255,0.25); color: #fff; background: rgba(255,255,255,0.08);">Actualiser</button>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div id="notificationsList" style="max-height: 360px; overflow:auto;"></div>
+                        <div class="dropdown-divider"></div>
+                        <div class="px-3 py-2 d-flex align-items-center justify-content-between">
+                            @php
+                                $userFormation = session('user_formation', '');
+                                $notifRoute = 'dashboard.notifications.index';
+
+                                // Détection de la formation pour les notifications
+                                if ($userFormation === 'design-graphique-cm') {
+                                    $notifRoute = 'design-graphique-cm.notifications.index';
+                                } elseif ($userFormation === 'community-management') {
+                                    $notifRoute = 'community-management.notifications.index';
+                                } elseif ($userFormation === 'gestion-informatique') {
+                                    $notifRoute = 'gestion-informatique.notifications.index';
+                                } elseif ($userFormation === 'intelligence-artificielle') {
+                                    $notifRoute = 'intelligence-artificielle.notifications.index';
+                                } elseif ($userFormation === 'design-graphique') {
+                                    $notifRoute = 'design-graphique.notifications.index';
+                                }
+                            @endphp
+                            <a href="{{ route($notifRoute) }}" class="btn btn-sm" style="background: #0d6efd; border-color: #0d6efd; color: #fff;">Voir toutes les notifications</a>
+                            <div class="small text-muted" id="notificationsFooter">Mise à jour…</div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Profile Dropdown -->
@@ -1248,27 +1416,27 @@
 
                         <li><hr class="dropdown-divider"></li>
 
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route('dashboard.design-graphique') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ route($dashboardRoute) }}">
                             <i class="fas fa-chart-pie me-3"></i>
                             <span>Mon Espace Étudiant</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route('design-graphique.profil.editer') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.profil.editer') }}">
                             <i class="fas fa-user-edit me-3"></i>
                             <span>Modifier mon Profil</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route('design-graphique.cvtheque.index') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.cvtheque.index') }}">
                             <i class="fas fa-briefcase me-3"></i>
                             <span>Ma CVThèque</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route('design-graphique.programme.index') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.programme.index') }}">
                             <i class="fas fa-calendar-alt me-3"></i>
                             <span>Mon Programme</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route('design-graphique.paiements.index') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.paiements.index') }}">
                             <i class="fas fa-credit-card me-3"></i>
                             <span>Mes Paiements</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route('design-graphique.parametres.index') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.parametres.index') }}">
                             <i class="fas fa-cog me-3"></i>
                             <span>Paramètres</span>
                         </a></li>
@@ -1391,6 +1559,161 @@
                     }
                 });
             }
+
+            // Notifications
+            const notifBellBtn = document.getElementById('notificationBellBtn');
+            const notifBadge = document.getElementById('notificationBadge');
+            const notifBadgeCount = document.getElementById('notificationBadgeCount');
+            const notifList = document.getElementById('notificationsList');
+            const notifFooter = document.getElementById('notificationsFooter');
+            const notifRefreshBtn = document.getElementById('notificationsRefreshBtn');
+
+            const notifFeedUrl = "{{ route('dashboard.notifications.feed') }}";
+            const notifMarkReadUrl = "{{ route('dashboard.notifications.mark-read') }}";
+
+            function getCsrfToken() {
+                const meta = document.querySelector('meta[name="csrf-token"]');
+                return meta ? meta.getAttribute('content') : '';
+            }
+
+            function setUnreadCount(count) {
+                const safeCount = Number.isFinite(count) ? count : 0;
+                notifBadgeCount.textContent = String(safeCount);
+                notifBadge.style.display = safeCount > 0 ? '' : 'none';
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str ?? '';
+                return div.innerHTML;
+            }
+
+            function renderNotifications(items) {
+                if (!notifList) return;
+
+                if (!items || items.length === 0) {
+                    notifList.innerHTML = '<div class="px-3 py-3 text-muted">Aucune notification pour le moment.</div>';
+                    return;
+                }
+
+                notifList.innerHTML = items.map((n) => {
+                    const data = n.data || {};
+                    const title = escapeHtml(data.title || 'Notification');
+                    const message = escapeHtml(data.message || '');
+                    const url = data.url || null;
+                    const isUnread = !n.read_at;
+                    const createdAt = n.created_at ? new Date(n.created_at).toLocaleString() : '';
+
+                    const content = `
+                        <div class="d-flex flex-column">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="fw-bold ${isUnread ? '' : 'text-muted'}">${title}</div>
+                                <div class="small ${isUnread ? 'text-success' : 'text-muted'}">${isUnread ? 'Nouveau' : 'Lu'}</div>
+                            </div>
+                            <div class="small ${isUnread ? '' : 'text-muted'}">${message}</div>
+                            <div class="small text-muted mt-1">${createdAt}</div>
+                        </div>
+                    `;
+
+                    const wrapperClass = `px-3 py-2 ${isUnread ? 'bg-success bg-opacity-10' : ''}`;
+                    if (url) {
+                        return `<a class="dropdown-item ${wrapperClass}" href="${url}" data-notification-id="${n.id}">${content}</a>`;
+                    }
+                    return `<div class="${wrapperClass}" data-notification-id="${n.id}">${content}</div>`;
+                }).join('');
+            }
+
+            async function fetchNotifications() {
+                try {
+                    const res = await fetch(notifFeedUrl + '?limit=8', {
+                        headers: { 'Accept': 'application/json' },
+                        credentials: 'same-origin'
+                    });
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const json = await res.json();
+                    setUnreadCount(json.unread_count || 0);
+                    renderNotifications(json.items || []);
+                    if (notifFooter) {
+                        notifFooter.textContent = 'Mis à jour: ' + new Date().toLocaleTimeString();
+                    }
+                } catch (e) {
+                    if (notifFooter) {
+                        notifFooter.textContent = 'Erreur de chargement des notifications';
+                    }
+                }
+            }
+
+            async function markRead(ids) {
+                try {
+                    const payload = Array.isArray(ids) ? { ids } : {};
+                    const res = await fetch(notifMarkReadUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(payload),
+                        keepalive: true,
+                    });
+                    if (!res.ok) return null;
+                    return await res.json();
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            async function markAllRead() {
+                try {
+                    await fetch(notifMarkReadUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': getCsrfToken(),
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({})
+                    });
+                } catch (e) {
+                    // silent
+                }
+            }
+
+            if (notifBellBtn) {
+                notifBellBtn.addEventListener('click', async function() {
+                    await fetchNotifications();
+                });
+            }
+
+            if (notifList) {
+                notifList.addEventListener('click', async function(e) {
+                    const link = e.target.closest('a[data-notification-id]');
+                    if (!link) return;
+
+                    const id = link.getAttribute('data-notification-id');
+                    if (!id) return;
+
+                    const result = await markRead([id]);
+                    if (result && typeof result.unread_count !== 'undefined') {
+                        setUnreadCount(result.unread_count);
+                    } else {
+                        fetchNotifications();
+                    }
+                });
+            }
+
+            if (notifRefreshBtn) {
+                notifRefreshBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    fetchNotifications();
+                });
+            }
+
+            // Initial load + polling
+            fetchNotifications();
+            setInterval(fetchNotifications, 30000);
         });
 
         // Toggle submenu

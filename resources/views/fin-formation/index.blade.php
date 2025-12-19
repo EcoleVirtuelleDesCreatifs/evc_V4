@@ -10,7 +10,7 @@
 <!-- En-tête avec statut global -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card" style="background: linear-gradient(135deg, #003366 0%, #3399ff 100%); color: white;">
+        <div class="card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #ff9800 100%); color: white;">
             <div class="card-body py-4">
                 <div class="row align-items-center">
                     <div class="col-md-8">
@@ -110,15 +110,15 @@
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-project-diagram me-2" style="color: #3399ff;"></i>
+                    <i class="fas fa-project-diagram me-2" style="color: #C13584;"></i>
                     Projets de Formation
                 </h5>
             </div>
             <div class="card-body">
                 <div class="row mb-4">
                     <div class="col-md-6">
-                        <div class="text-center p-3" style="background-color: #e3f2fd; border-radius: 10px;">
-                            <h2 class="mb-1" style="color: #3399ff;">{{ $projectsCompleted }} / {{ $minProjectsRequired }}</h2>
+                        <div class="text-center p-3" style="background-color: #fff1f7; border-radius: 10px;">
+                            <h2 class="mb-1" style="color: #C13584;">{{ $projectsCompleted }} / {{ $minProjectsRequired }}</h2>
                             <p class="mb-0 text-muted">Projets réalisés</p>
                         </div>
                     </div>
@@ -131,7 +131,7 @@
                 </div>
 
                 <div class="progress mb-3" style="height: 15px;">
-                    <div class="progress-bar" style="width: {{ $projectProgress }}%; background-color: #3399ff;" role="progressbar">
+                    <div class="progress-bar" style="width: {{ $projectProgress }}%; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #ff9800 100%);" role="progressbar">
                         <span class="fw-bold">{{ $projectProgress }}% complétés</span>
                     </div>
                 </div>
@@ -212,9 +212,9 @@
                                         Fichier : <strong>{{ $report->original_filename }}</strong><br>
                                         Uploadé le : {{ \Carbon\Carbon::parse($report->submitted_at)->format('d/m/Y à H:i') }}<br>
                                         Statut :
-                                        @if($report->status === 'approved')
-                                            <span class="badge bg-success">Approuvé</span>
-                                        @elseif($report->status === 'rejected')
+                                        @if(in_array($report->status, ['approved', 'validated', 'valide']))
+                                            <span class="badge bg-success">Validé</span>
+                                        @elseif(in_array($report->status, ['rejected', 'rejete']))
                                             <span class="badge bg-danger">Rejeté</span>
                                         @else
                                             <span class="badge bg-warning">En attente de validation</span>
@@ -223,13 +223,27 @@
                                 </div>
                             </div>
                             <div>
-                                <a href="{{ route('community-management.fin-formation.download-report', $report->id) }}"
-                                   class="btn btn-sm btn-primary mb-2">
-                                    <i class="fas fa-download me-1"></i> Télécharger
-                                </a>
-                                <button type="button" class="btn btn-sm btn-warning" onclick="showReplaceForm()">
-                                    <i class="fas fa-sync-alt me-1"></i> Remplacer
-                                </button>
+                                @if(Route::has(($currentModule ?? 'design-graphique') . '.fin-formation.download-report'))
+                                    <a href="{{ route(($currentModule ?? 'design-graphique') . '.fin-formation.download-report', $report->id) }}"
+                                       class="btn btn-sm btn-primary mb-2">
+                                        <i class="fas fa-download me-1"></i> Télécharger
+                                    </a>
+                                @else
+                                    <a href="{{ route(($currentModule ?? 'design-graphique') . '.documents.index') }}"
+                                       class="btn btn-sm btn-primary mb-2">
+                                        <i class="fas fa-folder-open me-1"></i> Voir dans Documents
+                                    </a>
+                                @endif
+                                @if(Route::has(($currentModule ?? 'design-graphique') . '.fin-formation.upload-report'))
+                                    <button type="button" class="btn btn-sm btn-warning" onclick="showReplaceForm()">
+                                        <i class="fas fa-sync-alt me-1"></i> Remplacer
+                                    </button>
+                                @else
+                                    <a href="{{ route(($currentModule ?? 'design-graphique') . '.tp.modifier', $report->id) }}"
+                                       class="btn btn-sm btn-warning">
+                                        <i class="fas fa-pen me-1"></i> Modifier
+                                    </a>
+                                @endif
                             </div>
                         </div>
                         @if($report->admin_comment)
@@ -246,20 +260,28 @@
                             <i class="fas fa-info-circle me-2"></i>
                             Vous pouvez remplacer votre rapport actuel en uploadant un nouveau fichier.
                         </div>
-                        <form action="{{ route('community-management.fin-formation.upload-report') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div class="text-center">
-                                <input type="file" name="report_file" id="reportFileReplace" accept=".pdf" class="form-control mb-3" required>
-                                <div class="d-flex gap-2 justify-content-center">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-upload me-1"></i> Remplacer le rapport
-                                    </button>
-                                    <button type="button" class="btn btn-secondary" onclick="hideReplaceForm()">
-                                        Annuler
-                                    </button>
+                        @if(Route::has(($currentModule ?? 'design-graphique') . '.fin-formation.upload-report'))
+                            <form action="{{ route(($currentModule ?? 'design-graphique') . '.fin-formation.upload-report') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="text-center">
+                                    <input type="file" name="report_file" id="reportFileReplace" accept=".pdf" class="form-control mb-3" required>
+                                    <div class="d-flex gap-2 justify-content-center">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-upload me-1"></i> Remplacer le rapport
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" onclick="hideReplaceForm()">
+                                            Annuler
+                                        </button>
+                                    </div>
                                 </div>
+                            </form>
+                        @else
+                            <div class="text-center">
+                                <a href="{{ route(($currentModule ?? 'design-graphique') . '.documents.index') }}" class="btn btn-primary">
+                                    <i class="fas fa-folder-open me-1"></i> Aller dans Documents
+                                </a>
                             </div>
-                        </form>
+                        @endif
                     </div>
                 @else
                     <!-- Aucun rapport uploadé -->
@@ -296,7 +318,7 @@
                             </ul>
                         </div>
                         <div class="col-md-4">
-                            <form action="{{ route('community-management.fin-formation.upload-report') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route(($currentModule ?? 'design-graphique') . '.fin-formation.upload-report') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="text-center">
                                     <div class="mb-3">
@@ -328,7 +350,7 @@
     <div class="col-md-4">
         <!-- Critères d'éligibilité à la certification -->
         <div class="card mb-4">
-            <div class="card-header" style="background: linear-gradient(135deg, #003366 0%, #3399ff 100%); color: white;">
+            <div class="card-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #ff9800 100%); color: white;">
                 <h6 class="mb-0">
                     <i class="fas fa-certificate me-2"></i>
                     Critères d'éligibilité à la certification
@@ -338,7 +360,7 @@
                 <div class="eligibility-criteria">
                     <!-- Paiement -->
                     <div class="criteria-item mb-3 p-3" style="border: 1px solid #e9ecef; border-radius: 8px;">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-credit-card text-warning me-2"></i>
                                 <strong>Paiement intégral</strong>
@@ -349,8 +371,10 @@
                                 <span class="badge bg-warning">En attente</span>
                             @endif
                         </div>
-                        <small class="text-muted">{{ number_format($paymentRemaining, 0, ',', ' ') }} FCFA restants à régler</small>
-                        <div class="progress mt-2" style="height: 4px;">
+                        <div class="text-center mb-2" style="font-size: 1.5rem; font-weight: 600; color: #FF9900;">
+                            {{ number_format($paymentRemaining, 0, ',', ' ') }} FCFA restants à régler
+                        </div>
+                        <div class="progress" style="height: 8px;">
                             <div class="progress-bar bg-warning" style="width: {{ $paymentProgress }}%;" role="progressbar"></div>
                         </div>
                     </div>
@@ -389,7 +413,7 @@
                         </div>
                         <small class="text-muted">{{ $minProjectsRequired - $projectsCompleted }} projet(s) restant(s)</small>
                         <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar" style="width: {{ $projectProgress }}%; background-color: #3399ff;" role="progressbar"></div>
+                            <div class="progress-bar" style="width: {{ $projectProgress }}%; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #ff9800 100%);" role="progressbar"></div>
                         </div>
                     </div>
 
@@ -401,7 +425,11 @@
                                 <strong>Rapport de fin de formation</strong>
                             </div>
                             @if($reportUploaded)
-                                <span class="badge bg-success">Uploadé</span>
+                                @if(!empty($report) && in_array($report->status, ['approved', 'validated', 'valide']))
+                                    <span class="badge bg-success">Validé</span>
+                                @else
+                                    <span class="badge bg-warning">En attente</span>
+                                @endif
                             @else
                                 <span class="badge bg-danger">Non rédigé</span>
                             @endif
@@ -502,10 +530,6 @@
                         <i class="fas fa-laptop-code me-1"></i>
                         Voir les TP restants
                     </button>
-                    <button class="btn btn-outline-primary btn-sm" onclick="viewProjects()">
-                        <i class="fas fa-project-diagram me-1"></i>
-                        Finaliser le portfolio
-                    </button>
                     <button class="btn btn-outline-warning btn-sm" onclick="scrollToReportUpload()">
                         <i class="fas fa-upload me-1"></i>
                         Uploader le rapport
@@ -522,8 +546,8 @@
 
 <style>
 :root {
-    --primary-color: #003366;
-    --secondary-color: #3399ff;
+    --primary-color: #833AB4;
+    --secondary-color: #E1306C;
     --accent-color: #ff6633;
     --warning-color: #FF9900;
     --success-color: #28a745;
@@ -579,12 +603,7 @@
 <script>
 // Fonction pour voir les TP restants
 function viewTP() {
-    window.location.href = "{{ route('community-management.tp.index') }}";
-}
-
-// Fonction pour voir les projets
-function viewProjects() {
-    window.location.href = "{{ route('community-management.projets.index') }}";
+    window.location.href = "{{ route(($currentModule ?? 'design-graphique-cm') . '.tp.index') }}";
 }
 
 // Fonction pour faire défiler vers le rapport
@@ -607,7 +626,7 @@ function hideReplaceForm() {
 
 // Fonction pour finaliser le paiement
 function payRemaining() {
-    window.location.href = "{{ route('community-management.paiements.index') }}";
+    window.location.href = "{{ route(($currentModule ?? 'design-graphique-cm') . '.paiements.index') }}";
 }
 
 // Animation des cartes au chargement

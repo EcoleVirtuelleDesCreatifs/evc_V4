@@ -37,7 +37,7 @@
                                             {{ $project->title }}
                                         </div>
                                     </div>
-                                    
+
                                     @if($project->description)
                                     <div class="row mb-3">
                                         <div class="col-sm-3">
@@ -48,7 +48,7 @@
                                         </div>
                                     </div>
                                     @endif
-                                    
+
                                     @if($project->software_used)
                                     <div class="row mb-3">
                                         <div class="col-sm-3">
@@ -59,7 +59,7 @@
                                         </div>
                                     </div>
                                     @endif
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-sm-3">
                                             <strong>Statut :</strong>
@@ -83,7 +83,7 @@
                                             @endswitch
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-sm-3">
                                             <strong>Date de création :</strong>
@@ -92,7 +92,7 @@
                                             {{ $project->created_at->format('d/m/Y à H:i') }}
                                         </div>
                                     </div>
-                                    
+
                                     @if($project->images && $project->images->count() > 0)
                                     <div class="row">
                                         <div class="col-sm-3">
@@ -105,7 +105,7 @@
                                     @endif
                                 </div>
                             </div>
-                            
+
                             <!-- Formulaire de suppression -->
                             <div class="card border-danger shadow-sm mt-4">
                                 <div class="card-header bg-danger text-white">
@@ -117,10 +117,10 @@
                                 <div class="card-body">
                                     <div class="alert alert-danger">
                                         <i class="fas fa-exclamation-triangle me-2"></i>
-                                        <strong>Attention !</strong> Cette action est irréversible. 
+                                        <strong>Attention !</strong> Cette action est irréversible.
                                         Le projet et tous ses fichiers associés seront définitivement supprimés.
                                     </div>
-                                    
+
                                     @if($project->images && $project->images->count() > 0)
                                     <div class="alert alert-warning">
                                         <i class="fas fa-file-image me-2"></i>
@@ -132,18 +132,18 @@
                                         </ul>
                                     </div>
                                     @endif
-                                    
+
                                     <form action="{{ route('admin.projects.delete', $project->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        
+
                                         <div class="form-check mb-3">
                                             <input class="form-check-input" type="checkbox" id="confirmDelete" required>
                                             <label class="form-check-label" for="confirmDelete">
                                                 Je confirme vouloir supprimer définitivement ce projet
                                             </label>
                                         </div>
-                                        
+
                                         <div class="d-flex gap-2">
                                             <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
                                                 <i class="fas fa-trash-alt me-1"></i>
@@ -158,7 +158,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Sidebar - Informations étudiant -->
                         <div class="col-lg-4">
                             <div class="card border-0 shadow-sm">
@@ -171,12 +171,12 @@
                                 <div class="card-body">
                                     <div class="text-center mb-3">
                                         @if($project->user->profile_photo)
-                                            <img src="{{ asset('storage/' . $project->user->profile_photo) }}" 
-                                                 alt="Photo de profil" 
-                                                 class="rounded-circle mb-2" 
+                                            <img src="{{ asset('storage/' . $project->user->profile_photo) }}"
+                                                 alt="Photo de profil"
+                                                 class="rounded-circle mb-2"
                                                  style="width: 80px; height: 80px; object-fit: cover;">
                                         @else
-                                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
                                                  style="width: 80px; height: 80px;">
                                                 <i class="fas fa-user text-white fa-2x"></i>
                                             </div>
@@ -184,14 +184,14 @@
                                         <h6 class="mb-1">{{ $project->user->first_name }} {{ $project->user->last_name }}</h6>
                                         <small class="text-muted">{{ $project->user->email }}</small>
                                     </div>
-                                    
+
                                     @if($project->user->phone)
                                     <div class="mb-2">
                                         <strong>Téléphone :</strong><br>
                                         <small>{{ $project->user->phone }}</small>
                                     </div>
                                     @endif
-                                    
+
                                     @if($project->user->city || $project->user->country)
                                     <div class="mb-2">
                                         <strong>Localisation :</strong><br>
@@ -202,16 +202,16 @@
                                         </small>
                                     </div>
                                     @endif
-                                    
+
                                     @if($project->user->formation_souhaitee)
                                     <div class="mb-2">
                                         <strong>Formation :</strong><br>
                                         <small>{{ $project->user->formation_souhaitee }}</small>
                                     </div>
                                     @endif
-                                    
+
                                     <div class="mt-3">
-                                        <a href="{{ route('admin.students.show', $project->user->id) }}" 
+                                        <a href="{{ route('admin.students.profile', $project->user->id) }}"
                                            class="btn btn-outline-primary btn-sm w-100">
                                             <i class="fas fa-eye me-1"></i>
                                             Voir le Profil Complet
@@ -231,7 +231,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const confirmCheckbox = document.getElementById('confirmDelete');
     const deleteBtn = document.getElementById('deleteBtn');
-    
+
     confirmCheckbox.addEventListener('change', function() {
         deleteBtn.disabled = !this.checked;
     });

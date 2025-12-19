@@ -19,16 +19,49 @@ class AuthController extends Controller
      */
     public function showLoginForm()
     {
+        // Source de vérité: auth Laravel
+        // Si la session legacy indique "connecté" mais que Laravel n'est pas authentifié,
+        // nettoyer pour éviter les boucles de redirection.
+        if (session('logged_in') && !Auth::check()) {
+            session()->forget([
+                'user_id',
+                'user_email',
+                'user_name',
+                'user_first_name',
+                'user_last_name',
+                'user_phone',
+                'user_city',
+                'user_country',
+                'user_profile_photo',
+                'user_current_level',
+                'user_whatsapp',
+                'user_status',
+                'user_formation',
+                'user_formation_raw',
+                'user_prenom',
+                'user_nom',
+                'user_telephone',
+                'user_pays',
+                'user_ville',
+                'user_photo',
+                'user_level',
+                'user_niveau',
+                'redirect_to',
+                'user_formation_display',
+                'logged_in',
+            ]);
+        }
+
         // Vérifier si l'utilisateur est déjà connecté
-        if (session('logged_in')) {
+        if (Auth::check()) {
             // Rediriger vers l'espace étudiant personnalisé selon la formation
             $formation = session('user_formation');
             $routeName = $this->getFormationRouteName($formation);
-            
+
             return redirect()->route($routeName)
                 ->with('info', 'Vous êtes déjà connecté à votre espace étudiant.');
         }
-        
+
         return view('auth.login');
     }
 
@@ -51,9 +84,13 @@ class AuthController extends Controller
         try {
             // Sélection tolérante au schéma: ne sélectionner que les colonnes existantes
             $schema = \Illuminate\Support\Facades\Schema::getColumnListing('users');
-            $optional = ['first_name','last_name','current_level','status','profile_photo','country','city','phone','whatsapp','name','formation_souhaitee','remember_token','email_verified_at'];
-            $select = ['id','email','password'];
-            foreach ($optional as $col) { if (in_array($col, $schema, true)) { $select[] = $col; } }
+            $optional = ['first_name', 'last_name', 'current_level', 'status', 'profile_photo', 'country', 'city', 'phone', 'whatsapp', 'name', 'formation_souhaitee', 'remember_token', 'email_verified_at'];
+            $select = ['id', 'email', 'password'];
+            foreach ($optional as $col) {
+                if (in_array($col, $schema, true)) {
+                    $select[] = $col;
+                }
+            }
 
             $query = DB::table('users')->select($select)->where('email', $request->email);
             if (in_array('status', $schema, true)) {
@@ -115,35 +152,38 @@ class AuthController extends Controller
             // Récupérer la formation depuis la table students via user_id
             $student = DB::table('students')->where('user_id', $user->id)->first();
             $formationSouhaitee = 'design-graphique'; // Valeur par défaut
-            
+
             if ($student && !empty($student->program)) {
                 // Mapper les valeurs de program vers les formats de route
                 $programMapping = [
                     'Design Graphique' => 'design-graphique',
                     'Community Management' => 'community-management',
+                    'Design Graphique & Community Management' => 'design-graphique-cm',
                     'Intelligence Artificielle' => 'intelligence-artificielle',
                     'Gestion Informatique' => 'gestion-informatique',
                     // Variantes possibles
                     'design graphique' => 'design-graphique',
                     'community management' => 'community-management',
+                    'design graphique & community management' => 'design-graphique-cm',
+                    'design_graphique_community_management' => 'design-graphique-cm',
                     'intelligence artificielle' => 'intelligence-artificielle',
                     'gestion informatique' => 'gestion-informatique',
                 ];
-                
+
                 $formationSouhaitee = $programMapping[$student->program] ?? str_replace(['_', ' '], '-', strtolower($student->program));
             } elseif (isset($user->formation_souhaitee)) {
                 // Fallback sur formation_souhaitee si elle existe dans users
                 $formationSouhaitee = $user->formation_souhaitee;
             }
-            
+
             // Normaliser la formation (convertir les underscores en tirets)
             $formationNormalized = str_replace('_', '-', strtolower($formationSouhaitee));
-            
+
             // Créer la session utilisateur avec toutes les informations nécessaires
             session([
                 'user_id' => $user->id,
                 'user_email' => $user->email,
-                'user_name' => trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: ($user->name ?? $user->email),
+                'user_name' => trim(($user->first_name ?? '') . ' ' . ($user->last_name ?? '')) ?: ($user->name ?? $user->email),
                 'user_first_name' => $user->first_name ?? '',
                 'user_last_name' => $user->last_name ?? '',
                 'user_phone' => $user->phone ?? '',
@@ -182,19 +222,18 @@ class AuthController extends Controller
                 // Fallback vers la route par défaut
                 session(['redirect_to' => route('dashboard.design-graphique')]);
             }
-        
+
             // Stocker les informations utilisateur supplémentaires pour la page de chargement
             session([
                 'user_formation_display' => $this->getFormationDisplayName($formationNormalized)
             ]);
-        
+
             // Rediriger vers la page de chargement
             return redirect()->route('auth.loading')->with('success', 'Connexion réussie ! Bienvenue dans votre espace ' . $this->getFormationDisplayName($formationNormalized) . ', ' . ($user->first_name ?? 'Étudiant') . ' 👋');
-
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput($request->only('email'));
         } catch (\Exception $e) {
-            $msg = app()->environment('local') ? ('Erreur de connexion: '.$e->getMessage()) : 'Une erreur est survenue lors de la connexion. Veuillez réessayer.';
+            $msg = app()->environment('local') ? ('Erreur de connexion: ' . $e->getMessage()) : 'Une erreur est survenue lors de la connexion. Veuillez réessayer.';
             return back()->with('error', $msg)->withInput($request->only('email'));
         }
     }
@@ -204,11 +243,11 @@ class AuthController extends Controller
      */
     public function showLoadingPage()
     {
-        // Vérifier si l'utilisateur est connecté
-        if (!session('logged_in')) {
+        // Vérifier si l'utilisateur est connecté (auth Laravel)
+        if (!Auth::check()) {
             return redirect()->route('login')->with('error', 'Veuillez vous connecter pour accéder à cette page.');
         }
-        
+
         // Vérifier si une destination est définie
         if (!session('redirect_to')) {
             // Définir une destination par défaut basée sur la formation
@@ -216,7 +255,7 @@ class AuthController extends Controller
             $routeName = $this->getFormationRouteName($formation);
             session(['redirect_to' => route($routeName)]);
         }
-        
+
         return view('auth.loading');
     }
 
@@ -225,8 +264,39 @@ class AuthController extends Controller
      */
     public function studentLoginRedirect()
     {
+        // Si session legacy présente mais Auth absent, nettoyer (évite boucle login->dashboard->login)
+        if (session('logged_in') && !Auth::check()) {
+            session()->forget([
+                'user_id',
+                'user_email',
+                'user_name',
+                'user_first_name',
+                'user_last_name',
+                'user_phone',
+                'user_city',
+                'user_country',
+                'user_profile_photo',
+                'user_current_level',
+                'user_whatsapp',
+                'user_status',
+                'user_formation',
+                'user_formation_raw',
+                'user_prenom',
+                'user_nom',
+                'user_telephone',
+                'user_pays',
+                'user_ville',
+                'user_photo',
+                'user_level',
+                'user_niveau',
+                'redirect_to',
+                'user_formation_display',
+                'logged_in',
+            ]);
+        }
+
         // Si déjà connecté, rediriger à l'espace selon la formation
-        if (session('logged_in')) {
+        if (Auth::check()) {
             $formation = session('user_formation', 'design-graphique');
             try {
                 $routeName = $this->getFormationRouteName($formation);
@@ -246,7 +316,7 @@ class AuthController extends Controller
         // Enregistrer l'activité de déconnexion et nettoyer le statut en ligne
         if (session('user_id')) {
             $userId = session('user_id');
-            
+
             DB::table('user_activities')->insert([
                 'user_id' => $userId,
                 'activity_type' => 'Déconnexion',
@@ -262,7 +332,7 @@ class AuthController extends Controller
 
         // Supprimer toutes les données de session
         session()->flush();
-        
+
         // Supprimer le cookie de souvenir
         cookie()->forget('remember_token');
 
@@ -306,7 +376,7 @@ class AuthController extends Controller
         }
 
         $userId = session('user_id');
-        
+
         try {
             // Récupérer les statistiques depuis la vue
             $stats = DB::table('user_dashboard_stats')
@@ -342,7 +412,6 @@ class AuthController extends Controller
                 'total_payments' => 900,
                 'documents_uploaded' => 15,
             ];
-
         } catch (\Exception $e) {
             // Retourner des données par défaut en cas d'erreur
             return [
@@ -362,7 +431,7 @@ class AuthController extends Controller
     }
 
     // === INSCRIPTION ===
-    
+
     /**
      * Afficher le formulaire d'inscription
      */
@@ -373,14 +442,14 @@ class AuthController extends Controller
             // Rediriger vers l'espace étudiant personnalisé selon la formation
             $formation = session('user_formation');
             $routeName = $this->getFormationRouteName($formation);
-            
+
             return redirect()->route($routeName)
                 ->with('info', 'Vous êtes déjà connecté à votre espace étudiant.');
         }
-        
+
         return view('auth.register');
     }
-    
+
     /**
      * Traiter l'inscription
      */
@@ -420,7 +489,7 @@ class AuthController extends Controller
             'terms.required' => 'Vous devez accepter les conditions d\'utilisation.',
             'terms.accepted' => 'Vous devez accepter les conditions d\'utilisation.'
         ]);
-        
+
         try {
             // Connexion à la base de données
             $pdo = new \PDO(
@@ -429,38 +498,38 @@ class AuthController extends Controller
                 '',
                 [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
             );
-            
+
             // Vérifier si l'email existe déjà
             $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
             $stmt->execute([$request->email]);
             if ($stmt->fetch()) {
                 return back()->withErrors(['email' => 'Cette adresse email est déjà utilisée.'])->withInput();
             }
-            
+
             // Gérer l'upload de photo si présente
             $photoPath = null;
             if ($request->hasFile('photo')) {
                 $photo = $request->file('photo');
                 $photoName = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
-                
+
                 // Créer le dossier s'il n'existe pas
                 $uploadPath = public_path('uploads/photos');
                 if (!file_exists($uploadPath)) {
                     mkdir($uploadPath, 0777, true);
                 }
-                
+
                 // Déplacer le fichier
                 if ($photo->move($uploadPath, $photoName)) {
                     $photoPath = 'uploads/photos/' . $photoName;
                 }
             }
-            
+
             // Insérer le nouvel utilisateur
             $stmt = $pdo->prepare('
-                INSERT INTO users (prenom, nom, email, telephone, pays, ville, photo, password, formation_souhaitee, statut, date_inscription, niveau_actuel) 
+                INSERT INTO users (prenom, nom, email, telephone, pays, ville, photo, password, formation_souhaitee, statut, date_inscription, niveau_actuel)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "actif", NOW(), ?)
             ');
-            
+
             $stmt->execute([
                 $request->prenom,
                 $request->nom,
@@ -473,22 +542,21 @@ class AuthController extends Controller
                 $request->formation,
                 $request->niveau
             ]);
-            
+
             $userId = $pdo->lastInsertId();
-            
+
             // Enregistrer l'activité d'inscription
             $this->logUserActivity($userId, 'register', 'Inscription d\'un nouvel utilisateur');
-            
+
             // Créer les statistiques initiales
             $stmt = $pdo->prepare('
-                INSERT INTO user_statistics (user_id, total_tp, tp_valides, total_projets, projets_valides, 
-                                            progression_globale, heures_formation, badges_obtenus) 
+                INSERT INTO user_statistics (user_id, total_tp, tp_valides, total_projets, projets_valides,
+                                            progression_globale, heures_formation, badges_obtenus)
                 VALUES (?, 0, 0, 0, 0, 0, 0, 0)
             ');
             $stmt->execute([$userId]);
-            
+
             return redirect()->route('login')->with('success', 'Votre compte a été créé avec succès ! Vous pouvez maintenant vous connecter.');
-            
         } catch (\PDOException $e) {
             error_log('ERREUR PDO INSCRIPTION: ' . $e->getMessage());
             error_log('TRACE PDO: ' . $e->getTraceAsString());
@@ -499,7 +567,7 @@ class AuthController extends Controller
             return back()->withErrors(['general' => 'Erreur inattendue: ' . $e->getMessage()])->withInput();
         }
     }
-    
+
     /**
      * Traiter l'inscription sans CSRF (solution de contournement)
      */
@@ -524,8 +592,8 @@ class AuthController extends Controller
             // Insérer l'utilisateur
             $stmt = $pdo->prepare("
                 INSERT INTO utilisateurs (
-                    prenom, nom, email, telephone, pays, ville, niveau, 
-                    formation_souhaitee, mot_de_passe, photo_profil, 
+                    prenom, nom, email, telephone, pays, ville, niveau,
+                    formation_souhaitee, mot_de_passe, photo_profil,
                     date_inscription, statut, accepte_conditions
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'actif', 1)
             ");
@@ -550,10 +618,10 @@ class AuthController extends Controller
                 VALUES (?, 'inscription', 'Inscription réussie', NOW())
             ");
             $stmt->execute([$userId]);
-            
+
             // Initialiser les statistiques utilisateur
             $stmt = $pdo->prepare('
-                INSERT INTO statistiques_utilisateur (utilisateur_id, tp_realises, projets_realises, heures_formation, badges_obtenus, documents_cvtheque, notes_moyenne, progression_globale) 
+                INSERT INTO statistiques_utilisateur (utilisateur_id, tp_realises, projets_realises, heures_formation, badges_obtenus, documents_cvtheque, notes_moyenne, progression_globale)
                 VALUES (?, 0, 0, 0, 0, 0, 0, 0)
             ');
             $stmt->execute([$userId]);
@@ -564,7 +632,6 @@ class AuthController extends Controller
                 'message' => 'Inscription réussie ! Redirection vers la page de connexion...',
                 'redirect' => route('login')
             ]);
-
         } catch (PDOException $e) {
             return response()->json([
                 'success' => false,
@@ -577,9 +644,9 @@ class AuthController extends Controller
             ], 500);
         }
     }
-    
+
     // === RÉCUPÉRATION DE MOT DE PASSE ===
-    
+
     /**
      * Afficher le formulaire de récupération de mot de passe
      */
@@ -587,7 +654,7 @@ class AuthController extends Controller
     {
         return view('auth.forgot-password');
     }
-    
+
     /**
      * Envoyer l'email de récupération de mot de passe
      */
@@ -600,7 +667,7 @@ class AuthController extends Controller
             'email.required' => 'L\'adresse email est obligatoire.',
             'email.email' => 'L\'adresse email doit être valide.'
         ]);
-        
+
         try {
             // Connexion à la base de données
             $pdo = new \PDO(
@@ -630,12 +697,11 @@ class AuthController extends Controller
             $this->logUserActivity($user['id'], 'password_reset_request', 'Demande de réinitialisation de mot de passe');
 
             return back()->with('success', 'Un lien de récupération a été envoyé à votre adresse email.');
-
         } catch (\PDOException $e) {
             return back()->withErrors(['general' => 'Erreur lors de l\'envoi de l\'email. Veuillez réessayer.']);
         }
     }
-    
+
     /**
      * Enregistrer une activité utilisateur
      */
@@ -648,20 +714,19 @@ class AuthController extends Controller
                 '',
                 [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
             );
-            
+
             $stmt = $pdo->prepare('
-                INSERT INTO user_activities (user_id, action, description, date_activite) 
+                INSERT INTO user_activities (user_id, action, description, date_activite)
                 VALUES (?, ?, ?, NOW())
             ');
-            
+
             $stmt->execute([$userId, $action, $description]);
-            
         } catch (\PDOException $e) {
             // Log silencieux en cas d'erreur
             error_log('Erreur lors de l\'enregistrement de l\'activité: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Obtenir le nom d'affichage selon le type de formation
      */
@@ -669,22 +734,24 @@ class AuthController extends Controller
     {
         // Normaliser le format (remplacer tirets et underscores)
         $normalized = str_replace(['-', '_'], '-', strtolower($formationType));
-        
+
         $formations = [
             'design-graphique' => 'Design Graphique',
             'community-management' => 'Community Management',
+            'design-graphique-cm' => 'Design Graphique & Community Management',
             'intelligence-artificielle' => 'Intelligence Artificielle',
             'gestion-informatique' => 'Gestion Informatique',
             // Variantes avec underscores
             'design_graphique' => 'Design Graphique',
             'community_management' => 'Community Management',
+            'design_graphique_community_management' => 'Design Graphique & Community Management',
             'intelligence_artificielle' => 'Intelligence Artificielle',
             'gestion_informatique' => 'Gestion Informatique'
         ];
-        
+
         return $formations[$normalized] ?? $formations[$formationType] ?? 'Formation';
     }
-    
+
     /**
      * Obtenir le nom de route selon le type de formation
      */
@@ -695,12 +762,14 @@ class AuthController extends Controller
             'design-graphique' => 'dashboard.design-graphique', // Variante avec tiret
             'community_management' => 'dashboard.community-management',
             'community-management' => 'dashboard.community-management',
+            'design-graphique-cm' => 'dashboard.design-graphique-cm',
+            'design_graphique_community_management' => 'dashboard.design-graphique-cm',
             'intelligence_artificielle' => 'dashboard.intelligence-artificielle',
             'intelligence-artificielle' => 'dashboard.intelligence-artificielle',
             'gestion_informatique' => 'dashboard.gestion-informatique',
             'gestion-informatique' => 'dashboard.gestion-informatique'
         ];
-        
+
         return $routes[$formationType] ?? 'dashboard.design-graphique'; // Par défaut: Design Graphique
     }
 }

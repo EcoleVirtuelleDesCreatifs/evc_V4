@@ -168,59 +168,82 @@
                         <i class="fas fa-tasks me-2"></i>Travaux & Projets
                     </li>
 
-                    <!-- Travaux Pratiques -->
+                    <!-- Projets Design Graphique -->
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.travaux.*') || request()->routeIs('admin.tp.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#travauxMenu">
-                            <i class="fas fa-laptop-code"></i>
-                            Travaux Pratiques
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.projets.design-graphique.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#designGraphiqueMenu">
+                            <i class="fas fa-palette"></i>
+                            Projets Design Graphique
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse {{ request()->routeIs('admin.travaux.*') || request()->routeIs('admin.tp.*') ? 'show' : '' }}" id="travauxMenu">
+                        <div class="collapse {{ request()->routeIs('admin.projets.design-graphique.*') ? 'show' : '' }}" id="designGraphiqueMenu">
                             <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.travaux.pending') }}" class="admin-nav-sublink {{ request()->routeIs('admin.travaux.pending') ? 'active' : '' }}">
+                                <li><a href="{{ route('admin.projets.design-graphique.pending') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.pending') ? 'active' : '' }}">
                                     <i class="fas fa-clock"></i>À valider
                                 </a></li>
-                                <li><a href="{{ route('admin.travaux.to-send') }}" class="admin-nav-sublink {{ request()->routeIs('admin.travaux.to-send') ? 'active' : '' }}">
+                                <li><a href="{{ route('admin.projets.design-graphique.to-send') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.to-send') ? 'active' : '' }}">
                                     <i class="fas fa-paper-plane"></i>À envoyer
                                 </a></li>
-                                <li><a href="{{ route('admin.travaux.assigned') }}" class="admin-nav-sublink {{ request()->routeIs('admin.travaux.assigned') ? 'active' : '' }}">
-                                    <i class="fas fa-check-circle"></i>Envoyés
+                                <li><a href="{{ route('admin.projets.design-graphique.assigned') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.assigned') ? 'active' : '' }}">
+                                    <i class="fas fa-tasks"></i>Projets attribués
                                 </a></li>
-                                <li><a href="{{ route('admin.travaux.all') }}" class="admin-nav-sublink {{ request()->routeIs('admin.travaux.all') ? 'active' : '' }}">
-                                    <i class="fas fa-list"></i>Tous les TP
-                                </a></li>
-                            </ul>
-                        </div>
-                    </li>
-
-                    <!-- Projets -->
-                    <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.projets.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#projetsMenu">
-                            <i class="fas fa-briefcase"></i>
-                            Projets
-                            <i class="fas fa-chevron-right ms-auto"></i>
-                        </a>
-                        <div class="collapse {{ request()->routeIs('admin.projets.*') ? 'show' : '' }}" id="projetsMenu">
-                            <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.projets.pending') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-clock"></i>À valider
-                                </a></li>
-                                <li><a href="{{ route('admin.projets.to-send') }}" class="admin-nav-sublink">
-                                    <i class="fas fa-paper-plane"></i>À envoyer
-                                </a></li>
-                                <li><a href="{{ route('admin.projets.all') }}" class="admin-nav-sublink">
+                                <li><a href="{{ route('admin.projets.design-graphique.all') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.all') ? 'active' : '' }}">
                                     <i class="fas fa-list"></i>Tous les projets
                                 </a></li>
                             </ul>
                         </div>
                     </li>
 
+                    <!-- Projets CM/SMM -->
+                    <li class="admin-nav-item dropdown">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.projets.cm-smm.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#cmSmmMenu">
+                            <i class="fas fa-hashtag"></i>
+                            Projets CM/SMM
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <div class="collapse {{ request()->routeIs('admin.projets.cm-smm.*') ? 'show' : '' }}" id="cmSmmMenu">
+                            <ul class="admin-nav-submenu">
+                                <li><a href="{{ route('admin.projets.cm-smm.pending') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.cm-smm.pending') ? 'active' : '' }}">
+                                    <i class="fas fa-clock"></i>À valider
+                                </a></li>
+                                <li><a href="{{ route('admin.projets.cm-smm.to-send') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.cm-smm.to-send') ? 'active' : '' }}">
+                                    <i class="fas fa-paper-plane"></i>À envoyer
+                                </a></li>
+                                <li><a href="{{ route('admin.projets.cm-smm.all') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.cm-smm.all') ? 'active' : '' }}">
+                                    <i class="fas fa-list"></i>Tous les projets
+                                </a></li>
+                            </ul>
+                        </div>
+                    </li>
+
+                    <!-- Projets Design & CM -->
+                    <li class="admin-nav-item dropdown">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.projets.design-cm.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#designCmMenu">
+                            <i class="fas fa-object-group"></i>
+                            Projets Design & CM
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <div class="collapse {{ request()->routeIs('admin.projets.design-cm.*') ? 'show' : '' }}" id="designCmMenu">
+                            <ul class="admin-nav-submenu">
+                                <li><a href="{{ route('admin.projets.design-cm.pending') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-cm.pending') ? 'active' : '' }}">
+                                    <i class="fas fa-clock"></i>À valider
+                                </a></li>
+                                <li><a href="{{ route('admin.projets.design-cm.to-send') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-cm.to-send') ? 'active' : '' }}">
+                                    <i class="fas fa-paper-plane"></i>À envoyer
+                                </a></li>
+                                <li><a href="{{ route('admin.projets.design-cm.all') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-cm.all') ? 'active' : '' }}">
+                                    <i class="fas fa-list"></i>Tous les projets
+                                </a></li>
+                            </ul>
+                        </div>
+                    </li>
+
+
                     <!-- Séparateur : Communication -->
                     <li class="nav-section-title">
                         <i class="fas fa-bullhorn me-2"></i>Communication
                     </li>
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
                     <!-- Événements -->
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.articles.evenements') }}" class="admin-nav-link">
@@ -278,20 +301,23 @@
                     @if(in_array(session('admin_role'), ['super_admin', 'comptable']))
                     <!-- Paiements -->
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#paiementsMenu">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.payments.*') || request()->routeIs('admin.paiements.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#paiementsMenu">
                             <i class="fas fa-wallet"></i>
                             Paiements
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse" id="paiementsMenu">
+                        <div class="collapse {{ request()->routeIs('admin.payments.*') || request()->routeIs('admin.paiements.*') ? 'show' : '' }}" id="paiementsMenu">
                             <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.paiements.a-jour') }}" class="admin-nav-sublink">
+                                <li><a href="{{ route('admin.payments.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.payments.*') ? 'active' : '' }}">
+                                    <i class="fas fa-money-bill-wave"></i>Gestion des Paiements
+                                </a></li>
+                                <li><a href="{{ route('admin.paiements.a-jour') }}" class="admin-nav-sublink {{ request()->routeIs('admin.paiements.a-jour') ? 'active' : '' }}">
                                     <i class="fas fa-check-circle"></i>À jour
                                 </a></li>
-                                <li><a href="{{ route('admin.paiements.a-solder') }}" class="admin-nav-sublink">
+                                <li><a href="{{ route('admin.paiements.a-solder') }}" class="admin-nav-sublink {{ request()->routeIs('admin.paiements.a-solder') ? 'active' : '' }}">
                                     <i class="fas fa-exclamation-circle"></i>À solder
                                 </a></li>
-                                <li><a href="{{ route('admin.paiements.reste-a-payer') }}" class="admin-nav-sublink">
+                                <li><a href="{{ route('admin.paiements.reste-a-payer') }}" class="admin-nav-sublink {{ request()->routeIs('admin.paiements.reste-a-payer') ? 'active' : '' }}">
                                     <i class="fas fa-clock"></i>Reste à payer
                                 </a></li>
                             </ul>
@@ -330,7 +356,7 @@
                     </li>
                     @endif
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
                     <!-- Gestion WebTV -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.webtv.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#webtvMenu">

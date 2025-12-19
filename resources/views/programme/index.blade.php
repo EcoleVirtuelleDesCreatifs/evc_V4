@@ -59,34 +59,44 @@
                                     <i class="fas fa-file-pdf"></i>
                                 </div>
                             </div>
-                            
+
                             <!-- Titre -->
                             <h4 class="programme-title mb-2">
                                 {{ $programme->titre }}
                             </h4>
-                            
+
                             <!-- Description -->
                             @if($programme->description)
                                 <p class="programme-description mb-3">
                                     {{ Str::limit($programme->description, 120) }}
                                 </p>
                             @endif
-                            
+
                             <!-- Informations -->
                             <div class="programme-info mb-3">
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <i class="fas fa-graduation-cap" style="color: #C13584;"></i>
-                                    <span class="small text-muted">{{ $programme->formation }}</span>
+                                    @php
+                                        $badgeClass = 'bg-secondary text-white';
+                                        if(stripos($programme->formation, 'design') !== false) {
+                                            $badgeClass = 'bg-info text-white';
+                                        } elseif(stripos($programme->formation, 'community') !== false) {
+                                            $badgeClass = 'bg-warning text-dark';
+                                        }
+                                    @endphp
+                                    <span class="badge {{ $badgeClass }}">
+                                        {{ $programme->formation }}
+                                    </span>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="fas fa-calendar" style="color: #C13584;"></i>
                                     <span class="small text-muted">Publié le {{ \Carbon\Carbon::parse($programme->created_at)->format('d/m/Y') }}</span>
                                 </div>
                             </div>
-                            
+
                             <!-- Bouton téléchargement -->
-                            <a href="{{ asset('storage/' . $programme->fichier_pdf) }}" 
-                               target="_blank" 
+                            <a href="{{ asset('storage/' . $programme->fichier_pdf) }}"
+                               target="_blank"
                                class="instagram-btn w-100"
                                download>
                                 <i class="fas fa-download me-2"></i>
@@ -285,23 +295,23 @@
     .instagram-header h3 {
         font-size: 1.5rem;
     }
-    
+
     .icon-circle {
         width: 60px;
         height: 60px;
         font-size: 1.5rem;
     }
-    
+
     .programme-card {
         padding: 1.5rem;
     }
-    
+
     .pdf-icon {
         width: 70px;
         height: 70px;
         font-size: 2rem;
     }
-    
+
     .programme-title {
         font-size: 1.1rem;
     }

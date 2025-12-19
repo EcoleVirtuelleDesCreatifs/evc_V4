@@ -101,7 +101,7 @@
                             <select class="form-select" id="target_audience" name="target_audience" required>
                                 @foreach(\App\Models\Communique::TARGETS as $key => $label)
                                     <option value="{{ $key }}">
-                                        {{ $label }} 
+                                        {{ $label }}
                                         @if($key === 'all')
                                             (Total : {{ $studentCounts[$key] ?? 0 }} étudiants)
                                         @else
@@ -112,6 +112,37 @@
                             </select>
                         </div>
                         <small class="form-text mt-2" style="color: #6c757d !important; display: block;">Les étudiants ciblés recevront une notification par email.</small>
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label for="actualite_id">Lier à une actualité (optionnel)</label>
+                        <select class="form-select" id="actualite_id" name="actualite_id">
+                            <option value="">-- Aucune --</option>
+                            @foreach(($actualites ?? []) as $a)
+                                <option value="{{ $a->id }}" {{ old('actualite_id') == $a->id ? 'selected' : '' }}>
+                                    #{{ $a->id }} - {{ $a->title }} ({{ $a->status }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('actualite_id')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="col-md-4 form-group">
+                        <label for="evenement_id">Lier à un évènement (optionnel)</label>
+                        <select class="form-select" id="evenement_id" name="evenement_id">
+                            <option value="">-- Aucun --</option>
+                            @foreach(($evenements ?? []) as $e)
+                                <option value="{{ $e->id }}" {{ old('evenement_id') == $e->id ? 'selected' : '' }}>
+                                    #{{ $e->id }} - {{ $e->title }} ({{ $e->status }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('evenement_id')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                        <small class="form-text mt-2" style="color: #6c757d !important; display: block;">Choisir soit une actualité, soit un évènement (pas les deux).</small>
                     </div>
 
                     <div class="col-md-4 form-group">

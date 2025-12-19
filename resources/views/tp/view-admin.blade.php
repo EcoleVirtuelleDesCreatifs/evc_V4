@@ -22,7 +22,7 @@
                     </nav>
                 </div>
                 <div>
-                    <a href="{{ route('admin.statistics.detail', 'tp') }}" class="btn btn-secondary">
+                    <a href="{{ route('admin.projets.design-graphique.pending') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i>
                         Retour à la liste
                     </a>

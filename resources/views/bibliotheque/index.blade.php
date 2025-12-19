@@ -3,6 +3,20 @@
 @section('title', 'Bibliothèque - EVC 2024')
 @section('page-title', 'Bibliothèque')
 
+@push('styles')
+<style>
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+    .pagination .page-item {
+        margin-bottom: 0.25rem;
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Header avec palette Instagram -->
 <div class="row mb-4">
@@ -35,7 +49,8 @@
 
 <!-- Section À la UNE -->
 @php
-    $featuredMedia = $items->where('is_featured', true)->first() ?? $items->first();
+    $itemsCollection = $items instanceof \Illuminate\Pagination\AbstractPaginator ? $items->getCollection() : $items;
+    $featuredMedia = $itemsCollection->where('is_featured', true)->first() ?? $itemsCollection->first();
 @endphp
 @if($featuredMedia)
 <div class="row mb-4">
@@ -122,7 +137,7 @@
 <!-- Liste dynamique des ressources -->
 <div class="row">
     <div class="col-12">
-        @if($items->isEmpty())
+        @if($itemsCollection->isEmpty())
             <!-- Message si aucune ressource -->
             <div class="empty-state">
                 <div class="text-center py-5">
@@ -134,9 +149,9 @@
                 </div>
             </div>
         @else
-            @if($items->count() > 1)
+            @if($itemsCollection->count() > 1)
             <div class="row g-4" id="resources-container">
-                @foreach($items->skip(1) as $item)
+                @foreach($itemsCollection->skip(1) as $item)
                     <div class="col-md-6 col-lg-3 resource-item">
                         <div class="resource-card instagram-card" data-category="{{ $item->libraryCategory->name ?? 'Non catégorisé' }}">
                             <!-- Image de couverture -->
@@ -203,21 +218,18 @@
                     </div>
                 @endforeach
             </div>
-
-            <!-- Bouton Charger plus -->
-            <div class="text-center mt-5" id="load-more-container">
-                <button id="load-more-btn" class="instagram-btn" onclick="loadMoreResources()">
-                    <i class="fas fa-plus-circle me-2"></i>
-                    Charger plus de livres
-                </button>
-                <p class="text-muted mt-3" id="resources-counter">
-                    <span id="shown-count">8</span> sur <span id="total-count">{{ $items->count() - 1 }}</span> livres affichés
-                </p>
-            </div>
             @endif
         @endif
     </div>
 </div>
+
+@if($items instanceof \Illuminate\Pagination\AbstractPaginator)
+<div class="row mt-4">
+    <div class="col-12 d-flex justify-content-center">
+        {{ $items->withQueryString()->links() }}
+    </div>
+</div>
+@endif
 @endsection
 
 @push('styles')

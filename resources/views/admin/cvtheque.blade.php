@@ -3,8 +3,8 @@
 @section('title', 'CVthèque - Étudiants')
 
 @section('content')
-<div class="container-fluid px-4 py-4">
-    
+<div class="container-fluid px-4 py-4" style="overflow-x: hidden;">
+
     <!-- Header -->
     <div class="page-header mb-4" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%); padding: 2rem; border-radius: 20px; color: white;">
         <div class="d-flex align-items-center justify-content-between">
@@ -96,7 +96,7 @@
                     <!-- Photo et nom -->
                     <div class="text-center mb-3">
                         @if($student->profile_photo)
-                            <img src="{{ asset('storage/' . $student->profile_photo) }}" 
+                            <img src="{{ asset('storage/' . $student->profile_photo) }}"
                                  alt="{{ $student->first_name }}"
                                  style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #4fc3f7; margin-bottom: 1rem;">
                         @else
@@ -104,31 +104,31 @@
                                 {{ strtoupper(substr($student->first_name, 0, 1)) }}{{ strtoupper(substr($student->last_name, 0, 1)) }}
                             </div>
                         @endif
-                        <h5 style="color: white; font-weight: 700; margin-bottom: 0.5rem;">{{ $student->first_name }} {{ $student->last_name }}</h5>
-                        <span class="badge" style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">
+                        <h5 style="color: white; font-weight: 700; margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ $student->first_name }} {{ $student->last_name }}</h5>
+                        <span class="badge" style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block;">
                             {{ $student->formation }}
                         </span>
                     </div>
 
                     <!-- Informations -->
                     <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 12px; margin-bottom: 1rem;">
-                        <div class="mb-2" style="color: rgba(255,255,255,0.9); font-size: 0.9rem;">
-                            <i class="fas fa-envelope me-2" style="color: #4fc3f7;"></i>{{ $student->email }}
+                        <div class="mb-2" style="color: rgba(255,255,255,0.9); font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <i class="fas fa-envelope me-2" style="color: #4fc3f7;"></i><span style="vertical-align: middle;">{{ $student->email }}</span>
                         </div>
                         @if($student->phone)
-                        <div class="mb-2" style="color: rgba(255,255,255,0.9); font-size: 0.9rem;">
-                            <i class="fas fa-phone me-2" style="color: #4fc3f7;"></i>{{ $student->phone }}
+                        <div class="mb-2" style="color: rgba(255,255,255,0.9); font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <i class="fas fa-phone me-2" style="color: #4fc3f7;"></i><span style="vertical-align: middle;">{{ $student->phone }}</span>
                         </div>
                         @endif
                         @if($student->specialization)
-                        <div style="color: rgba(255,255,255,0.7); font-size: 0.85rem;">
-                            <i class="fas fa-graduation-cap me-2" style="color: #4fc3f7;"></i>{{ $student->specialization }}
+                        <div style="color: rgba(255,255,255,0.7); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <i class="fas fa-graduation-cap me-2" style="color: #4fc3f7;"></i><span style="vertical-align: middle;">{{ $student->specialization }}</span>
                         </div>
                         @endif
                     </div>
 
                     <!-- Bouton Voir le profil -->
-                    <button class="btn w-100" 
+                    <button class="btn w-100"
                             onclick='viewStudentProfile(@json($student))'
                             style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; border: none; border-radius: 12px; padding: 0.75rem; font-weight: 600; transition: all 0.3s ease;">
                         <i class="fas fa-eye me-2"></i>Voir le profil
@@ -179,18 +179,18 @@
 
 <script>
 function viewStudentProfile(student) {
-    const formattedDate = new Date(student.created_at).toLocaleDateString('fr-FR', { 
-        day: '2-digit', 
-        month: 'long', 
-        year: 'numeric' 
+    const formattedDate = new Date(student.created_at).toLocaleDateString('fr-FR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
     });
-    
-    const photoHtml = student.profile_photo 
+
+    const photoHtml = student.profile_photo
         ? `<img src="{{ asset('storage') }}/${student.profile_photo}" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 4px solid #4fc3f7;">`
         : `<div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 3rem; margin: 0 auto;">
             ${student.first_name.charAt(0).toUpperCase()}${student.last_name.charAt(0).toUpperCase()}
         </div>`;
-    
+
     const content = `
         <div class="text-center mb-4">
             ${photoHtml}
@@ -227,7 +227,7 @@ function viewStudentProfile(student) {
             </div>
         </div>
     `;
-    
+
     document.getElementById('studentProfileContent').innerHTML = content;
     new bootstrap.Modal(document.getElementById('studentProfileModal')).show();
 }

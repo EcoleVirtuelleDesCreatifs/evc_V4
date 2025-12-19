@@ -11,6 +11,7 @@ use App\Models\LibraryCategory;
 use App\Models\Formation;
 use App\Models\Library;
 use App\Models\AccountingTransaction;
+use App\Models\Project;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -19,6 +20,11 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use App\Models\DesignProject;
+use App\Notifications\TpAssignedNotification;
+use App\Notifications\TpStatusChangedNotification;
+use App\Notifications\DesignProjectStatusChangedNotification;
+use App\Notifications\ProjectAssignedNotification;
 
 class AdminDashboardController extends Controller
 {
@@ -73,14 +79,379 @@ class AdminDashboardController extends Controller
             ->where('date', '>=', $currentMonthStart)
             ->sum('amount');
 
+        // --- Statistiques Paiements ---
+        $totalPayments = DB::table('payments')->sum('amount');
+        $completedPayments = DB::table('payments')->where('status', 'completed')->sum('amount');
+        $pendingPayments = DB::table('payments')->where('status', 'pending')->sum('amount');
+        $paymentsCount = DB::table('payments')->count();
+        $completedPaymentsCount = DB::table('payments')->where('status', 'completed')->count();
+        $pendingPaymentsCount = DB::table('payments')->where('status', 'pending')->count();
+
+        // Paiements ce mois
+        $paymentsThisMonth = DB::table('payments')
+            ->where('created_at', '>=', $currentMonthStart)
+            ->where('status', 'completed')
+            ->sum('amount');
+
         return view('admin.dashboard', compact(
             'studentHistory',
             'totalIncome',
             'totalExpenses',
             'balance',
             'incomeThisMonth',
-            'expensesThisMonth'
+            'expensesThisMonth',
+            'totalPayments',
+            'completedPayments',
+            'pendingPayments',
+            'paymentsCount',
+            'completedPaymentsCount',
+            'pendingPaymentsCount',
+            'paymentsThisMonth'
         ));
+    }
+
+    public function viewProject($id)
+    {
+        $project = Project::with(['user', 'user.student', 'images'])->findOrFail($id);
+
+        return view('admin.projects.view', [
+            'project' => $project,
+        ]);
+    }
+
+    public function viewDesignProject($id)
+    {
+        $project = DesignProject::with(['user', 'user.student', 'files'])->findOrFail($id);
+
+        return view('admin.projects.design.show', [
+            'project' => $project,
+        ]);
+    }
+
+    public function validateDesignProject(Request $request, $id)
+    {
+        $project = DesignProject::findOrFail($id);
+
+        $project->status = 'validated';
+        if (Schema::hasColumn('design_projects', 'validated_at')) {
+            $project->validated_at = now();
+        }
+        $project->save();
+
+        // Notification in-app (database)
+        try {
+            $user = \App\Models\User::find($project->user_id);
+            if ($user) {
+                // Récupérer la formation de l'étudiant
+                $student = DB::table('students')->where('user_id', $user->id)->first();
+                $formation = $student && $student->program ? $student->program : 'Design Graphique';
+                $formationSlug = $this->getFormationSlug($formation);
+
+                $user->notify(new DesignProjectStatusChangedNotification([
+                    'category' => 'project',
+                    'event' => 'validated',
+                    'title' => 'Projet validé',
+                    'message' => 'Votre projet "' . ($project->title ?? 'Projet') . '" a été validé.',
+                    'project_id' => $project->id,
+                    'project_title' => $project->title ?? null,
+                    'created_at' => now()->toIso8601String(),
+                    'url' => url('/evc/compte/' . $formationSlug . '/projets/index'),
+                ]));
+            }
+        } catch (\Exception $e) {
+            Log::warning('Notification in-app projet validé échouée', [
+                'design_project_id' => $id,
+                'user_id' => $project->user_id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // Synchroniser le statut du projet assigné (todo list étudiant) si on le retrouve.
+        // On n'a pas de FK directe, donc on rapproche via user_id + title.
+        try {
+            DB::table('projects')
+                ->where('user_id', $project->user_id)
+                ->where('title', $project->title)
+                ->where('status', 'termine')
+                ->update([
+                    'status' => 'valide',
+                    'updated_at' => now(),
+                ]);
+        } catch (\Exception $e) {
+            Log::warning('Unable to sync assigned project status after design project validation', [
+                'design_project_id' => $project->id,
+                'user_id' => $project->user_id,
+                'title' => $project->title,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Projet validé avec succès.'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Projet validé avec succès.');
+    }
+
+    public function rejectDesignProject(Request $request, $id)
+    {
+        $project = DesignProject::findOrFail($id);
+
+        $project->status = 'rejected';
+        $project->save();
+
+        // Notification in-app (database)
+        try {
+            $user = \App\Models\User::find($project->user_id);
+            if ($user) {
+                // Récupérer la formation de l'étudiant
+                $student = DB::table('students')->where('user_id', $user->id)->first();
+                $formation = $student && $student->program ? $student->program : 'Design Graphique';
+                $formationSlug = $this->getFormationSlug($formation);
+
+                $user->notify(new DesignProjectStatusChangedNotification([
+                    'category' => 'project',
+                    'event' => 'rejected',
+                    'title' => 'Projet rejeté',
+                    'message' => 'Votre projet "' . ($project->title ?? 'Projet') . '" a été rejeté.',
+                    'project_id' => $project->id,
+                    'project_title' => $project->title ?? null,
+                    'created_at' => now()->toIso8601String(),
+                    'url' => url('/evc/compte/' . $formationSlug . '/projets/index'),
+                ]));
+            }
+        } catch (\Exception $e) {
+            Log::warning('Notification in-app projet rejeté échouée', [
+                'design_project_id' => $id,
+                'user_id' => $project->user_id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // Synchroniser le statut du projet assigné (todo list étudiant) si on le retrouve.
+        try {
+            DB::table('projects')
+                ->where('user_id', $project->user_id)
+                ->where('title', $project->title)
+                ->whereIn('status', ['termine', 'valide'])
+                ->update([
+                    'status' => 'rejete',
+                    'updated_at' => now(),
+                ]);
+        } catch (\Exception $e) {
+            Log::warning('Unable to sync assigned project status after design project rejection', [
+                'design_project_id' => $project->id,
+                'user_id' => $project->user_id,
+                'title' => $project->title,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Projet rejeté avec succès.'
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Projet rejeté avec succès.');
+    }
+
+    public function editDesignProject(Request $request, $id)
+    {
+        $project = DesignProject::with(['user', 'user.student', 'files'])->findOrFail($id);
+
+        if ($request->isMethod('get')) {
+            return view('admin.projects.design.edit', [
+                'project' => $project,
+            ]);
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'project_type' => 'required|string|max:50',
+            'project_mode' => 'required|string|max:50',
+            'status' => 'required|string|max:50',
+        ]);
+
+        $project->fill($validated);
+        $project->save();
+
+        return redirect()->route('admin.design-projects.view', $project->id)
+            ->with('success', 'Projet mis à jour avec succès.');
+    }
+
+    public function deleteDesignProject(Request $request, $id)
+    {
+        $project = DesignProject::with(['files'])->findOrFail($id);
+
+        // Supprimer aussi les fichiers physiques si possible
+        foreach ($project->files as $file) {
+            try {
+                if (!empty($file->file_path) && Storage::disk('public')->exists($file->file_path)) {
+                    Storage::disk('public')->delete($file->file_path);
+                }
+            } catch (\Exception $e) {
+                Log::warning('Unable to delete design project file from storage', [
+                    'design_project_id' => $project->id,
+                    'file_id' => $file->id,
+                    'file_path' => $file->file_path ?? null,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $project->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Projet supprimé avec succès.'
+            ]);
+        }
+
+        return redirect()->route('admin.design-projects.index')->with('success', 'Projet supprimé avec succès.');
+    }
+
+    public function editProject($id)
+    {
+        $project = Project::with(['user', 'user.student', 'images'])->findOrFail($id);
+
+        $relatedProjectsQuery = Project::query()
+            ->with(['user', 'user.student'])
+            ->where('title', $project->title)
+            ->where('category', $project->category);
+
+        if (!is_null($project->deadline)) {
+            $relatedProjectsQuery->whereDate('deadline', $project->deadline);
+        } else {
+            $relatedProjectsQuery->whereNull('deadline');
+        }
+
+        if (!is_null($project->created_at)) {
+            $relatedProjectsQuery->whereBetween('created_at', [
+                $project->created_at->copy()->subMinutes(10),
+                $project->created_at->copy()->addMinutes(10),
+            ]);
+        }
+
+        $relatedProjects = $relatedProjectsQuery
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $studentsList = User::query()
+            ->whereHas('student', function ($q) {
+                $q->where('status', 'active');
+            })
+            ->with('student')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.projects.edit', [
+            'project' => $project,
+            'relatedProjects' => $relatedProjects,
+            'studentsList' => $studentsList,
+        ]);
+    }
+
+    public function updateProject(Request $request, $id)
+    {
+        $project = Project::with(['user', 'user.student'])->findOrFail($id);
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'software_used' => 'nullable|string',
+            'status' => 'required|in:en_cours,termine,valide,rejete',
+            'link' => 'nullable|url',
+            'deadline' => 'nullable|date',
+        ]);
+
+        if (array_key_exists('software_used', $validated)) {
+            $validated['software_used'] = $validated['software_used']
+                ? array_map('trim', explode(',', $validated['software_used']))
+                : [];
+        }
+
+        $project->fill($validated);
+        $project->save();
+
+        return redirect()->route('admin.projets.design-graphique.assigned')
+            ->with('success', 'Projet mis à jour avec succès.');
+    }
+
+    public function deleteProject($id)
+    {
+        $project = Project::findOrFail($id);
+        $project->delete();
+
+        return redirect()->route('admin.projets.design-graphique.assigned')
+            ->with('success', 'Projet supprimé avec succès.');
+    }
+
+    public function addStudentToProject(Request $request, $id)
+    {
+        $project = Project::findOrFail($id);
+
+        $validated = $request->validate([
+            'student_user_id' => 'required|exists:users,id',
+        ]);
+
+        $targetUserId = (int) $validated['student_user_id'];
+
+        $dupQuery = Project::query()
+            ->where('user_id', $targetUserId)
+            ->where('title', $project->title)
+            ->where('category', $project->category);
+
+        if (!is_null($project->deadline)) {
+            $dupQuery->whereDate('deadline', $project->deadline);
+        } else {
+            $dupQuery->whereNull('deadline');
+        }
+
+        if ($dupQuery->exists()) {
+            return redirect()->back()->with('error', "Cet étudiant a déjà ce projet.");
+        }
+
+        $newProject = $project->replicate([
+            'created_at',
+            'updated_at',
+        ]);
+        $newProject->user_id = $targetUserId;
+        $newProject->created_at = now();
+        $newProject->updated_at = now();
+        $newProject->save();
+
+        // Notification in-app (database)
+        try {
+            $user = \App\Models\User::find($targetUserId);
+            if ($user) {
+                $user->notify(new ProjectAssignedNotification([
+                    'category' => 'project',
+                    'event' => 'assigned',
+                    'title' => 'Nouveau projet assigné',
+                    'message' => 'Un nouveau projet a été assigné : ' . ($newProject->title ?? 'Projet'),
+                    'project_id' => $newProject->id,
+                    'project_title' => $newProject->title ?? null,
+                    'created_at' => now()->toIso8601String(),
+                    'url' => url('/evc/compte/design-graphique/projets'),
+                ]));
+            }
+        } catch (\Exception $e) {
+            Log::warning('Notification in-app projet assigné échouée (addStudentToProject)', [
+                'project_id' => $newProject->id ?? null,
+                'user_id' => $targetUserId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return redirect()->route('admin.projects.edit', $project->id)
+            ->with('success', "Étudiant ajouté au projet.");
     }
 
     public function create(): View
@@ -110,17 +481,42 @@ class AdminDashboardController extends Controller
             // Ex: 'intelligence-artificielle' -> 'intelligence_artificielle'
             $moduleNormalized = str_replace('-', '_', $module);
 
-            // Récupérer les étudiants du module depuis pre_registrations
-            $students = DB::table('pre_registrations as pr')
-                ->join('users as u', 'pr.email', '=', 'u.email')
-                ->where('pr.choix_formation', $moduleNormalized)
-                ->select('u.id', 'u.name', 'u.email')
-                ->orderBy('u.name')
+            // Mapper les noms de modules vers les valeurs dans la table students
+            $moduleMapping = [
+                'design_graphique' => ['Design Graphique', 'design_graphique'],
+                'community_management' => ['Community Management', 'community_management'],
+                'intelligence_artificielle' => ['Intelligence Artificielle', 'intelligence_artificielle'],
+                'gestion_informatique' => ['Gestion Informatique', 'gestion_informatique'],
+                'design_graphique_community_manager' => ['Design Graphique & Community Manager', 'design_graphique_community_manager'],
+            ];
+
+            // Récupérer les variantes possibles du module
+            $moduleVariants = $moduleMapping[$moduleNormalized] ?? [$moduleNormalized];
+
+            // Récupérer les étudiants du module depuis la table students
+            $students = DB::table('students')
+                ->join('users', 'students.user_id', '=', 'users.id')
+                ->where(function($query) use ($moduleVariants) {
+                    foreach ($moduleVariants as $variant) {
+                        $query->orWhere('students.program', $variant)
+                              ->orWhere('students.specialization', $variant);
+                    }
+                })
+                ->select(
+                    'users.id',
+                    DB::raw("CONCAT(students.first_name, ' ', students.last_name) as name"),
+                    'users.email',
+                    'students.program',
+                    'students.specialization'
+                )
+                ->orderBy('students.last_name')
+                ->orderBy('students.first_name')
                 ->get();
 
             return response()->json([
                 'success' => true,
-                'students' => $students
+                'students' => $students,
+                'count' => $students->count()
             ]);
         } catch (\Exception $e) {
             Log::error('Erreur lors de la récupération des étudiants: ' . $e->getMessage());
@@ -347,7 +743,28 @@ class AdminDashboardController extends Controller
     public function edit(Formation $formation)
     {
         $categories = Category::orderBy('name')->get();
-        $students = User::orderBy('name')->get();
+
+        // Récupérer les vrais étudiants depuis la table students avec leurs informations utilisateur
+        $students = DB::table('students')
+            ->join('users', 'students.user_id', '=', 'users.id')
+            ->select(
+                'users.id',
+                'users.name',
+                'users.email',
+                'students.first_name',
+                'students.last_name',
+                'students.program',
+                'students.specialization'
+            )
+            ->orderBy('students.last_name')
+            ->orderBy('students.first_name')
+            ->get()
+            ->map(function($student) {
+                // Créer un nom complet formaté
+                $student->name = $student->first_name . ' ' . $student->last_name;
+                return $student;
+            });
+
         $chapters = \App\Models\FormationChapter::where('formation_id', $formation->id)->orderBy('order')->get();
         return view('admin.formations.edit', compact('formation', 'categories', 'students', 'chapters'));
     }
@@ -714,9 +1131,21 @@ class AdminDashboardController extends Controller
 
     public function studentsDesignGraphiqueCommunityManager()
     {
-        $students = User::whereHas('formations.category', function ($query) {
-            $query->where('name', 'Design Graphique & Community Manager');
-        })->get();
+        // Récupérer les user_ids des étudiants avec le profil combiné
+        $userIds = DB::table('students')
+            ->where('program', 'design_graphique_community_management')
+            ->pluck('user_id')
+            ->toArray();
+
+        // Récupérer les Users avec Eloquent
+        $students = User::whereIn('id', $userIds)->get();
+
+        dd([
+            'userIds' => $userIds,
+            'students_count' => $students->count(),
+            'students' => $students->toArray()
+        ]);
+
         return view('admin.etudiants.design-graphique-community-manager', compact('students'));
     }
 
@@ -841,7 +1270,7 @@ class AdminDashboardController extends Controller
         $pdfPath = $pdfFile->store('programmes/pdfs', 'public');
 
         // Créer le programme
-        DB::table('programmes')->insert([
+        $programmeId = DB::table('programmes')->insertGetId([
             'titre' => $validatedData['titre'],
             'formation' => $validatedData['formation'],
             'description' => $validatedData['description'],
@@ -851,7 +1280,85 @@ class AdminDashboardController extends Controller
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('admin.programmes')->with('success', 'Programme ajouté avec succès.');
+        // Récupérer les étudiants concernés par ce programme
+        $studentsQuery = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
+            ->select('students.*', 'users.email');
+
+        // Filtrer selon la formation
+        if ($validatedData['formation'] !== 'Toutes') {
+            $studentsQuery->where(function($query) use ($validatedData) {
+                // Accepter toutes les variantes de la formation
+                $query->where('students.program', $validatedData['formation'])
+                      ->orWhere('students.program', 'Design Graphique')
+                      ->orWhere('students.program', 'design-graphique')
+                      ->orWhere('students.program', 'design_graphique')
+                      ->orWhere('students.program', 'Community Management')
+                      ->orWhere('students.program', 'community-management')
+                      ->orWhere('students.program', 'Gestion Informatique')
+                      ->orWhere('students.program', 'gestion-informatique')
+                      ->orWhere('students.program', 'Intelligence Artificielle')
+                      ->orWhere('students.program', 'intelligence-artificielle');
+            });
+        }
+
+        $students = $studentsQuery->get();
+
+        // Envoyer les emails de notification
+        $emailsSent = 0;
+        $emailsFailures = [];
+
+        foreach ($students as $student) {
+            if (empty($student->email)) {
+                continue;
+            }
+
+            try {
+                // Déterminer l'URL du programme selon la formation de l'étudiant
+                $formationSlug = 'design-graphique'; // Par défaut
+                if ($student->program) {
+                    if (str_contains(strtolower($student->program), 'community')) {
+                        $formationSlug = 'community-management';
+                    } elseif (str_contains(strtolower($student->program), 'informatique')) {
+                        $formationSlug = 'gestion-informatique';
+                    } elseif (str_contains(strtolower($student->program), 'intelligence')) {
+                        $formationSlug = 'intelligence-artificielle';
+                    }
+                }
+
+                $programmeUrl = url("/evc/compte/{$formationSlug}/programme/index");
+
+                \Mail::send('emails.programme_published', [
+                    'student' => $student,
+                    'programme' => [
+                        'titre' => $validatedData['titre'],
+                        'formation' => $validatedData['formation'],
+                        'description' => $validatedData['description'],
+                    ],
+                    'programmeUrl' => $programmeUrl,
+                ], function ($message) use ($student, $validatedData) {
+                    $message->to($student->email)
+                        ->subject('📚 Nouveau Programme : ' . $validatedData['titre']);
+                });
+
+                $emailsSent++;
+            } catch (\Exception $e) {
+                $emailsFailures[] = $student->email;
+                \Log::error('Erreur envoi email programme à ' . $student->email . ': ' . $e->getMessage());
+            }
+        }
+
+        // Message de succès avec info sur les emails
+        $message = 'Programme ajouté avec succès';
+        if ($emailsSent > 0) {
+            $message .= '. ' . $emailsSent . ' email(s) de notification envoyé(s) aux étudiants';
+        }
+        if (!empty($emailsFailures)) {
+            $message .= '. Attention : ' . count($emailsFailures) . ' email(s) non envoyé(s)';
+        }
+
+        return redirect()->route('admin.programmes')->with('success', $message);
     }
 
     public function destroyProgramme($id)
@@ -930,12 +1437,14 @@ class AdminDashboardController extends Controller
             'title' => 'required|string|max:255',
             'library_category_id' => 'nullable|exists:library_categories,id',
             'recipients' => 'nullable|array',
+            'is_featured' => 'nullable|boolean',
         ]);
 
         $item->update([
             'title' => $validatedData['title'],
             'library_category_id' => $validatedData['library_category_id'] ?? null,
             'recipients' => $validatedData['recipients'] ?? [],
+            'is_featured' => $request->boolean('is_featured'),
         ]);
 
         return redirect()->route('admin.bibliotheque.index')->with('success', 'Média mis à jour avec succès.');
@@ -1145,6 +1654,33 @@ class AdminDashboardController extends Controller
                 $assignmentId = DB::table('tp_assignments')->insertGetId($assignment);
                 $assignment['id'] = $assignmentId;
                 $assignments[] = $assignment;
+
+                // Notification in-app (database) pour l'étudiant
+                try {
+                    $user = \App\Models\User::find($student->user_id);
+                    if ($user) {
+                        // Mapper la formation vers le bon slug de route
+                        $formationSlug = $this->getFormationSlug($assignment['formation']);
+
+                        $user->notify(new TpAssignedNotification([
+                            'category' => 'tp',
+                            'event' => 'assigned',
+                            'title' => 'Nouveau travail assigné',
+                            'message' => 'Un nouveau TP a été assigné : ' . $assignment['title'],
+                            'assignment_id' => $assignmentId,
+                            'tp_title' => $assignment['title'],
+                            'formation' => $assignment['formation'],
+                            'created_at' => now()->toIso8601String(),
+                            'url' => url('/evc/compte/' . $formationSlug . '/tp/index'),
+                        ]));
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Notification in-app TP assigné échouée', [
+                        'student_id' => $studentId,
+                        'user_id' => $student->user_id ?? null,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
 
                 // Associer les fichiers à cette assignation
                 foreach ($uploadedFiles as $fileData) {
@@ -1602,7 +2138,7 @@ class AdminDashboardController extends Controller
      */
     public function viewTp(int $id)
     {
-        // Chercher d'abord dans tp_assignments (travaux), puis dans tp (rapports)
+        // Chercher d'abord dans tp_assignments (travaux)
         $tp = DB::table('tp_assignments')
             ->leftJoin('students', 'tp_assignments.student_id', '=', 'students.id')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
@@ -1617,7 +2153,55 @@ class AdminDashboardController extends Controller
             )
             ->first();
 
-        // Si pas trouvé dans tp_assignments, chercher dans tp
+        // Si pas trouvé, chercher dans projects (TP CM)
+        if (!$tp) {
+            $project = DB::table('projects')
+                ->join('users', 'projects.user_id', '=', 'users.id')
+                ->leftJoin('students', 'users.id', '=', 'students.user_id')
+                ->where('projects.id', $id)
+                ->select(
+                    'projects.*',
+                    'students.first_name as student_first_name',
+                    'students.last_name as student_last_name',
+                    'users.email as student_email',
+                    'students.program as formation',
+                    'students.profile_photo'
+                )
+                ->first();
+
+            if ($project) {
+                // Mapper les statuts français vers anglais pour la vue
+                $statusMap = [
+                    'en_cours' => 'assigned',
+                    'termine' => 'submitted',
+                    'valide' => 'validated',
+                    'rejete' => 'rejected',
+                ];
+                $project->status = $statusMap[$project->status] ?? $project->status;
+
+                // Récupérer les fichiers/images associés
+                $files = DB::table('project_images')
+                    ->where('project_id', $id)
+                    ->get();
+
+                // Créer un objet student pour la vue
+                $student = (object)[
+                    'first_name' => $project->student_first_name,
+                    'last_name' => $project->student_last_name,
+                    'email' => $project->student_email,
+                    'program' => $project->formation,
+                    'profile_photo' => $project->profile_photo,
+                ];
+
+                return view('admin.travaux.view', [
+                    'tp' => $project,
+                    'student' => $student,
+                    'files' => $files
+                ]);
+            }
+        }
+
+        // Si pas trouvé dans projects, chercher dans tp (rapports)
         if (!$tp) {
             $tp = DB::table('tp')->where('id', $id)->first();
 
@@ -1685,6 +2269,52 @@ class AdminDashboardController extends Controller
                 )
                 ->first();
 
+            // Si pas trouvé, chercher dans projects (TP CM)
+            if (!$tp) {
+                $project = DB::table('projects')
+                    ->join('users', 'projects.user_id', '=', 'users.id')
+                    ->leftJoin('students', 'users.id', '=', 'students.user_id')
+                    ->where('projects.id', $id)
+                    ->select(
+                        'projects.*',
+                        'students.first_name as student_first_name',
+                        'students.last_name as student_last_name',
+                        'users.email as student_email'
+                    )
+                    ->first();
+
+                if ($project) {
+                    // Valider le projet CM (statut français: valide)
+                    DB::table('projects')->where('id', $id)->update([
+                        'status' => 'valide',
+                        'updated_at' => now()
+                    ]);
+
+                    // Email de validation
+                    try {
+                        $student = (object)[
+                            'first_name' => $project->student_first_name,
+                            'last_name' => $project->student_last_name,
+                            'email' => $project->student_email,
+                        ];
+
+                        Mail::send('emails.tp_validated', [
+                            'student' => $student,
+                            'tp' => $project
+                        ], function ($message) use ($student, $project) {
+                            $message->to($student->email)
+                                ->subject('✅ Votre projet "' . $project->title . '" a été validé !');
+                        });
+                    } catch (\Exception $e) {
+                        Log::error('Erreur envoi email validation projet CM: ' . $e->getMessage());
+                    }
+
+                    // Redirection vers design-cm/pending si c'est un projet Design Graphique & Community Management
+                    $redirectUrl = $this->getRedirectUrlBasedOnFormation($project);
+                    return redirect($redirectUrl)->with('success', '✅ Projet validé avec succès ! Un email a été envoyé à l\'étudiant.');
+                }
+            }
+
             // Si pas trouvé, chercher dans tp (rapports)
             if (!$tp) {
                 $tp = DB::table('tp')->where('id', $id)->first();
@@ -1727,6 +2357,32 @@ class AdminDashboardController extends Controller
                 'updated_at' => now()
             ]);
 
+            // Notification in-app (database)
+            try {
+                $user = \App\Models\User::find($tp->user_id);
+                if ($user) {
+                    // Mapper la formation vers le bon slug de route
+                    $formationSlug = $this->getFormationSlug($tp->formation ?? 'Design Graphique');
+
+                    $user->notify(new TpStatusChangedNotification([
+                        'category' => 'tp',
+                        'event' => 'validated',
+                        'title' => 'TP validé',
+                        'message' => 'Votre TP "' . ($tp->title ?? 'TP') . '" a été validé.',
+                        'assignment_id' => $tp->id,
+                        'tp_title' => $tp->title ?? null,
+                        'created_at' => now()->toIso8601String(),
+                        'url' => url('/evc/compte/' . $formationSlug . '/tp/index'),
+                    ]));
+                }
+            } catch (\Exception $e) {
+                Log::warning('Notification in-app TP validé échouée', [
+                    'tp_assignment_id' => $id,
+                    'user_id' => $tp->user_id ?? null,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             // Créer objet student pour l'email
             $student = (object)[
                 'first_name' => $tp->student_first_name,
@@ -1751,7 +2407,9 @@ class AdminDashboardController extends Controller
                 return response()->json(['success' => true, 'message' => 'TP validé avec succès !']);
             }
 
-            return redirect()->back()->with('success', '✅ TP validé avec succès ! Un email a été envoyé à l\'étudiant.');
+            // Redirection vers design-cm/pending si c'est un TP Design Graphique & Community Management
+            $redirectUrl = $this->getRedirectUrlBasedOnFormation($tp);
+            return redirect($redirectUrl)->with('success', '✅ TP validé avec succès ! Un email a été envoyé à l\'étudiant.');
         } catch (\Exception $e) {
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()], 500);
@@ -1785,6 +2443,53 @@ class AdminDashboardController extends Controller
                     'users.email as student_email'
                 )
                 ->first();
+
+            // Si pas trouvé, chercher dans projects (TP CM)
+            if (!$tp) {
+                $project = DB::table('projects')
+                    ->join('users', 'projects.user_id', '=', 'users.id')
+                    ->leftJoin('students', 'users.id', '=', 'students.user_id')
+                    ->where('projects.id', $id)
+                    ->select(
+                        'projects.*',
+                        'students.first_name as student_first_name',
+                        'students.last_name as student_last_name',
+                        'users.email as student_email'
+                    )
+                    ->first();
+
+                if ($project) {
+                    // Rejeter le projet CM (statut français: rejete)
+                    DB::table('projects')->where('id', $id)->update([
+                        'status' => 'rejete',
+                        'updated_at' => now()
+                    ]);
+
+                    // Email de rejet
+                    try {
+                        $student = (object)[
+                            'first_name' => $project->student_first_name,
+                            'last_name' => $project->student_last_name,
+                            'email' => $project->student_email,
+                        ];
+
+                        Mail::send('emails.tp_rejected', [
+                            'student' => $student,
+                            'tp' => $project,
+                            'rejectionReason' => $reason
+                        ], function ($message) use ($student, $project) {
+                            $message->to($student->email)
+                                ->subject('📝 Votre projet "' . $project->title . '" nécessite des corrections');
+                        });
+                    } catch (\Exception $e) {
+                        Log::error('Erreur envoi email rejet projet CM: ' . $e->getMessage());
+                    }
+
+                    // Redirection vers design-cm/pending si c'est un projet Design Graphique & Community Management
+                    $redirectUrl = $this->getRedirectUrlBasedOnFormation($project);
+                    return redirect($redirectUrl)->with('success', '✅ Projet rejeté avec succès ! Un email a été envoyé à l\'étudiant.');
+                }
+            }
 
             // Si pas trouvé, chercher dans tp (rapports)
             if (!$tp) {
@@ -1826,6 +2531,30 @@ class AdminDashboardController extends Controller
                 'updated_at' => now()
             ]);
 
+            // Notification in-app (database)
+            try {
+                $user = \App\Models\User::find($tp->user_id);
+                if ($user) {
+                    $user->notify(new TpStatusChangedNotification([
+                        'category' => 'tp',
+                        'event' => 'rejected',
+                        'title' => 'TP à corriger',
+                        'message' => 'Votre TP "' . ($tp->title ?? 'TP') . '" a été rejeté.',
+                        'assignment_id' => $tp->id,
+                        'tp_title' => $tp->title ?? null,
+                        'reason' => $reason,
+                        'created_at' => now()->toIso8601String(),
+                        'url' => url('/evc/compte/' . strtolower(str_replace(' ', '-', ($tp->formation ?? 'design-graphique'))) . '/tp/index'),
+                    ]));
+                }
+            } catch (\Exception $e) {
+                Log::warning('Notification in-app TP rejeté échouée', [
+                    'tp_assignment_id' => $id,
+                    'user_id' => $tp->user_id ?? null,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
             // Créer objet student pour l'email
             $student = (object)[
                 'first_name' => $tp->student_first_name,
@@ -1847,7 +2576,9 @@ class AdminDashboardController extends Controller
                 Log::error('Erreur envoi email rejet TP: ' . $e->getMessage());
             }
 
-            return redirect()->back()->with('success', '✅ TP rejeté avec succès ! Un email a été envoyé à l\'étudiant.');
+            // Redirection vers design-cm/pending si c'est un TP Design Graphique & Community Management
+            $redirectUrl = $this->getRedirectUrlBasedOnFormation($tp);
+            return redirect($redirectUrl)->with('success', '✅ TP rejeté avec succès ! Un email a été envoyé à l\'étudiant.');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
@@ -1861,7 +2592,30 @@ class AdminDashboardController extends Controller
     public function deleteTp(Request $request, $id)
     {
         try {
-            // Supprimer les fichiers associés
+            // Vérifier d'abord si c'est un projet CM dans la table projects
+            $project = DB::table('projects')->where('id', $id)->first();
+
+            if ($project) {
+                // Supprimer les fichiers associés (project_images)
+                $images = DB::table('project_images')->where('project_id', $id)->get();
+                foreach ($images as $image) {
+                    if (Storage::exists($image->file_path)) {
+                        Storage::delete($image->file_path);
+                    }
+                }
+                DB::table('project_images')->where('project_id', $id)->delete();
+
+                // Supprimer le projet
+                DB::table('projects')->where('id', $id)->delete();
+
+                $redirectTo = $request->input('redirect_to', route('admin.projets.cm-smm.pending'));
+                return redirect($redirectTo)->with('success', '✅ Projet supprimé avec succès');
+            }
+
+            // Vérifier si c'est un tp_assignment et récupérer les infos pour la redirection
+            $tpAssignment = DB::table('tp_assignments')->where('id', $id)->first();
+
+            // Supprimer les fichiers associés (tp_files)
             $files = DB::table('tp_files')->where('tp_id', $id)->get();
             foreach ($files as $file) {
                 if (Storage::exists($file->file_path)) {
@@ -1870,15 +2624,31 @@ class AdminDashboardController extends Controller
                 DB::table('tp_files')->where('id', $file->id)->delete();
             }
 
+            // Supprimer fichiers de soumission tp_submission_files
+            if ($tpAssignment) {
+                $submissionFiles = DB::table('tp_submission_files')->where('tp_assignment_id', $id)->get();
+                foreach ($submissionFiles as $file) {
+                    if (Storage::exists('public/' . $file->file_path)) {
+                        Storage::delete('public/' . $file->file_path);
+                    }
+                }
+                DB::table('tp_submission_files')->where('tp_assignment_id', $id)->delete();
+            }
+
             // Supprimer le TP depuis tp_assignments (travaux) ou tp (rapports)
             $deletedFromAssignments = DB::table('tp_assignments')->where('id', $id)->delete();
             if (!$deletedFromAssignments) {
                 DB::table('tp')->where('id', $id)->delete();
             }
 
-            // Rediriger vers la page d'origine
-            $redirectTo = $request->input('redirect_to', route('admin.travaux.all'));
-            return redirect($redirectTo)->with('success', '✅ TP supprimé avec succès');
+            // Redirection intelligente basée sur la formation
+            if ($tpAssignment) {
+                $redirectUrl = $this->getRedirectUrlBasedOnFormation($tpAssignment);
+            } else {
+                $redirectUrl = $request->input('redirect_to', route('admin.travaux.all'));
+            }
+
+            return redirect($redirectUrl)->with('success', '✅ TP supprimé avec succès');
         } catch (\Exception $e) {
             Log::error('Erreur lors de la suppression du rapport: ' . $e->getMessage());
             $redirectTo = $request->input('redirect_to', route('admin.documents.all'));
@@ -2200,12 +2970,24 @@ class AdminDashboardController extends Controller
                 'student_id' => $student->student_id,
             ];
 
-            // Générer le certificat selon la formation
-            if ($student->program == 'Community Management' || $student->program == 'Social Media Marketing') {
+            // Générer le certificat selon la formation (avec gestion des variantes)
+            $formation = strtolower($student->program ?? '');
+
+            if (str_contains($formation, 'design') && str_contains($formation, 'graphique')) {
+                // Design Graphique
+                $certificatePath = $certificateGenerator->generateDesignGraphique($data);
+            } elseif (str_contains($formation, 'community') || str_contains($formation, 'social media')) {
+                // Community Management / Social Media Marketing
                 $certificatePath = $certificateGenerator->generateCommunityManagement($data);
+            } elseif (str_contains($formation, 'gestion') && str_contains($formation, 'informatique')) {
+                // Gestion Informatique
+                $certificatePath = $certificateGenerator->generateGestionInformatique($data);
+            } elseif (str_contains($formation, 'intelligence') && str_contains($formation, 'artificielle')) {
+                // Intelligence Artificielle
+                $certificatePath = $certificateGenerator->generateIntelligenceArtificielle($data);
             } else {
-                // Pour les autres formations, utiliser le template par défaut (à créer)
-                $certificatePath = $certificateGenerator->generateCommunityManagement($data);
+                // Par défaut, utiliser Design Graphique si formation inconnue
+                $certificatePath = $certificateGenerator->generateDesignGraphique($data);
             }
 
             $filename = 'Certificat_' . str_replace(' ', '_', $student->first_name . '_' . $student->last_name) . '_' . now()->format('Y') . '.pdf';
@@ -3190,6 +3972,35 @@ class AdminDashboardController extends Controller
     }
 
     /**
+     * Déterminer l'URL de redirection basée sur la formation du TP/projet
+     */
+    private function getRedirectUrlBasedOnFormation($tp)
+    {
+        $formation = $tp->formation ?? null;
+
+        // Normaliser le nom de la formation pour la comparaison
+        $formationNormalized = strtolower(str_replace([' ', '_', '-', '&'], '', $formation ?? ''));
+
+        // Si c'est Design Graphique & Community Management
+        if (str_contains($formationNormalized, 'designgraphique') && str_contains($formationNormalized, 'community')) {
+            return route('admin.projets.design-cm.pending');
+        }
+
+        // Si c'est Community Management seul
+        if (str_contains($formationNormalized, 'community')) {
+            return route('admin.projets.cm-smm.pending');
+        }
+
+        // Si c'est Design Graphique seul
+        if (str_contains($formationNormalized, 'design') || str_contains($formationNormalized, 'graphique')) {
+            return route('admin.projets.design-graphique.pending');
+        }
+
+        // Par défaut, retourner à la page précédente
+        return back()->getTargetUrl();
+    }
+
+    /**
      * Obtenir la taille de la base de données
      */
     private function getDatabaseSize(): string
@@ -3300,13 +4111,21 @@ class AdminDashboardController extends Controller
         $students = $students->map(function ($student) {
             // Normaliser la formation
             if ($student->program) {
-                $normalized = match (strtolower(str_replace([' ', '_', '-'], '', $student->program))) {
-                    'designgraphique' => 'Design Graphique',
-                    'communitymanagement' => 'Community Management',
-                    'gestioninformatique' => 'Gestion Informatique',
-                    'intelligenceartificielle' => 'Intelligence Artificielle',
-                    default => $student->program
-                };
+                $programNormalizedKey = strtolower(str_replace([' ', '_', '-'], '', $student->program));
+                $containsDesign = str_contains($programNormalizedKey, 'design');
+                $containsCommunity = str_contains($programNormalizedKey, 'community');
+
+                if ($containsDesign && $containsCommunity) {
+                    $normalized = 'Design Graphique & Community Management';
+                } else {
+                    $normalized = match ($programNormalizedKey) {
+                        'designgraphique' => 'Design Graphique',
+                        'communitymanagement' => 'Community Management',
+                        'gestioninformatique' => 'Gestion Informatique',
+                        'intelligenceartificielle' => 'Intelligence Artificielle',
+                        default => $student->program
+                    };
+                }
                 $student->program_normalized = $normalized;
             } else {
                 $student->program_normalized = 'Sans formation';
@@ -3318,6 +4137,7 @@ class AdminDashboardController extends Controller
         $stats = [
             'total_students' => $students->count(),
             'design_graphique' => $students->where('program_normalized', 'Design Graphique')->count(),
+            'design_graphique_cm' => $students->where('program_normalized', 'Design Graphique & Community Management')->count(),
             'community_management' => $students->where('program_normalized', 'Community Management')->count(),
             'gestion_informatique' => $students->where('program_normalized', 'Gestion Informatique')->count(),
             'intelligence_artificielle' => $students->where('program_normalized', 'Intelligence Artificielle')->count(),
@@ -3434,18 +4254,43 @@ class AdminDashboardController extends Controller
      */
     public function sendProjects(Request $request)
     {
+        if (!Schema::hasColumn('projects', 'deadline')) {
+            return redirect()->back()->with('error', "La colonne 'deadline' n'existe pas encore dans la table projects. Lancez la migration (php artisan migrate) puis réessayez.");
+        }
+
         // Validation
         $request->validate([
             'title' => 'required|string|max:255',
             'category' => 'required|string|max:100',
             'description' => 'required|string',
+            'deadline' => 'required|date|after_or_equal:today',
             'formation' => 'required|string',
             'tags' => 'nullable|string',
             'software_used' => 'nullable|string',
             'reference_link' => 'nullable|url',
+            'attachments' => 'nullable|array',
+            'attachments.*' => 'file|max:10240|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp,application/pdf',
             'students' => 'nullable|array',
             'students.*' => 'exists:students,id'
         ]);
+
+        $uploadedAttachments = [];
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                if (!$file || !$file->isValid()) {
+                    continue;
+                }
+
+                $storedPath = $file->store('projects/attachments', 'public');
+                $uploadedAttachments[] = [
+                    'filename' => basename($storedPath),
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getClientMimeType(),
+                    'file_size' => $file->getSize(),
+                    'file_path' => $storedPath,
+                ];
+            }
+        }
 
         // Préparer les données du projet
         $projectData = [
@@ -3455,6 +4300,7 @@ class AdminDashboardController extends Controller
             'tags' => $request->tags,
             'link' => $request->reference_link,
             'software_used' => json_encode($request->software_used ? array_map('trim', explode(',', $request->software_used)) : []),
+            'deadline' => $request->deadline,
             'status' => 'en_cours',
             'created_at' => now(),
             'updated_at' => now()
@@ -3462,6 +4308,7 @@ class AdminDashboardController extends Controller
 
         $createdCount = 0;
         $emailsSent = 0;
+        $emailsFailures = [];
         $errors = [];
 
         // Déterminer les étudiants cibles
@@ -3493,14 +4340,14 @@ class AdminDashboardController extends Controller
                     ->toArray();
             } else {
                 // Recherche flexible pour gérer les variations (minuscules, underscores, etc.)
-                $normalizedSearch = strtolower(str_replace([' ', '_', '-'], '', $formation));
+                $normalizedSearch = strtolower(str_replace([' ', '_', '-', '&'], '', $formation));
 
                 $targetStudents = DB::table('students')
                     ->where('status', 'active')
                     ->get()
                     ->filter(function ($student) use ($normalizedSearch) {
                         if (!$student->program) return false;
-                        $studentProgramNormalized = strtolower(str_replace([' ', '_', '-'], '', $student->program));
+                        $studentProgramNormalized = strtolower(str_replace([' ', '_', '-', '&'], '', $student->program));
                         return $studentProgramNormalized === $normalizedSearch;
                     })
                     ->pluck('id')
@@ -3528,18 +4375,98 @@ class AdminDashboardController extends Controller
                 $projectId = DB::table('projects')->insertGetId($projectData);
                 $createdCount++;
 
+                // Notification in-app (database)
+                try {
+                    $user = \App\Models\User::find($student->user_id);
+                    if ($user) {
+                        // Déterminer l'URL étudiant (module selon formation)
+                        $formationSlug = 'design-graphique';
+                        if (!empty($student->program)) {
+                            $prog = strtolower((string) $student->program);
+                            if (str_contains($prog, 'community')) {
+                                $formationSlug = 'community-management';
+                            } elseif (str_contains($prog, 'informatique')) {
+                                $formationSlug = 'gestion-informatique';
+                            } elseif (str_contains($prog, 'intelligence')) {
+                                $formationSlug = 'intelligence-artificielle';
+                            }
+                        }
+
+                        $formationSlugFixed = $this->getFormationSlug($formation);
+                        $studentUrl = url("/evc/compte/{$formationSlugFixed}/projets");
+
+                        $user->notify(new ProjectAssignedNotification([
+                            'category' => 'project',
+                            'event' => 'assigned',
+                            'title' => 'Nouveau projet assigné',
+                            'message' => 'Un nouveau projet a été assigné : ' . ($projectData['title'] ?? 'Projet'),
+                            'project_id' => $projectId,
+                            'project_title' => $projectData['title'] ?? null,
+                            'created_at' => now()->toIso8601String(),
+                            'url' => $studentUrl,
+                        ]));
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Notification in-app projet assigné échouée (sendProjects)', [
+                        'project_id' => $projectId ?? null,
+                        'student_id' => $studentId,
+                        'user_id' => $student->user_id ?? null,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+
+                if (!empty($uploadedAttachments)) {
+                    $index = 0;
+                    foreach ($uploadedAttachments as $att) {
+                        DB::table('project_images')->insert([
+                            'project_id' => $projectId,
+                            'filename' => $att['filename'],
+                            'original_name' => $att['original_name'],
+                            'mime_type' => $att['mime_type'],
+                            'file_size' => $att['file_size'],
+                            'file_path' => $att['file_path'],
+                            'is_thumbnail' => false,
+                            'order_index' => $index,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                        $index++;
+                    }
+                }
+
                 // Envoyer un email de notification (optionnel)
                 try {
+                    if (empty($student->email)) {
+                        $emailsFailures[] = "student_id={$studentId}: email manquant";
+                    } else {
+                    // Déterminer l'URL étudiant (module selon formation)
+                    $formationSlug = 'design-graphique';
+                    if (!empty($student->program)) {
+                        $prog = strtolower((string) $student->program);
+                        if (str_contains($prog, 'community')) {
+                            $formationSlug = 'community-management';
+                        } elseif (str_contains($prog, 'informatique')) {
+                            $formationSlug = 'gestion-informatique';
+                        } elseif (str_contains($prog, 'intelligence')) {
+                            $formationSlug = 'intelligence-artificielle';
+                        }
+                    }
+
+                    $studentUrl = url("/evc/compte/{$formationSlug}/projets");
+
                     Mail::send('emails.project_assigned', [
                         'student' => $student,
-                        'project' => (object) $projectData
+                        'project' => (object) $projectData,
+                        'studentUrl' => $studentUrl,
                     ], function ($message) use ($student, $projectData) {
                         $message->to($student->email)
-                            ->subject('Nouveau Projet : ' . $projectData['title']);
+                            ->subject('📌 Nouveau projet disponible : ' . $projectData['title']);
                     });
                     $emailsSent++;
+                    }
                 } catch (\Exception $e) {
                     Log::error('Erreur envoi email projet: ' . $e->getMessage());
+                    $emailsFailures[] = "student_id={$studentId}: " . $e->getMessage();
                 }
             } catch (\Exception $e) {
                 $errors[] = "Erreur pour l'étudiant ID {$studentId}: " . $e->getMessage();
@@ -3552,12 +4479,17 @@ class AdminDashboardController extends Controller
         if ($emailsSent > 0) {
             $message .= ". {$emailsSent} email(s) de notification envoyé(s)";
         }
+        if (!empty($emailsFailures)) {
+            $message .= ". " . count($emailsFailures) . " email(s) non envoyé(s)";
+        }
         if (!empty($errors)) {
             $message .= ". Attention: " . count($errors) . " erreur(s) rencontrée(s)";
         }
 
         return redirect()->route('admin.projets.to-send')
-            ->with('success', $message);
+            ->with('success', $message)
+            ->with('errors_list', $errors)
+            ->with('emails_failures', $emailsFailures);
     }
 
     /**
@@ -3613,5 +4545,41 @@ class AdminDashboardController extends Controller
         }
 
         return view('admin.activites.index', compact('studentsWithActivities', 'stats'));
+    }
+
+    /**
+     * Mapper les noms de formations vers les slugs de routes corrects
+     */
+    private function getFormationSlug($formation)
+    {
+        $formationMapping = [
+            'Design Graphique' => 'design-graphique',
+            'design_graphique' => 'design-graphique',
+            'design-graphique' => 'design-graphique',
+
+            'Community Management' => 'community-management',
+            'community_management' => 'community-management',
+            'community-management' => 'community-management',
+
+            'Design Graphique & Community Management' => 'design-graphique-cm',
+            'design_graphique_community_management' => 'design-graphique-cm',
+            'design-graphique-cm' => 'design-graphique-cm',
+
+            'Gestion Informatique' => 'gestion-informatique',
+            'gestion_informatique' => 'gestion-informatique',
+            'gestion-informatique' => 'gestion-informatique',
+
+            'Intelligence Artificielle' => 'intelligence-artificielle',
+            'intelligence_artificielle' => 'intelligence-artificielle',
+            'intelligence-artificielle' => 'intelligence-artificielle',
+        ];
+
+        // Si la formation est dans le mapping, retourner le slug correspondant
+        if (isset($formationMapping[$formation])) {
+            return $formationMapping[$formation];
+        }
+
+        // Sinon, faire une conversion basique (fallback)
+        return strtolower(str_replace(['_', ' ', '&'], ['-', '-', ''], trim($formation)));
     }
 }

@@ -63,6 +63,7 @@ class DesignProject extends Model
     const STATUS_LABELS = [
         'draft' => 'Brouillon',
         'active' => 'En cours',
+        'pending' => 'En cours de validation',
         'validated' => 'Validé',
         'cancelled' => 'Annulé'
     ];
@@ -88,7 +89,7 @@ class DesignProject extends Model
      */
     public function files()
     {
-        return $this->hasMany(DesignProjectFile::class);
+        return $this->hasMany(DesignProjectFile::class, 'project_id');
     }
 
     /**
@@ -96,7 +97,7 @@ class DesignProject extends Model
      */
     public function previewFiles()
     {
-        return $this->hasMany(DesignProjectFile::class)
+        return $this->hasMany(DesignProjectFile::class, 'project_id')
             ->where('file_category', 'preview')
             ->where('mime_type', 'like', 'image/%');
     }

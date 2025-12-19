@@ -57,8 +57,7 @@
         </div>
     </div>
 
-    <form method="POST" action="{{ route('admin.preinscriptions.bulk-status') }}" class="mb-3" id="bulkActionForm" onsubmit="return confirmBulkAction()">
-        @csrf
+    <div class="mb-3">
         <div class="d-flex align-items-center gap-2">
             <select name="action" required class="form-select w-auto" id="bulkAction">
                 <option value="">-- Sélectionner une action --</option>
@@ -67,13 +66,10 @@
                 <option value="pending">⏳ Remettre en attente</option>
                 <option value="delete" style="color: #dc3545; font-weight: bold;">🗑️ Supprimer définitivement</option>
             </select>
-            <button type="submit" class="btn btn-primary" id="bulkActionBtn">
+            <button type="button" onclick="submitBulkAction()" class="btn btn-primary" id="bulkActionBtn">
                 <i class="fas fa-check me-2"></i>Appliquer à <span id="selectedCount">0</span> élément(s)
             </button>
         </div>
-        <input type="hidden" name="q" value="{{ request('q') }}">
-        <input type="hidden" name="formation" value="{{ request('formation') }}">
-        <input type="hidden" name="status" value="{{ request('status') }}">
 
         <div class="card mt-3 shadow-sm">
             <div class="card-body p-0">
@@ -120,25 +116,37 @@
                             <td>{{ $pre->created_at->format('Y-m-d H:i') }}</td>
                             <td class="text-nowrap">
                                 <div class="btn-group" role="group" aria-label="Actions">
+                                    @if(!in_array($pre->status, ['accepted','Validé','Actif']))
+                                        {{-- Bouton Accepter --}}
+                                        <form action="{{ route('admin.preinscriptions.accept', $pre->id) }}" method="POST" class="d-inline" onsubmit="return confirm('✅ Accepter cette candidature ?\n\nLe candidat recevra un email avec le lien de paiement (50 000 FCFA).');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success" title="Accepter et envoyer lien paiement" aria-label="Accepter">
+                                                <i class="fas fa-check-circle"></i> Accepter
+                                            </button>
+                                        </form>
 
+                                        {{-- Bouton Rejeter --}}
+                                        <form action="{{ route('admin.preinscriptions.reject', $pre->id) }}" method="POST" class="d-inline" onsubmit="return confirm('❌ Rejeter cette candidature ?');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Rejeter" aria-label="Rejeter">
+                                                <i class="fas fa-times-circle"></i> Rejeter
+                                            </button>
+                                        </form>
+                                    @endif
+
+                                    {{-- Bouton Voir --}}
+                                    <a href="{{ route('admin.preinscriptions.show', $pre->id) }}" class="btn btn-sm btn-outline-secondary" title="Voir détails" aria-label="Voir">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </a>
+
+                                    {{-- Bouton Supprimer --}}
                                     <form action="{{ route('admin.preinscriptions.destroy', $pre->id) }}" method="POST" onsubmit="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer définitivement cette pré-inscription ?\n\nNom: {{ $pre->nom }} {{ $pre->prenom }}\nEmail: {{ $pre->email }}\n\nCette action est irréversible.');" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer définitivement" aria-label="Supprimer">
-                                            <i class="fas fa-trash-alt"></i> Supprimer
+                                            <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
-                                    @if(!in_array($pre->status, ['accepted','Validé','Actif']))
-                                        <form action="{{ route('admin.preinscriptions.validate', $pre->id) }}" method="POST" class="d-inline">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Valider" aria-label="Valider">
-                                                <i class="fas fa-check"></i>
-                                            </button>
-                                        </form>
-                                    @endif
-                                    <a href="{{ route('admin.preinscriptions.show', $pre->id) }}" class="btn btn-sm btn-outline-secondary" title="Voir" aria-label="Voir">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -148,17 +156,80 @@
                         </tr>
                     @endforelse
                 </tbody>
-                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
-    </form>
+    </div>
 
     <div class="mt-3">{{ $pres->links() }}</div>
 </div>
 
 <script>
+// Soumettre l'action groupée
+function submitBulkAction() {
+    const action = document.getElementById('bulkAction').value;
+    const checked = document.querySelectorAll('.row-check:checked');
+
+    if (!action) {
+        alert('⚠️ Veuillez sélectionner une action');
+        return;
+    }
+
+    if (checked.length === 0) {
+        alert('⚠️ Veuillez sélectionner au moins une préinscription');
+        return;
+    }
+
+    if (!confirmBulkAction()) {
+        return;
+    }
+
+    // Créer et soumettre le formulaire dynamiquement
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route('admin.preinscriptions.bulk-status') }}';
+
+    // Token CSRF
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = '_token';
+    csrf.value = '{{ csrf_token() }}';
+    form.appendChild(csrf);
+
+    // Action
+    const actionInput = document.createElement('input');
+    actionInput.type = 'hidden';
+    actionInput.name = 'action';
+    actionInput.value = action;
+    form.appendChild(actionInput);
+
+    // IDs sélectionnés
+    checked.forEach(checkbox => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = checkbox.value;
+        form.appendChild(input);
+    });
+
+    // Paramètres de filtre
+    const params = ['q', 'formation', 'status'];
+    params.forEach(param => {
+        const value = new URLSearchParams(window.location.search).get(param);
+        if (value) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = param;
+            input.value = value;
+            form.appendChild(input);
+        }
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
 // Mettre à jour le compteur d'éléments sélectionnés
 function updateSelectedCount() {
     const checked = document.querySelectorAll('.row-check:checked');

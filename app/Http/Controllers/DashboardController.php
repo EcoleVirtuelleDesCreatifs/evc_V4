@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
@@ -15,6 +16,7 @@ use App\Models\DesignProject;
 use App\Models\TP;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use App\Http\Requests\StudentProfileRequest;
 use App\Services\StudentProfileService;
 
@@ -27,6 +29,98 @@ class DashboardController extends Controller
     public function index(): RedirectResponse
     {
         return redirect()->route('login');
+    }
+
+    /**
+     * Rediriger l'utilisateur vers son dashboard en fonction de sa formation
+     */
+    public function redirectBasedOnFormation(): RedirectResponse
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+
+        // Utiliser la méthode helper pour obtenir le slug
+        $slug = $this->getFormationSlug($student);
+
+        // Construire le nom de la route
+        $routeName = 'dashboard.' . $slug;
+
+        // Vérifier si la route existe, sinon fallback
+        if (!\Illuminate\Support\Facades\Route::has($routeName)) {
+            \Log::warning("Route dashboard '$routeName' n'existe pas. Redirection vers défaut.");
+            $routeName = 'dashboard.design-graphique';
+        }
+
+        return redirect()->route($routeName);
+    }
+
+    public function notificationsFeed(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+
+        $limit = (int)($request->query('limit', 8));
+        if ($limit < 1) {
+            $limit = 1;
+        }
+        if ($limit > 20) {
+            $limit = 20;
+        }
+
+        $unreadCount = $user->unreadNotifications()->count();
+        $items = $user->notifications()
+            ->orderByDesc('created_at')
+            ->limit($limit)
+            ->get()
+            ->map(function ($n) {
+                return [
+                    'id' => $n->id,
+                    'read_at' => optional($n->read_at)->toIso8601String(),
+                    'created_at' => optional($n->created_at)->toIso8601String(),
+                    'data' => $n->data,
+                ];
+            });
+
+        return response()->json([
+            'unread_count' => $unreadCount,
+            'items' => $items,
+        ]);
+    }
+
+    public function notificationsMarkRead(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $ids = $request->input('ids');
+
+        if (is_array($ids) && count($ids) > 0) {
+            $user->unreadNotifications()->whereIn('id', $ids)->update(['read_at' => now()]);
+        } else {
+            $user->unreadNotifications()->update(['read_at' => now()]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'unread_count' => $user->unreadNotifications()->count(),
+        ]);
+    }
+
+    public function notificationsIndex(Request $request): View
+    {
+        $user = Auth::user();
+
+        $notifications = $user->notifications()
+            ->orderByDesc('created_at')
+            ->paginate(15);
+
+        $unreadCount = $user->unreadNotifications()->count();
+
+        return view('dashboard.notifications.index', [
+            'notifications' => $notifications,
+            'unreadCount' => $unreadCount,
+        ]);
     }
 
     /**
@@ -54,34 +148,151 @@ class DashboardController extends Controller
             $projectsQuery->where('created_at', '<=', $expirationDate);
         }
 
-        $stats = [
-            // Nombre de formations disponibles (à adapter selon votre table)
-            'formations_disponibles' => 12, // Valeur par défaut
+        // Compter les programmes disponibles (même logique que programme/index)
+        $programmesQuery = DB::table('programmes')
+            ->where(function ($query) use ($student) {
+                // Toujours inclure "Toutes"
+                $query->where('formation', 'Toutes');
 
-            // Nombre de TP réalisés
-            'tp_realises' => (clone $tpQuery)
+                // Ajouter les variantes de la formation de l'étudiant
+                if ($student && isset($student->program) && $student->program) {
+                    $query->orWhere(function ($q) use ($student) {
+                        // Variantes possibles de Design Graphique
+                        $q->where('formation', $student->program)
+                            ->orWhere('formation', 'Design Graphique')
+                            ->orWhere('formation', 'design-graphique')
+                            ->orWhere('formation', 'design_graphique')
+                            ->orWhere('formation', 'Design Graphique & Community Manager');
+                    });
+                }
+            });
+
+        // Si le compte est expiré, ne compter que les programmes créés avant l'expiration
+        if ($isExpiredNow) {
+            $programmesQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $formationsDisponibles = $programmesQuery->count();
+
+        // Compter les TP depuis tp_assignments (table principale)
+        $tpRealises = 0;
+        $tpTotal = 0;
+
+        if ($student && isset($student->id)) {
+            $tpAssignmentsQuery = DB::table('tp_assignments')
+                ->where('student_id', $student->id);
+
+            if ($isExpiredNow) {
+                $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
+            }
+
+            $tpRealises = (clone $tpAssignmentsQuery)
+                ->where('status', 'validated')
+                ->count();
+
+            $tpTotal = $tpAssignmentsQuery->count();
+        }
+
+        // Si aucun TP dans tp_assignments, fallback sur la table tp
+        if ($tpTotal === 0) {
+            $tpRealises = (clone $tpQuery)
                 ->whereIn('status', ['validated', 'completed'])
-                ->count(),
+                ->count();
+            $tpTotal = $tpQuery->count();
+        }
 
-            // Nombre total de TP
-            'tp_total' => $tpQuery->count(),
+        // Compter les événements (webinaires) publiés et à venir
+        $evenementsQuery = DB::table('evenements')
+            ->where('status', 'published')
+            ->where('event_date', '>=', now()->toDateString())
+            ->where(function ($query) {
+                $query->where('visibility', 'all')
+                    ->orWhere(function ($q) {
+                        $q->where('visibility', 'specific')
+                            ->where(function ($subq) {
+                                $subq->whereJsonContains('formations', 'Design Graphique')
+                                    ->orWhereJsonContains('formations', 'design_graphique')
+                                    ->orWhereJsonContains('formations', 'Toutes');
+                            });
+                    });
+            });
 
-            // Nombre de projets réalisés (DesignProject)
+        if ($isExpiredNow) {
+            $evenementsQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $webinairesEnCours = $evenementsQuery->count();
+
+        // Compter les actualités publiées visibles pour Design Graphique
+        $actualitesEnCours = 0;
+
+        try {
+            // Vérifier si la table actualites existe
+            if (Schema::hasTable('actualites')) {
+                $actualitesQuery = DB::table('actualites')
+                    ->where('status', 'published')
+                    ->where(function ($query) {
+                        $query->where('visibility', 'public')
+                            ->orWhere('visibility', 'all')
+                            ->orWhere(function ($q) {
+                                $q->where('visibility', 'specific')
+                                    ->where(function ($subq) {
+                                        $subq->whereJsonContains('formations', 'Design Graphique')
+                                            ->orWhereJsonContains('formations', 'design_graphique')
+                                            ->orWhereJsonContains('formations', 'design-graphique')
+                                            ->orWhereJsonContains('formations', 'Design Graphique & Community Manager')
+                                            ->orWhereJsonContains('formations', 'Toutes');
+                                    });
+                            });
+                    });
+
+                if ($isExpiredNow) {
+                    $actualitesQuery->where('created_at', '<=', $expirationDate);
+                }
+
+                $actualitesEnCours = $actualitesQuery->count();
+            }
+        } catch (\Exception $e) {
+            // Si erreur, on garde actualitesEnCours à 0
+            $actualitesEnCours = 0;
+        }
+
+        // Calculer le montant restant à payer
+        $montantRestant = 0;
+        $payments = DB::table('payments')
+            ->where('user_id', $user->id)
+            ->get();
+
+        $montantTotal = $payments->sum('amount');
+        $montantPaye = $payments->where('status', 'completed')->sum('amount');
+        $montantRestant = max(0, $montantTotal - $montantPaye);
+
+        $stats = [
+            // Nombre de formations/programmes disponibles (dynamique)
+            'formations_disponibles' => $formationsDisponibles,
+
+            // Nombre de TP réalisés (dynamique depuis tp_assignments)
+            'tp_realises' => $tpRealises,
+
+            // Nombre total de TP (dynamique)
+            'tp_total' => $tpTotal,
+
+            // Nombre de projets réalisés (dynamique depuis design_projects)
             'projets_realises' => (clone $projectsQuery)
-                ->where('status', 'completed')
+                ->whereIn('status', ['completed', 'validated'])
                 ->count(),
 
-            // Nombre total de projets
+            // Nombre total de projets (dynamique)
             'projets_total' => $projectsQuery->count(),
 
-            // Webinaires en cours (valeur par défaut, à adapter)
-            'webinaires_en_cours' => 4,
+            // Événements/Webinaires en cours (dynamique depuis evenements)
+            'webinaires_en_cours' => $webinairesEnCours,
 
-            // Actualités en cours (valeur par défaut, à adapter)
-            'actualites_en_cours' => 5,
+            // Actualités en cours (dynamique depuis actualites)
+            'actualites_en_cours' => $actualitesEnCours,
 
-            // Montant restant à solder (depuis preReg ou student)
-            'montant_restant' => 0, // À adapter selon votre logique métier
+            // Montant restant à solder (dynamique depuis payments)
+            'montant_restant' => $montantRestant,
         ];
 
         // Si vous avez des informations de paiement dans preReg ou student
@@ -127,10 +338,10 @@ class DashboardController extends Controller
         $formationsQuery = DB::table('formations')
             ->where('status', 'active')
             ->where('is_featured', 1)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereJsonContains('modules', 'design-graphique')
-                      ->orWhereJsonContains('modules', 'Design Graphique')
-                      ->orWhereJsonContains('modules', 'design_graphique');
+                    ->orWhereJsonContains('modules', 'Design Graphique')
+                    ->orWhereJsonContains('modules', 'design_graphique');
             });
 
         // Si le compte est expiré, ne montrer que les formations créées avant l'expiration
@@ -157,17 +368,750 @@ class DashboardController extends Controller
     }
 
     /**
+     * Dashboard Design Graphique & Community Management avec statistiques complètes
+     */
+    public function designCm(StudentProfileService $service): View
+    {
+        $user = Auth::user();
+        $student = $service->loadStudent($user, null);
+        $preReg = $service->loadPreRegistration($student, $user);
+
+        // Calculer l'expiration d'abord pour filtrer les stats
+        $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
+        $expirationDate = $accountCreatedAt->copy()->addMonths(4);
+        $now = \Carbon\Carbon::now();
+        $isExpiredNow = $now->greaterThan($expirationDate);
+
+        // Compter les programmes disponibles pour Design & CM
+        $programmesQuery = DB::table('programmes')
+            ->where(function ($query) use ($student) {
+                $query->where('formation', 'Toutes');
+
+                if ($student && isset($student->program) && $student->program) {
+                    $query->orWhere(function ($q) use ($student) {
+                        $q->where('formation', $student->program)
+                            ->orWhere('formation', 'Design Graphique')
+                            ->orWhere('formation', 'Community Management')
+                            ->orWhere('formation', 'Design Graphique & Community Management')
+                            ->orWhere('formation', 'Design Graphique & Community Manager');
+                    });
+                }
+            });
+
+        if ($isExpiredNow) {
+            $programmesQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $formationsDisponibles = $programmesQuery->count();
+
+        // Compter les TP depuis tp_assignments
+        $tpRealises = 0;
+        $tpTotal = 0;
+
+        if ($student && isset($student->id)) {
+            $tpAssignmentsQuery = DB::table('tp_assignments')
+                ->where('student_id', $student->id);
+
+            if ($isExpiredNow) {
+                $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
+            }
+
+            $tpRealises = (clone $tpAssignmentsQuery)
+                ->where('status', 'validated')
+                ->count();
+
+            $tpTotal = $tpAssignmentsQuery->count();
+        }
+
+        // Compter les projets (Community Management et Design combinés)
+        $projetsQuery = DB::table('projects')
+            ->where('user_id', $user->id);
+
+        if ($isExpiredNow) {
+            $projetsQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $projetsRealises = (clone $projetsQuery)
+            ->whereIn('status', ['valide', 'completed', 'validated'])
+            ->count();
+
+        $projetsTotal = $projetsQuery->count();
+
+        // Compter les événements (webinaires) pour Design & CM
+        $evenementsQuery = DB::table('evenements')
+            ->where('status', 'published')
+            ->where('event_date', '>=', now()->toDateString())
+            ->where(function ($query) {
+                $query->where('visibility', 'all')
+                    ->orWhere(function ($q) {
+                        $q->where('visibility', 'specific')
+                            ->where(function ($subq) {
+                                $subq->whereJsonContains('formations', 'Design Graphique')
+                                    ->orWhereJsonContains('formations', 'Community Management')
+                                    ->orWhereJsonContains('formations', 'Design Graphique & Community Management')
+                                    ->orWhereJsonContains('formations', 'Toutes');
+                            });
+                    });
+            });
+
+        if ($isExpiredNow) {
+            $evenementsQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $webinairesEnCours = $evenementsQuery->count();
+
+        // Compter les actualités
+        $actualitesEnCours = 0;
+        try {
+            if (Schema::hasTable('actualites')) {
+                $actualitesQuery = DB::table('actualites')
+                    ->where('status', 'published')
+                    ->where(function ($query) {
+                        $query->where('visibility', 'public')
+                            ->orWhere('visibility', 'all')
+                            ->orWhere(function ($q) {
+                                $q->where('visibility', 'specific')
+                                    ->where(function ($subq) {
+                                        $subq->whereJsonContains('formations', 'Design Graphique')
+                                            ->orWhereJsonContains('formations', 'Community Management')
+                                            ->orWhereJsonContains('formations', 'Design Graphique & Community Management')
+                                            ->orWhereJsonContains('formations', 'Toutes');
+                                    });
+                            });
+                    });
+
+                if ($isExpiredNow) {
+                    $actualitesQuery->where('created_at', '<=', $expirationDate);
+                }
+
+                $actualitesEnCours = $actualitesQuery->count();
+            }
+        } catch (\Exception $e) {
+            $actualitesEnCours = 0;
+        }
+
+        // Calculer le montant restant
+        $montantRestant = 0;
+        $payments = DB::table('payments')
+            ->where('user_id', $user->id)
+            ->get();
+
+        $montantTotal = $payments->sum('amount');
+        $montantPaye = $payments->where('status', 'completed')->sum('amount');
+        $montantRestant = max(0, $montantTotal - $montantPaye);
+
+        $stats = [
+            'formations_disponibles' => $formationsDisponibles,
+            'tp_realises' => $tpRealises,
+            'tp_total' => $tpTotal,
+            'projets_realises' => $projetsRealises,
+            'projets_total' => $projetsTotal,
+            'webinaires_en_cours' => $webinairesEnCours,
+            'actualites_en_cours' => $actualitesEnCours,
+            'montant_restant' => $montantRestant,
+        ];
+
+        if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
+            $stats['montant_restant'] = $preReg->montant_total - $preReg->montant_paye;
+        }
+
+        // Calcul de l'expiration du compte
+        if ($student && isset($student->expiration_date) && !empty($student->expiration_date)) {
+            $expirationDate = \Carbon\Carbon::parse($student->expiration_date);
+        } else {
+            $studentRecord = DB::table('students')
+                ->where('user_id', $user->id)
+                ->orWhere('email', $user->email)
+                ->first();
+
+            if ($studentRecord && !empty($studentRecord->expiration_date)) {
+                $expirationDate = \Carbon\Carbon::parse($studentRecord->expiration_date);
+            } else {
+                $expirationDate = $accountCreatedAt->copy()->addMonths(4);
+            }
+        }
+
+        if ($expirationDate->isFuture()) {
+            $daysRemaining = (int) $now->diffInDays($expirationDate);
+            $isExpired = false;
+        } else {
+            $daysRemaining = 0;
+            $isExpired = true;
+        }
+
+        $isExpiringSoon = !$isExpired && $daysRemaining <= 30;
+
+        // Formations en vedette pour Design & CM
+        $formationsQuery = DB::table('formations')
+            ->where('status', 'active')
+            ->where('is_featured', 1)
+            ->where(function ($query) {
+                $query->whereJsonContains('modules', 'design-graphique')
+                    ->orWhereJsonContains('modules', 'community-management')
+                    ->orWhereJsonContains('modules', 'Design Graphique')
+                    ->orWhereJsonContains('modules', 'Community Management');
+            });
+
+        if ($isExpired) {
+            $formationsQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $featured_formations = $formationsQuery->orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get();
+
+        // Récupérer les projets à faire (non validés)
+        $projetsAFaireQuery = DB::table('projects')
+            ->where('user_id', $user->id)
+            ->whereNotIn('status', ['valide', 'completed', 'validated']);
+
+        if ($isExpired) {
+            $projetsAFaireQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $projetsAFaire = $projetsAFaireQuery
+            ->orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get();
+
+        return view('dashboard.design-cm', [
+            'user' => $user,
+            'student' => $student,
+            'preReg' => $preReg,
+            'stats' => $stats,
+            'featured_formations' => $featured_formations,
+            'projetsAFaire' => $projetsAFaire,
+            'accountCreatedAt' => $accountCreatedAt,
+            'expirationDate' => $expirationDate,
+            'daysRemaining' => $daysRemaining,
+            'isExpired' => $isExpired,
+            'isExpiringSoon' => $isExpiringSoon,
+        ]);
+    }
+
+    public function designCmStats(StudentProfileService $service): JsonResponse
+    {
+        $user = Auth::user();
+        $student = $service->loadStudent($user, null);
+
+        $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
+        $expirationDate = $accountCreatedAt->copy()->addMonths(4);
+        $now = \Carbon\Carbon::now();
+        $isExpiredNow = $now->greaterThan($expirationDate);
+
+        $programmesQuery = DB::table('programmes')
+            ->where(function ($query) use ($student) {
+                $query->where('formation', 'Toutes');
+                if ($student && isset($student->program) && $student->program) {
+                    $query->orWhere(function ($q) use ($student) {
+                        $q->where('formation', $student->program)
+                            ->orWhere('formation', 'Design Graphique')
+                            ->orWhere('formation', 'Community Management')
+                            ->orWhere('formation', 'Design Graphique & Community Management');
+                    });
+                }
+            });
+
+        if ($isExpiredNow) {
+            $programmesQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $formationsDisponibles = $programmesQuery->count();
+
+        $tpRealises = 0;
+        $tpTotal = 0;
+
+        if ($student && isset($student->id)) {
+            $tpAssignmentsQuery = DB::table('tp_assignments')
+                ->where('student_id', $student->id);
+
+            if ($isExpiredNow) {
+                $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
+            }
+
+            $tpRealises = (clone $tpAssignmentsQuery)
+                ->where('status', 'validated')
+                ->count();
+
+            $tpTotal = $tpAssignmentsQuery->count();
+        }
+
+        $projetsQuery = DB::table('projects')->where('user_id', $user->id);
+
+        if ($isExpiredNow) {
+            $projetsQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        // Compter les événements (webinaires)
+        $evenementsQuery = DB::table('evenements')
+            ->where('status', 'published')
+            ->where('event_date', '>=', now()->toDateString())
+            ->where(function ($query) {
+                $query->where('visibility', 'all')
+                    ->orWhere(function ($q) {
+                        $q->where('visibility', 'specific')
+                            ->where(function ($subq) {
+                                $subq->whereJsonContains('formations', 'Design Graphique')
+                                    ->orWhereJsonContains('formations', 'Community Management')
+                                    ->orWhereJsonContains('formations', 'Design Graphique & Community Management')
+                                    ->orWhereJsonContains('formations', 'Toutes');
+                            });
+                    });
+            });
+
+        if ($isExpiredNow) {
+            $evenementsQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $webinairesEnCours = $evenementsQuery->count();
+
+        // Compter les actualités
+        $actualitesEnCours = 0;
+        try {
+            if (Schema::hasTable('actualites')) {
+                $actualitesQuery = DB::table('actualites')
+                    ->where('status', 'published')
+                    ->where(function ($query) {
+                        $query->where('visibility', 'public')
+                            ->orWhere('visibility', 'all')
+                            ->orWhere(function ($q) {
+                                $q->where('visibility', 'specific')
+                                    ->where(function ($subq) {
+                                        $subq->whereJsonContains('formations', 'Design Graphique')
+                                            ->orWhereJsonContains('formations', 'Community Management')
+                                            ->orWhereJsonContains('formations', 'Design Graphique & Community Management')
+                                            ->orWhereJsonContains('formations', 'Toutes');
+                                    });
+                            });
+                    });
+
+                if ($isExpiredNow) {
+                    $actualitesQuery->where('created_at', '<=', $expirationDate);
+                }
+
+                $actualitesEnCours = $actualitesQuery->count();
+            }
+        } catch (\Exception $e) {
+            $actualitesEnCours = 0;
+        }
+
+        $stats = [
+            'formations_disponibles' => $formationsDisponibles,
+            'tp_realises' => $tpRealises,
+            'tp_total' => $tpTotal,
+            'projets_realises' => (clone $projetsQuery)
+                ->whereIn('status', ['valide', 'completed', 'validated'])
+                ->count(),
+            'projets_total' => $projetsQuery->count(),
+            'webinaires_en_cours' => $webinairesEnCours,
+            'actualites_en_cours' => $actualitesEnCours,
+        ];
+
+        $globalProgress = 0;
+        if ($stats['tp_total'] > 0) {
+            $globalProgress += ($stats['tp_realises'] / $stats['tp_total']) * 50;
+        }
+        if ($stats['projets_total'] > 0) {
+            $globalProgress += ($stats['projets_realises'] / $stats['projets_total']) * 50;
+        }
+
+        return response()->json([
+            'stats' => $stats,
+            'global_progress' => $globalProgress,
+            'generated_at' => now()->toIso8601String(),
+        ]);
+    }
+
+    public function designGraphiqueStats(StudentProfileService $service): JsonResponse
+    {
+        $user = Auth::user();
+        $student = $service->loadStudent($user, null);
+
+        $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
+        $expirationDate = $accountCreatedAt->copy()->addMonths(4);
+        $now = \Carbon\Carbon::now();
+        $isExpiredNow = $now->greaterThan($expirationDate);
+
+        $tpQuery = DB::table('tp')->where('user_id', $user->id);
+        $projectsQuery = DB::table('design_projects')->where('user_id', $user->id);
+
+        if ($isExpiredNow) {
+            $tpQuery->where('created_at', '<=', $expirationDate);
+            $projectsQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $programmesQuery = DB::table('programmes')
+            ->where(function ($query) use ($student) {
+                $query->where('formation', 'Toutes');
+
+                if ($student && isset($student->program) && $student->program) {
+                    $query->orWhere(function ($q) use ($student) {
+                        $q->where('formation', $student->program)
+                            ->orWhere('formation', 'Design Graphique')
+                            ->orWhere('formation', 'design-graphique')
+                            ->orWhere('formation', 'design_graphique')
+                            ->orWhere('formation', 'Design Graphique & Community Manager');
+                    });
+                }
+            });
+
+        if ($isExpiredNow) {
+            $programmesQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $formationsDisponibles = $programmesQuery->count();
+
+        $tpRealises = 0;
+        $tpTotal = 0;
+
+        if ($student && isset($student->id)) {
+            $tpAssignmentsQuery = DB::table('tp_assignments')
+                ->where('student_id', $student->id);
+
+            if ($isExpiredNow) {
+                $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
+            }
+
+            $tpRealises = (clone $tpAssignmentsQuery)
+                ->where('status', 'validated')
+                ->count();
+
+            $tpTotal = $tpAssignmentsQuery->count();
+        }
+
+        if ($tpTotal === 0) {
+            $tpRealises = (clone $tpQuery)
+                ->whereIn('status', ['validated', 'completed'])
+                ->count();
+            $tpTotal = $tpQuery->count();
+        }
+
+        $evenementsQuery = DB::table('evenements')
+            ->where('status', 'published')
+            ->where('event_date', '>=', now()->toDateString())
+            ->where(function ($query) {
+                $query->where('visibility', 'all')
+                    ->orWhere(function ($q) {
+                        $q->where('visibility', 'specific')
+                            ->where(function ($subq) {
+                                $subq->whereJsonContains('formations', 'Design Graphique')
+                                    ->orWhereJsonContains('formations', 'design_graphique')
+                                    ->orWhereJsonContains('formations', 'Toutes');
+                            });
+                    });
+            });
+
+        if ($isExpiredNow) {
+            $evenementsQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $webinairesEnCours = $evenementsQuery->count();
+
+        $actualitesEnCours = 0;
+        try {
+            if (Schema::hasTable('actualites')) {
+                $actualitesQuery = DB::table('actualites')
+                    ->where('status', 'published')
+                    ->where(function ($query) {
+                        $query->where('visibility', 'public')
+                            ->orWhere('visibility', 'all')
+                            ->orWhere(function ($q) {
+                                $q->where('visibility', 'specific')
+                                    ->where(function ($subq) {
+                                        $subq->whereJsonContains('formations', 'Design Graphique')
+                                            ->orWhereJsonContains('formations', 'design_graphique')
+                                            ->orWhereJsonContains('formations', 'design-graphique')
+                                            ->orWhereJsonContains('formations', 'Design Graphique & Community Manager')
+                                            ->orWhereJsonContains('formations', 'Toutes');
+                                    });
+                            });
+                    });
+
+                if ($isExpiredNow) {
+                    $actualitesQuery->where('created_at', '<=', $expirationDate);
+                }
+
+                $actualitesEnCours = $actualitesQuery->count();
+            }
+        } catch (\Exception $e) {
+            $actualitesEnCours = 0;
+        }
+
+        $stats = [
+            'formations_disponibles' => $formationsDisponibles,
+            'tp_realises' => $tpRealises,
+            'tp_total' => $tpTotal,
+            'projets_realises' => (clone $projectsQuery)
+                ->whereIn('status', ['completed', 'validated'])
+                ->count(),
+            'projets_total' => $projectsQuery->count(),
+            'webinaires_en_cours' => $webinairesEnCours,
+            'actualites_en_cours' => $actualitesEnCours,
+        ];
+
+        $globalProgress = 0;
+        if ($stats['tp_total'] > 0) {
+            $globalProgress += ($stats['tp_realises'] / $stats['tp_total']) * 50;
+        }
+        if ($stats['projets_total'] > 0) {
+            $globalProgress += ($stats['projets_realises'] / $stats['projets_total']) * 50;
+        }
+
+        return response()->json([
+            'stats' => $stats,
+            'global_progress' => $globalProgress,
+            'generated_at' => now()->toIso8601String(),
+        ]);
+    }
+
+    /**
+     * Afficher la liste des TP (index) avec statistiques
+     * Pour le profil combiné "Design Graphique & Community Management", affiche les TP des deux formations
+     */
+    public function listTP(Request $request): View
+    {
+        $user = Auth::user();
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+
+        $projects = collect([]);
+
+        // Détecter si c'est le profil combiné Design Graphique & Community Management
+        $isCombinedProfile = false;
+        if ($student) {
+            $program = strtolower($student->program ?? '');
+            $isCombinedProfile = str_contains($program, 'design') && str_contains($program, 'community');
+        }
+
+        // 1. Récupérer les TP créés par l'étudiant (table tp - Design Graphique legacy)
+        // On normalise les données pour qu'elles aient la même structure que tp_assignments
+        $tpCreated = TP::where('user_id', $user->id)
+            ->where('title', 'NOT LIKE', '%rapport%')
+            ->with(['files'])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($tp) {
+                return (object) [
+                    'id' => $tp->id,
+                    'title' => $tp->title,
+                    'description' => $tp->description,
+                    'link' => $tp->link,
+                    'status' => $tp->status,
+                    'created_at' => $tp->created_at,
+                    'updated_at' => $tp->updated_at,
+                    'files_count' => $tp->files->count(),
+                    'source_table' => 'tp',
+                    'type' => 'digital',
+                    'formation' => $tp->formation ?? 'Design Graphique'
+                ];
+            });
+
+        $projects = $projects->merge($tpCreated);
+
+        // 2. Récupérer les TP assignés (table tp_assignments)
+        // Pour le profil combiné, on récupère les TP de Design Graphique ET Community Management
+        if ($student) {
+            // Sous-requête pour compter les fichiers de soumission
+            $fileCounts = DB::table('tp_submission_files')
+                ->select('tp_assignment_id', DB::raw('COUNT(*) as files_count'))
+                ->groupBy('tp_assignment_id');
+
+            $tpAssignmentsQuery = DB::table('tp_assignments')
+                ->leftJoinSub($fileCounts, 'files', function ($join) {
+                    $join->on('tp_assignments.id', '=', 'files.tp_assignment_id');
+                })
+                ->where('tp_assignments.student_id', $student->id);
+
+            // Pour le profil combiné, on filtre pour inclure les deux formations
+            if ($isCombinedProfile) {
+                $tpAssignmentsQuery->where(function ($query) {
+                    $query->where('tp_assignments.formation', 'LIKE', '%Design%')
+                        ->orWhere('tp_assignments.formation', 'LIKE', '%Graphique%')
+                        ->orWhere('tp_assignments.formation', 'LIKE', '%Community%')
+                        ->orWhere('tp_assignments.formation', 'LIKE', '%CM%');
+                });
+            }
+
+            $tpAssignments = $tpAssignmentsQuery
+                ->select(
+                    'tp_assignments.id',
+                    'tp_assignments.title',
+                    'tp_assignments.description',
+                    'tp_assignments.submission_link as link',
+                    'tp_assignments.status',
+                    'tp_assignments.created_at',
+                    'tp_assignments.updated_at',
+                    'tp_assignments.formation',
+                    DB::raw('COALESCE(files.files_count, 0) as files_count'),
+                    DB::raw("'tp_assignments' as source_table"),
+                    DB::raw("'digital' as type")
+                )
+                ->orderByDesc('tp_assignments.created_at')
+                ->get();
+
+            $projects = $projects->merge($tpAssignments);
+        }
+
+        // Normaliser les noms de formation
+        $projects = $projects->map(function ($p) {
+            $f = strtolower($p->formation ?? '');
+            if (str_contains($f, 'design') || str_contains($f, 'graphique') || str_contains($f, 'infographie')) {
+                $p->formation = 'Design Graphique';
+            } elseif (str_contains($f, 'community') || str_contains($f, 'cm')) {
+                $p->formation = 'Community Management';
+            } elseif (str_contains($f, 'informatique') || str_contains($f, 'dev')) {
+                $p->formation = 'Gestion Informatique';
+            } elseif (str_contains($f, 'intelligence') || str_contains($f, 'ia')) {
+                $p->formation = 'Intelligence Artificielle';
+            }
+            return $p;
+        });
+
+        // Trier par date de création décroissante
+        $projects = $projects->sortByDesc('created_at');
+
+        // Pagination manuelle
+        $page = $request->get('page', 1);
+        $perPage = 9;
+        $tpsPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $projects->forPage($page, $perPage),
+            $projects->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        // Calcul des statistiques
+        $total = $projects->count();
+        $validated = $projects->where('status', 'validated')->count();
+        $rejected = $projects->where('status', 'rejected')->count();
+        // Pour les TP assignés, 'assigned' est un état en attente d'action de l'étudiant
+        // 'submitted' et 'pending' sont en attente de correction
+        $submitted = $projects->whereIn('status', ['submitted', 'pending'])->count();
+        $assigned = $projects->where('status', 'assigned')->count();
+
+        // Stats pour la vue
+        $statistiques = [
+            'tp_realises' => $validated + $submitted + $rejected, // Travaux soumis (y compris traités)
+            'tp_total' => $total,
+            'tp_a_faire' => $assigned,
+            'progression_pourcentage' => $total > 0 ? round(($validated / $total) * 100) : 0,
+        ];
+
+        $validationStats = [
+            'tp_valides' => $validated,
+            'tp_en_validation' => $submitted, // En attente de correction/validation
+        ];
+
+        return view('tp.index', [
+            'tps' => $tpsPaginated,
+            'statistiques' => $statistiques,
+            'validationStats' => $validationStats,
+            'user' => $user
+        ]);
+    }
+
+    /**
      * Afficher tous les TP de l'utilisateur (Design Graphique)
      */
     public function showAllTP(): View
     {
         $user = Auth::user();
 
-        // Récupérer tous les TP de l'utilisateur avec leurs fichiers
+        $currentModule = request()->segment(3);
+        if ($currentModule === 'community-manager') {
+            $currentModule = 'community-management';
+        }
+
+        // Pour Community Management ET Design Graphique & CM : récupérer les deux sources de TP
+        if ($currentModule === 'community-management' || $currentModule === 'design-graphique-cm') {
+            $student = DB::table('students')
+                ->where('user_id', $user->id)
+                ->orWhere('email', $user->email)
+                ->first();
+
+            $projects = collect([]);
+
+            // Récupérer les TP créés par l'étudiant (table tp), exclure les rapports
+            $tpCreated = TP::where('user_id', $user->id)
+                ->where('title', 'NOT LIKE', '%rapport%')
+                ->with(['files'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($tp) {
+                    return (object) [
+                        'id' => $tp->id,
+                        'title' => $tp->title,
+                        'description' => $tp->description,
+                        'link' => $tp->link,
+                        'status' => $tp->status,
+                        'created_at' => $tp->created_at,
+                        'updated_at' => $tp->updated_at,
+                        'files_count' => $tp->files->count(),
+                        'source_table' => 'tp',
+                        'formation' => 'Design Graphique' // Défaut pour la table legacy
+                    ];
+                });
+
+            $projects = $projects->merge($tpCreated);
+
+            // Récupérer les TP assignés (table tp_assignments)
+            if ($student) {
+                $fileCounts = DB::table('tp_submission_files')
+                    ->select('tp_assignment_id', DB::raw('COUNT(*) as files_count'))
+                    ->groupBy('tp_assignment_id');
+
+                $tpAssignments = DB::table('tp_assignments')
+                    ->leftJoinSub($fileCounts, 'files', function ($join) {
+                        $join->on('tp_assignments.id', '=', 'files.tp_assignment_id');
+                    })
+                    ->where('tp_assignments.student_id', $student->id)
+                    ->select(
+                        'tp_assignments.id',
+                        'tp_assignments.title',
+                        'tp_assignments.description',
+                        'tp_assignments.submission_link as link',
+                        'tp_assignments.status',
+                        'tp_assignments.created_at',
+                        'tp_assignments.updated_at',
+                        'tp_assignments.formation', // Inclure la formation
+                        DB::raw('COALESCE(files.files_count, 0) as files_count'),
+                        DB::raw("'tp_assignments' as source_table")
+                    )
+                    ->orderByDesc('tp_assignments.created_at')
+                    ->get();
+
+                $projects = $projects->merge($tpAssignments);
+            }
+
+            // Trier tous les projets par date de création
+            $projects = $projects->sortByDesc('created_at');
+
+            $stats = [
+                'total' => $projects->count(),
+                'validated' => $projects->where('status', 'validated')->count(),
+                'pending' => $projects->whereIn('status', ['pending', 'submitted', 'assigned'])->count(),
+                'rejected' => $projects->where('status', 'rejected')->count(),
+            ];
+
+            $formationSlug = $this->getFormationSlug($student);
+
+            return view('tp.all', [
+                'projects' => $projects,
+                'stats' => $stats,
+                'userProfile' => $user,
+                'formationSlug' => $formationSlug
+            ]);
+        }
+
+        // Récupérer tous les TP de l'utilisateur avec leurs fichiers (Fallback pour Design Graphique seul)
         $projects = TP::where('user_id', $user->id)
             ->with(['files'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($tp) {
+                $tp->formation = 'Design Graphique';
+                return $tp;
+            });
 
         // Calculer les statistiques
         $stats = [
@@ -187,69 +1131,46 @@ class DashboardController extends Controller
     /**
      * Afficher un TP spécifique
      */
-    public function viewTP($id): View
+    public function viewTP(Request $request, $id): View
     {
         $user = Auth::user();
+        $source = $request->query('source');
 
         // Récupérer l'étudiant
         $student = DB::table('students')->where('user_id', $user->id)->first();
+        $project = null;
 
-        // D'abord, essayer de trouver le TP dans la table tp (Design Graphique)
-        $project = TP::where('id', $id)
-            ->where('user_id', $user->id)
-            ->with(['files'])
-            ->first();
-
-        // Si pas trouvé dans tp, chercher dans tp_assignments (Community Management)
-        if (!$project && $student) {
-            $tpAssignment = DB::table('tp_assignments')
-                ->where('id', $id)
-                ->where('student_id', $student->id)
+        // Si source spécifiée, on cherche uniquement dans cette table
+        if ($source === 'tp') {
+            $project = TP::where('id', $id)
+                ->where('user_id', $user->id)
+                ->with(['files'])
                 ->first();
 
-            if ($tpAssignment) {
-                // Récupérer les fichiers de soumission et mapper les colonnes
-                $submissionFiles = DB::table('tp_submission_files')
-                    ->where('tp_assignment_id', $id)
-                    ->get();
+            if ($project) {
+                $project->source_table = 'tp';
+                $project->type = 'digital';
+            }
+        } elseif ($source === 'tp_assignments') {
+            if ($student) {
+                $project = $this->getTpAssignmentProject($id, $student->id);
+            }
+        } else {
+            // Comportement par défaut (rétrocompatibilité)
+            // 1. Chercher dans tp (Design Graphique)
+            $project = TP::where('id', $id)
+                ->where('user_id', $user->id)
+                ->with(['files'])
+                ->first();
 
-                // Mapper les fichiers pour correspondre à la structure attendue par la vue
-                $files = $submissionFiles->map(function($file) {
-                    return (object) [
-                        'id' => $file->id,
-                        'original_name' => $file->file_name ?? 'Fichier',
-                        'file_path' => $file->file_path,
-                        'file_size' => $file->file_size ?? 0,
-                        'mime_type' => $file->mime_type ?? 'application/octet-stream',
-                        'created_at' => $file->created_at,
-                        'updated_at' => $file->updated_at
-                    ];
-                });
+            if ($project) {
+                $project->source_table = 'tp';
+                $project->type = 'digital';
+            }
 
-                // Convertir en objet stdClass pour compatibilité avec la vue
-                $project = (object) [
-                    'id' => $tpAssignment->id,
-                    'title' => $tpAssignment->title,
-                    'description' => $tpAssignment->description,
-                    'link' => $tpAssignment->submission_link,
-                    'status' => $tpAssignment->status,
-                    'admin_comment' => $tpAssignment->admin_comment,
-                    'rejection_reason' => $tpAssignment->admin_comment, // Alias pour compatibilité
-                    'validated_at' => $tpAssignment->validated_at,
-                    'created_at' => $tpAssignment->created_at,
-                    'updated_at' => $tpAssignment->updated_at,
-                    'files' => $files,
-                    'source_table' => 'tp_assignments',
-                    'tags' => null,
-                    'type' => 'digital',
-                    'user_id' => $user->id,
-                    'deadline' => $tpAssignment->deadline ?? null,
-                    'formation' => $tpAssignment->formation ?? null,
-                    'software_used' => null,
-                    'duration' => null,
-                    'difficulty' => null,
-                    'category' => null
-                ];
+            // 2. Si pas trouvé, chercher dans tp_assignments
+            if (!$project && $student) {
+                $project = $this->getTpAssignmentProject($id, $student->id);
             }
         }
 
@@ -258,9 +1179,66 @@ class DashboardController extends Controller
             abort(404, 'TP introuvable');
         }
 
+        // Déterminer la formation pour les routes dynamiques
+        $formationSlug = $this->getFormationSlug($student);
+
         return view('tp.view', [
-            'project' => $project
+            'project' => $project,
+            'formationSlug' => $formationSlug
         ]);
+    }
+
+    /**
+     * Helper pour récupérer un projet depuis tp_assignments
+     */
+    private function getTpAssignmentProject($id, $studentId)
+    {
+        $tpAssignment = DB::table('tp_assignments')
+            ->where('id', $id)
+            ->where('student_id', $studentId)
+            ->first();
+
+        if (!$tpAssignment) {
+            return null;
+        }
+
+        // Récupérer les fichiers de soumission
+        $submissionFiles = DB::table('tp_submission_files')
+            ->where('tp_assignment_id', $id)
+            ->get();
+
+        // Mapper les fichiers
+        $files = $submissionFiles->map(function ($file) {
+            return (object) [
+                'id' => $file->id,
+                'original_name' => $file->file_name ?? 'Fichier',
+                'file_path' => $file->file_path,
+                'file_size' => $file->file_size ?? 0,
+                'mime_type' => $file->mime_type ?? 'application/octet-stream',
+                'created_at' => $file->created_at,
+                'updated_at' => $file->updated_at
+            ];
+        });
+
+        // Convertir en objet
+        return (object) [
+            'id' => $tpAssignment->id,
+            'title' => $tpAssignment->title,
+            'description' => $tpAssignment->description,
+            'link' => $tpAssignment->submission_link,
+            'status' => $tpAssignment->status,
+            'admin_comment' => $tpAssignment->admin_comment,
+            'rejection_reason' => $tpAssignment->admin_comment,
+            'validated_at' => $tpAssignment->validated_at,
+            'created_at' => $tpAssignment->created_at,
+            'updated_at' => $tpAssignment->updated_at,
+            'files' => $files,
+            'source_table' => 'tp_assignments',
+            'tags' => null,
+            'type' => 'digital',
+            'deadline' => $tpAssignment->deadline ?? null,
+            'formation' => $tpAssignment->formation ?? null
+        ];
     }
 
     /**
@@ -269,265 +1247,49 @@ class DashboardController extends Controller
     public function editTP($id): View|RedirectResponse
     {
         $user = Auth::user();
+        $student = DB::table('students')->where('user_id', $user->id)->first();
 
-        // Récupérer le TP avec ses fichiers
+        // D'abord, essayer de trouver le TP dans la table tp (créé par l'étudiant lui-même)
         $project = TP::where('id', $id)
             ->where('user_id', $user->id)
             ->with(['files'])
-            ->firstOrFail();
+            ->first();
 
-        // Vérifier que le TP n'est pas déjà validé
-        if ($project->status === 'validated') {
-            return redirect()->route('design-graphique.tp.voir', $id)
-                ->with('error', 'Vous ne pouvez pas modifier un TP déjà validé.');
-        }
-
-        return view('tp.edit', [
-            'project' => $project
-        ]);
-    }
-
-    /**
-     * Lister tous les TP de l'utilisateur (Community Management)
-     */
-    public function listTP(): View
-    {
-        $user = Auth::user();
-
-        // Log de l'utilisateur connecté pour debug
-        Log::info('=== ACCÈS PAGE TP INDEX ===', [
-            'user_connected' => $user ? 'OUI' : 'NON',
-            'user_id' => $user ? $user->id : 'N/A',
-            'user_name' => $user ? $user->name : 'N/A',
-            'user_email' => $user ? $user->email : 'N/A',
-        ]);
-
-        // Initialiser les valeurs par défaut
-        $tps = [];
-        $totalTpRequis = 20;
-
-        // Vérifier si l'utilisateur est connecté
-        if (!$user) {
-            $statistiques = [
-                'tp_realises' => 0,
-                'tp_a_faire' => $totalTpRequis,
-                'tp_total' => $totalTpRequis,
-                'progression_pourcentage' => 0
-            ];
-
-            $validationStats = [
-                'tp_en_validation' => 0,
-                'tp_valides' => 0
-            ];
-
-            return view('tp.index', compact('tps', 'statistiques', 'validationStats'));
-        }
-
-        try {
-            // Récupérer l'étudiant pour avoir son ID
-            $student = DB::table('students')->where('user_id', $user->id)->first();
-
-            // Récupérer tous les TP de l'utilisateur connecté depuis la table tp (Design Graphique)
-            if (Schema::hasTable('tp_files')) {
-                // Avec comptage des fichiers
-                $tpsFromTpTable = DB::table('tp')
-                    ->where('tp.user_id', $user->id)
-                    ->leftJoin('tp_files', 'tp.id', '=', 'tp_files.tp_id')
-                    ->select(
-                        'tp.id',
-                        'tp.user_id',
-                        'tp.title',
-                        'tp.description',
-                        'tp.link',
-                        'tp.status',
-                        'tp.admin_comment',
-                        'tp.validated_at',
-                        'tp.created_at',
-                        'tp.updated_at',
-                        DB::raw('COUNT(tp_files.id) as files_count'),
-                        DB::raw("'tp' as source_table")
-                    )
-                    ->groupBy(
-                        'tp.id',
-                        'tp.user_id',
-                        'tp.title',
-                        'tp.description',
-                        'tp.link',
-                        'tp.status',
-                        'tp.admin_comment',
-                        'tp.validated_at',
-                        'tp.created_at',
-                        'tp.updated_at'
-                    )
-                    ->orderByDesc('tp.created_at')
-                    ->get();
-            } else {
-                // Sans comptage des fichiers
-                $tpsFromTpTable = DB::table('tp')
-                    ->where('user_id', $user->id)
-                    ->select('*', DB::raw("'tp' as source_table"))
-                    ->orderByDesc('created_at')
-                    ->get();
+        // Si trouvé dans la table tp, permettre la modification même si étudiant en Community Management
+        if ($project) {
+            // Vérifier que le TP n'est pas déjà validé
+            if ($project->status === 'validated') {
+                $formationSlug = $this->getFormationSlug($student);
+                return redirect()->route($formationSlug . '.tp.voir', $id)
+                    ->with('error', 'Vous ne pouvez pas modifier un TP déjà validé.');
             }
 
-            // Ajouter les TP validés et rejetés de tp_assignments (Community Management)
-            $tpAssignments = collect([]);
-            if ($student && Schema::hasTable('tp_assignments')) {
-                $tpAssignments = DB::table('tp_assignments')
-                    ->where('student_id', $student->id)
-                    ->whereIn('status', ['validated', 'rejected', 'submitted']) // Inclure aussi les soumis
-                    ->select(
-                        'id',
-                        DB::raw("NULL as user_id"),
-                        'title',
-                        'description',
-                        'submission_link as link',
-                        'status',
-                        'admin_comment',
-                        'validated_at',
-                        'created_at',
-                        'updated_at',
-                        DB::raw("0 as files_count"),
-                        DB::raw("'tp_assignments' as source_table")
-                    )
-                    ->orderByDesc('created_at')
-                    ->get();
+            // Déterminer la formation pour les routes dynamiques
+            $formationSlug = $this->getFormationSlug($student);
 
-                Log::info('TP Assignments ajoutés', [
-                    'student_id' => $student->id,
-                    'tp_assignments_count' => $tpAssignments->count()
-                ]);
-            }
-
-            // Fusionner les deux collections et trier
-            $allTps = $tpsFromTpTable->concat($tpAssignments)->sortByDesc('created_at')->values();
-
-            // Pagination manuelle
-            $perPage = 6; // 6 TP par page
-            $currentPage = request()->get('page', 1);
-            $offset = ($currentPage - 1) * $perPage;
-
-            // Créer un paginator Laravel
-            $tps = new \Illuminate\Pagination\LengthAwarePaginator(
-                $allTps->slice($offset, $perPage)->values(),
-                $allTps->count(),
-                $perPage,
-                $currentPage,
-                ['path' => request()->url(), 'query' => request()->query()]
-            );
-
-            // Compter les TP de l'utilisateur par statut (des deux tables)
-            $cols = Schema::getColumnListing('tp');
-
-            if (in_array('status', $cols)) {
-                // Compter les TP de la table tp
-                $tpsPending = DB::table('tp')
-                    ->where('user_id', $user->id)
-                    ->where('status', 'pending')
-                    ->count();
-
-                $tpsValidated = DB::table('tp')
-                    ->where('user_id', $user->id)
-                    ->where('status', 'validated')
-                    ->count();
-
-                $tpsRejected = DB::table('tp')
-                    ->where('user_id', $user->id)
-                    ->where('status', 'rejected')
-                    ->count();
-
-                $tpsTotal = DB::table('tp')
-                    ->where('user_id', $user->id)
-                    ->count();
-
-                // Ajouter les compteurs de tp_assignments
-                if ($student && Schema::hasTable('tp_assignments')) {
-                    $tpsPending += DB::table('tp_assignments')
-                        ->where('student_id', $student->id)
-                        ->where('status', 'submitted')
-                        ->count();
-
-                    $tpsValidated += DB::table('tp_assignments')
-                        ->where('student_id', $student->id)
-                        ->where('status', 'validated')
-                        ->count();
-
-                    $tpsRejected += DB::table('tp_assignments')
-                        ->where('student_id', $student->id)
-                        ->where('status', 'rejected')
-                        ->count();
-
-                    $tpsTotal += DB::table('tp_assignments')
-                        ->where('student_id', $student->id)
-                        ->whereIn('status', ['submitted', 'validated', 'rejected'])
-                        ->count();
-                }
-
-                // Calculer les statistiques pour l'utilisateur
-                $statistiques = [
-                    'tp_realises' => $tpsTotal, // Tous les TP soumis
-                    'tp_a_faire' => max(0, $totalTpRequis - $tpsTotal), // Basé sur les TP soumis
-                    'tp_total' => $totalTpRequis,
-                    'progression_pourcentage' => $totalTpRequis > 0 ? min(100, round(($tpsTotal / $totalTpRequis) * 100)) : 0
-                ];
-
-                $validationStats = [
-                    'tp_en_validation' => $tpsPending,
-                    'tp_valides' => $tpsValidated,
-                    'tp_rejetes' => $tpsRejected
-                ];
-
-                // Log pour débogage
-                Log::info('=== STATISTIQUES TP UTILISATEUR (COMBINÉES) ===', [
-                    'user_id' => $user->id,
-                    'student_id' => $student->id ?? 'N/A',
-                    'user_name' => $user->name ?? 'N/A',
-                    'tp_total' => $tpsTotal,
-                    'tp_pending' => $tpsPending,
-                    'tp_validated' => $tpsValidated,
-                    'tp_rejected' => $tpsRejected,
-                    'progression' => $statistiques['progression_pourcentage'],
-                ]);
-            } else {
-                Log::warning('Colonne status n\'existe pas dans la table tp');
-
-                // Statistiques par défaut si pas de colonne status
-                $tpsTotal = count($tps);
-                $statistiques = [
-                    'tp_realises' => $tpsTotal,
-                    'tp_a_faire' => max(0, $totalTpRequis - $tpsTotal),
-                    'tp_total' => $totalTpRequis,
-                    'progression_pourcentage' => $totalTpRequis > 0 ? min(100, round(($tpsTotal / $totalTpRequis) * 100)) : 0
-                ];
-
-                $validationStats = [
-                    'tp_en_validation' => 0,
-                    'tp_valides' => $tpsTotal
-                ];
-            }
-
-        } catch (\Exception $e) {
-            Log::error('Erreur lors du chargement des TP', [
-                'user_id' => $user->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            return view('tp.edit', [
+                'project' => $project,
+                'formationSlug' => $formationSlug
             ]);
-
-            // Valeurs par défaut en cas d'erreur
-            $statistiques = [
-                'tp_realises' => 0,
-                'tp_a_faire' => $totalTpRequis,
-                'tp_total' => $totalTpRequis,
-                'progression_pourcentage' => 0
-            ];
-
-            $validationStats = [
-                'tp_en_validation' => 0,
-                'tp_valides' => 0
-            ];
         }
 
-        return view('tp.index', compact('tps', 'statistiques', 'validationStats'));
+        // Si pas trouvé dans tp, chercher dans tp_assignments (Community Management)
+        if ($student) {
+            $tpAssignment = DB::table('tp_assignments')
+                ->where('id', $id)
+                ->where('student_id', $student->id)
+                ->first();
+
+            if ($tpAssignment) {
+                // Pour Community Management, les TP assignés ne peuvent pas être modifiés
+                $formationSlug = $this->getFormationSlug($student);
+                return redirect()->route($formationSlug . '.tp.voir', $id)
+                    ->with('error', 'Les TP assignés par l\'administration ne peuvent pas être modifiés. Vous pouvez seulement soumettre votre travail.');
+            }
+        }
+
+        // Si toujours pas trouvé, retourner 404
+        abort(404, 'TP introuvable');
     }
 
     /**
@@ -569,13 +1331,11 @@ class DashboardController extends Controller
             $mimeType = $file->getMimeType();
             $extension = $file->getClientOriginalExtension();
 
-            Log::info("📄 Fichier $fileIndex: $originalName ($mimeType, $fileSize bytes)");
 
             // ÉTAPE 3: Créer le dossier si nécessaire
             $uploadPath = public_path('uploads/tp');
             if (!is_dir($uploadPath)) {
                 mkdir($uploadPath, 0755, true);
-                Log::info("📁 Dossier créé: $uploadPath");
             }
 
             // ÉTAPE 4: Générer nom unique
@@ -591,7 +1351,6 @@ class DashboardController extends Controller
                 return ['success' => false, 'error' => 'Fichier non trouvé après déplacement'];
             }
 
-            Log::info("✅ Fichier $fileIndex déplacé: $fullPath");
 
             // ÉTAPE 7: Insérer en base de données
             $insertId = DB::table('tp_files')->insertGetId([
@@ -604,17 +1363,323 @@ class DashboardController extends Controller
                 'updated_at' => now(),
             ]);
 
-            Log::info("✅ Fichier $fileIndex enregistré en base (ID: $insertId)");
 
             return [
                 'success' => true,
                 'file_id' => $insertId,
                 'file_name' => $originalName
             ];
-
         } catch (\Exception $e) {
             Log::error("❌ Erreur fichier $fileIndex: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    public function traiterAssignedProject($projectId): View
+    {
+        $user = Auth::user();
+
+        // Récupérer l'étudiant pour déterminer la formation
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+        $formationPrefix = $this->getFormationSlug($student);
+
+        // Chercher d'abord dans projects
+        $assignedProject = DB::table('projects')
+            ->where('id', $projectId)
+            ->where('user_id', $user->id)
+            ->first();
+
+        $briefFiles = collect([]);
+        $isTpAssignment = false;
+
+        // Si pas trouvé dans projects, chercher dans tp_assignments
+        if (!$assignedProject && $student) {
+            $assignedProject = DB::table('tp_assignments')
+                ->where('id', $projectId)
+                ->where('student_id', $student->id)
+                ->first();
+
+            if ($assignedProject) {
+                $isTpAssignment = true;
+                // Récupérer les fichiers du brief depuis tp_assignment_files
+                $briefFiles = DB::table('tp_assignment_files')
+                    ->where('tp_assignment_id', $assignedProject->id)
+                    ->get()
+                    ->map(function ($file) {
+                        $file->url = asset('storage/' . ltrim((string) $file->file_path, '/'));
+                        $file->name = $file->file_name ?? 'fichier';
+                        return $file;
+                    });
+            }
+        } else if ($assignedProject) {
+            // Récupérer les fichiers du brief depuis project_images
+            $briefFiles = DB::table('project_images')
+                ->where('project_id', $assignedProject->id)
+                ->orderBy('order_index', 'asc')
+                ->get()
+                ->map(function ($file) {
+                    $file->url = asset('storage/' . ltrim((string) $file->file_path, '/'));
+                    $file->name = $file->original_name ?? $file->filename ?? 'fichier';
+                    return $file;
+                });
+        }
+
+        if (!$assignedProject) {
+            return view('todo.traiter', [
+                'assignedProject' => null,
+                'briefFiles' => collect([]),
+                'error' => 'Projet non trouvé ou non autorisé.',
+                'formationPrefix' => $formationPrefix,
+            ]);
+        }
+
+        return view('todo.traiter', [
+            'assignedProject' => $assignedProject,
+            'briefFiles' => $briefFiles,
+            'formationPrefix' => $formationPrefix,
+            'isTpAssignment' => $isTpAssignment,
+        ]);
+    }
+
+    public function storeTreatedAssignedProject(Request $request, $projectId): RedirectResponse
+    {
+        $user = Auth::user();
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+        $formationPrefix = $this->getFormationSlug($student);
+
+        // Essayer d'abord dans projects (Design Graphique)
+        $assignedProject = DB::table('projects')
+            ->where('id', $projectId)
+            ->where('user_id', $user->id)
+            ->first();
+
+        // Si pas trouvé, chercher dans tp_assignments (Community Management)
+        $isTpAssignment = false;
+        if (!$assignedProject && $student) {
+            $assignedProject = DB::table('tp_assignments')
+                ->where('id', $projectId)
+                ->where('student_id', $student->id)
+                ->first();
+            $isTpAssignment = true;
+        }
+
+        if (!$assignedProject) {
+            return redirect()->back()->with('error', 'Projet non trouvé ou non autorisé.');
+        }
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'files' => 'nullable|array',
+            'files.*' => 'file|max:10240|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp,application/pdf',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $uploadedCount = 0;
+
+            if ($isTpAssignment) {
+                // Community Management: Mettre à jour tp_assignments
+                DB::table('tp_assignments')
+                    ->where('id', $projectId)
+                    ->where('student_id', $student->id)
+                    ->update([
+                        'title' => $validated['title'],
+                        'description' => $validated['description'] ?? '',
+                        'status' => 'submitted',
+                        'updated_at' => now(),
+                    ]);
+
+                // Uploader les fichiers dans tp_submission_files
+                if ($request->hasFile('files')) {
+                    $uploadPath = storage_path('app/public/tp_submissions');
+                    if (!file_exists($uploadPath)) {
+                        mkdir($uploadPath, 0755, true);
+                    }
+
+                    foreach ($request->file('files') as $file) {
+                        if (!$file || !$file->isValid()) {
+                            continue;
+                        }
+
+                        $uploadedCount++;
+                        $originalName = $file->getClientOriginalName();
+                        $extension = $file->getClientOriginalExtension();
+                        $fileSize = $file->getSize();
+                        $mimeType = $file->getMimeType();
+                        $storedName = time() . '_' . Str::random(10) . '.' . $extension;
+
+                        $file->storeAs('public/tp_submissions', $storedName);
+                        $filePath = 'tp_submissions/' . $storedName;
+
+                        DB::table('tp_submission_files')->insert([
+                            'tp_assignment_id' => $projectId,
+                            'file_name' => $originalName,
+                            'file_path' => $filePath,
+                            'file_size' => $fileSize,
+                            'mime_type' => $mimeType,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+
+                // Notification email aux admins pour TP assignments
+                try {
+                    $admins = DB::table('admins')
+                        ->whereIn('role', ['super_admin', 'assistant'])
+                        ->get();
+
+                    $tpForEmail = (object) [
+                        'id' => $projectId,
+                        'title' => $validated['title'],
+                        'description' => $validated['description'] ?? '',
+                    ];
+
+                    $studentForEmail = DB::table('users')->where('id', $user->id)->first();
+                    $viewUrl = url('/evc/app/admin/projets/design-cm/pending');
+
+                    foreach ($admins as $admin) {
+                        if (empty($admin->email)) {
+                            continue;
+                        }
+
+                        try {
+                            Mail::send('emails.admin-new-project-notification', [
+                                'student' => $studentForEmail,
+                                'project' => $tpForEmail,
+                                'filesCount' => $uploadedCount,
+                                'viewUrl' => $viewUrl,
+                            ], function ($message) use ($admin, $tpForEmail) {
+                                $message->to($admin->email)
+                                    ->subject('🚀 Nouveau TP soumis : ' . $tpForEmail->title);
+                            });
+                        } catch (\Exception $emailError) {
+                            Log::error('Erreur envoi email admin (TP soumis): ' . $emailError->getMessage());
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Erreur globale notification admins (TP soumis): ' . $e->getMessage());
+                }
+            } else {
+                // Design Graphique: Créer un design_project
+                $designProjectId = DB::table('design_projects')->insertGetId([
+                    'user_id' => $user->id,
+                    'title' => $validated['title'],
+                    'description' => $validated['description'] ?? null,
+                    'category' => 'solo',
+                    'project_type' => null,
+                    'software_used' => null,
+                    'status' => 'pending',
+                    'admin_comment' => null,
+                    'validated_at' => null,
+                    'completed_at' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                if ($request->hasFile('files')) {
+                    $uploadPath = public_path('uploads/design_projects');
+                    if (!file_exists($uploadPath)) {
+                        mkdir($uploadPath, 0755, true);
+                    }
+
+                    $thumbSet = false;
+
+                    foreach ($request->file('files') as $file) {
+                        if (!$file || !$file->isValid()) {
+                            continue;
+                        }
+
+                        $uploadedCount++;
+                        $originalName = $file->getClientOriginalName();
+                        $extension = $file->getClientOriginalExtension();
+                        $fileSize = $file->getSize();
+                        $mimeType = $file->getMimeType();
+                        $storedName = time() . '_' . Str::random(10) . '.' . $extension;
+                        $filePath = 'uploads/design_projects/' . $storedName;
+
+                        $file->move($uploadPath, $storedName);
+
+                        $fileType = (is_string($mimeType) && str_starts_with($mimeType, 'image/')) ? 'image' : 'document';
+                        $isThumbnail = false;
+                        if (!$thumbSet && $fileType === 'image') {
+                            $isThumbnail = true;
+                            $thumbSet = true;
+                        }
+
+                        DB::table('design_project_files')->insert([
+                            'project_id' => $designProjectId,
+                            'original_name' => $originalName,
+                            'file_path' => $filePath,
+                            'file_size' => $fileSize,
+                            'mime_type' => $mimeType,
+                            'file_type' => $fileType,
+                            'is_thumbnail' => $isThumbnail,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+
+                DB::table('projects')
+                    ->where('id', $assignedProject->id)
+                    ->where('user_id', $user->id)
+                    ->update([
+                        'status' => 'termine',
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            DB::commit();
+
+            // Notification email aux admins (optionnel, ne doit pas bloquer la publication)
+            if (!$isTpAssignment) {
+                try {
+                    $admins = DB::table('admins')
+                        ->whereIn('role', ['super_admin', 'assistant'])
+                        ->get();
+
+                    $projectForEmail = (object) [
+                        'id' => $designProjectId,
+                        'title' => $validated['title'],
+                        'description' => $validated['description'] ?? null,
+                        'reference_url' => null,
+                    ];
+
+                    $studentForEmail = DB::table('users')->where('id', $user->id)->first();
+                    $viewUrl = url('/evc/app/admin/design-projects/view/' . $designProjectId);
+
+                    foreach ($admins as $admin) {
+                        if (empty($admin->email)) {
+                            continue;
+                        }
+
+                        try {
+                            Mail::send('emails.admin-new-project-notification', [
+                                'student' => $studentForEmail,
+                                'project' => $projectForEmail,
+                                'filesCount' => $uploadedCount,
+                                'viewUrl' => $viewUrl,
+                            ], function ($message) use ($admin, $projectForEmail) {
+                                $message->to($admin->email)
+                                    ->subject('🚀 Nouveau projet soumis : ' . $projectForEmail->title);
+                            });
+                        } catch (\Exception $emailError) {
+                            Log::error('Erreur envoi email admin (projet publié): ' . $emailError->getMessage());
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Erreur globale notification admins (projet publié): ' . $e->getMessage());
+                }
+            }
+
+            return redirect()->route($formationPrefix . '.todo.index')
+                ->with('success', 'Projet soumis avec succès.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erreur publication projet assigné: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Erreur lors de la publication.')->withInput();
         }
     }
 
@@ -634,41 +1699,41 @@ class DashboardController extends Controller
         // Récupérer le module actuel depuis l'URL
         $currentModule = $request->segment(3); // ex: community-management, design-graphique, etc.
 
-        Log::info('🎯 DÉBUT CRÉATION TP', ['user_id' => $user->id, 'module' => $currentModule]);
 
         try {
             // ========================================
-        // ÉTAPE 2: VALIDER LES DONNÉES
-        // ========================================
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:2000',
-            'links.*' => 'nullable|url|max:500',
-            'files' => 'required|array|min:1',
-            'files.*' => 'required|file|max:20480|mimes:jpg,jpeg,png,gif,webp,svg,pdf,psd,ai,doc,docx,zip,rar'
-        ], [
-            'title.required' => 'Le titre du TP est obligatoire.',
-            'title.max' => 'Le titre ne peut pas dépasser 255 caractères.',
-            'description.max' => 'La description ne peut pas dépasser 2000 caractères.',
-            'links.*.url' => 'Le lien doit être une URL valide.',
-            'links.*.max' => 'Le lien ne peut pas dépasser 500 caractères.',
-            'files.required' => '⚠️ Vous devez ajouter au moins une image ou un fichier pour publier votre TP.',
-            'files.min' => '⚠️ Vous devez ajouter au moins une image ou un fichier pour publier votre TP.',
-            'files.*.required' => 'Chaque fichier est obligatoire.',
-            'files.*.max' => 'Chaque fichier ne peut pas dépasser 20MB.',
-            'files.*.mimes' => 'Types de fichiers autorisés: JPG, JPEG, PNG, GIF, WEBP, SVG, PDF, PSD, AI, DOC, DOCX, ZIP, RAR.'
-        ]);
+            // ÉTAPE 2: VALIDER LES DONNÉES
+            // ========================================
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'nullable|string|max:2000',
+                'formation' => 'nullable|string|in:Design Graphique,Community Management',
+                'links.*' => 'nullable|url|max:500',
+                'files' => 'required|array|min:1',
+                'files.*' => 'required|file|max:20480|mimes:jpg,jpeg,png,gif,webp,svg,pdf,psd,ai,doc,docx,zip,rar'
+            ], [
+                'title.required' => 'Le titre du TP est obligatoire.',
+                'title.max' => 'Le titre ne peut pas dépasser 255 caractères.',
+                'description.max' => 'La description ne peut pas dépasser 2000 caractères.',
+                'formation.in' => 'Le type de réalisation doit être Design Graphique ou Community Management.',
+                'links.*.url' => 'Le lien doit être une URL valide.',
+                'links.*.max' => 'Le lien ne peut pas dépasser 500 caractères.',
+                'files.required' => '⚠️ Vous devez ajouter au moins une image ou un fichier pour publier votre TP.',
+                'files.min' => '⚠️ Vous devez ajouter au moins une image ou un fichier pour publier votre TP.',
+                'files.*.required' => 'Chaque fichier est obligatoire.',
+                'files.*.max' => 'Chaque fichier ne peut pas dépasser 20MB.',
+                'files.*.mimes' => 'Types de fichiers autorisés: JPG, JPEG, PNG, GIF, WEBP, SVG, PDF, PSD, AI, DOC, DOCX, ZIP, RAR.'
+            ]);
 
             // Récupérer le premier lien non vide
             $link = null;
             if ($request->has('links')) {
-                $links = array_filter($request->input('links'), function($l) {
+                $links = array_filter($request->input('links'), function ($l) {
                     return !empty($l);
                 });
                 $link = !empty($links) ? $links[0] : null;
             }
 
-            Log::info('✅ ÉTAPE 2 OK: Validation réussie', ['link' => $link]);
 
             // ========================================
             // ÉTAPE 3: CRÉER LE TP DANS LA BASE
@@ -682,12 +1747,12 @@ class DashboardController extends Controller
                 'user_id' => $user->id,
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
+                'formation' => $validated['formation'] ?? null,
                 'link' => $link,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
 
-            Log::info("✅ ÉTAPE 3 OK: TP créé (ID: $tpId)");
 
             // ========================================
             // ÉTAPE 4: TRAITER LES FICHIERS UN PAR UN
@@ -701,7 +1766,6 @@ class DashboardController extends Controller
                 $files = $request->file('files');
                 $totalFiles = count($files);
 
-                Log::info("📂 ÉTAPE 4: Traitement de $totalFiles fichier(s)");
 
                 foreach ($files as $index => $file) {
                     $fileNumber = $index + 1;
@@ -709,21 +1773,12 @@ class DashboardController extends Controller
 
                     if ($result['success']) {
                         $filesSuccess++;
-                        Log::info("✅ Fichier $fileNumber/{$totalFiles} OK");
                     } else {
                         $filesErrors[] = "Fichier $fileNumber: " . $result['error'];
                         Log::error("❌ Fichier $fileNumber/{$totalFiles} ÉCHOUÉ: " . $result['error']);
                     }
                 }
-
-                Log::info("📊 RÉSUMÉ UPLOAD", [
-                    'total_fichiers' => $totalFiles,
-                    'succès' => $filesSuccess,
-                    'erreurs' => count($filesErrors),
-                    'détails_erreurs' => $filesErrors
-                ]);
             } else {
-                Log::info('ℹ️ Aucun fichier à traiter');
             }
 
             // ========================================
@@ -733,7 +1788,8 @@ class DashboardController extends Controller
                 ? DB::table('tp_files')->where('tp_id', $tpId)->count()
                 : 0;
 
-            Log::info("✅ ÉTAPE 5: Notification admins ($filesCount fichier(s) stocké(s))");
+
+            $isReport = $request->input('redirect_to') === 'documents';
 
             // Récupérer le TP pour l'email
             $createdTp = DB::table('tp')->where('id', $tpId)->first();
@@ -746,15 +1802,27 @@ class DashboardController extends Controller
                     // Générer l'URL de consultation du TP
                     $viewUrl = route('admin.tp.view', ['id' => $tpId]);
 
+                    // Récupérer les informations de l'étudiant
+                    $student = DB::table('students')->where('user_id', $user->id)->first();
+
                     foreach ($admins as $admin) {
                         Mail::send('emails.admin-new-tp-notification', [
-                            'student' => $user,
+                            'student' => (object)array_merge((array)$student, [
+                                'email' => $user->email,
+                                'name' => $user->name
+                            ]),
                             'tp' => $createdTp,
                             'filesCount' => $filesCount,
-                            'viewUrl' => $viewUrl
-                        ], function ($message) use ($admin) {
+                            'viewUrl' => $viewUrl,
+                            'module' => ucfirst(str_replace('-', ' ', $currentModule)), // Ajout du module
+                            'is_report' => $isReport,
+                        ], function ($message) use ($admin, $currentModule, $isReport) {
                             $message->to($admin->email)
-                                    ->subject('🔔 Nouveau Rapport soumis - Action requise - EVC');
+                                ->subject(
+                                    ($isReport ? '📄 Nouveau Rapport soumis' : '🔔 Nouveau TP soumis')
+                                        . ' en ' . ucfirst(str_replace('-', ' ', $currentModule))
+                                        . ' - Action requise - EVC'
+                                );
                         });
                     }
                 }
@@ -778,10 +1846,15 @@ class DashboardController extends Controller
                 'fichiers_erreur' => count($filesErrors)
             ]);
 
-            // Rediriger vers la page documents du module actuel
-            return redirect()->to('/evc/compte/' . $currentModule . '/documents/index')
-                ->with('success', $successMessage);
+            // Redirection post-création (selon contexte)
+            if ($request->input('redirect_to') === 'documents') {
+                return redirect()->route($currentModule . '.documents.index')
+                    ->with('success', $successMessage);
+            }
 
+            // Rediriger vers la page des TP avec un message de succès
+            return redirect()->to('/evc/compte/' . $currentModule . '/tp/index')
+                ->with('success', $successMessage);
         } catch (\Exception $e) {
             Log::error('❌ ERREUR FATALE CRÉATION TP: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
@@ -830,7 +1903,7 @@ class DashboardController extends Controller
             // Récupérer le premier lien non vide
             $link = null;
             if ($request->has('links')) {
-                $links = array_filter($request->input('links'), function($l) {
+                $links = array_filter($request->input('links'), function ($l) {
                     return !empty($l);
                 });
                 $link = !empty($links) ? $links[0] : null;
@@ -885,9 +1958,16 @@ class DashboardController extends Controller
                 ]);
             }
 
+            // Rediriger vers documents/index si c'est un rapport
+            $isRapport = stripos($validated['title'], 'rapport') !== false;
+
+            if ($request->input('redirect_to') === 'documents' || $isRapport) {
+                return redirect()->route($currentModule . '.documents.index')
+                    ->with('success', $successMessage);
+            }
+
             return redirect()->route($currentModule . '.tp.index')
                 ->with('success', $successMessage);
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de la mise à jour du TP: ' . $e->getMessage());
 
@@ -967,7 +2047,6 @@ class DashboardController extends Controller
 
             return redirect()->route($currentModule . '.documents.index')
                 ->with('success', 'Images ajoutées avec succès!');
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de l\'ajout des images: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Erreur lors de l\'ajout des images.');
@@ -1046,7 +2125,6 @@ class DashboardController extends Controller
 
             return redirect()->route($currentModule . '.documents.index')
                 ->with('success', 'TP supprimé avec succès!');
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de la suppression du TP: ' . $e->getMessage());
 
@@ -1133,7 +2211,6 @@ class DashboardController extends Controller
             // Sinon, rediriger vers la page de modification
             return redirect()->route($currentModule . '.tp.modifier', $tpId)
                 ->with('success', 'Fichier supprimé avec succès!');
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de la suppression du fichier: ' . $e->getMessage());
 
@@ -1220,7 +2297,6 @@ class DashboardController extends Controller
 
             return redirect()->route($currentModule . '.documents.index')
                 ->with('success', 'TP de test ajouté avec succès!');
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de l\'ajout du TP de test: ' . $e->getMessage());
             return redirect()->back()
@@ -1238,7 +2314,9 @@ class DashboardController extends Controller
         $currentPath = request()->path();
         $moduleSlug = 'design-graphique'; // Par défaut
 
-        if (str_contains($currentPath, 'community-management') || str_contains($currentPath, 'community-manager')) {
+        if (str_contains($currentPath, 'design-graphique-cm')) {
+            $moduleSlug = 'design-graphique-cm';
+        } elseif (str_contains($currentPath, 'community-management') || str_contains($currentPath, 'community-manager')) {
             $moduleSlug = 'community-management';
         } elseif (str_contains($currentPath, 'intelligence-artificielle')) {
             $moduleSlug = 'intelligence-artificielle';
@@ -1247,16 +2325,24 @@ class DashboardController extends Controller
         }
 
         // Récupérer uniquement les formations du module actuel avec leurs catégories
-        $formationsPubliees = DB::table('formations')
+        $formationsPubliees = \Illuminate\Support\Facades\DB::table('formations')
             ->leftJoin('categories', 'formations.category_id', '=', 'categories.id')
             ->select('formations.*', 'categories.name as category_name', 'categories.slug as category_slug')
             ->where('formations.status', 'active')
-            ->where(function($query) use ($moduleSlug) {
+            ->where(function ($query) use ($moduleSlug) {
                 // Rechercher différentes variantes du nom du module
                 $query->whereJsonContains('formations.modules', $moduleSlug)
-                      ->orWhereJsonContains('formations.modules', 'community-manager') // Variante alternative
-                      ->orWhereJsonContains('formations.modules', str_replace('-', '_', $moduleSlug))
-                      ->orWhereJsonContains('formations.modules', ucwords(str_replace('-', ' ', $moduleSlug)));
+                    ->orWhereJsonContains('formations.modules', str_replace('-', '_', $moduleSlug))
+                    ->orWhereJsonContains('formations.modules', ucwords(str_replace('-', ' ', $moduleSlug)));
+
+                // Si on est sur le module combiné Design Graphique + CM, on inclut les deux
+                if ($moduleSlug === 'design-graphique-cm') {
+                    $query->orWhereJsonContains('formations.modules', 'design-graphique')
+                        ->orWhereJsonContains('formations.modules', 'community-management');
+                }
+
+                // Toujours inclure la variante community-manager (legacy)
+                $query->orWhereJsonContains('formations.modules', 'community-manager');
             })
             ->orderBy('formations.created_at', 'desc')
             ->get();
@@ -1267,8 +2353,8 @@ class DashboardController extends Controller
         // Modules principaux publiés pour l'étudiant (tolérant au schéma)
         $modulesPrincipaux = [];
         try {
-            $user = Auth::user();
-            $formationKeys = ['design_graphique','design-graphique','infographie'];
+            $user = \Illuminate\Support\Facades\Auth::user();
+            $formationKeys = ['design_graphique', 'design-graphique', 'infographie'];
             if ($user) {
                 $uCols = \Illuminate\Support\Facades\Schema::getColumnListing('users');
                 if (in_array('formation_souhaitee', $uCols, true) && !empty($user->formation_souhaitee)) {
@@ -1281,72 +2367,112 @@ class DashboardController extends Controller
             // Détecter une table plausible de modules
             $modulesTable = null;
             foreach (['modules', 'formation_modules', 'cours_modules'] as $t) {
-                if (\Illuminate\Support\Facades\Schema::hasTable($t)) { $modulesTable = $t; break; }
+                if (\Illuminate\Support\Facades\Schema::hasTable($t)) {
+                    $modulesTable = $t;
+                    break;
+                }
             }
             if ($modulesTable) {
                 $cols = \Illuminate\Support\Facades\Schema::getColumnListing($modulesTable);
                 $q = \Illuminate\Support\Facades\DB::table($modulesTable);
                 // Publication
-                if (in_array('published', $cols, true)) { $q->where('published', 1); }
-                elseif (in_array('is_published', $cols, true)) { $q->where('is_published', 1); }
+                if (in_array('published', $cols, true)) {
+                    $q->where('published', 1);
+                } elseif (in_array('is_published', $cols, true)) {
+                    $q->where('is_published', 1);
+                }
                 // Type principal
-                if (in_array('type', $cols, true)) { $q->where('type', 'principal'); }
-                elseif (in_array('is_main', $cols, true)) { $q->where('is_main', 1); }
+                if (in_array('type', $cols, true)) {
+                    $q->where('type', 'principal');
+                } elseif (in_array('is_main', $cols, true)) {
+                    $q->where('is_main', 1);
+                }
                 // Filtre formation si colonne présente
-                foreach (['formation','formation_slug','formation_key','programme','filiere'] as $fk) {
-                    if (in_array($fk, $cols, true)) { $q->whereIn($fk, $formationKeys); break; }
+                foreach (['formation', 'formation_slug', 'formation_key', 'programme', 'filiere'] as $fk) {
+                    if (in_array($fk, $cols, true)) {
+                        $q->whereIn($fk, $formationKeys);
+                        break;
+                    }
                 }
                 // Colonnes à sélectionner au mieux
                 $select = [];
                 $select[] = in_array('id', $cols, true) ? 'id' : \Illuminate\Support\Facades\DB::raw('NULL as id');
-                $select[] = in_array('title', $cols, true) ? 'title' : (in_array('name',$cols,true)?'name':\Illuminate\Support\Facades\DB::raw("'' as title"));
-                $select[] = in_array('module_number', $cols, true) ? 'module_number' : (in_array('numero',$cols,true)?'numero':\Illuminate\Support\Facades\DB::raw('NULL as module_number'));
-                $select[] = in_array('published_at', $cols, true) ? 'published_at' : (in_array('created_at',$cols,true)?'created_at':\Illuminate\Support\Facades\DB::raw('NULL as published_at'));
-                $modulesPrincipaux = $q->orderByDesc(in_array('published_at',$cols,true)?'published_at':'id')->limit(12)->get($select);
+                $select[] = in_array('title', $cols, true) ? 'title' : (in_array('name', $cols, true) ? 'name' : \Illuminate\Support\Facades\DB::raw("'' as title"));
+                $select[] = in_array('module_number', $cols, true) ? 'module_number' : (in_array('numero', $cols, true) ? 'numero' : \Illuminate\Support\Facades\DB::raw('NULL as module_number'));
+                $select[] = in_array('published_at', $cols, true) ? 'published_at' : (in_array('created_at', $cols, true) ? 'created_at' : \Illuminate\Support\Facades\DB::raw('NULL as published_at'));
+                $modulesPrincipaux = $q->orderByDesc(in_array('published_at', $cols, true) ? 'published_at' : 'id')->limit(12)->get($select);
             }
-
-            // Note: $formationsPubliees est déjà correctement filtré par module dans le bloc précédent (lignes 845-854)
         } catch (\Throwable $e) {
-            Log::warning('formationsIndex modulesPrincipaux load failed', ['error' => $e->getMessage()]);
+            \Illuminate\Support\Facades\Log::warning('formationsIndex modulesPrincipaux load failed', ['error' => $e->getMessage()]);
         }
 
-        // Calculer les totaux par catégorie
-        $totaux = [
-            'photoshop' => 0,
-            'illustrator' => 0,
-            'indesign' => 0,
-            'masterclass' => 0,
-        ];
+        // Récupérer les catégories dynamiquement avec le compte des formations actives pour ce module
+        // On utilise les données de $formationsPubliees pour éviter une nouvelle requête et pour respecter le "choix admin" (champ modules)
+        $groupedCategories = [];
+        $categoriesStats = []; // Pour compatibilité fallback
 
-        try {
-            // Compter les formations par catégorie en utilisant la jointure
-            if (\Illuminate\Support\Facades\Schema::hasTable('formations') && \Illuminate\Support\Facades\Schema::hasTable('categories')) {
-                $counts = \Illuminate\Support\Facades\DB::table('formations')
-                    ->join('categories', 'formations.category_id', '=', 'categories.id')
-                    ->where('formations.status', 'active')
-                    ->select('categories.slug', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
-                    ->groupBy('categories.slug')
-                    ->get();
+        // Helper pour formater le titre du module
+        $formatModuleTitle = function ($slug) {
+            $slug = strtolower($slug);
+            if (in_array($slug, ['cm', 'community-manager', 'community-management'])) return 'Community Management';
+            if (in_array($slug, ['design', 'design-graphique', 'infographie'])) return 'Design Graphique';
+            if (in_array($slug, ['dev', 'informatique', 'gestion-informatique'])) return 'Gestion Informatique';
+            if (in_array($slug, ['ia', 'intelligence-artificielle'])) return 'Intelligence Artificielle';
+            return ucwords(str_replace(['-', '_'], ' ', $slug));
+        };
 
-                foreach ($counts as $count) {
-                    $slug = strtolower($count->slug ?? '');
-                    if ($slug === 'photoshop' || str_contains($slug, 'photoshop')) {
-                        $totaux['photoshop'] = $count->total;
-                    } elseif ($slug === 'illustrator' || str_contains($slug, 'illustrator')) {
-                        $totaux['illustrator'] = $count->total;
-                    } elseif ($slug === 'indesign' || str_contains($slug, 'indesign')) {
-                        $totaux['indesign'] = $count->total;
-                    } elseif ($slug === 'masterclass' || $slug === 'master-class' || str_contains($slug, 'master')) {
-                        $totaux['masterclass'] = $count->total;
-                    }
+        // On parcourt les formations déjà chargées
+        foreach ($formationsPubliees as $formation) {
+            if (empty($formation->category_id)) continue;
+
+            $modules = json_decode($formation->modules ?? '[]', true);
+            if (!is_array($modules)) $modules = [];
+
+            // Si le tableau modules est vide, on ignore
+            if (empty($modules)) continue;
+
+            foreach ($modules as $modSlug) {
+                $title = $formatModuleTitle($modSlug);
+
+                if (!isset($groupedCategories[$title])) {
+                    $groupedCategories[$title] = [];
                 }
+
+                $catSlug = $formation->category_slug ?? \Illuminate\Support\Str::slug($formation->category_name);
+
+                if (!isset($groupedCategories[$title][$catSlug])) {
+                    $groupedCategories[$title][$catSlug] = (object)[
+                        'id' => $formation->category_id,
+                        'name' => $formation->category_name,
+                        'slug' => $catSlug,
+                        'total' => 0
+                    ];
+                }
+
+                $groupedCategories[$title][$catSlug]->total++;
             }
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Erreur calcul totaux formations', ['error' => $e->getMessage()]);
         }
+
+        // Aplatir les tableaux de catégories et remplir categoriesStats
+        foreach ($groupedCategories as $title => $cats) {
+            // Trier les catégories par nom pour faire propre
+            uasort($cats, function ($a, $b) {
+                return strcmp($a->name, $b->name);
+            });
+
+            $groupedCategories[$title] = array_values($cats);
+
+            foreach ($cats as $cat) {
+                $categoriesStats[] = $cat;
+            }
+        }
+
+        // Retirer les doublons de categoriesStats (au cas où une catégorie est dans plusieurs groupes)
+        $categoriesStats = collect($categoriesStats)->unique('slug')->values();
 
         // Déterminer le titre selon le module
-        $moduleTitle = match($moduleSlug) {
+        $moduleTitle = match ($moduleSlug) {
+            'design-graphique-cm' => 'Design Graphique & Community Management',
             'community-management' => 'Community Management',
             'intelligence-artificielle' => 'Intelligence Artificielle',
             'gestion-informatique' => 'Gestion Informatique',
@@ -1358,7 +2484,8 @@ class DashboardController extends Controller
             'formations' => $formations,
             'modules_principaux' => $modulesPrincipaux,
             'formations_publiees' => $formationsPubliees,
-            'totaux' => $totaux,
+            'categoriesStats' => $categoriesStats,
+            'groupedCategories' => $groupedCategories,
             'module_slug' => $moduleSlug,
         ]);
     }
@@ -1442,8 +2569,11 @@ class DashboardController extends Controller
     {
         // Chargement tolérant au schéma depuis une table plausible
         $formationsTable = null;
-        foreach (['formations','courses','programmes','formation_courses'] as $t) {
-            if (\Illuminate\Support\Facades\Schema::hasTable($t)) { $formationsTable = $t; break; }
+        foreach (['formations', 'courses', 'programmes', 'formation_courses'] as $t) {
+            if (\Illuminate\Support\Facades\Schema::hasTable($t)) {
+                $formationsTable = $t;
+                break;
+            }
         }
 
         $formation = null;
@@ -1451,41 +2581,49 @@ class DashboardController extends Controller
             $cols = \Illuminate\Support\Facades\Schema::getColumnListing($formationsTable);
             $q = \Illuminate\Support\Facades\DB::table($formationsTable)->where('id', $id);
             // Publié uniquement si colonne présente
-            if (in_array('published', $cols, true)) { $q->where('published', 1); }
-            elseif (in_array('is_published', $cols, true)) { $q->where('is_published', 1); }
+            if (in_array('published', $cols, true)) {
+                $q->where('published', 1);
+            } elseif (in_array('is_published', $cols, true)) {
+                $q->where('is_published', 1);
+            }
 
             $select = [];
-            $select[] = in_array('id',$cols,true)?'id':\Illuminate\Support\Facades\DB::raw('NULL as id');
-            $select[] = in_array('title',$cols,true)?'title':(in_array('name',$cols,true)?'name':\Illuminate\Support\Facades\DB::raw("'' as title"));
-            $select[] = in_array('category',$cols,true)?'category':(in_array('categorie',$cols,true)?'categorie':\Illuminate\Support\Facades\DB::raw("'' as category"));
-            $select[] = in_array('level',$cols,true)?'level':(in_array('niveau',$cols,true)?'niveau':\Illuminate\Support\Facades\DB::raw("'' as level"));
-            $select[] = in_array('duration',$cols,true)?'duration':(in_array('duree',$cols,true)?'duree':\Illuminate\Support\Facades\DB::raw("'' as duration"));
-            $select[] = in_array('description',$cols,true)?'description':(in_array('content',$cols,true)?'content':\Illuminate\Support\Facades\DB::raw("'' as description"));
-            $select[] = in_array('video_url',$cols,true)?'video_url':(in_array('video',$cols,true)?'video':\Illuminate\Support\Facades\DB::raw("'' as video_url"));
-            $select[] = in_array('vimeo_code',$cols,true)?'vimeo_code':\Illuminate\Support\Facades\DB::raw("'' as vimeo_code");
+            $select[] = in_array('id', $cols, true) ? 'id' : \Illuminate\Support\Facades\DB::raw('NULL as id');
+            $select[] = in_array('title', $cols, true) ? 'title' : (in_array('name', $cols, true) ? 'name' : \Illuminate\Support\Facades\DB::raw("'' as title"));
+            $select[] = in_array('category', $cols, true) ? 'category' : (in_array('categorie', $cols, true) ? 'categorie' : \Illuminate\Support\Facades\DB::raw("'' as category"));
+            $select[] = in_array('level', $cols, true) ? 'level' : (in_array('niveau', $cols, true) ? 'niveau' : \Illuminate\Support\Facades\DB::raw("'' as level"));
+            $select[] = in_array('duration', $cols, true) ? 'duration' : (in_array('duree', $cols, true) ? 'duree' : \Illuminate\Support\Facades\DB::raw("'' as duration"));
+            $select[] = in_array('description', $cols, true) ? 'description' : (in_array('content', $cols, true) ? 'content' : \Illuminate\Support\Facades\DB::raw("'' as description"));
+            $select[] = in_array('video_url', $cols, true) ? 'video_url' : (in_array('video', $cols, true) ? 'video' : \Illuminate\Support\Facades\DB::raw("'' as video_url"));
+            $select[] = in_array('vimeo_code', $cols, true) ? 'vimeo_code' : \Illuminate\Support\Facades\DB::raw("'' as vimeo_code");
             // Ajout du champ image pour le poster/cover
-            $select[] = in_array('image',$cols,true)?'image':(in_array('cover',$cols,true)?'cover':(in_array('thumbnail',$cols,true)?'thumbnail':\Illuminate\Support\Facades\DB::raw("'' as image")));
-            $select[] = in_array('created_at',$cols,true)?'created_at':\Illuminate\Support\Facades\DB::raw('NULL as created_at');
+            $select[] = in_array('image', $cols, true) ? 'image' : (in_array('cover', $cols, true) ? 'cover' : (in_array('thumbnail', $cols, true) ? 'thumbnail' : \Illuminate\Support\Facades\DB::raw("'' as image")));
+            $select[] = in_array('created_at', $cols, true) ? 'created_at' : \Illuminate\Support\Facades\DB::raw('NULL as created_at');
             $formation = $q->first($select);
 
             // Related formations for sidebar
             $rq = \Illuminate\Support\Facades\DB::table($formationsTable);
             // Only published if column exists
-            if (in_array('published', $cols, true)) { $rq->where('published', 1); }
-            elseif (in_array('is_published', $cols, true)) { $rq->where('is_published', 1); }
+            if (in_array('published', $cols, true)) {
+                $rq->where('published', 1);
+            } elseif (in_array('is_published', $cols, true)) {
+                $rq->where('is_published', 1);
+            }
             // Exclude current id
-            if (in_array('id',$cols,true)) { $rq->where('id', '<>', $id); }
+            if (in_array('id', $cols, true)) {
+                $rq->where('id', '<>', $id);
+            }
             // Same category if possible
-            $catCol = in_array('category',$cols,true) ? 'category' : (in_array('categorie',$cols,true) ? 'categorie' : null);
+            $catCol = in_array('category', $cols, true) ? 'category' : (in_array('categorie', $cols, true) ? 'categorie' : null);
             if ($catCol && $formation && !empty($formation->category)) {
                 $rq->where($catCol, $formation->category);
             }
             $rselect = [];
-            $rselect[] = in_array('id',$cols,true)?'id':\Illuminate\Support\Facades\DB::raw('NULL as id');
-            $rselect[] = in_array('title',$cols,true)?'title':(in_array('name',$cols,true)?'name':\Illuminate\Support\Facades\DB::raw("'' as title"));
-            $rselect[] = $catCol ? $catCol.' as category' : \Illuminate\Support\Facades\DB::raw("'' as category");
-            $rselect[] = in_array('created_at',$cols,true)?'created_at':\Illuminate\Support\Facades\DB::raw('NULL as created_at');
-            $related = $rq->orderByDesc(in_array('created_at',$cols,true)?'created_at':'id')->limit(6)->get($rselect);
+            $rselect[] = in_array('id', $cols, true) ? 'id' : \Illuminate\Support\Facades\DB::raw('NULL as id');
+            $rselect[] = in_array('title', $cols, true) ? 'title' : (in_array('name', $cols, true) ? 'name' : \Illuminate\Support\Facades\DB::raw("'' as title"));
+            $rselect[] = $catCol ? $catCol . ' as category' : \Illuminate\Support\Facades\DB::raw("'' as category");
+            $rselect[] = in_array('created_at', $cols, true) ? 'created_at' : \Illuminate\Support\Facades\DB::raw('NULL as created_at');
+            $related = $rq->orderByDesc(in_array('created_at', $cols, true) ? 'created_at' : 'id')->limit(6)->get($rselect);
         } else {
             $related = collect();
         }
@@ -1641,7 +2779,6 @@ class DashboardController extends Controller
             }
 
             return redirect()->back()->with('error', 'Erreur lors de la création de l\'archive');
-
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Erreur téléchargement formation: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Une erreur est survenue lors du téléchargement');
@@ -1656,6 +2793,21 @@ class DashboardController extends Controller
     {
         /** @var User|null $authUser */
         $authUser = Auth::user();
+        if (!$authUser) {
+            return redirect()->route('login');
+        }
+
+        $ownStudent = DB::table('students')->where('user_id', $authUser->id)->first();
+        if ($id !== null && $ownStudent && (int) $id !== (int) $ownStudent->id) {
+            $path = $request->path();
+            $prefix = 'design-graphique';
+            if (preg_match('#^evc/compte/([^/]+)#', $path, $matches)) {
+                $prefix = $matches[1];
+            }
+            return redirect()->route($prefix . '.profil.editer')
+                ->with('error', 'Accès refusé : vous ne pouvez modifier que votre propre profil.');
+        }
+
         $student = $service->loadStudent($authUser, $id);
         // Autorisation désactivée temporairement pour éviter les 403 pendant l'intégration de la policy
 
@@ -1699,11 +2851,28 @@ class DashboardController extends Controller
         if (!$authUser) {
             return redirect()->route('login');
         }
+
+        $ownStudent = DB::table('students')->where('user_id', $authUser->id)->first();
+        if ($id !== null && $ownStudent && (int) $id !== (int) $ownStudent->id) {
+            $path = $request->path();
+            $prefix = 'design-graphique';
+            if (preg_match('#^evc/compte/([^/]+)#', $path, $matches)) {
+                $prefix = $matches[1];
+            }
+            return redirect()->route($prefix . '.profil.editer')
+                ->with('error', 'Accès refusé : vous ne pouvez modifier que votre propre profil.');
+        }
+
         $student = $service->loadStudent($authUser, $id);
         // Autorisation désactivée temporairement pour éviter les 403 pendant l'intégration de la policy
         $service->save($student, $request->validated(), $request->file('profile_photo'));
         $redirectParams = $id ? ['id' => $student->id] : [];
-        return redirect()->route('design-graphique.profil.editer', $redirectParams)
+        $path = request()->path();
+        $prefix = 'design-graphique';
+        if (preg_match('#^evc/compte/([^/]+)#', $path, $matches)) {
+            $prefix = $matches[1];
+        }
+        return redirect()->route($prefix . '.profil.editer', $redirectParams)
             ->with('success', 'Profil mis à jour avec succès!');
     }
 
@@ -1765,7 +2934,7 @@ class DashboardController extends Controller
 
             if ($allProjects && $allProjects->count() > 0) {
                 // Convertir en tableau pour faciliter la manipulation
-                $projets = $allProjects->map(function($project) {
+                $projets = $allProjects->map(function ($project) {
                     $projectArray = (array) $project;
                     // Ajouter files_count si nécessaire
                     if (!isset($projectArray['files_count'])) {
@@ -1806,7 +2975,6 @@ class DashboardController extends Controller
                 $groupPagination['has_prev'] = $groupPagination['current_page'] > 1;
                 $groupPagination['has_next'] = $groupPagination['current_page'] < $groupPagination['total_pages'];
             }
-
         } catch (\Exception $e) {
             Log::error('Erreur lors du chargement des projets', [
                 'error' => $e->getMessage(),
@@ -1827,15 +2995,15 @@ class DashboardController extends Controller
 
         // Récupérer tous les événements publiés en fonction de la visibilité
         $allEvents = \App\Models\Evenement::where('status', 'published')
-            ->where(function($query) use ($user) {
+            ->where(function ($query) use ($user) {
                 // Événements publics (visibles par tous)
                 $query->where('visibility', 'public')
                     // OU événements pour toutes les formations
                     ->orWhere('visibility', 'all')
                     // OU événements pour la formation spécifique de l'étudiant
-                    ->orWhere(function($q) use ($user) {
+                    ->orWhere(function ($q) use ($user) {
                         $q->where('visibility', 'specific')
-                          ->whereJsonContains('formations', $user->formation_id);
+                            ->whereJsonContains('formations', $user->formation_id);
                     });
             })
             ->orderBy('event_date', 'desc')
@@ -1846,10 +3014,10 @@ class DashboardController extends Controller
 
         $stats = [
             'total' => $allEvents->count(),
-            'a_venir' => $allEvents->filter(function($event) use ($now) {
+            'a_venir' => $allEvents->filter(function ($event) use ($now) {
                 return \Carbon\Carbon::parse($event->event_date)->isFuture();
             })->count(),
-            'passes' => $allEvents->filter(function($event) use ($now) {
+            'passes' => $allEvents->filter(function ($event) use ($now) {
                 return \Carbon\Carbon::parse($event->event_date)->isPast();
             })->count(),
             'en_ligne' => $allEvents->where('event_type', 'online')->count(),
@@ -1859,16 +3027,16 @@ class DashboardController extends Controller
         ];
 
         // Séparer les événements à venir et passés
-        $eventsAvenir = $allEvents->filter(function($event) use ($now) {
+        $eventsAvenir = $allEvents->filter(function ($event) use ($now) {
             return \Carbon\Carbon::parse($event->event_date)->isFuture();
         });
 
-        $eventsPasses = $allEvents->filter(function($event) use ($now) {
+        $eventsPasses = $allEvents->filter(function ($event) use ($now) {
             return \Carbon\Carbon::parse($event->event_date)->isPast();
         }); // Afficher tous les événements passés (historique complet)
 
         // Récupérer les événements à la une (featured)
-        $eventsFeatured = $eventsAvenir->filter(function($event) {
+        $eventsFeatured = $eventsAvenir->filter(function ($event) {
             return $event->is_featured == true;
         })->take(3); // Limiter à 3 événements à la une
 
@@ -1932,13 +3100,13 @@ class DashboardController extends Controller
         // Récupérer les actualités publiées et visibles pour l'étudiant
         $actualites = \App\Models\Actualite::with('author')
             ->where('status', 'published')
-            ->where(function($query) use ($formationId) {
+            ->where(function ($query) use ($formationId) {
                 $query->where('visibility', 'public')
-                      ->orWhere('visibility', 'all')
-                      ->orWhere(function($q) use ($formationId) {
-                          $q->where('visibility', 'specific')
+                    ->orWhere('visibility', 'all')
+                    ->orWhere(function ($q) use ($formationId) {
+                        $q->where('visibility', 'specific')
                             ->whereJsonContains('formations', $formationId);
-                      });
+                    });
             })
             ->orderBy('created_at', 'desc')
             ->get();
@@ -1973,13 +3141,13 @@ class DashboardController extends Controller
         $actualite = \App\Models\Actualite::with('author')
             ->where('id', $id)
             ->where('status', 'published')
-            ->where(function($query) use ($formationId) {
+            ->where(function ($query) use ($formationId) {
                 $query->where('visibility', 'public')
-                      ->orWhere('visibility', 'all')
-                      ->orWhere(function($q) use ($formationId) {
-                          $q->where('visibility', 'specific')
+                    ->orWhere('visibility', 'all')
+                    ->orWhere(function ($q) use ($formationId) {
+                        $q->where('visibility', 'specific')
                             ->whereJsonContains('formations', $formationId);
-                      });
+                    });
             })
             ->firstOrFail();
 
@@ -1990,13 +3158,13 @@ class DashboardController extends Controller
         $similaires = \App\Models\Actualite::where('category', $actualite->category)
             ->where('id', '!=', $actualite->id)
             ->where('status', 'published')
-            ->where(function($query) use ($formationId) {
+            ->where(function ($query) use ($formationId) {
                 $query->where('visibility', 'public')
-                      ->orWhere('visibility', 'all')
-                      ->orWhere(function($q) use ($formationId) {
-                          $q->where('visibility', 'specific')
+                    ->orWhere('visibility', 'all')
+                    ->orWhere(function ($q) use ($formationId) {
+                        $q->where('visibility', 'specific')
                             ->whereJsonContains('formations', $formationId);
-                      });
+                    });
             })
             ->orderBy('created_at', 'desc')
             ->limit(3)
@@ -2015,47 +3183,158 @@ class DashboardController extends Controller
     public function documentsIndex(): View
     {
         $user = Auth::user();
+        $student = DB::table('students')->where('user_id', $user->id)->first();
 
         // Récupérer le module actuel depuis l'URL (ex: design-graphique)
         $currentModule = request()->segment(3);
 
-        // Récupérer tous les TP/rapports de l'étudiant connecté
+        $documents = collect([]);
+
+        // 1. Récupérer les rapports depuis la table tp (legacy)
         $tps = \App\Models\TP::where('user_id', $user->id)
+            ->where(function($query) {
+                $query->where('title', 'LIKE', '%rapport%')
+                      ->orWhere('title', 'LIKE', '%Rapport%')
+                      ->orWhere('title', 'LIKE', '%RAPPORT%');
+            })
             ->with(['files'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Transformer les données pour la vue
-        $documents = $tps->map(function($tp) {
+        \Log::info('Documents - TP trouvés', ['count' => $tps->count(), 'user_id' => $user->id]);
+
+        $documentsFromTp = $tps->map(function ($tp) {
             // Récupérer le premier fichier PDF s'il existe
-            $pdfFile = $tp->files->first(function($file) {
+            $pdfFile = $tp->files->first(function ($file) {
                 return strtolower(pathinfo($file->original_name, PATHINFO_EXTENSION)) === 'pdf';
             });
 
             // Déterminer la catégorie selon le statut
-            $categorie = match($tp->status) {
+            $categorie = match ($tp->status) {
                 'validated' => 'Validés',
                 'pending' => 'En attente',
                 'rejected' => 'Rejetés',
                 default => 'Autres'
             };
 
+            // Afficher tous les rapports, même sans PDF
+            // Construire le bon chemin pour le fichier
+            $filePath = '#';
+            if ($pdfFile) {
+                $path = $pdfFile->file_path;
+                // Si le chemin commence par 'storage/', utiliser asset directement
+                if (str_starts_with($path, 'storage/')) {
+                    $filePath = asset($path);
+                }
+                // Sinon ajouter 'storage/' au début
+                else {
+                    $filePath = asset('storage/' . ltrim($path, '/'));
+                }
+            }
+
             return [
                 'id' => $tp->id,
                 'titre' => $tp->title,
                 'description' => $tp->description ?? 'Rapport de travail pratique',
                 'categorie' => $categorie,
-                'type' => $pdfFile ? 'PDF' : 'Fichiers',
+                'type' => $pdfFile ? 'PDF' : 'Aucun fichier',
                 'taille' => $pdfFile ? number_format($pdfFile->file_size / 1024, 2) . ' KB' : 'N/A',
-                'format' => $pdfFile ? '.pdf' : 'Multiple',
+                'format' => $pdfFile ? '.pdf' : '',
                 'telechargements' => 0,
                 'date_ajout' => $tp->created_at->format('Y-m-d'),
                 'image' => null,
-                'lien' => $pdfFile ? asset($pdfFile->file_path) : '#',
+                'lien' => $filePath,
                 'status' => $tp->status,
                 'files_count' => $tp->files->count(),
+                'source' => 'tp'
             ];
-        })->toArray();
+        });
+
+        $documents = $documents->merge($documentsFromTp);
+
+        // 2. Récupérer les rapports depuis tp_assignments
+        if ($student) {
+            $tpAssignments = DB::table('tp_assignments')
+                ->where('student_id', $student->id)
+                ->where(function($query) {
+                    $query->where('title', 'LIKE', '%rapport%')
+                          ->orWhere('title', 'LIKE', '%Rapport%')
+                          ->orWhere('title', 'LIKE', '%RAPPORT%');
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            \Log::info('Documents - TP Assignments trouvés', ['count' => $tpAssignments->count(), 'student_id' => $student->id]);
+
+            $documentsFromAssignments = $tpAssignments->map(function ($assignment) {
+                // Récupérer les fichiers de soumission
+                $files = DB::table('tp_submission_files')
+                    ->where('tp_assignment_id', $assignment->id)
+                    ->get();
+
+                $pdfFile = $files->first(function ($file) {
+                    return strtolower(pathinfo($file->file_name ?? '', PATHINFO_EXTENSION)) === 'pdf';
+                });
+
+                // Si pas de PDF soumis, chercher dans les fichiers d'assignation
+                if (!$pdfFile) {
+                    $assignmentFiles = DB::table('tp_assignment_files')
+                        ->where('tp_assignment_id', $assignment->id)
+                        ->get();
+
+                    $pdfFile = $assignmentFiles->first(function ($file) {
+                        return strtolower(pathinfo($file->file_name ?? '', PATHINFO_EXTENSION)) === 'pdf';
+                    });
+                }
+
+                // Mapper les statuts
+                $categorie = match ($assignment->status) {
+                    'validated' => 'Validés',
+                    'submitted', 'pending' => 'En attente',
+                    'rejected' => 'Rejetés',
+                    default => 'Autres'
+                };
+
+                // Construire le bon chemin pour le fichier
+                $filePath = '#';
+                if ($pdfFile && isset($pdfFile->file_path)) {
+                    $path = $pdfFile->file_path;
+                    // Si le chemin commence par 'storage/', utiliser asset directement
+                    if (str_starts_with($path, 'storage/')) {
+                        $filePath = asset($path);
+                    }
+                    // Sinon ajouter 'storage/' au début
+                    else {
+                        $filePath = asset('storage/' . ltrim($path, '/'));
+                    }
+                }
+
+                // Afficher tous les rapports, même sans PDF
+                return [
+                    'id' => $assignment->id,
+                    'titre' => $assignment->title,
+                    'description' => $assignment->description ?? 'Rapport assigné',
+                    'categorie' => $categorie,
+                    'type' => $pdfFile ? 'PDF' : 'Aucun fichier',
+                    'taille' => ($pdfFile && isset($pdfFile->file_size)) ? number_format($pdfFile->file_size / 1024, 2) . ' KB' : 'N/A',
+                    'format' => $pdfFile ? '.pdf' : '',
+                    'telechargements' => 0,
+                    'date_ajout' => \Carbon\Carbon::parse($assignment->created_at)->format('Y-m-d'),
+                    'image' => null,
+                    'lien' => $filePath,
+                    'status' => $assignment->status,
+                    'files_count' => $files->count(),
+                    'source' => 'tp_assignments'
+                ];
+            })->filter();
+
+            $documents = $documents->merge($documentsFromAssignments);
+        }
+
+        // Convertir en array et trier par date
+        $documents = $documents->sortByDesc('date_ajout')->values()->toArray();
+
+        \Log::info('Documents - Total fusionné', ['count' => count($documents)]);
 
         // Créer des catégories basées sur le statut
         $categories = collect([
@@ -2068,7 +3347,7 @@ class DashboardController extends Controller
         $documentsParCategorie = [];
 
         foreach ($categories as $category) {
-            $documentsParCategorie[$category->name] = array_filter($documents, function($doc) use ($category) {
+            $documentsParCategorie[$category->name] = array_filter($documents, function ($doc) use ($category) {
                 return $doc['categorie'] === $category->name;
             });
         }
@@ -2141,7 +3420,41 @@ class DashboardController extends Controller
 
     // Reste du code (méthode communautéIndex existe déjà plus bas)
 
-    private function getDemoDocuments() {
+    /**
+     * Helper: Obtenir le slug de la formation de l'étudiant pour les routes
+     */
+    private function getFormationSlug($student): string
+    {
+        if (!$student) {
+            return 'design-graphique'; // Valeur par défaut
+        }
+
+        // Mapping avec les deux formats possibles (avec espace ET avec underscore)
+        $formationMap = [
+            'Design Graphique' => 'design-graphique',
+            'design_graphique' => 'design-graphique',
+            'Community Management' => 'community-management',
+            'community_management' => 'community-management',
+            'Design Graphique & Community Manager' => 'design-graphique-cm',
+            'Design Graphique & Community Management' => 'design-graphique-cm',
+            'design_graphique_community_manager' => 'design-graphique-cm',
+            'design_graphique_community_management' => 'design-graphique-cm',
+            'Intelligence Artificielle' => 'intelligence-artificielle',
+            'intelligence_artificielle' => 'intelligence-artificielle',
+            'Gestion Informatique' => 'gestion-informatique',
+            'gestion_informatique' => 'gestion-informatique',
+        ];
+
+        $program = $student->program ?? '';
+        $slug = $formationMap[$program] ?? 'design-graphique';
+
+        \Log::info('getFormationSlug: program=' . $program . ', slug=' . $slug);
+
+        return $slug;
+    }
+
+    private function getDemoDocuments()
+    {
         return [
             // Catégorie Logiciels
             [
@@ -2353,17 +3666,58 @@ class DashboardController extends Controller
         // Récupérer les informations de l'étudiant
         $student = DB::table('students')->where('user_id', $user->id)->first();
 
-        // Récupérer les programmes publiés par l'admin
-        // Filtrer par formation de l'étudiant ou "Toutes" les formations
-        $programmes = DB::table('programmes')
-            ->where(function($query) use ($student) {
-                if ($student && $student->program) {
-                    $query->where('formation', $student->program)
-                          ->orWhere('formation', 'Toutes');
-                } else {
-                    $query->where('formation', 'Toutes');
+        // Mapping des formations pour gérer les différentes variantes
+        $formationMapping = [
+            'Design Graphique' => ['Design Graphique', 'Infographie', 'design-graphique', 'design_graphique', 'infographie', 'Design graphique'],
+            'Community Management' => ['Community Management', 'community-management', 'community_management', 'Community management', 'CM'],
+            'Gestion Informatique' => ['Gestion Informatique', 'gestion-informatique', 'gestion_informatique', 'Gestion informatique', 'GI'],
+            'Intelligence Artificielle' => ['Intelligence Artificielle', 'intelligence-artificielle', 'intelligence_artificielle', 'Intelligence artificielle', 'IA'],
+            'Design Graphique & Community Management' => [
+                'Design Graphique & Community Management',
+                'Design Graphique & Community Manager',
+                'design-graphique-community-manager',
+                'design_graphique_community_management',
+                'design-graphique-cm',
+                'design_cm',
+            ],
+        ];
+
+        $studentFormation = $student->program ?? null;
+        $studentFormationVariants = $studentFormation ? [$studentFormation] : [];
+
+        if ($studentFormation) {
+            // Vérifier si c'est la formation combinée
+            $isCombined = false;
+            if (isset($formationMapping['Design Graphique & Community Management'])) {
+                if (in_array($studentFormation, $formationMapping['Design Graphique & Community Management'])) {
+                    $isCombined = true;
                 }
-            })
+            }
+
+            if ($isCombined) {
+                // Si formation combinée, on inclut les programmes des deux formations + la combinée
+                $studentFormationVariants = array_merge(
+                    $formationMapping['Design Graphique & Community Management'],
+                    $formationMapping['Design Graphique'],
+                    $formationMapping['Community Management']
+                );
+            } else {
+                // Sinon comportement standard
+                foreach ($formationMapping as $variants) {
+                    if (in_array($studentFormation, $variants, true)) {
+                        $studentFormationVariants = $variants;
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Toujours inclure "Toutes"
+        $allowedFormations = array_values(array_unique(array_merge(['Toutes'], $studentFormationVariants)));
+
+        // Récupérer les programmes publiés par l'admin (formation de l'étudiant + Toutes)
+        $programmes = DB::table('programmes')
+            ->whereIn('formation', $allowedFormations)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -2384,25 +3738,43 @@ class DashboardController extends Controller
         // Récupérer les informations de l'étudiant
         $student = DB::table('students')->where('user_id', $user->id)->first();
 
-        // Récupérer le module actuel depuis l'URL (ex: community-management)
+        // Récupérer le module actuel depuis l'URL (ex: community-management, design-graphique-cm)
         $currentModule = request()->segment(3);
 
-        // Récupérer les items de la bibliothèque actifs et destinés à Community Management
-        $items = \App\Models\Library::where('status', 'active')
-            ->where(function($query) use ($currentModule) {
-                $query->whereJsonContains('recipients', $currentModule)
-                      ->orWhereJsonContains('recipients', 'tous')
-                      ->orWhereNull('recipients')
-                      ->orWhereRaw('JSON_LENGTH(recipients) = 0');
-            })
+        // Pour Design Graphique & CM, on doit inclure les ressources des deux formations
+        $modulesToInclude = [$currentModule];
+        if ($currentModule === 'design-graphique-cm') {
+            $modulesToInclude = ['design-graphique-cm', 'design-graphique', 'community-management'];
+        }
+
+        $baseQuery = \App\Models\Library::where('status', 'active')
+            ->where(function ($query) use ($modulesToInclude) {
+                $query->where(function ($q) use ($modulesToInclude) {
+                    foreach ($modulesToInclude as $module) {
+                        $q->orWhereJsonContains('recipients', $module);
+                    }
+                })
+                ->orWhereJsonContains('recipients', 'tous')
+                ->orWhereNull('recipients')
+                ->orWhereRaw('JSON_LENGTH(recipients) = 0');
+            });
+
+        // Stats calculées sur l'ensemble des items (non paginé)
+        $allItems = (clone $baseQuery)
             ->with('libraryCategory')
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Items paginés (12 par page)
+        $items = (clone $baseQuery)
+            ->with('libraryCategory')
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+
         // Calculer les statistiques
         $stats = [
-            'total_documents' => $items->count(),
-            'par_categorie' => $items->groupBy('library_category_id')->map(function($group) {
+            'total_documents' => $allItems->count(),
+            'par_categorie' => $allItems->groupBy('library_category_id')->map(function ($group) {
                 return (object)[
                     'name' => $group->first()->libraryCategory->name ?? 'Sans catégorie',
                     'count' => $group->count(),
@@ -2477,55 +3849,82 @@ class DashboardController extends Controller
                 'variants' => $studentFormationVariants
             ]);
 
-            // Récupérer UNIQUEMENT les TP à faire (status = 'assigned')
-        // On récupère soit les TP assignés directement à cet étudiant (student_id),
-        // soit les TP pour sa formation (avec toutes les variantes),
-        // soit les TP pour "all" (tous les étudiants)
-        $tpAssignments = DB::table('tp_assignments')
-            ->where('student_id', $student->id)
-            ->where('status', 'assigned') // FILTRE: uniquement les travaux à faire
-            ->orderBy('deadline', 'asc')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            // 1. Récupérer les TP assignments (table tp_assignments)
+            $tpAssignments = DB::table('tp_assignments')
+                ->where('student_id', $student->id)
+                ->orderBy('deadline', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-            // Dédupliquer les TP (au cas où il y aurait des doublons)
-            $tpAssignments = $tpAssignments->unique('id');
+            // 2. Récupérer les projets assignés à l'étudiant (table projects)
+            $projects = DB::table('projects')
+                ->where('user_id', $user->id)
+                ->orderBy('deadline', 'asc')
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-            Log::info('TP trouvés pour étudiant', [
+            $statusMap = [
+                'en_cours' => 'assigned',
+                'termine' => 'submitted',
+                'valide' => 'validated',
+                'rejete' => 'rejected',
+            ];
+
+            Log::info('TP et Projets trouvés', [
                 'student_id' => $student->id,
-                'count' => $tpAssignments->count()
+                'tp_assignments_count' => $tpAssignments->count(),
+                'projects_count' => $projects->count()
             ]);
 
-            // Récupérer les fichiers pour chaque TP avec le bon chemin
-            $tpWithFiles = $tpAssignments->map(function($tp) {
+            // Mapper les TP assignments
+            $tpAssignmentsWithFiles = $tpAssignments->map(function ($tp) {
                 $files = DB::table('tp_assignment_files')
                     ->where('tp_assignment_id', $tp->id)
                     ->get()
-                    ->map(function($file) {
-                        // Corriger le chemin pour pointer vers storage
-                        if (strpos($file->file_path, 'tp_assignments/') !== false) {
-                            $file->file_path = asset('storage/' . $file->file_path);
-                        } else {
-                            $file->file_path = asset('storage/tp_assignments/' . $file->file_path);
-                        }
+                    ->map(function ($file) {
+                        $file->file_path = asset('storage/' . ltrim((string) $file->file_path, '/'));
+                        $file->file_name = $file->file_name ?? 'fichier';
                         return $file;
                     });
 
                 $tp->files = $files;
+                $tp->source_table = 'tp_assignments';
                 return $tp;
             });
 
-            // Calculer les statistiques
+            // Mapper les projets
+            $projectsWithFiles = $projects->map(function ($project) use ($statusMap) {
+                $files = DB::table('project_images')
+                    ->where('project_id', $project->id)
+                    ->orderBy('order_index', 'asc')
+                    ->get()
+                    ->map(function ($file) {
+                        $file->file_path = asset('storage/' . ltrim((string) $file->file_path, '/'));
+                        $file->file_name = $file->original_name ?? $file->filename ?? 'fichier';
+                        return $file;
+                    });
+
+                $project->files = $files;
+                $project->status = $statusMap[$project->status] ?? 'assigned';
+                $project->formation = $project->category ?? null;
+                $project->source_table = 'projects';
+
+                return $project;
+            });
+
+            // Fusionner les deux collections
+            $tpWithFiles = $tpAssignmentsWithFiles->concat($projectsWithFiles)->sortBy('deadline');
+
             $stats = [
-                'total' => $tpAssignments->count(),
-                'assigned' => $tpAssignments->where('status', 'assigned')->count(),
-                'submitted' => $tpAssignments->where('status', 'submitted')->count(),
-                'validated' => $tpAssignments->where('status', 'validated')->count(),
-                'rejected' => $tpAssignments->where('status', 'rejected')->count(),
+                'total' => $tpWithFiles->count(),
+                'assigned' => $tpWithFiles->where('status', 'assigned')->count(),
+                'submitted' => $tpWithFiles->where('status', 'submitted')->count(),
+                'validated' => $tpWithFiles->where('status', 'validated')->count(),
+                'rejected' => $tpWithFiles->where('status', 'rejected')->count(),
             ];
 
-            // Déterminer le préfixe de formation pour les routes
-            $formationPrefix = strtolower(str_replace(' ', '-', $student->program));
+            // Déterminer le préfixe de formation pour les routes (utiliser getFormationSlug)
+            $formationPrefix = $this->getFormationSlug($student);
 
             Log::info('TP assignés chargés', [
                 'student_id' => $student->id,
@@ -2540,7 +3939,6 @@ class DashboardController extends Controller
                 'stats' => $stats,
                 'formationPrefix' => $formationPrefix
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur lors du chargement des TP assignés: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -2603,7 +4001,6 @@ class DashboardController extends Controller
                 'student' => $student,
                 'formationPrefix' => $formationPrefix
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de l\'affichage de la page de soumission: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Erreur lors du chargement de la page');
@@ -2789,7 +4186,6 @@ class DashboardController extends Controller
                 'message' => 'TP soumis avec succès',
                 'files_uploaded' => count($uploadedFiles)
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de la soumission du TP: ' . $e->getMessage());
 
@@ -2801,14 +4197,99 @@ class DashboardController extends Controller
     }
 
     /**
+     * Télécharger la facture d'un paiement
+     */
+    public function downloadInvoice($paymentId)
+    {
+        $user = Auth::user();
+
+        // Récupérer le paiement
+        $payment = DB::table('payments')->where('id', $paymentId)->first();
+
+        if (!$payment) {
+            return redirect()->back()->with('error', 'Paiement introuvable');
+        }
+
+        // Vérifier que le paiement appartient bien à l'utilisateur
+        $preReg = DB::table('pre_registrations')
+            ->where('id', $payment->pre_registration_id)
+            ->where('email', $user->email)
+            ->first();
+
+        if (!$preReg) {
+            return redirect()->back()->with('error', 'Accès non autorisé');
+        }
+
+        // Vérifier que le paiement est complété
+        if ($payment->status !== 'completed') {
+            return redirect()->back()->with('error', 'Ce paiement n\'est pas encore complété');
+        }
+
+        // Récupérer les informations de l'étudiant
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+
+        // Générer la facture PDF
+        $invoiceGenerator = new \App\Services\InvoiceGenerator();
+        $pdf = $invoiceGenerator->generateInvoice($payment, $student, $preReg);
+
+        $filename = 'Facture_EVC_' . $payment->payment_reference . '.pdf';
+
+        $pdfContent = $pdf->Output('S');
+
+        return response()->streamDownload(function () use ($pdfContent) {
+            echo $pdfContent;
+        }, $filename, [
+            'Content-Type' => 'application/pdf',
+        ]);
+    }
+
+    /**
      * Afficher la page des paiements
      */
     public function paiementsIndex(): View
     {
         $user = Auth::user();
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+
+        // Récupérer la pré-inscription de l'étudiant
+        $preReg = DB::table('pre_registrations')->where('email', $user->email)->first();
+
+        // Initialiser les valeurs par défaut
+        $formationLabel = $preReg ? (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null) : null;
+        $paymentAmount = $formationLabel ? \App\Services\CinetPayService::getFormationPrice($formationLabel) : 0;
+        $paymentPaid = 0;
+        $paymentRemaining = $paymentAmount;
+        $paymentProgress = 0;
+        $payments = collect([]);
+
+        if ($preReg) {
+            // Récupérer tous les paiements liés à cette pré-inscription
+            $payments = DB::table('payments')
+                ->where('pre_registration_id', $preReg->id)
+                ->orderBy('installment_number', 'asc')
+                ->get();
+
+            // Montant total: priorité aux paiements (total_amount), sinon prix formation
+            $paymentsTotal = $payments->max('total_amount');
+            if (!empty($paymentsTotal)) {
+                $paymentAmount = (int) $paymentsTotal;
+            }
+
+            // Calculer les montants
+            $paymentPaid = $payments->where('status', 'completed')->sum('amount');
+            $paymentRemaining = $paymentAmount - $paymentPaid;
+            $paymentProgress = $paymentAmount > 0 ? ($paymentPaid / $paymentAmount) * 100 : 0;
+        }
 
         return view('paiements.index', [
-            'user' => $user
+            'user' => $user,
+            'student' => $student,
+            'paymentAmount' => $paymentAmount,
+            'paymentPaid' => $paymentPaid,
+            'paymentRemaining' => $paymentRemaining,
+            'paymentProgress' => round($paymentProgress, 2),
+            'payments' => $payments,
+            'preRegistration' => $preReg,
         ]);
     }
 
@@ -2818,6 +4299,7 @@ class DashboardController extends Controller
     public function finFormationIndex(): View
     {
         $user = Auth::user();
+        $currentModule = request()->segment(3);
         $student = DB::table('students')->where('user_id', $user->id)->first();
 
         if (!$student) {
@@ -2849,31 +4331,95 @@ class DashboardController extends Controller
         // TP: 50%, Projets: 30%, Rapport: 20%
         $tpProgress = $totalTP > 0 ? ($tpValidated / $totalTP) * 100 : 0;
         $projectProgress = $totalProjects > 0 ? ($projectsCompleted / $totalProjects) * 100 : 0;
-        $reportProgress = 0; // À implémenter avec upload de rapport
-
-        $globalProgress = ($tpProgress * 0.5) + ($projectProgress * 0.3) + ($reportProgress * 0.2);
+        $reportProgress = 0;
 
         // Critères d'éligibilité (valeurs minimales requises)
         $minTPRequired = 15;
         $minProjectsRequired = 4;
         $minGrade = 12; // /20
 
-        // Vérifier l'éligibilité
-        $paymentComplete = false; // À implémenter avec système de paiement
-        $paymentAmount = 1200; // Montant total fictif
-        $paymentPaid = 900; // Montant payé fictif
-        $paymentRemaining = $paymentAmount - $paymentPaid;
-        $paymentProgress = ($paymentPaid / $paymentAmount) * 100;
+        // Vérifier les paiements depuis la nouvelle table payments
+        $preReg = DB::table('pre_registrations')->where('email', $user->email)->first();
+
+        if ($preReg) {
+            // Récupérer tous les paiements liés à cette pré-inscription
+            $payments = DB::table('payments')
+                ->where('pre_registration_id', $preReg->id)
+                ->get();
+
+            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
+            $paymentAmount = \App\Services\CinetPayService::getFormationPrice($formationLabel);
+
+            $paymentsTotal = $payments->max('total_amount');
+            if (!empty($paymentsTotal)) {
+                $paymentAmount = (int) $paymentsTotal;
+            }
+
+            $paymentPaid = $payments->where('status', 'completed')->sum('amount');
+            $paymentRemaining = $paymentAmount - $paymentPaid;
+            $paymentProgress = $paymentAmount > 0 ? ($paymentPaid / $paymentAmount) * 100 : 0;
+            $paymentComplete = $paymentRemaining <= 0;
+        } else {
+            // Pas de pré-inscription trouvée, valeurs par défaut
+            $paymentAmount = 0;
+            $paymentPaid = 0;
+            $paymentRemaining = $paymentAmount;
+            $paymentProgress = 0;
+            $paymentComplete = false;
+        }
 
         $tpEligible = $tpValidated >= $minTPRequired;
         $projectsEligible = $projectsCompleted >= $minProjectsRequired;
 
         // Vérifier si un rapport a été uploadé
-        $report = DB::table('end_of_training_reports')
-            ->where('student_id', $student->id)
-            ->first();
+        $report = null;
+        $reportTpId = null;
 
-        $reportUploaded = $report ? true : false;
+        if (Schema::hasTable('end_of_training_reports')) {
+            $report = DB::table('end_of_training_reports')
+                ->where('student_id', $student->id)
+                ->first();
+        }
+
+        // Fallback : si aucun rapport "fin de formation" dans end_of_training_reports,
+        // on le recherche dans les TPs (module Documents) via une pièce jointe PDF.
+        if (!$report && Schema::hasTable('tp') && Schema::hasTable('tp_files')) {
+            $tpReport = DB::table('tp')
+                ->where('tp.user_id', $user->id)
+                ->leftJoin('tp_files', 'tp.id', '=', 'tp_files.tp_id')
+                ->select(
+                    'tp.id as tp_id',
+                    'tp.title',
+                    'tp.status',
+                    'tp.admin_comment',
+                    'tp.created_at',
+                    'tp.updated_at',
+                    'tp_files.original_name as original_filename'
+                )
+                ->whereNotNull('tp_files.original_name')
+                ->whereRaw("LOWER(RIGHT(tp_files.original_name, 4)) = '.pdf'")
+                ->orderByDesc('tp.id')
+                ->first();
+
+            if ($tpReport) {
+                $reportTpId = $tpReport->tp_id;
+
+                // Normaliser pour la vue fin-formation (mêmes clés que end_of_training_reports)
+                $report = (object)[
+                    'id' => $tpReport->tp_id,
+                    'original_filename' => $tpReport->original_filename ?? ($tpReport->title ?? 'Rapport'),
+                    'submitted_at' => $tpReport->created_at,
+                    'status' => $tpReport->status,
+                    'admin_comment' => $tpReport->admin_comment,
+                ];
+            }
+        }
+
+        $reportUploaded = !empty($report);
+
+        $reportProgress = $reportUploaded ? 100 : 0;
+
+        $globalProgress = ($tpProgress * 0.5) + ($projectProgress * 0.3) + ($reportProgress * 0.2);
 
         // Éligibilité sans paiement pour le moment
         $isEligible = $tpEligible && $projectsEligible && $reportUploaded;
@@ -2886,6 +4432,7 @@ class DashboardController extends Controller
             'user' => $user,
             'student' => $student,
             'globalProgress' => round($globalProgress, 0),
+            'currentModule' => $currentModule,
 
             // Statistiques TP
             'totalTP' => $totalTP,
@@ -2915,6 +4462,7 @@ class DashboardController extends Controller
             'projectsEligible' => $projectsEligible,
             'reportUploaded' => $reportUploaded,
             'report' => $report,
+            'reportTpId' => $reportTpId,
             'isEligible' => $isEligible,
         ]);
     }
@@ -3043,51 +4591,113 @@ class DashboardController extends Controller
         // Récupérer les actualités publiées et visibles pour Community Management
         $actualites = DB::table('actualites')
             ->where('status', 'published')
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('visibility', 'public')
-                      ->orWhere('visibility', 'all_formations')
-                      ->orWhere('visibility', 'like', '%Community Management%');
+                    ->orWhere('visibility', 'all_formations')
+                    ->orWhere('visibility', 'like', '%Community Management%');
             })
             ->orderBy('published_at', 'desc')
             ->limit(5)
             ->get();
 
-        // Statistiques pour le dashboard Community Management
+        // Calculer les statistiques dynamiques pour Community Management
+        // MÊME LOGIQUE QUE fin-formation/index
+        $studentId = $student->id ?? null;
+
+        // Initialisation
+        $tpAFaire = 0;
+        $tpValides = 0;
+        $tpEnAttente = 0;
+        $totalTp = 0;
+        $projetsActifs = 0;
+        $projetsEnCours = 0;
+        $tpRejected = 0;
+
+        if ($studentId) {
+            // TP depuis tp_assignments (comme fin-formation)
+            $tpAssignments = DB::table('tp_assignments')
+                ->where('student_id', $studentId)
+                ->get();
+
+            $totalTp = $tpAssignments->count();
+            $tpValides = $tpAssignments->where('status', 'validated')->count();
+            $tpEnAttente = $tpAssignments->whereIn('status', ['assigned', 'submitted'])->count();
+            $tpRejected = $tpAssignments->where('status', 'rejected')->count();
+
+            // Projets depuis table projects (comme fin-formation)
+            $projects = DB::table('projects')
+                ->where('user_id', $user->id)
+                ->get();
+
+            $totalProjects = $projects->count();
+            $projetsEnCours = $projects->where('status', 'en_cours')->count();
+            $projetsCompletes = $projects->where('status', 'valide')->count();
+            $projetsTermines = $projects->where('status', 'termine')->count();
+
+            $projetsActifs = $projetsEnCours + $projetsTermines;
+            $tpAFaire = $tpEnAttente; // TP à traiter
+
+            // Projets à faire = projets assignés par l'admin (status en_cours)
+            $projetsAFaire = $projetsEnCours;
+        }
+
+        // Compter les événements depuis la table events
+        try {
+            $evenements = DB::table('events')->count();
+        } catch (\Exception $e) {
+            $evenements = 0;
+        }
+
+        // Calculer la progression globale
+        $progressionGlobale = $totalTp > 0 ? round(($tpValides / $totalTp) * 100) : 0;
+
+        // Déterminer si éligible au certificat (80% de TP validés)
+        $eligibleCertificat = $totalTp > 0 && ($tpValides / $totalTp) >= 0.8;
+
         $stats = [
-            // Progression globale
-            'progression_globale' => 65,
+            // Progression globale (dynamique)
+            'progression_globale' => $progressionGlobale,
 
-            // Campagnes à créer
-            'tp_a_faire' => 8,
+            // Stats pour les cartes de la vue
+            'formations_disponibles' => 0, // Pas utilisé pour CM
+            'tp_realises' => $tpValides,
+            'tp_total' => $totalTp,
+            'projets_realises' => $projetsCompletes ?? $tpValides,
+            'projets_total' => $totalProjects ?? $totalTp,
+            'projets_a_faire' => $projetsAFaire ?? 0,
 
-            // Projets actifs
-            'projets_actifs' => 5,
+            // Campagnes à créer (dynamique)
+            'tp_a_faire' => $tpAFaire,
 
-            // Projets en cours
-            'projets_en_cours' => 3,
+            // Projets actifs (dynamique)
+            'projets_actifs' => $projetsActifs,
 
-            // TP validés
-            'tp_valides' => 12,
+            // Projets en cours (dynamique)
+            'projets_en_cours' => $projetsEnCours,
 
-            // TP en attente
-            'tp_en_attente' => 4,
+            // TP validés (dynamique)
+            'tp_valides' => $tpValides,
+
+            // TP en attente (dynamique)
+            'tp_en_attente' => $tpEnAttente,
+
+            // TP rejetés
+            'tp_rejetes' => $tpRejected,
 
             // Certification
-            'certification' => 'En cours',
+            'certification' => $eligibleCertificat ? 'Validé' : 'En cours',
 
-            // Éligible au certificat
-            'eligible_certificat' => false,
+            // Éligible au certificat (dynamique)
+            'eligible_certificat' => $eligibleCertificat,
 
             // Formation de la semaine
             'formation_semaine' => 'Stratégie Social Media',
 
-            // Total TP
-            'total_tp' => 16,
+            // Total TP (dynamique)
+            'total_tp' => $totalTp,
 
-            // Webinaires
-            'webinaires' => 6,
-
-            // Actualités
+            // Événements et Actualités (dynamiques)
+            'evenements' => $evenements,
             'actualites' => $actualites->count(),
         ];
 
@@ -3248,7 +4858,6 @@ class DashboardController extends Controller
                 'Content-Type' => 'application/pdf',
                 'Content-Disposition' => 'inline; filename="Certificat_Preview.pdf"'
             ])->deleteFileAfterSend(true);
-
         } catch (\Exception $e) {
             Log::error('Erreur prévisualisation certificat étudiant: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
@@ -3340,7 +4949,6 @@ class DashboardController extends Controller
 
             // Télécharger le certificat
             return $certificateGenerator->download($certificatePath, $filename);
-
         } catch (\Exception $e) {
             Log::error('Erreur génération certificat étudiant: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());

@@ -18,9 +18,9 @@
         <div style="padding:40px 30px;">
             <!-- Salutation -->
             <p style="font-size:17px;color:#2c3e50;margin:0 0 25px 0;">Bonjour <strong style="color:#FF6B00;">{{ $pre->prenom }} {{ $pre->nom }}</strong>,</p>
-            
+
             <p style="line-height:1.8;color:#4a5568;margin:0 0 25px 0;font-size:15px;">Nous vous remercions sincèrement d'avoir choisi l'<strong>École Virtuelle des Créatifs (EVC)</strong> pour votre parcours de formation professionnelle.</p>
-            
+
             <!-- Alerte succès moderne -->
             <div style="background:linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);border-left:5px solid #2196F3;padding:20px;margin:25px 0;border-radius:8px;box-shadow:0 2px 8px rgba(33,150,243,0.15);">
                 <p style="margin:0;color:#1565C0;font-size:15px;line-height:1.7;">
@@ -37,7 +37,20 @@
                 <table style="width:100%;border-collapse:collapse;">
                     <tr style="border-bottom:1px solid #FFD4A8;">
                         <td style="padding:12px 0;font-weight:600;color:#8B4513;width:40%;font-size:14px;">Formation choisie :</td>
-                        <td style="padding:12px 0;color:#2c3e50;font-weight:600;font-size:14px;">{{ ucfirst(str_replace('_', ' ', $pre->choix_formation ?? $pre->programme)) }}</td>
+                        <td style="padding:12px 0;color:#2c3e50;font-weight:600;font-size:14px;">
+                            @php
+                                $formation = $pre->choix_formation ?? $pre->programme;
+                                $formationDisplay = match($formation) {
+                                    'design_graphique' => 'Design Graphique',
+                                    'community_management' => 'Community Management',
+                                    'design_graphique_community_management' => 'Design Graphique & Community Management',
+                                    'intelligence_artificielle' => 'Intelligence Artificielle',
+                                    'gestion_informatique' => 'Gestion Informatique',
+                                    default => ucfirst(str_replace('_', ' ', $formation))
+                                };
+                            @endphp
+                            {{ $formationDisplay }}
+                        </td>
                     </tr>
                     <tr style="border-bottom:1px solid #FFD4A8;">
                         <td style="padding:12px 0;font-weight:600;color:#8B4513;font-size:14px;">Niveau actuel :</td>
@@ -86,7 +99,7 @@
                 <div style="text-align:center;margin-bottom:20px;">
                     <span style="background:#FFA500;color:#fff;padding:8px 20px;border-radius:25px;font-weight:700;font-size:14px;letter-spacing:0.5px;">⚠️ IMPORTANT : DEUX ISSUES POSSIBLES</span>
                 </div>
-                
+
                 <!-- Acceptation -->
                 <div style="background:#fff;border-left:5px solid #4CAF50;padding:18px;margin:15px 0;border-radius:8px;box-shadow:0 2px 6px rgba(76,175,80,0.1);">
                     <p style="margin:0 0 12px 0;font-size:16px;"><strong style="color:#2e7d32;font-size:17px;">✅ Si votre candidature est ACCEPTÉE</strong></p>

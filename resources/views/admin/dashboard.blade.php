@@ -460,6 +460,7 @@
     </div>
 
     <!-- Accounting Stats Section -->
+    @if(session('admin_role') !== 'assistant')
     <div class="row g-4 mb-4">
         <!-- Recettes -->
         <div class="col-lg-4 col-md-6">
@@ -543,6 +544,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Stats Grid -->
     <div class="stats-grid">
@@ -605,6 +607,45 @@
                 <span>{{ DB::table('webtv_subscribers')->whereNotNull('verified_at')->count() }} vérifiés</span>
             </div>
         </div>
+
+        @if(session('admin_role') !== 'assistant')
+        <!-- Statistiques Paiements -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="stat-number" data-target="{{ number_format($completedPayments, 0, '', '') }}">0</div>
+            <div class="stat-label">Paiements Reçus (XOF)</div>
+            <div class="stat-change positive">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ $completedPaymentsCount }} paiements</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-number" data-target="{{ number_format($pendingPayments, 0, '', '') }}">0</div>
+            <div class="stat-label">Paiements En Attente (XOF)</div>
+            <div class="stat-change negative">
+                <i class="fas fa-hourglass-half"></i>
+                <span>{{ $pendingPaymentsCount }} en attente</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-number" data-target="{{ number_format($paymentsThisMonth, 0, '', '') }}">0</div>
+            <div class="stat-label">Paiements Ce Mois (XOF)</div>
+            <div class="stat-change positive">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ \Carbon\Carbon::now()->format('F Y') }}</span>
+            </div>
+        </div>
+        @endif
     </div>
 
     <!-- Quick Actions -->
@@ -659,6 +700,13 @@
                     <i class="fas fa-cog"></i>
                 </div>
                 <div class="quick-action-label">Paramètres</div>
+            </a>
+
+            <a href="{{ route('admin.payments.index') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="quick-action-label">Gérer Paiements</div>
             </a>
         </div>
     </div>

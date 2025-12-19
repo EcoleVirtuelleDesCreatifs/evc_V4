@@ -16,7 +16,7 @@ class SimpleProjectController extends Controller
     {
         try {
             $project = Project::with(['user', 'images'])->findOrFail($id);
-            
+
             $data = [
                 'success' => true,
                 'project' => [
@@ -32,10 +32,10 @@ class SimpleProjectController extends Controller
                     'images_count' => $project->images->count()
                 ]
             ];
-            
+
             Log::info("Project view success for ID: {$id}");
             return response()->json($data);
-            
+
         } catch (\Exception $e) {
             Log::error("Project view error for ID {$id}: " . $e->getMessage());
             return response()->json([
@@ -44,7 +44,7 @@ class SimpleProjectController extends Controller
             ], 404);
         }
     }
-    
+
     /**
      * ✏️ ÉDITER PROJET - Ultra Simple
      */
@@ -52,7 +52,7 @@ class SimpleProjectController extends Controller
     {
         try {
             $project = Project::findOrFail($id);
-            
+
             $data = [
                 'success' => true,
                 'project' => [
@@ -63,10 +63,10 @@ class SimpleProjectController extends Controller
                     'status' => $project->status ?? 'pending'
                 ]
             ];
-            
+
             Log::info("Project edit data success for ID: {$id}");
             return response()->json($data);
-            
+
         } catch (\Exception $e) {
             Log::error("Project edit error for ID {$id}: " . $e->getMessage());
             return response()->json([
@@ -75,7 +75,7 @@ class SimpleProjectController extends Controller
             ], 404);
         }
     }
-    
+
     /**
      * 💾 SAUVEGARDER PROJET - Ultra Simple
      */
@@ -83,20 +83,20 @@ class SimpleProjectController extends Controller
     {
         try {
             $project = Project::findOrFail($id);
-            
+
             $project->update([
                 'title' => $request->input('title', $project->title),
                 'description' => $request->input('description', $project->description),
                 'software_used' => $request->input('software_used', $project->software_used),
                 'status' => $request->input('status', $project->status)
             ]);
-            
+
             Log::info("Project updated successfully for ID: {$id}");
             return response()->json([
                 'success' => true,
                 'message' => 'Projet mis à jour avec succès'
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error("Project update error for ID {$id}: " . $e->getMessage());
             return response()->json([
@@ -105,7 +105,7 @@ class SimpleProjectController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * ✅ VALIDER PROJET - Ultra Simple
      */
@@ -114,13 +114,13 @@ class SimpleProjectController extends Controller
         try {
             $project = Project::findOrFail($id);
             $project->update(['status' => 'validated']);
-            
+
             Log::info("Project validated successfully for ID: {$id}");
             return response()->json([
                 'success' => true,
                 'message' => 'Projet validé avec succès'
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error("Project validation error for ID {$id}: " . $e->getMessage());
             return response()->json([
@@ -129,7 +129,7 @@ class SimpleProjectController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * 🗑️ SUPPRIMER PROJET - Ultra Simple
      */
@@ -138,13 +138,13 @@ class SimpleProjectController extends Controller
         try {
             $project = Project::findOrFail($id);
             $project->delete();
-            
+
             Log::info("Project deleted successfully for ID: {$id}");
             return response()->json([
                 'success' => true,
                 'message' => 'Projet supprimé avec succès'
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error("Project deletion error for ID {$id}: " . $e->getMessage());
             return response()->json([
@@ -153,19 +153,19 @@ class SimpleProjectController extends Controller
             ], 500);
         }
     }
-    
+
     /**
      * Helper pour les labels de statut
      */
     private function getStatusLabel($status)
     {
         $labels = [
-            'pending' => 'En attente',
+            'pending' => 'En cours de validation',
             'validated' => 'Validé',
             'rejected' => 'Rejeté',
             'draft' => 'Brouillon'
         ];
-        
+
         return $labels[$status] ?? 'Inconnu';
     }
 }

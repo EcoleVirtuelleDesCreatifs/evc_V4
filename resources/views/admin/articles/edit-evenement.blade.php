@@ -35,7 +35,7 @@
     <form action="{{ route('admin.articles.evenements.update', $evenement->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
-        
+
         <div class="row">
             <!-- Colonne principale -->
             <div class="col-lg-8">
@@ -48,8 +48,8 @@
                         <!-- Titre -->
                         <div class="mb-4">
                             <label for="title" class="form-label">Titre de l'événement <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control modern-input @error('title') is-invalid @enderror" 
-                                   id="title" name="title" value="{{ old('title', $evenement->title) }}" required 
+                            <input type="text" class="form-control modern-input @error('title') is-invalid @enderror"
+                                   id="title" name="title" value="{{ old('title', $evenement->title) }}" required
                                    placeholder="Ex: Conférence sur le Design Thinking">
                             @error('title')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -60,7 +60,7 @@
                         <!-- Slug (généré automatiquement) -->
                         <div class="mb-4">
                             <label for="slug" class="form-label">URL (Slug)</label>
-                            <input type="text" class="form-control modern-input" id="slug" name="slug" 
+                            <input type="text" class="form-control modern-input" id="slug" name="slug"
                                    value="{{ old('slug', $evenement->slug) }}" placeholder="conference-design-thinking">
                             <small class="text-muted">Généré automatiquement à partir du titre. Modifiable.</small>
                         </div>
@@ -68,8 +68,8 @@
                         <!-- Description courte -->
                         <div class="mb-4">
                             <label for="excerpt" class="form-label">Description courte <span class="text-danger">*</span></label>
-                            <textarea class="form-control modern-input @error('excerpt') is-invalid @enderror" 
-                                      id="excerpt" name="excerpt" rows="3" required 
+                            <textarea class="form-control modern-input @error('excerpt') is-invalid @enderror"
+                                      id="excerpt" name="excerpt" rows="3" required
                                       placeholder="Résumé de l'événement (150-200 caractères)">{{ old('excerpt', $evenement->excerpt) }}</textarea>
                             @error('excerpt')
                                 <div class="invalid-feedback">{{ $message }}</div>
@@ -80,12 +80,12 @@
                         <!-- Contenu complet -->
                         <div class="mb-4">
                             <label for="content" class="form-label">Contenu complet <span class="text-danger">*</span></label>
-                            <textarea class="form-control modern-input @error('content') is-invalid @enderror" 
-                                      id="content" name="content" rows="10" required 
-                                      placeholder="Description détaillée de l'événement...">{{ old('content', $evenement->content) }}</textarea>
+                            <input type="hidden" name="content" id="content-input" value="{{ old('content', $evenement->content) }}">
+                            <div id="quill-editor" style="min-height: 300px; background-color: #0f172a; color: #e2e8f0; border: 2px solid #334155; border-radius: 12px;"></div>
                             @error('content')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Utilisez l'éditeur pour formater votre contenu (gras, italique, listes, liens, etc.)</small>
                         </div>
                     </div>
                 </div>
@@ -100,7 +100,7 @@
                             <!-- Date de l'événement -->
                             <div class="col-md-6 mb-4">
                                 <label for="event_date" class="form-label">Date de début <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control modern-input @error('event_date') is-invalid @enderror" 
+                                <input type="date" class="form-control modern-input @error('event_date') is-invalid @enderror"
                                        id="event_date" name="event_date" value="{{ old('event_date', $evenement->event_date->format('Y-m-d')) }}" required>
                                 @error('event_date')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -110,22 +110,22 @@
                             <!-- Date de fin -->
                             <div class="col-md-6 mb-4">
                                 <label for="event_end_date" class="form-label">Date de fin (optionnel)</label>
-                                <input type="date" class="form-control modern-input" 
+                                <input type="date" class="form-control modern-input"
                                        id="event_end_date" name="event_end_date" value="{{ old('event_end_date', $evenement->event_end_date ? $evenement->event_end_date->format('Y-m-d') : '') }}">
                             </div>
 
                             <!-- Lieu -->
                             <div class="col-md-6 mb-4">
                                 <label for="location" class="form-label">Lieu</label>
-                                <input type="text" class="form-control modern-input" 
-                                       id="location" name="location" value="{{ old('location', $evenement->location) }}" 
+                                <input type="text" class="form-control modern-input"
+                                       id="location" name="location" value="{{ old('location', $evenement->location) }}"
                                        placeholder="Ex: Abidjan, Cocody">
                             </div>
 
                             <!-- Type d'événement -->
                             <div class="col-md-6 mb-4">
                                 <label for="event_type" class="form-label">Type d'événement <span class="text-danger">*</span></label>
-                                <select class="form-select modern-input @error('event_type') is-invalid @enderror" 
+                                <select class="form-select modern-input @error('event_type') is-invalid @enderror"
                                         id="event_type" name="event_type" required>
                                     <option value="physical" {{ old('event_type', $evenement->event_type) == 'physical' ? 'selected' : '' }}>Présentiel</option>
                                     <option value="online" {{ old('event_type', $evenement->event_type) == 'online' ? 'selected' : '' }}>En ligne</option>
@@ -139,8 +139,8 @@
                             <!-- Lien d'inscription -->
                             <div class="col-12 mb-4">
                                 <label for="registration_link" class="form-label">Lien d'inscription</label>
-                                <input type="url" class="form-control modern-input" 
-                                       id="registration_link" name="registration_link" value="{{ old('registration_link', $evenement->registration_link) }}" 
+                                <input type="url" class="form-control modern-input"
+                                       id="registration_link" name="registration_link" value="{{ old('registration_link', $evenement->registration_link) }}"
                                        placeholder="https://...">
                             </div>
                         </div>
@@ -149,33 +149,64 @@
 
                 <!-- SEO -->
                 <div class="card modern-card mb-4">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="position: relative; padding: 1.5rem;">
                         <h5 class="mb-0"><i class="fas fa-search me-2"></i>Optimisation SEO</h5>
+
+                        <!-- Bouton Génération IA -->
+                        <button type="button" id="generate-seo-btn" onclick="generateSEO()" class="btn btn-gradient-ai" style="position: relative; z-index: 10; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; font-weight: 600; border: none; border-radius: 8px; color: white; background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);">
+                            <i class="fas fa-magic"></i>
+                            <span>Générer avec IA</span>
+                        </button>
                     </div>
                     <div class="card-body">
+                        <!-- Statut de génération -->
+                        <div id="ai-status" class="alert alert-info" style="display: none;">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border spinner-border-sm me-2" role="status">
+                                    <span class="visually-hidden">Génération...</span>
+                                </div>
+                                <span>L'IA génère votre contenu SEO optimisé...</span>
+                            </div>
+                        </div>
+
                         <!-- Meta Title -->
                         <div class="mb-4">
-                            <label for="meta_title" class="form-label">Meta Title</label>
-                            <input type="text" class="form-control modern-input" 
-                                   id="meta_title" name="meta_title" value="{{ old('meta_title', $evenement->meta_title) }}" 
+                            <label for="meta_title" class="form-label">
+                                Meta Title
+                                <span class="badge bg-success ms-2" id="meta-title-ai-badge" style="display: none;">
+                                    <i class="fas fa-robot"></i> Généré par IA
+                                </span>
+                            </label>
+                            <input type="text" class="form-control modern-input"
+                                   id="meta_title" name="meta_title" value="{{ old('meta_title', $evenement->meta_title) }}"
                                    placeholder="Titre pour les moteurs de recherche" maxlength="60">
                             <small class="text-muted"><span id="meta-title-count">{{ strlen($evenement->meta_title ?? '') }}</span>/60 caractères</small>
                         </div>
 
                         <!-- Meta Description -->
                         <div class="mb-4">
-                            <label for="meta_description" class="form-label">Meta Description</label>
-                            <textarea class="form-control modern-input" 
-                                      id="meta_description" name="meta_description" rows="3" 
+                            <label for="meta_description" class="form-label">
+                                Meta Description
+                                <span class="badge bg-success ms-2" id="meta-desc-ai-badge" style="display: none;">
+                                    <i class="fas fa-robot"></i> Généré par IA
+                                </span>
+                            </label>
+                            <textarea class="form-control modern-input"
+                                      id="meta_description" name="meta_description" rows="3"
                                       placeholder="Description pour les moteurs de recherche" maxlength="160">{{ old('meta_description', $evenement->meta_description) }}</textarea>
                             <small class="text-muted"><span id="meta-desc-count">{{ strlen($evenement->meta_description ?? '') }}</span>/160 caractères</small>
                         </div>
 
                         <!-- Meta Keywords -->
                         <div class="mb-4">
-                            <label for="meta_keywords" class="form-label">Mots-clés</label>
-                            <input type="text" class="form-control modern-input" 
-                                   id="meta_keywords" name="meta_keywords" value="{{ old('meta_keywords', $evenement->meta_keywords) }}" 
+                            <label for="meta_keywords" class="form-label">
+                                Mots-clés
+                                <span class="badge bg-success ms-2" id="keywords-ai-badge" style="display: none;">
+                                    <i class="fas fa-robot"></i> Généré par IA
+                                </span>
+                            </label>
+                            <input type="text" class="form-control modern-input"
+                                   id="meta_keywords" name="meta_keywords" value="{{ old('meta_keywords', $evenement->meta_keywords) }}"
                                    placeholder="design, conférence, abidjan">
                             <small class="text-muted">Séparez les mots-clés par des virgules</small>
                         </div>
@@ -195,14 +226,14 @@
                         <div class="mb-4">
                             <label class="form-label">Statut <span class="text-danger">*</span></label>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="status" id="status_draft" 
+                                <input class="form-check-input" type="radio" name="status" id="status_draft"
                                        value="draft" {{ old('status', $evenement->status) == 'draft' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="status_draft">
                                     <i class="fas fa-file-alt me-1"></i>Brouillon
                                 </label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="status" id="status_published" 
+                                <input class="form-check-input" type="radio" name="status" id="status_published"
                                        value="published" {{ old('status', $evenement->status) == 'published' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="status_published">
                                     <i class="fas fa-check-circle me-1"></i>Publié
@@ -213,7 +244,7 @@
                         <!-- À la une -->
                         <div class="mb-4">
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured" 
+                                <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured"
                                        {{ old('is_featured', $evenement->is_featured) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="is_featured">
                                     <i class="fas fa-star me-1"></i>Mettre à la une
@@ -242,7 +273,7 @@
                     <div class="card-body">
                         <div class="mb-3">
                             <label for="cover_image" class="form-label">Image</label>
-                            <input type="file" class="form-control modern-input" 
+                            <input type="file" class="form-control modern-input"
                                    id="cover_image" name="cover_image" accept="image/*">
                             <small class="text-muted">Format: JPG, PNG, WEBP (max 2MB)</small>
                         </div>
@@ -251,8 +282,8 @@
                         @if($evenement->cover_image)
                         <div class="mb-3">
                             <label class="form-label">Image actuelle</label>
-                            <img src="{{ asset('storage/' . $evenement->cover_image) }}" 
-                                 alt="{{ $evenement->title }}" 
+                            <img src="{{ asset('storage/' . $evenement->cover_image) }}"
+                                 alt="{{ $evenement->title }}"
                                  class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
                         </div>
                         @endif
@@ -270,8 +301,8 @@
 
                         <div class="mb-3">
                             <label for="cover_image_alt" class="form-label">Texte alternatif</label>
-                            <input type="text" class="form-control modern-input" 
-                                   id="cover_image_alt" name="cover_image_alt" value="{{ old('cover_image_alt', $evenement->cover_image_alt) }}" 
+                            <input type="text" class="form-control modern-input"
+                                   id="cover_image_alt" name="cover_image_alt" value="{{ old('cover_image_alt', $evenement->cover_image_alt) }}"
                                    placeholder="Description de l'image">
                         </div>
                     </div>
@@ -286,7 +317,7 @@
                         <div class="mb-3">
                             <label class="form-label">Destinataires <span class="text-danger">*</span></label>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="visibility" id="visibility_public" 
+                                <input class="form-check-input" type="radio" name="visibility" id="visibility_public"
                                        value="public" {{ old('visibility', $evenement->visibility) == 'public' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="visibility_public">
                                     <i class="fas fa-globe me-1"></i>Visiteurs (Public)
@@ -294,7 +325,7 @@
                                 <small class="text-muted d-block ms-4">Visible par tous les visiteurs du site</small>
                             </div>
                             <div class="form-check mt-2">
-                                <input class="form-check-input" type="radio" name="visibility" id="visibility_all" 
+                                <input class="form-check-input" type="radio" name="visibility" id="visibility_all"
                                        value="all" {{ old('visibility', $evenement->visibility) == 'all' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="visibility_all">
                                     <i class="fas fa-users me-1"></i>Toutes les formations
@@ -302,7 +333,7 @@
                                 <small class="text-muted d-block ms-4">Visible par tous les étudiants inscrits</small>
                             </div>
                             <div class="form-check mt-2">
-                                <input class="form-check-input" type="radio" name="visibility" id="visibility_specific" 
+                                <input class="form-check-input" type="radio" name="visibility" id="visibility_specific"
                                        value="specific" {{ old('visibility', $evenement->visibility) == 'specific' ? 'checked' : '' }}>
                                 <label class="form-check-label" for="visibility_specific">
                                     <i class="fas fa-user-graduate me-1"></i>Formations spécifiques
@@ -318,12 +349,12 @@
                                 @foreach($formations as $formation)
                                     @php
                                         // Handle both JSON string and array
-                                        $formationsData = is_array($evenement->formations) 
-                                            ? $evenement->formations 
+                                        $formationsData = is_array($evenement->formations)
+                                            ? $evenement->formations
                                             : (json_decode($evenement->formations, true) ?? []);
                                         $selectedFormations = old('formations', $formationsData);
                                     @endphp
-                                    <option value="{{ $formation->id }}" 
+                                    <option value="{{ $formation->id }}"
                                         {{ in_array($formation->id, $selectedFormations) ? 'selected' : '' }}>
                                         {{ $formation->name }}
                                     </option>
@@ -339,6 +370,8 @@
 </div>
 
 @push('styles')
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
 <style>
     .modern-card {
         background-color: #1e293b;
@@ -433,12 +466,110 @@
 @endpush
 
 @push('scripts')
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <script>
+window.generateSEO = async function() {
+    const btn = document.getElementById('generate-seo-btn');
+    const aiStatus = document.getElementById('ai-status');
+    const titleInput = document.getElementById('title');
+    const excerptInput = document.getElementById('excerpt');
+    const metaTitleInput = document.getElementById('meta_title');
+    const metaDescInput = document.getElementById('meta_description');
+    const keywordsInput = document.getElementById('meta_keywords');
+
+    const title = titleInput.value.trim();
+    const excerpt = excerptInput.value.trim();
+
+    if (!title || !excerpt) {
+        alert('Veuillez d\'abord remplir le "Titre" et la "Description courte" !');
+        return;
+    }
+
+    const originalBtnContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+    aiStatus.style.display = 'block';
+
+    try {
+        const response = await fetch('{{ route("admin.api.generate-seo") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ title, excerpt })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            metaTitleInput.value = data.data.meta_title;
+            metaDescInput.value = data.data.meta_description;
+            keywordsInput.value = data.data.keywords;
+
+            if (document.getElementById('meta-title-count'))
+                document.getElementById('meta-title-count').textContent = data.data.meta_title.length;
+            if (document.getElementById('meta-desc-count'))
+                document.getElementById('meta-desc-count').textContent = data.data.meta_description.length;
+
+            const mtBadge = document.getElementById('meta-title-ai-badge');
+            const mdBadge = document.getElementById('meta-desc-ai-badge');
+            const kwBadge = document.getElementById('keywords-ai-badge');
+            if (mtBadge) mtBadge.style.display = 'inline-block';
+            if (mdBadge) mdBadge.style.display = 'inline-block';
+            if (kwBadge) kwBadge.style.display = 'inline-block';
+
+            alert('✨ SEO généré avec succès !');
+        } else {
+            throw new Error(data.message || 'Erreur inconnue');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('❌ Erreur: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnContent;
+        aiStatus.style.display = 'none';
+    }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialiser Quill Editor
+    const quill = new Quill('#quill-editor', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                [{ 'color': [] }, { 'background': [] }],
+                ['link', 'blockquote', 'code-block'],
+                ['clean']
+            ]
+        },
+        placeholder: 'Décrivez l\'événement en détail : programme, intervenants, objectifs, public cible...',
+    });
+
+    // Charger le contenu existant (ou old() si erreur validation)
+    const initialContent = {!! json_encode(old('content', $evenement->content)) !!};
+    if (initialContent) {
+        quill.root.innerHTML = initialContent;
+    }
+
+    // Synchroniser le contenu de Quill avec le champ hidden
+    const contentInput = document.getElementById('content-input');
+    quill.on('text-change', function() {
+        contentInput.value = quill.root.innerHTML;
+    });
+
+    // Initialiser le champ hidden avec le contenu actuel
+    contentInput.value = quill.root.innerHTML;
+
     // Génération automatique du slug
     const titleInput = document.getElementById('title');
     const slugInput = document.getElementById('slug');
-    
+
     titleInput.addEventListener('input', function() {
         const slug = this.value
             .toLowerCase()
@@ -452,7 +583,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Compteur de caractères pour excerpt
     const excerptInput = document.getElementById('excerpt');
     const excerptCount = document.getElementById('excerpt-count');
-    
+
     excerptInput.addEventListener('input', function() {
         excerptCount.textContent = this.value.length;
     });
@@ -460,7 +591,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Compteur de caractères pour meta title
     const metaTitleInput = document.getElementById('meta_title');
     const metaTitleCount = document.getElementById('meta-title-count');
-    
+
     metaTitleInput.addEventListener('input', function() {
         metaTitleCount.textContent = this.value.length;
     });
@@ -468,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Compteur de caractères pour meta description
     const metaDescInput = document.getElementById('meta_description');
     const metaDescCount = document.getElementById('meta-desc-count');
-    
+
     metaDescInput.addEventListener('input', function() {
         metaDescCount.textContent = this.value.length;
     });
@@ -478,7 +609,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const imagePreview = document.getElementById('image-preview');
     const previewImg = document.getElementById('preview-img');
     const removeImageBtn = document.getElementById('remove-image');
-    
+
     coverImageInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
@@ -490,7 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
             reader.readAsDataURL(file);
         }
     });
-    
+
     removeImageBtn.addEventListener('click', function() {
         coverImageInput.value = '';
         imagePreview.style.display = 'none';
@@ -500,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Afficher/masquer la sélection des formations
     const visibilityRadios = document.querySelectorAll('input[name="visibility"]');
     const formationsSelect = document.getElementById('formations-select');
-    
+
     visibilityRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.value === 'specific') {

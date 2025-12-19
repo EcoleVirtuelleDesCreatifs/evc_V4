@@ -349,6 +349,7 @@
                                     <option value="all">📚 Toutes les formations ({{ $stats['total_students'] }})</option>
                                     <option value="Design Graphique">🎨 Design Graphique ({{ $stats['design_graphique'] }})</option>
                                     <option value="Community Management">📱 Community Management ({{ $stats['community_management'] }})</option>
+                                    <option value="Design Graphique & Community Management">🎨📱 Design Graphique & Community Management ({{ $stats['design_graphique_cm'] }})</option>
                                     <option value="Gestion Informatique">💻 Gestion Informatique ({{ $stats['gestion_informatique'] }})</option>
                                     <option value="Intelligence Artificielle">🤖 Intelligence Artificielle ({{ $stats['intelligence_artificielle'] }})</option>
                                     @if(isset($stats['sans_formation']) && $stats['sans_formation'] > 0)

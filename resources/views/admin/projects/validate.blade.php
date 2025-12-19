@@ -37,7 +37,7 @@
                                             {{ $project->title }}
                                         </div>
                                     </div>
-                                    
+
                                     @if($project->description)
                                     <div class="row mb-3">
                                         <div class="col-sm-3">
@@ -48,7 +48,7 @@
                                         </div>
                                     </div>
                                     @endif
-                                    
+
                                     @if($project->software_used)
                                     <div class="row mb-3">
                                         <div class="col-sm-3">
@@ -59,7 +59,7 @@
                                         </div>
                                     </div>
                                     @endif
-                                    
+
                                     <div class="row mb-3">
                                         <div class="col-sm-3">
                                             <strong>Statut actuel :</strong>
@@ -83,7 +83,7 @@
                                             @endswitch
                                         </div>
                                     </div>
-                                    
+
                                     @if($project->link)
                                     <div class="row mb-3">
                                         <div class="col-sm-3">
@@ -97,7 +97,7 @@
                                         </div>
                                     </div>
                                     @endif
-                                    
+
                                     <div class="row">
                                         <div class="col-sm-3">
                                             <strong>Date de création :</strong>
@@ -108,7 +108,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Formulaire de validation -->
                             <div class="card border-0 shadow-sm mt-4">
                                 <div class="card-header bg-success text-white">
@@ -122,7 +122,7 @@
                                         <i class="fas fa-info-circle me-2"></i>
                                         Vous êtes sur le point de valider ce projet. Cette action changera le statut du projet à "Validé".
                                     </div>
-                                    
+
                                     <form action="{{ route('admin.projects.validate', $project->id) }}" method="POST">
                                         @csrf
                                         <div class="d-flex gap-2">
@@ -139,7 +139,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Sidebar - Informations étudiant -->
                         <div class="col-lg-4">
                             <div class="card border-0 shadow-sm">
@@ -152,12 +152,12 @@
                                 <div class="card-body">
                                     <div class="text-center mb-3">
                                         @if($project->user->profile_photo)
-                                            <img src="{{ asset('storage/' . $project->user->profile_photo) }}" 
-                                                 alt="Photo de profil" 
-                                                 class="rounded-circle mb-2" 
+                                            <img src="{{ asset('storage/' . $project->user->profile_photo) }}"
+                                                 alt="Photo de profil"
+                                                 class="rounded-circle mb-2"
                                                  style="width: 80px; height: 80px; object-fit: cover;">
                                         @else
-                                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" 
+                                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2"
                                                  style="width: 80px; height: 80px;">
                                                 <i class="fas fa-user text-white fa-2x"></i>
                                             </div>
@@ -165,14 +165,14 @@
                                         <h6 class="mb-1">{{ $project->user->first_name }} {{ $project->user->last_name }}</h6>
                                         <small class="text-muted">{{ $project->user->email }}</small>
                                     </div>
-                                    
+
                                     @if($project->user->phone)
                                     <div class="mb-2">
                                         <strong>Téléphone :</strong><br>
                                         <small>{{ $project->user->phone }}</small>
                                     </div>
                                     @endif
-                                    
+
                                     @if($project->user->city || $project->user->country)
                                     <div class="mb-2">
                                         <strong>Localisation :</strong><br>
@@ -183,16 +183,16 @@
                                         </small>
                                     </div>
                                     @endif
-                                    
+
                                     @if($project->user->formation_souhaitee)
                                     <div class="mb-2">
                                         <strong>Formation :</strong><br>
                                         <small>{{ $project->user->formation_souhaitee }}</small>
                                     </div>
                                     @endif
-                                    
+
                                     <div class="mt-3">
-                                        <a href="{{ route('admin.students.show', $project->user->id) }}" 
+                                        <a href="{{ route('admin.students.profile', $project->user->id) }}"
                                            class="btn btn-outline-primary btn-sm w-100">
                                             <i class="fas fa-eye me-1"></i>
                                             Voir le Profil Complet

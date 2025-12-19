@@ -1,6 +1,6 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Nouveau Projet CM')
+@section('title', 'Publier un Travail Pratique')
 
 @section('content')
 @php
@@ -10,13 +10,13 @@
 @endphp
 
 <style>
-    /* Instagram Color Palette */
+    /* Blue-Orange Color Palette (Design & CM) */
     .instagram-gradient {
-        background: linear-gradient(135deg, #833AB4 0%, #C13584 25%, #E1306C 50%, #F56040 75%, #FCAF45 100%);
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
     }
 
     .instagram-header {
-        background: linear-gradient(135deg, #833AB4 0%, #C13584 50%, #E1306C 100%);
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #f97316 100%);
         border-radius: 24px;
         color: white;
         position: relative;
@@ -43,44 +43,44 @@
     .instagram-card {
         border: none;
         border-radius: 20px;
-        box-shadow: 0 4px 20px rgba(131, 58, 180, 0.1);
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.1);
         transition: all 0.3s ease;
-        border: 2px solid rgba(131, 58, 180, 0.1);
+        border: 2px solid rgba(37, 99, 235, 0.1);
     }
 
     .instagram-card:hover {
-        box-shadow: 0 8px 32px rgba(131, 58, 180, 0.2);
-        border-color: rgba(131, 58, 180, 0.3);
+        box-shadow: 0 8px 32px rgba(37, 99, 235, 0.2);
+        border-color: rgba(37, 99, 235, 0.3);
     }
 
     .instagram-card-header {
         background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
         border-bottom: 2px solid transparent;
-        border-image: linear-gradient(90deg, #833AB4, #E1306C, #FCAF45) 1;
+        border-image: linear-gradient(90deg, #2563eb, #3b82f6, #f97316) 1;
         padding: 1.5rem;
     }
 
     .instagram-btn {
-        background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
         border: none;
         color: white;
         font-weight: 700;
         padding: 0.75rem 2rem;
         border-radius: 30px;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 16px rgba(131, 58, 180, 0.3);
+        box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
     }
 
     .instagram-btn:hover {
-        background: linear-gradient(135deg, #C13584 0%, #F56040 100%);
+        background: linear-gradient(135deg, #3b82f6 0%, #fb923c 100%);
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(131, 58, 180, 0.4);
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.4);
         color: white;
     }
 
     .form-control:focus, .form-select:focus {
-        border-color: #C13584;
-        box-shadow: 0 0 0 0.25rem rgba(193, 53, 132, 0.15);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.15);
     }
 
     .icon-circle {
@@ -95,14 +95,14 @@
     }
 
     #globalDropZone:hover {
-        border-color: #C13584 !important;
-        background: linear-gradient(135deg, rgba(131, 58, 180, 0.1) 0%, rgba(225, 48, 108, 0.1) 100%) !important;
+        border-color: #2563eb !important;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%) !important;
         transform: scale(1.01);
     }
 
     #globalDropZone.drag-over {
-        border-color: #E1306C !important;
-        background: linear-gradient(135deg, rgba(131, 58, 180, 0.15) 0%, rgba(225, 48, 108, 0.15) 100%) !important;
+        border-color: #f97316 !important;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.15) 0%, rgba(249, 115, 22, 0.15) 100%) !important;
         transform: scale(1.02);
     }
 
@@ -137,7 +137,7 @@
     }
 
     .form-control:hover, .form-select:hover {
-        border-color: rgba(131, 58, 180, 0.3);
+        border-color: rgba(37, 99, 235, 0.3);
     }
 
     /* Mobile Responsive Adjustments */
@@ -197,7 +197,16 @@
                             </div>
                         </div>
                         <div>
-                            <h2 class="mb-2 fw-bold" style="font-size: 2rem;">Nouveau projet Design Graphique</h2>
+                            @php
+                                $isCombinedProfile = $currentModule === 'design-graphique-cm';
+                            @endphp
+                            <h2 class="mb-2 fw-bold" style="font-size: 2rem;">
+                                @if($isCombinedProfile)
+                                    Publier un Travail Pratique
+                                @else
+                                    Nouveau projet Design Graphique
+                                @endif
+                            </h2>
                             <p class="mb-0 opacity-90" style="font-size: 1.05rem;">Publiez votre TP pour constituer votre Pressbook</p>
                         </div>
                     </div>
@@ -216,12 +225,41 @@
                 <!-- Informations du Projet -->
                 <div class="card instagram-card mb-4">
                     <div class="card-header instagram-card-header">
-                        <h5 class="mb-0 fw-bold" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                            <i class="fas fa-info-circle me-2" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        <h5 class="mb-0 fw-bold" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <i class="fas fa-info-circle me-2" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                             Informations du Projet
                         </h5>
                     </div>
                     <div class="card-body p-4">
+                        @if($isCombinedProfile)
+                        <!-- Type de réalisation (pour profil combiné uniquement) -->
+                        <div class="mb-4">
+                            <label for="formation" class="form-label fw-semibold">
+                                Type de réalisation <span class="text-danger">*</span>
+                            </label>
+                            <select
+                                id="formation"
+                                name="formation"
+                                class="form-select form-select-lg @error('formation') is-invalid @enderror"
+                                required
+                            >
+                                <option value="">Sélectionnez le type de réalisation</option>
+                                <option value="Design Graphique" {{ old('formation') == 'Design Graphique' ? 'selected' : '' }}>
+                                    <i class="fas fa-pen-nib"></i> Design Graphique
+                                </option>
+                                <option value="Community Management" {{ old('formation') == 'Community Management' ? 'selected' : '' }}>
+                                    <i class="fas fa-comments"></i> Community Management
+                                </option>
+                            </select>
+                            @error('formation')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">Indiquez si ce TP concerne le Design Graphique ou le Community Management</div>
+                        </div>
+                        @else
+                        <input type="hidden" name="formation" value="Design Graphique">
+                        @endif
+
                         <!-- Titre du Projet -->
                         <div class="mb-4">
                             <label for="title" class="form-label fw-semibold">
@@ -299,8 +337,8 @@
                 <!-- Section Fichiers -->
                 <div class="card instagram-card mb-4">
                     <div class="card-header instagram-card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                            <i class="fas fa-paperclip me-2" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                        <h5 class="mb-0 fw-bold" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <i class="fas fa-paperclip me-2" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
                             Fichiers du Projet
                         </h5>
                         <button type="button" class="btn instagram-btn btn-sm" id="addFileBtn" style="padding: 0.5rem 1.2rem; font-size: 0.875rem;">
@@ -308,22 +346,22 @@
                         </button>
                     </div>
                     <div class="card-body p-4">
-                        <div class="alert border-0 mb-4" style="background: linear-gradient(135deg, rgba(131, 58, 180, 0.1) 0%, rgba(225, 48, 108, 0.1) 100%); border-left: 4px solid #C13584 !important;">
+                        <div class="alert border-0 mb-4" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(249, 115, 22, 0.1) 100%); border-left: 4px solid #2563eb !important;">
                             <div class="d-flex">
-                                <i class="fas fa-info-circle me-3 mt-1" style="color: #C13584; font-size: 1.2rem;"></i>
+                                <i class="fas fa-info-circle me-3 mt-1" style="color: #2563eb; font-size: 1.2rem;"></i>
                                 <div style="color: #4a5568;">
-                                    <strong style="color: #833AB4;">Formats acceptés :</strong> Images (JPG, PNG, GIF), PDF, Documents Word, Archives (ZIP, RAR)<br>
-                                    <strong style="color: #833AB4;">Taille maximale :</strong> 10 Mo par fichier
+                                    <strong style="color: #2563eb;">Formats acceptés :</strong> Images (JPG, PNG, GIF), PDF, Documents Word, Archives (ZIP, RAR)<br>
+                                    <strong style="color: #2563eb;">Taille maximale :</strong> 10 Mo par fichier
                                 </div>
                             </div>
                         </div>
                         <div
                             id="globalDropZone"
                             class="border-2 border-dashed rounded-4 p-5 text-center mt-4"
-                            style="border-color: rgba(131, 58, 180, 0.3); background: linear-gradient(135deg, rgba(131, 58, 180, 0.05) 0%, rgba(225, 48, 108, 0.05) 100%); min-height: 200px; cursor: pointer; transition: all 0.3s ease;"
+                            style="border-color: rgba(37, 99, 235, 0.3); background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%); min-height: 200px; cursor: pointer; transition: all 0.3s ease;"
                         >
-                            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
-                            <h5 class="fw-bold" style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Glissez vos fichiers ici</h5>
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                            <h5 class="fw-bold" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Glissez vos fichiers ici</h5>
                             <p class="text-muted mb-3">ou</p>
                             <button type="button" class="btn instagram-btn" id="globalBrowseBtn">
                                 <i class="fas fa-folder-open me-2"></i>Parcourir les fichiers

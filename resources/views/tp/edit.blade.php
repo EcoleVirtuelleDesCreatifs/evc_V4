@@ -3,6 +3,12 @@
 @section('title', 'Modifier le Projet - ' . $project->title)
 
 @section('content')
+@php
+    // Définir formationSlug par défaut si non défini
+    if (!isset($formationSlug)) {
+        $formationSlug = 'community-management';
+    }
+@endphp
 <div class="container-fluid">
     <!-- Header -->
     <div class="row mb-4">
@@ -17,7 +23,7 @@
                         </div>
                         <div>
                             <h2 class="mb-1 fw-bold">Modifier le projet</h2>
-                            <p class="mb-0 text-muted">Modifiez votre projet de Community Management</p>
+                            <p class="mb-0 text-muted">Modifiez votre projet</p>
                         </div>
                     </div>
                 </div>
@@ -26,10 +32,26 @@
     </div>
 
     <!-- Formulaire -->
-    <form id="projectForm" method="POST" action="{{ route('community-management.tp.update', $project->id) }}" enctype="multipart/form-data">
+    <form id="projectForm" method="POST" action="{{ route($formationSlug . '.tp.update', $project->id) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <input type="hidden" name="id" value="{{ $project->id }}">
+
+        @php
+            $isReport = false;
+            if (!empty($project->files)) {
+                foreach ($project->files as $f) {
+                    $ext = strtolower(pathinfo($f->original_name ?? '', PATHINFO_EXTENSION));
+                    if ($ext === 'pdf') {
+                        $isReport = true;
+                        break;
+                    }
+                }
+            }
+        @endphp
+        @if($isReport)
+            <input type="hidden" name="redirect_to" value="documents">
+        @endif
 
         <div class="row">
             <div class="col-lg-8 mx-auto">
@@ -63,14 +85,13 @@
                         <!-- Description -->
                         <div class="mb-4">
                             <label for="description" class="form-label fw-semibold">
-                                Description <span class="text-danger">*</span>
+                                Description
                             </label>
                             <textarea
                                 id="description"
                                 name="description"
-                                required
                                 placeholder="Décrivez votre projet de Community Management en détail : objectifs, cibles, stratégies, résultats attendus..."
-                            >{!! $project->description !!}</textarea>
+                            >{!! $project->description ?? '' !!}</textarea>
                             <div class="form-text d-flex justify-content-between mt-2">
                                 <span>Décrivez votre projet en détail</span>
                                 <span><span id="charCount">0</span>/2000 caractères</span>
@@ -140,7 +161,7 @@
                                     }
                                     return asset($path);
                                 };
-                                
+
                                 $isImage = function($file) {
                                     if (isset($file->mime_type) && str_starts_with($file->mime_type, 'image/')) {
                                         return true;
@@ -166,8 +187,8 @@
                                                 <div class="flex-grow-1">
                                                     @if($isImage($file))
                                                         <div class="mb-2">
-                                                            <img src="{{ $fileUrl }}" 
-                                                                 class="img-fluid rounded shadow-sm" 
+                                                            <img src="{{ $fileUrl }}"
+                                                                 class="img-fluid rounded shadow-sm"
                                                                  style="max-height: 200px; width: 100%; object-fit: cover; border: 2px solid #e9ecef;"
                                                                  alt="{{ $file->original_name }}"
                                                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -184,7 +205,7 @@
                                                     <p class="mb-1 fw-bold text-truncate" style="font-size: 0.9rem;">{{ $file->original_name }}</p>
                                                     <p class="mb-0 text-muted" style="font-size: 0.85rem;">{{ number_format($file->file_size / 1024, 2) }} KB</p>
                                                 </div>
-                                                <button type="button" class="btn btn-sm text-white ms-2" 
+                                                <button type="button" class="btn btn-sm text-white ms-2"
                                                         style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; border-radius: 8px; padding: 0.4rem 0.6rem; transition: all 0.3s ease;"
                                                         onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(240, 147, 251, 0.4)';"
                                                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';"
@@ -331,7 +352,7 @@
     .note-editor {
         border-radius: 0.375rem;
     }
-    
+
     .note-toolbar {
         background: #f8f9fa;
     }
@@ -363,10 +384,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 let cleanedContent = contents;
                 cleanedContent = cleanedContent.replace(/\s*data-start="[^"]*"/g, '');
                 cleanedContent = cleanedContent.replace(/\s*data-end="[^"]*"/g, '');
-                
+
                 // Mettre à jour le textarea avec le contenu nettoyé
                 $('#description').val(cleanedContent);
-                
+
                 // Mettre à jour le compteur de caractères
                 const text = $editable.text().trim();
                 const charCount = document.getElementById('charCount');
@@ -619,14 +640,14 @@ function deleteFile(fileId, fileName) {
             </div>
         </div>
     `;
-    
+
     // Ajouter le modal au DOM
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Afficher le modal
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteFileModal'));
     deleteModal.show();
-    
+
     // Nettoyer le modal après fermeture
     document.getElementById('deleteFileModal').addEventListener('hidden.bs.modal', function () {
         this.remove();
@@ -639,7 +660,7 @@ function confirmDeleteFile(fileId) {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `{{ url('/') }}/evc/compte/{{ request()->segment(3) }}/tp/{{ $project->id }}/fichier/${fileId}`;
-    
+
     // Token CSRF
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     if (csrfToken) {
@@ -649,14 +670,14 @@ function confirmDeleteFile(fileId) {
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
     }
-    
+
     // Méthode DELETE
     const methodInput = document.createElement('input');
     methodInput.type = 'hidden';
     methodInput.name = '_method';
     methodInput.value = 'DELETE';
     form.appendChild(methodInput);
-    
+
     // Ajouter au DOM et soumettre
     document.body.appendChild(form);
     form.submit();

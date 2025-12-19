@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nouveau Rapport soumis - EVC Admin</title>
+    <title>{{ !empty($is_report) ? 'Nouveau Rapport soumis' : 'Nouveau TP soumis' }} - EVC Admin</title>
     <style>
         /* 🎨 DESIGN MODERNE EVC - Variables CSS */
         :root {
@@ -271,7 +271,9 @@
                 <div class="evc-brand">🎓 EVC - Admin</div>
                 <div class="evc-tagline">Système de Gestion Pédagogique</div>
             </div>
-            <div class="notification-badge">🔔 Nouveau Rapport Soumis</div>
+            <div class="notification-badge">
+                {{ !empty($is_report) ? '📄 Nouveau Rapport Soumis' : '🔔 Nouveau TP Soumis' }}
+            </div>
         </div>
 
         <!-- 📋 CONTENU PRINCIPAL -->
@@ -282,10 +284,10 @@
 
             <div class="message-card">
                 <p style="font-size: 1.1rem; margin-bottom: 15px;">
-                    Un nouvel étudiant vient de soumettre un <strong>Rapport</strong> qui nécessite votre attention.
+                    Un nouvel étudiant vient de soumettre un <strong>{{ !empty($is_report) ? 'Rapport' : 'TP' }}</strong> qui nécessite votre attention.
                 </p>
                 <p style="color: var(--evc-text-light);">
-                    Vous pouvez consulter ce rapport et procéder à sa validation ou demander des améliorations.
+                    Vous pouvez consulter ce {{ !empty($is_report) ? 'rapport' : 'TP' }} et procéder à sa validation ou demander des améliorations.
                 </p>
             </div>
 
@@ -326,10 +328,10 @@
                         {!! $tp->description !!}
                     </div>
                 @endif
-                
+
                 @if($tp->link)
                     <div style="margin-top: 15px;">
-                        <strong>Lien du projet :</strong><br>
+                        <strong>Lien :</strong><br>
                         <a href="{{ $tp->link }}" style="color: var(--evc-primary); word-break: break-all;">{{ $tp->link }}</a>
                     </div>
                 @endif

@@ -3,6 +3,14 @@
 @section('title', 'Voir le TP - ' . $project->title)
 
 @section('content')
+@php
+    // Debug: afficher la formation slug
+    if (!isset($formationSlug)) {
+        \Log::error('$formationSlug non défini dans tp/view.blade.php');
+        $formationSlug = 'community-management'; // Valeur par défaut
+    }
+    \Log::info('tp/view.blade.php - formationSlug: ' . $formationSlug);
+@endphp
 <div class="container-fluid px-4">
     <!-- En-tête -->
     <div class="row mb-4">
@@ -15,14 +23,14 @@
                     </h1>
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ route('dashboard.community-management') }}" style="color: white;">Dashboard</a></li>
-                            <li class="breadcrumb-item"><a href="{{ route('community-management.tp.index') }}" style="color: white;">Tous les TP</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard.' . $formationSlug) }}" style="color: white;">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route($formationSlug . '.tp.index') }}" style="color: white;">Tous les TP</a></li>
                             <li class="breadcrumb-item active" style="color: white;">{{ $project->title }}</li>
                         </ol>
                     </nav>
                 </div>
                 <div>
-                    <a href="{{ route('community-management.tp.index') }}" class="btn btn-secondary">
+                    <a href="{{ route($formationSlug . '.tp.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-1"></i>
                         Retour à la liste
                     </a>
@@ -128,12 +136,12 @@
                         $ext = strtolower(pathinfo($file->original_name ?? '', PATHINFO_EXTENSION));
                         return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg']);
                     };
-                    
+
                     // Fonction pour obtenir l'URL correcte du fichier
                     $getFileUrl = function($filePath) {
                         // Nettoyer le chemin
                         $path = str_replace('public/', '', $filePath);
-                        
+
                         // Vérifier si le fichier existe avec différents chemins possibles
                         $possiblePaths = [
                             $path,
@@ -141,21 +149,21 @@
                             'uploads/' . basename($path),
                             'storage/tp_files/' . basename($path),
                         ];
-                        
+
                         foreach ($possiblePaths as $testPath) {
                             if (file_exists(public_path($testPath))) {
                                 return asset($testPath);
                             }
                         }
-                        
+
                         // Par défaut, retourner le chemin original
                         return asset($path);
                     };
-                    
+
                     $imageFiles = $project->files->filter($isImage);
                     $otherFiles = $project->files->filter(fn($f) => !$isImage($f));
                 @endphp
-                
+
                 @if($imageFiles->count() > 0)
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
@@ -173,8 +181,8 @@
                             <div class="col-md-4 col-sm-6" id="image-{{ $image->id }}">
                                 <div class="position-relative" style="height: 200px; overflow: hidden; border-radius: 8px; background: #f0f0f0;">
                                     <div class="w-100 h-100" style="cursor: pointer;" onclick="viewImage('{{ $imageUrl }}', '{{ $image->original_name }}')">
-                                        <img src="{{ $imageUrl }}" 
-                                             class="w-100 h-100" 
+                                        <img src="{{ $imageUrl }}"
+                                             class="w-100 h-100"
                                              style="object-fit: cover;"
                                              alt="{{ $image->original_name }}"
                                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -185,8 +193,8 @@
                                         </div>
                                     </div>
                                     @if($project->status === 'pending')
-                                    <button type="button" 
-                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2" 
+                                    <button type="button"
+                                            class="btn btn-danger btn-sm position-absolute top-0 end-0 m-2"
                                             style="z-index: 10;"
                                             onclick="event.stopPropagation(); deleteImage({{ $project->id }}, {{ $image->id }}, '{{ $image->original_name }}')">
                                         <i class="fas fa-trash"></i>
@@ -202,7 +210,7 @@
                     </div>
                 </div>
                 @endif
-                
+
                 @if($otherFiles->count() > 0)
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -235,23 +243,23 @@
                             </div>
                             <div>
                                 @if(str_starts_with($file->mime_type, 'image/'))
-                                    <a href="{{ asset($file->file_path) }}" 
-                                       target="_blank" 
+                                    <a href="{{ asset($file->file_path) }}"
+                                       target="_blank"
                                        class="btn btn-sm btn-info me-1"
                                        title="Voir l'image">
                                         <i class="fas fa-eye"></i>
                                     </a>
                                 @endif
                                 @if($file->mime_type === 'application/pdf')
-                                    <a href="{{ asset($file->file_path) }}" 
-                                       target="_blank" 
+                                    <a href="{{ asset($file->file_path) }}"
+                                       target="_blank"
                                        class="btn btn-sm btn-danger me-1"
                                        title="Lire le PDF">
                                         <i class="fas fa-book-open"></i>
                                     </a>
                                 @endif
-                                <a href="{{ asset($file->file_path) }}" 
-                                   download="{{ $file->original_name }}" 
+                                <a href="{{ asset($file->file_path) }}"
+                                   download="{{ $file->original_name }}"
                                    class="btn btn-sm btn-primary"
                                    title="Télécharger">
                                     <i class="fas fa-download"></i>
@@ -284,14 +292,22 @@
                                 <strong>En attente de validation</strong><br>
                                 <small>Votre TP est en cours d'évaluation par l'équipe pédagogique.</small>
                             </div>
-                            <a href="{{ route('community-management.tp.modifier', $project->id) }}" class="btn btn-warning w-100 mb-2">
-                                <i class="fas fa-edit me-2"></i>
-                                Modifier le TP
-                            </a>
-                            <button type="button" class="btn btn-danger w-100" onclick="confirmDelete({{ $project->id }})">
-                                <i class="fas fa-trash me-2"></i>
-                                Supprimer le TP
-                            </button>
+                            @if(!isset($project->source_table) || $project->source_table !== 'tp_assignments')
+                                <a href="{{ route($formationSlug . '.tp.modifier', $project->id) }}" class="btn btn-warning w-100 mb-2">
+                                    <i class="fas fa-edit me-2"></i>
+                                    Modifier le TP
+                                </a>
+                                <button type="button" class="btn btn-danger w-100" onclick="confirmDelete({{ $project->id }})">
+                                    <i class="fas fa-trash me-2"></i>
+                                    Supprimer le TP
+                                </button>
+                            @else
+                                <div class="alert alert-warning mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>TP assigné par l'administration</strong><br>
+                                    <small>Ce TP ne peut pas être modifié. Soumettez votre travail via le formulaire de soumission.</small>
+                                </div>
+                            @endif
                         @elseif($project->status === 'validated')
                             <div class="alert alert-success mb-0">
                                 <i class="fas fa-check-circle me-2"></i>
@@ -312,7 +328,7 @@
                                 @endif
                             </div>
                         @endif
-                        <a href="{{ route('community-management.tp.tous') }}" class="btn btn-secondary w-100 mt-2">
+                        <a href="{{ route($formationSlug . '.tp.tous') }}" class="btn btn-secondary w-100 mt-2">
                             <i class="fas fa-list me-2"></i>
                             Voir tous mes TP
                         </a>
@@ -331,22 +347,22 @@ function confirmDelete(tpId) {
         // Créer un formulaire de suppression dynamique
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = '{{ route("community-management.tp.supprimer", "__ID__") }}'.replace('__ID__', tpId);
-        
+        form.action = '{{ route($formationSlug . ".tp.supprimer", "__ID__") }}'.replace('__ID__', tpId);
+
         // Ajouter le token CSRF
         const csrfInput = document.createElement('input');
         csrfInput.type = 'hidden';
         csrfInput.name = '_token';
         csrfInput.value = '{{ csrf_token() }}';
         form.appendChild(csrfInput);
-        
+
         // Ajouter la méthode DELETE
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
         methodInput.value = 'DELETE';
         form.appendChild(methodInput);
-        
+
         // Ajouter au body et soumettre
         document.body.appendChild(form);
         form.submit();
@@ -361,9 +377,9 @@ function deleteImage(tpId, fileId, fileName) {
             imageElement.style.opacity = '0.5';
             imageElement.style.pointerEvents = 'none';
         }
-        
+
         // Envoyer la requête de suppression
-        fetch(`{{ route("community-management.tp.fichier.supprimer", ["tpId" => "__TP_ID__", "fileId" => "__FILE_ID__"]) }}`
+        fetch(`{{ route($formationSlug . ".tp.fichier.supprimer", ["tpId" => "__TP_ID__", "fileId" => "__FILE_ID__"]) }}`
             .replace('__TP_ID__', tpId)
             .replace('__FILE_ID__', fileId), {
             method: 'DELETE',
@@ -382,7 +398,7 @@ function deleteImage(tpId, fileId, fileName) {
                     imageElement.style.transform = 'scale(0)';
                     setTimeout(() => {
                         imageElement.remove();
-                        
+
                         // Vérifier s'il reste des images
                         const imagesContainer = document.querySelector('.row.g-3');
                         if (imagesContainer && imagesContainer.children.length === 0) {
@@ -391,7 +407,7 @@ function deleteImage(tpId, fileId, fileName) {
                         }
                     }, 300);
                 }
-                
+
                 // Afficher un message de succès
                 alert(data.message || 'Image supprimée avec succès !');
             } else {

@@ -5,9 +5,12 @@
 
 @section('content')
 @php
-    // Détection automatique de la formation depuis l'URL
-    $currentModule = request()->segment(3); // design-graphique, community-management, etc.
-    $routePrefix = $currentModule;
+    // Utiliser formationSlug si disponible, sinon détection automatique depuis l'URL
+    if (!isset($formationSlug)) {
+        $currentModule = request()->segment(3); // design-graphique, community-management, etc.
+        $formationSlug = $currentModule;
+    }
+    $routePrefix = $formationSlug;
 @endphp
 
 <style>
@@ -371,10 +374,10 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold">
                             <i class="fas fa-th-list me-2"></i>
-                            Mes Projets TP Réalisés
+                            Tous mes TP
                         </h5>
                         <span class="badge bg-white text-primary px-3 py-2">
-                            {{ isset($projects) ? count($projects) : 0 }} projet(s)
+                            {{ isset($projects) ? count($projects) : 0 }} TP
                         </span>
                     </div>
                 </div>
@@ -384,22 +387,25 @@
                         <table class="table table-hover mb-0 modern-table">
                             <thead class="table-dark">
                                 <tr>
-                                    <th scope="col" class="text-center" width="6%">
+                                    <th scope="col" class="text-center" width="5%">
                                         <i class="fas fa-hashtag"></i>
                                     </th>
-                                    <th scope="col" width="40%">
+                                    <th scope="col" width="30%">
                                         <i class="fas fa-project-diagram me-2"></i>TP
+                                    </th>
+                                    <th scope="col" width="15%">
+                                        <i class="fas fa-graduation-cap me-2"></i>Formation
                                     </th>
                                     <th scope="col" class="text-center" width="12%">
                                         <i class="fas fa-check-circle me-2"></i>Statut
                                     </th>
-                                    <th scope="col" class="text-center" width="12%">
+                                    <th scope="col" class="text-center" width="10%">
                                         <i class="fas fa-files me-2"></i>Fichiers
                                     </th>
                                     <th scope="col" class="text-center" width="10%">
                                         <i class="fas fa-calendar me-2"></i>Date
                                     </th>
-                                    <th scope="col" class="text-center" width="20%">
+                                    <th scope="col" class="text-center" width="18%">
                                         <i class="fas fa-cogs me-2"></i>Actions
                                     </th>
                                 </tr>
@@ -420,7 +426,7 @@
                                                 <h6 class="mb-1 fw-bold text-dark">{!! $project->title !!}</h6>
                                                 @if($project->description)
                                                     <p class="mb-0 text-muted small">
-                                                        {!! Str::limit(strip_tags($project->description), 80) !!}
+                                                        {!! Str::limit(strip_tags($project->description), 60) !!}
                                                     </p>
                                                 @endif
                                                 @if($project->link)
@@ -431,6 +437,22 @@
                                                     </p>
                                                 @endif
                                             </div>
+                                        </td>
+
+                                        <!-- Formation -->
+                                        <td>
+                                            @php
+                                                $formationColor = 'secondary';
+                                                $formationName = $project->formation ?? 'Design Graphique';
+                                                if(stripos($formationName, 'design') !== false) {
+                                                    $formationColor = 'info';
+                                                } elseif(stripos($formationName, 'community') !== false) {
+                                                    $formationColor = 'warning';
+                                                }
+                                            @endphp
+                                            <span class="badge bg-{{ $formationColor }} text-white">
+                                                {{ $formationName }}
+                                            </span>
                                         </td>
 
                                         <!-- Statut -->
@@ -468,22 +490,8 @@
                                             <div class="file-stats">
                                                 <div class="stat-item">
                                                     <i class="fas fa-file text-primary"></i>
-                                                    <span>{{ $project->files->count() }}</span>
+                                                    <span>{{ isset($project->files_count) ? $project->files_count : (isset($project->files) ? $project->files->count() : 0) }}</span>
                                                 </div>
-                                                @php
-                                                    $imageCount = $project->files->where('mime_type', 'LIKE', 'image/%')->count();
-                                                    $pdfCount = $project->files->where('mime_type', 'application/pdf')->count();
-                                                @endphp
-                                                <div class="stat-item">
-                                                    <i class="fas fa-images text-success"></i>
-                                                    <span>{{ $imageCount }}</span>
-                                                </div>
-                                                @if($pdfCount > 0)
-                                                    <div class="stat-item">
-                                                        <i class="fas fa-file-pdf text-danger"></i>
-                                                        <span>{{ $pdfCount }}</span>
-                                                    </div>
-                                                @endif
                                             </div>
                                         </td>
 
@@ -502,33 +510,40 @@
                                         <!-- Actions -->
                                         <td class="text-center">
                                             <div class="action-buttons">
-                                                @if($project->status == 'validated')
-                                                    <!-- Projet validé : seulement voir -->
-                                                    <button class="btn btn-outline-info btn-sm action-btn"
-                                                            title="Voir le projet"
-                                                            onclick="viewProject({{ $project->id }})">
+                                                @if(isset($project->source_table) && $project->source_table === 'tp_assignments')
+                                                    <a class="btn btn-outline-info btn-sm action-btn" title="Voir le TP" href="{{ route($routePrefix . '.tp.voir', ['id' => $project->id, 'source' => 'tp_assignments']) }}">
                                                         <i class="fas fa-eye"></i>
                                                         <span class="btn-text">Voir</span>
-                                                    </button>
+                                                    </a>
                                                 @else
-                                                    <!-- Projet en cours : toutes les actions -->
-                                                    <div class="btn-group btn-group-sm" role="group">
-                                                        <button class="btn btn-outline-info btn-sm action-btn"
+                                                    @if($project->status == 'validated')
+                                                        <!-- Projet validé : seulement voir -->
+                                                        <a class="btn btn-outline-info btn-sm action-btn"
                                                                 title="Voir le projet"
-                                                                onclick="viewProject({{ $project->id }})">
+                                                                href="{{ route($routePrefix . '.tp.voir', ['id' => $project->id, 'source' => 'tp']) }}">
                                                             <i class="fas fa-eye"></i>
-                                                        </button>
-                                                        <button class="btn btn-outline-warning btn-sm action-btn"
-                                                                title="Modifier le projet"
-                                                                onclick="editProject({{ $project->id }})">
-                                                            <i class="fas fa-edit"></i>
-                                                        </button>
-                                                        <button class="btn btn-outline-danger btn-sm action-btn"
-                                                                title="Supprimer le projet"
-                                                                onclick="deleteProject({{ $project->id }}, '{{ addslashes($project->title) }}')">
-                                                            <i class="fas fa-trash"></i>
-                                                        </button>
-                                                    </div>
+                                                            <span class="btn-text">Voir</span>
+                                                        </a>
+                                                    @else
+                                                        <!-- Projet en cours : toutes les actions -->
+                                                        <div class="btn-group btn-group-sm" role="group">
+                                                            <a class="btn btn-outline-info btn-sm action-btn"
+                                                                    title="Voir le projet"
+                                                                    href="{{ route($routePrefix . '.tp.voir', ['id' => $project->id, 'source' => 'tp']) }}">
+                                                                <i class="fas fa-eye"></i>
+                                                            </a>
+                                                            <a class="btn btn-outline-warning btn-sm action-btn"
+                                                                    title="Modifier le projet"
+                                                                    href="{{ route($routePrefix . '.tp.modifier', $project->id) }}">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <button class="btn btn-outline-danger btn-sm action-btn"
+                                                                    title="Supprimer le projet"
+                                                                    onclick="deleteProject({{ $project->id }}, '{{ addslashes($project->title) }}')">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </td>

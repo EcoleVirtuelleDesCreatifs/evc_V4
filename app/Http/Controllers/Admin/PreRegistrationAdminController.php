@@ -24,7 +24,7 @@ class PreRegistrationAdminController extends Controller
                 if (\Illuminate\Support\Facades\Schema::hasColumn('pre_registrations', 'activated_at')) {
                     $update['activated_at'] = now();
                 }
-                PreRegistration::whereIn('status', ['accepted','Validé'])
+                PreRegistration::whereIn('status', ['accepted', 'Validé'])
                     ->whereIn('email', $verifiedEmails)
                     ->update($update);
             }
@@ -35,11 +35,11 @@ class PreRegistrationAdminController extends Controller
         $query = PreRegistration::query()->latest();
 
         if ($search = $request->get('q')) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('prenom', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('whatsapp', 'like', "%{$search}%");
+                    ->orWhere('prenom', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('whatsapp', 'like', "%{$search}%");
             });
         }
 
@@ -103,7 +103,7 @@ class PreRegistrationAdminController extends Controller
                 // Supprimer les enregistrements
                 $count = PreRegistration::whereIn('id', $ids)->delete();
 
-                return redirect()->route('admin.preinscriptions.index', $request->only(['q','formation','status']))
+                return redirect()->route('admin.preinscriptions.index', $request->only(['q', 'formation', 'status']))
                     ->with('success', "✅ {$count} pré-inscription(s) supprimée(s) avec succès.");
             }
 
@@ -120,9 +120,8 @@ class PreRegistrationAdminController extends Controller
                 'updated_by' => session('admin_id')
             ]);
 
-            return redirect()->route('admin.preinscriptions.index', $request->only(['q','formation','status']))
+            return redirect()->route('admin.preinscriptions.index', $request->only(['q', 'formation', 'status']))
                 ->with('success', "✅ Statut mis à jour pour {$count} élément(s) sélectionné(s).");
-
         } catch (\Exception $e) {
             Log::error('Erreur action groupée pré-inscriptions', [
                 'error' => $e->getMessage(),
@@ -144,7 +143,7 @@ class PreRegistrationAdminController extends Controller
         if (!file_exists($path)) {
             return redirect()->back()->with('error', 'Fichier photo introuvable.');
         }
-        return response()->download($path, 'photo_preinscription_'.$pre->id.'.'.pathinfo($path, PATHINFO_EXTENSION));
+        return response()->download($path, 'photo_preinscription_' . $pre->id . '.' . pathinfo($path, PATHINFO_EXTENSION));
     }
 
     public function validateOne($id)
@@ -158,7 +157,7 @@ class PreRegistrationAdminController extends Controller
         $user = User::where('email', $pre->email)->first();
         if (!$user) {
             $user = new User();
-            $user->name = trim(($pre->prenom ? $pre->prenom.' ' : '').($pre->nom ?? '')) ?: $pre->email;
+            $user->name = trim(($pre->prenom ? $pre->prenom . ' ' : '') . ($pre->nom ?? '')) ?: $pre->email;
             $user->email = $pre->email;
             // Mot de passe temporaire aléatoire (sera remplacé lors de la confirmation)
             $user->password = bcrypt(str()->random(32));
@@ -228,7 +227,7 @@ class PreRegistrationAdminController extends Controller
         $email = $pre->email;
         $timestamp = time();
         $hash = md5($email . config('app.key'));
-        $token = base64_encode($email.'|'.$timestamp.'|'.$hash);
+        $token = base64_encode($email . '|' . $timestamp . '|' . $hash);
         $registerUrl = route('student.confirm-registration', ['token' => $token]);
 
         // 4) Envoyer l'e-mail de félicitations avec le lien
@@ -268,7 +267,6 @@ class PreRegistrationAdminController extends Controller
 
             return redirect()->route('admin.preinscriptions.index')
                 ->with('success', "✅ Pré-inscription de {$name} ({$email}) supprimée avec succès.");
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de la suppression de pré-inscription', [
                 'id' => $id,
@@ -288,7 +286,7 @@ class PreRegistrationAdminController extends Controller
         $email = $pre->email;
         $timestamp = time();
         $hash = md5($email . config('app.key'));
-        $token = base64_encode($email.'|'.$timestamp.'|'.$hash);
+        $token = base64_encode($email . '|' . $timestamp . '|' . $hash);
         $registerUrl = route('student.confirm-registration', ['token' => $token]);
 
         try {
@@ -311,26 +309,41 @@ class PreRegistrationAdminController extends Controller
         ];
 
         $columns = [
-            'id','nom','prenom','age','email','whatsapp','pays','niveau_etude','choix_formation','niveau_dans_formation','has_computer','has_smartphone','disponibilite','motivation','status','created_at'
+            'id',
+            'nom',
+            'prenom',
+            'age',
+            'email',
+            'whatsapp',
+            'pays',
+            'niveau_etude',
+            'choix_formation',
+            'niveau_dans_formation',
+            'has_computer',
+            'has_smartphone',
+            'disponibilite',
+            'motivation',
+            'status',
+            'created_at'
         ];
 
         $search = $request->get('q');
         $formation = $request->get('formation');
         $status = $request->get('status');
 
-        $callback = function() use ($columns, $search, $formation, $status) {
+        $callback = function () use ($columns, $search, $formation, $status) {
             $handle = fopen('php://output', 'w');
             // UTF-8 BOM for Excel compatibility
-            fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
             fputcsv($handle, $columns);
 
             $base = PreRegistration::query();
             if ($search) {
-                $base->where(function($q) use ($search) {
+                $base->where(function ($q) use ($search) {
                     $q->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenom', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%")
-                      ->orWhere('whatsapp', 'like', "%{$search}%");
+                        ->orWhere('prenom', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('whatsapp', 'like', "%{$search}%");
                 });
             }
             if ($formation) {
@@ -340,12 +353,14 @@ class PreRegistrationAdminController extends Controller
                 $base->where('status', $status);
             }
 
-            $base->orderBy('id', 'desc')->chunk(500, function($chunk) use ($handle, $columns) {
+            $base->orderBy('id', 'desc')->chunk(500, function ($chunk) use ($handle, $columns) {
                 foreach ($chunk as $pre) {
                     $row = [];
                     foreach ($columns as $col) {
                         $val = $pre->{$col} ?? '';
-                        if (is_bool($val)) { $val = $val ? '1' : '0'; }
+                        if (is_bool($val)) {
+                            $val = $val ? '1' : '0';
+                        }
                         $row[] = $val;
                     }
                     fputcsv($handle, $row);
@@ -356,5 +371,172 @@ class PreRegistrationAdminController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Accepter une candidature et créer les paiements (PRODUCTION: 50 000 + 27 000 FCFA)
+     */
+    public function acceptCandidate(Request $request, $id)
+    {
+        try {
+            $pre = PreRegistration::findOrFail($id);
+
+            if ($pre->status === 'accepted') {
+                return redirect()->back()->with('warning', 'Cette candidature est déjà acceptée.');
+            }
+
+            $pre->status = 'accepted';
+            $pre->save();
+
+            $formationName = $this->getFormationLabel($pre->choix_formation);
+            $totalAmount = \App\Services\CinetPayService::getFormationPrice($formationName);
+
+            $paymentMode = $request->input('payment_mode', 'installment');
+
+            if ($paymentMode === 'installment') {
+                $installment1Amount = 50000;
+                $installment2Amount = 27000;
+                if ($formationName === 'Community Management') {
+                    $installment1Amount = 53500;
+                    $installment2Amount = 53500;
+                } elseif ($formationName === 'Design Graphique & Community Management') {
+                    $installment1Amount = 100000;
+                    $installment2Amount = 65000;
+                }
+
+                // Paiement par tranche (PRODUCTION)
+                $firstInstallmentRef = 'EVC-PAY-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
+
+                $firstInstallmentId = DB::table('payments')->insertGetId([
+                    'pre_registration_id' => $pre->id,
+                    'amount' => $installment1Amount,
+                    'currency' => 'XOF',
+                    'payment_reference' => $firstInstallmentRef,
+                    'status' => 'pending',
+                    'payer_email' => $pre->email,
+                    'payer_name' => $pre->prenom . ' ' . $pre->nom,
+                    'expires_at' => now()->addDays(7),
+                    'payment_type' => 'installment',
+                    'installment_number' => 1,
+                    'total_installments' => 2,
+                    'total_amount' => $totalAmount,
+                    'parent_payment_id' => null,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                $secondInstallmentRef = 'EVC-PAY-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
+
+                DB::table('payments')->insert([
+                    'pre_registration_id' => $pre->id,
+                    'amount' => $installment2Amount,
+                    'currency' => 'XOF',
+                    'payment_reference' => $secondInstallmentRef,
+                    'status' => 'pending',
+                    'payer_email' => $pre->email,
+                    'payer_name' => $pre->prenom . ' ' . $pre->nom,
+                    'expires_at' => now()->addDays(30),
+                    'payment_type' => 'installment',
+                    'installment_number' => 2,
+                    'total_installments' => 2,
+                    'total_amount' => $totalAmount,
+                    'parent_payment_id' => $firstInstallmentId,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                // Toujours utiliser la page de paiement interne (comme Design Graphique)
+                $paymentUrl = url('/evc/payment/' . $firstInstallmentRef);
+                $message = '✅ Candidature acceptée ! Email envoyé avec lien 1ère tranche.';
+
+                $payment = (object)[
+                    'amount' => $installment1Amount,
+                    'installment2_amount' => $installment2Amount,
+                    'payment_reference' => $firstInstallmentRef,
+                    'expires_at' => now()->addDays(7)->format('d/m/Y'),
+                    'payment_type' => 'installment',
+                    'total_amount' => $totalAmount,
+                ];
+            } else {
+                // Paiement unique
+                $paymentReference = 'EVC-PAY-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
+
+                DB::table('payments')->insert([
+                    'pre_registration_id' => $pre->id,
+                    'amount' => $totalAmount,
+                    'currency' => 'XOF',
+                    'payment_reference' => $paymentReference,
+                    'status' => 'pending',
+                    'payer_email' => $pre->email,
+                    'payer_name' => $pre->prenom . ' ' . $pre->nom,
+                    'expires_at' => now()->addDays(7),
+                    'payment_type' => 'full',
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+
+                $paymentUrl = url('/evc/payment/' . $paymentReference);
+                $message = '✅ Candidature acceptée ! Email envoyé avec lien de paiement unique.';
+
+                $payment = (object)[
+                    'amount' => $totalAmount,
+                    'payment_reference' => $paymentReference,
+                    'expires_at' => now()->addDays(7)->format('d/m/Y'),
+                    'payment_type' => 'full',
+                    'total_amount' => $totalAmount,
+                ];
+            }
+
+            Mail::to($pre->email)->send(new \App\Mail\CandidatureAcceptee($pre, $paymentUrl, $payment));
+
+            Log::info('Candidature acceptée avec paiement', [
+                'pre_id' => $pre->id,
+                'payment_mode' => $paymentMode
+            ]);
+
+            return redirect()->route('admin.preinscriptions.index')->with('success', $message);
+        } catch (\Exception $e) {
+            Log::error('Erreur acceptation candidature', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', '❌ Erreur : ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Rejeter une candidature
+     */
+    public function rejectCandidate($id)
+    {
+        try {
+            $pre = PreRegistration::findOrFail($id);
+            $pre->status = 'rejected';
+            $pre->save();
+
+            return redirect()->route('admin.preinscriptions.index')
+                ->with('success', '✅ Candidature rejetée.');
+        } catch (\Exception $e) {
+            Log::error('Erreur rejet candidature', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', '❌ Erreur : ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Obtenir le label de formation formaté
+     */
+    public function getFormationLabel($choix)
+    {
+        $mapping = [
+            'design_graphique' => 'Design Graphique',
+            'community_management' => 'Community Management',
+            'design_cm' => 'Design Graphique & Community Management',
+            'design_graphique_community_management' => 'Design Graphique & Community Management',
+            'gestion_informatique' => 'Gestion Informatique',
+            'intelligence_artificielle' => 'Intelligence Artificielle'
+        ];
+
+        return $mapping[$choix] ?? $choix;
     }
 }

@@ -14,7 +14,7 @@
 
         <div style="padding:30px 20px;">
             <p style="font-size:16px;margin:0 0 20px 0;">Bonjour,</p>
-            
+
             <p style="background:#DBEAFE;border-left:4px solid #3B82F6;padding:12px 16px;margin:20px 0;border-radius:4px;">
                 ✨ Une <strong>nouvelle candidature</strong> vient d'être enregistrée via le formulaire en ligne et nécessite votre examen.
             </p>
@@ -67,7 +67,20 @@
                 <table style="width:100%;border-collapse:collapse;">
                     <tr>
                         <td style="padding:8px 0;font-weight:600;width:35%;">Programme choisi :</td>
-                        <td style="padding:8px 0;"><strong style="color:#D97706;">{{ ucfirst(str_replace('_', ' ', $pre->choix_formation ?? $pre->programme)) }}</strong></td>
+                        <td style="padding:8px 0;">
+                            @php
+                                $formation = $pre->choix_formation ?? $pre->programme;
+                                $formationDisplay = match($formation) {
+                                    'design_graphique' => 'Design Graphique',
+                                    'community_management' => 'Community Management',
+                                    'design_graphique_community_management' => 'Design Graphique & Community Management',
+                                    'intelligence_artificielle' => 'Intelligence Artificielle',
+                                    'gestion_informatique' => 'Gestion Informatique',
+                                    default => ucfirst(str_replace('_', ' ', $formation))
+                                };
+                            @endphp
+                            <strong style="color:#D97706;">{{ $formationDisplay }}</strong>
+                        </td>
                     </tr>
                     <tr>
                         <td style="padding:8px 0;font-weight:600;">Niveau actuel :</td>
@@ -126,12 +139,12 @@
             <!-- Actions -->
             <div style="background:linear-gradient(135deg, #FF6B00 0%, #FFA500 100%);padding:20px;border-radius:8px;margin:24px 0;text-align:center;">
                 <p style="margin:0 0 16px 0;color:#fff;font-size:16px;font-weight:600;">⚡ Actions à Entreprendre</p>
-                <a href="http://127.0.0.1:8000/evc/app/admin/preinscriptions/{{ $pre->id }}" 
+                <a href="http://127.0.0.1:8000/evc/app/admin/preinscriptions/{{ $pre->id }}"
                    style="display:inline-block;background:#fff;color:#FF6B00;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:8px;">
                     👁️ Voir la Candidature Complète
                 </a>
                 <br>
-                <a href="http://127.0.0.1:8000/evc/app/admin/preinscriptions" 
+                <a href="http://127.0.0.1:8000/evc/app/admin/preinscriptions"
                    style="display:inline-block;background:rgba(255,255,255,0.2);color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin:8px;">
                     📋 Toutes les Candidatures
                 </a>

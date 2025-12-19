@@ -190,13 +190,13 @@
             <!-- Info Box -->
             <div class="info-box">
                 <strong>ℹ️ Important :</strong> Après votre paiement, merci de nous envoyer
-                le reçu par email à <a href="mailto:contact@colevirtuelledescreatifs.com">contact@colevirtuelledescreatifs.com</a>
-                ou via WhatsApp au <strong>(+225) 07 17 25 86 02</strong>.
+                le reçu par email à <a href="mailto:info@ecolevirtuelledescreatifs.com">info@ecolevirtuelledescreatifs.com</a>
+                ou via WhatsApp au <strong>+225 07 47 25 95 07</strong>.
             </div>
 
             <!-- CTA Button -->
             <div style="text-align: center;">
-                <a href="mailto:contact@colevirtuelledescreatifs.com?subject=Paiement Formation - {{ $student['first_name'] }} {{ $student['last_name'] }}" class="cta-button">
+                <a href="mailto:info@ecolevirtuelledescreatifs.com?subject=Paiement Formation - {{ $student['first_name'] }} {{ $student['last_name'] }}" class="cta-button">
                     Contacter le Service Paiements
                 </a>
             </div>
@@ -222,9 +222,10 @@
         <div class="footer">
             <p>
                 <strong>École Virtuelle des Créatifs (EVC)</strong><br>
-                Cocody Riviera Palmeraie, Abidjan, Côte d'Ivoire<br>
-                📧 <a href="mailto:contact@colevirtuelledescreatifs.com">contact@colevirtuelledescreatifs.com</a> |
-                📱 <strong>(+225) 07 17 25 86 02</strong><br>
+                📍 Abidjan, Palmeraie<br>
+                📞 (+225) 07 17 25 86 02<br>
+                📱 WhatsApp : +225 07 47 25 95 07<br>
+                📧 <a href="mailto:info@ecolevirtuelledescreatifs.com">info@ecolevirtuelledescreatifs.com</a> | <a href="mailto:contact@ecolevirtuelledescreatifs.com">contact@ecolevirtuelledescreatifs.com</a><br>
                 🌐 <a href="https://www.ecolevirtuelledescreatifs.com">www.ecolevirtuelledescreatifs.com</a>
             </p>
             <p style="margin-top: 10px;">
@@ -234,7 +235,7 @@
             </p>
             <p style="font-size: 12px; color: #999; margin-top: 15px;">
                 Cet email a été envoyé automatiquement. Merci de ne pas y répondre directement.<br>
-                Pour toute question, contactez-nous à <a href="mailto:contact@colevirtuelledescreatifs.com">contact@colevirtuelledescreatifs.com</a> ou via WhatsApp au (+225) 07 17 25 86 02
+                Pour toute question, contactez-nous à <a href="mailto:info@ecolevirtuelledescreatifs.com">info@ecolevirtuelledescreatifs.com</a> ou via WhatsApp au +225 07 47 25 95 07
             </p>
         </div>
     </div>

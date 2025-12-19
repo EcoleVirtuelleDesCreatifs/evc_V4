@@ -7,7 +7,7 @@
 <!-- Statistiques de la communauté -->
 <div class="row mb-4">
     <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card h-100" style="background: linear-gradient(135deg, #003366, #0066cc); color: white;">
+        <div class="card h-100" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); color: white;">
             <div class="card-body text-center">
                 <i class="fas fa-users fa-2x mb-2"></i>
                 <h4 class="mb-1">{{ number_format($communityStats['active_members']) }}</h4>
@@ -16,7 +16,7 @@
         </div>
     </div>
     <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card h-100" style="background: linear-gradient(135deg, #3399ff, #66b3ff); color: white;">
+        <div class="card h-100" style="background: linear-gradient(135deg, #f97316 0%, #2563eb 100%); color: white;">
             <div class="card-body text-center">
                 <i class="fas fa-comments fa-2x mb-2"></i>
                 <h4 class="mb-1">{{ number_format($communityStats['total_messages']) }}</h4>
@@ -25,7 +25,7 @@
         </div>
     </div>
     <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card h-100" style="background: linear-gradient(135deg, #ff6633, #ff9966); color: white;">
+        <div class="card h-100" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); color: white;">
             <div class="card-body text-center">
                 <i class="fas fa-project-diagram fa-2x mb-2"></i>
                 <h4 class="mb-1">{{ number_format($communityStats['shared_projects']) }}</h4>
@@ -34,7 +34,7 @@
         </div>
     </div>
     <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card h-100" style="background: linear-gradient(135deg, #FF9900, #ffb84d); color: white;">
+        <div class="card h-100" style="background: linear-gradient(135deg, #f97316 0%, #2563eb 100%); color: white;">
             <div class="card-body text-center">
                 <i class="fas fa-user-graduate fa-2x mb-2"></i>
                 <h4 class="mb-1">{{ number_format($communityStats['graduates']) }}</h4>
@@ -61,7 +61,7 @@
                         <div class="card border h-100">
                             <div class="card-body text-center">
                                 <div class="mb-3">
-                                    <i class="fab fa-telegram-plane fa-3x" style="color: #0088cc;"></i>
+                                    <i class="fab fa-telegram-plane fa-3x text-primary"></i>
                                 </div>
                                 <h6 class="mb-2">Canal Telegram</h6>
                                 <p class="text-muted small mb-3">Actualités et annonces officielles</p>
@@ -81,14 +81,14 @@
                         <div class="card border h-100">
                             <div class="card-body text-center">
                                 <div class="mb-3">
-                                    <i class="fab fa-telegram-plane fa-3x" style="color: #0088cc;"></i>
+                                    <i class="fab fa-telegram-plane fa-3x text-primary"></i>
                                 </div>
                                 <h6 class="mb-2">Groupe Telegram</h6>
                                 <p class="text-muted small mb-3">Discussions et entraide entre étudiants</p>
                                 <div class="mb-2">
-                                    <span class="badge bg-info">456 membres</span>
+                                    <span class="badge bg-primary">456 membres</span>
                                 </div>
-                                <a href="https://t.me/+zr1VQTfsElhmZWE8" target="_blank" class="btn btn-outline-primary btn-sm">
+                                <a href="https://t.me/+Xf2eAnocxx45MjM0" target="_blank" class="btn btn-primary btn-sm">
                                     <i class="fab fa-telegram-plane me-1"></i>
                                     Rejoindre
                                 </a>
@@ -123,7 +123,27 @@
                                 <div class="mb-3">
                                     <i class="fab fa-whatsapp fa-3x" style="color: #25D366;"></i>
                                 </div>
-                                <h6 class="mb-2">Groupe WhatsApp</h6>
+                                <h6 class="mb-2">Groupe WhatsApp CM</h6>
+                                <p class="text-muted small mb-3">Classe de travail</p>
+                                <div class="mb-2">
+                                    <span class="badge bg-warning">256 membres</span>
+                                </div>
+                                <a href="https://chat.whatsapp.com/KRWhGOnAB9y2RmFPhXI0zp" target="_blank" class="btn btn-outline-success btn-sm">
+                                    <i class="fab fa-whatsapp me-1"></i>
+                                    Rejoindre
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Groupe WhatsApp Design Graphique -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="card border h-100">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="fab fa-whatsapp fa-3x" style="color: #25D366;"></i>
+                                </div>
+                                <h6 class="mb-2">Groupe WhatsApp Design</h6>
                                 <p class="text-muted small mb-3">Classe de travail</p>
                                 <div class="mb-2">
                                     <span class="badge bg-warning">256 membres</span>
@@ -159,7 +179,7 @@
                         <div class="card border h-100 text-center">
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <i class="fab fa-facebook fa-3x" style="color: #1877F2;"></i>
+                                    <i class="fab fa-facebook fa-3x text-primary"></i>
                                 </div>
                                 <h6 class="mb-2">Facebook</h6>
                                 <p class="text-muted small mb-3">Actualités & Communauté</p>
@@ -263,7 +283,7 @@
                         <div class="card border h-100 text-center">
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <i class="fab fa-linkedin fa-3x" style="color: #0A66C2;"></i>
+                                    <i class="fab fa-linkedin fa-3x text-primary"></i>
                                 </div>
                                 <h6 class="mb-2">LinkedIn</h6>
                                 <p class="text-muted small mb-3">Réseau professionnel</p>
@@ -308,7 +328,7 @@
                 <!-- Call to action -->
                 <div class="row mt-4">
                     <div class="col-12">
-                        <div class="alert alert-info d-flex align-items-center">
+                        <div class="alert alert-primary d-flex align-items-center">
                             <i class="fas fa-info-circle fa-2x me-3"></i>
                             <div>
                                 <h6 class="mb-1">Restez connectés avec EVC !</h6>

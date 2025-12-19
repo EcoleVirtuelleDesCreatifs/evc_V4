@@ -6,19 +6,20 @@
 @push('styles')
 <style>
     :root {
-        --instagram-purple: #bc1888;
-        --instagram-pink: #cc2366;
-        --instagram-red: #dc2743;
-        --instagram-orange: #e6683c;
-        --instagram-yellow: #f09433;
+        --design-cm-blue: #2563eb;
+        --design-cm-orange: #f97316;
     }
 
     .instagram-gradient {
-        background: linear-gradient(135deg, var(--instagram-yellow) 0%, var(--instagram-orange) 25%, var(--instagram-red) 50%, var(--instagram-pink) 75%, var(--instagram-purple) 100%);
+        background: linear-gradient(135deg, var(--design-cm-blue) 0%, var(--design-cm-orange) 100%);
     }
 
     .instagram-gradient-reverse {
-        background: linear-gradient(135deg, var(--instagram-purple) 0%, var(--instagram-pink) 25%, var(--instagram-red) 50%, var(--instagram-orange) 75%, var(--instagram-yellow) 100%);
+        background: linear-gradient(135deg, var(--design-cm-orange) 0%, var(--design-cm-blue) 100%);
+    }
+
+    .blue-night-gradient {
+        background: linear-gradient(135deg, var(--design-cm-blue) 0%, var(--design-cm-orange) 100%);
     }
 
     .hero-section {
@@ -53,7 +54,7 @@
     .stat-card {
         border-radius: 20px;
         padding: 2rem;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: none;
         border: none;
         position: relative;
         overflow: hidden;
@@ -68,16 +69,16 @@
         bottom: 0;
         background: inherit;
         opacity: 0;
-        transition: opacity 0.4s ease;
+        transition: none;
     }
 
     .stat-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        transform: none;
+        box-shadow: none;
     }
 
     .stat-card:hover::before {
-        opacity: 0.1;
+        opacity: 0;
     }
 
     .stat-icon {
@@ -95,7 +96,7 @@
 
     .report-card {
         border-radius: 20px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: none;
         border: none;
         overflow: hidden;
         height: 100%;
@@ -103,8 +104,8 @@
     }
 
     .report-card:hover {
-        transform: translateY(-12px);
-        box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+        transform: none;
+        box-shadow: none;
     }
 
     .report-header {
@@ -124,12 +125,7 @@
         width: 200%;
         height: 200%;
         background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        animation: pulse 3s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.1); }
+        animation: none;
     }
 
     .status-badge {
@@ -149,7 +145,7 @@
         padding: 1rem 2.5rem;
         font-weight: 700;
         font-size: 1.1rem;
-        transition: all 0.3s ease;
+        transition: none;
         border: none;
         position: relative;
         overflow: hidden;
@@ -165,29 +161,29 @@
         border-radius: 50%;
         background: rgba(255,255,255,0.3);
         transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
+        transition: none;
     }
 
     .btn-create:hover::before {
-        width: 300px;
-        height: 300px;
+        width: 0;
+        height: 0;
     }
 
     .btn-create:hover {
-        transform: scale(1.05);
-        box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        transform: none;
+        box-shadow: none;
     }
 
     .btn-action {
         border-radius: 12px;
         padding: 0.7rem 1.5rem;
         font-weight: 600;
-        transition: all 0.3s ease;
+        transition: none;
         border: none;
     }
 
     .btn-action:hover {
-        transform: scale(1.08);
+        transform: none;
     }
 
     .section-title {
@@ -228,28 +224,17 @@
         font-size: 1.8rem;
         box-shadow: 0 10px 40px rgba(0,0,0,0.3);
         z-index: 1000;
-        transition: all 0.3s ease;
+        transition: none;
         border: none;
     }
 
     .floating-btn:hover {
-        transform: scale(1.15) rotate(90deg);
-        box-shadow: 0 15px 50px rgba(0,0,0,0.4);
-    }
-
-    @keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(40px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        transform: none;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
     }
 
     .animate-in {
-        animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: none;
     }
 
     .report-meta {
@@ -314,10 +299,10 @@
 
 @section('content')
 <div class="container-fluid" style="max-width: 100%; overflow-x: hidden; padding: 0 15px;">
-    <!-- Hero Section avec dégradé Instagram -->
+    <!-- Hero Section avec dégradé bleu nuit / bleu -->
     <div class="row mb-5 animate-in">
         <div class="col-12">
-            <div class="hero-section instagram-gradient shadow-lg text-white">
+            <div class="hero-section blue-night-gradient shadow-lg text-white">
                 <div class="position-relative" style="z-index: 1;">
                     <div class="d-flex justify-content-between align-items-center flex-wrap">
                         <div>
@@ -388,7 +373,7 @@
         <div class="col-12">
             <div class="table-responsive">
                 <table class="table align-middle mb-0" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(131, 58, 180, 0.15);">
-                    <thead style="background: linear-gradient(135deg, #833AB4 0%, #C13584 50%, #E1306C 100%); color: white;">
+                    <thead style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%); color: white;">
                         <tr>
                             <th style="padding: 1.5rem 1.2rem; font-weight: 600; border: none; font-size: 0.95rem; letter-spacing: 0.5px;">
                                 Titre
@@ -412,9 +397,9 @@
                     </thead>
                     <tbody>
                         @foreach($documents as $doc)
-                        <tr style="transition: all 0.3s ease; border-bottom: 1px solid #f5f5f5;">
+                        <tr style="transition: none; border-bottom: 1px solid #f5f5f5;">
                             <td style="padding: 1.2rem; font-weight: 600; color: #262626; font-size: 0.95rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                <i class="fas fa-file-pdf me-2" style="color: #E1306C;"></i>
+                                <i class="fas fa-file-pdf me-2" style="color: #C13584;"></i>
                                 {{ Str::limit($doc['titre'], 30) }}
                             </td>
                             <td style="padding: 1.2rem; color: #8e8e8e; font-size: 0.9rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -445,31 +430,23 @@
                             </td>
                             <td style="padding: 1.2rem; text-align: center;">
                                 <div class="d-flex gap-2 justify-content-center">
-                                    @if($doc['lien'] !== '#')
-                                        <a href="{{ $doc['lien'] }}"
-                                           target="_blank"
-                                           class="btn btn-sm text-white"
-                                           style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(131, 58, 180, 0.2);"
-                                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(131, 58, 180, 0.3)';"
-                                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(131, 58, 180, 0.2)';"
-                                           title="Voir le document">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    @endif
+                                    <a href="{{ $doc['lien'] !== '#' ? $doc['lien'] : 'javascript:void(0)' }}"
+                                       @if($doc['lien'] !== '#') target="_blank" @endif
+                                       class="btn btn-sm text-white {{ $doc['lien'] === '#' ? 'disabled' : '' }}"
+                                       style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);"
+                                       title="{{ $doc['lien'] !== '#' ? 'Voir le document' : 'Aucun fichier disponible' }}">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
 
                                     @if($doc['status'] === 'pending')
                                         <a href="{{ route($currentModule . '.tp.modifier', $doc['id']) }}"
                                            class="btn btn-sm text-white"
-                                           style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);"
-                                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(102, 126, 234, 0.3)';"
-                                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.2)';"
+                                           style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(225, 48, 108, 0.18);"
                                            title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button class="btn btn-sm text-white"
-                                                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(240, 147, 251, 0.2);"
-                                                onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(240, 147, 251, 0.3)';"
-                                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(240, 147, 251, 0.2)';"
+                                                style="background: linear-gradient(135deg, #E1306C 0%, #F56040 60%, #FCAF45 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(225, 48, 108, 0.14);"
                                                 onclick="deleteReport({{ $doc['id'] }}, {{ json_encode(strip_tags($doc['titre'])) }})"
                                                 title="Supprimer">
                                             <i class="fas fa-trash"></i>
@@ -520,6 +497,7 @@
             </div>
             <form action="{{ route($currentModule . '.tp.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                <input type="hidden" name="redirect_to" value="documents">
                 <div class="modal-body p-4">
                     <!-- Titre du rapport -->
                     <div class="mb-4">
@@ -599,43 +577,6 @@
 
 @section('scripts')
 <script>
-// Animation au scroll
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-document.querySelectorAll('.animate-in').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(40px)';
-    el.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-    observer.observe(el);
-});
-
-// Effet parallax sur le hero
-document.addEventListener('mousemove', (e) => {
-    const hero = document.querySelector('.hero-section');
-    if (hero) {
-        const x = (e.clientX / window.innerWidth - 0.5) * 20;
-        const y = (e.clientY / window.innerHeight - 0.5) * 20;
-        hero.style.transform = `perspective(1000px) rotateY(${x}deg) rotateX(${-y}deg)`;
-    }
-});
-
-// Reset parallax on mouse leave
-document.querySelector('.hero-section')?.addEventListener('mouseleave', function() {
-    this.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg)';
-});
-
 // Gestion de l'upload de fichiers
 const fileInput = document.getElementById('files');
 const filesList = document.getElementById('filesList');

@@ -1,6 +1,6 @@
 <section class="relative w-full max-w-7xl mx-auto z-30 overflow-hidden bg-gradient-to-r from-[#c2410c] via-[#f97316] to-[#c2410c] shadow-2xl rounded-2xl border border-orange-900/30 my-6">
     <!-- Pattern overlay subtil -->
-    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 24px 24px;"></div>
+    <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 24px 24px;"></div>
 
     <div class="w-full relative flex flex-col sm:flex-row items-stretch h-auto sm:h-14">
 
@@ -34,6 +34,10 @@
             <div id="flash-container" class="w-full h-full relative flex items-center justify-center sm:justify-start px-4 sm:px-0">
                 @php
                     $communiques = \App\Models\Communique::active()
+                        ->with([
+                            'actualite:id,slug',
+                            'evenement:id,slug',
+                        ])
                         ->orderBy('order')
                         ->orderBy('created_at', 'desc')
                         ->get();
@@ -41,14 +45,45 @@
 
                 @if($communiques->count() > 0)
                     @foreach($communiques as $index => $communique)
-                        <div class="communique-item absolute inset-0 flex items-center justify-center sm:justify-start transition-all duration-700 ease-in-out {{ $index === 0 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4' }}">
-                            <div class="hidden sm:block bg-white/20 p-1.5 rounded-full mr-3 backdrop-blur-sm shrink-0">
-                                <i class="fas fa-bolt text-white text-xs"></i>
+                        @php
+                            $communiqueUrl = null;
+                            $communiqueLabel = null;
+                            if (!empty($communique->actualite) && !empty($communique->actualite->slug)) {
+                                $communiqueUrl = route('actualite.show', $communique->actualite->slug);
+                                $communiqueLabel = "Lire";
+                            } elseif (!empty($communique->evenement) && !empty($communique->evenement->slug)) {
+                                $communiqueUrl = route('evenement.show', $communique->evenement->slug);
+                                $communiqueLabel = "Lire";
+                            }
+                        @endphp
+                        @if(!empty($communiqueUrl))
+                            <a href="{{ $communiqueUrl }}"
+                               class="communique-item absolute inset-0 flex items-center justify-center sm:justify-start transition-all duration-700 ease-in-out pointer-events-none {{ $index === 0 ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4' }} rounded-xl px-2 sm:px-0 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/70"
+                               title="{{ $communiqueLabel }}"
+                               aria-label="{{ $communiqueLabel }}">
+                                <div class="hidden sm:block bg-white/20 p-1.5 rounded-full mr-3 backdrop-blur-sm shrink-0">
+                                    <i class="fas fa-bolt text-white text-xs"></i>
+                                </div>
+                                <div class="flex items-center w-full">
+                                    <span class="flex-1 text-base sm:text-base md:text-lg font-bold text-white tracking-wide text-shadow-sm text-center sm:text-left line-clamp-none sm:truncate pr-0 sm:pr-4 hover:underline cursor-pointer" style="pointer-events: auto;">
+                                        {!! $communique->content !!}
+                                    </span>
+                                    <span class="hidden sm:inline-flex items-center gap-2 shrink-0 bg-white/15 hover:bg-white/25 border border-white/25 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm">
+                                        <i class="fas fa-arrow-right"></i>
+                                        {{ $communiqueLabel }}
+                                    </span>
+                                </div>
+                            </a>
+                        @else
+                            <div class="communique-item absolute inset-0 flex items-center justify-center sm:justify-start transition-all duration-700 ease-in-out pointer-events-none {{ $index === 0 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4' }}">
+                                <div class="hidden sm:block bg-white/20 p-1.5 rounded-full mr-3 backdrop-blur-sm shrink-0">
+                                    <i class="fas fa-bolt text-white text-xs"></i>
+                                </div>
+                                <span class="text-base sm:text-base md:text-lg font-bold text-white tracking-wide text-shadow-sm text-center sm:text-left line-clamp-none sm:truncate pr-0 sm:pr-4">
+                                    {!! $communique->content !!}
+                                </span>
                             </div>
-                            <span class="text-base sm:text-base md:text-lg font-bold text-white tracking-wide text-shadow-sm text-center sm:text-left line-clamp-none sm:truncate pr-0 sm:pr-4">
-                                {!! $communique->content !!}
-                            </span>
-                        </div>
+                        @endif
                     @endforeach
                 @else
                     <!-- Default Content (Fallback) -->
@@ -86,6 +121,8 @@
                 // Masquer l'élément courant (vers le haut)
                 items[currentIndex].classList.remove('opacity-100', 'translate-y-0');
                 items[currentIndex].classList.add('opacity-0', '-translate-y-4');
+                items[currentIndex].classList.remove('pointer-events-auto');
+                items[currentIndex].classList.add('pointer-events-none');
 
                 const prevIndex = currentIndex;
                 currentIndex = (currentIndex + 1) % items.length;
@@ -102,6 +139,8 @@
                 items[currentIndex].style.transition = '';
                 items[currentIndex].classList.remove('opacity-0', 'translate-y-4');
                 items[currentIndex].classList.add('opacity-100', 'translate-y-0');
+                items[currentIndex].classList.remove('pointer-events-none');
+                items[currentIndex].classList.add('pointer-events-auto');
 
                 // Reset de l'élément précédent après la transition (pour qu'il revienne en position basse prêt à remonter)
                 setTimeout(() => {

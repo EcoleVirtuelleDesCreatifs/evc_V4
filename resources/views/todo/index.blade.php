@@ -11,18 +11,18 @@
         --instagram-purple: #833AB4;
         --instagram-pink: #C13584;
         --instagram-red: #E1306C;
-        --instagram-orange: #F56040;
+        --instagram-orange: #FD1D1D;
         --instagram-yellow: #FCAF45;
     }
 
     /* Header avec dégradé Instagram */
     .instagram-header {
-        background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink), var(--instagram-red));
+        background: linear-gradient(135deg, #833AB4, #C13584, #E1306C);
         padding: 2rem;
         border-radius: 20px;
         color: white;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(131, 58, 180, 0.3);
+        box-shadow: 0 10px 30px rgba(131, 58, 180, 0.35);
         animation: fadeInDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
@@ -109,7 +109,7 @@
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .col-md-6.col-lg-3 {
         display: flex;
         flex-direction: column;
@@ -235,7 +235,7 @@
     }
 
     .badge-assigned {
-        background: linear-gradient(135deg, var(--instagram-orange), var(--instagram-yellow));
+        background: linear-gradient(135deg, #f59e0b, #f97316);
         color: white;
     }
 
@@ -430,15 +430,22 @@
 
     <!-- Messages -->
     @if(isset($error))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 16px; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2); margin-bottom: 1.5rem; font-weight: 600;">
             <i class="fas fa-exclamation-circle me-2"></i>{{ $error }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <div class="alert alert-dismissible fade show" role="alert" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15)); border-left: 4px solid #10b981; border-radius: 16px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2); margin-bottom: 1.5rem; font-weight: 600; color: #047857; padding: 1.25rem;">
+            <i class="fas fa-check-circle me-2" style="color: #10b981; font-size: 1.2rem;"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" style="border-radius: 16px; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2); margin-bottom: 1.5rem; font-weight: 600;">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
@@ -460,7 +467,7 @@
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="stat-number">{{ $stats['assigned'] }}</div>
-                <div class="stat-label">À Faire</div>
+                <div class="stat-label">Traiter</div>
             </div>
         </div>
         <div class="col-md-3 col-sm-6">
@@ -501,16 +508,16 @@
                         $deadline = \Carbon\Carbon::parse($tp->deadline);
                         $now = \Carbon\Carbon::now();
                         $daysLeft = $now->diffInDays($deadline, false);
-                        
+
                         $deadlineClass = 'deadline-ok';
                         if ($daysLeft < 0) {
                             $deadlineClass = 'deadline-urgent';
                         } elseif ($daysLeft <= 3) {
                             $deadlineClass = 'deadline-soon';
                         }
-                        
+
                         $statusLabels = [
-                            'assigned' => 'À Faire',
+                            'assigned' => 'À faire',
                             'submitted' => 'Soumis',
                             'validated' => 'Validé',
                             'rejected' => 'Rejeté'
@@ -529,7 +536,7 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Badge de statut -->
                         <div class="mb-2">
                             <span class="badge-status badge-{{ $tp->status }}" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">
@@ -578,11 +585,11 @@
                                 <i class="fas fa-eye"></i>
                                 Voir détails
                             </button>
-                            
+
                             @if($tp->status === 'assigned')
-                                <a href="{{ route($formationPrefix . '.tp.soumettre', $tp->id) }}" class="btn btn-instagram w-100" style="text-decoration: none; padding: 0.6rem;">
-                                    <i class="fas fa-paper-plane"></i>
-                                    Soumettre
+                                <a href="{{ route($formationPrefix . '.todo.traiter', $tp->id) }}" class="btn btn-instagram w-100" style="text-decoration: none; padding: 0.6rem; color: #fff;">
+                                    <i class="fas fa-clock"></i>
+                                    Traiter
                                 </a>
                             @elseif($tp->status === 'submitted')
                                 <button class="btn w-100" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; border-radius: 30px; padding: 0.6rem; font-weight: 600;" disabled>
@@ -595,10 +602,10 @@
                                     Validé ✓
                                 </button>
                             @elseif($tp->status === 'rejected')
-                                <a href="{{ route($formationPrefix . '.tp.soumettre', $tp->id) }}" class="btn w-100" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border-radius: 30px; padding: 0.6rem; font-weight: 600; text-decoration: none;">
-                                    <i class="fas fa-redo"></i>
-                                    Resoumettre
-                                </a>
+                                <button class="btn w-100" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border-radius: 30px; padding: 0.6rem; font-weight: 600;" disabled>
+                                    <i class="fas fa-times-circle"></i>
+                                    Rejeté
+                                </button>
                             @endif
                         </div>
                     </div>
@@ -622,27 +629,27 @@
                 @csrf
                 <div class="modal-body" style="padding: 2rem;">
                     <input type="hidden" id="submit_tp_id" name="tp_id">
-                    
+
                     <div class="mb-4">
                         <h6 id="submitTpTitle" style="color: var(--instagram-purple); font-weight: 600; margin-bottom: 1rem;"></h6>
                     </div>
-                    
+
                     <div class="alert" style="background: linear-gradient(135deg, rgba(131, 58, 180, 0.1), rgba(193, 53, 132, 0.1)); border-left: 4px solid var(--instagram-pink); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
                         <i class="fas fa-info-circle" style="color: var(--instagram-pink);"></i>
                         <strong style="color: var(--instagram-purple);">Instructions :</strong><br>
                         <span style="color: #555;">Soumettez le lien vers votre travail (Google Drive, Dropbox, GitHub, etc.)</span>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="submission_link" class="form-label" style="font-weight: 600; color: #2c3e50;">
                             <i class="fas fa-link me-2"></i>Lien de soumission *
                         </label>
-                        <input 
-                            type="url" 
-                            class="form-control" 
-                            id="submission_link" 
-                            name="submission_link" 
-                            placeholder="https://drive.google.com/..." 
+                        <input
+                            type="url"
+                            class="form-control"
+                            id="submission_link"
+                            name="submission_link"
+                            placeholder="https://drive.google.com/..."
                             required
                             style="border-radius: 12px; border: 2px solid #e2e8f0; padding: 0.75rem 1rem;"
                         >
@@ -651,7 +658,7 @@
                             Exemple : Lien vers votre dossier Google Drive, Dropbox ou autre
                         </small>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="submission_files" class="form-label" style="font-weight: 600; color: #2c3e50;">
                             <i class="fas fa-file-upload me-2"></i>Fichiers (optionnel)
@@ -665,11 +672,11 @@
                                 Formats acceptés : PDF, Images, Zip (max 10 Mo par fichier)
                             </small>
                         </div>
-                        <input 
-                            type="file" 
-                            class="d-none" 
-                            id="submission_files" 
-                            name="files[]" 
+                        <input
+                            type="file"
+                            class="d-none"
+                            id="submission_files"
+                            name="files[]"
                             multiple
                             accept=".pdf,.jpg,.jpeg,.png,.gif,.zip,.rar,.doc,.docx,.ppt,.pptx"
                         >
@@ -680,16 +687,16 @@
                             <div id="filesContainer" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="submission_comment" class="form-label" style="font-weight: 600; color: #2c3e50;">
                             <i class="fas fa-comment me-2"></i>Commentaire (optionnel)
                         </label>
-                        <textarea 
-                            class="form-control" 
-                            id="submission_comment" 
-                            name="comment" 
-                            rows="3" 
+                        <textarea
+                            class="form-control"
+                            id="submission_comment"
+                            name="comment"
+                            rows="3"
                             placeholder="Ajoutez un commentaire sur votre travail..."
                             style="border-radius: 12px; border: 2px solid #e2e8f0; padding: 0.75rem 1rem;"
                         ></textarea>
@@ -776,10 +783,10 @@ function displayFiles() {
         filesList.style.display = 'none';
         return;
     }
-    
+
     filesList.style.display = 'block';
     filesContainer.innerHTML = '';
-    
+
     selectedFiles.forEach((file, index) => {
         const fileSize = (file.size / 1024 / 1024).toFixed(2);
         const fileItem = document.createElement('div');
@@ -811,16 +818,16 @@ function openSubmitModal(tpId, tpTitle) {
     document.getElementById('submitTpTitle').textContent = tpTitle;
     document.getElementById('submission_link').value = '';
     document.getElementById('submission_comment').value = '';
-    
+
     // Réinitialiser les fichiers
     selectedFiles = [];
     fileInput.value = '';
     displayFiles();
-    
+
     // Définir l'action du formulaire
     const form = document.getElementById('submitTpForm');
     form.action = `/evc/compte/${formationPrefix}/tp/${tpId}/submit`;
-    
+
     const modal = new bootstrap.Modal(document.getElementById('submitTpModal'));
     modal.show();
 }
@@ -828,21 +835,21 @@ function openSubmitModal(tpId, tpTitle) {
 // Gérer la soumission du formulaire
 document.getElementById('submitTpForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
+
     const formData = new FormData(this);
-    
+
     // Ajouter les fichiers au FormData
     selectedFiles.forEach((file, index) => {
         formData.append('files[]', file);
     });
-    
+
     const submitButton = this.querySelector('button[type="submit"]');
     const originalText = submitButton.innerHTML;
-    
+
     // Désactiver le bouton et afficher un loader
     submitButton.disabled = true;
     submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Envoi en cours...';
-    
+
     fetch(this.action, {
         method: 'POST',
         body: formData,
@@ -855,10 +862,10 @@ document.getElementById('submitTpForm').addEventListener('submit', function(e) {
         if (data.success) {
             // Fermer la modal
             bootstrap.Modal.getInstance(document.getElementById('submitTpModal')).hide();
-            
+
             // Afficher un message de succès
             alert('✅ Votre TP a été soumis avec succès !');
-            
+
             // Recharger la page pour voir les changements
             window.location.reload();
         } else {
@@ -878,32 +885,32 @@ document.getElementById('submitTpForm').addEventListener('submit', function(e) {
 function showDetails(tpId) {
     // Trouver le TP dans les données
     const tp = tpData.find(t => t.id === tpId);
-    
+
     if (!tp) {
         alert('❌ TP non trouvé');
         return;
     }
-    
+
     // Formater les dates
-    const assignedDate = new Date(tp.created_at).toLocaleDateString('fr-FR', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
+    const assignedDate = new Date(tp.created_at).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
     });
-    
-    const deadlineDate = new Date(tp.deadline).toLocaleDateString('fr-FR', { 
-        day: 'numeric', 
-        month: 'long', 
+
+    const deadlineDate = new Date(tp.deadline).toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
     });
-    
+
     // Badge de statut
     let statusBadge = '';
     let statusColor = '';
     let statusIcon = '';
-    
+
     switch(tp.status) {
         case 'assigned':
             statusColor = 'linear-gradient(135deg, var(--instagram-orange), var(--instagram-yellow))';
@@ -926,7 +933,7 @@ function showDetails(tpId) {
             statusBadge = 'Rejeté';
             break;
     }
-    
+
     // Construire le contenu du modal
     let content = `
         <div style="margin-bottom: 1.5rem;">
@@ -934,7 +941,7 @@ function showDetails(tpId) {
                 <i class="fas ${statusIcon} me-2"></i>${statusBadge}
             </span>
         </div>
-        
+
         <div style="background: linear-gradient(135deg, rgba(131, 58, 180, 0.05), rgba(193, 53, 132, 0.05)); padding: 1.5rem; border-radius: 15px; margin-bottom: 1.5rem;">
             <h4 style="color: var(--instagram-purple); margin-bottom: 1rem;">
                 <i class="fas fa-info-circle me-2"></i>Informations
@@ -954,7 +961,7 @@ function showDetails(tpId) {
                 </div>
             </div>
         </div>
-        
+
         <div style="margin-bottom: 1.5rem;">
             <h4 style="color: var(--instagram-purple); margin-bottom: 1rem;">
                 <i class="fas fa-align-left me-2"></i>Description
@@ -964,7 +971,7 @@ function showDetails(tpId) {
             </div>
         </div>
     `;
-    
+
     // Ajouter les fichiers joints si présents
     if (tp.files && tp.files.length > 0) {
         content += `
@@ -974,7 +981,7 @@ function showDetails(tpId) {
                 </h4>
                 <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
         `;
-        
+
         tp.files.forEach(file => {
             content += `
                 <a href="${file.file_path}" target="_blank" style="background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink)); color: white; padding: 0.75rem 1.25rem; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
@@ -983,13 +990,13 @@ function showDetails(tpId) {
                 </a>
             `;
         });
-        
+
         content += `
                 </div>
             </div>
         `;
     }
-    
+
     // Ajouter le lien de soumission si présent
     if (tp.submission_link) {
         content += `
@@ -1003,13 +1010,13 @@ function showDetails(tpId) {
             </div>
         `;
     }
-    
+
     // Ajouter le commentaire admin si présent
     if (tp.admin_comment) {
-        const commentStyle = tp.status === 'validated' 
+        const commentStyle = tp.status === 'validated'
             ? 'background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); border-left: 4px solid #10b981;'
             : 'background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1)); border-left: 4px solid #ef4444;';
-        
+
         content += `
             <div style="${commentStyle} padding: 1.5rem; border-radius: 12px;">
                 <h4 style="color: var(--instagram-purple); margin-bottom: 1rem;">
@@ -1019,11 +1026,11 @@ function showDetails(tpId) {
             </div>
         `;
     }
-    
+
     // Injecter le contenu dans le modal
     document.getElementById('modalBody').innerHTML = content;
     document.getElementById('modalTitle').innerHTML = `<i class="fas fa-file-alt me-2"></i>${tp.title}`;
-    
+
     // Afficher le modal
     const modal = new bootstrap.Modal(document.getElementById('tpDetailsModal'));
     modal.show();

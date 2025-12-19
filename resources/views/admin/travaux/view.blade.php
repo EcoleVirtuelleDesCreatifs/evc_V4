@@ -9,7 +9,25 @@
         <div class="container-fluid">
             <div class="row align-items-center">
                 <div class="col-md-8">
-                    <a href="{{ route('admin.travaux.pending') }}" class="back-btn">
+                    @php
+                        // Déterminer la route de retour selon le programme de l'étudiant
+                        $backRoute = 'admin.travaux.pending';
+                        $program = strtolower($student->program ?? '');
+
+                        // Design Graphique & Community Management combiné
+                        if ((str_contains($program, 'design') || str_contains($program, 'graph')) && (str_contains($program, 'community') || str_contains($program, 'cm'))) {
+                            $backRoute = 'admin.projets.design-cm.all';
+                        }
+                        // Community Management seul
+                        elseif (str_contains($program, 'community') || str_contains($program, 'cm')) {
+                            $backRoute = 'admin.projets.cm-smm.pending';
+                        }
+                        // Design Graphique seul
+                        elseif (str_contains($program, 'design') && str_contains($program, 'graph')) {
+                            $backRoute = 'admin.projets.design-graphique.pending';
+                        }
+                    @endphp
+                    <a href="{{ route($backRoute) }}" class="back-btn">
                         <i class="fas fa-arrow-left"></i> Retour
                     </a>
                     <h1 class="tp-title">{{ $tp->title }}</h1>
@@ -20,19 +38,25 @@
                     </div>
                 </div>
                 <div class="col-md-4 text-end">
-                    @if($tp->status === 'assigned')
-                        <span class="status-badge assigned"><i class="fas fa-tasks"></i> À faire</span>
-                    @elseif($tp->status === 'submitted')
-                        <span class="status-badge submitted"><i class="fas fa-check-circle"></i> Déjà fait</span>
-                    @elseif($tp->status === 'pending')
-                        <span class="status-badge pending"><i class="fas fa-clock"></i> En attente</span>
-                    @elseif($tp->status === 'validated')
-                        <span class="status-badge validated"><i class="fas fa-check-circle"></i> Validé</span>
-                    @elseif($tp->status === 'rejected')
-                        <span class="status-badge rejected"><i class="fas fa-times-circle"></i> Rejeté</span>
-                    @else
-                        <span class="status-badge pending"><i class="fas fa-question"></i> {{ ucfirst($tp->status) }}</span>
-                    @endif
+                    <div class="d-flex align-items-center justify-content-end gap-3">
+                        @if($tp->status === 'assigned')
+                            <span class="status-badge assigned"><i class="fas fa-tasks"></i> À faire</span>
+                        @elseif($tp->status === 'submitted')
+                            <span class="status-badge submitted"><i class="fas fa-check-circle"></i> Déjà fait</span>
+                        @elseif($tp->status === 'pending')
+                            <span class="status-badge pending"><i class="fas fa-clock"></i> En attente</span>
+                        @elseif($tp->status === 'validated')
+                            <span class="status-badge validated"><i class="fas fa-check-circle"></i> Validé</span>
+                        @elseif($tp->status === 'rejected')
+                            <span class="status-badge rejected"><i class="fas fa-times-circle"></i> Rejeté</span>
+                        @else
+                            <span class="status-badge pending"><i class="fas fa-question"></i> {{ ucfirst($tp->status) }}</span>
+                        @endif
+
+                        <a href="{{ route($backRoute) }}" class="btn-back-list">
+                            <i class="fas fa-arrow-left"></i> Retour à la liste
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -242,6 +266,28 @@
 .action-btn.reject { background: linear-gradient(135deg, #ffc107, #ff9800); color: white; }
 .action-btn.delete { background: linear-gradient(135deg, #dc3545, #c82333); color: white; }
 .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+/* Bouton Retour à la liste */
+.btn-back-list {
+    background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: 0.3s;
+    box-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
+}
+.btn-back-list:hover {
+    background: linear-gradient(135deg, #29b6f6, #039be5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.5);
+    color: white;
+}
 
 /* Lightbox Modal */
 .lightbox-modal { display: none; position: fixed; z-index: 9999; padding-top: 50px; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.95); }

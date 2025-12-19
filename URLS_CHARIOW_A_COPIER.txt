@@ -1,0 +1,183 @@
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                                                                               ║
+║         🛒 URLs CHARIOW À COPIER-COLLER - École Virtuelle des Créatifs        ║
+║                                                                               ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  ✅ URL DE SUCCÈS (Paiement Réussi)                                          │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+ENVIRONNEMENT LOCAL :
+─────────────────────────────────────────────────────────────────────────────────
+http://127.0.0.1:8000/evc/payment/chariow/return?reference={reference}&transaction_id={transaction_id}
+─────────────────────────────────────────────────────────────────────────────────
+
+ENVIRONNEMENT PRODUCTION (à adapter avec votre domaine) :
+─────────────────────────────────────────────────────────────────────────────────
+https://votre-domaine.com/evc/payment/chariow/return?reference={reference}&transaction_id={transaction_id}
+─────────────────────────────────────────────────────────────────────────────────
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  ❌ URL D'ANNULATION (Paiement Annulé/Échoué)                                │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+ENVIRONNEMENT LOCAL :
+─────────────────────────────────────────────────────────────────────────────────
+http://127.0.0.1:8000/evc/payment/chariow/cancel?reference={reference}
+─────────────────────────────────────────────────────────────────────────────────
+
+ENVIRONNEMENT PRODUCTION (à adapter avec votre domaine) :
+─────────────────────────────────────────────────────────────────────────────────
+https://votre-domaine.com/evc/payment/chariow/cancel?reference={reference}
+─────────────────────────────────────────────────────────────────────────────────
+
+
+┌───────────────────────────────────────────────────────────────────────────────┐
+│  🔔 URL WEBHOOK (Optionnel mais Recommandé)                                   │
+└───────────────────────────────────────────────────────────────────────────────┘
+
+ENVIRONNEMENT LOCAL (avec ngrok) :
+─────────────────────────────────────────────────────────────────────────────────
+https://votre-url-ngrok.ngrok.io/evc/payment/chariow/webhook
+─────────────────────────────────────────────────────────────────────────────────
+⚠️  Démarrez ngrok avec : ngrok http 8000
+⚠️  L'URL ngrok change à chaque redémarrage (version gratuite)
+
+ENVIRONNEMENT PRODUCTION :
+─────────────────────────────────────────────────────────────────────────────────
+https://votre-domaine.com/evc/payment/chariow/webhook
+─────────────────────────────────────────────────────────────────────────────────
+Méthode HTTP : POST
+Format : JSON
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                            📋 INSTRUCTIONS
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Connectez-vous à votre compte Chariow : https://mychariow.shop/
+
+2. Allez dans Produits → Trouvez votre produit : prd_ngqtqy
+
+3. Cliquez sur "Modifier" ou "Paramètres"
+
+4. Cherchez les sections :
+   - "URL de Succès" ou "Success URL" ou "Redirect URL"
+   - "URL d'Annulation" ou "Cancel URL" ou "Failure URL"
+   - "URL Webhook" ou "IPN URL" ou "Notification URL"
+
+5. COPIEZ-COLLEZ les URLs ci-dessus (LOCAL ou PRODUCTION selon votre cas)
+
+6. N'oubliez pas les variables dynamiques :
+   - {reference} → Sera remplacée par la référence EVC
+   - {transaction_id} → Sera remplacée par l'ID de transaction Chariow
+
+7. Sauvegardez vos modifications dans Chariow
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                         🧪 URLS DE TEST MANUEL
+═══════════════════════════════════════════════════════════════════════════════
+
+TEST SUCCÈS (Simuler un paiement réussi) :
+─────────────────────────────────────────────────────────────────────────────────
+http://127.0.0.1:8000/evc/payment/chariow/return?reference=EVC-PAY-20251210-6F5D7A52&transaction_id=TEST-123
+─────────────────────────────────────────────────────────────────────────────────
+Résultat attendu : Compte créé, Email envoyé, Redirection vers création mot de passe
+
+
+TEST ANNULATION (Simuler un paiement annulé) :
+─────────────────────────────────────────────────────────────────────────────────
+http://127.0.0.1:8000/evc/payment/chariow/cancel?reference=EVC-PAY-20251210-6F5D7A52
+─────────────────────────────────────────────────────────────────────────────────
+Résultat attendu : Message d'erreur, Aucun compte créé, Paiement marqué "cancelled"
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                    🔍 VÉRIFICATION APRÈS CONFIGURATION
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Vérifier que les URLs sont bien enregistrées dans Chariow
+
+2. Tester manuellement les URLs ci-dessus dans votre navigateur
+
+3. Vérifier les logs Laravel :
+   tail -f storage/logs/laravel.log
+
+4. Effectuer un paiement de test sur Chariow
+
+5. Vérifier que la redirection fonctionne
+
+6. Vérifier que le compte est créé automatiquement
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                        📞 BESOIN D'AIDE ?
+═══════════════════════════════════════════════════════════════════════════════
+
+Si vous ne trouvez pas où configurer les URLs dans Chariow :
+
+Support Chariow : support@mychariow.shop
+
+Message à envoyer :
+─────────────────────────────────────────────────────────────────────────────────
+Bonjour,
+
+Je souhaite configurer les URLs de retour pour mon produit prd_ngqtqy.
+
+URLs à configurer :
+
+1. URL de succès :
+http://127.0.0.1:8000/evc/payment/chariow/return?reference={reference}&transaction_id={transaction_id}
+
+2. URL d'annulation :
+http://127.0.0.1:8000/evc/payment/chariow/cancel?reference={reference}
+
+3. URL webhook :
+https://mon-ngrok.ngrok.io/evc/payment/chariow/webhook
+
+Pourriez-vous m'indiquer où configurer ces URLs dans l'interface Chariow ?
+
+Merci !
+─────────────────────────────────────────────────────────────────────────────────
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                    📚 DOCUMENTATION COMPLÈTE
+═══════════════════════════════════════════════════════════════════════════════
+
+Consultez les fichiers suivants pour plus de détails :
+
+• GUIDE_CONFIGURATION_CHARIOW.md → Guide détaillé de configuration
+• WORKFLOW_PAIEMENT_CHARIOW.md → Workflow complet des paiements
+• ACTIVATION_CHARIOW_GUIDE.md → Guide d'activation
+• INTEGRATION_CHARIOW_GUIDE.md → Guide d'intégration technique
+
+
+═══════════════════════════════════════════════════════════════════════════════
+                        ✅ CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+□ Connexion à Chariow
+□ Produit prd_ngqtqy trouvé
+□ URL de succès configurée
+□ URL d'annulation configurée
+□ URL webhook configurée (optionnel)
+□ Paramètres sauvegardés dans Chariow
+□ Test manuel URL succès
+□ Test manuel URL annulation
+□ Logs vérifiés
+□ Paiement test effectué
+□ Redirection fonctionne
+□ Compte créé automatiquement
+□ Email reçu
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+                         🎉 CONFIGURATION TERMINÉE !
+
+═══════════════════════════════════════════════════════════════════════════════

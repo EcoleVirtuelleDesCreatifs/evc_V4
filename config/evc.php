@@ -14,6 +14,7 @@ return [
         // Nouvelles valeurs slug depuis le select
         'design-graphique' => 'infographie',
         'community-manager' => 'community_management',
+        'design-graphique-community-manager' => 'infographie_cm',
         'intelligence-artificielle' => 'intelligence_artificielle',
         'gestion-informatique' => 'informatique',
     ],
@@ -23,7 +24,7 @@ return [
         'community_management' => 'community_management',
         'intelligence_artificielle' => 'intelligence_artificielle',
         'informatique' => 'gestion_informatique',
-        'infographie_cm' => 'design_graphique', // fallback
+        'infographie_cm' => 'design_graphique_community_management',
     ],
 
     'niveau_formation_map' => [

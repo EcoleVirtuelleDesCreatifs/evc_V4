@@ -66,4 +66,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Formation::class, 'formation_user');
     }
+
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
+
+    public function tps()
+    {
+        return $this->hasMany(TP::class);
+    }
 }

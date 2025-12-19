@@ -11,7 +11,7 @@
             <rect width="100%" height="100%" fill="url(#footer-pattern)"/>
         </svg>
     </div>
-    
+
     <h2 id="footer-heading" class="sr-only">Footer</h2>
     <div class="relative mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-20 lg:px-8 lg:pt-24">
         <!-- Main Footer Content -->
@@ -22,67 +22,62 @@
                     <img class="h-16 w-auto" src="{{ asset('assets/img/logo.png') }}" alt="EVC Logo">
                 </div>
                 <p class="text-sm leading-6 text-gray-300">
-                    <span class="font-bold text-white">EVC</span> - Transform ez votre passion en carrière avec nos formations 100% pratiques et orientées métier.
+                    L'École Virtuelle des Créatifs (EVC) est une référence incontournable en formation digitale. Reconnue par l'État ivoirien, cette SARL mise sur une pédagogie 100 % Ultra-pratique, axée sur les besoins réels du marché.
                 </p>
-                
+
                 <!-- Social Media -->
                 <div>
                     <h4 class="text-sm font-semibold text-white mb-4">Suivez-nous</h4>
                     <div class="flex flex-wrap gap-3">
-                        <a href="#" class="group">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-orange-500 group-hover:scale-110">
+                        <a href="https://web.facebook.com/bilebossombraofficiel?_rdc=1&_rdr" target="_blank" class="group" title="Facebook - 12.5K followers">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-[#1877F2] group-hover:scale-110">
                                 <i class="fab fa-facebook text-white text-lg"></i>
                             </div>
                         </a>
-                        <a href="#" class="group">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-orange-500 group-hover:scale-110">
+                        <a href="https://instagram.com/evc2024" target="_blank" class="group" title="Instagram - 8.3K followers">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-[#E4405F] group-hover:scale-110">
                                 <i class="fab fa-instagram text-white text-lg"></i>
                             </div>
                         </a>
-                        <a href="#" class="group">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-orange-500 group-hover:scale-110">
+                        <a href="https://www.linkedin.com/company/82489374/" target="_blank" class="group" title="LinkedIn - 3.4K followers">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-[#0A66C2] group-hover:scale-110">
                                 <i class="fab fa-linkedin text-white text-lg"></i>
                             </div>
                         </a>
-                        <a href="#" class="group">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-orange-500 group-hover:scale-110">
+                        <a href="https://www.youtube.com/@ecolevirtuelledescreatifs459" target="_blank" class="group" title="YouTube - 5.8K abonnés">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-[#FF0000] group-hover:scale-110">
                                 <i class="fab fa-youtube text-white text-lg"></i>
                             </div>
                         </a>
-                        <a href="#" class="group">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-orange-500 group-hover:scale-110">
+                        <a href="https://www.tiktok.com/@ecolevirtuelledescreatif" target="_blank" class="group" title="TikTok - 15.2K followers">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-black group-hover:scale-110">
                                 <i class="fab fa-tiktok text-white text-lg"></i>
                             </div>
                         </a>
-                        <a href="#" class="group">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-orange-500 group-hover:scale-110">
-                                <i class="fab fa-behance text-white text-lg"></i>
-                            </div>
-                        </a>
-                        <a href="#" class="group">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-orange-500 group-hover:scale-110">
-                                <i class="fab fa-pinterest text-white text-lg"></i>
-                            </div>
-                        </a>
-                        <a href="https://wa.me/2250700000000" target="_blank" class="group" title="Chaîne WhatsApp">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-green-500 group-hover:scale-110">
+                        <a href="https://whatsapp.com/channel/0029Va9RABj2ER6dFnFLNp2Y" target="_blank" class="group" title="Canal WhatsApp - 1,123 abonnés">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-[#25D366] group-hover:scale-110">
                                 <i class="fab fa-whatsapp text-white text-lg"></i>
                             </div>
                         </a>
-                        <a href="https://t.me/evc_ci" target="_blank" class="group" title="Canal Telegram">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-blue-400 group-hover:scale-110">
+                        <a href="https://t.me/c/1544085173/1" target="_blank" class="group" title="Canal Telegram - 892 abonnés">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-[#0088cc] group-hover:scale-110">
                                 <i class="fab fa-telegram text-white text-lg"></i>
                             </div>
                         </a>
-                        <a href="#" class="group">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-orange-500 group-hover:scale-110">
-                                <i class="fas fa-map-marker-alt text-white text-lg"></i>
+                        <a href="https://fr.pinterest.com/cratifs/" target="_blank" class="group" title="Pinterest">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-[#E60023] group-hover:scale-110">
+                                <i class="fab fa-pinterest text-white text-lg"></i>
+                            </div>
+                        </a>
+                        <a href="https://www.behance.net/ecolevirtuelle" target="_blank" class="group" title="Behance">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition-all duration-300 group-hover:bg-[#1769FF] group-hover:scale-110">
+                                <i class="fab fa-behance text-white text-lg"></i>
                             </div>
                         </a>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Column 2: Formations -->
             <div>
                 <h3 class="text-base font-bold text-white mb-6">Nos Formations</h3>
@@ -113,7 +108,7 @@
                     </li>
                 </ul>
             </div>
-            
+
             <!-- Column 3: L'école -->
             <div>
                 <h3 class="text-base font-bold text-white mb-6">L'école</h3>
@@ -155,7 +150,7 @@
                         </a>
                     </li>
                 </ul>
-                
+
                 <!-- Rejoignez-nous -->
                 <div class="mt-8 pt-8 border-t border-white/10">
                     <h4 class="text-sm font-semibold text-white mb-4">Rejoignez-nous</h4>
@@ -181,7 +176,7 @@
                     </ul>
                 </div>
             </div>
-            
+
             <!-- Column 4: Contact & CTA -->
             <div>
                 <h3 class="text-base font-bold text-white mb-6">Contact</h3>
@@ -199,7 +194,7 @@
                         <a href="tel:+2250747259507" class="hover:text-orange-400 transition-colors">+225 07 47 25 95 07</a>
                     </li>
                 </ul>
-                
+
                 <!-- CTA Button -->
                 <a href="{{ route('preinscription.start') }}" class="inline-flex items-center justify-center w-full px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-full hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-orange-500/50">
                     <i class="fas fa-user-plus mr-2"></i>
@@ -207,7 +202,7 @@
                 </a>
             </div>
         </div>
-        
+
         <!-- Bottom Bar -->
         <div class="mt-12 border-t border-white/10 pt-8">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
