@@ -143,6 +143,12 @@
                         $path = str_replace(['public/', 'storage/'], '', $filePath);
                         $path = ltrim($path, '/');
 
+                        // Cas spécifique pour le dossier uploads (qui est un symlink vers storage)
+                        // On force l'utilisation de storage/ car l'accès direct via public/uploads pose souvent problème (404)
+                        if (str_starts_with($path, 'uploads/')) {
+                            return asset('storage/' . $path);
+                        }
+
                         // Chemins à tester
                         $possiblePaths = [
                             'storage/' . $path,           // Standard Laravel: public/storage/tp_files/...
