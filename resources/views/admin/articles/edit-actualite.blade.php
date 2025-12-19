@@ -372,7 +372,7 @@
 </div>
 
 @push('styles')
-<link href="{{ asset('vendor/quill/quill.snow.css') }}" rel="stylesheet">
+<link href="{{ asset('libs/quill/quill.snow.css') }}" rel="stylesheet">
 <style>
     .modern-card {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
