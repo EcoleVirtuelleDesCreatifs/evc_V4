@@ -351,17 +351,7 @@
         <div class="row align-items-center position-relative" style="z-index: 1;">
             <div class="col-auto">
                 @php
-                    $headerPhotoUrl = null;
-                    if (!empty($pre->photo)) {
-                        $filename = basename($pre->photo);
-                        if (file_exists(public_path('photos_preregistrations/' . $filename))) {
-                            $headerPhotoUrl = asset('photos_preregistrations/' . $filename);
-                        } elseif (file_exists(public_path($pre->photo))) {
-                            $headerPhotoUrl = asset($pre->photo);
-                        } elseif (file_exists(public_path('storage/' . $pre->photo))) {
-                            $headerPhotoUrl = asset('storage/' . $pre->photo);
-                        }
-                    }
+                    $headerPhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrl($pre->photo);
                 @endphp
                 @if($headerPhotoUrl)
                     <img src="{{ $headerPhotoUrl }}" alt="Photo candidat" class="candidate-avatar">

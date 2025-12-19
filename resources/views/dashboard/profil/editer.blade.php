@@ -247,24 +247,7 @@
                                                 <div class="mt-3">
                                                     <small class="text-muted d-block mb-2">Aperçu de la photo:</small>
                                                     @php
-                                                        // Générer l'URL correcte de la photo actuelle
-                                                        $currentPhoto = $rawPhoto;
-                                                        if ($currentPhoto) {
-                                                            if (preg_match('/^https?:\/\//', $currentPhoto)) {
-                                                                $currentPhotoUrl = $currentPhoto;
-                                                            }
-                                                            elseif (str_starts_with($currentPhoto, 'photos_preregistrations/')) {
-                                                                $currentPhotoUrl = asset('storage/' . $currentPhoto);
-                                                            }
-                                                            elseif (str_starts_with($currentPhoto, 'uploads/')) {
-                                                                $currentPhotoUrl = asset($currentPhoto);
-                                                            }
-                                                            else {
-                                                                $currentPhotoUrl = asset('storage/' . $currentPhoto);
-                                                            }
-                                                        } else {
-                                                            $currentPhotoUrl = asset('assets/img/avatar.png');
-                                                        }
+                                                        $currentPhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($rawPhoto ?? null, 'assets/img/avatar.png');
                                                     @endphp
                                                     <img id="liveAvatar" src="{{ $currentPhotoUrl }}" alt="Aperçu photo" class="img-thumbnail" style="height:120px;width:120px;object-fit:cover;border-radius:12px;">
                                                 </div>

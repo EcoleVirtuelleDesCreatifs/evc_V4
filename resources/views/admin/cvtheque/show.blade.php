@@ -32,17 +32,7 @@
             <div class="card shadow mb-4">
                 <div class="card-body text-center">
                     @php
-                        $photoUrl = null;
-                        if (!empty($profile->profile_photo)) {
-                            $filename = basename($profile->profile_photo);
-                            if (file_exists(public_path('uploads/photos/' . $filename))) {
-                                $photoUrl = asset('uploads/photos/' . $filename);
-                            } elseif (file_exists(public_path($profile->profile_photo))) {
-                                $photoUrl = asset($profile->profile_photo);
-                            } elseif (file_exists(public_path('storage/' . $profile->profile_photo))) {
-                                $photoUrl = asset('storage/' . $profile->profile_photo);
-                            }
-                        }
+                        $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrl($profile->profile_photo);
                     @endphp
                     @if($photoUrl)
                         <img src="{{ $photoUrl }}"

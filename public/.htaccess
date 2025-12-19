@@ -10,6 +10,8 @@ php_value memory_limit 256M
         Options -MultiViews -Indexes
     </IfModule>
 
+    Options +FollowSymLinks
+
     RewriteEngine On
 
     # Handle Authorization Header

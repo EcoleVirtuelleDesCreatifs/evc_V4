@@ -600,16 +600,7 @@
             <div class="row align-items-center">
                 <div class="col-auto">
                     @php
-                        $photoUrl = null;
-                        if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo) {
-                            if (strpos($user->profile_photo, 'photos_preregistrations/') !== false) {
-                                $photoUrl = asset('storage/' . $user->profile_photo);
-                            } elseif (strpos($user->profile_photo, '/') === false) {
-                                $photoUrl = asset('uploads/photos/' . $user->profile_photo);
-                            } else {
-                                $photoUrl = asset($user->profile_photo);
-                            }
-                        }
+                        $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrl($user->profile_photo ?? null);
                     @endphp
                     @if($photoUrl)
                         <img src="{{ $photoUrl }}" alt="Avatar" class="hero-avatar">
