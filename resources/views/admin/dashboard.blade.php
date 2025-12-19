@@ -760,14 +760,7 @@
                         <div class="activity-avatar" style="{{ $history->profile_photo ? 'background: none; padding: 0; overflow: hidden;' : '' }}">
                             @if($history->profile_photo)
                                 @php
-                                    $photoUrl = $history->profile_photo;
-                                    if (strpos($photoUrl, 'photos_preregistrations/') !== false) {
-                                        $photoUrl = asset('storage/' . $photoUrl);
-                                    } elseif (strpos($photoUrl, '/') === false) {
-                                        $photoUrl = asset('uploads/photos/' . $photoUrl);
-                                    } else {
-                                        $photoUrl = asset($photoUrl);
-                                    }
+                                    $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrl($history->profile_photo);
                                 @endphp
                                 <img src="{{ $photoUrl }}" alt="{{ $history->full_name }}" style="width: 100%; height: 100%; object-fit: cover;">
                             @else

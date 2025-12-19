@@ -116,17 +116,7 @@
                 <div class="card-header">
                     <div class="student-avatar">
                         @php
-                            $photoUrl = null;
-                            if (!empty($student->profile_photo)) {
-                                $filename = basename($student->profile_photo);
-                                if (file_exists(public_path('uploads/photos/' . $filename))) {
-                                    $photoUrl = asset('uploads/photos/' . $filename);
-                                } elseif (file_exists(public_path($student->profile_photo))) {
-                                    $photoUrl = asset($student->profile_photo);
-                                } elseif (file_exists(public_path('storage/' . $student->profile_photo))) {
-                                    $photoUrl = asset('storage/' . $student->profile_photo);
-                                }
-                            }
+                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrl($student->profile_photo);
                         @endphp
                         @if($photoUrl)
                             <img src="{{ $photoUrl }}" alt="Photo">

@@ -604,17 +604,7 @@
                 </div>
                 <div class="photo-container">
                     @php
-                        $sidebarPhotoUrl = null;
-                        if (!empty($pre->photo)) {
-                            $filename2 = basename($pre->photo);
-                            if (file_exists(public_path('photos_preregistrations/' . $filename2))) {
-                                $sidebarPhotoUrl = asset('photos_preregistrations/' . $filename2);
-                            } elseif (file_exists(public_path($pre->photo))) {
-                                $sidebarPhotoUrl = asset($pre->photo);
-                            } elseif (file_exists(public_path('storage/' . $pre->photo))) {
-                                $sidebarPhotoUrl = asset('storage/' . $pre->photo);
-                            }
-                        }
+                        $sidebarPhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrl($pre->photo);
                     @endphp
                     @if($sidebarPhotoUrl)
                         <img src="{{ $sidebarPhotoUrl }}" alt="Photo du candidat">

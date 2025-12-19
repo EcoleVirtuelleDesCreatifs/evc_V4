@@ -47,8 +47,12 @@ class ProfilePhotoHelper
         }
 
         // Fallback: retourner le chemin le plus probable
-        if (str_starts_with($photoPath, 'uploads/') || str_starts_with($photoPath, 'photos_preregistrations/')) {
+        if (str_starts_with($photoPath, 'uploads/')) {
             return asset($photoPath);
+        }
+        
+        if (str_starts_with($photoPath, 'photos_preregistrations/')) {
+            return asset('storage/' . $photoPath);
         }
 
         // Par défaut, essayer uploads/photos/

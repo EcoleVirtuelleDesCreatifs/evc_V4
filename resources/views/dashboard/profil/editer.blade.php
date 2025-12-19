@@ -47,31 +47,7 @@
                         </div>
                         <div class="card-body">
                             @php
-                                $studentPhoto = $student->profile_photo ?? null;
-                                $prePhoto = isset($preReg) ? ($preReg->profile_photo ?? ($preReg->photo ?? ($preReg->image ?? ($preReg->image_url ?? ($preReg->avatar ?? null))))) : null;
-                                $rawPhoto = $studentPhoto ?: $prePhoto;
-
-                                // Générer l'URL correcte de la photo
-                                if ($rawPhoto) {
-                                    // Si c'est une URL complète (http/https)
-                                    if (preg_match('/^https?:\/\//', $rawPhoto)) {
-                                        $photoUrl = $rawPhoto;
-                                    }
-                                    // Si le chemin commence par 'photos_preregistrations/', ajouter 'storage/'
-                                    elseif (str_starts_with($rawPhoto, 'photos_preregistrations/')) {
-                                        $photoUrl = asset('storage/' . $rawPhoto);
-                                    }
-                                    // Si le chemin commence par 'uploads/', c'est déjà dans public/
-                                    elseif (str_starts_with($rawPhoto, 'uploads/')) {
-                                        $photoUrl = asset($rawPhoto);
-                                    }
-                                    // Autres cas : supposer que c'est dans storage
-                                    else {
-                                        $photoUrl = asset('storage/' . $rawPhoto);
-                                    }
-                                } else {
-                                    $photoUrl = asset('assets/img/avatar.png');
-                                }
+                                $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? ($preReg->photo ?? null), 'assets/img/avatar.png');
                             @endphp
                             <div class="row g-3">
                                 <div class="col-md-4">

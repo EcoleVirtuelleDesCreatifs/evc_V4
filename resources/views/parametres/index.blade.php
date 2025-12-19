@@ -666,16 +666,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-4">
                             @php
-                                $currentPhoto = null;
-                                if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo) {
-                                    if (strpos($user->profile_photo, 'photos_preregistrations/') !== false) {
-                                        $currentPhoto = asset('storage/' . $user->profile_photo);
-                                    } elseif (strpos($user->profile_photo, '/') === false) {
-                                        $currentPhoto = asset('uploads/photos/' . $user->profile_photo);
-                                    } else {
-                                        $currentPhoto = asset($user->profile_photo);
-                                    }
-                                }
+                                $currentPhoto = \App\Helpers\ProfilePhotoHelper::getUrl($user->profile_photo);
                             @endphp
                             @if($currentPhoto)
                                 <img id="photoPreview" src="{{ $currentPhoto }}" alt="Photo" class="photo-current">
