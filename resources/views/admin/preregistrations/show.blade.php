@@ -350,8 +350,21 @@
     <div class="modern-header fadeIn">
         <div class="row align-items-center position-relative" style="z-index: 1;">
             <div class="col-auto">
-                @if($pre->photo)
-                    <img src="{{ asset('storage/'.$pre->photo) }}" alt="Photo candidat" class="candidate-avatar">
+                @php
+                    $headerPhotoUrl = null;
+                    if (!empty($pre->photo)) {
+                        $filename = basename($pre->photo);
+                        if (file_exists(public_path('photos_preregistrations/' . $filename))) {
+                            $headerPhotoUrl = asset('photos_preregistrations/' . $filename);
+                        } elseif (file_exists(public_path($pre->photo))) {
+                            $headerPhotoUrl = asset($pre->photo);
+                        } elseif (file_exists(public_path('storage/' . $pre->photo))) {
+                            $headerPhotoUrl = asset('storage/' . $pre->photo);
+                        }
+                    }
+                @endphp
+                @if($headerPhotoUrl)
+                    <img src="{{ $headerPhotoUrl }}" alt="Photo candidat" class="candidate-avatar">
                 @else
                     <div class="candidate-avatar d-flex align-items-center justify-content-center" style="background: rgba(255,255,255,0.2);">
                         <i class="fas fa-user fa-2x"></i>
@@ -590,7 +603,22 @@
                     </div>
                 </div>
                 <div class="photo-container">
-                    <img src="{{ asset('storage/'.$pre->photo) }}" alt="Photo du candidat">
+                    @php
+                        $sidebarPhotoUrl = null;
+                        if (!empty($pre->photo)) {
+                            $filename2 = basename($pre->photo);
+                            if (file_exists(public_path('photos_preregistrations/' . $filename2))) {
+                                $sidebarPhotoUrl = asset('photos_preregistrations/' . $filename2);
+                            } elseif (file_exists(public_path($pre->photo))) {
+                                $sidebarPhotoUrl = asset($pre->photo);
+                            } elseif (file_exists(public_path('storage/' . $pre->photo))) {
+                                $sidebarPhotoUrl = asset('storage/' . $pre->photo);
+                            }
+                        }
+                    @endphp
+                    @if($sidebarPhotoUrl)
+                        <img src="{{ $sidebarPhotoUrl }}" alt="Photo du candidat">
+                    @endif
                 </div>
             </div>
             @endif
