@@ -1131,22 +1131,10 @@ class AdminDashboardController extends Controller
 
     public function studentsDesignGraphiqueCommunityManager()
     {
-        // Récupérer les user_ids des étudiants avec le profil combiné
-        $userIds = DB::table('students')
-            ->where('program', 'design_graphique_community_management')
-            ->pluck('user_id')
-            ->toArray();
-
-        // Récupérer les Users avec Eloquent
-        $students = User::whereIn('id', $userIds)->get();
-
-        dd([
-            'userIds' => $userIds,
-            'students_count' => $students->count(),
-            'students' => $students->toArray()
+        // Utiliser la liste standard (même logique/affichage que les autres formations)
+        return redirect()->route('admin.students.by-formation', [
+            'formation' => 'design-graphique-community-manager'
         ]);
-
-        return view('admin.etudiants.design-graphique-community-manager', compact('students'));
     }
 
     public function bibliothequeCategories()
@@ -3569,25 +3557,66 @@ class AdminDashboardController extends Controller
      */
     public function paiementsAJour(): View
     {
-        $students = DB::table('students')
+        $formationTotals = (array) config('chariow.formation_amounts', []);
+
+        $studentsBase = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->leftJoin('pre_registrations', 'pre_registrations.email', '=', 'students.email')
             ->select(
                 'students.*',
-                'users.email',
-                DB::raw('"À jour" as payment_status'),
-                DB::raw('350000 as amount_paid'),
-                DB::raw('350000 as total_amount'),
-                DB::raw('0 as remaining')
+                'users.email as user_email',
+                'pre_registrations.id as pre_registration_id',
+                'pre_registrations.choix_formation as choix_formation'
             )
             ->where('students.status', 'active')
             ->orderBy('students.created_at', 'desc')
-            ->limit(50)
             ->get();
+
+        $preRegIds = $studentsBase->pluck('pre_registration_id')->filter()->unique()->values()->toArray();
+
+        $paymentAgg = collect();
+        if (!empty($preRegIds)) {
+            $paymentAgg = DB::table('payments')
+                ->select(
+                    'pre_registration_id',
+                    DB::raw("COALESCE(MAX(total_amount), 0) as total_amount"),
+                    DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid"),
+                    DB::raw("SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_count")
+                )
+                ->whereIn('pre_registration_id', $preRegIds)
+                ->groupBy('pre_registration_id')
+                ->get()
+                ->keyBy('pre_registration_id');
+        }
+
+        $students = $studentsBase->map(function ($s) use ($paymentAgg, $formationTotals) {
+            $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
+
+            $totalAmount = (int) round((float) ($agg->total_amount ?? 0));
+            $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
+
+            if ($totalAmount <= 0) {
+                $formationLabel = $s->choix_formation ?: ($s->program ?? null);
+                $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+            }
+
+            $remaining = max(0, $totalAmount - $amountPaid);
+
+            $s->payment_status = 'À jour';
+            $s->amount_paid = $amountPaid;
+            $s->total_amount = $totalAmount;
+            $s->remaining = $remaining;
+            $s->email = $s->user_email ?? $s->email;
+            return $s;
+        })
+            ->filter(fn($s) => ($s->total_amount ?? 0) > 0 && ($s->remaining ?? 0) <= 0)
+            ->values();
 
         $stats = [
             'total' => $students->count(),
             'percentage' => 100,
-            'total_amount' => $students->count() * 350000,
+            'total_amount' => $students->sum('amount_paid'),
+            'amount_per_student' => $students->count() > 0 ? (int) round($students->avg('total_amount')) : 0,
         ];
 
         return view('admin.paiements.a-jour', compact('students', 'stats'));
@@ -3598,33 +3627,59 @@ class AdminDashboardController extends Controller
      */
     public function paiementsASolder(): View
     {
-        // Données de démonstration pour les paiements partiels
-        $students = collect([
-            (object)[
-                'id' => 1,
-                'first_name' => 'Jean',
-                'last_name' => 'KOUADIO',
-                'email' => 'jean.kouadio@example.com',
-                'program' => 'Design Graphique',
-                'payment_status' => 'Partiel',
-                'amount_paid' => 200000,
-                'total_amount' => 350000,
-                'remaining' => 150000,
-                'created_at' => now()->subMonths(2),
-            ],
-            (object)[
-                'id' => 2,
-                'first_name' => 'Marie',
-                'last_name' => 'BAMBA',
-                'email' => 'marie.bamba@example.com',
-                'program' => 'Community Management',
-                'payment_status' => 'Partiel',
-                'amount_paid' => 175000,
-                'total_amount' => 350000,
-                'remaining' => 175000,
-                'created_at' => now()->subMonths(1),
-            ],
-        ]);
+        $formationTotals = (array) config('chariow.formation_amounts', []);
+
+        $studentsBase = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->leftJoin('pre_registrations', 'pre_registrations.email', '=', 'students.email')
+            ->select(
+                'students.*',
+                'users.email as user_email',
+                'pre_registrations.id as pre_registration_id',
+                'pre_registrations.choix_formation as choix_formation'
+            )
+            ->where('students.status', 'active')
+            ->orderBy('students.created_at', 'desc')
+            ->get();
+
+        $preRegIds = $studentsBase->pluck('pre_registration_id')->filter()->unique()->values()->toArray();
+
+        $paymentAgg = collect();
+        if (!empty($preRegIds)) {
+            $paymentAgg = DB::table('payments')
+                ->select(
+                    'pre_registration_id',
+                    DB::raw("COALESCE(MAX(total_amount), 0) as total_amount"),
+                    DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid")
+                )
+                ->whereIn('pre_registration_id', $preRegIds)
+                ->groupBy('pre_registration_id')
+                ->get()
+                ->keyBy('pre_registration_id');
+        }
+
+        $students = $studentsBase->map(function ($s) use ($paymentAgg, $formationTotals) {
+            $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
+
+            $totalAmount = (int) round((float) ($agg->total_amount ?? 0));
+            $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
+
+            if ($totalAmount <= 0) {
+                $formationLabel = $s->choix_formation ?: ($s->program ?? null);
+                $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+            }
+
+            $remaining = max(0, $totalAmount - $amountPaid);
+
+            $s->payment_status = 'Partiel';
+            $s->amount_paid = $amountPaid;
+            $s->total_amount = $totalAmount;
+            $s->remaining = $remaining;
+            $s->email = $s->user_email ?? $s->email;
+            return $s;
+        })
+            ->filter(fn($s) => ($s->total_amount ?? 0) > 0 && ($s->amount_paid ?? 0) > 0 && ($s->remaining ?? 0) > 0)
+            ->values();
 
         $stats = [
             'total' => $students->count(),
@@ -3640,21 +3695,59 @@ class AdminDashboardController extends Controller
      */
     public function paiementsResteAPayer(): View
     {
-        // Données de démonstration pour les paiements non effectués
-        $students = collect([
-            (object)[
-                'id' => 3,
-                'first_name' => 'Kofi',
-                'last_name' => 'ASSANE',
-                'email' => 'mae2pcmk2025@gmail.com',
-                'program' => 'Gestion Informatique',
-                'payment_status' => 'Non payé',
-                'amount_paid' => 0,
-                'total_amount' => 350000,
-                'remaining' => 350000,
-                'created_at' => now()->subWeeks(2),
-            ],
-        ]);
+        $formationTotals = (array) config('chariow.formation_amounts', []);
+
+        $studentsBase = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->leftJoin('pre_registrations', 'pre_registrations.email', '=', 'students.email')
+            ->select(
+                'students.*',
+                'users.email as user_email',
+                'pre_registrations.id as pre_registration_id',
+                'pre_registrations.choix_formation as choix_formation'
+            )
+            ->where('students.status', 'active')
+            ->orderBy('students.created_at', 'desc')
+            ->get();
+
+        $preRegIds = $studentsBase->pluck('pre_registration_id')->filter()->unique()->values()->toArray();
+
+        $paymentAgg = collect();
+        if (!empty($preRegIds)) {
+            $paymentAgg = DB::table('payments')
+                ->select(
+                    'pre_registration_id',
+                    DB::raw("COALESCE(MAX(total_amount), 0) as total_amount"),
+                    DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid")
+                )
+                ->whereIn('pre_registration_id', $preRegIds)
+                ->groupBy('pre_registration_id')
+                ->get()
+                ->keyBy('pre_registration_id');
+        }
+
+        $students = $studentsBase->map(function ($s) use ($paymentAgg, $formationTotals) {
+            $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
+
+            $totalAmount = (int) round((float) ($agg->total_amount ?? 0));
+            $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
+
+            if ($totalAmount <= 0) {
+                $formationLabel = $s->choix_formation ?: ($s->program ?? null);
+                $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+            }
+
+            $remaining = max(0, $totalAmount - $amountPaid);
+
+            $s->payment_status = 'Non payé';
+            $s->amount_paid = $amountPaid;
+            $s->total_amount = $totalAmount;
+            $s->remaining = $remaining;
+            $s->email = $s->user_email ?? $s->email;
+            return $s;
+        })
+            ->filter(fn($s) => ($s->total_amount ?? 0) > 0 && ($s->remaining ?? 0) > 0 && ($s->amount_paid ?? 0) < ($s->total_amount ?? 0))
+            ->values();
 
         $stats = [
             'total' => $students->count(),
@@ -3709,12 +3802,41 @@ class AdminDashboardController extends Controller
                     ], 400);
                 }
 
+                // Calculer le restant à payer depuis payments si possible
+                $amountPaid = 0;
+                $totalAmount = 0;
+                $remaining = 0;
+                $formationTotals = (array) config('chariow.formation_amounts', []);
+
+                $preReg = DB::table('pre_registrations')
+                    ->where('email', $student->email)
+                    ->first();
+
+                if ($preReg) {
+                    $payments = DB::table('payments')
+                        ->where('pre_registration_id', $preReg->id)
+                        ->get();
+
+                    $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
+                    $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
+
+                    if ($totalAmount <= 0) {
+                        $formationLabel = $preReg->choix_formation ?? ($student->program ?? null);
+                        $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+                    }
+                } else {
+                    $formationLabel = $student->program ?? null;
+                    $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+                }
+
+                $remaining = max(0, $totalAmount - $amountPaid);
+
                 $studentData = [
                     'first_name' => $student->first_name ?? 'Étudiant',
                     'last_name' => $student->last_name ?? '',
-                    'formation' => $student->program ?? 'Non défini',
-                    'amount_paid' => 0,
-                    'remaining' => 350000,
+                    'formation' => $student->program ?? ($preReg->choix_formation ?? 'Non défini'),
+                    'amount_paid' => $amountPaid,
+                    'remaining' => $remaining,
                     'created_at' => $student->created_at,
                 ];
 

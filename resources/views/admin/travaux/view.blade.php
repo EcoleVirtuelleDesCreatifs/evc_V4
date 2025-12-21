@@ -84,11 +84,21 @@
                                 $fileName = $file->file_name ?? $file->original_name ?? 'fichier';
                                 $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
                                 $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp']);
+
                                 $url = $file->file_path;
-                                if (!str_starts_with($url, 'http') && !str_starts_with($url, '/')) {
-                                    $url = asset('storage/' . $url);
-                                } else {
-                                    $url = asset($url);
+                                if (!str_starts_with($url, 'http')) {
+                                    // Nettoyer le chemin
+                                    $path = str_replace(['public/', 'storage/'], '', $url);
+                                    $path = ltrim($path, '/');
+
+                                    // Préparer le chemin pour l'URL (encodage des espaces, accents, etc)
+                                    $parts = explode('/', $path);
+                                    $filename = array_pop($parts);
+                                    $urlPath = implode('/', $parts) . ($parts ? '/' : '') . rawurlencode($filename);
+
+                                    // Forcer l'utilisation de storage/ pour tous les fichiers locaux
+                                    // y compris ceux dans uploads/
+                                    $url = asset('storage/' . $urlPath);
                                 }
                             @endphp
                             <div class="file-item">

@@ -93,7 +93,7 @@
                 <h1 class="mb-2">
                     <i class="fas fa-exclamation-triangle me-3"></i>Reste à Payer
                 </h1>
-                <p class="mb-0">Étudiants n'ayant effectué aucun paiement</p>
+                <p class="mb-0">Étudiants ayant un solde restant à régler</p>
             </div>
         </div>
     </div>
@@ -102,7 +102,7 @@
     <div class="row mb-4">
         <div class="col-md-6">
             <div class="stat-card-payment">
-                <div class="text-muted mb-1">Étudiants Sans Paiement</div>
+                <div class="text-muted mb-1">Étudiants avec solde restant</div>
                 <div class="stat-value-payment">{{ $stats['total'] }}</div>
                 <div class="text-danger mt-2">
                     <i class="fas fa-exclamation-circle me-1"></i>Nécessite un suivi
@@ -154,9 +154,15 @@
                             </td>
                             <td>{{ \Carbon\Carbon::parse($student->created_at)->format('d/m/Y') }}</td>
                             <td>
-                                <span class="badge-unpaid">
-                                    <i class="fas fa-times me-1"></i>Non payé
-                                </span>
+                                @if(((float) ($student->amount_paid ?? 0)) > 0)
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-clock me-1"></i>Partiel
+                                    </span>
+                                @else
+                                    <span class="badge-unpaid">
+                                        <i class="fas fa-times me-1"></i>Non payé
+                                    </span>
+                                @endif
                             </td>
                             <td>
                                 <button class="action-btn" onclick="sendReminder({{ $student->id }})">

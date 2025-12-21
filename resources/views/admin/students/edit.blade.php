@@ -387,13 +387,19 @@ body {
                                 $expirationDate = null;
                                 $daysRemaining = null;
 
+                                $durationMonths = 4;
+                                $formationKey = $student['formation_souhaitee'] ?? null;
+                                if (in_array($formationKey, ['design_graphique_community_management', 'design_graphique_community_manager', 'design-graphique-community-manager'], true)) {
+                                    $durationMonths = 7;
+                                }
+
                                 if (isset($student['expiration_date'])) {
                                     $expirationDate = \Carbon\Carbon::parse($student['expiration_date'])->format('Y-m-d');
                                     $daysRemaining = (int) \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($student['expiration_date']), false);
                                 } elseif (isset($student['created_at'])) {
                                     $createdAt = \Carbon\Carbon::parse($student['created_at']);
-                                    $expirationDate = $createdAt->copy()->addMonths(4)->format('Y-m-d');
-                                    $daysRemaining = (int) \Carbon\Carbon::now()->diffInDays($createdAt->copy()->addMonths(4), false);
+                                    $expirationDate = $createdAt->copy()->addMonths($durationMonths)->format('Y-m-d');
+                                    $daysRemaining = (int) \Carbon\Carbon::now()->diffInDays($createdAt->copy()->addMonths($durationMonths), false);
                                 }
                             @endphp
 

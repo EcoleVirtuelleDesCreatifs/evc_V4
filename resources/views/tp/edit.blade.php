@@ -147,19 +147,16 @@
                             @php
                                 // Fonction pour obtenir l'URL correcte du fichier
                                 $getFileUrl = function($filePath) {
-                                    $path = str_replace('public/', '', $filePath);
-                                    $possiblePaths = [
-                                        $path,
-                                        'storage/' . $path,
-                                        'uploads/' . basename($path),
-                                        'storage/tp_files/' . basename($path),
-                                    ];
-                                    foreach ($possiblePaths as $testPath) {
-                                        if (file_exists(public_path($testPath))) {
-                                            return asset($testPath);
-                                        }
+                                    $path = str_replace(['public/', 'storage/'], '', $filePath);
+                                    $path = ltrim($path, '/');
+
+                                    // Cas spécifique pour le dossier uploads
+                                    if (str_starts_with($path, 'uploads/')) {
+                                        return asset('storage/' . $path);
                                     }
-                                    return asset($path);
+
+                                    // Fallback vers storage
+                                    return asset('storage/' . $path);
                                 };
 
                                 $isImage = function($file) {

@@ -35,6 +35,10 @@
         background: linear-gradient(135deg, #833AB4 0%, #FD1D1D 45%, #F77737 100%);
     }
 
+    .stat-card.paiements {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
     .stat-number {
         font-size: 3.5rem;
         font-weight: 800;
@@ -522,6 +526,22 @@
                             <small style="opacity: 0.8;">Actualités</small>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-4 fade-in-up" style="animation-delay: 0.5s;">
+            <div class="stat-card paiements h-100">
+                <i class="fas fa-wallet stat-icon"></i>
+                <div class="card-body p-4">
+                    <div class="stat-number mb-2" style="font-size: 2.2rem;">
+                        {{ number_format((float)($stats['montant_restant'] ?? 0), 0, ',', ' ') }}
+                    </div>
+                    <div class="stat-label mb-3">Montant restant (FCFA)</div>
+                    <a href="{{ route('community-management.paiements.index') }}" class="btn stat-btn w-100">
+                        <i class="fas fa-receipt me-2"></i>
+                        Mes paiements
+                    </a>
                 </div>
             </div>
         </div>

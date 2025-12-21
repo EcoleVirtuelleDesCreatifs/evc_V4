@@ -123,6 +123,40 @@
             @if($project->files && $project->files->count() > 0)
 
                 @php
+                    // Fonction pour obtenir l'URL correcte du fichier
+                    $getFileUrl = function($filePath) {
+                        $path = str_replace(['public/', 'storage/'], '', $filePath);
+                        $path = ltrim($path, '/');
+
+                        // Préparer le chemin pour l'URL (encodage des espaces, accents, etc)
+                        $parts = explode('/', $path);
+                        $filename = array_pop($parts);
+                        $urlPath = implode('/', $parts) . ($parts ? '/' : '') . rawurlencode($filename);
+
+                        // Préparer le chemin pour le système de fichiers (décodé)
+                        $fsPath = $path;
+
+                        // 1. Priorité aux dossiers connus dans storage
+                        if (str_starts_with($path, 'tp_submissions/') ||
+                            str_starts_with($path, 'tp_files/') ||
+                            str_starts_with($path, 'uploads/') ||
+                            str_starts_with($path, 'project_images/')) {
+                            return asset('storage/' . $urlPath);
+                        }
+
+                        // 2. Vérification physique si possible
+                        if (file_exists(public_path('storage/' . $fsPath))) {
+                            return asset('storage/' . $urlPath);
+                        }
+
+                        if (file_exists(public_path($fsPath))) {
+                             return asset($urlPath);
+                        }
+
+                        // 3. Fallback standard
+                        return asset('storage/' . $urlPath);
+                    };
+
                     // Fonction pour détecter si c'est une image
                     $isImage = function($file) {
                         // Vérifier d'abord le mime_type
@@ -157,10 +191,13 @@
                     <div class="card-body">
                         <div class="row g-3">
                             @foreach($imageFiles as $image)
+                                @php
+                                    $imageUrl = $getFileUrl($image->file_path);
+                                @endphp
                             <div class="col-md-4 col-sm-6">
                                 <div class="position-relative image-card" style="height: 200px; overflow: hidden; border-radius: 8px; cursor: pointer; background: #f0f0f0;"
-                                     onclick="viewImage('{{ asset($image->file_path) }}', '{{ $image->original_name }}')">
-                                    <img src="{{ asset($image->file_path) }}"
+                                     onclick="viewImage('{{ $imageUrl }}', '{{ $image->original_name }}')">
+                                    <img src="{{ $imageUrl }}"
                                          alt="{{ $image->original_name }}"
                                          class="w-100 h-100"
                                          style="object-fit: cover; transition: transform 0.3s;"
@@ -176,7 +213,7 @@
                                         <small class="text-white-50">{{ number_format($image->file_size / 1024, 0) }} KB</small>
                                     </div>
                                     <div class="position-absolute top-0 end-0 m-2">
-                                        <a href="{{ asset($image->file_path) }}"
+                                        <a href="{{ $imageUrl }}"
                                            download="{{ $image->original_name }}"
                                            class="btn btn-sm btn-light"
                                            onclick="event.stopPropagation();"

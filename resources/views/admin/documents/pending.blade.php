@@ -383,14 +383,15 @@ function viewReportDetails(rapport) {
     if (rapport.files && rapport.files.length > 0) {
         filesHtml = '<div class="list-group">';
         rapport.files.forEach(file => {
-            const fileSize = file.file_size ? (file.file_size / 1024).toFixed(2) : 'N/A';
+            const fileSize = file.file_size            // Construire le chemin correct du fichier
             let filePath = file.file_path;
             if (!filePath.startsWith('http')) {
-                if (filePath.startsWith('uploads/')) {
-                    filePath = '{{ url("") }}/' + filePath;
-                } else {
-                    filePath = '{{ asset("storage") }}/' + filePath;
-                }
+                // Nettoyer le chemin
+                filePath = filePath.replace(/^public\//, '').replace(/^storage\//, '').replace(/^\//, '');
+
+                // Forcer l'utilisation de storage/ pour tous les fichiers locaux
+                // y compris ceux dans uploads/
+                filePath = '{{ asset("storage") }}/' + filePath;
             }
             const fileIcon = file.original_name.toLowerCase().endsWith('.pdf') ? 'fa-file-pdf text-danger' : 'fa-file text-primary';
             filesHtml += `

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AdmissionApprovedRegistrationLink;
 use App\Models\User;
+use App\Models\AccountingTransaction;
 
 class PreRegistrationAdminController extends Controller
 {
@@ -59,6 +60,30 @@ class PreRegistrationAdminController extends Controller
     {
         $pre = PreRegistration::findOrFail($id);
         return view('admin.preregistrations.show', compact('pre'));
+    }
+
+    public function payment($id)
+    {
+        $pre = PreRegistration::findOrFail($id);
+
+        $payments = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('payments')) {
+            $payments = DB::table('payments')
+                ->where('pre_registration_id', $pre->id)
+                ->orderByDesc('id')
+                ->get();
+        }
+
+        $formationName = $this->getFormationLabel($pre->choix_formation);
+        $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
+        if ($totalAmount <= 0) {
+            $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationName);
+        }
+
+        $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
+        $remaining = max(0, $totalAmount - $amountPaid);
+
+        return view('admin.preregistrations.payment', compact('pre', 'payments', 'formationName', 'totalAmount', 'amountPaid', 'remaining'));
     }
 
     public function bulkStatus(Request $request)
@@ -130,6 +155,278 @@ class PreRegistrationAdminController extends Controller
 
             return redirect()->back()
                 ->with('error', '❌ Erreur lors de l\'action groupée : ' . $e->getMessage());
+        }
+    }
+
+    public function manualPayment(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'installment_number' => 'nullable|integer|in:1,2',
+            'method' => 'nullable|string|max:50',
+            'reference' => 'nullable|string|max:191',
+            'paid_at' => 'nullable|date',
+        ]);
+
+        $pre = PreRegistration::findOrFail($id);
+
+        $hadCompletedBefore = DB::table('payments')
+            ->where('pre_registration_id', $pre->id)
+            ->where('status', 'completed')
+            ->exists();
+
+        $amount = (int) round((float) $validated['amount']);
+        $installmentNumber = $validated['installment_number'] ?? null;
+        $method = $validated['method'] ?? 'Manual';
+        $reference = $validated['reference'] ?? null;
+        $paidAt = !empty($validated['paid_at']) ? \Carbon\Carbon::parse($validated['paid_at']) : now();
+
+        $formationName = $this->getFormationLabel($pre->choix_formation);
+        $totalAmount = \App\Services\CinetPayService::getFormationPrice($formationName);
+
+        DB::beginTransaction();
+        try {
+            $manualTransactionId = 'MANUAL-' . strtoupper(uniqid());
+            $paymentReference = $reference ?: ('EVC-MANUAL-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8)));
+
+            // Si les paiements existent déjà (ex: créés lors de l'acceptation), on tente de compléter la tranche correspondante.
+            // Sinon, on insère un paiement manual en completed.
+            $updated = false;
+            $paymentId = null;
+
+            if ($installmentNumber) {
+                $existingPending = DB::table('payments')
+                    ->where('pre_registration_id', $pre->id)
+                    ->where('installment_number', $installmentNumber)
+                    ->whereIn('status', ['pending', 'PENDING'])
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($existingPending) {
+                    $expected = (int) round((float) ($existingPending->amount ?? 0));
+
+                    // Paiement partiel sur une tranche: on ne clôture pas toute la tranche.
+                    if ($expected > 0 && $amount < $expected) {
+                        $completedRef = $paymentReference;
+                        if ($completedRef === ($existingPending->payment_reference ?? null)) {
+                            $completedRef = 'EVC-MANUAL-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
+                        }
+
+                        $paymentId = DB::table('payments')->insertGetId([
+                            'pre_registration_id' => $pre->id,
+                            'amount' => $amount,
+                            'currency' => 'XOF',
+                            'payment_reference' => $completedRef,
+                            'status' => 'completed',
+                            'payer_email' => $pre->email,
+                            'payer_name' => trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? '')),
+                            'payment_type' => 'installment',
+                            'installment_number' => $installmentNumber,
+                            'total_installments' => 2,
+                            'total_amount' => $totalAmount,
+                            'transaction_id' => $manualTransactionId,
+                            'paid_at' => $paidAt,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+
+                        DB::table('payments')
+                            ->where('id', $existingPending->id)
+                            ->update([
+                                'amount' => max(0, $expected - $amount),
+                                'updated_at' => now(),
+                            ]);
+
+                        $updated = true;
+                    } else {
+                        // Paiement complet (ou supérieur) de la tranche: on clôture la tranche.
+                        DB::table('payments')
+                            ->where('id', $existingPending->id)
+                            ->update([
+                                'status' => 'completed',
+                                'transaction_id' => $manualTransactionId,
+                                'paid_at' => $paidAt,
+                                'updated_at' => now(),
+                            ]);
+                        $paymentId = $existingPending->id;
+                        $updated = true;
+
+                        // Si montant saisi > montant attendu sur la tranche: enregistrer le surplus en paiement complémentaire.
+                        if ($expected > 0 && $amount > $expected) {
+                            $extraAmount = $amount - $expected;
+                            $extraRef = 'EVC-MANUAL-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
+                            DB::table('payments')->insert([
+                                'pre_registration_id' => $pre->id,
+                                'amount' => $extraAmount,
+                                'currency' => 'XOF',
+                                'payment_reference' => $extraRef,
+                                'status' => 'completed',
+                                'payer_email' => $pre->email,
+                                'payer_name' => trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? '')),
+                                'payment_type' => 'full',
+                                'total_amount' => $totalAmount,
+                                'transaction_id' => $manualTransactionId,
+                                'paid_at' => $paidAt,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            if (!$updated) {
+                $paymentType = $installmentNumber ? 'installment' : 'full';
+
+                $paymentId = DB::table('payments')->insertGetId([
+                    'pre_registration_id' => $pre->id,
+                    'amount' => $amount,
+                    'currency' => 'XOF',
+                    'payment_reference' => $paymentReference,
+                    'status' => 'completed',
+                    'payer_email' => $pre->email,
+                    'payer_name' => trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? '')),
+                    'payment_type' => $paymentType,
+                    'installment_number' => $installmentNumber,
+                    'total_installments' => $installmentNumber ? 2 : null,
+                    'total_amount' => $totalAmount,
+                    'transaction_id' => $manualTransactionId,
+                    'paid_at' => $paidAt,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // Mettre à jour le total_amount sur les paiements existants si manquant
+            DB::table('payments')
+                ->where('pre_registration_id', $pre->id)
+                ->where(function ($q) {
+                    $q->whereNull('total_amount')->orWhere('total_amount', 0);
+                })
+                ->update([
+                    'total_amount' => $totalAmount,
+                    'updated_at' => now(),
+                ]);
+
+            // Comptabilité
+            AccountingTransaction::create([
+                'type' => 'income',
+                'category' => 'Scolarité',
+                'amount' => $amount,
+                'date' => $paidAt,
+                'title' => 'Paiement manuel - ' . trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? '')),
+                'description' => 'Paiement manuel de scolarité pour la formation : ' . $formationName,
+                'reference' => $paymentReference,
+                'payment_method' => $method,
+                'student_name' => trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? '')),
+                'training_module' => $formationName,
+            ]);
+
+            // Vérifier si solde atteint
+            $paidSum = (int) round((float) DB::table('payments')
+                ->where('pre_registration_id', $pre->id)
+                ->where('status', 'completed')
+                ->sum('amount'));
+
+            if ($totalAmount > 0 && $paidSum >= $totalAmount) {
+                $pre->status = 'paid';
+                $pre->save();
+            } else {
+                $shouldAccept = !$hadCompletedBefore && !in_array($pre->status, ['accepted', 'Validé', 'Actif', 'paid'], true);
+                if ($shouldAccept) {
+                    $pre->status = 'accepted';
+                    $pre->save();
+                }
+            }
+
+            Log::info('Paiement manuel enregistré', [
+                'pre_registration_id' => $pre->id,
+                'payment_id' => $paymentId,
+                'amount' => $amount,
+                'installment_number' => $installmentNumber,
+                'method' => $method,
+                'admin_id' => session('admin_id'),
+            ]);
+
+            DB::commit();
+
+            // Email à l'étudiant (ne doit pas bloquer l'enregistrement)
+            try {
+                if (!empty($pre->email)) {
+                    $remaining = max(0, (int) $totalAmount - (int) $paidSum);
+
+                    $isFirstManualPayment = !$hadCompletedBefore && in_array($pre->status, ['accepted', 'paid'], true);
+
+                    // Si c'est le 1er paiement (cash/dépôt) d'une candidature soumise: envoyer acceptation + bouton création de compte.
+                    if ($isFirstManualPayment) {
+                        $existingUser = DB::table('users')->where('email', $pre->email)->first();
+                        if (!$existingUser) {
+                            DB::table('users')->insert([
+                                'name' => trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? '')),
+                                'email' => $pre->email,
+                                'password' => bcrypt('temporary_password_' . uniqid()),
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+                        }
+
+                        $timestamp = time();
+                        $hash = md5($pre->email . config('app.key'));
+                        $token = base64_encode($pre->email . '|' . $timestamp . '|' . $hash);
+                        $accountCreationUrl = url('/student/confirm-registration/' . $token);
+
+                        Mail::send('emails.manual_payment_acceptance', [
+                            'candidateName' => trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? '')),
+                            'formationName' => $formationName,
+                            'amount' => $amount,
+                            'installmentNumber' => $installmentNumber,
+                            'method' => $method,
+                            'reference' => $paymentReference,
+                            'paidAt' => $paidAt instanceof \Carbon\Carbon ? $paidAt->format('d/m/Y H:i') : \Carbon\Carbon::parse($paidAt)->format('d/m/Y H:i'),
+                            'totalAmount' => (int) $totalAmount,
+                            'amountPaid' => (int) $paidSum,
+                            'remaining' => (int) $remaining,
+                            'accountCreationUrl' => $accountCreationUrl,
+                        ], function ($message) use ($pre) {
+                            $message->to($pre->email)
+                                ->subject('Félicitations ! Créez votre compte EVC');
+                        });
+                    } else {
+                        // Sinon: email reçu simple
+                        Mail::send('emails.manual_payment_receipt', [
+                            'candidateName' => trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? '')),
+                            'formationName' => $formationName,
+                            'amount' => $amount,
+                            'installmentNumber' => $installmentNumber,
+                            'method' => $method,
+                            'reference' => $paymentReference,
+                            'paidAt' => $paidAt instanceof \Carbon\Carbon ? $paidAt->format('d/m/Y H:i') : \Carbon\Carbon::parse($paidAt)->format('d/m/Y H:i'),
+                            'totalAmount' => (int) $totalAmount,
+                            'amountPaid' => (int) $paidSum,
+                            'remaining' => (int) $remaining,
+                        ], function ($message) use ($pre, $paymentReference) {
+                            $message->to($pre->email)
+                                ->subject('Reçu de paiement - ' . $paymentReference);
+                        });
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Email reçu paiement manuel non envoyé', [
+                    'pre_registration_id' => $pre->id,
+                    'email' => $pre->email,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            return redirect()->route('admin.preinscriptions.index')
+                ->with('success', '✅ Paiement manuel enregistré avec succès.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Erreur paiement manuel', [
+                'pre_registration_id' => $pre->id,
+                'error' => $e->getMessage(),
+            ]);
+            return redirect()->back()->withInput()->with('error', '❌ Erreur paiement manuel : ' . $e->getMessage());
         }
     }
 
@@ -396,7 +693,10 @@ class PreRegistrationAdminController extends Controller
             if ($paymentMode === 'installment') {
                 $installment1Amount = 50000;
                 $installment2Amount = 27000;
-                if ($formationName === 'Community Management') {
+                if ($formationName === 'Design Graphique') {
+                    $installment1Amount = 53500;
+                    $installment2Amount = 27000;
+                } elseif ($formationName === 'Community Management') {
                     $installment1Amount = 53500;
                     $installment2Amount = 53500;
                 } elseif ($formationName === 'Design Graphique & Community Management') {
@@ -435,7 +735,7 @@ class PreRegistrationAdminController extends Controller
                     'status' => 'pending',
                     'payer_email' => $pre->email,
                     'payer_name' => $pre->prenom . ' ' . $pre->nom,
-                    'expires_at' => now()->addDays(30),
+                    'expires_at' => now()->addMonths(2),
                     'payment_type' => 'installment',
                     'installment_number' => 2,
                     'total_installments' => 2,

@@ -450,7 +450,7 @@ class ProfileController extends Controller
                 $filename = 'profile_' . $userId . '_' . time() . '.' . $file->getClientOriginalExtension();
 
                 // Créer le dossier s'il n'existe pas
-                $uploadPath = public_path('uploads/photos');
+                $uploadPath = storage_path('app/public/uploads/photos');
                 if (!file_exists($uploadPath)) {
                     mkdir($uploadPath, 0755, true);
                 }

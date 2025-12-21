@@ -180,7 +180,10 @@ class DashboardController extends Controller
 
         if ($student && isset($student->id)) {
             $tpAssignmentsQuery = DB::table('tp_assignments')
-                ->where('student_id', $student->id);
+                ->where(function ($q) use ($student, $user) {
+                    $q->where('student_id', $student->id)
+                        ->orWhere('student_id', $user->id);
+                });
 
             if ($isExpiredNow) {
                 $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
@@ -353,12 +356,34 @@ class DashboardController extends Controller
             ->limit(6)
             ->get();
 
+        $pendingAssignments = collect();
+        $pendingAssignmentsQuery = DB::table('tp_assignments')
+            ->where(function ($q) use ($student, $user) {
+                if ($student && isset($student->id)) {
+                    $q->where('student_id', $student->id)
+                        ->orWhere('student_id', $user->id);
+                } else {
+                    $q->where('student_id', $user->id);
+                }
+            })
+            ->whereIn('status', ['pending', 'submitted'])
+            ->orderByRaw('deadline is null asc')
+            ->orderBy('deadline', 'asc')
+            ->orderBy('created_at', 'desc');
+
+        if ($isExpiredNow) {
+            $pendingAssignmentsQuery->where('created_at', '<=', $expirationDate);
+        }
+
+        $pendingAssignments = $pendingAssignmentsQuery->get();
+
         return view('dashboard.design-graphique', [
             'user' => $user,
             'student' => $student,
             'preReg' => $preReg,
             'stats' => $stats,
             'featured_formations' => $featured_formations,
+            'pendingAssignments' => $pendingAssignments,
             'accountCreatedAt' => $accountCreatedAt,
             'expirationDate' => $expirationDate,
             'daysRemaining' => $daysRemaining, // Déjà un entier positif
@@ -490,15 +515,35 @@ class DashboardController extends Controller
             $actualitesEnCours = 0;
         }
 
-        // Calculer le montant restant
+        // Calculer le montant restant à payer (cohérent avec paiementsIndex)
         $montantRestant = 0;
-        $payments = DB::table('payments')
-            ->where('user_id', $user->id)
-            ->get();
+        try {
+            if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
+                $montantRestant = max(0, (float) $preReg->montant_total - (float) $preReg->montant_paye);
+            } else {
+                $paymentsQuery = DB::table('payments')
+                    ->where(function ($q) use ($user, $preReg) {
+                        $q->where('user_id', $user->id);
+                        if ($preReg && isset($preReg->id)) {
+                            $q->orWhere('pre_registration_id', $preReg->id);
+                        }
+                    });
 
-        $montantTotal = $payments->sum('amount');
-        $montantPaye = $payments->where('status', 'completed')->sum('amount');
-        $montantRestant = max(0, $montantTotal - $montantPaye);
+                $payments = $paymentsQuery->get();
+
+                $paymentsTotal = $payments->max('total_amount');
+                if (!empty($paymentsTotal)) {
+                    $paymentAmount = (float) $paymentsTotal;
+                } else {
+                    $paymentAmount = (float) $payments->sum('amount');
+                }
+
+                $paymentPaid = (float) $payments->where('status', 'completed')->sum('amount');
+                $montantRestant = max(0, $paymentAmount - $paymentPaid);
+            }
+        } catch (\Exception $e) {
+            $montantRestant = 0;
+        }
 
         $stats = [
             'formations_disponibles' => $formationsDisponibles,
@@ -593,6 +638,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $student = $service->loadStudent($user, null);
+        $preReg = $service->loadPreRegistration($student, $user);
 
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
         $expirationDate = $accountCreatedAt->copy()->addMonths(4);
@@ -695,6 +741,36 @@ class DashboardController extends Controller
             $actualitesEnCours = 0;
         }
 
+        // Calculer le montant restant à payer (cohérent avec paiementsIndex)
+        $montantRestant = 0;
+        try {
+            if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
+                $montantRestant = max(0, (float) $preReg->montant_total - (float) $preReg->montant_paye);
+            } else {
+                $paymentsQuery = DB::table('payments')
+                    ->where(function ($q) use ($user, $preReg) {
+                        $q->where('user_id', $user->id);
+                        if ($preReg && isset($preReg->id)) {
+                            $q->orWhere('pre_registration_id', $preReg->id);
+                        }
+                    });
+
+                $payments = $paymentsQuery->get();
+
+                $paymentsTotal = $payments->max('total_amount');
+                if (!empty($paymentsTotal)) {
+                    $paymentAmount = (float) $paymentsTotal;
+                } else {
+                    $paymentAmount = (float) $payments->sum('amount');
+                }
+
+                $paymentPaid = (float) $payments->where('status', 'completed')->sum('amount');
+                $montantRestant = max(0, $paymentAmount - $paymentPaid);
+            }
+        } catch (\Exception $e) {
+            $montantRestant = 0;
+        }
+
         $stats = [
             'formations_disponibles' => $formationsDisponibles,
             'tp_realises' => $tpRealises,
@@ -726,6 +802,7 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         $student = $service->loadStudent($user, null);
+        $preReg = $service->loadPreRegistration($student, $user);
 
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
         $expirationDate = $accountCreatedAt->copy()->addMonths(4);
@@ -837,6 +914,36 @@ class DashboardController extends Controller
             $actualitesEnCours = 0;
         }
 
+        // Calculer le montant restant à payer (cohérent avec paiementsIndex)
+        $montantRestant = 0;
+        try {
+            if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
+                $montantRestant = max(0, (float) $preReg->montant_total - (float) $preReg->montant_paye);
+            } else {
+                $paymentsQuery = DB::table('payments')
+                    ->where(function ($q) use ($user, $preReg) {
+                        $q->where('user_id', $user->id);
+                        if ($preReg && isset($preReg->id)) {
+                            $q->orWhere('pre_registration_id', $preReg->id);
+                        }
+                    });
+
+                $payments = $paymentsQuery->get();
+
+                $paymentsTotal = $payments->max('total_amount');
+                if (!empty($paymentsTotal)) {
+                    $paymentAmount = (float) $paymentsTotal;
+                } else {
+                    $paymentAmount = (float) $payments->sum('amount');
+                }
+
+                $paymentPaid = (float) $payments->where('status', 'completed')->sum('amount');
+                $montantRestant = max(0, $paymentAmount - $paymentPaid);
+            }
+        } catch (\Exception $e) {
+            $montantRestant = 0;
+        }
+
         $stats = [
             'formations_disponibles' => $formationsDisponibles,
             'tp_realises' => $tpRealises,
@@ -847,6 +954,7 @@ class DashboardController extends Controller
             'projets_total' => $projectsQuery->count(),
             'webinaires_en_cours' => $webinairesEnCours,
             'actualites_en_cours' => $actualitesEnCours,
+            'montant_restant' => $montantRestant,
         ];
 
         $globalProgress = 0;
@@ -1235,6 +1343,7 @@ class DashboardController extends Controller
             'files' => $files,
             'source_table' => 'tp_assignments',
             'tags' => null,
+            'software_used' => null,
             'type' => 'digital',
             'deadline' => $tpAssignment->deadline ?? null,
             'formation' => $tpAssignment->formation ?? null
@@ -3192,10 +3301,10 @@ class DashboardController extends Controller
 
         // 1. Récupérer les rapports depuis la table tp (legacy)
         $tps = \App\Models\TP::where('user_id', $user->id)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->where('title', 'LIKE', '%rapport%')
-                      ->orWhere('title', 'LIKE', '%Rapport%')
-                      ->orWhere('title', 'LIKE', '%RAPPORT%');
+                    ->orWhere('title', 'LIKE', '%Rapport%')
+                    ->orWhere('title', 'LIKE', '%RAPPORT%');
             })
             ->with(['files'])
             ->orderBy('created_at', 'desc')
@@ -3256,10 +3365,10 @@ class DashboardController extends Controller
         if ($student) {
             $tpAssignments = DB::table('tp_assignments')
                 ->where('student_id', $student->id)
-                ->where(function($query) {
+                ->where(function ($query) {
                     $query->where('title', 'LIKE', '%rapport%')
-                          ->orWhere('title', 'LIKE', '%Rapport%')
-                          ->orWhere('title', 'LIKE', '%RAPPORT%');
+                        ->orWhere('title', 'LIKE', '%Rapport%')
+                        ->orWhere('title', 'LIKE', '%RAPPORT%');
                 })
                 ->orderBy('created_at', 'desc')
                 ->get();
@@ -3754,9 +3863,9 @@ class DashboardController extends Controller
                         $q->orWhereJsonContains('recipients', $module);
                     }
                 })
-                ->orWhereJsonContains('recipients', 'tous')
-                ->orWhereNull('recipients')
-                ->orWhereRaw('JSON_LENGTH(recipients) = 0');
+                    ->orWhereJsonContains('recipients', 'tous')
+                    ->orWhereNull('recipients')
+                    ->orWhereRaw('JSON_LENGTH(recipients) = 0');
             });
 
         // Stats calculées sur l'ensemble des items (non paginé)
@@ -4252,34 +4361,52 @@ class DashboardController extends Controller
         $student = DB::table('students')->where('user_id', $user->id)->first();
 
         // Récupérer la pré-inscription de l'étudiant
-        $preReg = DB::table('pre_registrations')->where('email', $user->email)->first();
+        $preReg = DB::table('pre_registrations')->where('email', $user->email)->orderByDesc('id')->first();
 
         // Initialiser les valeurs par défaut
-        $formationLabel = $preReg ? (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null) : null;
-        $paymentAmount = $formationLabel ? \App\Services\CinetPayService::getFormationPrice($formationLabel) : 0;
-        $paymentPaid = 0;
-        $paymentRemaining = $paymentAmount;
-        $paymentProgress = 0;
-        $payments = collect([]);
+        $formationLabel = $preReg
+            ? (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null)
+            : null;
 
-        if ($preReg) {
-            // Récupérer tous les paiements liés à cette pré-inscription
-            $payments = DB::table('payments')
-                ->where('pre_registration_id', $preReg->id)
-                ->orderBy('installment_number', 'asc')
-                ->get();
+        // Paiements : priorité au user_id (compte créé), fallback sur pre_registration_id si dispo
+        $paymentsQuery = DB::table('payments')
+            ->where(function ($q) use ($user, $preReg) {
+                $q->where('user_id', $user->id);
+                if ($preReg) {
+                    $q->orWhere('pre_registration_id', $preReg->id);
+                }
+            });
 
-            // Montant total: priorité aux paiements (total_amount), sinon prix formation
-            $paymentsTotal = $payments->max('total_amount');
-            if (!empty($paymentsTotal)) {
-                $paymentAmount = (int) $paymentsTotal;
+        // Tri : tranches d'abord (1,2), puis le reste
+        $payments = $paymentsQuery
+            ->orderByRaw('installment_number is null asc')
+            ->orderBy('installment_number', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Montant total : priorité à total_amount si présent, sinon somme des montants, sinon prix formation
+        $paymentsTotal = $payments->max('total_amount');
+        if (!empty($paymentsTotal)) {
+            $paymentAmount = (float) $paymentsTotal;
+        } else {
+            $sumAmounts = (float) $payments->sum('amount');
+            $paymentAmount = $sumAmounts > 0 ? $sumAmounts : 0;
+
+            if ($paymentAmount <= 0 && $formationLabel) {
+                $paymentAmount = (float) \App\Services\CinetPayService::getFormationPrice($formationLabel);
             }
-
-            // Calculer les montants
-            $paymentPaid = $payments->where('status', 'completed')->sum('amount');
-            $paymentRemaining = $paymentAmount - $paymentPaid;
-            $paymentProgress = $paymentAmount > 0 ? ($paymentPaid / $paymentAmount) * 100 : 0;
         }
+
+        $paymentPaid = (float) $payments->where('status', 'completed')->sum('amount');
+        $paymentRemaining = max(0, (float) $paymentAmount - (float) $paymentPaid);
+        $paymentProgress = $paymentAmount > 0 ? ($paymentPaid / $paymentAmount) * 100 : 0;
+
+        $nextPayment = $payments
+            ->where('status', 'pending')
+            ->sortBy(function ($p) {
+                return $p->installment_number ?? 999;
+            })
+            ->first();
 
         return view('paiements.index', [
             'user' => $user,
@@ -4290,6 +4417,7 @@ class DashboardController extends Controller
             'paymentProgress' => round($paymentProgress, 2),
             'payments' => $payments,
             'preRegistration' => $preReg,
+            'nextPayment' => $nextPayment,
         ]);
     }
 
@@ -4588,6 +4716,22 @@ class DashboardController extends Controller
         // Récupérer les données de l'étudiant via user_id
         $student = DB::table('students')->where('user_id', $user->id)->first();
 
+        // Préinscription (si la table existe)
+        $preReg = null;
+        try {
+            if (Schema::hasTable('pre_registrations')) {
+                $email = $student->email ?? $user->email;
+                if (!empty($email)) {
+                    $preReg = DB::table('pre_registrations')
+                        ->where('email', $email)
+                        ->orderByDesc('id')
+                        ->first();
+                }
+            }
+        } catch (\Exception $e) {
+            $preReg = null;
+        }
+
         // Récupérer les actualités publiées et visibles pour Community Management
         $actualites = DB::table('actualites')
             ->where('status', 'published')
@@ -4701,6 +4845,38 @@ class DashboardController extends Controller
             'actualites' => $actualites->count(),
         ];
 
+        // Calculer le montant restant à payer (cohérent avec paiementsIndex)
+        $montantRestant = 0;
+        try {
+            if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
+                $montantRestant = max(0, (float) $preReg->montant_total - (float) $preReg->montant_paye);
+            } else {
+                $paymentsQuery = DB::table('payments')
+                    ->where(function ($q) use ($user, $preReg) {
+                        $q->where('user_id', $user->id);
+                        if ($preReg && isset($preReg->id)) {
+                            $q->orWhere('pre_registration_id', $preReg->id);
+                        }
+                    });
+
+                $payments = $paymentsQuery->get();
+
+                $paymentsTotal = $payments->max('total_amount');
+                if (!empty($paymentsTotal)) {
+                    $paymentAmount = (float) $paymentsTotal;
+                } else {
+                    $paymentAmount = (float) $payments->sum('amount');
+                }
+
+                $paymentPaid = (float) $payments->where('status', 'completed')->sum('amount');
+                $montantRestant = max(0, $paymentAmount - $paymentPaid);
+            }
+        } catch (\Exception $e) {
+            $montantRestant = 0;
+        }
+
+        $stats['montant_restant'] = $montantRestant;
+
         // Calcul de l'expiration du compte avec AccountExpirationHelper
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
 
@@ -4740,6 +4916,7 @@ class DashboardController extends Controller
         return view('dashboard.community-management', [
             'user' => $user,
             'student' => $student,
+            'preReg' => $preReg,
             'stats' => $stats,
             'actualites' => $actualites,
             'accountCreatedAt' => $accountCreatedAt,

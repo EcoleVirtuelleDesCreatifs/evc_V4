@@ -35,6 +35,10 @@
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
 
+    .stat-card.paiements {
+        background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+    }
+
     .stat-number {
         font-size: 3.5rem;
         font-weight: 800;
@@ -165,6 +169,74 @@
         overflow: hidden;
         margin-bottom: 2rem;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+
+    .hero-subcard {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 16px;
+        padding: 1.25rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-kpi {
+        font-size: 1.4rem;
+        font-weight: 900;
+        line-height: 1;
+        color: #fff;
+    }
+
+    .hero-kpi-label {
+        font-size: 0.75rem;
+        opacity: 0.9;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.9);
+        font-weight: 700;
+    }
+
+    .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.85rem 1.15rem;
+        border-radius: 14px;
+        font-weight: 800;
+        border: 0;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    .hero-cta.primary {
+        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        color: #fff;
+        box-shadow: 0 12px 25px rgba(37, 99, 235, 0.35);
+    }
+
+    .hero-cta.secondary {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .hero-cta:hover {
+        transform: translateY(-2px);
+        color: #fff;
+    }
+
+    .micro-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.14);
+        border: 1px solid rgba(255,255,255,0.18);
+        color: #fff;
+        font-weight: 700;
+        font-size: 0.78rem;
     }
 
     .profile-header::before {
@@ -367,6 +439,24 @@
     $program = ($sf->program ?? '') ?: ($pr->program ?? '');
     $level = ($sf->level ?? '') ?: ($pr->level ?? '');
     $studentId = $sf->student_id ?? '';
+
+    $tpTotalHero = (int) ($stats['tp_total'] ?? 0);
+    $tpDoneHero = (int) ($stats['tp_realises'] ?? 0);
+    $projTotalHero = (int) ($stats['projets_total'] ?? 0);
+    $projDoneHero = (int) ($stats['projets_realises'] ?? 0);
+    $globalProgressHero = 0;
+    if ($tpTotalHero > 0) {
+        $globalProgressHero += ($tpDoneHero / $tpTotalHero) * 50;
+    }
+    if ($projTotalHero > 0) {
+        $globalProgressHero += ($projDoneHero / $projTotalHero) * 50;
+    }
+    $globalProgressHero = max(0, min(100, $globalProgressHero));
+
+    $pendingForHero = $pendingAssignments ?? collect();
+    $pending = $pendingForHero;
+    $nextAssignmentHero = $pendingForHero->first();
+    $montantRestantHero = (float) ($stats['montant_restant'] ?? 0);
 @endphp
 
 <div class="container-fluid px-lg-4">
@@ -374,21 +464,44 @@
     {{-- Profile Header --}}
     <div class="profile-header fade-in-up">
         <div class="row align-items-center position-relative" style="z-index: 1;">
-            <div class="col-lg-8">
+            <div class="col-lg-7">
                 <div class="d-flex align-items-center gap-4 flex-column flex-lg-row text-center text-lg-start">
                     <img src="{{ $photoUrl }}" alt="{{ $fullName }}" class="avatar-pro"
                          onerror="this.src='{{ asset('assets/img/avatar.png') }}'">
-                    <div>
-                        <h1 class="text-white mb-2" style="font-size: 2rem; font-weight: 700;">
+                    <div class="flex-grow-1">
+                        <div class="d-flex align-items-center justify-content-center justify-content-lg-start gap-2 flex-wrap mb-2">
+                            <span class="micro-pill">
+                                <i class="fas fa-bolt"></i>
+                                Objectif : avancer chaque jour
+                            </span>
+                            @if(!$isExpired)
+                                <span class="micro-pill">
+                                    <i class="fas fa-clock"></i>
+                                    {{ $daysRemaining }} jours restants
+                                </span>
+                            @else
+                                <span class="micro-pill" style="background: rgba(239,68,68,0.25); border-color: rgba(239,68,68,0.35);">
+                                    <i class="fas fa-ban"></i>
+                                    Compte expiré
+                                </span>
+                            @endif
+                        </div>
+
+                        <h1 class="text-white mb-2" style="font-size: 2.05rem; font-weight: 900; letter-spacing: -0.02em;">
                             {{ $fullName ?: 'Étudiant EVC' }}
                         </h1>
-                        <p class="text-white mb-3" style="opacity: 0.9; font-size: 1.125rem;">
+
+                        <p class="text-white mb-3" style="opacity: 0.9; font-size: 1.05rem;">
                             {{ $program ?: 'Design Graphique' }}
                             @if($level)
                                 <span class="mx-2">•</span>{{ $level }}
                             @endif
+                            @if($studentId)
+                                <span class="mx-2">•</span>{{ $studentId }}
+                            @endif
                         </p>
-                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start">
+
+                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start mb-3">
                             @if($email)
                             <a href="mailto:{{ $email }}" class="badge-contact">
                                 <i class="fas fa-envelope"></i>
@@ -402,14 +515,112 @@
                             </a>
                             @endif
                         </div>
+
+                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start">
+                            @if(!$isExpired)
+                                @if($nextAssignmentHero)
+                                    <a href="{{ route('design-graphique.tp.voir', ['id' => $nextAssignmentHero->id]) }}" class="hero-cta primary">
+                                        <i class="fas fa-play"></i>
+                                        Continuer maintenant
+                                    </a>
+                                @else
+                                    <a href="{{ route('design-graphique.tp.index') }}" class="hero-cta primary">
+                                        <i class="fas fa-tasks"></i>
+                                        Voir mes TP
+                                    </a>
+                                @endif
+                                <a href="{{ route('design-graphique.paiements.index') }}" class="hero-cta secondary">
+                                    <i class="fas fa-wallet"></i>
+                                    Paiements
+                                </a>
+                                <a href="{{ route('design-graphique.cvtheque.mon-profil') }}" class="hero-cta secondary">
+                                    <i class="fas fa-briefcase"></i>
+                                    CVthèque
+                                </a>
+                            @else
+                                <a href="mailto:info@ecolevirtuelledescreatifs.com" class="hero-cta secondary">
+                                    <i class="fas fa-envelope"></i>
+                                    Renouveler mon accès
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
-                <a href="{{ route('design-graphique.profil.editer') }}" class="btn btn-edit">
-                    <i class="fas fa-edit me-2"></i>
-                    Modifier mon profil
-                </a>
+
+            <div class="col-lg-5 mt-4 mt-lg-0">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="hero-subcard">
+                            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                                <div>
+                                    <div class="hero-kpi-label mb-1">Progression globale</div>
+                                    <div class="hero-kpi">
+                                        <span id="dg_global_progress_hero">{{ round($globalProgressHero) }}</span>%
+                                    </div>
+                                    <div class="text-white" style="opacity: 0.9; font-weight: 600;">
+                                        TP : <span id="dg_tp_realises_hero">{{ $stats['tp_realises'] ?? 0 }}</span>/<span id="dg_tp_total_hero">{{ $stats['tp_total'] ?? 0 }}</span>
+                                        <span class="mx-2">•</span>
+                                        Projets : <span id="dg_projets_realises_hero">{{ $stats['projets_realises'] ?? 0 }}</span>/<span id="dg_projets_total_hero">{{ $stats['projets_total'] ?? 0 }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="hero-kpi-label mb-1">Reste à payer</div>
+                                    <div class="hero-kpi" style="font-size: 1.6rem;">
+                                        <span id="dg_montant_restant_hero">{{ number_format($montantRestantHero, 0, ',', ' ') }}</span> FCFA
+                                    </div>
+                                    <div class="text-white" style="opacity: 0.9; font-weight: 600;">
+                                        @if($montantRestantHero > 0)
+                                            Finalisez pour sécuriser votre accès
+                                        @else
+                                            Paiement soldé
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3" style="background: rgba(255,255,255,0.12); border-radius: 999px; height: 10px; overflow: hidden;">
+                                <div id="dg_global_progress_fill_hero" style="height: 100%; width: {{ $globalProgressHero }}%; background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="hero-subcard">
+                            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                <div>
+                                    <div class="hero-kpi-label mb-1">Prochaine action recommandée</div>
+                                    <div class="text-white" style="font-weight: 800;">
+                                        @if($nextAssignmentHero)
+                                            {{ $nextAssignmentHero->title ?? 'Travail à faire' }}
+                                        @else
+                                            Mettre votre profil CVthèque à jour
+                                        @endif
+                                    </div>
+                                    <div class="text-white" style="opacity: 0.9; font-weight: 600;">
+                                        @if($nextAssignmentHero && !empty($nextAssignmentHero->deadline))
+                                            Date limite : {{ \Carbon\Carbon::parse($nextAssignmentHero->deadline)->format('d/m/Y H:i') }}
+                                        @else
+                                            Un profil complet augmente vos chances (CV, portfolio)
+                                        @endif
+                                    </div>
+                                </div>
+                                @if(!$isExpired)
+                                    @if($nextAssignmentHero)
+                                        <a href="{{ route('design-graphique.tp.voir', ['id' => $nextAssignmentHero->id]) }}" class="hero-cta primary">
+                                            <i class="fas fa-arrow-right"></i>
+                                            Ouvrir
+                                        </a>
+                                    @else
+                                        <a href="{{ route('design-graphique.cvtheque.mon-profil') }}" class="hero-cta primary">
+                                            <i class="fas fa-user-check"></i>
+                                            Compléter mon profil
+                                        </a>
+                                    @endif
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -431,7 +642,7 @@
                 <div class="card-body p-4">
                     <div class="stat-number mb-2" id="dg_formations_disponibles">{{ $stats['formations_disponibles'] ?? 0 }}</div>
                     <div class="stat-label mb-3">Formations Disponibles</div>
-                    <a href="#" class="btn stat-btn w-100">
+                    <a href="{{ route('design-graphique.formations.index') }}" class="btn stat-btn w-100">
                         <i class="fas fa-arrow-right me-2"></i>
                         Explorer
                     </a>
@@ -453,6 +664,13 @@
                     </div>
                     <small class="text-white" id="dg_tp_progress_text" style="opacity: 0.8;">{{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}% complétés</small>
                     @endif
+
+                    <div class="mt-3">
+                        <a href="{{ route('design-graphique.tp.index') }}" class="btn stat-btn w-100">
+                            <i class="fas fa-arrow-right me-2"></i>
+                            Voir mes TP
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -471,6 +689,13 @@
                     </div>
                     <small class="text-white" id="dg_projets_progress_text" style="opacity: 0.8;">{{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}% réalisés</small>
                     @endif
+
+                    <div class="mt-3">
+                        <a href="{{ route('design-graphique.projets.index') }}" class="btn stat-btn w-100">
+                            <i class="fas fa-arrow-right me-2"></i>
+                            Mes projets
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -488,6 +713,53 @@
                         <div class="col-6" style="border-left: 1px solid rgba(255,255,255,0.3);">
                             <div class="stat-number" id="dg_actualites_en_cours" style="font-size: 2rem;">{{ $stats['actualites_en_cours'] ?? 0 }}</div>
                             <small style="opacity: 0.8;">Actualités</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-5">
+        <div class="col-lg-3 col-md-6 mb-4 fade-in-up" style="animation-delay: 0.5s;">
+            <div class="stat-card paiements h-100">
+                <i class="fas fa-wallet stat-icon"></i>
+                <div class="card-body p-4">
+                    <div class="stat-number mb-2" style="font-size: 2.2rem;">
+                        <span id="dg_montant_restant_card">{{ number_format((float)($stats['montant_restant'] ?? 0), 0, ',', ' ') }}</span>
+                    </div>
+                    <div class="stat-label mb-3">Montant restant à payer (FCFA)</div>
+                    <a href="{{ route('design-graphique.paiements.index') }}" class="btn stat-btn w-100">
+                        <i class="fas fa-receipt me-2"></i>
+                        Voir mes paiements
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-9 col-md-6 mb-4 fade-in-up" style="animation-delay: 0.6s;">
+            <div class="info-item h-100" style="background: linear-gradient(135deg, #ffffff 0%, #eef2ff 100%);">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                        <div>
+                            <div class="small" style="text-transform: uppercase; font-weight: 800; letter-spacing: 0.12em; color: #1e40af;">
+                                Votre prochain levier de réussite
+                            </div>
+                            <h4 class="mb-1" style="font-weight: 900; color: #0f172a;">
+                                Complétez votre profil CVthèque + portfolio
+                            </h4>
+                            <div style="color: #334155; font-weight: 600;">
+                                Un profil complet augmente votre visibilité auprès de l'administration.
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="{{ route('design-graphique.cvtheque.mon-profil') }}" class="btn btn-primary" style="border-radius: 12px; font-weight: 800;">
+                                <i class="fas fa-briefcase me-2"></i>
+                                Mettre à jour
+                            </a>
+                            <a href="{{ route('design-graphique.documents.index') }}" class="btn btn-outline-primary" style="border-radius: 12px; font-weight: 800;">
+                                <i class="fas fa-folder-open me-2"></i>
+                                Mes documents
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -523,10 +795,7 @@
                         <div class="text-white" style="opacity: 0.8;">{{ $expirationDate->format('H:i') }}</div>
                     </div>
                     <div class="col-md-4">
-                        @php
-                            $totalDays = 120;
-                            $progress = ($daysRemaining / $totalDays) * 100;
-                        @endphp
+                        <?php $totalDays = 120; $progress = ($daysRemaining / $totalDays) * 100; ?>
                         <div class="text-white small mb-2" style="opacity: 0.8; text-transform: uppercase; font-weight: 600;">Progression</div>
                         <div class="progress-bar-custom">
                             <div class="progress-bar-fill" style="width: {{ $progress }}%;"></div>
@@ -601,80 +870,97 @@
     </div>
     @endif
 
-    {{-- Quick Actions --}}
+    {{-- PROJET À FAIRE --}}
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="section-title">
-                <i class="fas fa-bolt me-2"></i>
-                Actions Rapides
+                <i class="fas fa-clipboard-list me-2"></i>
+                PROJET À FAIRE
             </h2>
         </div>
     </div>
 
-    <div class="row g-4 mb-5">
-        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.1s;">
-            <a href="{{ route('design-graphique.profil.editer') }}" class="action-card text-decoration-none">
-                <div class="card-body p-4 text-center">
-                    <div class="action-icon-wrapper">
-                        <i class="fas fa-user-edit fa-2x text-white"></i>
-                    </div>
-                    <h5 class="action-title">Modifier Profil</h5>
-                    <p class="action-subtitle mb-0">Mettre à jour vos informations</p>
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="formation-card fade-in-up">
+                <div class="formation-header">
+                    <h3 class="mb-0 position-relative">
+                        <i class="fas fa-tasks me-3"></i>
+                        Travaux assignés
+                    </h3>
+                    <p class="mb-0 mt-2 opacity-75">Retrouvez ici la liste de vos travaux à réaliser</p>
                 </div>
-            </a>
-        </div>
 
-        @if(!$isExpired)
-        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.2s;">
-            <a href="{{ route('design-graphique.documents.index') }}" class="action-card text-decoration-none">
-                <div class="card-body p-4 text-center">
-                    <div class="action-icon-wrapper">
-                        <i class="fas fa-folder-open fa-2x text-white"></i>
-                    </div>
-                    <h5 class="action-title">Documents</h5>
-                    <p class="action-subtitle mb-0">CV, lettres, réalisations</p>
-                </div>
-            </a>
-        </div>
-        @else
-        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.2s;">
-            <div class="action-card text-decoration-none" style="opacity: 0.6; cursor: not-allowed; position: relative;">
-                <div class="card-body p-4 text-center">
-                    <div class="action-icon-wrapper" style="background: #6b7280;">
-                        <i class="fas fa-lock fa-2x text-white"></i>
-                    </div>
-                    <h5 class="action-title">Documents</h5>
-                    <p class="action-subtitle mb-0 text-muted">Compte expiré</p>
-                    <span class="badge bg-danger position-absolute top-0 end-0 m-2" style="font-size: 0.7rem;">
-                        <i class="fas fa-ban me-1"></i>Bloqué
-                    </span>
+                <div class="card-body p-4">
+                    @php
+                        $pending = $pendingAssignments ?? collect();
+                    @endphp
+
+                    @if($pending->isEmpty())
+                        <div class="text-center py-5" style="opacity: 0.9;">
+                            <div style="font-size: 3rem;">✅</div>
+                            <h5 class="mt-3" style="font-weight: 800; color: #1f2937;">Aucun projet en attente</h5>
+                            <p class="mb-0" style="color: #6b7280;">Tu n'as aucun travail assigné pour le moment.</p>
+                        </div>
+                    @else
+                        <div class="row g-4">
+                            @foreach($pending as $assignment)
+                                <div class="col-lg-6">
+                                    <div class="info-item h-100">
+                                        <div class="card-body p-4">
+                                            <div class="d-flex align-items-start gap-3">
+                                                <div class="info-icon-wrapper flex-shrink-0">
+                                                    <i class="fas fa-file-alt text-white"></i>
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                                        <h5 class="mb-1" style="font-weight: 800; color: #1f2937;">
+                                                            {{ $assignment->title ?? 'Travail' }}
+                                                        </h5>
+                                                        @php
+                                                            $status = $assignment->status ?? 'pending';
+                                                            $statusLabel = $status === 'submitted' ? 'Soumis' : 'À faire';
+                                                            $badgeClass = $status === 'submitted' ? 'bg-warning text-dark' : 'bg-info text-white';
+                                                        @endphp
+                                                        <span class="badge {{ $badgeClass }}" style="border-radius: 999px; font-weight: 700;">
+                                                            {{ $statusLabel }}
+                                                        </span>
+                                                    </div>
+
+                                                    @if(!empty($assignment->deadline))
+                                                        <div class="small" style="color: #6b7280; font-weight: 600;">
+                                                            <i class="fas fa-clock me-1"></i>
+                                                            Date limite : {{ \Carbon\Carbon::parse($assignment->deadline)->format('d/m/Y H:i') }}
+                                                        </div>
+                                                    @else
+                                                        <div class="small" style="color: #6b7280; font-weight: 600;">
+                                                            <i class="fas fa-clock me-1"></i>
+                                                            Date limite : Non définie
+                                                        </div>
+                                                    @endif
+
+                                                    @if(!empty($assignment->description))
+                                                        <p class="mt-3 mb-0" style="color: #374151; line-height: 1.6;">
+                                                            {{ \Illuminate\Support\Str::limit(strip_tags($assignment->description), 160) }}
+                                                        </p>
+                                                    @endif
+
+                                                    <div class="mt-4">
+                                                        <a href="{{ route('design-graphique.tp.voir', ['id' => $assignment->id]) }}" class="btn btn-primary" style="border-radius: 12px; font-weight: 700;">
+                                                            Voir le travail
+                                                            <i class="fas fa-arrow-right ms-2"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
-        </div>
-        @endif
-
-        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.3s;">
-            <a href="{{ route('design-graphique.parametres.index') }}" class="action-card text-decoration-none">
-                <div class="card-body p-4 text-center">
-                    <div class="action-icon-wrapper">
-                        <i class="fas fa-cog fa-2x text-white"></i>
-                    </div>
-                    <h5 class="action-title">Paramètres</h5>
-                    <p class="action-subtitle mb-0">Configuration du compte</p>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-lg-3 col-md-6 fade-in-up" style="animation-delay: 0.4s;">
-            <a href="#" class="action-card text-decoration-none">
-                <div class="card-body p-4 text-center">
-                    <div class="action-icon-wrapper">
-                        <i class="fas fa-chart-line fa-2x text-white"></i>
-                    </div>
-                    <h5 class="action-title">Statistiques</h5>
-                    <p class="action-subtitle mb-0">Suivi de progression</p>
-                </div>
-            </a>
         </div>
     </div>
 
@@ -803,16 +1089,24 @@
             formations: document.getElementById('dg_formations_disponibles'),
             tpRealises: document.getElementById('dg_tp_realises'),
             tpTotal: document.getElementById('dg_tp_total'),
+            tpRealisesHero: document.getElementById('dg_tp_realises_hero'),
+            tpTotalHero: document.getElementById('dg_tp_total_hero'),
             tpProgressFill: document.getElementById('dg_tp_progress_fill'),
             tpProgressText: document.getElementById('dg_tp_progress_text'),
             projetsRealises: document.getElementById('dg_projets_realises'),
             projetsTotal: document.getElementById('dg_projets_total'),
+            projetsRealisesHero: document.getElementById('dg_projets_realises_hero'),
+            projetsTotalHero: document.getElementById('dg_projets_total_hero'),
             projetsProgressFill: document.getElementById('dg_projets_progress_fill'),
             projetsProgressText: document.getElementById('dg_projets_progress_text'),
             webinaires: document.getElementById('dg_webinaires_en_cours'),
             actualites: document.getElementById('dg_actualites_en_cours'),
             globalProgress: document.getElementById('dg_global_progress'),
             globalProgressFill: document.getElementById('dg_global_progress_fill'),
+            globalProgressHero: document.getElementById('dg_global_progress_hero'),
+            globalProgressFillHero: document.getElementById('dg_global_progress_fill_hero'),
+            montantRestantHero: document.getElementById('dg_montant_restant_hero'),
+            montantRestantCard: document.getElementById('dg_montant_restant_card'),
         };
 
         function safeInt(v) {
@@ -834,6 +1128,12 @@
         function setWidth(node, percent) {
             if (!node) return;
             node.style.width = clampPercent(percent) + '%';
+        }
+
+        function formatFcfa(n) {
+            const num = Number(n);
+            if (!Number.isFinite(num)) return '0';
+            return Math.round(num).toLocaleString('fr-FR');
         }
 
         async function refreshStats() {
@@ -859,10 +1159,20 @@
                 setText(el.formations, safeInt(stats.formations_disponibles));
                 setText(el.tpRealises, tpRealises);
                 setText(el.tpTotal, tpTotal);
+                setText(el.tpRealisesHero, tpRealises);
+                setText(el.tpTotalHero, tpTotal);
                 setText(el.projetsRealises, projetsRealises);
                 setText(el.projetsTotal, projetsTotal);
+                setText(el.projetsRealisesHero, projetsRealises);
+                setText(el.projetsTotalHero, projetsTotal);
                 setText(el.webinaires, safeInt(stats.webinaires_en_cours));
                 setText(el.actualites, safeInt(stats.actualites_en_cours));
+
+                if (typeof stats.montant_restant !== 'undefined') {
+                    const mr = Number(stats.montant_restant);
+                    setText(el.montantRestantHero, formatFcfa(mr));
+                    setText(el.montantRestantCard, formatFcfa(mr));
+                }
 
                 if (tpTotal > 0) {
                     const tpPct = Math.round((tpRealises / tpTotal) * 100);
@@ -880,6 +1190,8 @@
                     const gp = clampPercent(data.global_progress);
                     setText(el.globalProgress, Math.round(gp));
                     setWidth(el.globalProgressFill, gp);
+                    setText(el.globalProgressHero, Math.round(gp));
+                    setWidth(el.globalProgressFillHero, gp);
                 }
             } catch (e) {
                 // silent

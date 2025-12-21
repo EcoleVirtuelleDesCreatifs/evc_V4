@@ -224,7 +224,7 @@ class StudentAdminController extends Controller
             'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique','design_graphique','infographie','design-graphique']],
             'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager']],
             'community-management' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager','community-management']],
-            'design-graphique-community-manager' => ['label' => 'Design Graphique & Community Manager', 'keys' => ['Design Graphique & Community Manager','design_graphique_community_manager','design-graphique-community-manager']],
+            'design-graphique-community-manager' => ['label' => 'Design Graphique & Community Manager', 'keys' => ['Design Graphique & Community Manager','design_graphique_community_manager','design_graphique_community_management','design-graphique-community-manager']],
             'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'keys' => ['Intelligence Artificielle','intelligence_artificielle','intelligence-artificielle']],
             'gestion-informatique' => ['label' => 'Gestion Informatique', 'keys' => ['Gestion Informatique','gestion_informatique','informatique','gestion-informatique']],
         ];
@@ -314,6 +314,15 @@ class StudentAdminController extends Controller
             $isExpired = false;
             $expirationDate = null;
 
+            // Durée d'accès par formation (fallback quand expiration_date n'est pas stockée)
+            $durationMonths = 4;
+            if (
+                ($s->program ?? null) === 'design_graphique_community_management' ||
+                ($s->specialization ?? null) === 'design_graphique_community_management'
+            ) {
+                $durationMonths = 7;
+            }
+
             // Essayer d'abord avec expiration_date de la table students
             if (!empty($s->expiration_date)) {
                 try {
@@ -327,14 +336,14 @@ class StudentAdminController extends Controller
             if (!$expirationDate && !empty($s->created_at)) {
                 try {
                     $createdAt = \Carbon\Carbon::parse($s->created_at);
-                    $expirationDate = $createdAt->copy()->addMonths(4);
+                    $expirationDate = $createdAt->copy()->addMonths($durationMonths);
                 } catch (\Exception $e) {
                     // Si créated_at aussi échoue, essayer avec users.created_at
                     if ($userId) {
                         $userRecord = DB::table('users')->where('id', $userId)->first();
                         if ($userRecord && !empty($userRecord->created_at)) {
                             $createdAt = \Carbon\Carbon::parse($userRecord->created_at);
-                            $expirationDate = $createdAt->copy()->addMonths(4);
+                            $expirationDate = $createdAt->copy()->addMonths($durationMonths);
                         }
                     }
                 }
@@ -530,9 +539,15 @@ class StudentAdminController extends Controller
         $paiements = collect();
         $factures = collect();
         $totalPaye = 0;
-        $totalFactures = 77000; // Total formation : 50 000 (1ère tranche) + 27 000 (2ème tranche)
+        // Total formation par défaut (système par tranche): 50 000 (1ère tranche) + 27 000 (2ème tranche)
+        $totalFactures = 77000;
+        // Cas spécial: Design Graphique & Community Management = 165 000 FCFA
+        $formationKey = $student->program ?? ($student->specialization ?? null);
+        if ($formationKey === 'design_graphique_community_management') {
+            $totalFactures = 165000;
+        }
         $soldeRestant = 0;
-        
+
         // Récupérer la pré-inscription de l'étudiant pour ses paiements
         $preRegistration = null;
         if (Schema::hasTable('pre_registrations')) {
@@ -547,10 +562,10 @@ class StudentAdminController extends Controller
                 ->orderBy('installment_number', 'asc')
                 ->orderBy('created_at', 'desc')
                 ->get();
-            
+
             // Calculer le total payé (uniquement les paiements completed)
             $totalPaye = $paiements->where('status', 'completed')->sum('amount');
-            
+
             // Calculer le solde restant
             $soldeRestant = $totalFactures - $totalPaye;
         }
@@ -561,11 +576,11 @@ class StudentAdminController extends Controller
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
-            
+
             if ($anciensPaiements->isNotEmpty()) {
                 $paiements = $anciensPaiements;
                 $totalPaye = $anciensPaiements->where('statut', 'validé')->sum('montant');
-                
+
                 // Récupérer les factures si la table existe
                 if (Schema::hasTable('factures')) {
                     $factures = DB::table('factures')

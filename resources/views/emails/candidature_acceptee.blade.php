@@ -71,7 +71,7 @@
                                                         2ème Tranche (Après 2 mois)
                                                     </td>
                                                     <td style="padding: 12px; text-align: right; color: #64748b; font-size: 16px;">
-                                                        {{ number_format($payment->installment2_amount ?? (($payment->total_amount ?? 77000) - $payment->amount), 0, ',', ' ') }} FCFA
+                                                        {{ number_format($payment->installment2_amount ?? (($payment->total_amount ?? 80000) - $payment->amount), 0, ',', ' ') }} FCFA
                                                     </td>
                                                 </tr>
                                                 <tr style="background: #f1f5f9;">

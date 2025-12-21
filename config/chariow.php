@@ -103,8 +103,8 @@ return [
 
     'formation_amounts' => [
         'Design Graphique' => [
-            'total' => 77000,
-            'tranche_1' => 50000,
+            'total' => 80000,
+            'tranche_1' => 53500,
             'tranche_2' => 27000,
         ],
         'Community Management' => [

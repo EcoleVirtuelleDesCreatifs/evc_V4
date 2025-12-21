@@ -157,7 +157,18 @@
                                         @endif
                                     </td>
                                     <td class="px-4 py-3">
-                                        <div class="fw-bold">Tranche {{ $payment->installment_number }} / {{ $payment->total_installments }}</div>
+                                        @php
+                                            $installmentNumber = $payment->installment_number ?? null;
+                                            $totalInstallments = $payment->total_installments ?? null;
+                                            $isInstallment = ($payment->payment_type ?? null) === 'installment' || $installmentNumber;
+                                        @endphp
+                                        <div class="fw-bold">
+                                            @if($isInstallment)
+                                                Tranche {{ $installmentNumber ?? '?' }}@if($totalInstallments) / {{ $totalInstallments }}@endif
+                                            @else
+                                                Paiement
+                                            @endif
+                                        </div>
                                         <small class="text-muted">
                                             @if($payment->payment_reference)
                                                 Ref: {{ $payment->payment_reference }}
@@ -198,6 +209,13 @@
                                                target="_blank">
                                                 <i class="fas fa-download me-1"></i>
                                                 Facture
+                                            </a>
+                                        @elseif($payment->status === 'pending' && !empty($payment->payment_reference))
+                                            <a href="{{ route('payment.checkout', $payment->payment_reference) }}"
+                                               class="btn btn-success btn-sm me-2"
+                                               title="Payer maintenant">
+                                                <i class="fas fa-credit-card me-1"></i>
+                                                Payer
                                             </a>
                                         @else
                                             <span class="text-muted small">
@@ -240,21 +258,32 @@
                 </div>
                 <div class="card-body">
                     <p class="text-muted mb-3">Effectuer un nouveau paiement pour votre formation</p>
-                    @php($formationChoice = $preRegistration->choix_formation ?? null)
-                    @php($formationLabel = $formationChoice ? (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($formationChoice) : null)
-                    @php($payLink = config("chariow.payment_links.{$formationChoice}.tranche_1") ?: config("chariow.payment_links.{$formationLabel}.tranche_1"))
-                    @php($payLink = $payLink ?: (str_contains(Route::currentRouteName(), 'community-management.') ? 'https://ecolevirtuelle.mychariow.shop/prd_fgcdnb/checkout' : null))
-
-                    @if(!empty($payLink))
-                        <a class="btn btn-primary" href="{{ $payLink }}" target="_blank" rel="noopener noreferrer">
-                            <i class="fas fa-credit-card me-2"></i>
-                            Payer maintenant
-                        </a>
+                    @if(($paymentRemaining ?? 0) <= 0)
+                        <div class="alert alert-success mb-0">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Vos paiements sont soldés.
+                        </div>
+                    @elseif(!empty($nextPayment) && !empty($nextPayment->payment_reference))
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div>
+                                <div class="fw-bold">Paiement en attente</div>
+                                <div class="text-muted small">
+                                    Ref: {{ $nextPayment->payment_reference }}
+                                    @if(!empty($nextPayment->expires_at))
+                                        • Expire le {{ \Carbon\Carbon::parse($nextPayment->expires_at)->format('d/m/Y H:i') }}
+                                    @endif
+                                </div>
+                            </div>
+                            <a class="btn btn-success" href="{{ route('payment.checkout', $nextPayment->payment_reference) }}">
+                                <i class="fas fa-credit-card me-2"></i>
+                                Payer maintenant
+                            </a>
+                        </div>
                     @else
-                        <button class="btn btn-primary" disabled>
-                            <i class="fas fa-credit-card me-2"></i>
-                            Payer maintenant
-                        </button>
+                        <div class="alert alert-warning mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Aucun lien de paiement en attente n'est disponible pour le moment. Contactez l'administration si besoin.
+                        </div>
                     @endif
                 </div>
             </div>

@@ -712,11 +712,13 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/preinscriptions', [PreRegistrationAdminController::class, 'index'])->name('preinscriptions.index');
         Route::get('/preinscriptions/export', [PreRegistrationAdminController::class, 'export'])->name('preinscriptions.export');
         Route::get('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'show'])->name('preinscriptions.show');
+        Route::get('/preinscriptions/{id}/payment', [PreRegistrationAdminController::class, 'payment'])->name('preinscriptions.payment');
         Route::post('/preinscriptions/bulk-status', [PreRegistrationAdminController::class, 'bulkStatus'])->name('preinscriptions.bulk-status');
         Route::get('/preinscriptions/{id}/download-photo', [PreRegistrationAdminController::class, 'downloadPhoto'])->name('preinscriptions.download-photo');
         Route::post('/preinscriptions/{id}/validate', [PreRegistrationAdminController::class, 'validateOne'])->name('preinscriptions.validate');
         Route::post('/preinscriptions/{id}/accept', [PreRegistrationAdminController::class, 'acceptCandidate'])->name('preinscriptions.accept');
         Route::post('/preinscriptions/{id}/reject', [PreRegistrationAdminController::class, 'rejectCandidate'])->name('preinscriptions.reject');
+        Route::post('/preinscriptions/{id}/manual-payment', [PreRegistrationAdminController::class, 'manualPayment'])->name('preinscriptions.manual-payment');
         Route::delete('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'destroy'])->name('preinscriptions.destroy');
 
         // Test Mailtrap (admin only)

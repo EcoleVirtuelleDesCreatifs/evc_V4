@@ -143,33 +143,20 @@
                         $path = str_replace(['public/', 'storage/'], '', $filePath);
                         $path = ltrim($path, '/');
 
-                        // Cas spécifique pour le dossier uploads (qui est un symlink vers storage)
-                        // On force l'utilisation de storage/ car l'accès direct via public/uploads pose souvent problème (404)
+                        // 1) Si c'est un chemin de storage (disque public), utiliser Storage::url()
+                        if (str_starts_with($path, 'tp_submissions/') ||
+                            str_starts_with($path, 'tp_files/') ||
+                            str_starts_with($path, 'project_images/')) {
+                            return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+                        }
+
+                        // 2) Legacy : certains fichiers peuvent être dans public/uploads
                         if (str_starts_with($path, 'uploads/')) {
-                            return asset('storage/' . $path);
+                            return asset($path);
                         }
 
-                        // Chemins à tester
-                        $possiblePaths = [
-                            'storage/' . $path,           // Standard Laravel: public/storage/tp_files/...
-                            $path,                        // Direct: public/tp_files/...
-                            'uploads/' . basename($path), // Dossier uploads
-                        ];
-
-                        foreach ($possiblePaths as $testPath) {
-                            if (file_exists(public_path($testPath))) {
-                                return asset($testPath);
-                            }
-                        }
-
-                        // Fallback intelligent :
-                        // Si le chemin commence par tp_files, c'est très probablement dans storage
-                        if (str_starts_with($path, 'tp_files/')) {
-                            return asset('storage/' . $path);
-                        }
-
-                        // Sinon par défaut on essaie storage car c'est le standard
-                        return asset('storage/' . $path);
+                        // 3) Fallback (tentative storage)
+                        return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
                     };
 
                     $imageFiles = $project->files->filter($isImage);
@@ -255,7 +242,7 @@
                             </div>
                             <div>
                                 @if(str_starts_with($file->mime_type, 'image/'))
-                                    <a href="{{ asset($file->file_path) }}"
+                                    <a href="{{ $getFileUrl($file->file_path) }}"
                                        target="_blank"
                                        class="btn btn-sm btn-info me-1"
                                        title="Voir l'image">
@@ -263,14 +250,14 @@
                                     </a>
                                 @endif
                                 @if($file->mime_type === 'application/pdf')
-                                    <a href="{{ asset($file->file_path) }}"
+                                    <a href="{{ $getFileUrl($file->file_path) }}"
                                        target="_blank"
                                        class="btn btn-sm btn-danger me-1"
                                        title="Lire le PDF">
                                         <i class="fas fa-book-open"></i>
                                     </a>
                                 @endif
-                                <a href="{{ asset($file->file_path) }}"
+                                <a href="{{ $getFileUrl($file->file_path) }}"
                                    download="{{ $file->original_name }}"
                                    class="btn btn-sm btn-primary"
                                    title="Télécharger">

@@ -14,28 +14,28 @@
         gap: 1rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    
+
     .stat-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
     }
-    
+
     .stat-card-primary {
         background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
     }
-    
+
     .stat-card-success {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
-    
+
     .stat-card-warning {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
-    
+
     .stat-card-danger {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     }
-    
+
     .stat-icon {
         width: 60px;
         height: 60px;
@@ -46,17 +46,17 @@
         justify-content: center;
         font-size: 1.8rem;
     }
-    
+
     .stat-content {
         flex: 1;
     }
-    
+
     .stat-number {
         font-size: 2.5rem;
         font-weight: 700;
         margin: 0;
     }
-    
+
     .stat-label {
         margin: 0;
         opacity: 0.9;
@@ -362,7 +362,7 @@
                                         @php
                                             $photoUrl = null;
                                             $photoExists = false;
-                                            
+
                                             if ($rapport->user_photo) {
                                                 // Essayer différents chemins possibles
                                                 $possiblePaths = [
@@ -372,7 +372,7 @@
                                                     'storage/profile_photos/' . $rapport->user_photo,
                                                     'storage/uploads/profile_photos/' . $rapport->user_photo,
                                                 ];
-                                                
+
                                                 foreach ($possiblePaths as $path) {
                                                     if (str_starts_with($path, 'http')) {
                                                         $photoUrl = $path;
@@ -387,8 +387,8 @@
                                             }
                                         @endphp
                                         @if($photoExists && $photoUrl)
-                                            <img src="{{ $photoUrl }}" 
-                                                 alt="{{ $rapport->user_name }}" 
+                                            <img src="{{ $photoUrl }}"
+                                                 alt="{{ $rapport->user_name }}"
                                                  style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #4fc3f7;"
                                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                             <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); display: none; align-items: center; justify-content: center; color: white; font-weight: 700;">
@@ -446,36 +446,36 @@
                                 <!-- Actions -->
                                 <td>
                                     <div class="d-flex gap-1">
-                                        <button class="btn btn-sm btn-info" 
+                                        <button class="btn btn-sm btn-info"
                                                 title="Voir les détails et fichiers"
                                                 onclick='viewReportDetails(@json($rapport))'
                                                 style="border-radius: 6px;">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @if($rapport->status !== 'validated')
-                                            <form action="{{ url('/evc/app/admin/travaux/' . $rapport->id . '/update-status') }}" 
-                                                  method="POST" 
+                                            <form action="{{ url('/evc/app/admin/travaux/' . $rapport->id . '/update-status') }}"
+                                                  method="POST"
                                                   style="display: inline;">
                                                 @csrf
                                                 @method('PATCH')
                                                 <input type="hidden" name="status" value="validated">
-                                                <button type="submit" 
-                                                        class="btn btn-sm btn-success" 
+                                                <button type="submit"
+                                                        class="btn btn-sm btn-success"
                                                         title="Valider"
                                                         style="border-radius: 6px;">
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             </form>
                                         @endif
-                                        <form action="{{ url('/evc/app/admin/travaux/' . $rapport->id . '/delete') }}" 
-                                              method="POST" 
+                                        <form action="{{ url('/evc/app/admin/travaux/' . $rapport->id . '/delete') }}"
+                                              method="POST"
                                               style="display: inline;"
                                               onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce rapport ?');">
                                             @csrf
                                             @method('DELETE')
                                             <input type="hidden" name="redirect_to" value="{{ url()->current() }}">
-                                            <button type="submit" 
-                                                    class="btn btn-sm btn-danger" 
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-danger"
                                                     title="Supprimer"
                                                     style="border-radius: 6px;">
                                                 <i class="fas fa-trash"></i>
@@ -516,21 +516,21 @@ function viewPhoto(photoUrl, studentName) {
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body text-center p-4">
-                        <img src="${photoUrl}" alt="${studentName}" 
+                        <img src="${photoUrl}" alt="${studentName}"
                              style="max-width: 100%; max-height: 500px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
                     </div>
                 </div>
             </div>
         </div>
     `;
-    
+
     // Ajouter le modal au DOM
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Afficher le modal
     const photoModal = new bootstrap.Modal(document.getElementById('photoModal'));
     photoModal.show();
-    
+
     // Nettoyer le modal après fermeture
     document.getElementById('photoModal').addEventListener('hidden.bs.modal', function () {
         this.remove();
@@ -567,7 +567,7 @@ function deleteReport(reportId, reportTitle) {
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">
                             <i class="fas fa-times me-2"></i>Annuler
                         </button>
-                        <button type="button" class="btn text-white" onclick="confirmDeleteReport(${reportId})" 
+                        <button type="button" class="btn text-white" onclick="confirmDeleteReport(${reportId})"
                                 style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; border-radius: 8px; font-weight: 600;">
                             <i class="fas fa-trash me-2"></i>Supprimer
                         </button>
@@ -576,14 +576,14 @@ function deleteReport(reportId, reportTitle) {
             </div>
         </div>
     `;
-    
+
     // Ajouter le modal au DOM
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Afficher le modal
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
     deleteModal.show();
-    
+
     // Nettoyer le modal après fermeture
     document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function () {
         this.remove();
@@ -596,7 +596,7 @@ function confirmDeleteReport(reportId) {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `/evc/app/admin/tp/delete/${reportId}`;
-    
+
     // Token CSRF
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const csrfInput = document.createElement('input');
@@ -604,14 +604,14 @@ function confirmDeleteReport(reportId) {
     csrfInput.name = '_token';
     csrfInput.value = csrfToken;
     form.appendChild(csrfInput);
-    
+
     // Méthode DELETE
     const methodInput = document.createElement('input');
     methodInput.type = 'hidden';
     methodInput.name = '_method';
     methodInput.value = 'DELETE';
     form.appendChild(methodInput);
-    
+
     // Ajouter au DOM et soumettre
     document.body.appendChild(form);
     form.submit();
@@ -623,7 +623,7 @@ function viewReportDetails(rapport) {
     const date = new Date(rapport.created_at);
     const formattedDate = date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
     const formattedTime = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    
+
     // Badge de statut
     let statusBadge = '';
     if (rapport.status === 'validated') {
@@ -633,7 +633,7 @@ function viewReportDetails(rapport) {
     } else if (rapport.status === 'rejected') {
         statusBadge = '<span class="badge" style="background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white; padding: 0.5rem 1rem; font-size: 0.9rem;"><i class="fas fa-times-circle me-1"></i>Rejeté</span>';
     }
-    
+
     // Liste des fichiers
     let filesHtml = '<p class="text-muted">Aucun fichier</p>';
     if (rapport.files && rapport.files.length > 0) {
@@ -643,13 +643,12 @@ function viewReportDetails(rapport) {
             // Construire le chemin correct du fichier
             let filePath = file.file_path;
             if (!filePath.startsWith('http')) {
-                // Si le chemin commence par 'uploads/', utiliser asset() directement
-                if (filePath.startsWith('uploads/')) {
-                    filePath = '{{ url("") }}/' + filePath;
-                } else {
-                    // Sinon, ajouter storage/
-                    filePath = '{{ asset("storage") }}/' + filePath;
-                }
+                // Nettoyer le chemin
+                filePath = filePath.replace(/^public\//, '').replace(/^storage\//, '').replace(/^\//, '');
+
+                // Forcer l'utilisation de storage/ pour tous les fichiers locaux
+                // y compris ceux dans uploads/
+                filePath = '{{ asset("storage") }}/' + filePath;
             }
             const fileIcon = file.original_name.toLowerCase().endsWith('.pdf') ? 'fa-file-pdf text-danger' : 'fa-file text-primary';
             filesHtml += `
@@ -667,7 +666,7 @@ function viewReportDetails(rapport) {
         });
         filesHtml += '</div>';
     }
-    
+
     const modalHtml = `
         <div class="modal fade" id="reportDetailsModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -686,7 +685,7 @@ function viewReportDetails(rapport) {
                                 ${statusBadge}
                             </div>
                         </div>
-                        
+
                         <!-- Description -->
                         ${rapport.description ? `
                         <div class="mb-4">
@@ -694,7 +693,7 @@ function viewReportDetails(rapport) {
                             <p class="text-white" style="opacity: 0.9; line-height: 1.6;">${rapport.description}</p>
                         </div>
                         ` : ''}
-                        
+
                         <!-- Informations Étudiant -->
                         <div class="mb-4" style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 12px;">
                             <h6 class="text-white mb-3"><i class="fas fa-user me-2"></i>Informations de l'étudiant</h6>
@@ -709,13 +708,13 @@ function viewReportDetails(rapport) {
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Fichiers -->
                         <div class="mb-4">
                             <h6 class="text-white mb-3"><i class="fas fa-paperclip me-2"></i>Fichiers joints (${rapport.files ? rapport.files.length : 0})</h6>
                             ${filesHtml}
                         </div>
-                        
+
                         <!-- Date de soumission -->
                         <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
                             <small class="text-muted"><i class="fas fa-calendar me-2"></i>Date de soumission</small>
@@ -731,14 +730,14 @@ function viewReportDetails(rapport) {
             </div>
         </div>
     `;
-    
+
     // Ajouter le modal au DOM
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     // Afficher le modal
     const detailsModal = new bootstrap.Modal(document.getElementById('reportDetailsModal'));
     detailsModal.show();
-    
+
     // Nettoyer le modal après fermeture
     document.getElementById('reportDetailsModal').addEventListener('hidden.bs.modal', function () {
         this.remove();
@@ -751,7 +750,7 @@ function updateStatus(tpId, status) {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = `/evc/app/admin/travaux/${tpId}/update-status`;
-        
+
         // Token CSRF
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const csrfInput = document.createElement('input');
@@ -759,21 +758,21 @@ function updateStatus(tpId, status) {
         csrfInput.name = '_token';
         csrfInput.value = csrfToken;
         form.appendChild(csrfInput);
-        
+
         // Méthode PATCH
         const methodInput = document.createElement('input');
         methodInput.type = 'hidden';
         methodInput.name = '_method';
         methodInput.value = 'PATCH';
         form.appendChild(methodInput);
-        
+
         // Statut
         const statusInput = document.createElement('input');
         statusInput.type = 'hidden';
         statusInput.name = 'status';
         statusInput.value = status;
         form.appendChild(statusInput);
-        
+
         document.body.appendChild(form);
         form.submit();
     }
