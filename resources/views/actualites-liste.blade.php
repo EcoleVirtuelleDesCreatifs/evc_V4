@@ -59,11 +59,11 @@
             <article class="flex flex-col items-start justify-between rounded-2xl bg-gray-800/80 p-8 ring-1 ring-white/10 hover:ring-orange-500/50 transition duration-300" data-aos="fade-up" data-aos-delay="{{ min(($index % 12) * 50, 600) }}">
                 <div class="relative w-full">
                     <a href="{{ route('actualite.show', $actualite->slug) }}" class="block">
-                        <img src="{{ $actualite->cover_image ? asset('storage/' . $actualite->cover_image) : 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80' }}" 
-                             alt="{{ $actualite->cover_image_alt ?? $actualite->title }}" 
+                        <img src="{{ $actualite->cover_image ? $actualite->cover_image_url : 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80' }}"
+                             alt="{{ $actualite->cover_image_alt ?? $actualite->title }}"
                              class="aspect-[16/9] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2] hover:opacity-90 transition-opacity duration-300">
                     </a>
-                    
+
                     @if($actualite->is_featured)
                     <span class="absolute top-4 right-4 inline-flex items-center px-3 py-1.5 rounded-full bg-yellow-500/90 backdrop-blur-sm text-yellow-900 text-xs font-bold">
                         <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -87,7 +87,7 @@
                                 'succes' => ['bg' => 'bg-yellow-500/10', 'text' => 'text-yellow-400']
                             ];
                             $colors = $categoryColors[$actualite->category] ?? ['bg' => 'bg-orange-500/10', 'text' => 'text-orange-400'];
-                            
+
                             $categoryLabels = [
                                 'general' => 'Général',
                                 'formation' => 'Formation',
@@ -129,7 +129,7 @@
                 <h3 class="mt-6 text-xl font-medium text-white">Aucune actualité disponible</h3>
                 <p class="mt-2 text-gray-400">Les dernières actualités seront bientôt publiées. Restez connecté !</p>
                 <div class="mt-8">
-                    <a href="{{ route('homepage') }}" 
+                    <a href="{{ route('homepage') }}"
                        class="inline-flex items-center px-6 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition duration-300">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>

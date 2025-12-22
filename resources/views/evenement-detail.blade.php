@@ -7,13 +7,13 @@
 @push('head')
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ route('evenement.show', $evenement->slug) }}" />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="event" />
     <meta property="og:url" content="{{ route('evenement.show', $evenement->slug) }}" />
     <meta property="og:title" content="{{ $evenement->meta_title ?? $evenement->title }}" />
     <meta property="og:description" content="{{ $evenement->meta_description ?? $evenement->excerpt }}" />
-    <meta property="og:image" content="{{ $evenement->cover_image ? asset('storage/' . $evenement->cover_image) : asset('assets/img/logo.png') }}" />
+    <meta property="og:image" content="{{ $evenement->cover_image ? $evenement->cover_image_url : asset('assets/img/logo.png') }}" />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:site_name" content="École Virtuelle des Créatifs" />
     @if($evenement->event_date)
@@ -25,14 +25,14 @@
     @if($evenement->location)
     <meta property="event:location" content="{{ $evenement->location }}" />
     @endif
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="{{ route('evenement.show', $evenement->slug) }}" />
     <meta name="twitter:title" content="{{ $evenement->meta_title ?? $evenement->title }}" />
     <meta name="twitter:description" content="{{ $evenement->meta_description ?? $evenement->excerpt }}" />
-    <meta name="twitter:image" content="{{ $evenement->cover_image ? asset('storage/' . $evenement->cover_image) : asset('assets/img/logo.png') }}" />
-    
+    <meta name="twitter:image" content="{{ $evenement->cover_image ? $evenement->cover_image_url : asset('assets/img/logo.png') }}" />
+
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     @php
@@ -42,7 +42,7 @@
             'name' => $evenement->title,
             'description' => $evenement->excerpt,
             'startDate' => $evenement->event_date->toIso8601String(),
-            'image' => $evenement->cover_image ? asset('storage/' . $evenement->cover_image) : asset('assets/img/logo.png'),
+            'image' => $evenement->cover_image ? $evenement->cover_image_url : asset('assets/img/logo.png'),
             'organizer' => [
                 '@type' => 'Organization',
                 'name' => 'École Virtuelle des Créatifs',
@@ -50,11 +50,11 @@
             ],
             'eventStatus' => 'https://schema.org/EventScheduled'
         ];
-        
+
         if ($evenement->event_end_date) {
             $jsonLd['endDate'] = $evenement->event_end_date->toIso8601String();
         }
-        
+
         if ($evenement->event_type === 'online') {
             $jsonLd['eventAttendanceMode'] = 'https://schema.org/OnlineEventAttendanceMode';
             $jsonLd['location'] = [
@@ -62,8 +62,8 @@
                 'url' => $evenement->registration_link ?? route('evenement.show', $evenement->slug)
             ];
         } elseif ($evenement->location) {
-            $jsonLd['eventAttendanceMode'] = $evenement->event_type === 'hybrid' 
-                ? 'https://schema.org/MixedEventAttendanceMode' 
+            $jsonLd['eventAttendanceMode'] = $evenement->event_type === 'hybrid'
+                ? 'https://schema.org/MixedEventAttendanceMode'
                 : 'https://schema.org/OfflineEventAttendanceMode';
             $jsonLd['location'] = [
                 '@type' => 'Place',
@@ -75,7 +75,7 @@
                 ]
             ];
         }
-        
+
         if ($evenement->registration_link) {
             $jsonLd['offers'] = [
                 '@type' => 'Offer',
@@ -125,8 +125,8 @@
 
             <!-- Image de couverture -->
             <div class="relative rounded-3xl overflow-hidden mb-8 shadow-2xl">
-                <img src="{{ $evenement->cover_image ? asset('storage/' . $evenement->cover_image) : 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1600&q=80' }}" 
-                     alt="{{ $evenement->cover_image_alt ?? $evenement->title }}" 
+                <img src="{{ $evenement->cover_image ? $evenement->cover_image_url : 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1600&q=80' }}"
+                     alt="{{ $evenement->cover_image_alt ?? $evenement->title }}"
                      class="w-full h-[400px] object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
@@ -140,7 +140,7 @@
                         'hybrid' => ['bg' => 'bg-green-500/20', 'text' => 'text-green-400', 'border' => 'border-green-500/50']
                     ];
                     $colors = $eventTypeColors[$evenement->event_type] ?? ['bg' => 'bg-gray-500/20', 'text' => 'text-gray-400', 'border' => 'border-gray-500/50'];
-                    
+
                     if ($evenement->event_type === 'physical') {
                         $displayText = $evenement->location ?: 'Présentiel';
                     } elseif ($evenement->event_type === 'online') {
@@ -200,7 +200,7 @@
             <!-- Bouton d'inscription -->
             @if($evenement->registration_link)
             <div class="mb-8">
-                <a href="{{ $evenement->registration_link }}" 
+                <a href="{{ $evenement->registration_link }}"
                    target="_blank"
                    class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold text-lg rounded-full hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition duration-300 shadow-lg hover:shadow-xl">
                     <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -243,7 +243,7 @@
 
         <!-- Bouton retour -->
         <div class="mt-12 text-center">
-            <a href="{{ route('homepage') }}#evenements" 
+            <a href="{{ route('homepage') }}#evenements"
                class="inline-flex items-center px-6 py-3 bg-gray-800 text-white font-semibold rounded-full hover:bg-gray-900 transition duration-300">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>

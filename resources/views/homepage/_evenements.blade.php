@@ -11,8 +11,8 @@
             <article class="flex flex-col items-start justify-between rounded-2xl bg-gray-800/80 p-8 ring-1 ring-white/10 hover:ring-orange-500/50 transition duration-300" data-aos="fade-up" data-aos-delay="{{ ($index + 1) * 100 }}">
                 <div class="relative w-full">
                     <a href="{{ route('evenement.show', $evenement->slug) }}" class="block">
-                        <img src="{{ $evenement->cover_image ? asset('storage/' . $evenement->cover_image) : 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80' }}" 
-                             alt="{{ $evenement->cover_image_alt ?? $evenement->title }}" 
+                        <img src="{{ $evenement->cover_image ? $evenement->cover_image_url : 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80' }}"
+                             alt="{{ $evenement->cover_image_alt ?? $evenement->title }}"
                              class="aspect-[16/9] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2] hover:opacity-90 transition-opacity duration-300">
                     </a>
                 </div>
@@ -28,7 +28,7 @@
                                 'hybrid' => 'green'
                             ];
                             $color = $eventTypeColors[$evenement->event_type] ?? 'gray';
-                            
+
                             // Pour physical, afficher le lieu; sinon afficher le type
                             if ($evenement->event_type === 'physical') {
                                 $displayText = $evenement->location ?: 'Présentiel';
@@ -53,7 +53,7 @@
                         </h3>
                         <p class="mt-5 text-sm leading-6 text-gray-300">{{ Str::limit($evenement->excerpt, 150) }}</p>
                         @if($evenement->registration_link)
-                        <a href="{{ $evenement->registration_link }}" 
+                        <a href="{{ $evenement->registration_link }}"
                            target="_blank"
                            class="mt-4 inline-flex items-center text-sm font-semibold text-orange-400 hover:text-orange-300 transition-colors duration-200">
                             S'inscrire
@@ -78,7 +78,7 @@
             </div>
             @endforelse
         </div>
-        
+
         <!-- Bouton Voir Tous les Événements -->
         <div class="mt-12 text-center" data-aos="fade-up" data-aos-delay="200">
             <a href="{{ route('evenements.all') }}" class="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-full shadow-lg hover:from-orange-600 hover:to-orange-700 transform hover:scale-105 transition-all duration-300">

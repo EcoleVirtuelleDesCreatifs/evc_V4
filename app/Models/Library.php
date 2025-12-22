@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Str;
 
 class Library extends Model
 {
@@ -26,6 +27,67 @@ class Library extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getCoverImageUrlAttribute()
+    {
+        $path = (string) ($this->cover_image ?? '');
+        if ($path === '') {
+            $path = (string) ($this->path ?? '');
+        }
+
+        if ($path === '') {
+            return null;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
+        }
+
+        $path = ltrim($path, '/');
+        if (Str::startsWith($path, 'storage/')) {
+            $path = Str::after($path, 'storage/');
+        }
+
+        return asset('storage/' . $path);
+    }
+
+    public function getFileUrlAttribute()
+    {
+        $path = (string) ($this->path ?? '');
+        if ($path === '') {
+            return null;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
+        }
+
+        $path = ltrim($path, '/');
+        if (Str::startsWith($path, 'storage/')) {
+            $path = Str::after($path, 'storage/');
+        }
+
+        return asset('storage/' . $path);
+    }
+
+    public function getPdfUrlAttribute()
+    {
+        $path = (string) ($this->pdf_path ?? '');
+        if ($path === '') {
+            return null;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://'])) {
+            return $path;
+        }
+
+        $path = ltrim($path, '/');
+        if (Str::startsWith($path, 'storage/')) {
+            $path = Str::after($path, 'storage/');
+        }
+
+        return asset('storage/' . $path);
     }
 
 }

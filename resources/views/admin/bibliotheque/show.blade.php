@@ -14,10 +14,10 @@
                 <div class="col-md-4">
                     @if($item->cover_image)
                         {{-- Afficher l'image de couverture si elle existe --}}
-                        <img src="{{ asset('storage/' . $item->cover_image) }}" alt="{{ $item->title }}" class="img-fluid rounded shadow-sm">
+                        <img src="{{ $item->cover_image_url }}" alt="{{ $item->title }}" class="img-fluid rounded shadow-sm">
                     @elseif(in_array(strtolower($item->file_type), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']))
                         {{-- Sinon, afficher le fichier principal s'il est une image --}}
-                        <img src="{{ asset('storage/' . $item->path) }}" alt="{{ $item->title }}" class="img-fluid rounded shadow-sm">
+                        <img src="{{ $item->file_url }}" alt="{{ $item->title }}" class="img-fluid rounded shadow-sm">
                     @else
                         {{-- Sinon, afficher une icône de fichier --}}
                         <div style="height: 200px; background-color: #334155;" class="rounded shadow-sm d-flex align-items-center justify-content-center">
@@ -32,7 +32,7 @@
                     <p><strong class="text-white-50">Type :</strong> <span class="badge bg-secondary">{{ strtoupper($item->file_type) }}</span></p>
                     <p><strong class="text-white-50">Taille :</strong> {{ number_format($item->size / 1024, 2) }} KB</p>
                     <p><strong class="text-white-50">Date d'ajout :</strong> {{ $item->created_at->format('d/m/Y H:i') }}</p>
-                    <p><strong class="text-white-50">Statut :</strong> 
+                    <p><strong class="text-white-50">Statut :</strong>
                         @if($item->status == 'active')
                             <span class="badge bg-success">Actif</span>
                         @else
@@ -46,13 +46,13 @@
                             @endforeach
                         </p>
                     @endif
-                    
+
                     <div class="mt-3">
-                        <a href="{{ asset('storage/' . $item->path) }}" class="btn btn-secondary me-2" download>
+                        <a href="{{ $item->file_url }}" class="btn btn-secondary me-2" download>
                             <i class="fas fa-image me-2"></i>Télécharger la couverture
                         </a>
                         @if($item->pdf_path)
-                            <a href="{{ asset('storage/' . $item->pdf_path) }}" class="btn btn-primary" download>
+                            <a href="{{ $item->pdf_url }}" class="btn btn-primary" download>
                                 <i class="fas fa-file-pdf me-2"></i>Télécharger le PDF
                             </a>
                         @else

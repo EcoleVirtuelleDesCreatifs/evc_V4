@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Actualite extends Model
 {
@@ -65,5 +66,26 @@ class Actualite extends Model
     public function scopeDraft($query)
     {
         return $query->where('status', 'draft');
+    }
+
+    public function getCoverImageUrlAttribute()
+    {
+        if ($this->cover_image) {
+            $coverImage = (string) $this->cover_image;
+
+            if (Str::startsWith($coverImage, ['http://', 'https://'])) {
+                return $coverImage;
+            }
+
+            $coverImage = ltrim($coverImage, '/');
+
+            if (Str::startsWith($coverImage, 'storage/')) {
+                $coverImage = Str::after($coverImage, 'storage/');
+            }
+
+            return asset('storage/' . $coverImage);
+        }
+
+        return asset('assets/img/logo.png');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Helpers\ProfilePhotoHelper;
 
 class Student extends Model
 {
@@ -57,6 +58,6 @@ class Student extends Model
 
     public function getProfilePhotoUrlAttribute()
     {
-        return $this->profile_photo ? asset('storage/' . $this->profile_photo) : asset('images/default-avatar.png');
+        return ProfilePhotoHelper::getUrlOrDefault($this->profile_photo, '/assets/img/default-avatar.png');
     }
 }

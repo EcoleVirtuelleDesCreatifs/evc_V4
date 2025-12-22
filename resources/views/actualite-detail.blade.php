@@ -7,26 +7,26 @@
 @push('head')
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ route('actualite.show', $actualite->slug) }}" />
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="article" />
     <meta property="og:url" content="{{ route('actualite.show', $actualite->slug) }}" />
     <meta property="og:title" content="{{ $actualite->meta_title ?? $actualite->title }}" />
     <meta property="og:description" content="{{ $actualite->meta_description ?? $actualite->excerpt }}" />
-    <meta property="og:image" content="{{ $actualite->cover_image ? asset('storage/' . $actualite->cover_image) : asset('assets/img/logo.png') }}" />
+    <meta property="og:image" content="{{ $actualite->cover_image ? $actualite->cover_image_url : asset('assets/img/logo.png') }}" />
     <meta property="og:locale" content="fr_FR" />
     <meta property="og:site_name" content="École Virtuelle des Créatifs" />
     @if($actualite->published_at)
     <meta property="article:published_time" content="{{ $actualite->published_at->toIso8601String() }}" />
     @endif
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="{{ route('actualite.show', $actualite->slug) }}" />
     <meta name="twitter:title" content="{{ $actualite->meta_title ?? $actualite->title }}" />
     <meta name="twitter:description" content="{{ $actualite->meta_description ?? $actualite->excerpt }}" />
-    <meta name="twitter:image" content="{{ $actualite->cover_image ? asset('storage/' . $actualite->cover_image) : asset('assets/img/logo.png') }}" />
-    
+    <meta name="twitter:image" content="{{ $actualite->cover_image ? $actualite->cover_image_url : asset('assets/img/logo.png') }}" />
+
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     @php
@@ -35,7 +35,7 @@
             '@type' => 'BlogPosting',
             'headline' => $actualite->title,
             'description' => $actualite->excerpt,
-            'image' => $actualite->cover_image ? asset('storage/' . $actualite->cover_image) : asset('assets/img/logo.png'),
+            'image' => $actualite->cover_image ? $actualite->cover_image_url : asset('assets/img/logo.png'),
             'author' => [
                 '@type' => 'Organization',
                 'name' => 'École Virtuelle des Créatifs',
@@ -95,8 +95,8 @@
 
             <!-- Image de couverture -->
             <div class="relative rounded-3xl overflow-hidden mb-8 shadow-2xl">
-                <img src="{{ $actualite->cover_image ? asset('storage/' . $actualite->cover_image) : 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1600&q=80' }}" 
-                     alt="{{ $actualite->cover_image_alt ?? $actualite->title }}" 
+                <img src="{{ $actualite->cover_image ? $actualite->cover_image_url : 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1600&q=80' }}"
+                     alt="{{ $actualite->cover_image_alt ?? $actualite->title }}"
                      class="w-full h-[400px] object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
@@ -112,7 +112,7 @@
                         'succes' => ['bg' => 'bg-yellow-500/20', 'text' => 'text-yellow-400', 'border' => 'border-yellow-500/50']
                     ];
                     $colors = $categoryColors[$actualite->category] ?? ['bg' => 'bg-orange-500/20', 'text' => 'text-orange-400', 'border' => 'border-orange-500/50'];
-                    
+
                     $categoryLabels = [
                         'general' => 'Général',
                         'formation' => 'Formation',
@@ -184,10 +184,10 @@
                     <h3 class="text-lg font-bold text-gray-900 mb-1">Partager cet article</h3>
                     <p class="text-sm text-gray-600">Faites découvrir cette actualité à votre réseau</p>
                 </div>
-                
+
                 <div class="flex flex-wrap items-center justify-center gap-3">
                     <!-- Facebook -->
-                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('actualite.show', $actualite->slug)) }}" 
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(route('actualite.show', $actualite->slug)) }}"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="inline-flex items-center px-4 py-2 bg-[#1877F2] text-white rounded-full hover:bg-[#0d65d9] transition duration-300 shadow-md hover:shadow-lg">
@@ -198,7 +198,7 @@
                     </a>
 
                     <!-- Twitter (X) -->
-                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('actualite.show', $actualite->slug)) }}&text={{ urlencode($actualite->title) }}" 
+                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(route('actualite.show', $actualite->slug)) }}&text={{ urlencode($actualite->title) }}"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="inline-flex items-center px-4 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition duration-300 shadow-md hover:shadow-lg">
@@ -209,7 +209,7 @@
                     </a>
 
                     <!-- LinkedIn -->
-                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(route('actualite.show', $actualite->slug)) }}" 
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(route('actualite.show', $actualite->slug)) }}"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="inline-flex items-center px-4 py-2 bg-[#0A66C2] text-white rounded-full hover:bg-[#004182] transition duration-300 shadow-md hover:shadow-lg">
@@ -220,7 +220,7 @@
                     </a>
 
                     <!-- WhatsApp -->
-                    <a href="https://wa.me/?text={{ urlencode($actualite->title . ' - ' . route('actualite.show', $actualite->slug)) }}" 
+                    <a href="https://wa.me/?text={{ urlencode($actualite->title . ' - ' . route('actualite.show', $actualite->slug)) }}"
                        target="_blank"
                        rel="noopener noreferrer"
                        class="inline-flex items-center px-4 py-2 bg-[#25D366] text-white rounded-full hover:bg-[#1da851] transition duration-300 shadow-md hover:shadow-lg">
@@ -231,7 +231,7 @@
                     </a>
 
                     <!-- Copier le lien -->
-                    <button onclick="copyToClipboard('{{ route('actualite.show', $actualite->slug) }}')" 
+                    <button onclick="copyToClipboard('{{ route('actualite.show', $actualite->slug) }}')"
                             id="copyButton"
                             class="inline-flex items-center px-4 py-2 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition duration-300 shadow-md hover:shadow-lg">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,7 +251,7 @@
                 button.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="ml-2 font-medium">Copié !</span>';
                 button.classList.add('bg-green-600');
                 button.classList.remove('bg-gray-700');
-                
+
                 setTimeout(function() {
                     button.innerHTML = originalHTML;
                     button.classList.remove('bg-green-600');
@@ -266,7 +266,7 @@
 
         <!-- Bouton retour -->
         <div class="mt-12 text-center">
-            <a href="{{ route('homepage') }}#actualites" 
+            <a href="{{ route('homepage') }}#actualites"
                class="inline-flex items-center px-6 py-3 bg-gray-800 text-white font-semibold rounded-full hover:bg-gray-900 transition duration-300">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>

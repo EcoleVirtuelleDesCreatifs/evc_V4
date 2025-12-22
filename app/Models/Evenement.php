@@ -82,8 +82,8 @@ class Evenement extends Model
     public function scopePublished($query)
     {
         return $query->where('status', 'published')
-                     ->whereNotNull('published_at')
-                     ->where('published_at', '<=', now());
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now());
     }
 
     /**
@@ -108,7 +108,7 @@ class Evenement extends Model
     public function scopeUpcoming($query)
     {
         return $query->where('event_date', '>=', now()->toDateString())
-                     ->orderBy('event_date', 'asc');
+            ->orderBy('event_date', 'asc');
     }
 
     /**
@@ -117,7 +117,7 @@ class Evenement extends Model
     public function scopePast($query)
     {
         return $query->where('event_date', '<', now()->toDateString())
-                     ->orderBy('event_date', 'desc');
+            ->orderBy('event_date', 'desc');
     }
 
     /**
@@ -125,9 +125,9 @@ class Evenement extends Model
      */
     public function isPublished(): bool
     {
-        return $this->status === 'published' && 
-               $this->published_at && 
-               $this->published_at->isPast();
+        return $this->status === 'published' &&
+            $this->published_at &&
+            $this->published_at->isPast();
     }
 
     /**
@@ -160,7 +160,19 @@ class Evenement extends Model
     public function getCoverImageUrlAttribute()
     {
         if ($this->cover_image) {
-            return asset('storage/' . $this->cover_image);
+            $coverImage = (string) $this->cover_image;
+
+            if (Str::startsWith($coverImage, ['http://', 'https://'])) {
+                return $coverImage;
+            }
+
+            $coverImage = ltrim($coverImage, '/');
+
+            if (Str::startsWith($coverImage, 'storage/')) {
+                $coverImage = Str::after($coverImage, 'storage/');
+            }
+
+            return asset('storage/' . $coverImage);
         }
         return asset('images/default-event.jpg');
     }
