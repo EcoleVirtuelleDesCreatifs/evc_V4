@@ -387,7 +387,26 @@ class HomepageController extends Controller
     public function travaux()
     {
         // Scanner tous les fichiers dans les dossiers de travaux
-        $basePath = public_path('assets/img/tp_etudiant_evc');
+        // En production, le webroot peut être différent du public_path() Laravel.
+        // On tente donc plusieurs emplacements possibles (public_path puis DocumentRoot).
+        $relativeBase = 'assets/img/tp_etudiant_evc';
+
+        $candidates = [
+            public_path($relativeBase),
+        ];
+
+        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? null;
+        if (!empty($documentRoot)) {
+            $candidates[] = rtrim($documentRoot, '/').'/'.$relativeBase;
+        }
+
+        $basePath = $candidates[0];
+        foreach ($candidates as $candidate) {
+            if (is_dir($candidate)) {
+                $basePath = $candidate;
+                break;
+            }
+        }
 
         $categories = [
             'affiches' => [
@@ -430,7 +449,7 @@ class HomepageController extends Controller
                     if (in_array($extension, $allowedExtensions)) {
                         $images[] = [
                             'filename' => $file,
-                            'path' => 'assets/img/tp_etudiant_evc/' . $data['folder'] . '/' . $file,
+                            'path' => $relativeBase . '/' . $data['folder'] . '/' . $file,
                             'extension' => $extension
                         ];
                     }
