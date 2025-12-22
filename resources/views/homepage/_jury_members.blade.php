@@ -33,56 +33,56 @@
                         'title' => 'Directeur Créatif Chez Agence X',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Marc-Aurèle-Directeur-Créatif-Chez-Agence-X-Côte-d\'Ivoire.jpg'
+                        'image' => 'Marc-Aurele-Directeur-Creatif-Chez-Agence-X-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Danielle Attebi Epse Kouyo',
                         'title' => 'Chef de projet web',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Danielle-Attebi-Epse-Kouyo-Chef-de-projet-web-Côte-d\'Ivoire.jpg'
+                        'image' => 'Danielle-Attebi-Epse-Kouyo-Chef-de-projet-web-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Monsieur H',
                         'title' => 'Directeur Artistique',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Monsieur-H-Directeur-Artistique-Côte-d-Ivoire.jpg'
+                        'image' => 'Monsieur-H-Directeur-Artistique-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Adaezé Chukwu',
                         'title' => 'Creative Designer',
                         'country' => 'Nigeria',
                         'flag' => '🇳🇬',
-                        'image' => 'Adaezé-Chukwu-Creative-Designer-Nigeria.jpg'
+                        'image' => 'Adaeze-Chukwu-Creative-Designer-Nigeria.jpg'
                     ],
                     [
                         'name' => 'Elie Foua Bi',
                         'title' => 'Directeur Artistique',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Elie-Foua-Bi-Directeur-Artistique-Côte-Ivoire.jpg'
+                        'image' => 'Elie-Foua-Bi-Directeur-Artistique-Cote-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Doris Dagri',
                         'title' => 'Graphiste Senior',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Doris-Dagri-Graphiste-Senior-Côte-d\'Ivoire.jpg'
+                        'image' => 'Doris-Dagri-Graphiste-Senior-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Jean Michel',
                         'title' => 'Créateur d\'expérience 360',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Jean-Michel-Createur-d\'expérience-360-Côte-d\'Ivoire.jpg'
+                        'image' => 'Jean-Michel-Createur-d-experience-360-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Délima Aby',
                         'title' => 'Infographiste senior',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Délima-Aby-Infographiste-senior-Côte-d\'Ivoire.jpg'
+                        'image' => 'Delima-Aby-Infographiste-senior-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Frank Ouedraogo',
@@ -96,7 +96,7 @@
                         'title' => 'Chef d\'Entreprise',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Alban-M\'Lan-Chef-d\'Entreprise-Côte-d\'Ivoire.jpg'
+                        'image' => 'Alban-MLan-Chef-d-Entreprise-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Abdoul Latif',

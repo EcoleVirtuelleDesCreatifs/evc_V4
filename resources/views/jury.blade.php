@@ -29,56 +29,56 @@
                             'title' => 'Directeur Créatif Chez Agence X',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Marc-Aurèle-Directeur-Créatif-Chez-Agence-X-Côte-d\'Ivoire.jpg'
+                            'image' => 'Marc-Aurele-Directeur-Creatif-Chez-Agence-X-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Danielle Attebi Epse Kouyo',
                             'title' => 'Chef de projet web',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Danielle-Attebi-Epse-Kouyo-Chef-de-projet-web-Côte-d\'Ivoire.jpg'
+                            'image' => 'Danielle-Attebi-Epse-Kouyo-Chef-de-projet-web-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Monsieur H',
                             'title' => 'Directeur Artistique',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Monsieur-H-Directeur-Artistique-Côte-d-Ivoire.jpg'
+                            'image' => 'Monsieur-H-Directeur-Artistique-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Adaezé Chukwu',
                             'title' => 'Creative Designer',
                             'country' => 'Nigeria',
                             'flag' => '🇳🇬',
-                            'image' => 'Adaezé-Chukwu-Creative-Designer-Nigeria.jpg'
+                            'image' => 'Adaeze-Chukwu-Creative-Designer-Nigeria.jpg'
                         ],
                         [
                             'name' => 'Elie Foua Bi',
                             'title' => 'Directeur Artistique',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Elie-Foua-Bi-Directeur-Artistique-Côte-Ivoire.jpg'
+                            'image' => 'Elie-Foua-Bi-Directeur-Artistique-Cote-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Doris Dagri',
                             'title' => 'Graphiste Senior',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Doris-Dagri-Graphiste-Senior-Côte-d\'Ivoire.jpg'
+                            'image' => 'Doris-Dagri-Graphiste-Senior-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Jean Michel',
                             'title' => 'Créateur d\'expérience 360',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Jean-Michel-Createur-d\'expérience-360-Côte-d\'Ivoire.jpg'
+                            'image' => 'Jean-Michel-Createur-d-experience-360-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Délima Aby',
                             'title' => 'Infographiste senior',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Délima-Aby-Infographiste-senior-Côte-d\'Ivoire.jpg'
+                            'image' => 'Delima-Aby-Infographiste-senior-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Frank Ouedraogo',
@@ -92,7 +92,7 @@
                             'title' => 'Chef d\'Entreprise',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Alban-M\'Lan-Chef-d\'Entreprise-Côte-d\'Ivoire.jpg'
+                            'image' => 'Alban-MLan-Chef-d-Entreprise-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Abdoul Latif',
@@ -113,14 +113,14 @@
                             'title' => 'Graphiste Photographe',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Armel-ABÉ-Graphiste-Photographe-Côte-d\'Ivoire.jpg'
+                            'image' => 'Armel-ABE-Graphiste-Photographe-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Bernice Alikpa',
                             'title' => 'Graphiste Designer Senior',
                             'country' => 'Bénin',
                             'flag' => '🇧🇯',
-                            'image' => 'Bernice-Alikpa-Graphiste-designer-Senior-Bénin.jpg'
+                            'image' => 'Bernice-Alikpa-Graphiste-designer-Senior-Benin.jpg'
                         ],
                         [
                             'name' => 'Check Maiga',
@@ -134,49 +134,49 @@
                             'title' => 'Journaliste Bilingue',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Cissé-Moctar-Journaliste-Bilinge-Côte-d\'Ivoire.jpg'
+                            'image' => 'Cisse-Moctar-Journaliste-Bilinge-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Désiré Ganh',
                             'title' => 'Professeur en Design Graphic',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Désiré-Ganh-Professeur-en-Design-Graphic-Côte-d\'Ivoire.jpg'
+                            'image' => 'Desire-Ganh-Professeur-en-Design-Graphic-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Eugène Ndiolène',
                             'title' => 'Brand Identity Designer',
                             'country' => 'Sénégal',
                             'flag' => '🇸🇳',
-                            'image' => 'Eugène-Ndiolène-Brand-Identity-Designer-Sénégal.jpg'
+                            'image' => 'Eugene-Ndiolene-Brand-Identity-Designer-Senegal.jpg'
                         ],
                         [
                             'name' => 'Ingrid Zaté',
                             'title' => 'Graphic Designer',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Ingrid-Zaté-Graphic-Designer-Côte-d-Ivoire.jpg'
+                            'image' => 'Ingrid-Zate-Graphic-Designer-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'K Steven Lanyan',
                             'title' => 'Graphiste Designer',
                             'country' => 'Bénin',
                             'flag' => '🇧🇯',
-                            'image' => 'K-Steven-Lanyan-Graphiste-Designer-Bénin.jpg'
+                            'image' => 'K-Steven-Lanyan-Graphiste-Designer-Benin.jpg'
                         ],
                         [
                             'name' => 'Somey Amegnibo',
                             'title' => 'Designer Créateur de Contenus',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Somey-Amegnibo-Designer-Créateur-de-Contenus-Côte-d\'Ivoire.jpg'
+                            'image' => 'Somey-Amegnibo-Designer-Createur-de-Contenus-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Sylla Rokia',
                             'title' => 'Journaliste Professionnelle',
                             'country' => 'Côte d\'Ivoire',
                             'flag' => '🇨🇮',
-                            'image' => 'Sylla-Rokia-Journaliste-Professionnelle-Côte-d-Ivoire.jpg'
+                            'image' => 'Sylla-Rokia-Journaliste-Professionnelle-Cote-d-Ivoire.jpg'
                         ],
                         [
                             'name' => 'Wei Zhang',

@@ -184,28 +184,28 @@
                         'title' => 'Directeur Créatif Chez Agence X',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Marc-Aurèle-Directeur-Créatif-Chez-Agence-X-Côte-d\'Ivoire.jpg'
+                        'image' => 'Marc-Aurele-Directeur-Creatif-Chez-Agence-X-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Danielle Attebi Epse Kouyo',
                         'title' => 'Chef de projet web',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Danielle-Attebi-Epse-Kouyo-Chef-de-projet-web-Côte-d\'Ivoire.jpg'
+                        'image' => 'Danielle-Attebi-Epse-Kouyo-Chef-de-projet-web-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Monsieur H',
                         'title' => 'Directeur Artistique',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Monsieur-H-Directeur-Artistique-Côte-d-Ivoire.jpg'
+                        'image' => 'Monsieur-H-Directeur-Artistique-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Adaezé Chukwu',
                         'title' => 'Creative Designer',
                         'country' => 'Nigeria',
                         'flag' => '🇳🇬',
-                        'image' => 'Adaezé-Chukwu-Creative-Designer-Nigeria.jpg'
+                        'image' => 'Adaeze-Chukwu-Creative-Designer-Nigeria.jpg'
                     ],
                 ];
             @endphp
@@ -279,11 +279,11 @@
                     'color' => 'from-orange-500 to-red-500',
                     'laureats' => [
                         ['image' => 'laureats/edition-2024/Adobley-Innocent-Togo.jpg', 'color' => 'from-indigo-500 to-indigo-600', 'name' => 'Adobley Innocent', 'title' => '', 'country' => 'Togo', 'flag' => '🇹🇬'],
-                        ['image' => 'laureats/edition-2024/Dakouri-Isaie-Côte-d\'Ivoire.jpg', 'color' => 'from-green-500 to-green-600', 'name' => 'Dakouri Isaie', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
-                        ['image' => 'laureats/edition-2024/Fatou-Rebecca-Côte-d\'Ivoire.jpg', 'color' => 'from-red-500 to-red-600', 'name' => 'Fatou Rebecca', 'title' => 'Graphic Designer | Communicante Junior', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/fatou-rebecca-zire-164664301/'],
-                        ['image' => 'laureats/edition-2024/Jean-Baptiste-Côte-d\'Ivoire.jpg', 'color' => 'from-orange-500 to-orange-600', 'name' => 'Jean Baptiste', 'title' => 'Infographiste & Community Manager', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/jean-baptiste-enokou-62969819b/'],
-                        ['image' => 'laureats/edition-2024/Mathieu-Téyotonmin-Côte-d\'Ivoire.jpg', 'color' => 'from-blue-500 to-blue-600', 'name' => 'Mathieu Téyotonmin', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
-                        ['image' => 'laureats/edition-2024/Yakouba-Adam-Côte-d\'Ivoire.jpg', 'color' => 'from-purple-500 to-purple-600', 'name' => 'Yakouba Adam', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
+                        ['image' => 'laureats/edition-2024/Dakouri-Isaie-Cote-d-Ivoire.jpg', 'color' => 'from-green-500 to-green-600', 'name' => 'Dakouri Isaie', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
+                        ['image' => 'laureats/edition-2024/Fatou-Rebecca-Cote-d-Ivoire.jpg', 'color' => 'from-red-500 to-red-600', 'name' => 'Fatou Rebecca', 'title' => 'Graphic Designer | Communicante Junior', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/fatou-rebecca-zire-164664301/'],
+                        ['image' => 'laureats/edition-2024/Jean-Baptiste-Cote-d-Ivoire.jpg', 'color' => 'from-orange-500 to-orange-600', 'name' => 'Jean Baptiste', 'title' => 'Infographiste & Community Manager', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/jean-baptiste-enokou-62969819b/'],
+                        ['image' => 'laureats/edition-2024/Mathieu-Teyotonmin-Cote-d-Ivoire.jpg', 'color' => 'from-blue-500 to-blue-600', 'name' => 'Mathieu Téyotonmin', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
+                        ['image' => 'laureats/edition-2024/Yakouba-Adam-Cote-d-Ivoire.jpg', 'color' => 'from-purple-500 to-purple-600', 'name' => 'Yakouba Adam', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
                     ]
                 ],
                 [
@@ -293,9 +293,9 @@
                     'color' => 'from-blue-500 to-cyan-500',
                     'laureats' => [
                         ['image' => 'laureats/edition-2022-2023/Bianca-Defo-Dubai.jpg', 'color' => 'from-sky-500 to-sky-600', 'name' => 'Bianca Defo', 'title' => 'Digital Marketing Manager', 'country' => 'Émirats Arabes Unis', 'flag' => '🇦🇪', 'linkedin' => 'https://www.linkedin.com/in/bianca-defo/'],
-                        ['image' => 'laureats/edition-2022-2023/Dely-Ahileu-Côte-d\'Ivoire.jpg', 'color' => 'from-emerald-500 to-emerald-600', 'name' => 'Dely Ahileu', 'title' => 'Infographiste Senior', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/dely-ahileu-8524a5313/'],
+                        ['image' => 'laureats/edition-2022-2023/Dely-Ahileu-Cote-d-Ivoire.jpg', 'color' => 'from-emerald-500 to-emerald-600', 'name' => 'Dely Ahileu', 'title' => 'Infographiste Senior', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/dely-ahileu-8524a5313/'],
                         ['image' => 'laureats/edition-2022-2023/Eve-Adingra-Ghana.jpg', 'color' => 'from-fuchsia-500 to-fuchsia-600', 'name' => 'Eve Adingra', 'title' => 'Adjoint administratif | Comptabilité', 'country' => 'Ghana', 'flag' => '🇬🇭', 'linkedin' => 'https://www.linkedin.com/in/eve-carole-floriane-adingra-2861aba3/'],
-                        ['image' => 'laureats/edition-2022-2023/Kouamé-Yvannes-Côte-d\'Ivoire.jpg', 'color' => 'from-cyan-500 to-cyan-600', 'name' => 'Kouamé Yvannes', 'title' => 'Entrepreneur social | Fondateur Le Cercle Rouge', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/maloudayvanneskouame5843/'],
+                        ['image' => 'laureats/edition-2022-2023/Kouame-Yvannes-Cote-d-Ivoire.jpg', 'color' => 'from-cyan-500 to-cyan-600', 'name' => 'Kouamé Yvannes', 'title' => 'Entrepreneur social | Fondateur Le Cercle Rouge', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/maloudayvanneskouame5843/'],
                         ['image' => 'laureats/edition-2022-2023/Nagalo-Parfait-Burkina-Faso.jpg', 'color' => 'from-amber-500 to-amber-600', 'name' => 'Nagalo Parfait', 'title' => 'Heavy Equipment Trainer', 'country' => 'Burkina Faso', 'flag' => '🇧🇫', 'linkedin' => 'https://www.linkedin.com/in/y-boulayom-parfait-nagalo-583b2985/'],
                     ]
                 ],

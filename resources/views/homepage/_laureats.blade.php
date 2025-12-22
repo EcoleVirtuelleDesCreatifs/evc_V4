@@ -11,9 +11,9 @@
             @php
                 $laureats = [
                     ['img' => 'laureats/edition-2024/Adobley-Innocent-Togo.jpg', 'name' => 'Adobley Innocent', 'title' => 'Lauréat Édition 2024', 'country' => 'Togo', 'flag' => '🇹🇬'],
-                    ['img' => 'laureats/edition-2024/Dakouri-Isaie-Côte-d\'Ivoire.jpg', 'name' => 'Dakouri Isaie', 'title' => 'Lauréat Édition 2024', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
-                    ['img' => 'laureats/edition-2024/Fatou-Rebecca-Côte-d\'Ivoire.jpg', 'name' => 'Fatou Rebecca', 'title' => 'Graphic Designer | Communicante Junior', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
-                    ['img' => 'laureats/edition-2024/Jean-Baptiste-Côte-d\'Ivoire.jpg', 'name' => 'Jean Baptiste', 'title' => 'Infographiste & Community Manager', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
+                    ['img' => 'laureats/edition-2024/Dakouri-Isaie-Cote-d-Ivoire.jpg', 'name' => 'Dakouri Isaie', 'title' => 'Lauréat Édition 2024', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
+                    ['img' => 'laureats/edition-2024/Fatou-Rebecca-Cote-d-Ivoire.jpg', 'name' => 'Fatou Rebecca', 'title' => 'Graphic Designer | Communicante Junior', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
+                    ['img' => 'laureats/edition-2024/Jean-Baptiste-Cote-d-Ivoire.jpg', 'name' => 'Jean Baptiste', 'title' => 'Infographiste & Community Manager', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
                 ];
             @endphp
 
