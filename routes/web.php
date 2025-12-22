@@ -242,6 +242,7 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::get('/evc/compte/notifications/toutes', [DashboardController::class, 'notificationsIndex'])->name('dashboard.notifications.index');
     Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
     Route::get('/evc/compte/community-management/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-management');
+    Route::get('/evc/compte/community-management/espace-etudiant/stats', [DashboardController::class, 'communityManagementStats'])->name('dashboard.community-management.stats');
     Route::get('/evc/compte/intelligence-artificielle/espace-etudiant', [DashboardController::class, 'intelligenceArtificielle'])->name('dashboard.intelligence-artificielle');
     Route::get('/evc/compte/gestion-informatique/espace-etudiant', [DashboardController::class, 'gestionInformatique'])->name('dashboard.gestion-informatique');
 });
@@ -609,6 +610,11 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
     Route::middleware('admin.auth')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
+
+        // Dernières connexions étudiants (liste paginée)
+        Route::get('/connexions', [AdminDashboardController::class, 'connexions'])->name('connexions.index');
+
+        Route::get('/studio-creative', [AdminDashboardController::class, 'studioCreative'])->name('studio-creative');
 
         // Routes pour les boutons "Actions Rapides" du dashboard
         Route::get('/travaux/pending', [AdminDashboardController::class, 'travauxPending'])->name('travaux.quick.pending');

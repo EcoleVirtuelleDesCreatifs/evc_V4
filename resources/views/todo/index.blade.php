@@ -6,23 +6,22 @@
 
 @push('styles')
 <style>
-    /* Palette Instagram */
+    /* Palette Bleu */
     :root {
-        --instagram-purple: #833AB4;
-        --instagram-pink: #C13584;
-        --instagram-red: #E1306C;
-        --instagram-orange: #FD1D1D;
-        --instagram-yellow: #FCAF45;
+        --blue-900: #1e3c72;
+        --blue-700: #2a5298;
+        --blue-500: #4fc3f7;
+        --blue-300: #93c5fd;
     }
 
-    /* Header avec dégradé Instagram */
+    /* Header avec dégradé Bleu */
     .instagram-header {
-        background: linear-gradient(135deg, #833AB4, #C13584, #E1306C);
+        background: linear-gradient(135deg, var(--blue-900), var(--blue-700), var(--blue-500));
         padding: 2rem;
         border-radius: 20px;
         color: white;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(131, 58, 180, 0.35);
+        box-shadow: 0 10px 30px rgba(42, 82, 152, 0.35);
         animation: fadeInDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
 
@@ -64,8 +63,8 @@
 
     .stat-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(131, 58, 180, 0.2);
-        border-color: var(--instagram-pink);
+        box-shadow: 0 8px 25px rgba(42, 82, 152, 0.2);
+        border-color: var(--blue-700);
     }
 
     .stat-card .stat-icon {
@@ -122,13 +121,13 @@
         left: 0;
         width: 100%;
         height: 4px;
-        background: linear-gradient(90deg, var(--instagram-purple), var(--instagram-pink), var(--instagram-red));
+        background: linear-gradient(90deg, var(--blue-900), var(--blue-700), var(--blue-500));
     }
 
     .tp-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 12px 35px rgba(131, 58, 180, 0.2);
-        border-color: var(--instagram-pink);
+        box-shadow: 0 12px 35px rgba(42, 82, 152, 0.2);
+        border-color: var(--blue-700);
     }
 
     .tp-card-header {
@@ -148,8 +147,8 @@
         justify-content: center;
         font-size: 1.5rem;
         color: white;
-        background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink));
-        box-shadow: 0 4px 15px rgba(131, 58, 180, 0.3);
+        background: linear-gradient(135deg, var(--blue-900), var(--blue-500));
+        box-shadow: 0 4px 15px rgba(42, 82, 152, 0.3);
     }
 
     .tp-card-content {
@@ -160,7 +159,7 @@
     }
 
     .tp-card.status-assigned::before {
-        background: linear-gradient(90deg, var(--instagram-orange), var(--instagram-yellow));
+        background: linear-gradient(90deg, var(--blue-700), var(--blue-500));
     }
 
     .tp-card.status-submitted::before {
@@ -204,9 +203,9 @@
         gap: 0.5rem;
         margin-bottom: 1rem;
         padding: 0.75rem;
-        background: linear-gradient(135deg, rgba(131, 58, 180, 0.05), rgba(225, 48, 108, 0.05));
+        background: linear-gradient(135deg, rgba(30, 60, 114, 0.06), rgba(79, 195, 247, 0.08));
         border-radius: 10px;
-        border: 1px solid rgba(131, 58, 180, 0.1);
+        border: 1px solid rgba(42, 82, 152, 0.15);
     }
 
     .tp-meta-item {
@@ -218,7 +217,7 @@
     }
 
     .tp-meta-item i {
-        color: var(--instagram-pink);
+        color: var(--blue-700);
         font-size: 0.85rem;
         width: 16px;
     }
@@ -256,7 +255,7 @@
 
     /* Boutons */
     .btn-instagram {
-        background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink));
+        background: linear-gradient(135deg, var(--blue-900), var(--blue-500));
         color: white;
         border: none;
         padding: 0.75rem 1.5rem;
@@ -269,15 +268,15 @@
     }
 
     .btn-instagram:hover {
-        background: linear-gradient(135deg, var(--instagram-pink), var(--instagram-red));
+        background: linear-gradient(135deg, var(--blue-700), var(--blue-500));
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(193, 53, 132, 0.3);
+        box-shadow: 0 8px 20px rgba(42, 82, 152, 0.3);
         color: white;
     }
 
     .btn-outline-instagram {
-        border: 2px solid var(--instagram-pink);
-        color: var(--instagram-pink);
+        border: 2px solid var(--blue-700);
+        color: var(--blue-700);
         background: white;
         padding: 0.75rem 1.5rem;
         border-radius: 30px;
@@ -291,10 +290,10 @@
     }
 
     .btn-outline-instagram:hover {
-        background: var(--instagram-pink);
+        background: var(--blue-700);
         color: white;
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(193, 53, 132, 0.3);
+        box-shadow: 0 8px 20px rgba(42, 82, 152, 0.3);
     }
 
     /* Message vide */
@@ -308,7 +307,7 @@
 
     .empty-state i {
         font-size: 5rem;
-        background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink));
+        background: linear-gradient(135deg, var(--blue-900), var(--blue-500));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -383,21 +382,21 @@
     }
 
     .file-badge {
-        background: rgba(131, 58, 180, 0.1);
-        color: var(--instagram-purple);
+        background: rgba(42, 82, 152, 0.1);
+        color: var(--blue-900);
         padding: 0.5rem 1rem;
         border-radius: 20px;
         font-size: 0.875rem;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        border: 1px solid rgba(131, 58, 180, 0.2);
+        border: 1px solid rgba(42, 82, 152, 0.2);
     }
 
     /* Alert personnalisé */
     .alert-instagram {
-        background: linear-gradient(135deg, rgba(131, 58, 180, 0.1), rgba(193, 53, 132, 0.1));
-        border-left: 4px solid var(--instagram-pink);
+        background: linear-gradient(135deg, rgba(30, 60, 114, 0.08), rgba(79, 195, 247, 0.12));
+        border-left: 4px solid var(--blue-700);
         border-radius: 12px;
         padding: 1rem 1.5rem;
         margin-bottom: 1.5rem;
@@ -454,7 +453,7 @@
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-sm-6">
             <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink));">
+                <div class="stat-icon" style="background: linear-gradient(135deg, var(--blue-900), var(--blue-500));">
                     <i class="fas fa-clipboard-list"></i>
                 </div>
                 <div class="stat-number">{{ $stats['total'] }}</div>
@@ -463,7 +462,7 @@
         </div>
         <div class="col-md-3 col-sm-6">
             <div class="stat-card">
-                <div class="stat-icon" style="background: linear-gradient(135deg, var(--instagram-orange), var(--instagram-yellow));">
+                <div class="stat-icon" style="background: linear-gradient(135deg, var(--blue-700), var(--blue-500));">
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="stat-number">{{ $stats['assigned'] }}</div>
@@ -619,7 +618,7 @@
 <div class="modal fade" id="submitTpModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius: 20px; border: none;">
-            <div class="modal-header" style="background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink)); color: white; border-radius: 20px 20px 0 0;">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--blue-900), var(--blue-500)); color: white; border-radius: 20px 20px 0 0;">
                 <h5 class="modal-title">
                     <i class="fas fa-paper-plane me-2"></i>Soumettre votre TP
                 </h5>
@@ -631,14 +630,14 @@
                     <input type="hidden" id="submit_tp_id" name="tp_id">
 
                     <div class="mb-4">
-                        <h6 id="submitTpTitle" style="color: var(--instagram-purple); font-weight: 600; margin-bottom: 1rem;"></h6>
-                    </div>
+                    <h6 id="submitTpTitle" style="color: var(--blue-900); font-weight: 600; margin-bottom: 1rem;"></h6>
+                </div>
 
-                    <div class="alert" style="background: linear-gradient(135deg, rgba(131, 58, 180, 0.1), rgba(193, 53, 132, 0.1)); border-left: 4px solid var(--instagram-pink); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
-                        <i class="fas fa-info-circle" style="color: var(--instagram-pink);"></i>
-                        <strong style="color: var(--instagram-purple);">Instructions :</strong><br>
-                        <span style="color: #555;">Soumettez le lien vers votre travail (Google Drive, Dropbox, GitHub, etc.)</span>
-                    </div>
+                <div class="alert" style="background: linear-gradient(135deg, rgba(30, 60, 114, 0.08), rgba(79, 195, 247, 0.12)); border-left: 4px solid var(--blue-700); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                    <i class="fas fa-info-circle" style="color: var(--blue-700);"></i>
+                    <strong style="color: var(--blue-900);">Instructions :</strong><br>
+                    <span style="color: #555;">Soumettez le lien vers votre travail (Google Drive, Dropbox, GitHub, etc.)</span>
+                </div>
 
                     <div class="mb-3">
                         <label for="submission_link" class="form-label" style="font-weight: 600; color: #2c3e50;">
@@ -664,7 +663,7 @@
                             <i class="fas fa-file-upload me-2"></i>Fichiers (optionnel)
                         </label>
                         <div class="file-upload-zone" id="fileUploadZone" style="border: 2px dashed #e2e8f0; border-radius: 12px; padding: 2rem; text-align: center; transition: all 0.3s; cursor: pointer;">
-                            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--instagram-pink); margin-bottom: 1rem;"></i>
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--blue-700); margin-bottom: 1rem;"></i>
                             <p style="margin: 0; color: #666; font-weight: 600;">Cliquez pour sélectionner des fichiers</p>
                             <p style="margin: 0.5rem 0 0 0; color: #999; font-size: 0.85rem;">ou glissez-déposez vos fichiers ici</p>
                             <small class="text-muted d-block mt-2">
@@ -719,7 +718,7 @@
 <div class="modal fade" id="tpDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content" style="border-radius: 20px; border: none;">
-            <div class="modal-header" style="background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink)); color: white; border-radius: 20px 20px 0 0;">
+            <div class="modal-header" style="background: linear-gradient(135deg, var(--blue-900), var(--blue-500)); color: white; border-radius: 20px 20px 0 0;">
                 <h5 class="modal-title" id="modalTitle"><i class="fas fa-file-alt me-2"></i>Détails du TP</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
@@ -756,8 +755,8 @@ fileInput.addEventListener('change', function(e) {
 // Drag & Drop
 fileUploadZone.addEventListener('dragover', (e) => {
     e.preventDefault();
-    fileUploadZone.style.borderColor = 'var(--instagram-pink)';
-    fileUploadZone.style.background = 'rgba(193, 53, 132, 0.05)';
+    fileUploadZone.style.borderColor = 'var(--blue-700)';
+    fileUploadZone.style.background = 'rgba(42, 82, 152, 0.05)';
 });
 
 fileUploadZone.addEventListener('dragleave', (e) => {
@@ -793,7 +792,7 @@ function displayFiles() {
         fileItem.style.cssText = 'display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 0.75rem 1rem; border-radius: 8px;';
         fileItem.innerHTML = `
             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <i class="fas fa-file" style="color: var(--instagram-pink);"></i>
+                <i class="fas fa-file" style="color: var(--blue-700);"></i>
                 <div>
                     <div style="font-weight: 600; color: #2c3e50;">${file.name}</div>
                     <small style="color: #999;">${fileSize} Mo</small>
@@ -913,7 +912,7 @@ function showDetails(tpId) {
 
     switch(tp.status) {
         case 'assigned':
-            statusColor = 'linear-gradient(135deg, var(--instagram-orange), var(--instagram-yellow))';
+            statusColor = 'linear-gradient(135deg, var(--blue-700), var(--blue-500))';
             statusIcon = 'fa-clock';
             statusBadge = 'En cours';
             break;
@@ -942,8 +941,8 @@ function showDetails(tpId) {
             </span>
         </div>
 
-        <div style="background: linear-gradient(135deg, rgba(131, 58, 180, 0.05), rgba(193, 53, 132, 0.05)); padding: 1.5rem; border-radius: 15px; margin-bottom: 1.5rem;">
-            <h4 style="color: var(--instagram-purple); margin-bottom: 1rem;">
+        <div style="background: linear-gradient(135deg, rgba(30, 60, 114, 0.06), rgba(79, 195, 247, 0.08)); padding: 1.5rem; border-radius: 15px; margin-bottom: 1.5rem;">
+            <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
                 <i class="fas fa-info-circle me-2"></i>Informations
             </h4>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
@@ -953,7 +952,7 @@ function showDetails(tpId) {
                 </div>
                 <div>
                     <strong style="color: #666;"><i class="fas fa-clock me-2"></i>Échéance :</strong><br>
-                    <span style="color: var(--instagram-red); font-weight: 600;">${deadlineDate}</span>
+                    <span style="color: var(--blue-700); font-weight: 600;">${deadlineDate}</span>
                 </div>
                 <div>
                     <strong style="color: #666;"><i class="fas fa-graduation-cap me-2"></i>Formation :</strong><br>
@@ -963,7 +962,7 @@ function showDetails(tpId) {
         </div>
 
         <div style="margin-bottom: 1.5rem;">
-            <h4 style="color: var(--instagram-purple); margin-bottom: 1rem;">
+            <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
                 <i class="fas fa-align-left me-2"></i>Description
             </h4>
             <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; line-height: 1.8; color: #555;">
@@ -976,7 +975,7 @@ function showDetails(tpId) {
     if (tp.files && tp.files.length > 0) {
         content += `
             <div style="margin-bottom: 1.5rem;">
-                <h4 style="color: var(--instagram-purple); margin-bottom: 1rem;">
+                <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
                     <i class="fas fa-paperclip me-2"></i>Fichiers joints (${tp.files.length})
                 </h4>
                 <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
@@ -984,7 +983,7 @@ function showDetails(tpId) {
 
         tp.files.forEach(file => {
             content += `
-                <a href="${file.file_path}" target="_blank" style="background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink)); color: white; padding: 0.75rem 1.25rem; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                <a href="${file.file_path}" target="_blank" style="background: linear-gradient(135deg, var(--blue-900), var(--blue-500)); color: white; padding: 0.75rem 1.25rem; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                     <i class="fas fa-download"></i>
                     ${file.file_name}
                 </a>
@@ -1001,7 +1000,7 @@ function showDetails(tpId) {
     if (tp.submission_link) {
         content += `
             <div style="margin-bottom: 1.5rem;">
-                <h4 style="color: var(--instagram-purple); margin-bottom: 1rem;">
+                <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
                     <i class="fas fa-link me-2"></i>Votre soumission
                 </h4>
                 <a href="${tp.submission_link}" target="_blank" style="background: #e3f2fd; color: #1976d2; padding: 1rem; border-radius: 12px; text-decoration: none; display: block; transition: all 0.3s;" onmouseover="this.style.background='#bbdefb'" onmouseout="this.style.background='#e3f2fd'">
@@ -1019,7 +1018,7 @@ function showDetails(tpId) {
 
         content += `
             <div style="${commentStyle} padding: 1.5rem; border-radius: 12px;">
-                <h4 style="color: var(--instagram-purple); margin-bottom: 1rem;">
+                <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
                     <i class="fas fa-comment-alt me-2"></i>Commentaire du formateur
                 </h4>
                 <p style="margin: 0; color: #555; line-height: 1.6;">${tp.admin_comment}</p>

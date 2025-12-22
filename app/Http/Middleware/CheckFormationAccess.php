@@ -85,6 +85,8 @@ class CheckFormationAccess
                 'gestion informatique' => 'gestion-informatique',
                 // Formation hybride
                 'Design Graphique & Community Manager' => 'design-graphique-cm',
+                'Design Graphique & Community Management' => 'design-graphique-cm',
+                'design graphique & community management' => 'design-graphique-cm',
                 'Design Graphique Community Manager' => 'design-graphique-cm',
                 'design_graphique_community_manager' => 'design-graphique-cm',
             ];
@@ -98,6 +100,9 @@ class CheckFormationAccess
                 $userFormation = 'community-management';
             }
             if ($userFormation === 'design-graphique-community-manager' || $userFormation === 'design-graphique-community-management') {
+                $userFormation = 'design-graphique-cm';
+            }
+            if ($userFormation === 'design-graphique-&-community-management' || $userFormation === 'design-graphique-&-community-manager') {
                 $userFormation = 'design-graphique-cm';
             }
         }

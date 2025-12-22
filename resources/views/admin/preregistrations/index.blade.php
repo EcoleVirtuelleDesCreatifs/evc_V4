@@ -2,9 +2,12 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <div class="d-flex align-items-center justify-content-between mb-4">
-        <h1 class="h4 mb-0">Pré-inscriptions</h1>
-        <div class="d-flex align-items-center gap-2">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="mb-1" style="font-weight: 800; color: #0f172a;">Pré-inscriptions</h3>
+            <div class="text-muted">Suivi et gestion des candidatures.</div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
             <form method="GET" action="{{ route('admin.preinscriptions.index') }}" class="row g-2 align-items-center">
                 <div class="col-auto">
                     <input type="text" name="q" value="{{ request('q') }}" placeholder="Recherche (nom, prénom, email, whatsapp)" class="form-control" />
@@ -28,10 +31,57 @@
                     </select>
                 </div>
                 <div class="col-auto">
-                    <button class="btn btn-primary"><i class="fas fa-filter me-2"></i>Filtrer</button>
+                    <button class="btn btn-primary" style="border-radius: 12px;"><i class="fas fa-filter me-2"></i>Filtrer</button>
                 </div>
             </form>
-            <a href="{{ route('admin.preinscriptions.export', request()->only(['q','formation','status'])) }}" class="btn btn-success"><i class="fas fa-file-export me-2"></i>Exporter CSV</a>
+            <a href="{{ route('admin.preinscriptions.export', request()->only(['q','formation','status'])) }}" class="btn btn-success" style="border-radius: 12px;"><i class="fas fa-file-export me-2"></i>Exporter CSV</a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                <div class="stat-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ $stats['total'] ?? 0 }}</h3>
+                    <p>Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);">
+                <div class="stat-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ $stats['pending'] ?? 0 }}</h3>
+                    <p>En attente</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ $stats['accepted'] ?? 0 }}</h3>
+                    <p>Acceptées</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">
+                <div class="stat-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>{{ $stats['rejected'] ?? 0 }}</h3>
+                    <p>Rejetées</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -49,7 +99,13 @@
             </button>
         </div>
 
-        <div class="card mt-3 shadow-sm">
+        <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card-header bg-white border-0 py-3" style="border-radius: 16px 16px 0 0;">
+                <h5 class="mb-0 d-flex align-items-center">
+                    <i class="fas fa-user-plus me-2" style="color: #1e3c72;"></i>
+                    Liste des Pré-inscriptions
+                </h5>
+            </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered table-sm align-middle mb-0 text-body">
@@ -146,8 +202,116 @@
         </div>
     </div>
 
-    <div class="mt-3">{{ $pres->links() }}</div>
+    <div class="card-footer bg-white border-0 py-3" style="border-radius: 0 0 16px 16px;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div class="pagination-info text-muted mb-2 mb-md-0">
+                @if($pres->total() > 0)
+                    Affichage de <strong>{{ $pres->firstItem() }}</strong> à <strong>{{ $pres->lastItem() }}</strong> sur <strong>{{ $pres->total() }}</strong> pré-inscriptions
+                @else
+                    Aucun résultat
+                @endif
+            </div>
+            <div>
+                {{ $pres->withQueryString()->links('pagination::bootstrap-4') }}
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+.stat-card {
+    border-radius: 16px;
+    padding: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    opacity: 0.9;
+}
+
+.stat-content h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+.stat-content p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.pagination-info {
+    font-size: 0.9rem;
+}
+
+.pagination {
+    margin: 0;
+}
+
+.pagination .page-link {
+    color: #1e3c72;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin: 0 0.25rem;
+    padding: 0.5rem 0.75rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.pagination .page-link:hover {
+    background-color: #1e3c72;
+    color: white;
+    border-color: #1e3c72;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(30, 60, 114, 0.3);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #1e3c72;
+    border-color: #1e3c72;
+    box-shadow: 0 2px 8px rgba(30, 60, 114, 0.3);
+}
+
+.pagination .page-item.disabled .page-link {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    color: #6c757d;
+}
+
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+
+    .pagination-info {
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    .card-footer .d-flex {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+    }
+}
+</style>
 
 <script>
 // Soumettre l'action groupée

@@ -752,6 +752,10 @@
                         </span>
                         Dernières Connexions Étudiants
                     </h2>
+                    <a href="{{ route('admin.connexions.index') }}" class="view-all-btn">
+                        Tout voir
+                        <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
                 </div>
 
                 @if(isset($studentHistory) && count($studentHistory) > 0)

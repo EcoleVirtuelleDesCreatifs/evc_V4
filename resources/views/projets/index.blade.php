@@ -13,24 +13,24 @@
         color: white;
         box-shadow: 0 5px 20px rgba(0,0,0,0.1);
     }
-    
+
     .project-stat-card:hover {
         transform: translateY(-10px) scale(1.02);
         box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
-    
+
     .project-stat-card.solo {
         background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
     }
-    
+
     .project-stat-card.groupe {
         background: linear-gradient(135deg, #ea580c 0%, #fb923c 100%);
     }
-    
+
     .project-stat-card.total {
         background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
     }
-    
+
     .project-stat-number {
         font-size: 4rem;
         font-weight: 900;
@@ -38,7 +38,7 @@
         text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
         margin: 1rem 0;
     }
-    
+
     .project-stat-label {
         font-size: 1rem;
         font-weight: 600;
@@ -46,7 +46,7 @@
         letter-spacing: 1.5px;
         opacity: 0.95;
     }
-    
+
     .project-stat-icon {
         font-size: 3.5rem;
         opacity: 0.2;
@@ -54,7 +54,7 @@
         right: 15px;
         top: 15px;
     }
-    
+
     .project-stat-btn {
         background: rgba(255,255,255,0.25);
         border: 2px solid rgba(255,255,255,0.4);
@@ -68,14 +68,14 @@
         font-size: 0.85rem;
         letter-spacing: 0.5px;
     }
-    
+
     .project-stat-btn:hover {
         background: rgba(255,255,255,0.4);
         border-color: white;
         color: white;
         transform: scale(1.05);
     }
-    
+
     .section-title {
         font-size: 1.8rem;
         font-weight: 800;
@@ -84,7 +84,7 @@
         position: relative;
         padding-bottom: 1rem;
     }
-    
+
     .section-title::after {
         content: '';
         position: absolute;
@@ -95,7 +95,7 @@
         background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
         border-radius: 2px;
     }
-    
+
     .nav-card {
         border: none;
         border-radius: 20px;
@@ -103,19 +103,19 @@
         box-shadow: 0 5px 20px rgba(0,0,0,0.08);
         overflow: hidden;
     }
-    
+
     .nav-btn-group .btn {
         border-radius: 10px;
         font-weight: 600;
         padding: 0.6rem 1.2rem;
         transition: all 0.3s ease;
     }
-    
+
     .nav-btn-group .btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
-    
+
     @keyframes fadeInUp {
         from {
             opacity: 0;
@@ -126,7 +126,7 @@
             transform: translateY(0);
         }
     }
-    
+
     .fade-in-up {
         animation: fadeInUp 0.6s ease-out;
     }
@@ -136,9 +136,9 @@
     <!-- Section Titre -->
     <div class="row mb-4">
         <div class="col-12">
-            <h2 class="section-title">
+            <h2 class="section-title text-white">
                 <i class="fas fa-folder-open me-2"></i>
-                Gestion des Projets
+                Gestion des Projets du Studio Creative
             </h2>
         </div>
     </div>
@@ -160,7 +160,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4 mb-4 fade-in-up" style="animation-delay: 0.3s;">
             <div class="project-stat-card groupe h-100">
                 <i class="fas fa-users project-stat-icon"></i>
@@ -1018,8 +1018,8 @@
                                             <i class="fas fa-check-circle" style="margin-right: 8px;"></i>Projet validé avec succès
                                         </span>
                                         @else
-                                        <span class="badge {{ $statusColors[$project['status']] ?? 'bg-secondary' }}">
-                                            {{ $statusLabels[$project['status']] ?? $project['status'] }}
+                                        <span class="badge bg-warning">
+                                            En cours
                                         </span>
                                         @endif
                                     </td>
@@ -1180,8 +1180,8 @@
                                             <i class="fas fa-check-circle" style="margin-right: 8px;"></i>Projet validé avec succès
                                         </span>
                                         @else
-                                        <span class="badge {{ $statusColors[$project['status']] ?? 'bg-secondary' }}">
-                                            {{ $statusLabels[$project['status']] ?? $project['status'] }}
+                                        <span class="badge bg-warning">
+                                            En cours
                                         </span>
                                         @endif
                                     </td>

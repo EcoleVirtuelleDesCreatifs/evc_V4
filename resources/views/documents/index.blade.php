@@ -6,8 +6,8 @@
 @push('styles')
 <style>
     :root {
-        --design-cm-blue: #2563eb;
-        --design-cm-orange: #f97316;
+        --design-cm-blue: #1e3c72;
+        --design-cm-orange: #4fc3f7;
     }
 
     .instagram-gradient {
@@ -348,7 +348,7 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="stat-card shadow-lg text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="stat-card shadow-lg text-white" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
                 <div class="stat-icon">
                     <i class="fas fa-times-circle"></i>
                 </div>
@@ -358,7 +358,7 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="stat-card shadow-lg text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="stat-card shadow-lg text-white" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%);">
                 <div class="stat-icon">
                     <i class="fas fa-layer-group"></i>
                 </div>
@@ -372,8 +372,8 @@
     <div class="row animate-in" style="animation-delay: 0.2s;">
         <div class="col-12">
             <div class="table-responsive">
-                <table class="table align-middle mb-0" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(131, 58, 180, 0.15);">
-                    <thead style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%); color: white;">
+                <table class="table align-middle mb-0" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(42, 82, 152, 0.15);">
+                    <thead style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 55%, #4fc3f7 100%); color: white;">
                         <tr>
                             <th style="padding: 1.5rem 1.2rem; font-weight: 600; border: none; font-size: 0.95rem; letter-spacing: 0.5px;">
                                 Titre
@@ -399,7 +399,7 @@
                         @foreach($documents as $doc)
                         <tr style="transition: none; border-bottom: 1px solid #f5f5f5;">
                             <td style="padding: 1.2rem; font-weight: 600; color: #262626; font-size: 0.95rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                <i class="fas fa-file-pdf me-2" style="color: #C13584;"></i>
+                                <i class="fas fa-file-pdf me-2" style="color: #2a5298;"></i>
                                 {{ Str::limit($doc['titre'], 30) }}
                             </td>
                             <td style="padding: 1.2rem; color: #8e8e8e; font-size: 0.9rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -411,7 +411,7 @@
                                         <i class="fas fa-check-circle me-1"></i>Validé
                                     </span>
                                 @elseif($doc['status'] === 'pending')
-                                    <span class="badge" style="background: linear-gradient(135deg, #F56040 0%, #FCAF45 100%); color: white; padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                                    <span class="badge" style="background: linear-gradient(135deg, #1e3c72 0%, #4fc3f7 100%); color: white; padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
                                         <i class="fas fa-clock me-1"></i>En attente
                                     </span>
                                 @else
@@ -441,12 +441,12 @@
                                     @if($doc['status'] === 'pending')
                                         <a href="{{ route($currentModule . '.tp.modifier', $doc['id']) }}"
                                            class="btn btn-sm text-white"
-                                           style="background: linear-gradient(135deg, #833AB4 0%, #E1306C 55%, #FCAF45 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(225, 48, 108, 0.18);"
+                                           style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 55%, #4fc3f7 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(42, 82, 152, 0.18);"
                                            title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <button class="btn btn-sm text-white"
-                                                style="background: linear-gradient(135deg, #E1306C 0%, #F56040 60%, #FCAF45 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(225, 48, 108, 0.14);"
+                                                style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.14);"
                                                 onclick="deleteReport({{ $doc['id'] }}, {{ json_encode(strip_tags($doc['titre'])) }})"
                                                 title="Supprimer">
                                             <i class="fas fa-trash"></i>
@@ -590,8 +590,8 @@ if (fileInput) {
     // Drag and drop
     uploadArea.addEventListener('dragover', function(e) {
         e.preventDefault();
-        this.style.borderColor = '#f09433';
-        this.style.background = 'linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%)';
+        this.style.borderColor = '#2a5298';
+        this.style.background = 'linear-gradient(135deg, rgba(30, 60, 114, 0.06) 0%, rgba(79, 195, 247, 0.10) 100%)';
     });
 
     uploadArea.addEventListener('dragleave', function(e) {
@@ -680,7 +680,7 @@ function deleteReport(reportId, reportTitle) {
         <div class="modal fade" id="deleteModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content" style="border-radius: 20px; border: none;">
-                    <div class="modal-header text-white" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 20px 20px 0 0;">
+                    <div class="modal-header text-white" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 55%, #4fc3f7 100%); border-radius: 20px 20px 0 0;">
                         <h5 class="modal-title" style="font-weight: 700;">
                             <i class="fas fa-exclamation-triangle me-2"></i>Confirmer la suppression
                         </h5>
@@ -703,7 +703,7 @@ function deleteReport(reportId, reportTitle) {
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 12px; padding: 0.7rem 1.5rem;">
                             <i class="fas fa-times me-2"></i>Annuler
                         </button>
-                        <button type="button" class="btn text-white" onclick="confirmDelete(${reportId})" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 12px; padding: 0.7rem 1.5rem; font-weight: 600;">
+                        <button type="button" class="btn text-white" onclick="confirmDelete(${reportId})" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 12px; padding: 0.7rem 1.5rem; font-weight: 600;">
                             <i class="fas fa-trash me-2"></i>Supprimer
                         </button>
                     </div>

@@ -110,6 +110,115 @@ class AdminDashboardController extends Controller
         ));
     }
 
+    public function connexions(): View
+    {
+        $stats = [
+            'total' => 0,
+            'last_24h' => 0,
+            'last_7d' => 0,
+            'this_month' => 0,
+        ];
+
+        $stats['total'] = DB::table('user_activities')
+            ->where('activity_type', 'login')
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $stats['last_24h'] = DB::table('user_activities')
+            ->where('activity_type', 'login')
+            ->where('created_at', '>=', now()->subDay())
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $stats['last_7d'] = DB::table('user_activities')
+            ->where('activity_type', 'login')
+            ->where('created_at', '>=', now()->subDays(7))
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $stats['this_month'] = DB::table('user_activities')
+            ->where('activity_type', 'login')
+            ->where('created_at', '>=', now()->startOfMonth())
+            ->distinct('user_id')
+            ->count('user_id');
+
+        $lastLoginsSub = DB::table('user_activities')
+            ->select('user_id', DB::raw('MAX(created_at) as last_login'))
+            ->where('activity_type', 'login')
+            ->groupBy('user_id');
+
+        $lastActivitiesSub = DB::table('user_activities')
+            ->select('user_id', DB::raw('MAX(created_at) as last_activity'))
+            ->groupBy('user_id');
+
+        $connections = DB::table(DB::raw('(' . $lastLoginsSub->toSql() . ') as ul'))
+            ->mergeBindings($lastLoginsSub)
+            ->join('students', 'students.user_id', '=', 'ul.user_id')
+            ->leftJoin(DB::raw('(' . $lastActivitiesSub->toSql() . ') as ua'), 'ua.user_id', '=', 'ul.user_id')
+            ->mergeBindings($lastActivitiesSub)
+            ->select(
+                'students.user_id',
+                'students.first_name',
+                'students.last_name',
+                'students.profile_photo',
+                'students.program',
+                'ul.last_login',
+                'ua.last_activity'
+            )
+            ->orderByDesc('ul.last_login')
+            ->paginate(20);
+
+        return view('admin.connexions.index', compact('connections', 'stats'));
+    }
+
+    public function studioCreative(): View
+    {
+        $projects = collect();
+        $stats = [
+            'total' => 0,
+            'solo' => 0,
+            'groupe' => 0,
+            'in_progress' => 0,
+            'completed' => 0,
+            'pending' => 0,
+        ];
+
+        try {
+            if (Schema::hasTable('design_projects')) {
+                $projects = DesignProject::with(['user', 'user.student', 'files'])
+                    ->whereHas('user.student', function ($query) {
+                        $query->whereRaw('LOWER(program) LIKE ?', ['%design%graph%'])
+                            ->whereRaw('LOWER(program) NOT LIKE ?', ['%community%']);
+                    })
+                    ->orderByDesc('created_at')
+                    ->limit(200)
+                    ->get();
+
+                $stats['total'] = $projects->count();
+                $stats['solo'] = $projects->filter(function ($p) {
+                    $raw = $p->project_mode ?? ($p->category ?? null);
+                    return is_string($raw) && strtolower(trim($raw)) === 'solo';
+                })->count();
+                $stats['groupe'] = $projects->filter(function ($p) {
+                    $raw = $p->project_mode ?? ($p->category ?? null);
+                    return is_string($raw) && strtolower(trim($raw)) === 'groupe';
+                })->count();
+                $stats['in_progress'] = $projects->whereIn('status', ['active', 'in_progress'])->count();
+                $stats['completed'] = $projects->whereIn('status', ['completed', 'validated'])->count();
+                $stats['pending'] = $projects->where('status', 'pending')->count();
+            }
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du chargement Studio Creative (admin)', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return view('admin.studio-creative', [
+            'projects' => $projects,
+            'stats' => $stats,
+        ]);
+    }
+
     public function viewProject($id)
     {
         $project = Project::with(['user', 'user.student', 'images'])->findOrFail($id);
@@ -160,6 +269,35 @@ class AdminDashboardController extends Controller
             }
         } catch (\Exception $e) {
             Log::warning('Notification in-app projet validé échouée', [
+                'design_project_id' => $id,
+                'user_id' => $project->user_id ?? null,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        // Email étudiant (ne doit pas bloquer la validation)
+        try {
+            $user = \App\Models\User::find($project->user_id);
+            if ($user && !empty($user->email)) {
+                $student = DB::table('students')->where('user_id', $user->id)->first();
+                $studentName = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
+                $studentName = $studentName !== '' ? $studentName : ($user->name ?? '');
+                $projectTitle = $project->title ?? 'Projet';
+                $projectType = $project->project_type ?? 'Design';
+                $validatedAt = now()->format('d/m/Y H:i');
+
+                Mail::send('emails.design-project-validated', [
+                    'studentName' => $studentName,
+                    'projectTitle' => $projectTitle,
+                    'projectType' => $projectType,
+                    'validatedAt' => $validatedAt,
+                ], function ($message) use ($user, $projectTitle) {
+                    $message->to($user->email)
+                        ->subject('PROJET DU STUDIO CREATIVE ACCEPTÉ : ' . $projectTitle);
+                });
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Email validation projet Studio Creative non envoyé', [
                 'design_project_id' => $id,
                 'user_id' => $project->user_id ?? null,
                 'error' => $e->getMessage(),

@@ -183,6 +183,9 @@
                                 <li><a href="{{ route('admin.projets.design-graphique.to-send') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.to-send') ? 'active' : '' }}">
                                     <i class="fas fa-paper-plane"></i>À envoyer
                                 </a></li>
+                                <li><a href="{{ route('admin.studio-creative') }}" class="admin-nav-sublink">
+                                    <i class="fas fa-external-link-alt"></i>Studio Creative
+                                </a></li>
                                 <li><a href="{{ route('admin.projets.design-graphique.assigned') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.assigned') ? 'active' : '' }}">
                                     <i class="fas fa-tasks"></i>Projets attribués
                                 </a></li>

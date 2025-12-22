@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use App\Helpers\AccountExpirationHelper;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckStudentActive
@@ -42,6 +43,12 @@ class CheckStudentActive
                 if ($student && $student->status === 'inactive') {
                     // Si l'utilisateur tente d'accéder à la page de désactivation, le laisser passer
                     if ($request->is('compte-desactive')) {
+                        return $next($request);
+                    }
+
+                    // Si le compte est expiré, laisser passer (les restrictions sont gérées ailleurs)
+                    // Cela évite de bloquer des pages de consultation comme la communauté.
+                    if (AccountExpirationHelper::isAccountExpired($user)) {
                         return $next($request);
                     }
 

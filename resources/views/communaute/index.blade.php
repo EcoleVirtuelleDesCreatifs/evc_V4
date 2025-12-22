@@ -123,18 +123,40 @@
                                 <div class="mb-3">
                                     <i class="fab fa-whatsapp fa-3x" style="color: #25D366;"></i>
                                 </div>
-                                <h6 class="mb-2">Groupe WhatsApp Design</h6>
+                                <h6 class="mb-2">{{ str_contains(request()->path(), 'design-graphique-cm') ? 'Groupe WhatsApp CM' : 'Groupe WhatsApp Design' }}</h6>
                                 <p class="text-muted small mb-3">Classe de travail</p>
                                 <div class="mb-2">
                                     <span class="badge bg-warning">256 membres</span>
                                 </div>
-                                <a href="https://chat.whatsapp.com/D523MT1hBENE0vQZkrH9qb" target="_blank" class="btn btn-outline-success btn-sm">
+                                <a href="https://chat.whatsapp.com/KRWhGOnAB9y2RmFPhXI0zp" target="_blank" class="btn btn-outline-success btn-sm">
                                     <i class="fab fa-whatsapp me-1"></i>
                                     Rejoindre
                                 </a>
                             </div>
                         </div>
                     </div>
+
+                    @if(str_contains(request()->path(), 'design-graphique-cm'))
+                        <!-- Groupe WhatsApp Design (spécifique Design Graphique & CM) -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border h-100">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="fab fa-whatsapp fa-3x" style="color: #25D366;"></i>
+                                    </div>
+                                    <h6 class="mb-2">Groupe WhatsApp Design</h6>
+                                    <p class="text-muted small mb-3">Classe de travail</p>
+                                    <div class="mb-2">
+                                        <span class="badge bg-warning">256 membres</span>
+                                    </div>
+                                    <a href="https://chat.whatsapp.com/D523MT1hBENE0vQZkrH9qb" target="_blank" class="btn btn-outline-success btn-sm">
+                                        <i class="fab fa-whatsapp me-1"></i>
+                                        Rejoindre
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

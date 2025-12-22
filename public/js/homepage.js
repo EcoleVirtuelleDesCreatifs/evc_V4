@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- Preloader --- 
+    // --- Preloader ---
     try {
         const preloader = document.getElementById('preloader');
         if (preloader) {
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => {
                         preloader.style.display = 'none';
                     }, 500);
-                }, 5000); // 5 secondes
+                }, 3000); // 3 secondes
             });
 
             // Afficher le loader lors de la navigation
@@ -19,15 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 link.addEventListener('click', (e) => {
                     const href = link.getAttribute('href');
                     // Vérifier si c'est un lien interne (pas un anchor, pas externe, pas javascript, pas fancybox)
-                    if (href && 
-                        !href.startsWith('#') && 
-                        !href.startsWith('javascript:') && 
-                        !href.startsWith('mailto:') && 
+                    if (href &&
+                        !href.startsWith('#') &&
+                        !href.startsWith('javascript:') &&
+                        !href.startsWith('mailto:') &&
                         !href.startsWith('tel:') &&
                         !link.hasAttribute('target') &&
                         !link.classList.contains('no-loader') &&
                         !link.hasAttribute('data-fancybox')) {
-                        
+
                         // Afficher le preloader
                         preloader.style.display = 'flex';
                         preloader.style.opacity = '1';
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Header Scroll Error:', e);
     }
 
-    // --- Mobile Menu --- 
+    // --- Mobile Menu ---
     try {
         const mobileMenu = document.getElementById('mobile-menu');
         const openMenuButton = document.getElementById('mobile-menu-open-button');
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Hero Text Slider (contrôle les deux sliders d'images)
-        const heroTextSwiper = new Swiper('.hero-text-slider', { 
+        const heroTextSwiper = new Swiper('.hero-text-slider', {
             loop: true,
             autoplay: { delay: 4000, disableOnInteraction: false },
             effect: 'fade',
@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- Founder Card Flip --- 
+    // --- Founder Card Flip ---
     try {
         const founderCard = document.querySelector('.founder-card-inner');
         if (founderCard) {
@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Founder card flip error:', e);
     }
 
-    // --- Reusable Tab System --- 
+    // --- Reusable Tab System ---
     const initTabs = (tabContainerId) => {
         try {
             const tabContainer = document.getElementById(tabContainerId);
@@ -499,7 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     button.addEventListener('click', () => {
                         // Deactivate all buttons in this container
                         tabButtons.forEach(btn => btn.classList.remove('active'));
-                        
+
                         // Deactivate all panels associated with this tab set
                         const containerParent = tabContainer.parentElement;
                         containerParent.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
@@ -608,7 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Scroll to Top Button ---
     try {
         const scrollToTopBtn = document.getElementById('scrollToTop');
-        
+
         if (scrollToTopBtn) {
             // Afficher/masquer le bouton en fonction du scroll
             const toggleScrollButton = () => {

@@ -11,13 +11,13 @@
 @endphp
 
 <style>
-    /* Modern Design System - Bleu Orange Theme */
+    /* Modern Design System - Bleu Theme */
     :root {
-        --primary-blue: #2563eb;
-        --primary-orange: #f97316;
-        --gradient-primary: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
-        --gradient-blue: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        --gradient-orange: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+        --primary-blue: #1e3c72;
+        --primary-orange: #4fc3f7;
+        --gradient-primary: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        --gradient-blue: linear-gradient(135deg, #2a5298 0%, #4fc3f7 100%);
+        --gradient-orange: linear-gradient(135deg, #2a5298 0%, #4fc3f7 100%);
         --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
         --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);

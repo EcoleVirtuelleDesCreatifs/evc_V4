@@ -774,6 +774,9 @@ class StudentAdminController extends Controller
         // Normaliser la clé de formation pour correspondre aux valeurs du select
         $formationNormalizeMap = [
             'design-graphique' => 'design_graphique',
+            'design-graphique-cm' => 'design_graphique_community_management',
+            'design-graphique-community-manager' => 'design_graphique_community_management',
+            'design_graphique_community_management' => 'design_graphique_community_management',
             'community-manager' => 'community_management',
             'community-management' => 'community_management',
             'intelligence-artificielle' => 'intelligence_artificielle',
@@ -781,6 +784,8 @@ class StudentAdminController extends Controller
             'infographie' => 'design_graphique',
             'informatique' => 'gestion_informatique',
             'Design Graphique' => 'design_graphique',
+            'Design Graphique & Community Management' => 'design_graphique_community_management',
+            'Design Graphique & Community Manager' => 'design_graphique_community_management',
             'Community Management' => 'community_management',
             'Intelligence Artificielle' => 'intelligence_artificielle',
             'Gestion Informatique' => 'gestion_informatique',
@@ -1288,6 +1293,7 @@ class StudentAdminController extends Controller
                     // Map formation_souhaitee vers program
                     $formationMap = [
                         'design_graphique' => 'Design Graphique',
+                        'design_graphique_community_management' => 'Design Graphique & Community Management',
                         'community_management' => 'Community Management',
                         'intelligence_artificielle' => 'Intelligence Artificielle',
                         'gestion_informatique' => 'Gestion Informatique',

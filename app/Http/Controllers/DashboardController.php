@@ -4929,6 +4929,131 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function communityManagementStats(): JsonResponse
+    {
+        $user = Auth::user();
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+
+        $preReg = null;
+        try {
+            if (Schema::hasTable('pre_registrations')) {
+                $email = $student->email ?? $user->email;
+                if (!empty($email)) {
+                    $preReg = DB::table('pre_registrations')
+                        ->where('email', $email)
+                        ->orderByDesc('id')
+                        ->first();
+                }
+            }
+        } catch (\Exception $e) {
+            $preReg = null;
+        }
+
+        $studentId = $student->id ?? null;
+
+        $totalTp = 0;
+        $tpValides = 0;
+        $tpEnAttente = 0;
+        $tpRejected = 0;
+        $totalProjects = 0;
+        $projetsEnCours = 0;
+        $projetsCompletes = 0;
+        $projetsTermines = 0;
+        $projetsAFaire = 0;
+
+        if ($studentId) {
+            $tpAssignments = DB::table('tp_assignments')
+                ->where(function ($q) use ($studentId, $user) {
+                    $q->where('student_id', $studentId)
+                        ->orWhere('student_id', $user->id);
+                })
+                ->get();
+
+            $totalTp = $tpAssignments->count();
+            $tpValides = $tpAssignments->where('status', 'validated')->count();
+            $tpEnAttente = $tpAssignments->whereIn('status', ['assigned', 'submitted', 'pending'])->count();
+            $tpRejected = $tpAssignments->where('status', 'rejected')->count();
+
+            $projects = DB::table('projects')
+                ->where('user_id', $user->id)
+                ->get();
+
+            $totalProjects = $projects->count();
+            $projetsEnCours = $projects->whereIn('status', ['en_cours', 'in_progress'])->count();
+            $projetsCompletes = $projects->whereIn('status', ['valide', 'completed', 'validated'])->count();
+            $projetsTermines = $projects->where('status', 'termine')->count();
+            $projetsAFaire = $projetsEnCours;
+        }
+
+        try {
+            $evenements = DB::table('events')->count();
+        } catch (\Exception $e) {
+            $evenements = 0;
+        }
+
+        $actualitesCount = 0;
+        try {
+            if (Schema::hasTable('actualites')) {
+                $actualitesCount = DB::table('actualites')
+                    ->where('status', 'published')
+                    ->where(function ($query) {
+                        $query->where('visibility', 'public')
+                            ->orWhere('visibility', 'all_formations')
+                            ->orWhere('visibility', 'like', '%Community Management%');
+                    })
+                    ->count();
+            }
+        } catch (\Exception $e) {
+            $actualitesCount = 0;
+        }
+
+        $progressionGlobale = $totalTp > 0 ? round(($tpValides / $totalTp) * 100) : 0;
+
+        $montantRestant = 0;
+        try {
+            if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
+                $montantRestant = max(0, (float) $preReg->montant_total - (float) $preReg->montant_paye);
+            } else {
+                $paymentsQuery = DB::table('payments')
+                    ->where(function ($q) use ($user, $preReg) {
+                        $q->where('user_id', $user->id);
+                        if ($preReg && isset($preReg->id)) {
+                            $q->orWhere('pre_registration_id', $preReg->id);
+                        }
+                    });
+
+                $payments = $paymentsQuery->get();
+                $paymentsTotal = $payments->max('total_amount');
+                if (!empty($paymentsTotal)) {
+                    $paymentAmount = (float) $paymentsTotal;
+                } else {
+                    $paymentAmount = (float) $payments->sum('amount');
+                }
+                $paymentPaid = (float) $payments->where('status', 'completed')->sum('amount');
+                $montantRestant = max(0, $paymentAmount - $paymentPaid);
+            }
+        } catch (\Exception $e) {
+            $montantRestant = 0;
+        }
+
+        return response()->json([
+            'stats' => [
+                'progression_globale' => $progressionGlobale,
+                'tp_realises' => $tpValides,
+                'tp_total' => $totalTp,
+                'tp_en_attente' => $tpEnAttente,
+                'tp_rejetes' => $tpRejected,
+                'projets_realises' => $projetsCompletes,
+                'projets_total' => $totalProjects,
+                'projets_a_faire' => $projetsAFaire,
+                'evenements' => $evenements,
+                'actualites' => $actualitesCount,
+                'montant_restant' => $montantRestant,
+            ],
+            'generated_at' => now()->toIso8601String(),
+        ]);
+    }
+
     /**
      * Dashboard Intelligence Artificielle
      */

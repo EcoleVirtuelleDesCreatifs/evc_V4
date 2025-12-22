@@ -25,7 +25,7 @@ class AccountingController extends Controller
             ->pluck('year');
 
         $selectedYear = $request->input('year', date('Y'));
-        
+
         if ($years->isEmpty()) {
             $years = collect([date('Y')]);
         }
@@ -34,18 +34,18 @@ class AccountingController extends Controller
         $totalIncome = AccountingTransaction::where('type', 'income')
             ->whereYear('date', '<=', $selectedYear)
             ->sum('amount');
-            
+
         $totalExpenses = AccountingTransaction::where('type', 'expense')
             ->whereYear('date', '<=', $selectedYear)
             ->sum('amount');
-            
+
         $balance = $totalIncome - $totalExpenses;
 
         // Stats de l'exercice (Année sélectionnée uniquement)
         $yearIncome = AccountingTransaction::where('type', 'income')
             ->whereYear('date', $selectedYear)
             ->sum('amount');
-            
+
         $yearExpenses = AccountingTransaction::where('type', 'expense')
             ->whereYear('date', $selectedYear)
             ->sum('amount');
@@ -57,12 +57,12 @@ class AccountingController extends Controller
         } else {
             $currentMonthStart = date($selectedYear . '-12-01'); // Décembre de l'année passée pour info
         }
-        
+
         $incomeThisMonth = AccountingTransaction::where('type', 'income')
             ->whereYear('date', $selectedYear)
             ->whereMonth('date', date('m', strtotime($currentMonthStart)))
             ->sum('amount');
-            
+
         $expensesThisMonth = AccountingTransaction::where('type', 'expense')
             ->whereYear('date', $selectedYear)
             ->whereMonth('date', date('m', strtotime($currentMonthStart)))
@@ -87,11 +87,29 @@ class AccountingController extends Controller
      */
     public function expenses(): View
     {
+        $stats = [
+            'total' => 0,
+            'this_month' => 0,
+            'last_7d' => 0,
+            'this_year' => 0,
+        ];
+
+        $stats['total'] = AccountingTransaction::where('type', 'expense')->count();
+        $stats['this_month'] = (float) AccountingTransaction::where('type', 'expense')
+            ->where('date', '>=', now()->startOfMonth())
+            ->sum('amount');
+        $stats['last_7d'] = (float) AccountingTransaction::where('type', 'expense')
+            ->where('date', '>=', now()->subDays(7))
+            ->sum('amount');
+        $stats['this_year'] = (float) AccountingTransaction::where('type', 'expense')
+            ->whereYear('date', now()->year)
+            ->sum('amount');
+
         $expenses = AccountingTransaction::where('type', 'expense')
             ->latest('date')
             ->paginate(15);
 
-        return view('admin.accounting.expenses', compact('expenses'));
+        return view('admin.accounting.expenses', compact('expenses', 'stats'));
     }
 
     /**
@@ -107,11 +125,29 @@ class AccountingController extends Controller
      */
     public function sales(): View
     {
+        $stats = [
+            'total' => 0,
+            'this_month' => 0,
+            'last_7d' => 0,
+            'this_year' => 0,
+        ];
+
+        $stats['total'] = AccountingTransaction::where('type', 'income')->count();
+        $stats['this_month'] = (float) AccountingTransaction::where('type', 'income')
+            ->where('date', '>=', now()->startOfMonth())
+            ->sum('amount');
+        $stats['last_7d'] = (float) AccountingTransaction::where('type', 'income')
+            ->where('date', '>=', now()->subDays(7))
+            ->sum('amount');
+        $stats['this_year'] = (float) AccountingTransaction::where('type', 'income')
+            ->whereYear('date', now()->year)
+            ->sum('amount');
+
         $sales = AccountingTransaction::where('type', 'income')
             ->latest('date')
             ->paginate(15);
 
-        return view('admin.accounting.sales', compact('sales'));
+        return view('admin.accounting.sales', compact('sales', 'stats'));
     }
 
     /**

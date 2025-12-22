@@ -1160,6 +1160,11 @@
         </div>
 
         <nav class="sidebar-nav">
+            @php
+                // Vérifier et désactiver automatiquement le compte si expiré
+                \App\Helpers\AccountExpirationHelper::checkAndDeactivateIfExpired();
+                $isExpired = \App\Helpers\AccountExpirationHelper::isAccountExpired();
+            @endphp
             <!-- Vue d'ensemble -->
             <div class="nav-item">
                 <a href="{{ route($dashboardRoute) }}" class="nav-link {{ request()->routeIs($dashboardRoute) ? 'active' : '' }}">
@@ -1190,10 +1195,12 @@
                         <i class="fas fa-credit-card"></i>
                         Paiements
                     </a>
+                    @if(!$isExpired)
                     <a href="{{ route($formationPrefix . '.communaute.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.communaute.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         Communauté
                     </a>
+                    @endif
                 </div>
             </div>
 
@@ -1206,10 +1213,14 @@
                     </div>
                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </div>
-                <div class="submenu {{ request()->routeIs($formationPrefix . '.tp.*') || request()->routeIs($formationPrefix . '.todo.*') ? 'open' : '' }}">
+                <div class="submenu {{ request()->routeIs($formationPrefix . '.tp.*') || request()->routeIs($formationPrefix . '.projets.*') || request()->routeIs($formationPrefix . '.todo.*') ? 'open' : '' }}">
                     <a href="{{ route($formationPrefix . '.tp.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.tp.*') ? 'active' : '' }}">
                         <i class="fas fa-tasks"></i>
                         Travaux Pratiques
+                    </a>
+                    <a href="{{ route('design-graphique.projets.index') }}" class="submenu-item {{ request()->routeIs('design-graphique.projets.*') ? 'active' : '' }}">
+                        <i class="fas fa-external-link-alt"></i>
+                        Studio Creative
                     </a>
                     <a href="{{ route($formationPrefix . '.todo.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.todo.*') ? 'active' : '' }}">
                         <i class="fas fa-list-check"></i>

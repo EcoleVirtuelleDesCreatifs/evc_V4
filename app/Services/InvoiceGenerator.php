@@ -122,14 +122,14 @@ class InvoiceGenerator
 
         // Positionnement sur le template (A4 mm)
         // Bloc "Numéro du reçu" + "Date d'émission"
-        $this->writeText(40, 112, $invoiceNumber, 11, 'B');
+        $this->writeText(16.5, 112, $invoiceNumber, 11, 'B');
         $this->writeText(155, 92, $paidDate, 11, 'B');
 
         // Ligne paiement (désignation / montant / statut)
         // NOTE: le template affiche déjà les libellés "Tranche" et colonnes, on remplit les valeurs.
         $designation = "Tranche {$payment->installment_number} / {$payment->total_installments}";
         if (($payment->payment_type ?? null) === 'full') {
-            $designation = 'Paiement intégral';
+            $designation = '';
         }
         $amountText = number_format((float) ($payment->amount ?? 0), 0, ',', ' ') . ' FCFA';
         $statusText = ($payment->status ?? '') === 'completed' ? 'Payé' : 'En attente';
@@ -140,23 +140,23 @@ class InvoiceGenerator
 
         // Bloc étudiant (ETUDIANT(E))
         // NOM / PRENOMS
-        $this->writeText(20, 146, $studentName !== '' ? $studentName : 'Non renseigné', 12, 'B');
+        $this->writeText(20, 143.4, $studentName !== '' ? $studentName : 'Non renseigné', 12, 'B');
         // NUMERO
         if (!empty($studentPhone)) {
-            $this->writeText(20, 168, $studentPhone, 11, '');
+            $this->writeText(20, 158.5, $studentPhone, 11, '');
         }
         // Adresse E-mail
         if (!empty($studentEmail)) {
-            $this->writeText(20, 198, $studentEmail, 11, 'B');
+            $this->writeText(20, 164.8, $studentEmail, 11, 'B');
         }
 
         // Bloc formation (module)
         if (!empty($formationLabel)) {
-            $this->writeText(20, 246, (string) $formationLabel, 11, 'B');
+            $this->writeText(20, 194, (string) $formationLabel, 11, 'B');
         }
 
         // Montant payé (sous le libellé "Montant payé (FCFA)")
-        $this->writeText(20, 292, $amountText, 12, 'B');
+        $this->writeText(20, 211.3, $amountText, 12, 'B');
 
     }
 

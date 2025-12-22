@@ -81,7 +81,7 @@
                         <div class="featured-info">
                             <h2 class="featured-title">{{ $featuredMedia->title }}</h2>
                             <p class="featured-date"><i class="fas fa-calendar me-2"></i>{{ \Carbon\Carbon::parse($featuredMedia->created_at)->format('d/m/Y') }}</p>
-                            <p class="featured-date"><i class="fas fa-download me-2" style="color: #C13584;"></i>{{ $featuredMedia->downloads_count ?? 0 }} téléchargement(s)</p>
+                            <p class="featured-date"><i class="fas fa-download me-2" style="color: var(--instagram-pink);"></i>{{ $featuredMedia->downloads_count ?? 0 }} téléchargement(s)</p>
                             <div class="featured-actions">
                                 @php
                                     $hasFile = false;
@@ -187,11 +187,11 @@
                             <!-- Informations -->
                             <div class="resource-info mb-3">
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <i class="fas fa-calendar" style="color: #C13584;"></i>
+                                    <i class="fas fa-calendar" style="color: var(--instagram-pink);"></i>
                                     <span class="small text-muted">Publié le {{ \Carbon\Carbon::parse($item->created_at)->format('d/m/Y') }}</span>
                                 </div>
                                 <div class="mb-2">
-                                    <i class="fas fa-download" style="color: #C13584;"></i>
+                                    <i class="fas fa-download" style="color: var(--instagram-pink);"></i>
                                     <span class="small text-muted">{{ $item->downloads_count ?? 0 }} téléchargement(s)</span>
                                 </div>
                             </div>
@@ -236,19 +236,19 @@
 <style>
 /* Palette Instagram */
 :root {
-    --instagram-purple: #833AB4;
-    --instagram-pink: #C13584;
-    --instagram-red: #E1306C;
-    --instagram-orange: #F56040;
-    --instagram-yellow: #FCAF45;
+    --instagram-purple: #1e3c72;
+    --instagram-pink: #2a5298;
+    --instagram-red: #4fc3f7;
+    --instagram-orange: #60a5fa;
+    --instagram-yellow: #93c5fd;
 }
 
 /* Header avec dégradé Instagram */
 .instagram-header {
-    background: linear-gradient(135deg, #833AB4, #C13584, #E1306C);
+    background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink), var(--instagram-red));
     border-radius: 20px;
     color: white;
-    box-shadow: 0 8px 32px rgba(131, 58, 180, 0.3);
+    box-shadow: 0 8px 32px rgba(42, 82, 152, 0.3);
     animation: fadeInDown 0.6s ease;
     margin-bottom: 2rem;
 }
@@ -270,13 +270,13 @@
 .icon-circle-large {
     width: 120px;
     height: 120px;
-    background: linear-gradient(135deg, rgba(131, 58, 180, 0.1), rgba(193, 53, 132, 0.1));
+    background: linear-gradient(135deg, rgba(30, 60, 114, 0.08), rgba(79, 195, 247, 0.12));
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 3.5rem;
-    color: #C13584;
+    color: var(--instagram-pink);
     margin: 0 auto;
 }
 
@@ -290,7 +290,7 @@
 }
 
 .featured-header {
-    background: linear-gradient(135deg, #833AB4, #C13584, #E1306C);
+    background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink), var(--instagram-red));
     padding: 1.25rem 1.5rem;
     color: white;
 }
@@ -324,13 +324,13 @@
     position: absolute;
     top: 15px;
     right: 15px;
-    background: linear-gradient(135deg, #833AB4, #E1306C);
+    background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-red));
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(131, 58, 180, 0.4);
+    box-shadow: 0 4px 12px rgba(42, 82, 152, 0.35);
 }
 
 .featured-info {
@@ -375,13 +375,13 @@
 
 .category-stat-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(131, 58, 180, 0.2);
+    box-shadow: 0 8px 24px rgba(42, 82, 152, 0.2);
 }
 
 .category-icon {
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #833AB4, #E1306C);
+    background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-red));
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -423,8 +423,8 @@
 
 .resource-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(131, 58, 180, 0.25);
-    border-color: #C13584;
+    box-shadow: 0 12px 40px rgba(42, 82, 152, 0.25);
+    border-color: var(--instagram-pink);
 }
 
 /* Image de couverture */
@@ -455,7 +455,7 @@
 .resource-placeholder {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #E1306C, #F56040);
+    background: linear-gradient(135deg, var(--instagram-pink), var(--instagram-red));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -474,7 +474,7 @@
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
-    color: #C13584;
+    color: var(--instagram-pink);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -499,7 +499,7 @@
 
 /* Bouton Instagram */
 .instagram-btn {
-    background: linear-gradient(135deg, #833AB4, #E1306C);
+    background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-red));
     color: white;
     border: none;
     border-radius: 30px;
@@ -510,21 +510,21 @@
     display: inline-block;
     text-align: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(131, 58, 180, 0.3);
+    box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
 }
 
 .instagram-btn:hover {
-    background: linear-gradient(135deg, #C13584, #F56040);
+    background: linear-gradient(135deg, var(--instagram-pink), var(--instagram-red));
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(131, 58, 180, 0.4);
+    box-shadow: 0 8px 24px rgba(42, 82, 152, 0.35);
     color: white;
 }
 
 /* Bouton Instagram Outline */
 .instagram-btn-outline {
     background: transparent;
-    color: #C13584;
-    border: 2px solid #C13584;
+    color: var(--instagram-pink);
+    border: 2px solid var(--instagram-pink);
     border-radius: 30px;
     padding: 0.75rem 1.5rem;
     font-weight: 600;
@@ -536,7 +536,7 @@
 }
 
 .instagram-btn-outline:hover {
-    background: linear-gradient(135deg, #833AB4, #E1306C);
+    background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-red));
     color: white;
     border-color: transparent;
     transform: translateY(-2px);
@@ -723,8 +723,8 @@ function filterByCategory(categoryName) {
     categoryCards.forEach(card => {
         const cardCat = card.getAttribute('data-category');
         if (cardCat === categoryName) {
-            card.style.borderColor = '#10b981';
-            card.style.boxShadow = '0 12px 40px rgba(16, 185, 129, 0.4)';
+            card.style.borderColor = 'var(--instagram-pink)';
+            card.style.boxShadow = '0 12px 40px rgba(42, 82, 152, 0.35)';
             card.style.transform = 'translateY(-5px)';
         } else {
             card.style.borderColor = 'transparent';

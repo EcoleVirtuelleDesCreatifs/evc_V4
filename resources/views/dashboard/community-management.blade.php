@@ -223,6 +223,61 @@
         color: white;
     }
 
+    .hero-subcard {
+        background: rgba(255,255,255,0.14);
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 16px;
+        padding: 1.25rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-kpi {
+        font-size: 2.2rem;
+        font-weight: 900;
+        line-height: 1;
+        color: #fff;
+    }
+
+    .hero-kpi-label {
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.72rem;
+        font-weight: 800;
+        opacity: 0.95;
+        color: rgba(255,255,255,0.92);
+    }
+
+    .hero-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.85rem 1.1rem;
+        border-radius: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(255,255,255,0.16);
+        color: #fff;
+    }
+
+    .hero-cta:hover {
+        transform: translateY(-2px);
+        background: rgba(255,255,255,0.22);
+        color: #fff;
+    }
+
+    .hero-cta.primary {
+        background: rgba(255,255,255,0.92);
+        color: #7c3aed;
+        border-color: rgba(255,255,255,0.45);
+    }
+
+    .hero-cta.primary:hover {
+        background: #fff;
+        color: #7c3aed;
+    }
+
     .btn-edit {
         background: white;
         color: #833AB4;
@@ -389,21 +444,29 @@
     {{-- Profile Header --}}
     <div class="profile-header fade-in-up">
         <div class="row align-items-center position-relative" style="z-index: 1;">
-            <div class="col-lg-8">
+            <div class="col-lg-7">
                 <div class="d-flex align-items-center gap-4 flex-column flex-lg-row text-center text-lg-start">
                     <img src="{{ $photoUrl }}" alt="{{ $fullName }}" class="avatar-pro"
                          onerror="this.src='{{ asset('assets/img/avatar.png') }}'">
-                    <div>
-                        <h1 class="text-white mb-2" style="font-size: 2rem; font-weight: 700;">
+                    <div class="flex-grow-1">
+                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start mb-2">
+                            <a class="badge-contact" href="{{ route('community-management.programme.index') }}">
+                                <i class="fas fa-bolt"></i>
+                                <span>Objectif : publier chaque semaine</span>
+                            </a>
+                        </div>
+
+                        <h1 class="text-white mb-2" style="font-size: 2.05rem; font-weight: 900; letter-spacing: -0.02em;">
                             {{ $fullName ?: 'Étudiant EVC' }}
                         </h1>
-                        <p class="text-white mb-3" style="opacity: 0.9; font-size: 1.125rem;">
-                            {{ $program ?: 'Design Graphique' }}
+                        <p class="text-white mb-3" style="opacity: 0.9; font-size: 1.05rem;">
+                            {{ $program ?: 'Community Management' }}
                             @if($level)
                                 <span class="mx-2">•</span>{{ $level }}
                             @endif
                         </p>
-                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start">
+
+                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start mb-3">
                             @if($email)
                             <a href="mailto:{{ $email }}" class="badge-contact">
                                 <i class="fas fa-envelope"></i>
@@ -417,14 +480,82 @@
                             </a>
                             @endif
                         </div>
+
+                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start">
+                            <a href="{{ route('community-management.tp.index') }}" class="hero-cta primary">
+                                <i class="fas fa-play"></i>
+                                Continuer maintenant
+                            </a>
+                            <a href="{{ route('community-management.projets.index') }}" class="hero-cta">
+                                <i class="fas fa-project-diagram"></i>
+                                Mes projets
+                            </a>
+                            <a href="{{ route('community-management.paiements.index') }}" class="hero-cta">
+                                <i class="fas fa-wallet"></i>
+                                Paiements
+                            </a>
+                            <a href="{{ route('community-management.cvtheque.mon-profil') }}" class="hero-cta">
+                                <i class="fas fa-briefcase"></i>
+                                CVthèque
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
-                <a href="{{ route('community-management.profil.editer') }}" class="btn btn-edit">
-                    <i class="fas fa-edit me-2"></i>
-                    Modifier mon profil
-                </a>
+
+            <div class="col-lg-5 mt-4 mt-lg-0">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="hero-subcard">
+                            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                                <div>
+                                    <div class="hero-kpi-label mb-1">Progression globale</div>
+                                    <div class="hero-kpi"><span id="cm_progression_globale">{{ (int)($stats['progression_globale'] ?? 0) }}</span>%</div>
+                                    <div class="text-white" style="opacity: 0.9; font-weight: 700;">
+                                        TP : <span id="cm_tp_realises">{{ $stats['tp_realises'] ?? 0 }}</span>/<span id="cm_tp_total">{{ $stats['tp_total'] ?? 0 }}</span>
+                                        <span class="mx-2">•</span>
+                                        Projets : <span id="cm_projets_realises">{{ $stats['projets_realises'] ?? 0 }}</span>/<span id="cm_projets_total">{{ $stats['projets_total'] ?? 0 }}</span>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="hero-kpi-label mb-1">Reste à payer</div>
+                                    <div class="hero-kpi" style="font-size: 1.6rem;">
+                                        <span id="cm_montant_restant">{{ number_format((float)($stats['montant_restant'] ?? 0), 0, ',', ' ') }}</span> FCFA
+                                    </div>
+                                    <div class="text-white" style="opacity: 0.9; font-weight: 700;">
+                                        @if(((float)($stats['montant_restant'] ?? 0)) > 0)
+                                            Finalisez pour sécuriser votre accès
+                                        @else
+                                            Paiement soldé
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3" style="background: rgba(255,255,255,0.12); border-radius: 999px; height: 10px; overflow: hidden;">
+                                <div id="cm_progression_globale_fill" style="height: 100%; width: {{ (int)($stats['progression_globale'] ?? 0) }}%; background: rgba(255,255,255,0.92);"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <a href="{{ route('community-management.todo.index') }}" class="hero-subcard" style="display:block; text-decoration:none;">
+                            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+                                <div>
+                                    <div class="hero-kpi-label mb-1">Priorité du jour</div>
+                                    <div class="text-white" style="font-weight: 900;">
+                                        Traiter un projet assigné
+                                    </div>
+                                    <div class="text-white" style="opacity: 0.9; font-weight: 700;">
+                                        Accélérez votre progression en validant vos livrables
+                                    </div>
+                                </div>
+                                <span class="hero-cta primary" style="margin:0;">
+                                    <i class="fas fa-arrow-right"></i>
+                                    Ouvrir
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -444,9 +575,9 @@
             <div class="stat-card formations h-100">
                 <i class="fas fa-graduation-cap stat-icon"></i>
                 <div class="card-body p-4">
-                    <div class="stat-number mb-2">{{ $stats['formations_disponibles'] ?? 0 }}</div>
-                    <div class="stat-label mb-3">Formations Disponibles</div>
-                    <a href="#" class="btn stat-btn w-100">
+                    <div class="stat-number mb-2" id="cm_formations_disponibles">{{ $stats['formations_disponibles'] ?? 0 }}</div>
+                    <div class="stat-label mb-3">Formations</div>
+                    <a href="{{ route('community-management.formations.index') }}" class="btn stat-btn w-100">
                         <i class="fas fa-arrow-right me-2"></i>
                         Explorer
                     </a>
@@ -463,7 +594,7 @@
                             <i class="fas fa-folder-open" style="font-size: 2.5rem; color: white;"></i>
                         </div>
                         <div>
-                            <div class="stat-number" style="font-size: 4rem; line-height: 1;">{{ $stats['projets_a_faire'] ?? 0 }}</div>
+                            <div class="stat-number" style="font-size: 4rem; line-height: 1;" id="cm_projets_a_faire">{{ $stats['projets_a_faire'] ?? 0 }}</div>
                             <div class="stat-label" style="font-size: 1.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">Projets À Faire</div>
                         </div>
                     </div>
@@ -480,14 +611,14 @@
                 <i class="fas fa-tasks stat-icon"></i>
                 <div class="card-body p-4">
                     <div class="stat-number mb-2">
-                        {{ $stats['tp_realises'] ?? 0 }}<span style="font-size: 1.5rem; opacity: 0.7;">/{{ $stats['tp_total'] ?? 0 }}</span>
+                        <span id="cm_tp_realises_card">{{ $stats['tp_realises'] ?? 0 }}</span><span style="font-size: 1.5rem; opacity: 0.7;">/<span id="cm_tp_total_card">{{ $stats['tp_total'] ?? 0 }}</span></span>
                     </div>
                     <div class="stat-label mb-2">Travaux Pratiques</div>
                     @if(($stats['tp_total'] ?? 0) > 0)
                     <div class="progress-bar-custom mb-3">
-                        <div class="progress-bar-fill" style="width: {{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}%;"></div>
+                        <div class="progress-bar-fill" id="cm_tp_progress_fill" style="width: {{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}%;"></div>
                     </div>
-                    <small class="text-white" style="opacity: 0.8;">{{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}% complétés</small>
+                    <small class="text-white" id="cm_tp_progress_text" style="opacity: 0.8;">{{ round(($stats['tp_realises'] / $stats['tp_total']) * 100) }}% complétés</small>
                     @endif
                 </div>
             </div>
@@ -498,14 +629,14 @@
                 <i class="fas fa-project-diagram stat-icon"></i>
                 <div class="card-body p-4">
                     <div class="stat-number mb-2">
-                        {{ $stats['projets_realises'] ?? 0 }}<span style="font-size: 1.5rem; opacity: 0.7;">/{{ $stats['projets_total'] ?? 0 }}</span>
+                        <span id="cm_projets_realises_card">{{ $stats['projets_realises'] ?? 0 }}</span><span style="font-size: 1.5rem; opacity: 0.7;">/<span id="cm_projets_total_card">{{ $stats['projets_total'] ?? 0 }}</span></span>
                     </div>
                     <div class="stat-label mb-2">Projets Réalisés</div>
                     @if(($stats['projets_total'] ?? 0) > 0)
                     <div class="progress-bar-custom mb-3">
-                        <div class="progress-bar-fill" style="width: {{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}%;"></div>
+                        <div class="progress-bar-fill" id="cm_projets_progress_fill" style="width: {{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}%;"></div>
                     </div>
-                    <small class="text-white" style="opacity: 0.8;">{{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}% réalisés</small>
+                    <small class="text-white" id="cm_projets_progress_text" style="opacity: 0.8;">{{ round(($stats['projets_realises'] / $stats['projets_total']) * 100) }}% réalisés</small>
                     @endif
                 </div>
             </div>
@@ -518,11 +649,11 @@
                     <div class="stat-label mb-3">Événements</div>
                     <div class="row g-0 text-center">
                         <div class="col-6">
-                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['evenements'] ?? 0 }}</div>
+                            <div class="stat-number" id="cm_evenements" style="font-size: 2rem;">{{ $stats['evenements'] ?? 0 }}</div>
                             <small style="opacity: 0.8;">Événements</small>
                         </div>
                         <div class="col-6" style="border-left: 1px solid rgba(255,255,255,0.3);">
-                            <div class="stat-number" style="font-size: 2rem;">{{ $stats['actualites'] ?? 0 }}</div>
+                            <div class="stat-number" id="cm_actualites" style="font-size: 2rem;">{{ $stats['actualites'] ?? 0 }}</div>
                             <small style="opacity: 0.8;">Actualités</small>
                         </div>
                     </div>
@@ -535,7 +666,7 @@
                 <i class="fas fa-wallet stat-icon"></i>
                 <div class="card-body p-4">
                     <div class="stat-number mb-2" style="font-size: 2.2rem;">
-                        {{ number_format((float)($stats['montant_restant'] ?? 0), 0, ',', ' ') }}
+                        <span id="cm_montant_restant_card">{{ number_format((float)($stats['montant_restant'] ?? 0), 0, ',', ' ') }}</span>
                     </div>
                     <div class="stat-label mb-3">Montant restant (FCFA)</div>
                     <a href="{{ route('community-management.paiements.index') }}" class="btn stat-btn w-100">
@@ -575,10 +706,7 @@
                         <div class="text-white" style="opacity: 0.8;">{{ $expirationDate->format('H:i') }}</div>
                     </div>
                     <div class="col-md-4">
-                        @php
-                            $totalDays = 120;
-                            $progress = ($daysRemaining / $totalDays) * 100;
-                        @endphp
+                        <?php $totalDays = 120; $progress = ($daysRemaining / $totalDays) * 100; ?>
                         <div class="text-white small mb-2" style="opacity: 0.8; text-transform: uppercase; font-weight: 600;">Progression</div>
                         <div class="progress-bar-custom">
                             <div class="progress-bar-fill" style="width: {{ $progress }}%;"></div>
@@ -845,4 +973,120 @@
     </div>
 
 </div>
+
+@endsection
+
+@section('scripts')
+<script>
+    (function() {
+        const statsUrl = @json(route('dashboard.community-management.stats'));
+
+        const el = {
+            progression: document.getElementById('cm_progression_globale'),
+            progressionFill: document.getElementById('cm_progression_globale_fill'),
+            tpRealises: document.getElementById('cm_tp_realises'),
+            tpTotal: document.getElementById('cm_tp_total'),
+            tpRealisesCard: document.getElementById('cm_tp_realises_card'),
+            tpTotalCard: document.getElementById('cm_tp_total_card'),
+            tpFill: document.getElementById('cm_tp_progress_fill'),
+            tpText: document.getElementById('cm_tp_progress_text'),
+            projetsRealises: document.getElementById('cm_projets_realises'),
+            projetsTotal: document.getElementById('cm_projets_total'),
+            projetsRealisesCard: document.getElementById('cm_projets_realises_card'),
+            projetsTotalCard: document.getElementById('cm_projets_total_card'),
+            projetsFill: document.getElementById('cm_projets_progress_fill'),
+            projetsText: document.getElementById('cm_projets_progress_text'),
+            projetsAFaire: document.getElementById('cm_projets_a_faire'),
+            evenements: document.getElementById('cm_evenements'),
+            actualites: document.getElementById('cm_actualites'),
+            montantRestantHero: document.getElementById('cm_montant_restant'),
+            montantRestantCard: document.getElementById('cm_montant_restant_card'),
+        };
+
+        function safeInt(v) {
+            const n = parseInt(v, 10);
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        function clampPercent(v) {
+            const n = Number(v);
+            if (!Number.isFinite(n)) return 0;
+            return Math.max(0, Math.min(100, n));
+        }
+
+        function setText(node, value) {
+            if (!node) return;
+            node.textContent = String(value);
+        }
+
+        function setWidth(node, percent) {
+            if (!node) return;
+            node.style.width = clampPercent(percent) + '%';
+        }
+
+        function formatFcfa(n) {
+            const num = Number(n);
+            if (!Number.isFinite(num)) return '0';
+            return Math.round(num).toLocaleString('fr-FR');
+        }
+
+        async function refreshStats() {
+            try {
+                const res = await fetch(statsUrl, {
+                    headers: { 'Accept': 'application/json' },
+                    credentials: 'same-origin'
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data || !data.stats) return;
+
+                const s = data.stats;
+                const tpRealises = safeInt(s.tp_realises);
+                const tpTotal = safeInt(s.tp_total);
+                const projetsRealises = safeInt(s.projets_realises);
+                const projetsTotal = safeInt(s.projets_total);
+
+                setText(el.progression, Math.round(clampPercent(s.progression_globale)));
+                setWidth(el.progressionFill, s.progression_globale);
+
+                setText(el.tpRealises, tpRealises);
+                setText(el.tpTotal, tpTotal);
+                setText(el.tpRealisesCard, tpRealises);
+                setText(el.tpTotalCard, tpTotal);
+
+                if (tpTotal > 0) {
+                    const pct = Math.round((tpRealises / tpTotal) * 100);
+                    setWidth(el.tpFill, pct);
+                    setText(el.tpText, pct + '% complétés');
+                }
+
+                setText(el.projetsRealises, projetsRealises);
+                setText(el.projetsTotal, projetsTotal);
+                setText(el.projetsRealisesCard, projetsRealises);
+                setText(el.projetsTotalCard, projetsTotal);
+
+                if (projetsTotal > 0) {
+                    const pct = Math.round((projetsRealises / projetsTotal) * 100);
+                    setWidth(el.projetsFill, pct);
+                    setText(el.projetsText, pct + '% réalisés');
+                }
+
+                setText(el.projetsAFaire, safeInt(s.projets_a_faire));
+                setText(el.evenements, safeInt(s.evenements));
+                setText(el.actualites, safeInt(s.actualites));
+
+                if (typeof s.montant_restant !== 'undefined') {
+                    const mr = Number(s.montant_restant);
+                    setText(el.montantRestantHero, formatFcfa(mr));
+                    setText(el.montantRestantCard, formatFcfa(mr));
+                }
+            } catch (e) {
+                // silent
+            }
+        }
+
+        refreshStats();
+        window.setInterval(refreshStats, 30000);
+    })();
+</script>
 @endsection

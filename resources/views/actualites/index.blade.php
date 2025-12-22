@@ -8,7 +8,7 @@
     <!-- Header Section avec Statistiques -->
     <div class="row mb-4">
         <div class="col-12">
-            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); border-radius: 20px;">
+            <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%); border-radius: 20px;">
                 <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-md-6 text-white mb-3 mb-md-0">
@@ -49,16 +49,16 @@
     <div class="row mb-4">
         @php
             $categoryInfo = [
-                'general' => ['label' => 'Général', 'icon' => 'newspaper', 'color' => '#6c757d', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
-                'formation' => ['label' => 'Formation', 'icon' => 'graduation-cap', 'color' => '#0d6efd', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
-                'evenement' => ['label' => 'Événement', 'icon' => 'calendar-alt', 'color' => '#0dcaf0', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
-                'partenariat' => ['label' => 'Partenariat', 'icon' => 'handshake', 'color' => '#198754', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
-                'succes' => ['label' => 'Succès', 'icon' => 'trophy', 'color' => '#ffc107', 'gradient' => 'linear-gradient(135deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)'],
+                'general' => ['label' => 'Général', 'icon' => 'newspaper', 'color' => '#6c757d', 'gradient' => 'linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%)'],
+                'formation' => ['label' => 'Formation', 'icon' => 'graduation-cap', 'color' => '#0d6efd', 'gradient' => 'linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%)'],
+                'evenement' => ['label' => 'Événement', 'icon' => 'calendar-alt', 'color' => '#0dcaf0', 'gradient' => 'linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%)'],
+                'partenariat' => ['label' => 'Partenariat', 'icon' => 'handshake', 'color' => '#198754', 'gradient' => 'linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%)'],
+                'succes' => ['label' => 'Succès', 'icon' => 'trophy', 'color' => '#ffc107', 'gradient' => 'linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%)'],
             ];
         @endphp
         @foreach($stats['categories'] as $cat => $count)
             @php
-                $info = $categoryInfo[$cat] ?? ['label' => ucfirst($cat), 'icon' => 'tag', 'color' => '#6c757d', 'gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'];
+                $info = $categoryInfo[$cat] ?? ['label' => ucfirst($cat), 'icon' => 'tag', 'color' => '#6c757d', 'gradient' => 'linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%)'];
             @endphp
             <div class="col-md-6 col-lg-4 col-xl mb-3">
                 <div class="card border-0 shadow-sm h-100 hover-lift" style="border-radius: 16px; transition: all 0.3s ease;">
@@ -74,7 +74,7 @@
                             </div>
                         </div>
                         <div class="progress" style="height: 6px; border-radius: 10px;">
-                            <div class="progress-bar" role="progressbar" 
+                            <div class="progress-bar" role="progressbar"
                                  style="width: {{ $stats['total'] > 0 ? ($count / $stats['total'] * 100) : 0 }}%; background: {{ $info['gradient'] }};"
                                  aria-valuenow="{{ $count }}" aria-valuemin="0" aria-valuemax="{{ $stats['total'] }}"></div>
                         </div>
@@ -97,9 +97,9 @@
                 <div class="row g-0">
                     <div class="col-md-5">
                         <div class="d-flex align-items-center justify-content-center" style="height: 100%; min-height: 400px; background-color: #f8f9fa; padding: 1rem;">
-                            <img src="{{ asset('storage/' . $featured->cover_image) }}" 
-                                 alt="{{ $featured->title }}" 
-                                 class="img-fluid" 
+                            <img src="{{ asset('storage/' . $featured->cover_image) }}"
+                                 alt="{{ $featured->title }}"
+                                 class="img-fluid"
                                  style="max-height: 400px; max-width: 100%; width: auto; object-fit: contain;">
                         </div>
                     </div>
@@ -134,7 +134,7 @@
                                     <small>{{ number_format($featured->views_count) }} vues</small>
                                 </div>
                             </div>
-                            <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/' . $featured->id) }}" 
+                            <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/' . $featured->id) }}"
                                class="btn btn-primary btn-lg px-4" style="border-radius: 10px;">
                                 <i class="fas fa-arrow-right me-2"></i>Lire l'article
                             </a>
@@ -177,9 +177,9 @@
             <div class="card h-100 border-0 shadow-sm hover-card" style="border-radius: 16px; transition: all 0.3s ease;">
                 <!-- Image -->
                 <div class="position-relative d-flex align-items-center justify-content-center" style="border-radius: 16px 16px 0 0; min-height: 250px; background-color: #f8f9fa; padding: 1rem;">
-                    <img src="{{ asset('storage/' . $actualite->cover_image) }}" 
-                         alt="{{ $actualite->title }}" 
-                         class="img-fluid" 
+                    <img src="{{ asset('storage/' . $actualite->cover_image) }}"
+                         alt="{{ $actualite->title }}"
+                         class="img-fluid"
                          style="max-height: 250px; width: auto; max-width: 100%; object-fit: contain; transition: transform 0.3s ease;">
                     @php
                         $categoryLabels = [
@@ -217,7 +217,7 @@
                                 {{ number_format($actualite->views_count) }}
                             </small>
                         </div>
-                        <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/' . $actualite->id) }}" 
+                        <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/' . $actualite->id) }}"
                            class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">
                             <i class="fas fa-arrow-right"></i>
                         </a>
@@ -277,12 +277,12 @@ document.addEventListener('DOMContentLoaded', function() {
     filterButtons.forEach(button => {
         button.addEventListener('click', function() {
             const filter = this.getAttribute('data-filter');
-            
+
             // Update active button
             filterButtons.forEach(btn => {
                 btn.classList.remove('active');
                 btn.classList.remove('btn-primary');
-                const color = btn.getAttribute('data-filter') === 'all' ? 'primary' : 
+                const color = btn.getAttribute('data-filter') === 'all' ? 'primary' :
                              (btn.classList.contains('btn-outline-secondary') ? 'secondary' :
                               btn.classList.contains('btn-outline-primary') ? 'primary' :
                               btn.classList.contains('btn-outline-info') ? 'info' :
@@ -291,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.className = `btn btn-sm btn-outline-${color}`;
                 btn.style.borderRadius = '10px';
             });
-            
+
             if (filter === 'all') {
                 this.classList.remove('btn-outline-primary');
                 this.classList.add('btn-primary', 'active');

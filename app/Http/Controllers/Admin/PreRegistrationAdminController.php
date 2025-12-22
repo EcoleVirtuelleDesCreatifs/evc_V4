@@ -52,8 +52,15 @@ class PreRegistrationAdminController extends Controller
             $query->where('status', $status);
         }
 
+        $stats = [
+            'total' => (clone $query)->count(),
+            'pending' => (clone $query)->whereIn('status', ['pending', 'en cours'])->count(),
+            'accepted' => (clone $query)->whereIn('status', ['accepted', 'Validé', 'Actif'])->count(),
+            'rejected' => (clone $query)->where('status', 'rejected')->count(),
+        ];
+
         $pres = $query->paginate(20)->withQueryString();
-        return view('admin.preregistrations.index', compact('pres'));
+        return view('admin.preregistrations.index', compact('pres', 'stats'));
     }
 
     public function show($id)

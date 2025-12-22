@@ -101,6 +101,9 @@ class CheckAccountExpiration
                 '*/formations/*/enroll',
                 '*/formations/*/subscribe',
                 '*/formations/*/join',
+
+                // Communauté
+                '*/communaute/*',
             ];
 
             $currentPath = $request->path();
@@ -111,9 +114,20 @@ class CheckAccountExpiration
                 $regex = str_replace('/', '\/', $regex);
 
                 if (preg_match('/^' . $regex . '$/i', $currentPath)) {
+                    $dashboardRoute = 'dashboard.design-graphique';
+                    if (strpos($currentPath, 'evc/compte/community-management/') !== false || strpos($currentPath, 'evc/compte/community-manager/') !== false) {
+                        $dashboardRoute = 'dashboard.community-management';
+                    } elseif (strpos($currentPath, 'evc/compte/design-graphique-cm/') !== false) {
+                        $dashboardRoute = 'dashboard.design-graphique-cm';
+                    } elseif (strpos($currentPath, 'evc/compte/intelligence-artificielle/') !== false) {
+                        $dashboardRoute = 'dashboard.intelligence-artificielle';
+                    } elseif (strpos($currentPath, 'evc/compte/gestion-informatique/') !== false) {
+                        $dashboardRoute = 'dashboard.gestion-informatique';
+                    }
+
                     return redirect()
-                        ->back()
-                        ->with('error', '⚠️ Votre compte a expiré. Vous ne pouvez plus soumettre de nouveaux contenus. Veuillez contacter l\'administration pour renouveler votre accès.');
+                        ->route($dashboardRoute)
+                        ->with('error', '⚠️ Votre compte a expiré. Cette section n\'est plus accessible. Veuillez contacter l\'administration pour renouveler votre accès.');
                 }
             }
 

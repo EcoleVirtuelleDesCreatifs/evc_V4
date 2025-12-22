@@ -326,6 +326,9 @@ body {
                                         <option value="design_graphique" {{ old('formation_souhaitee', $student['formation_souhaitee'] ?? '') == 'design_graphique' ? 'selected' : '' }}>
                                             Design Graphique
                                         </option>
+                                        <option value="design_graphique_community_management" {{ old('formation_souhaitee', $student['formation_souhaitee'] ?? '') == 'design_graphique_community_management' ? 'selected' : '' }}>
+                                            Design Graphique & Community Management
+                                        </option>
                                         <option value="community_management" {{ old('formation_souhaitee', $student['formation_souhaitee'] ?? '') == 'community_management' ? 'selected' : '' }}>
                                             Community Management
                                         </option>

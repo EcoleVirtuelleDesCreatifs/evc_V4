@@ -2665,7 +2665,7 @@
                 visibility: visible !important;
                 transform: none !important;
             }
-            
+
             .nav-item.dropdown:not(.show) .dropdown-menu {
                 display: none !important;
             }
@@ -3070,6 +3070,10 @@
                         <i class="fas fa-share"></i>À envoyer
                         <i class="fas fa-external-link-alt item-icon"></i>
                     </a>
+                    <a class="dropdown-item" href="{{ route('admin.studio-creative') }}">
+                        <i class="fas fa-external-link-alt"></i>Studio Creative
+                        <i class="fas fa-external-link-alt item-icon"></i>
+                    </a>
                     <a class="dropdown-item" href="{{ route('admin.projets.all') }}">
                         <i class="fas fa-folder-open"></i>Tous
                         <i class="fas fa-external-link-alt item-icon"></i>
@@ -3338,23 +3342,23 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Admin Menu JS - Module dédié -->
     <script src="{{ asset('js/admin-menu.js') }}"></script>
-    
+
     <!-- Admin Statistics JS - Module dédié pour les statistiques dynamiques -->
     <script src="{{ asset('js/admin-statistics.js') }}"></script>
-    
+
     <!-- Three.js pour l'interface 3D révolutionnaire -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    
+
     <!-- Admin 3D Visualizer - Interface révolutionnaire -->
     <script src="{{ asset('js/admin-3d-visualizer.js') }}"></script>
-    
+
     <!-- Admin 3D Initializer - Script d'initialisation révolutionnaire -->
     <script src="{{ asset('js/admin-3d-init.js') }}"></script>
-    
+
     <!-- Holographic Stats - Interface statistiques holographiques révolutionnaire -->
     <script src="{{ asset('js/holographic-stats.js') }}"></script>
-    
+
     <!-- Admin Statistics Demo - Script de test et démonstration (développement uniquement) -->
     @if(config('app.debug'))
     <script src="{{ asset('js/admin-statistics-demo.js') }}"></script>
@@ -3781,43 +3785,43 @@
 // Initialize on page load - VERSION CORRIGÉE
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard initialization starting...');
-    
+
     // 1. Initialiser la navigation sidebar EN PREMIER
     initializeSidebarNavigation();
-    
+
     // 2. Initialiser les graphiques
     setTimeout(() => {
         initializeCharts();
     }, 500);
-    
+
     // 3. Initialiser les fonctionnalités dynamiques
     setTimeout(() => {
         initializeDynamicFeatures();
     }, 1000);
-    
+
     // 4. Initialiser les animations des cartes
     setTimeout(() => {
         initializeCardAnimations();
     }, 1500);
-    
+
     // 5. Message de bienvenue
     setTimeout(() => {
         if (typeof showNotification === 'function') {
             showNotification('Dashboard admin chargé avec succès !', 'success');
         }
     }, 2000);
-    
+
     console.log('Dashboard initialization complete');
 });
 
 function initializeCardAnimations() {
     const cards = document.querySelectorAll('.analytics-card, .stats-card, .metric-card');
     console.log('Initializing animations for', cards.length, 'cards');
-    
+
     cards.forEach((card, index) => {
         card.style.animationDelay = (index * 0.1) + 's';
         card.classList.add('fade-in-up');
-        
+
         // Ajouter les styles d'animation si pas déjà présents
         if (!document.querySelector('#card-animations')) {
             const style = document.createElement('style');
@@ -3828,11 +3832,11 @@ function initializeCardAnimations() {
                     opacity: 0;
                     transform: translateY(30px);
                 }
-            
+
             cards.forEach((card, index) => {
                 card.style.animationDelay = (index * 0.1) + 's';
                 card.classList.add('fade-in-up');
-                
+
                 // Ajouter les styles d'animation si pas déjà présents
                 if (!document.querySelector('#card-animations')) {
                     const style = document.createElement('style');
@@ -3843,7 +3847,7 @@ function initializeCardAnimations() {
                             opacity: 0;
                             transform: translateY(30px);
                         }
-                        
+
                         @keyframes fadeInUp {
                             to {
                                 opacity: 1;
@@ -3892,10 +3896,10 @@ function initializeCardAnimations() {
             // Configurer les événements de toggle
             document.querySelectorAll('.dropdown-toggle').forEach((toggle, index) => {
                 console.log(`Setting up toggle ${index}`);
-                
+
                 // Supprimer les anciens événements
                 toggle.removeEventListener('click', toggleDropdown);
-                
+
                 // Ajouter le nouvel événement
                 toggle.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -3921,7 +3925,7 @@ function initializeCardAnimations() {
         // Fonction pour corriger la structure des statistiques - VERSION AMÉLIORÉE
         function fixStatisticsStructure() {
             console.log('🔧 Correction avancée de la structure des statistiques...');
-            
+
             // Corriger les conteneurs de cartes avec flexbox amélioré
             const cardContainers = document.querySelectorAll('.row .col-xl-3, .row .col-lg-6, .row .col-md-6, .row .col-sm-6, .row .col-12');
             cardContainers.forEach((container, index) => {
@@ -3929,7 +3933,7 @@ function initializeCardAnimations() {
                 container.style.flexDirection = 'column';
                 container.style.marginBottom = '1.5rem';
                 container.style.minHeight = '140px';
-                
+
                 // Animation d'apparition échelonnée
                 container.style.animation = `fadeInUp 0.6s ease-out ${index * 0.1}s both`;
             });
@@ -3950,18 +3954,18 @@ function initializeCardAnimations() {
                 card.style.transition = 'all 0.3s ease';
                 card.style.position = 'relative';
                 card.style.overflow = 'hidden';
-                
+
                 // Effet hover
                 card.addEventListener('mouseenter', function() {
                     this.style.transform = 'translateY(-5px) scale(1.02)';
                     this.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.2)';
                 });
-                
+
                 card.addEventListener('mouseleave', function() {
                     this.style.transform = 'translateY(0) scale(1)';
                     this.style.boxShadow = '0 5px 15px rgba(0, 0, 0, 0.1)';
                 });
-                
+
                 // Corriger le card-body
                 const cardBody = card.querySelector('.card-body');
                 if (cardBody) {
@@ -4031,7 +4035,7 @@ function initializeCardAnimations() {
                             transform: translateY(0);
                         }
                     }
-                    
+
                     @keyframes pulse {
                         0%, 100% { transform: scale(1); }
                         50% { transform: scale(1.05); }
@@ -4127,7 +4131,7 @@ function initializeCardAnimations() {
         // ========================================
         // GESTION DES ÉTATS ACTIFS DU MENU
         // ========================================
-        
+
         // Initialize active menu on page load
         document.addEventListener('DOMContentLoaded', function() {
             initializeMenuStates();
@@ -4608,7 +4612,7 @@ function initializeCardAnimations() {
         function showNotification(message, type = 'info', duration = 4000) {
             const notification = document.createElement('div');
             notification.className = `notification-toast notification-${type}`;
-            
+
             const icons = {
                 success: 'fas fa-check-circle',
                 error: 'fas fa-exclamation-circle',
@@ -4684,7 +4688,7 @@ function initializeCardAnimations() {
 
         function refreshDashboardData() {
             showLoadingAnimation();
-            
+
             // Simuler la récupération de nouvelles données avec animation
             setTimeout(() => {
                 updateStatisticsCards();
@@ -4734,7 +4738,7 @@ function initializeCardAnimations() {
                 `;
                 document.body.appendChild(loadingOverlay);
             }
-            
+
             loadingOverlay.style.opacity = '1';
             loadingOverlay.style.pointerEvents = 'all';
         }
@@ -4753,7 +4757,7 @@ function initializeCardAnimations() {
                 setTimeout(() => {
                     card.style.transform = 'scale(1.02)';
                     card.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
-                    
+
                     // Simuler la mise à jour des valeurs
                     const valueElement = card.querySelector('.stats-value');
                     if (valueElement) {
@@ -4761,7 +4765,7 @@ function initializeCardAnimations() {
                         const newValue = currentValue + Math.floor(Math.random() * 5);
                         animateNumber(valueElement, currentValue, newValue);
                     }
-                    
+
                     setTimeout(() => {
                         card.style.transform = '';
                         card.style.boxShadow = '';
@@ -4773,19 +4777,19 @@ function initializeCardAnimations() {
         // Animation des nombres
         function animateNumber(element, start, end, duration = 1000) {
             const startTime = performance.now();
-            
+
             function update(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
-                
+
                 const current = Math.floor(start + (end - start) * progress);
                 element.textContent = current.toLocaleString();
-                
+
                 if (progress < 1) {
                     requestAnimationFrame(update);
                 }
             }
-            
+
             requestAnimationFrame(update);
         }
 
@@ -4797,7 +4801,7 @@ function initializeCardAnimations() {
                 window.enrollmentChart.data.datasets[0].data = newData;
                 window.enrollmentChart.update('active');
             }
-            
+
             // Mise à jour du graphique de répartition
             if (window.formationChart) {
                 const newData = [
@@ -4824,12 +4828,12 @@ function initializeCardAnimations() {
                 { icon: 'fas fa-file-alt', text: 'Document soumis: CV - ' + generateRandomName(), time: 'Il y a ' + Math.floor(Math.random() * 45 + 15) + ' min', type: 'info' },
                 { icon: 'fas fa-graduation-cap', text: 'Formation terminée: ' + generateRandomName(), time: 'Il y a ' + Math.floor(Math.random() * 60 + 30) + ' min', type: 'warning' }
             ];
-            
+
             const timeline = document.querySelector('.activity-timeline');
             if (timeline) {
                 timeline.style.opacity = '0.5';
                 timeline.style.transform = 'scale(0.98)';
-                
+
                 setTimeout(() => {
                     timeline.innerHTML = '';
                     activities.forEach((activity, index) => {
@@ -4847,7 +4851,7 @@ function initializeCardAnimations() {
                         `;
                         timeline.appendChild(item);
                     });
-                    
+
                     timeline.style.opacity = '1';
                     timeline.style.transform = 'scale(1)';
                 }, 500);
@@ -4889,17 +4893,17 @@ function initializeCardAnimations() {
                 exportBtn.disabled = true;
                 exportBtn.style.transform = 'scale(0.95)';
             }
-            
+
             setTimeout(() => {
                 const csvData = generateStudentCSV();
                 downloadCSV(csvData, 'etudiants_actifs_' + new Date().toISOString().split('T')[0] + '.csv');
-                
+
                 if (exportBtn) {
                     exportBtn.innerHTML = '<i class="fas fa-download me-2"></i>Exporter';
                     exportBtn.disabled = false;
                     exportBtn.style.transform = '';
                 }
-                
+
                 showNotification('Export terminé avec succès', 'success');
             }, 3000);
         }
@@ -4913,19 +4917,19 @@ function initializeCardAnimations() {
                 ['Pierre Moreau', 'Gestion Informatique', '88%', '13', 'Actif', '2024-02-05'],
                 ['Emma Bernard', 'Design Graphique', '95%', '18', 'Actif', '2024-02-10']
             ];
-            
+
             let csv = headers.join(',') + '\n';
             data.forEach(row => {
                 csv += row.join(',') + '\n';
             });
-            
+
             return csv;
         }
 
         function downloadCSV(csvData, filename) {
             const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
-            
+
             if (link.download !== undefined) {
                 const url = URL.createObjectURL(blob);
                 link.setAttribute('href', url);
@@ -4942,25 +4946,25 @@ function initializeCardAnimations() {
         function refreshActivity() {
             const refreshBtn = document.querySelector('.refresh-activity-btn');
             const activityTimeline = document.querySelector('.activity-timeline');
-            
+
             if (refreshBtn) {
                 refreshBtn.innerHTML = '<i class="fas fa-sync fa-spin me-2"></i>Actualisation...';
                 refreshBtn.disabled = true;
             }
-            
+
             if (activityTimeline) {
                 activityTimeline.style.opacity = '0.5';
                 activityTimeline.style.transform = 'scale(0.98)';
             }
-            
+
             setTimeout(() => {
                 updateActivityTimeline();
-                
+
                 if (refreshBtn) {
                     refreshBtn.innerHTML = '<i class="fas fa-sync me-2"></i>Actualiser';
                     refreshBtn.disabled = false;
                 }
-                
+
                 showNotification('Activité mise à jour', 'success');
             }, 2000);
         }
@@ -4974,9 +4978,9 @@ function initializeCardAnimations() {
                     btn.classList.add('active');
                 }
             });
-            
+
             showLoadingAnimation();
-            
+
             setTimeout(() => {
                 updateCharts();
                 updateStatisticsCards();
@@ -4989,7 +4993,7 @@ function initializeCardAnimations() {
         function initializeDynamicFeatures() {
             initializeNotificationSystem();
             initializeAutoRefresh();
-            
+
             // Ajouter les styles CSS pour les animations
             const style = document.createElement('style');
             style.textContent = `
@@ -4997,21 +5001,21 @@ function initializeCardAnimations() {
                     from { transform: translateX(100%); opacity: 0; }
                     to { transform: translateX(0); opacity: 1; }
                 }
-                
+
                 @keyframes slideOutRight {
                     from { transform: translateX(0); opacity: 1; }
                     to { transform: translateX(100%); opacity: 0; }
                 }
-                
+
                 @keyframes pulse {
                     0%, 100% { transform: scale(1); }
                     50% { transform: scale(1.05); }
                 }
-                
+
                 .loading-spinner {
                     text-align: center;
                 }
-                
+
                 .spinner-ring {
                     width: 50px;
                     height: 50px;
@@ -5021,30 +5025,30 @@ function initializeCardAnimations() {
                     animation: spin 1s linear infinite;
                     margin: 0 auto 20px;
                 }
-                
+
                 @keyframes spin {
                     0% { transform: rotate(0deg); }
                     100% { transform: rotate(360deg); }
                 }
-                
+
                 .loading-text {
                     color: #666;
                     font-weight: 500;
                 }
-                
+
                 .timeline-item {
                     animation: fadeInUp 0.5s ease-out forwards;
                     opacity: 0;
                     transform: translateY(20px);
                 }
-                
+
                 @keyframes fadeInUp {
                     to {
                         opacity: 1;
                         transform: translateY(0);
                     }
                 }
-                
+
                 .notification-close {
                     background: none;
                     border: none;
@@ -5052,19 +5056,19 @@ function initializeCardAnimations() {
                     opacity: 0.7;
                     transition: opacity 0.2s;
                 }
-                
+
                 .notification-close:hover {
                     opacity: 1;
                 }
-                
+
                 .stats-card {
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
-                
+
                 .period-btn {
                     transition: all 0.2s ease;
                 }
-                
+
                 .period-btn.active {
                     background: var(--primary-color) !important;
                     color: white !important;
@@ -5072,7 +5076,7 @@ function initializeCardAnimations() {
                 }
             `;
             document.head.appendChild(style);
-            
+
             // Ajouter un indicateur de dernière mise à jour
             const refreshIndicator = document.createElement('div');
             refreshIndicator.className = 'last-refresh-time';
@@ -5162,21 +5166,21 @@ function initializeCardAnimations() {
         // ✅ MENU MANAGEMENT - Utilisation du module AdminMenuManager
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Initialisation du système de menus modulaire...');
-            
+
             // Le gestionnaire de menus est automatiquement initialisé par admin-menu.js
             // Écouter les événements personnalisés du gestionnaire
             document.addEventListener('dropdown:opened', function(e) {
                 console.log('✅ Menu ouvert:', e.detail.dropdown.id);
             });
-            
+
             document.addEventListener('dropdown:closed', function(e) {
                 console.log('✅ Menu fermé:', e.detail.dropdown.id);
             });
-            
+
             document.addEventListener('dropdown:item-clicked', function(e) {
                 console.log('✅ Item cliqué:', e.detail.href);
             });
-            
+
             console.log('✅ Système de menus modulaire initialisé');
         });
     </script>
