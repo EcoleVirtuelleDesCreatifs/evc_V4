@@ -7,6 +7,30 @@ use setasign\Fpdf\Fpdf;
 
 class CertificateGenerator
 {
+    private function resolveTemplatePath(string $relativePath): string
+    {
+        $relativePath = ltrim($relativePath, '/');
+
+        $candidates = [
+            public_path($relativePath),
+            public_path('assets/' . ltrim($relativePath, '/')),
+            base_path($relativePath),
+            base_path('public/' . $relativePath),
+            base_path('public/assets/' . ltrim($relativePath, '/')),
+            dirname(base_path()) . '/' . $relativePath,
+            dirname(base_path()) . '/public/' . $relativePath,
+            dirname(base_path()) . '/assets/' . ltrim($relativePath, '/'),
+        ];
+
+        foreach ($candidates as $path) {
+            if (is_string($path) && $path !== '' && file_exists($path)) {
+                return $path;
+            }
+        }
+
+        throw new \Exception('Template de certificat introuvable : ' . $candidates[0]);
+    }
+
     /**
      * Générer un certificat à partir d'un PDF template
      *
@@ -102,11 +126,7 @@ class CertificateGenerator
      */
     public function generateDesignGraphique(array $data): string
     {
-        $templatePath = public_path('assets/certificats/design_graphic/certificat_design_graphic.pdf');
-
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Template de certificat introuvable : ' . $templatePath);
-        }
+        $templatePath = $this->resolveTemplatePath('assets/certificats/design_graphic/certificat_design_graphic.pdf');
 
         return $this->generate($templatePath, $data);
     }
@@ -119,11 +139,7 @@ class CertificateGenerator
      */
     public function generateCommunityManagement(array $data): string
     {
-        $templatePath = public_path('assets/certificats/cm_smm/certificat_cm_smm.pdf');
-
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Template de certificat introuvable : ' . $templatePath);
-        }
+        $templatePath = $this->resolveTemplatePath('assets/certificats/cm_smm/certificat_cm_smm.pdf');
 
         return $this->generate($templatePath, $data);
     }
@@ -136,11 +152,7 @@ class CertificateGenerator
      */
     public function generateGestionInformatique(array $data): string
     {
-        $templatePath = public_path('assets/certificats/gestion_informatique/certificat_gestion_informatique.pdf');
-
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Template de certificat introuvable : ' . $templatePath);
-        }
+        $templatePath = $this->resolveTemplatePath('assets/certificats/gestion_informatique/certificat_gestion_informatique.pdf');
 
         return $this->generate($templatePath, $data);
     }
@@ -153,11 +165,7 @@ class CertificateGenerator
      */
     public function generateIntelligenceArtificielle(array $data): string
     {
-        $templatePath = public_path('assets/certificats/intelligence_artificielle/certificat_intelligence_artificielle.pdf');
-
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Template de certificat introuvable : ' . $templatePath);
-        }
+        $templatePath = $this->resolveTemplatePath('assets/certificats/intelligence_artificielle/certificat_intelligence_artificielle.pdf');
 
         return $this->generate($templatePath, $data);
     }

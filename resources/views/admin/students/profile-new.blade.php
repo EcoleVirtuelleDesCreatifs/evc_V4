@@ -1229,7 +1229,19 @@
                                     @endphp
 
                                     @if($firstImage)
-                                        <img src="{{ asset($firstImage->file_path) }}" alt="" class="project-image">
+                                        @php
+                                            $imgPath = $firstImage->file_path ?? '';
+                                            // Files physically stored in storage/app/public/... must be served via public/storage
+                                            // so a stored path like "uploads/tp/foo.jpg" should be rendered as "storage/uploads/tp/foo.jpg"
+                                            if (\Illuminate\Support\Str::startsWith($imgPath, 'uploads/')) {
+                                                $imgUrl = asset('storage/' . $imgPath);
+                                            } elseif (\Illuminate\Support\Str::startsWith($imgPath, 'storage/')) {
+                                                $imgUrl = asset($imgPath);
+                                            } else {
+                                                $imgUrl = asset($imgPath);
+                                            }
+                                        @endphp
+                                        <img src="{{ $imgUrl }}" alt="" class="project-image">
                                     @else
                                         <div class="project-placeholder">
                                             <i class="fas fa-palette fa-3x opacity-50"></i>

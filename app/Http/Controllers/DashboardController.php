@@ -3330,13 +3330,16 @@ class DashboardController extends Controller
             // Construire le bon chemin pour le fichier
             $filePath = '#';
             if ($pdfFile) {
-                $path = $pdfFile->file_path;
+                $path = ltrim((string) $pdfFile->file_path, '/');
                 // Si le chemin commence par 'storage/', utiliser asset directement
                 if (str_starts_with($path, 'storage/')) {
                     $filePath = asset($path);
                 }
                 // Sinon ajouter 'storage/' au début
                 else {
+                    if (str_starts_with($path, 'storage/app/public/')) {
+                        $path = substr($path, strlen('storage/app/public/'));
+                    }
                     $filePath = asset('storage/' . ltrim($path, '/'));
                 }
             }

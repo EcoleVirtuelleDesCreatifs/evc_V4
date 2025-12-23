@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Evenement extends Model
 {
@@ -172,7 +173,7 @@ class Evenement extends Model
                 $coverImage = Str::after($coverImage, 'storage/');
             }
 
-            return asset('storage/' . $coverImage);
+            return Storage::disk('public')->url($coverImage);
         }
         return asset('images/default-event.jpg');
     }

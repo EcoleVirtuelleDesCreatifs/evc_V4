@@ -11,7 +11,7 @@ use Exception;
 
 /**
  * Contrôleur pour la gestion des projets de design graphique
- * 
+ *
  * Ce contrôleur utilise le service DesignProjectService pour toute la logique métier
  * et se concentre uniquement sur la gestion des requêtes HTTP et des réponses.
  */
@@ -29,7 +29,7 @@ class DesignProjectController extends Controller
 
     /**
      * Affiche la liste des projets de design graphique
-     * 
+     *
      * @param Request $request
      * @return View|RedirectResponse
      */
@@ -42,7 +42,7 @@ class DesignProjectController extends Controller
         }
 
         $userId = (int) session('user_id');
-        
+
         // Récupérer les filtres de la requête
         $filters = [
             'status' => $request->get('status'),
@@ -66,7 +66,7 @@ class DesignProjectController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Erreur récupération projets: ' . $e->getMessage());
-            
+
             return view('projets.index', [
                 'projects' => [],
                 'stats' => [],
@@ -79,7 +79,7 @@ class DesignProjectController extends Controller
 
     /**
      * Traite la création d'un nouveau projet
-     * 
+     *
      * @param Request $request
      * @return RedirectResponse
      */
@@ -114,7 +114,7 @@ class DesignProjectController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Erreur création projet: ' . $e->getMessage());
-            
+
             return redirect()->back()
                 ->with('error', 'Une erreur est survenue lors de la création du projet. Veuillez réessayer.')
                 ->withInput();
@@ -123,7 +123,7 @@ class DesignProjectController extends Controller
 
     /**
      * Affiche les détails d'un projet
-     * 
+     *
      * @param string $id
      * @return View|RedirectResponse
      */
@@ -137,9 +137,7 @@ class DesignProjectController extends Controller
         $userFormation = session('user_formation', 'design-graphique');
 
         try {
-            // Récupérer tous les projets de l'utilisateur pour trouver le projet spécifique
-            $projects = $this->designProjectService->getUserProjects($userId);
-            $project = collect($projects)->firstWhere('id', (int) $id);
+            $project = $this->designProjectService->getUserProjectById($userId, (int) $id);
 
             if (!$project) {
                 return redirect()->route($userFormation . '.projets.index')
@@ -149,8 +147,14 @@ class DesignProjectController extends Controller
             return view('projets.show', compact('project'));
 
         } catch (\Exception $e) {
-            Log::error('Erreur affichage projet: ' . $e->getMessage());
-            
+            Log::error('Erreur affichage projet', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => $userId,
+                'project_id' => $id,
+                'route' => request()->path(),
+            ]);
+
             return redirect()->route($userFormation . '.projets.index')
                 ->with('error', 'Erreur lors du chargement du projet.');
         }
@@ -158,7 +162,7 @@ class DesignProjectController extends Controller
 
     /**
      * Affiche le formulaire d'édition d'un projet
-     * 
+     *
      * @param string $id
      * @return View|RedirectResponse
      */
@@ -174,7 +178,7 @@ class DesignProjectController extends Controller
         try {
             // Récupérer tous les projets de l'utilisateur
             $projects = $this->designProjectService->getUserProjects($userId);
-            
+
             // Trouver le projet spécifique
             $project = collect($projects)->firstWhere('id', (int) $id);
 
@@ -196,7 +200,7 @@ class DesignProjectController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Erreur chargement formulaire édition: ' . $e->getMessage());
-            
+
             return redirect()->route($userFormation . '.projets.index')
                 ->with('error', 'Erreur lors du chargement du formulaire d\'édition.');
         }
@@ -204,7 +208,7 @@ class DesignProjectController extends Controller
 
     /**
      * Met à jour un projet
-     * 
+     *
      * @param Request $request
      * @param string $id
      * @return RedirectResponse
@@ -222,15 +226,15 @@ class DesignProjectController extends Controller
             // Vérifier d'abord si le projet est validé (non modifiable)
             $projects = $this->designProjectService->getUserProjects($userId);
             $project = collect($projects)->firstWhere('id', (int) $id);
-            
+
             if ($project && $project['status'] === 'validated') {
                 return redirect()->route($userFormation . '.projets.show', $id)
                     ->with('error', 'Ce projet est validé et ne peut plus être modifié.');
             }
-            
+
             // Utiliser le service pour mettre à jour le projet
             $result = $this->designProjectService->updateProject($request, (int) $id, $userId);
-            
+
             if ($result['success']) {
                 return redirect()->route($userFormation . '.projets.show', $id)
                     ->with('success', $result['message']);
@@ -242,7 +246,7 @@ class DesignProjectController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Erreur mise à jour projet: ' . $e->getMessage());
-            
+
             return redirect()->back()
                 ->with('error', 'Erreur lors de la mise à jour du projet.')
                 ->withInput();
@@ -251,7 +255,7 @@ class DesignProjectController extends Controller
 
     /**
      * Supprime un fichier d'un projet
-     * 
+     *
      * @param string $projectId
      * @param string $fileId
      * @return JsonResponse
@@ -266,8 +270,8 @@ class DesignProjectController extends Controller
 
         try {
             $result = $this->designProjectService->removeProjectFile(
-                (int) $fileId, 
-                (int) $projectId, 
+                (int) $fileId,
+                (int) $projectId,
                 $userId
             );
 
@@ -285,7 +289,7 @@ class DesignProjectController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Erreur suppression fichier: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'error' => 'Erreur lors de la suppression du fichier.'
@@ -295,7 +299,7 @@ class DesignProjectController extends Controller
 
     /**
      * Met à jour le statut d'un projet
-     * 
+     *
      * @param Request $request
      * @param string $id
      * @return JsonResponse
@@ -326,7 +330,7 @@ class DesignProjectController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Erreur mise à jour statut: ' . $e->getMessage());
-            
+
             return response()->json([
                 'success' => false,
                 'error' => 'Erreur lors de la mise à jour du statut.'
@@ -336,7 +340,7 @@ class DesignProjectController extends Controller
 
     /**
      * Supprime un projet
-     * 
+     *
      * @param string $id
      * @return RedirectResponse
      */
@@ -353,12 +357,12 @@ class DesignProjectController extends Controller
             // Vérifier d'abord si le projet est validé (non supprimable)
             $projects = $this->designProjectService->getUserProjects($userId);
             $project = collect($projects)->firstWhere('id', (int) $id);
-            
+
             if ($project && $project['status'] === 'validated') {
                 return redirect()->route($userFormation . '.projets.index')
                     ->with('error', 'Ce projet est validé et ne peut pas être supprimé.');
             }
-            
+
             $success = $this->designProjectService->deleteProject((int) $id, $userId);
 
             if ($success) {
@@ -371,7 +375,7 @@ class DesignProjectController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Erreur suppression projet: ' . $e->getMessage());
-            
+
             return redirect()->back()
                 ->with('error', 'Erreur lors de la suppression du projet.');
         }
@@ -379,7 +383,7 @@ class DesignProjectController extends Controller
 
     /**
      * Retourne les statistiques au format JSON (pour AJAX)
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getStats()
@@ -402,7 +406,7 @@ class DesignProjectController extends Controller
 
     /**
      * Vérifie si l'utilisateur est authentifié
-     * 
+     *
      * @return bool
      */
     private function isAuthenticated(): bool
@@ -412,7 +416,7 @@ class DesignProjectController extends Controller
 
     /**
      * Redirige vers la page de connexion avec un message
-     * 
+     *
      * @param string $message
      * @return RedirectResponse
      */
@@ -430,7 +434,7 @@ class DesignProjectController extends Controller
             $userId = session('user_id');
             $userFormation = session('user_formation', 'design-graphique');
             Log::info('=== DEBUT soloProjects ===', ['user_id' => $userId]);
-            
+
             if (!$userId) {
                 Log::warning('Pas d\'user_id dans la session');
                 return redirect()->route('login');
@@ -440,7 +444,7 @@ class DesignProjectController extends Controller
             Log::info('Appel getUserProjects avec category=solo');
             $projects = $this->designProjectService->getUserProjects($userId, ['category' => 'solo']);
             Log::info('Projets récupérés', ['count' => count($projects)]);
-            
+
             Log::info('Appel getUserStats');
             $stats = $this->designProjectService->getUserStats($userId);
             Log::info('Stats récupérées', ['stats' => $stats]);

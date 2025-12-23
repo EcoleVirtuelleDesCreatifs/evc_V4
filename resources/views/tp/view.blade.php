@@ -130,33 +130,41 @@
                 @php
                     // Fonction pour détecter les images
                     $isImage = function($file) {
-                        if (isset($file->mime_type) && str_starts_with($file->mime_type, 'image/')) {
-                            return true;
-                        }
-                        $ext = strtolower(pathinfo($file->original_name ?? '', PATHINFO_EXTENSION));
-                        return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg']);
+                        $mime = strtolower((string) ($file->mime_type ?? ''));
+                        return str_starts_with($mime, 'image/');
                     };
 
                     // Fonction pour obtenir l'URL correcte du fichier
                     $getFileUrl = function($filePath) {
-                        // Nettoyer le chemin pour avoir le relatif (ex: tp_files/image.jpg)
-                        $path = str_replace(['public/', 'storage/'], '', $filePath);
-                        $path = ltrim($path, '/');
+                        $filePath = (string) $filePath;
+                        $filePath = ltrim($filePath, '/');
 
-                        // 1) Si c'est un chemin de storage (disque public), utiliser Storage::url()
-                        if (str_starts_with($path, 'tp_submissions/') ||
-                            str_starts_with($path, 'tp_files/') ||
-                            str_starts_with($path, 'project_images/')) {
-                            return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+                        // Si c'est déjà une URL, retourner tel quel
+                        if (str_starts_with($filePath, 'http://') || str_starts_with($filePath, 'https://')) {
+                            return $filePath;
                         }
 
-                        // 2) Legacy : certains fichiers peuvent être dans public/uploads
-                        if (str_starts_with($path, 'uploads/')) {
-                            return asset($path);
+                        // Aligner sur Actualite::getCoverImageUrlAttribute()
+                        if (str_starts_with($filePath, 'storage/app/public/')) {
+                            $filePath = substr($filePath, strlen('storage/app/public/'));
                         }
 
-                        // 3) Fallback (tentative storage)
-                        return \Illuminate\Support\Facades\Storage::disk('public')->url($path);
+                        return asset('storage/app/public/' . $filePath);
+                    };
+
+                    $getFileUrlFallback = function($filePath) {
+                        $filePath = (string) $filePath;
+                        $filePath = ltrim($filePath, '/');
+
+                        if (str_starts_with($filePath, 'http://') || str_starts_with($filePath, 'https://')) {
+                            return $filePath;
+                        }
+
+                        if (str_starts_with($filePath, 'storage/app/public/')) {
+                            $filePath = substr($filePath, strlen('storage/app/public/'));
+                        }
+
+                        return asset('storage/app/public/' . $filePath);
                     };
 
                     $imageFiles = $project->files->filter($isImage);
@@ -176,6 +184,7 @@
                             @foreach($imageFiles as $image)
                                 @php
                                     $imageUrl = $getFileUrl($image->file_path);
+                                    $imageUrlFallback = $getFileUrlFallback($image->file_path);
                                 @endphp
                             <div class="col-md-4 col-sm-6" id="image-{{ $image->id }}">
                                 <div class="position-relative" style="height: 200px; overflow: hidden; border-radius: 8px; background: #f0f0f0;">
@@ -184,7 +193,7 @@
                                              class="w-100 h-100"
                                              style="object-fit: cover;"
                                              alt="{{ $image->original_name }}"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                             onerror="this.onerror=null; this.src='{{ $imageUrlFallback }}';">
                                         <div class="d-none w-100 h-100 align-items-center justify-content-center flex-column" style="background: #f8f9fa;">
                                             <i class="fas fa-image text-muted fa-3x mb-2"></i>
                                             <small class="text-muted">Image non disponible</small>

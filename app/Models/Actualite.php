@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class Actualite extends Model
 {
@@ -83,7 +84,7 @@ class Actualite extends Model
                 $coverImage = Str::after($coverImage, 'storage/');
             }
 
-            return asset('storage/' . $coverImage);
+            return Storage::disk('public')->url($coverImage);
         }
 
         return asset('assets/img/logo.png');
