@@ -39,8 +39,6 @@
     <meta name="twitter:description" content="@yield('twitter:description', 'Design, Marketing Digital, IA. Formations certifiantes avec suivi personnalisé à Abidjan.')">
     <meta name="twitter:image" content="@yield('twitter:image', asset('assets/img/hero-1.jpg'))">
 
-    @stack('head')
-
     <!-- Mobile & PWA -->
     <meta name="theme-color" content="#FF6B00">
     <meta name="mobile-web-app-capable" content="yes">
@@ -63,8 +61,8 @@
         "@@type": "EducationalOrganization",
         "name": "École Virtuelle des Créatifs",
         "alternateName": "EVC",
-        "url": "{{ url('/') }}",
-        "logo": "{{ asset('assets/img/logo.png') }}",
+        "url": "http://127.0.0.1:8000",
+        "logo": "http://127.0.0.1:8000/assets/img/logo.png",
         "description": "Première école virtuelle de Côte d'Ivoire spécialisée dans les formations créatives et digitales",
         "address": {
             "@@type": "PostalAddress",
@@ -125,6 +123,8 @@
         }
     }
     </script>
+
+    @stack('head')
 
     <!-- Styles and Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>

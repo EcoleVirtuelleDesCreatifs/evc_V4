@@ -280,7 +280,7 @@
                                 data-status="{{ $formation->status }}">
                                 <td>
                                     @if($formation->image_url)
-                                        <img src="{{ \App\Models\MediaUrl::fromPath($formation->image_url) }}" alt="{{ $formation->name }}" width="60" class="rounded shadow-sm">
+                                        <img src="{{ asset('storage/' . $formation->image_url) }}" alt="{{ $formation->name }}" width="60" class="rounded shadow-sm">
                                     @else
                                         <div style="width: 60px; height: 40px; background-color: #334155;" class="rounded shadow-sm d-flex align-items-center justify-content-center">
                                             <i class="fas fa-image text-muted"></i>

@@ -95,7 +95,7 @@
                 </div>
                 <div class="card-body text-center">
                     @if($formation->image_url)
-                        <img src="{{ \App\Models\MediaUrl::fromPath($formation->image_url) }}" alt="{{ $formation->name }}" class="img-fluid rounded shadow-sm">
+                        <img src="{{ asset('storage/' . $formation->image_url) }}" alt="{{ $formation->name }}" class="img-fluid rounded shadow-sm">
                     @else
                         <div style="height: 200px; background-color: #334155;" class="rounded shadow-sm d-flex align-items-center justify-content-center">
                             <i class="fas fa-image fa-3x text-muted"></i>
