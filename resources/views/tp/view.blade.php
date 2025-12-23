@@ -145,11 +145,11 @@
                         }
 
                         // Aligner sur Actualite::getCoverImageUrlAttribute()
-                        if (str_starts_with($filePath, 'storage/app/public/')) {
-                            $filePath = substr($filePath, strlen('storage/app/public/'));
+                        if (str_starts_with($filePath, 'storage/app/public/uploads/')) {
+                            $filePath = substr($filePath, strlen('storage/app/public/uploads/'));
                         }
 
-                        return asset('storage/app/public/' . $filePath);
+                        return asset('storage/app/public/uploads/' . $filePath);
                     };
 
                     $getFileUrlFallback = function($filePath) {
@@ -160,11 +160,11 @@
                             return $filePath;
                         }
 
-                        if (str_starts_with($filePath, 'storage/app/public/')) {
-                            $filePath = substr($filePath, strlen('storage/app/public/'));
+                        if (str_starts_with($filePath, 'storage/app/public/uploads/')) {
+                            $filePath = substr($filePath, strlen('storage/app/public/uploads/'));
                         }
 
-                        return asset('storage/app/public/' . $filePath);
+                        return asset('storage/app/public/uploads/' . $filePath);
                     };
 
                     $imageFiles = $project->files->filter($isImage);

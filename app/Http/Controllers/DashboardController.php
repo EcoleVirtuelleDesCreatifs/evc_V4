@@ -1601,7 +1601,7 @@ class DashboardController extends Controller
 
                 // Uploader les fichiers dans tp_submission_files
                 if ($request->hasFile('files')) {
-                    $uploadPath = storage_path('app/public/tp_submissions');
+                    $uploadPath = storage_path('app/public/uploads/tp');
                     if (!file_exists($uploadPath)) {
                         mkdir($uploadPath, 0755, true);
                     }
@@ -1618,8 +1618,8 @@ class DashboardController extends Controller
                         $mimeType = $file->getMimeType();
                         $storedName = time() . '_' . Str::random(10) . '.' . $extension;
 
-                        $file->storeAs('public/tp_submissions', $storedName);
-                        $filePath = 'tp_submissions/' . $storedName;
+                        $file->storeAs('public/uploads/tp', $storedName);
+                        $filePath = 'uploads/tp/' . $storedName;
 
                         DB::table('tp_submission_files')->insert([
                             'tp_assignment_id' => $projectId,
@@ -4204,7 +4204,7 @@ class DashboardController extends Controller
                         $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
 
                         // Stocker le fichier
-                        $path = $file->storeAs('tp_submissions', $fileName, 'public');
+                        $path = $file->storeAs('uploads/tp', $fileName, 'public');
 
                         // Enregistrer dans la base de données
                         DB::table('tp_submission_files')->insert([
