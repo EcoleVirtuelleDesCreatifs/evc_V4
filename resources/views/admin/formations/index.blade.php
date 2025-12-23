@@ -15,28 +15,28 @@
         gap: 1rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    
+
     .stat-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
     }
-    
+
     .stat-card-primary {
         background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
     }
-    
+
     .stat-card-success {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
-    
+
     .stat-card-warning {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
-    
+
     .stat-card-cyan {
         background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%);
     }
-    
+
     .stat-icon {
         width: 60px;
         height: 60px;
@@ -47,17 +47,17 @@
         justify-content: center;
         font-size: 1.8rem;
     }
-    
+
     .stat-content {
         flex: 1;
     }
-    
+
     .stat-number {
         font-size: 2.5rem;
         font-weight: 700;
         margin: 0;
     }
-    
+
     .stat-label {
         margin: 0;
         opacity: 0.9;
@@ -165,11 +165,11 @@
                                 'intelligence-artificielle' => 'Intelligence Artificielle',
                             ];
                         @endphp
-                        
+
                         @foreach($moduleColors as $moduleSlug => $moduleData)
                             <div class="col-md-6 col-lg-3">
-                                <div class="card h-100 border-0 module-filter-card" 
-                                     data-module="{{ $moduleSlug }}" 
+                                <div class="card h-100 border-0 module-filter-card"
+                                     data-module="{{ $moduleSlug }}"
                                      style="background: {{ $moduleData['bg'] }}; cursor: pointer; transition: all 0.3s ease;"
                                      onclick="filterByModule('{{ $moduleSlug }}')">
                                     <div class="card-body text-white">
@@ -217,7 +217,7 @@
                                     <div class="row g-2">
                                         @foreach($categories as $category)
                                             <div class="col-md-4 col-lg-3">
-                                                <div class="card bg-dark border-secondary category-filter-card" 
+                                                <div class="card bg-dark border-secondary category-filter-card"
                                                      data-category="{{ $category->category_name }}"
                                                      data-module="{{ $module }}"
                                                      style="cursor: pointer; transition: all 0.3s ease;"
@@ -274,13 +274,13 @@
                     </thead>
                     <tbody>
                         @forelse ($formations as $formation)
-                            <tr class="formation-row" 
-                                data-module="{{ $formation->modules[0] ?? '' }}" 
+                            <tr class="formation-row"
+                                data-module="{{ $formation->modules[0] ?? '' }}"
                                 data-category="{{ $formation->category->name ?? '' }}"
                                 data-status="{{ $formation->status }}">
                                 <td>
                                     @if($formation->image_url)
-                                        <img src="{{ asset('storage/' . $formation->image_url) }}" alt="{{ $formation->name }}" width="60" class="rounded shadow-sm">
+                                        <img src="{{ \App\Models\MediaUrl::fromPath($formation->image_url) }}" alt="{{ $formation->name }}" width="60" class="rounded shadow-sm">
                                     @else
                                         <div style="width: 60px; height: 40px; background-color: #334155;" class="rounded shadow-sm d-flex align-items-center justify-content-center">
                                             <i class="fas fa-image text-muted"></i>
@@ -340,10 +340,10 @@ let currentCategoryFilter = null;
 function filterByModule(module) {
     currentModuleFilter = module;
     currentCategoryFilter = null; // Réinitialiser le filtre de catégorie
-    
+
     const rows = document.querySelectorAll('.formation-row');
     let visibleCount = 0;
-    
+
     rows.forEach(row => {
         const rowModule = row.getAttribute('data-module');
         if (rowModule === module) {
@@ -353,7 +353,7 @@ function filterByModule(module) {
             row.style.display = 'none';
         }
     });
-    
+
     // Mettre à jour l'interface
     updateFilterUI(module, null, visibleCount);
     highlightActiveFilters();
@@ -363,14 +363,14 @@ function filterByModule(module) {
 function filterByCategory(category, module) {
     currentModuleFilter = module;
     currentCategoryFilter = category;
-    
+
     const rows = document.querySelectorAll('.formation-row');
     let visibleCount = 0;
-    
+
     rows.forEach(row => {
         const rowModule = row.getAttribute('data-module');
         const rowCategory = row.getAttribute('data-category');
-        
+
         if (rowModule === module && rowCategory === category) {
             row.style.display = '';
             visibleCount++;
@@ -378,7 +378,7 @@ function filterByCategory(category, module) {
             row.style.display = 'none';
         }
     });
-    
+
     // Mettre à jour l'interface
     updateFilterUI(module, category, visibleCount);
     highlightActiveFilters();
@@ -388,22 +388,22 @@ function filterByCategory(category, module) {
 function resetFilters() {
     currentModuleFilter = null;
     currentCategoryFilter = null;
-    
+
     const rows = document.querySelectorAll('.formation-row');
     rows.forEach(row => {
         row.style.display = '';
     });
-    
+
     // Cacher les éléments de filtre
     document.getElementById('filterInfo').style.display = 'none';
     document.getElementById('resetFiltersBtn').style.display = 'none';
-    
+
     // Retirer les highlights
     document.querySelectorAll('.module-filter-card').forEach(card => {
         card.style.transform = 'scale(1)';
         card.style.boxShadow = 'none';
     });
-    
+
     document.querySelectorAll('.category-filter-card').forEach(card => {
         card.style.transform = 'scale(1)';
         card.style.border = '';
@@ -415,21 +415,21 @@ function updateFilterUI(module, category, count) {
     const filterInfo = document.getElementById('filterInfo');
     const filterText = document.getElementById('filterText');
     const resetBtn = document.getElementById('resetFiltersBtn');
-    
+
     const moduleNames = {
         'design-graphique': 'Design Graphique',
         'community-management': 'Community Management',
         'gestion-informatique': 'Gestion Informatique',
         'intelligence-artificielle': 'Intelligence Artificielle'
     };
-    
+
     let text = '';
     if (category) {
         text = `Filtré par : <strong>${moduleNames[module]}</strong> → <strong>${category}</strong> (${count} formation(s))`;
     } else {
         text = `Filtré par module : <strong>${moduleNames[module]}</strong> (${count} formation(s))`;
     }
-    
+
     filterText.innerHTML = text;
     filterInfo.style.display = 'block';
     resetBtn.style.display = 'inline-block';
@@ -442,12 +442,12 @@ function highlightActiveFilters() {
         card.style.transform = 'scale(1)';
         card.style.boxShadow = 'none';
     });
-    
+
     document.querySelectorAll('.category-filter-card').forEach(card => {
         card.style.transform = 'scale(1)';
         card.style.border = '';
     });
-    
+
     // Highlight le module actif
     if (currentModuleFilter) {
         const moduleCard = document.querySelector(`.module-filter-card[data-module="${currentModuleFilter}"]`);
@@ -456,7 +456,7 @@ function highlightActiveFilters() {
             moduleCard.style.boxShadow = '0 10px 30px rgba(255, 255, 255, 0.3)';
         }
     }
-    
+
     // Highlight la catégorie active
     if (currentCategoryFilter) {
         const categoryCard = document.querySelector(`.category-filter-card[data-category="${currentCategoryFilter}"][data-module="${currentModuleFilter}"]`);
@@ -477,7 +477,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.3)';
             }
         });
-        
+
         card.addEventListener('mouseleave', function() {
             if (this.getAttribute('data-module') !== currentModuleFilter) {
                 this.style.transform = 'scale(1)';
@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Hover sur les cartes de catégorie
     document.querySelectorAll('.category-filter-card').forEach(card => {
         card.addEventListener('mouseenter', function() {
@@ -494,7 +494,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.style.border = '2px solid #3b82f6';
             }
         });
-        
+
         card.addEventListener('mouseleave', function() {
             if (this.getAttribute('data-category') !== currentCategoryFilter) {
                 this.style.transform = 'scale(1)';

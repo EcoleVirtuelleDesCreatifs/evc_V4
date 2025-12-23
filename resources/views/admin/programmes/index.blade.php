@@ -14,28 +14,28 @@
         gap: 1rem;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    
+
     .stat-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
     }
-    
+
     .stat-card-primary {
         background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
     }
-    
+
     .stat-card-success {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
-    
+
     .stat-card-warning {
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
-    
+
     .stat-card-cyan {
         background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%);
     }
-    
+
     .stat-icon {
         width: 60px;
         height: 60px;
@@ -46,17 +46,17 @@
         justify-content: center;
         font-size: 1.8rem;
     }
-    
+
     .stat-content {
         flex: 1;
     }
-    
+
     .stat-number {
         font-size: 2.5rem;
         font-weight: 700;
         margin: 0;
     }
-    
+
     .stat-label {
         margin: 0;
         opacity: 0.9;
@@ -86,13 +86,13 @@
         padding: 1.5rem;
         transition: all 0.3s ease;
     }
-    
+
     .programme-card:hover {
         border-color: #4fc3f7;
         transform: translateY(-3px);
         box-shadow: 0 8px 20px rgba(79, 195, 247, 0.3);
     }
-    
+
     .pdf-icon {
         width: 60px;
         height: 60px;
@@ -345,20 +345,20 @@
                                 </span>
                             </div>
                         </div>
-                        
+
                         @if($programme->description)
                             <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">
                                 {{ Str::limit($programme->description, 100) }}
                             </p>
                         @endif
-                        
+
                         <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #334155;">
                             <small style="color: #94a3b8;">
                                 <i class="fas fa-calendar me-1"></i>
                                 {{ \Carbon\Carbon::parse($programme->created_at)->format('d/m/Y') }}
                             </small>
                             <div class="d-flex gap-2">
-                                <a href="{{ asset('storage/' . $programme->fichier_pdf) }}" target="_blank" class="btn-download btn-sm">
+                                <a href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}" target="_blank" class="btn-download btn-sm">
                                     <i class="fas fa-download me-1"></i>
                                     Télécharger
                                 </a>

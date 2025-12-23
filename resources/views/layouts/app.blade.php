@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- SEO Essentials -->
     <title>@yield('title', 'EVC - École Virtuelle des Créatifs | Formation Design & Marketing Digital Abidjan')</title>
     <meta name="description" content="@yield('description', 'Première école virtuelle de Côte d&rsquo;Ivoire. Formations certifiantes en Design Graphique, Community Management, Intelligence Artificielle. Rejoignez +500 étudiants à Abidjan.')">
@@ -12,13 +12,13 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="googlebot" content="index, follow">
     <link rel="canonical" href="{{ url()->current() }}">
-    
+
     <!-- Geo Tags -->
     <meta name="geo.region" content="CI-AB">
     <meta name="geo.placename" content="Abidjan">
     <meta name="geo.position" content="5.316667;-4.033333">
     <meta name="ICBM" content="5.316667, -4.033333">
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
@@ -30,7 +30,7 @@
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="fr_CI">
     <meta property="og:locale:alternate" content="fr_FR">
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@EcoleVirtuelleCi">
@@ -38,14 +38,16 @@
     <meta name="twitter:title" content="@yield('twitter:title', 'EVC - Formations Professionnelles en Ligne | Abidjan')">
     <meta name="twitter:description" content="@yield('twitter:description', 'Design, Marketing Digital, IA. Formations certifiantes avec suivi personnalisé à Abidjan.')">
     <meta name="twitter:image" content="@yield('twitter:image', asset('assets/img/hero-1.jpg'))">
-    
+
+    @stack('head')
+
     <!-- Mobile & PWA -->
     <meta name="theme-color" content="#FF6B00">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="EVC">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
@@ -53,7 +55,7 @@
     <link rel="manifest" href="{{ asset('site.webmanifest') }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
@@ -61,8 +63,8 @@
         "@@type": "EducationalOrganization",
         "name": "École Virtuelle des Créatifs",
         "alternateName": "EVC",
-        "url": "http://127.0.0.1:8000",
-        "logo": "http://127.0.0.1:8000/assets/img/logo.png",
+        "url": "{{ url('/') }}",
+        "logo": "{{ asset('assets/img/logo.png') }}",
         "description": "Première école virtuelle de Côte d'Ivoire spécialisée dans les formations créatives et digitales",
         "address": {
             "@@type": "PostalAddress",
@@ -145,12 +147,12 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css">
     <link rel="stylesheet" href="{{ asset('css/homepage.css') }}">
-    
+
     @stack('styles')
 </head>
 <body class="bg-black font-sans antialiased">
     <div id="particles-js"></div>
-    
+
     @include('homepage._header')
 
     <main>
