@@ -64,9 +64,9 @@
                     <div class="col-md-4">
                         <div class="featured-image-wrapper">
                             @if($featuredMedia->cover_image)
-                                <img src="{{ asset('storage/' . $featuredMedia->cover_image) }}" alt="{{ $featuredMedia->title }}" class="featured-image">
+                                <img src="{{ \App\Models\MediaUrl::fromPath($featuredMedia->cover_image) }}" alt="{{ $featuredMedia->title }}" class="featured-image">
                             @elseif(in_array(strtolower($featuredMedia->file_type), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']))
-                                <img src="{{ asset('storage/' . $featuredMedia->path) }}" alt="{{ $featuredMedia->title }}" class="featured-image">
+                                <img src="{{ \App\Models\MediaUrl::fromPath($featuredMedia->path) }}" alt="{{ $featuredMedia->title }}" class="featured-image">
                             @else
                                 <div class="featured-placeholder">
                                     <i class="fas fa-file-pdf fa-4x"></i>
@@ -157,11 +157,11 @@
                             <!-- Image de couverture -->
                             <div class="resource-image-container mb-3">
                                 @if($item->cover_image)
-                                    <img src="{{ asset('storage/' . $item->cover_image) }}"
+                                    <img src="{{ \App\Models\MediaUrl::fromPath($item->cover_image) }}"
                                          alt="{{ $item->title }}"
                                          class="resource-image">
                                 @elseif(in_array(strtolower($item->file_type), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']))
-                                    <img src="{{ asset('storage/' . $item->path) }}"
+                                    <img src="{{ \App\Models\MediaUrl::fromPath($item->path) }}"
                                          alt="{{ $item->title }}"
                                          class="resource-image">
                                 @else

@@ -21,16 +21,16 @@
                     </nav>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('design-graphique.projets.index') }}" 
+                    <a href="{{ route('design-graphique.projets.index') }}"
                        class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Retour
                     </a>
                     @if($project['status'] !== 'validated')
-                    <a href="{{ route('design-graphique.projets.edit', $project['id']) }}" 
+                    <a href="{{ route('design-graphique.projets.edit', $project['id']) }}"
                        class="btn btn-primary">
                         <i class="fas fa-edit"></i> Modifier
                     </a>
-                    <button type="button" class="btn btn-danger" 
+                    <button type="button" class="btn btn-danger"
                             onclick="confirmDelete({{ $project['id'] }}, '{{ addslashes($project['title']) }}')">
                         <i class="fas fa-trash"></i> Supprimer
                     </button>
@@ -151,15 +151,16 @@
                             <div class="card border">
                                 @php
                                     $isImage = in_array(strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                    $fileUrl = \App\Models\MediaUrl::fromPath($file['path'] ?? null);
                                 @endphp
-                                
+
                                 @if($isImage)
-                                    <img src="{{ asset($file['path']) }}" 
-                                         class="card-img-top" 
+                                    <img src="{{ $fileUrl }}"
+                                         class="card-img-top"
                                          alt="{{ $file['name'] }}"
                                          style="height: 200px; object-fit: cover;">
                                 @endif
-                                
+
                                 <div class="card-body text-center">
                                     @if(!$isImage)
                                         @php
@@ -175,17 +176,17 @@
                                         @endphp
                                         <i class="{{ $iconClass }} fa-2x mb-2"></i>
                                     @endif
-                                    
+
                                     <h6 class="card-title">{{ $file['name'] }}</h6>
                                     <p class="text-muted small">
                                         {{ number_format($file['file_size'] / 1024, 1) }} KB
                                     </p>
-                                    
+
                                     <div class="d-flex gap-2 justify-content-center">
-                                        <a href="{{ asset($file['path']) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                        <a href="{{ $fileUrl }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye"></i> Voir
                                         </a>
-                                        <a href="{{ asset($file['path']) }}" download="{{ $file['name'] }}" class="btn btn-sm btn-outline-secondary">
+                                        <a href="{{ $fileUrl }}" download="{{ $file['name'] }}" class="btn btn-sm btn-outline-secondary">
                                             <i class="fas fa-download"></i> Télécharger
                                         </a>
                                     </div>
@@ -264,7 +265,7 @@
 function confirmDelete(projectId, projectTitle) {
     document.getElementById('projectTitle').textContent = projectTitle;
     document.getElementById('deleteForm').action = `/evc/compte/design-graphique/projets/${projectId}`;
-    
+
     const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
     modal.show();
 }

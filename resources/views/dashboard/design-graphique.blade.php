@@ -415,19 +415,7 @@
     $prePhoto = $pr->profile_photo ?? $pr->photo ?? $pr->image ?? $pr->image_url ?? $pr->avatar;
     $rawPhoto = $studentPhoto ?: $prePhoto;
 
-    if ($rawPhoto) {
-        if (preg_match('/^https?:\/\//', $rawPhoto)) {
-            $photoUrl = $rawPhoto;
-        } elseif (str_starts_with($rawPhoto, 'photos_preregistrations/')) {
-            $photoUrl = asset('storage/' . $rawPhoto);
-        } elseif (str_starts_with($rawPhoto, 'uploads/')) {
-            $photoUrl = asset($rawPhoto);
-        } else {
-            $photoUrl = asset('storage/' . $rawPhoto);
-        }
-    } else {
-        $photoUrl = asset('assets/img/avatar.png');
-    }
+    $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($rawPhoto ?? null);
 
     $fullName = trim(($sf->first_name ?? '') . ' ' . ($sf->last_name ?? ''));
     if ($fullName === '') {

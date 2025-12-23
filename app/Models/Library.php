@@ -45,12 +45,7 @@ class Library extends Model
             return $path;
         }
 
-        $path = ltrim($path, '/');
-        if (Str::startsWith($path, 'storage/')) {
-            $path = Str::after($path, 'storage/');
-        }
-
-        return Storage::disk('public')->url($path);
+        return MediaUrl::fromPath($path);
     }
 
     public function getFileUrlAttribute()
@@ -64,12 +59,7 @@ class Library extends Model
             return $path;
         }
 
-        $path = ltrim($path, '/');
-        if (Str::startsWith($path, 'storage/')) {
-            $path = Str::after($path, 'storage/');
-        }
-
-        return asset('storage/' . $path);
+        return MediaUrl::fromPath($path);
     }
 
     public function getPdfUrlAttribute()
@@ -83,12 +73,7 @@ class Library extends Model
             return $path;
         }
 
-        $path = ltrim($path, '/');
-        if (Str::startsWith($path, 'storage/')) {
-            $path = Str::after($path, 'storage/');
-        }
-
-        return asset('storage/' . $path);
+        return MediaUrl::fromPath($path);
     }
 
 }
