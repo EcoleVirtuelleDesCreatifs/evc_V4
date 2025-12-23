@@ -323,7 +323,7 @@
     $imageUrl = null;
     if (!$videoContent && (!empty($formation->image) || !empty($formation->cover) || !empty($formation->thumbnail))) {
         $imageUrl = $formation->image ?? $formation->cover ?? $formation->thumbnail;
-        if (!str_starts_with($imageUrl, 'http')) $imageUrl = asset($imageUrl);
+        $imageUrl = \App\Models\MediaUrl::fromPath($imageUrl);
     }
 
     $modules = json_decode($formation->modules ?? '[]', true) ?? [];
@@ -392,7 +392,7 @@
                             <div class="row g-3">
                                 @foreach($files as $file)
                                 <div class="col-md-6">
-                                    <a href="{{ asset($file->file_path) }}" download class="playlist-item text-decoration-none">
+                                    <a href="{{ \App\Models\MediaUrl::fromPath($file->file_path) }}" download class="playlist-item text-decoration-none">
                                         <div class="playlist-number"><i class="fas fa-file-pdf"></i></div>
                                         <div class="flex-grow-1">
                                             <div class="text-white fw-medium small">{{ $file->original_name }}</div>
