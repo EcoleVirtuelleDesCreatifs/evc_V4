@@ -360,33 +360,9 @@
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         @php
-                                            $photoUrl = null;
-                                            $photoExists = false;
-
-                                            if ($rapport->user_photo) {
-                                                // Essayer différents chemins possibles
-                                                $possiblePaths = [
-                                                    $rapport->user_photo, // Chemin direct
-                                                    'storage/' . $rapport->user_photo,
-                                                    'uploads/profile_photos/' . $rapport->user_photo,
-                                                    'storage/profile_photos/' . $rapport->user_photo,
-                                                    'storage/uploads/profile_photos/' . $rapport->user_photo,
-                                                ];
-
-                                                foreach ($possiblePaths as $path) {
-                                                    if (str_starts_with($path, 'http')) {
-                                                        $photoUrl = $path;
-                                                        $photoExists = true;
-                                                        break;
-                                                    } elseif (file_exists(public_path($path))) {
-                                                        $photoUrl = asset($path);
-                                                        $photoExists = true;
-                                                        break;
-                                                    }
-                                                }
-                                            }
+                                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($rapport->user_photo ?? null);
                                         @endphp
-                                        @if($photoExists && $photoUrl)
+                                        @if(!empty($photoUrl) && !str_contains($photoUrl, 'default-avatar') && !str_contains($photoUrl, 'avatar.png'))
                                             <img src="{{ $photoUrl }}"
                                                  alt="{{ $rapport->user_name }}"
                                                  style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #4fc3f7;"

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use App\Helpers\ProfilePhotoHelper;
 
 class StudentAdminController extends Controller
 {
@@ -474,30 +475,7 @@ class StudentAdminController extends Controller
         }
 
         // Photo de profil - gestion de tous les chemins possibles
-        $photoUrl = null;
-        if (!empty($student->profile_photo)) {
-            // Vérifier si c'est un chemin absolu (commence par http:// ou https://)
-            if (str_starts_with($student->profile_photo, 'http://') || str_starts_with($student->profile_photo, 'https://')) {
-                $photoUrl = $student->profile_photo;
-            }
-            // Vérifier si c'est un chemin relatif qui commence par uploads/ ou photos_
-            elseif (str_starts_with($student->profile_photo, 'uploads/') ||
-                    str_starts_with($student->profile_photo, 'photos_preregistrations/') ||
-                    str_starts_with($student->profile_photo, 'photos/')) {
-                // Essayer d'abord storage/app/public/
-                $storagePath = storage_path('app/public/' . $student->profile_photo);
-                if (file_exists($storagePath)) {
-                    $photoUrl = asset('storage/' . $student->profile_photo);
-                } else {
-                    // Sinon essayer directement public/
-                    $photoUrl = asset($student->profile_photo);
-                }
-            }
-            // Sinon, considérer que c'est juste le nom de fichier
-            else {
-                $photoUrl = asset('uploads/photos/' . basename($student->profile_photo));
-            }
-        }
+        $photoUrl = ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
 
         // Récupérer les TPs de l'étudiant
         $tps = [];

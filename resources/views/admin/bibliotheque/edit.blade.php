@@ -35,7 +35,7 @@
                     <label class="form-label text-white">Fichier actuel</label>
                     <div class="p-3 rounded" style="background-color: #2d3748;">
                         @if(in_array(strtolower($item->file_type), ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp']))
-                            <img src="{{ asset('storage/' . $item->path) }}" alt="{{ $item->title }}" class="img-fluid rounded mb-2" style="max-height: 200px;">
+                            <img src="{{ \App\Models\MediaUrl::fromPath($item->path) }}" alt="{{ $item->title }}" class="img-fluid rounded mb-2" style="max-height: 200px;">
                         @else
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-file-alt fa-3x text-primary me-3"></i>
@@ -46,7 +46,7 @@
                             </div>
                         @endif
                         <div class="mt-2">
-                            <a href="{{ asset('storage/' . $item->path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ \App\Models\MediaUrl::fromPath($item->path) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-external-link-alt me-1"></i>Voir le fichier
                             </a>
                         </div>
@@ -82,9 +82,9 @@
                 <div class="mb-3">
                     <label class="form-label text-white">Image de couverture actuelle</label>
                     <div class="p-3 rounded" style="background-color: #2d3748;">
-                        <img src="{{ asset('storage/' . $item->cover_image) }}" alt="Couverture" class="img-fluid rounded mb-2" style="max-height: 200px;">
+                        <img src="{{ \App\Models\MediaUrl::fromPath($item->cover_image) }}" alt="Couverture" class="img-fluid rounded mb-2" style="max-height: 200px;">
                         <div class="mt-2">
-                            <a href="{{ asset('storage/' . $item->cover_image) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ \App\Models\MediaUrl::fromPath($item->cover_image) }}" target="_blank" class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-external-link-alt me-1"></i>Voir l'image
                             </a>
                         </div>
