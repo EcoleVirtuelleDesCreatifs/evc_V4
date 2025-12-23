@@ -287,9 +287,10 @@
                             $studentProfilePhoto = $project->user->student->profile_photo ?? null;
                             $userProfilePhoto = $project->user->profile_photo ?? null;
                             $profilePhotoPath = $studentProfilePhoto ?: $userProfilePhoto;
+                            $profilePhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($profilePhotoPath);
                         @endphp
-                        @if(!empty($profilePhotoPath))
-                            <img src="{{ asset('storage/' . ltrim($profilePhotoPath, '/')) }}"
+                        @if(!empty($profilePhotoUrl))
+                            <img src="{{ $profilePhotoUrl }}"
                                  alt="Photo de {{ $project->user->first_name ?? 'N/A' }}"
                                  class="rounded-circle"
                                  style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #17a2b8;"
@@ -402,23 +403,7 @@
                                             <div class="card bg-secondary border-dark h-100 image-card" data-index="{{ $index }}">
                                                 <div class="position-relative image-container">
                                                     @php
-                                                        // Optimized path detection
-                                                        $possiblePaths = [
-                                                            'storage/' . $file->file_path,
-                                                            'uploads/design_projects/' . basename($file->file_path),
-                                                            'uploads/' . $file->file_path,
-                                                            $file->file_path
-                                                        ];
-                                                        $imagePath = null;
-                                                        foreach ($possiblePaths as $path) {
-                                                            if (file_exists(public_path($path))) {
-                                                                $imagePath = asset($path);
-                                                                break;
-                                                            }
-                                                        }
-                                                        if (!$imagePath) {
-                                                            $imagePath = asset('storage/' . $file->file_path);
-                                                        }
+                                                        $imagePath = $file->url;
                                                     @endphp
 
 
@@ -501,22 +486,7 @@
                                         <div class="carousel-inner">
                                             @foreach($imageFiles as $index => $file)
                                                 @php
-                                                    $possiblePaths = [
-                                                        'storage/' . $file->file_path,
-                                                        'uploads/design_projects/' . basename($file->file_path),
-                                                        'uploads/' . $file->file_path,
-                                                        $file->file_path
-                                                    ];
-                                                    $imagePath = null;
-                                                    foreach ($possiblePaths as $path) {
-                                                        if (file_exists(public_path($path))) {
-                                                            $imagePath = asset($path);
-                                                            break;
-                                                        }
-                                                    }
-                                                    if (!$imagePath) {
-                                                        $imagePath = asset('storage/' . $file->file_path);
-                                                    }
+                                                    $imagePath = $file->url;
                                                 @endphp
                                                 <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
                                                     <div class="d-flex justify-content-center">
