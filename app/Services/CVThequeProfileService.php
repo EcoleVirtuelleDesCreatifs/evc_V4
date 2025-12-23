@@ -30,7 +30,7 @@ class CVThequeProfileService
 
             // Préparer les données
             $preparedData = $this->prepareProfileData($data);
-            
+
             // Debug: Log des données préparées
             Log::info('CVThequeProfileService - Données préparées:', [
                 'prepared_data' => $preparedData
@@ -106,7 +106,7 @@ class CVThequeProfileService
     public function getOrCreateUserProfile(int $userId): CVThequeProfile
     {
         $profile = $this->getUserProfile($userId);
-        
+
         if (!$profile) {
             $profile = CVThequeProfile::create([
                 'user_id' => $userId,
@@ -144,19 +144,19 @@ class CVThequeProfileService
                         $score += $points;
                     }
                     break;
-                
+
                 case 'remote_work':
                 case 'willing_to_relocate':
                     // Ces champs booléens comptent toujours (même si false)
                     $score += $points;
                     break;
-                
+
                 case 'years_experience':
                     if ($profile->years_experience >= 0) {
                         $score += $points;
                     }
                     break;
-                
+
                 default:
                     if (!empty($profile->$field)) {
                         $score += $points;
@@ -203,12 +203,12 @@ class CVThequeProfileService
     {
         try {
             $profile = CVThequeProfile::where('user_id', $userId)->first();
-            
+
             if ($profile) {
                 $profile->delete();
                 return true;
             }
-            
+
             return false;
         } catch (\Exception $e) {
             Log::error('Erreur lors de la suppression du profil CVThèque', [
@@ -361,7 +361,7 @@ class CVThequeProfileService
         if (isset($data['skills']) && is_array($data['skills'])) {
             $skillsData = array_merge($skillsData, $data['skills']);
         }
-        
+
         if (!empty($skillsData)) {
             $cleanData['skills'] = array_values(array_unique(array_filter($skillsData)));
         }
@@ -411,7 +411,7 @@ class CVThequeProfileService
             if ($cvData) {
                 $updateData['cv_file_path'] = $cvData['path'];
                 $updateData['cv_file_name'] = $cvData['name'];
-                
+
                 // Créer l'enregistrement de validation
                 $this->createDocumentValidation($userId, 'cv', $cvData, $files['cv']);
             }
@@ -423,7 +423,7 @@ class CVThequeProfileService
             if ($motivationData) {
                 $updateData['motivation_letter_path'] = $motivationData['path'];
                 $updateData['motivation_letter_name'] = $motivationData['name'];
-                
+
                 // Créer l'enregistrement de validation
                 $this->createDocumentValidation($userId, 'motivation', $motivationData, $files['motivation_letter']);
             }
@@ -435,7 +435,7 @@ class CVThequeProfileService
             if ($pressbookData) {
                 $updateData['pressbook_file_path'] = $pressbookData['path'];
                 $updateData['pressbook_file_name'] = $pressbookData['name'];
-                
+
                 // Créer l'enregistrement de validation
                 $this->createDocumentValidation($userId, 'pressbook', $pressbookData, $files['pressbook']);
             }
@@ -447,7 +447,7 @@ class CVThequeProfileService
             if ($reportData) {
                 $updateData['report_file_path'] = $reportData['path'];
                 $updateData['report_file_name'] = $reportData['name'];
-                
+
                 // Créer l'enregistrement de validation
                 $this->createDocumentValidation($userId, 'rapport', $reportData, $files['rapport']);
             }
@@ -459,27 +459,27 @@ class CVThequeProfileService
                 'user_id' => $userId,
                 'files_count' => count($files['realisations'])
             ]);
-            
+
             $portfolioFiles = $this->uploadMultipleFiles($files['realisations'], $userId, 'realisations');
-            
+
             Log::info("Portfolio files processed", [
                 'user_id' => $userId,
                 'uploaded_files_count' => count($portfolioFiles),
                 'files_data' => $portfolioFiles
             ]);
-            
+
             if (!empty($portfolioFiles)) {
                 $existingFiles = $profile->portfolio_files ?? [];
                 $mergedFiles = array_merge($existingFiles, $portfolioFiles);
                 $updateData['portfolio_files'] = $mergedFiles;
-                
+
                 Log::info("Updating portfolio files in database", [
                     'user_id' => $userId,
                     'existing_files_count' => count($existingFiles),
                     'new_files_count' => count($portfolioFiles),
                     'total_files_count' => count($mergedFiles)
                 ]);
-                
+
                 // Créer les enregistrements de validation pour chaque réalisation
                 foreach ($files['realisations'] as $index => $realisationFile) {
                     if (isset($portfolioFiles[$index])) {
@@ -582,10 +582,10 @@ class CVThequeProfileService
             // Générer un nom unique pour le stockage
             $extension = $file->getClientOriginalExtension();
             $fileName = $storageType . '_' . $userId . '_' . time() . '.' . $extension;
-            
+
             // Définir le chemin de stockage
             $directory = 'cvtheque/' . $userId . '/' . $validationType;
-            
+
             Log::info("Attempting to store file", [
                 'user_id' => $userId,
                 'storage_type' => $storageType,
@@ -593,7 +593,7 @@ class CVThequeProfileService
                 'directory' => $directory,
                 'file_name' => $fileName
             ]);
-            
+
             // Stocker le fichier
             $path = $file->storeAs($directory, $fileName, 'public');
 
@@ -663,20 +663,27 @@ class CVThequeProfileService
             // Supprimer l'ancien fichier s'il existe
             $this->deleteOldFile($userId, $type);
 
-            // Générer un nom unique
             $extension = $file->getClientOriginalExtension();
-            $fileName = $type . '_' . $userId . '_' . time() . '.' . $extension;
-            
-            // Définir le chemin de stockage
-            $directory = 'cvtheque/' . $userId . '/' . $type;
-            
+
+            if ($type === 'cv') {
+                $directory = 'cv/' . $userId;
+                $fileName = 'cv.' . $extension;
+            } elseif ($type === 'rapport') {
+                $directory = 'reports/' . $userId;
+                $fileName = 'report.' . $extension;
+            } else {
+                // Par défaut: conserver l'existant (historique) pour les autres types
+                $fileName = $type . '_' . $userId . '_' . time() . '.' . $extension;
+                $directory = 'cvtheque/' . $userId . '/' . $type;
+            }
+
             Log::info("Attempting to store file", [
                 'user_id' => $userId,
                 'type' => $type,
                 'directory' => $directory,
                 'file_name' => $fileName
             ]);
-            
+
             // Stocker le fichier
             $path = $file->storeAs($directory, $fileName, 'public');
 
@@ -732,14 +739,14 @@ class CVThequeProfileService
                 // Utiliser un nom unique pour le stockage mais garder le type original pour la validation
                 $uniqueType = $type . '_' . uniqid();
                 $fileData = $this->uploadSingleFileWithValidationType($file, $userId, $uniqueType, $type);
-                
+
                 Log::info("Single file upload result", [
                     'user_id' => $userId,
                     'index' => $index,
                     'success' => $fileData !== null,
                     'file_data' => $fileData
                 ]);
-                
+
                 if ($fileData) {
                     $uploadedFiles[] = $fileData;
                 } else {
@@ -798,7 +805,7 @@ class CVThequeProfileService
         // Vérifier l'extension
         $extension = strtolower($file->getClientOriginalExtension());
         $allowed = $allowedExtensions[$type] ?? [];
-        
+
         return in_array($extension, $allowed);
     }
 
@@ -818,6 +825,7 @@ class CVThequeProfileService
                 $pathField = 'report_file_path';
             }
 
+            // Pour CV et Rapport en mode écrasable: supprimer l'ancien chemin stocké en DB
             $oldPath = $profile->$pathField;
             if ($oldPath && Storage::disk('public')->exists($oldPath)) {
                 Storage::disk('public')->delete($oldPath);

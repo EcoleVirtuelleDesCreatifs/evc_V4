@@ -5,8 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 
 class ProjectImage extends Model
 {
@@ -57,23 +55,7 @@ class ProjectImage extends Model
      */
     public function getUrlAttribute()
     {
-        $path = (string) ($this->file_path ?? '');
-
-        if ($path === '') {
-            return null;
-        }
-
-        if (Str::startsWith($path, ['http://', 'https://'])) {
-            return $path;
-        }
-
-        $path = ltrim($path, '/');
-
-        if (Str::startsWith($path, 'storage/')) {
-            $path = Str::after($path, 'storage/');
-        }
-
-        return Storage::disk('public')->url($path);
+        return MediaUrl::fromPath($this->file_path);
     }
 
     /**

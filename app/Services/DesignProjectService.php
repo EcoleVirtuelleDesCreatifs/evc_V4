@@ -309,16 +309,11 @@ class DesignProjectService
             return $uploadedFiles;
         }
 
-        $uploadPath = public_path(self::UPLOAD_PATH);
-
-        // Créer le dossier s'il n'existe pas
-        if (!file_exists($uploadPath)) {
-            mkdir($uploadPath, 0755, true);
-        }
+        $directory = 'design_projects/' . $projectId . '/other';
 
         foreach ($request->file('files') as $file) {
             if ($file->isValid()) {
-                $fileInfo = $this->processFile($file, $uploadPath, $projectId);
+                $fileInfo = $this->processFile($file, $directory, $projectId);
                 $uploadedFiles[] = $fileInfo;
             }
         }
@@ -334,7 +329,7 @@ class DesignProjectService
      * @param int $projectId
      * @return array Informations du fichier
      */
-    private function processFile($file, string $uploadPath, int $projectId): array
+    private function processFile($file, string $directory, int $projectId): array
     {
         // Récupérer les informations du fichier AVANT de le déplacer
         $originalName = $file->getClientOriginalName();
@@ -344,10 +339,7 @@ class DesignProjectService
 
         // Générer un nom unique
         $storedName = time() . '_' . Str::random(10) . '.' . $extension;
-        $filePath = self::UPLOAD_PATH . '/' . $storedName;
-
-        // Déplacer le fichier
-        $file->move($uploadPath, $storedName);
+        $filePath = $file->storeAs($directory, $storedName, 'public');
 
         // Enregistrer en base avec les informations récupérées avant le déplacement
         $stmt = $this->pdo->prepare("

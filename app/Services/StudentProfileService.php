@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class StudentProfileService
 {
@@ -15,11 +16,11 @@ class StudentProfileService
         if ($id) {
             return Student::findOrFail($id);
         }
-        
+
         if ($user) {
             // Chercher par user_id (email n'existe PAS dans la table students)
             $student = Student::where('user_id', $user->id)->first();
-            
+
             // Si toujours pas trouvé, créer un nouveau
             if (!$student) {
                 $student = new Student([
@@ -28,10 +29,10 @@ class StudentProfileService
                     'email' => $user->email ?? '',
                 ]);
             }
-            
+
             return $student;
         }
-        
+
         return new Student();
     }
 
@@ -57,14 +58,20 @@ class StudentProfileService
         }
 
         if ($photo) {
-            // Stockage public/uploads/photos (peut être migré vers storage/app/public)
-            $filename = 'student_' . ($student->id ?? 'new') . '_' . time() . '.' . $photo->getClientOriginalExtension();
-            $dest = public_path('uploads/photos');
-            if (!is_dir($dest)) {
-                @mkdir($dest, 0775, true);
+            $userId = $student->user_id ?: (auth()->user()->id ?? null);
+            if ($userId) {
+                $oldPath = (string) ($student->profile_photo ?? '');
+                if ($oldPath !== '' && Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+
+                $extension = $photo->getClientOriginalExtension();
+                $directory = 'users/' . $userId . '/profile';
+                $filename = 'photo.' . $extension;
+                $path = $photo->storeAs($directory, $filename, 'public');
+
+                $student->profile_photo = $path;
             }
-            $photo->move($dest, $filename);
-            $student->profile_photo = 'uploads/photos/' . $filename;
         }
 
         if (empty($student->user_id) && $user = auth()->user()) {
@@ -78,17 +85,17 @@ class StudentProfileService
             $day = date('d');
             $month = date('m');
             $datePrefix = "{$year}-{$day}{$month}";
-            
+
             $lastStudent = Student::where('student_id', 'LIKE', "EVC-{$datePrefix}%")
                 ->orderBy('student_id', 'desc')
                 ->first();
-            
+
             if ($lastStudent && preg_match('/EVC-\\d{4}-\\d{4}(\\d{2})/', $lastStudent->student_id, $matches)) {
                 $nextNumber = intval($matches[1]) + 1;
             } else {
                 $nextNumber = 1;
             }
-            
+
             $student->student_id = sprintf('EVC-%s-%s%02d', $year, $day . $month, $nextNumber);
         }
 
@@ -96,19 +103,19 @@ class StudentProfileService
         if (empty($student->first_name)) {
             $student->first_name = auth()->user()->name ?? 'Non spécifié';
         }
-        
+
         if (empty($student->last_name)) {
             $student->last_name = 'Non spécifié';
         }
-        
+
         if (empty($student->email)) {
             $student->email = auth()->user()->email ?? 'noemail@evc.com';
         }
-        
+
         if (empty($student->degree)) {
             $student->degree = 'Non spécifié';
         }
-        
+
         if (empty($student->Level_education)) {
             $student->Level_education = 'Non spécifié';
         }

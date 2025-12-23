@@ -1742,22 +1742,6 @@ class AdminDashboardController extends Controller
         $assignments = [];
         $emailsSent = 0;
         $emailsFailures = [];
-        $uploadedFiles = [];
-
-        // Traiter les fichiers uploadés
-        if ($request->hasFile('tp_files')) {
-            foreach ($request->file('tp_files') as $file) {
-                $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
-                $filePath = $file->storeAs('tp_files', $fileName, 'public');
-
-                $uploadedFiles[] = [
-                    'file_name' => $file->getClientOriginalName(),
-                    'file_path' => $filePath,
-                    'file_type' => $file->getMimeType(),
-                    'file_size' => $file->getSize(),
-                ];
-            }
-        }
 
         foreach ($studentsIds as $studentId) {
             // Récupérer les infos de l'étudiant
@@ -1809,16 +1793,26 @@ class AdminDashboardController extends Controller
                 }
 
                 // Associer les fichiers à cette assignation
-                foreach ($uploadedFiles as $fileData) {
-                    DB::table('tp_assignment_files')->insert([
-                        'tp_assignment_id' => $assignmentId,
-                        'file_name' => $fileData['file_name'],
-                        'file_path' => $fileData['file_path'],
-                        'file_type' => $fileData['file_type'],
-                        'file_size' => $fileData['file_size'],
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
+                if ($request->hasFile('tp_files')) {
+                    foreach ($request->file('tp_files') as $file) {
+                        if (!$file || !$file->isValid()) {
+                            continue;
+                        }
+
+                        $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
+                        $directory = 'tp_assignments/' . $assignmentId . '/brief';
+                        $filePath = $file->storeAs($directory, $fileName, 'public');
+
+                        DB::table('tp_assignment_files')->insert([
+                            'tp_assignment_id' => $assignmentId,
+                            'file_name' => $file->getClientOriginalName(),
+                            'file_path' => $filePath,
+                            'file_type' => $file->getMimeType(),
+                            'file_size' => $file->getSize(),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
                 }
 
                 // Envoi de l'email de notification
@@ -4541,14 +4535,7 @@ class AdminDashboardController extends Controller
                     continue;
                 }
 
-                $storedPath = $file->store('projects/attachments', 'public');
-                $uploadedAttachments[] = [
-                    'filename' => basename($storedPath),
-                    'original_name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getClientMimeType(),
-                    'file_size' => $file->getSize(),
-                    'file_path' => $storedPath,
-                ];
+                $uploadedAttachments[] = $file;
             }
         }
 
@@ -4677,19 +4664,29 @@ class AdminDashboardController extends Controller
 
                 if (!empty($uploadedAttachments)) {
                     $index = 0;
-                    foreach ($uploadedAttachments as $att) {
+                    foreach ($uploadedAttachments as $file) {
+                        if (!$file || !$file->isValid()) {
+                            continue;
+                        }
+
+                        $extension = $file->getClientOriginalExtension();
+                        $storedName = time() . '_' . uniqid() . '.' . $extension;
+                        $directory = 'projects/' . $projectId . '/attachments';
+                        $storedPath = $file->storeAs($directory, $storedName, 'public');
+
                         DB::table('project_images')->insert([
                             'project_id' => $projectId,
-                            'filename' => $att['filename'],
-                            'original_name' => $att['original_name'],
-                            'mime_type' => $att['mime_type'],
-                            'file_size' => $att['file_size'],
-                            'file_path' => $att['file_path'],
+                            'filename' => basename($storedPath),
+                            'original_name' => $file->getClientOriginalName(),
+                            'mime_type' => $file->getClientMimeType(),
+                            'file_size' => $file->getSize(),
+                            'file_path' => $storedPath,
                             'is_thumbnail' => false,
                             'order_index' => $index,
                             'created_at' => now(),
                             'updated_at' => now(),
                         ]);
+
                         $index++;
                     }
                 }

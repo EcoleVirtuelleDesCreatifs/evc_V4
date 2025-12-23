@@ -51,7 +51,15 @@ class StudentController extends Controller
         ]);
 
         if ($request->hasFile('profile_photo')) {
-            $validated['profile_photo'] = $request->file('profile_photo')->store('students', 'public');
+            // Si on a un user_id, stocker dans un dossier stable et écrasable
+            if (!empty($validated['user_id'])) {
+                $extension = $request->file('profile_photo')->getClientOriginalExtension();
+                $directory = 'users/' . $validated['user_id'] . '/profile';
+                $filename = 'photo.' . $extension;
+                $validated['profile_photo'] = $request->file('profile_photo')->storeAs($directory, $filename, 'public');
+            } else {
+                $validated['profile_photo'] = $request->file('profile_photo')->store('students', 'public');
+            }
         }
 
         Student::create($validated);
@@ -104,7 +112,16 @@ class StudentController extends Controller
             if ($student->profile_photo) {
                 Storage::disk('public')->delete($student->profile_photo);
             }
-            $validated['profile_photo'] = $request->file('profile_photo')->store('students', 'public');
+
+            // Si on a un user_id, stocker dans un dossier stable et écrasable
+            if (!empty($student->user_id)) {
+                $extension = $request->file('profile_photo')->getClientOriginalExtension();
+                $directory = 'users/' . $student->user_id . '/profile';
+                $filename = 'photo.' . $extension;
+                $validated['profile_photo'] = $request->file('profile_photo')->storeAs($directory, $filename, 'public');
+            } else {
+                $validated['profile_photo'] = $request->file('profile_photo')->store('students', 'public');
+            }
         }
 
         $student->update($validated);
@@ -120,7 +137,7 @@ class StudentController extends Controller
         if ($student->profile_photo) {
             Storage::disk('public')->delete($student->profile_photo);
         }
-        
+
         $student->delete();
 
         return redirect()->route('students.index')->with('success', 'Étudiant supprimé avec succès!');

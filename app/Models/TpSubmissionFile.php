@@ -16,6 +16,11 @@ class TpSubmissionFile extends Model
         'mime_type',
     ];
 
+    public function getUrlAttribute()
+    {
+        return MediaUrl::fromPath($this->file_path);
+    }
+
     /**
      * Relation avec TpAssignment
      */

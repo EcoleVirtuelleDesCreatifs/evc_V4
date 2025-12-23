@@ -36,6 +36,11 @@ class DesignProjectFile extends Model
         'created_at' => 'datetime',
     ];
 
+    public function getUrlAttribute()
+    {
+        return MediaUrl::fromPath($this->file_path);
+    }
+
     /**
      * File category labels for display
      */

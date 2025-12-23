@@ -1440,25 +1440,11 @@ class DashboardController extends Controller
             $mimeType = $file->getMimeType();
             $extension = $file->getClientOriginalExtension();
 
-
-            // ÉTAPE 3: Créer le dossier si nécessaire
-            $uploadPath = public_path('uploads/tp');
-            if (!is_dir($uploadPath)) {
-                mkdir($uploadPath, 0755, true);
-            }
-
             // ÉTAPE 4: Générer nom unique
             $fileName = time() . '_' . $fileIndex . '_' . uniqid() . '.' . $extension;
-            $relativePath = 'uploads/tp/' . $fileName;
-            $fullPath = $uploadPath . '/' . $fileName;
 
-            // ÉTAPE 5: Déplacer le fichier
-            $file->move($uploadPath, $fileName);
-
-            // ÉTAPE 6: Vérifier que le fichier existe
-            if (!file_exists($fullPath)) {
-                return ['success' => false, 'error' => 'Fichier non trouvé après déplacement'];
-            }
+            $directory = 'tp/' . $tpId . '/files';
+            $relativePath = $file->storeAs($directory, $fileName, 'public');
 
 
             // ÉTAPE 7: Insérer en base de données
@@ -1601,11 +1587,6 @@ class DashboardController extends Controller
 
                 // Uploader les fichiers dans tp_submission_files
                 if ($request->hasFile('files')) {
-                    $uploadPath = storage_path('app/public/uploads');
-                    if (!file_exists($uploadPath)) {
-                        mkdir($uploadPath, 0755, true);
-                    }
-
                     foreach ($request->file('files') as $file) {
                         if (!$file || !$file->isValid()) {
                             continue;
@@ -1618,8 +1599,8 @@ class DashboardController extends Controller
                         $mimeType = $file->getMimeType();
                         $storedName = time() . '_' . Str::random(10) . '.' . $extension;
 
-                        $file->storeAs('public/uploads/tp', $storedName);
-                        $filePath = 'uploads/tp/' . $storedName;
+                        $directory = 'tp_submissions/' . $projectId . '/' . $student->id;
+                        $filePath = $file->storeAs($directory, $storedName, 'public');
 
                         DB::table('tp_submission_files')->insert([
                             'tp_assignment_id' => $projectId,
@@ -1688,11 +1669,6 @@ class DashboardController extends Controller
                 ]);
 
                 if ($request->hasFile('files')) {
-                    $uploadPath = public_path('uploads/design_projects');
-                    if (!file_exists($uploadPath)) {
-                        mkdir($uploadPath, 0755, true);
-                    }
-
                     $thumbSet = false;
 
                     foreach ($request->file('files') as $file) {
@@ -1706,9 +1682,9 @@ class DashboardController extends Controller
                         $fileSize = $file->getSize();
                         $mimeType = $file->getMimeType();
                         $storedName = time() . '_' . Str::random(10) . '.' . $extension;
-                        $filePath = 'uploads/design_projects/' . $storedName;
 
-                        $file->move($uploadPath, $storedName);
+                        $directory = 'design_projects/' . $designProjectId . '/other';
+                        $filePath = $file->storeAs($directory, $storedName, 'public');
 
                         $fileType = (is_string($mimeType) && str_starts_with($mimeType, 'image/')) ? 'image' : 'document';
                         $isThumbnail = false;
@@ -2124,12 +2100,6 @@ class DashboardController extends Controller
 
             // Traiter les nouveaux fichiers
             if ($request->hasFile('files') && Schema::hasTable('tp_files')) {
-                $uploadPath = public_path('uploads/tp');
-
-                if (!file_exists($uploadPath)) {
-                    mkdir($uploadPath, 0755, true);
-                }
-
                 foreach ($request->file('files') as $file) {
                     if ($file->isValid()) {
                         $originalName = $file->getClientOriginalName();
@@ -2137,9 +2107,9 @@ class DashboardController extends Controller
                         $mimeType = $file->getMimeType();
                         $extension = $file->getClientOriginalExtension();
                         $fileName = time() . '_' . uniqid() . '.' . $extension;
-                        $filePath = 'uploads/tp/' . $fileName;
 
-                        $file->move($uploadPath, $fileName);
+                        $directory = 'tp/' . $id . '/files';
+                        $filePath = $file->storeAs($directory, $fileName, 'public');
 
                         DB::table('tp_files')->insert([
                             'tp_id' => $id,
@@ -2212,9 +2182,18 @@ class DashboardController extends Controller
                 $files = DB::table('tp_files')->where('tp_id', $id)->get();
 
                 foreach ($files as $file) {
-                    $fullPath = public_path($file->file_path);
-                    if (file_exists($fullPath)) {
-                        unlink($fullPath);
+                    $path = ltrim((string) ($file->file_path ?? ''), '/');
+
+                    // Ancien stockage legacy (public/uploads/..)
+                    if (str_starts_with($path, 'uploads/')) {
+                        $fullPath = public_path($path);
+                        if (file_exists($fullPath)) {
+                            unlink($fullPath);
+                        }
+                    } else {
+                        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+                            \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+                        }
                     }
                 }
 
@@ -2291,10 +2270,18 @@ class DashboardController extends Controller
             }
 
             // Supprimer le fichier physique
-            $fullPath = public_path($file->file_path);
-            if (file_exists($fullPath)) {
-                unlink($fullPath);
-                Log::info("✅ Fichier physique supprimé: $fullPath");
+            $path = ltrim((string) ($file->file_path ?? ''), '/');
+            if (str_starts_with($path, 'uploads/')) {
+                $fullPath = public_path($path);
+                if (file_exists($fullPath)) {
+                    unlink($fullPath);
+                    Log::info("✅ Fichier physique supprimé: $fullPath");
+                }
+            } else {
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+                    Log::info("✅ Fichier supprimé du storage public: $path");
+                }
             }
 
             // Supprimer l'entrée en base de données
@@ -4220,7 +4207,8 @@ class DashboardController extends Controller
                         $fileName = time() . '_' . uniqid() . '_' . $file->getClientOriginalName();
 
                         // Stocker le fichier
-                        $path = $file->storeAs('uploads/tp', $fileName, 'public');
+                        $directory = 'tp_submissions/' . $id . '/' . $student->id;
+                        $path = $file->storeAs($directory, $fileName, 'public');
 
                         // Enregistrer dans la base de données
                         DB::table('tp_submission_files')->insert([
