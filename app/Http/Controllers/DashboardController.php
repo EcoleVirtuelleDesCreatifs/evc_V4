@@ -1515,7 +1515,7 @@ class DashboardController extends Controller
                     ->where('tp_assignment_id', $assignedProject->id)
                     ->get()
                     ->map(function ($file) {
-                        $file->url = asset('storage/' . ltrim((string) $file->file_path, '/'));
+                        $file->url = asset('storage/app/public/' . ltrim((string) $file->file_path, '/'));
                         $file->name = $file->file_name ?? 'fichier';
                         return $file;
                     });
@@ -1527,7 +1527,7 @@ class DashboardController extends Controller
                 ->orderBy('order_index', 'asc')
                 ->get()
                 ->map(function ($file) {
-                    $file->url = asset('storage/' . ltrim((string) $file->file_path, '/'));
+                    $file->url = asset('storage/app/public/' . ltrim((string) $file->file_path, '/'));
                     $file->name = $file->original_name ?? $file->filename ?? 'fichier';
                     return $file;
                 });
@@ -1601,7 +1601,7 @@ class DashboardController extends Controller
 
                 // Uploader les fichiers dans tp_submission_files
                 if ($request->hasFile('files')) {
-                    $uploadPath = storage_path('app/public/uploads/tp');
+                    $uploadPath = storage_path('app/public/uploads');
                     if (!file_exists($uploadPath)) {
                         mkdir($uploadPath, 0755, true);
                     }
@@ -3332,7 +3332,7 @@ class DashboardController extends Controller
             if ($pdfFile) {
                 $path = ltrim((string) $pdfFile->file_path, '/');
                 // Si le chemin commence par 'storage/', utiliser asset directement
-                if (str_starts_with($path, 'storage/')) {
+                if (str_starts_with($path, 'storage/app/public/')) {
                     $filePath = asset($path);
                 }
                 // Sinon ajouter 'storage/' au début
@@ -3340,7 +3340,7 @@ class DashboardController extends Controller
                     if (str_starts_with($path, 'storage/app/public/')) {
                         $path = substr($path, strlen('storage/app/public/'));
                     }
-                    $filePath = asset('storage/' . ltrim($path, '/'));
+                    $filePath = asset('storage/app/public/' . ltrim($path, '/'));
                 }
             }
 
@@ -3412,12 +3412,12 @@ class DashboardController extends Controller
                 if ($pdfFile && isset($pdfFile->file_path)) {
                     $path = $pdfFile->file_path;
                     // Si le chemin commence par 'storage/', utiliser asset directement
-                    if (str_starts_with($path, 'storage/')) {
+                    if (str_starts_with($path, 'storage/app/public/')) {
                         $filePath = asset($path);
                     }
                     // Sinon ajouter 'storage/' au début
                     else {
-                        $filePath = asset('storage/' . ltrim($path, '/'));
+                        $filePath = asset('storage/app/public/' . ltrim($path, '/'));
                     }
                 }
 
@@ -3994,7 +3994,7 @@ class DashboardController extends Controller
                     ->where('tp_assignment_id', $tp->id)
                     ->get()
                     ->map(function ($file) {
-                        $file->file_path = asset('storage/' . ltrim((string) $file->file_path, '/'));
+                        $file->file_path = asset('storage/app/public/' . ltrim((string) $file->file_path, '/'));
                         $file->file_name = $file->file_name ?? 'fichier';
                         return $file;
                     });
@@ -4011,7 +4011,7 @@ class DashboardController extends Controller
                     ->orderBy('order_index', 'asc')
                     ->get()
                     ->map(function ($file) {
-                        $file->file_path = asset('storage/' . ltrim((string) $file->file_path, '/'));
+                        $file->file_path = asset('storage/app/public/' . ltrim((string) $file->file_path, '/'));
                         $file->file_name = $file->original_name ?? $file->filename ?? 'fichier';
                         return $file;
                     });
