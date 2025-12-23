@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Models\MediaUrl;
+
 class ProfilePhotoHelper
 {
     /**
@@ -23,28 +25,23 @@ class ProfilePhotoHelper
 
         $filename = basename($photoPath);
 
-        // Si le chemin commence déjà par storage/, on retourne l'asset direct
+        // Normaliser tous les chemins relatifs via MediaUrl (force storage/app/public)
         if (str_starts_with($photoPath, 'storage/')) {
-            return asset($photoPath);
+            return MediaUrl::fromPath($photoPath);
         }
 
-        // Gestion spécifique des dossiers connus
-        if (str_starts_with($photoPath, 'photos_preregistrations/')) {
-            return asset('storage/' . $photoPath);
-        }
-
-        if (str_starts_with($photoPath, 'uploads/')) {
-            return asset('storage/' . $photoPath);
+        if (str_starts_with($photoPath, 'photos_preregistrations/') || str_starts_with($photoPath, 'uploads/')) {
+            return MediaUrl::fromPath($photoPath);
         }
 
         // Si c'est juste un nom de fichier, on essaie les dossiers communs dans storage
         if ($filename === $photoPath) {
             // On privilégie le dossier des préinscriptions car c'est le plus courant pour les profils
-            return asset('storage/photos_preregistrations/' . $filename);
+            return MediaUrl::fromPath('photos_preregistrations/' . $filename);
         }
 
         // Par défaut, on tente via le storage
-        return asset('storage/' . $photoPath);
+        return MediaUrl::fromPath($photoPath);
     }
 
     /**

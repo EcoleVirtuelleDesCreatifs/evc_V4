@@ -232,20 +232,7 @@
                             $studentName = $studentName !== '' ? $studentName : (optional($project->user)->name ?? 'Étudiant');
                             $studentEmail = optional($project->user)->email;
 
-                            $rawPhoto = $student->profile_photo ?? null;
-                            if ($rawPhoto) {
-                                if (preg_match('/^https?:\/\//', $rawPhoto)) {
-                                    $studentPhotoUrl = $rawPhoto;
-                                } elseif (str_starts_with($rawPhoto, 'photos_preregistrations/')) {
-                                    $studentPhotoUrl = asset('storage/' . $rawPhoto);
-                                } elseif (str_starts_with($rawPhoto, 'uploads/')) {
-                                    $studentPhotoUrl = asset($rawPhoto);
-                                } else {
-                                    $studentPhotoUrl = asset('storage/' . $rawPhoto);
-                                }
-                            } else {
-                                $studentPhotoUrl = asset('assets/img/avatar.png');
-                            }
+                            $studentPhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null, '/assets/img/avatar.png');
 
                             $modeRaw = $project->project_mode ?? ($project->category ?? null);
                             $modeRaw = is_string($modeRaw) ? strtolower(trim($modeRaw)) : null;

@@ -589,8 +589,11 @@
 
                                     <!-- Informations étudiant -->
                                     <div class="student-info">
-                                        @if($studentPhoto)
-                                            <img src="{{ asset('storage/' . ltrim($studentPhoto, '/')) }}" alt="{{ $studentName }}" class="student-avatar">
+                                        @php
+                                            $studentPhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($studentPhoto ?? null);
+                                        @endphp
+                                        @if(!empty($studentPhotoUrl))
+                                            <img src="{{ $studentPhotoUrl }}" alt="{{ $studentName }}" class="student-avatar">
                                         @else
                                             <div class="student-avatar-placeholder">
                                                 {{ mb_strtoupper($initials) }}
