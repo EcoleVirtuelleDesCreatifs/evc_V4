@@ -3994,7 +3994,15 @@ class DashboardController extends Controller
                     ->where('tp_assignment_id', $tp->id)
                     ->get()
                     ->map(function ($file) {
-                        $file->file_path = asset('storage/app/public/' . ltrim((string) $file->file_path, '/'));
+                        $path = ltrim((string) $file->file_path, '/');
+                        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                            $file->file_path = $path;
+                        } else {
+                            if (str_starts_with($path, 'storage/app/public/')) {
+                                $path = substr($path, strlen('storage/app/public/'));
+                            }
+                            $file->file_path = asset('storage/app/public/' . ltrim($path, '/'));
+                        }
                         $file->file_name = $file->file_name ?? 'fichier';
                         return $file;
                     });
@@ -4011,7 +4019,15 @@ class DashboardController extends Controller
                     ->orderBy('order_index', 'asc')
                     ->get()
                     ->map(function ($file) {
-                        $file->file_path = asset('storage/app/public/' . ltrim((string) $file->file_path, '/'));
+                        $path = ltrim((string) $file->file_path, '/');
+                        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                            $file->file_path = $path;
+                        } else {
+                            if (str_starts_with($path, 'storage/app/public/')) {
+                                $path = substr($path, strlen('storage/app/public/'));
+                            }
+                            $file->file_path = asset('storage/app/public/' . ltrim($path, '/'));
+                        }
                         $file->file_name = $file->original_name ?? $file->filename ?? 'fichier';
                         return $file;
                     });
