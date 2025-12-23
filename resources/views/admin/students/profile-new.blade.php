@@ -1231,15 +1231,7 @@
                                     @if($firstImage)
                                         @php
                                             $imgPath = $firstImage->file_path ?? '';
-                                            // Files physically stored in storage/app/public/... must be served via public/storage
-                                            // so a stored path like "uploads/tp/foo.jpg" should be rendered as "storage/uploads/tp/foo.jpg"
-                                            if (\Illuminate\Support\Str::startsWith($imgPath, 'uploads/')) {
-                                                $imgUrl = asset('storage/' . $imgPath);
-                                            } elseif (\Illuminate\Support\Str::startsWith($imgPath, 'storage/')) {
-                                                $imgUrl = asset($imgPath);
-                                            } else {
-                                                $imgUrl = asset($imgPath);
-                                            }
+                                            $imgUrl = \App\Models\MediaUrl::fromPath($imgPath);
                                         @endphp
                                         <img src="{{ $imgUrl }}" alt="" class="project-image">
                                     @else
