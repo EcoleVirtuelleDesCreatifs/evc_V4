@@ -1578,7 +1578,40 @@ class AdminDashboardController extends Controller
 
     public function destroyBibliothequeItem(Library $item): RedirectResponse
     {
-        Storage::disk('public')->delete($item->path);
+        $disk = Storage::disk('public');
+
+        $deleteIfPresent = function ($path) use ($disk) {
+            $path = (string) ($path ?? '');
+            if ($path === '') {
+                return;
+            }
+
+            // Ne pas tenter de supprimer une URL externe
+            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+                return;
+            }
+
+            $path = ltrim($path, '/');
+            if (str_starts_with($path, 'storage/')) {
+                $path = substr($path, strlen('storage/'));
+            }
+
+            try {
+                if ($disk->exists($path)) {
+                    $disk->delete($path);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Unable to delete bibliotheque file from storage', [
+                    'library_id' => $item->id ?? null,
+                    'path' => $path,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        };
+
+        $deleteIfPresent($item->path ?? null);
+        $deleteIfPresent($item->pdf_path ?? null);
+        $deleteIfPresent($item->cover_image ?? null);
         $item->delete();
 
         return redirect()->route('admin.bibliotheque.index')->with('success', 'Média supprimé avec succès.');
