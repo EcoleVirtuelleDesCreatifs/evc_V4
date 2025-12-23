@@ -104,14 +104,14 @@
                         @php
                             $formationIcons = [
                                 'Design graphique' => 'fas fa-palette',
-                                'Community manager' => 'fas fa-share-alt', 
+                                'Community manager' => 'fas fa-share-alt',
                                 'Intelligence Artificielle' => 'fas fa-robot',
                                 'Gestion informatique' => 'fas fa-server'
                             ];
 
                             // Debug: Vérifier la présence et structure des données
                             $debugFormationStats = isset($formationStats) && !empty($formationStats);
-                            
+
                             // Fallback robuste: Récupérer les vraies données depuis la base si $formationStats est vide
                             if (!$debugFormationStats) {
                                 try {
@@ -186,22 +186,22 @@
                                     <div class="card-body text-center p-3">
                                         <!-- Icône -->
                                         <div class="mb-3">
-                                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle" 
+                                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle"
                                                  style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.2);">
                                                 <i class="{{ $icon }} text-primary"></i>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Nom Formation -->
                                         <h6 class="text-white fw-semibold mb-3">{{ $formation->nom_formation }}</h6>
-                                        
+
                                         <!-- Affichage Dynamique des Nombres : Total | Actif -->
                                         <div class="row g-3 mb-4">
                                             <div class="col-6">
-                                                <div class="text-center p-2 rounded dynamic-stat-box" 
+                                                <div class="text-center p-2 rounded dynamic-stat-box"
                                                      style="background: rgba(255,255,255,0.08); transition: all 0.3s ease;">
-                                                    <div class="text-white fw-bold mb-1 counter-number" 
-                                                         style="font-size: 1.8rem;" 
+                                                    <div class="text-white fw-bold mb-1 counter-number"
+                                                         style="font-size: 1.8rem;"
                                                          data-target="{{ $formation->total_etudiants }}"
                                                          data-formation="{{ $formation->nom_formation }}">{{ $formation->total_etudiants }}</div>
                                                     <div class="text-white-75 small fw-semibold">TOTAL</div>
@@ -209,7 +209,7 @@
                                                     <!-- Barre de progression dynamique -->
                                                     <div class="mt-2">
                                                         <div class="progress" style="height: 3px; background: rgba(255,255,255,0.1);">
-                                                            <div class="progress-bar bg-light progress-total" 
+                                                            <div class="progress-bar bg-light progress-total"
                                                                  style="width: 0%; transition: width 2s ease-in-out;"
                                                                  data-width="100"></div>
                                                         </div>
@@ -217,10 +217,10 @@
                                                 </div>
                                             </div>
                                             <div class="col-6">
-                                                <div class="text-center p-2 rounded dynamic-stat-box" 
+                                                <div class="text-center p-2 rounded dynamic-stat-box"
                                                      style="background: rgba(34, 197, 94, 0.15); transition: all 0.3s ease;">
-                                                    <div class="text-success fw-bold mb-1 counter-number" 
-                                                         style="font-size: 1.8rem;" 
+                                                    <div class="text-success fw-bold mb-1 counter-number"
+                                                         style="font-size: 1.8rem;"
                                                          data-target="{{ $activeStudents }}"
                                                          data-formation="{{ $formation->nom_formation }}">{{ $activeStudents }}</div>
                                                     <div class="text-success small fw-semibold">ACTIF</div>
@@ -228,7 +228,7 @@
                                                     <!-- Barre de progression dynamique -->
                                                     <div class="mt-2">
                                                         <div class="progress" style="height: 3px; background: rgba(255,255,255,0.1);">
-                                                            <div class="progress-bar bg-success progress-active" 
+                                                            <div class="progress-bar bg-success progress-active"
                                                                  style="width: 0%; transition: width 2s ease-in-out;"
                                                                  data-width="{{ $formation->total_etudiants > 0 ? round(($activeStudents / $formation->total_etudiants) * 100) : 0 }}"></div>
                                                         </div>
@@ -237,10 +237,10 @@
                                             </div>
                                         </div>
 
-                                        
+
                                         <!-- Bouton Voir en bas -->
                                         <div class="text-center">
-                                            <a href="{{ route('admin.students.index', ['formation' => $formation->nom_formation]) }}" 
+                                            <a href="{{ route('admin.students.index', ['formation' => $formation->nom_formation]) }}"
                                                class="btn btn-primary btn-sm px-4 py-2">
                                                 <i class="fas fa-eye me-1"></i>
                                                 Voir
@@ -418,8 +418,11 @@
                                                 <td class="border-0 py-3">
                                                     <div class="d-flex align-items-center">
                                                         <div class="student-avatar me-3">
-                                                            @if($student->profile_photo)
-                                                                <img src="{{ asset('uploads/photos/' . basename($student->profile_photo)) }}"
+                                                            @php
+                                                                $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
+                                                            @endphp
+                                                            @if($photoUrl && !str_contains($photoUrl, 'default-avatar') && !str_contains($photoUrl, 'avatar.png'))
+                                                                <img src="{{ $photoUrl }}"
                                                                      alt="{{ $student->first_name }}"
                                                                      class="rounded-circle shadow-sm"
                                                                      style="width: 45px; height: 45px; object-fit: cover; border: 2px solid var(--dashboard-accent);">
@@ -444,17 +447,17 @@
                                                     @php
                                                         // Vérifier si la propriété formation_souhaitee existe
                                                         $formationValue = $student->formation_souhaitee ?? null;
-                                                        
+
                                                         // Normaliser la valeur de formation pour gérer toutes les variations
                                                         $normalizedFormation = null;
                                                         if ($formationValue) {
                                                             $formationLower = strtolower(str_replace([' ', '_'], '-', $formationValue));
-                                                            
+
                                                             // Design Graphique (4 mois)
                                                             if (strpos($formationLower, 'design') !== false || strpos($formationLower, 'graphique') !== false) {
                                                                 $normalizedFormation = 'design-graphique';
                                                             }
-                                                            // Community Management (3 mois) 
+                                                            // Community Management (3 mois)
                                                             elseif (strpos($formationLower, 'community') !== false || strpos($formationLower, 'manager') !== false) {
                                                                 $normalizedFormation = 'community-management';
                                                             }
@@ -467,21 +470,21 @@
                                                                 $normalizedFormation = 'intelligence-artificielle';
                                                             }
                                                         }
-                                                        
+
                                                         $formationColors = [
                                                             'design-graphique' => ['bg' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 'duration' => '4 mois'],
                                                             'community-management' => ['bg' => 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 'duration' => '3 mois'],
                                                             'gestion-informatique' => ['bg' => 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', 'duration' => '2 mois'],
                                                             'intelligence-artificielle' => ['bg' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', 'duration' => '1 mois']
                                                         ];
-                                                        
+
                                                         $formationNames = [
                                                             'design-graphique' => 'Design Graphique',
                                                             'community-management' => 'Community Manager',
                                                             'gestion-informatique' => 'Gestion Informatique',
                                                             'intelligence-artificielle' => 'Intelligence Artificielle'
                                                         ];
-                                                        
+
                                                         // Gestion des cas où la formation n'est pas définie ou vide
                                                         if (empty($formationValue)) {
                                                             $formationInfo = ['bg' => 'linear-gradient(135deg, #6c757d 0%, #495057 100%)', 'duration' => 'Non définie'];
@@ -493,7 +496,7 @@
                                                             $formationName = $formationNames[$keyToUse] ?? ucfirst(str_replace('-', ' ', $formationValue));
                                                         }
                                                     @endphp
-                                                    
+
                                                     <div class="formation-minimal">
                                                         @if(!empty($formationValue))
                                                             <div class="text-white fw-medium mb-1" style="font-size: 0.85rem;">
@@ -530,7 +533,7 @@
                                                             $endDate = \Carbon\Carbon::parse($student->subscription_end_date);
                                                             $isExpired = $endDate->isPast();
                                                             $daysRemaining = (int) $endDate->diffInDays(now(), false);
-                                                            
+
                                                             // Système de couleurs bleues minimalistes
                                                             if ($isExpired) {
                                                                 $blueShade = '#1e3a8a'; // Bleu foncé pour expiré
@@ -545,7 +548,7 @@
                                                                 $blueShade = '#93c5fd'; // Bleu très clair pour normal
                                                                 $bgColor = 'rgba(147, 197, 253, 0.1)';
                                                             }
-                                                            
+
                                                             // Calcul du pourcentage de progression
                                                             $totalDays = match(true) {
                                                                 str_contains(strtolower($student->formation_souhaitee), 'design') => 120, // 4 mois
@@ -556,18 +559,18 @@
                                                             };
                                                             $progressPercent = $isExpired ? 0 : min(100, max(0, ($daysRemaining / $totalDays) * 100));
                                                         @endphp
-                                                        
-                                                        <div class="countdown-container" 
-                                                             data-end-date="{{ $endDate->toISOString() }}" 
+
+                                                        <div class="countdown-container"
+                                                             data-end-date="{{ $endDate->toISOString() }}"
                                                              data-student-id="{{ $student->id }}">
-                                            
-                                                            <div class="countdown-blue-minimal" 
-                                                 style="background: {{ $bgColor }}; 
-                                                        border: 1px solid {{ $blueShade }}40; 
-                                                        border-radius: 8px; 
-                                                        padding: 12px 16px; 
+
+                                                            <div class="countdown-blue-minimal"
+                                                 style="background: {{ $bgColor }};
+                                                        border: 1px solid {{ $blueShade }}40;
+                                                        border-radius: 8px;
+                                                        padding: 12px 16px;
                                                         text-align: center;">
-                                                
+
                                                 @if($isExpired)
                                                     <!-- Affichage expiré minimaliste bleu -->
                                                     <div style="color: {{ $blueShade }}; font-weight: 600; font-size: 0.85rem;">
@@ -578,7 +581,7 @@
                                                     </div>
                                                 @else
                                                     <!-- Décompte bleu minimaliste -->
-                                                    <div class="d-flex align-items-center justify-content-center gap-2" 
+                                                    <div class="d-flex align-items-center justify-content-center gap-2"
                                                          style="color: {{ $blueShade }}; font-weight: 500;">
                                                         <div class="text-center">
                                                             <div class="countdown-days" style="font-size: 1.1rem; font-weight: 600;" id="days-{{ $student->id }}">{{ $daysRemaining }}</div>
@@ -597,7 +600,7 @@
                                                             <div class="countdown-seconds" style="font-size: 0.9rem;" id="seconds-{{ $student->id }}">{{ str_pad($endDate->diffInSeconds(now()) % 60, 2, '0', STR_PAD_LEFT) }}</div>
                                                             <div style="font-size: 0.6rem; opacity: 0.8; margin-top: -2px;">s</div>
                                                         </div>
-                                        
+
                                         <!-- Script inline pour ce décompte complet -->
                                         <script>
                                         (function() {
@@ -606,18 +609,18 @@
                                             const hoursEl = document.getElementById('hours-{{ $student->id }}');
                                             const minutesEl = document.getElementById('minutes-{{ $student->id }}');
                                             const secondsEl = document.getElementById('seconds-{{ $student->id }}');
-                                            
+
                                             function updateCountdown() {
                                                 const now = new Date();
                                                 const timeLeft = endDate - now;
-                                                
+
                                                 if (timeLeft > 0) {
                                                     // Calculer toutes les unités de temps
                                                     const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
                                                     const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                                                     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
                                                     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-                                                    
+
                                                     // Mettre à jour tous les éléments
                                                     if (daysEl) daysEl.textContent = days;
                                                     if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
@@ -631,7 +634,7 @@
                                                     if (secondsEl) secondsEl.textContent = '00';
                                                 }
                                             }
-                                            
+
                                             // Démarrer immédiatement
                                             updateCountdown();
                                             setInterval(updateCountdown, 1000);
@@ -660,17 +663,17 @@
                                                         // Statut en ligne basé strictement sur la valeur calculée par le contrôleur
                                                         $isOnline = isset($student->online_status) && $student->online_status === 'online';
                                                     @endphp
-                                                    
+
                                                     <div class="status-minimal">
                                                         @php
                                                             // Utiliser la vraie dernière connexion depuis user_activities (plus précis)
                                                             $lastConnectionDate = $student->last_real_login ?? $student->last_login ?? $student->created_at;
                                                             $carbonDate = \Carbon\Carbon::parse($lastConnectionDate);
-                                                            
+
                                                             // Calcul français ultra-précis inline (évite redéclaration)
                                                             $now = \Carbon\Carbon::now();
                                                             $diff = $carbonDate->diff($now);
-                                                            
+
                                                             if ($diff->y > 0) {
                                                                 $frenchTimeDiff = $diff->y == 1 ? 'il y a 1 an' : "il y a {$diff->y} ans";
                                                             } elseif ($diff->m > 0) {
@@ -691,7 +694,7 @@
                                                                 $frenchTimeDiff = 'il y a quelques secondes';
                                                             }
                                                         @endphp
-                                                        
+
                                                         <div class="text-center">
                                                             @if($isOnline)
                                                                 <div class="d-flex align-items-center justify-content-center">
@@ -1144,22 +1147,22 @@
     .subscription-dynamic {
         padding: 8px;
     }
-    
+
     .progress-ring-container {
         width: 50px;
         height: 50px;
     }
-    
+
     .progress-ring {
         width: 50px;
         height: 50px;
     }
-    
+
     .subscription-badge {
         padding: 6px 10px;
         font-size: 0.85rem;
     }
-    
+
     .countdown-time-dynamic {
         font-size: 0.6rem;
     }
@@ -1198,16 +1201,16 @@
 }
 
 @keyframes blink-green {
-    0% { 
-        opacity: 1; 
+    0% {
+        opacity: 1;
         box-shadow: 0 0 5px rgba(40, 167, 69, 0.8);
     }
-    50% { 
-        opacity: 0.3; 
+    50% {
+        opacity: 0.3;
         box-shadow: 0 0 10px rgba(40, 167, 69, 0.4);
     }
-    100% { 
-        opacity: 1; 
+    100% {
+        opacity: 1;
         box-shadow: 0 0 5px rgba(40, 167, 69, 0.8);
     }
 }
@@ -1268,22 +1271,22 @@
     .modern-students-table {
         font-size: 0.8rem;
     }
-    
+
     .modern-students-table th,
     .modern-students-table td {
         padding: 0.5rem;
     }
-    
+
     .formation-badge {
         font-size: 0.65rem;
         padding: 0.25rem 0.5rem;
     }
-    
+
     .status-badge {
         font-size: 0.65rem;
         padding: 0.25rem 0.5rem;
     }
-    
+
     .modern-action-btn {
         padding: 0.25rem;
         margin: 0 1px;
@@ -1436,16 +1439,16 @@ function animateFormationStats() {
     document.querySelectorAll('.counter-number').forEach(function(counter) {
         const target = parseInt(counter.dataset.target) || 0;
         const formation = counter.dataset.formation;
-        
+
         // Commencer à 0 pour l'animation
         counter.textContent = '0';
         let current = 0;
-        
+
         if (target === 0) {
             counter.textContent = '0';
             return;
         }
-        
+
         const duration = 1500; // 1.5 secondes
         const steps = 60; // 60 étapes pour une animation fluide
         const increment = target / steps;
@@ -1456,7 +1459,7 @@ function animateFormationStats() {
             if (current >= target) {
                 current = target;
                 clearInterval(timer);
-                
+
                 // Effet de pulsation à la fin
                 counter.style.transform = 'scale(1.1)';
                 counter.style.transition = 'transform 0.2s ease';
@@ -1485,7 +1488,7 @@ function animateFormationStats() {
     document.querySelectorAll('.dynamic-stat-box').forEach(function(box, index) {
         box.style.opacity = '0';
         box.style.transform = 'translateY(20px)';
-        
+
         setTimeout(function() {
             box.style.transition = 'all 0.6s ease';
             box.style.opacity = '1';
@@ -1651,19 +1654,19 @@ function showModernToast(message, type = 'info') {
 function initRevolutionaryAnimations() {
     // Animer les barres de progression
     const progressBars = document.querySelectorAll('.progress-bar-revolutionary');
-    
+
     progressBars.forEach((bar, index) => {
         const targetWidth = bar.dataset.width + '%';
-        
+
         // Animation décalée pour chaque barre
         setTimeout(() => {
             bar.style.width = targetWidth;
         }, index * 200 + 500);
     });
-    
+
     // Animer les métriques circulaires
     const metricCircles = document.querySelectorAll('.metric-circle');
-    
+
     metricCircles.forEach((circle, index) => {
         setTimeout(() => {
             circle.style.transform = 'scale(1.1)';
@@ -1672,10 +1675,10 @@ function initRevolutionaryAnimations() {
             }, 200);
         }, index * 100 + 800);
     });
-    
+
     // Animation des icônes flottantes
     const floatingIcons = document.querySelectorAll('.floating-icon');
-    
+
     floatingIcons.forEach((icon, index) => {
         setTimeout(() => {
             icon.style.opacity = '1';
@@ -1690,25 +1693,25 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('🔍 Debug Statistiques Formation:');
     const counters = document.querySelectorAll('.counter-number');
     console.log(`Nombre de compteurs trouvés: ${counters.length}`);
-    
+
     counters.forEach((counter, index) => {
         const target = counter.dataset.target;
         const formation = counter.dataset.formation;
         const currentText = counter.textContent;
         console.log(`Compteur ${index + 1}: Formation="${formation}", Target="${target}", Current="${currentText}"`);
     });
-    
+
     // Initialiser les animations des statistiques par formation
     setTimeout(() => {
         console.log('🚀 Démarrage animation des statistiques...');
         animateFormationStats();
     }, 300);
-    
+
     // Initialiser les autres animations révolutionnaires
     setTimeout(() => {
         initRevolutionaryAnimations();
     }, 800);
-    
+
     // Restaurer la vue préférée
     const savedView = localStorage.getItem('studentsViewType');
     if (savedView) {
@@ -1743,15 +1746,15 @@ function exportStudents(format) {
 // 🕐 SYSTÈME DE DÉCOMPTE FLUIDE ET MINIMALISTE
 function initCountdownTimers() {
     const countdownContainers = document.querySelectorAll('.countdown-container');
-    
+
     countdownContainers.forEach(container => {
         const endDate = new Date(container.dataset.endDate);
         const studentId = container.dataset.studentId;
-        
+
         // Vérifier si l'abonnement n'est pas déjà expiré
         if (endDate > new Date()) {
             updateCountdown(container, endDate);
-            
+
             // Mettre à jour toutes les secondes
             setInterval(() => {
                 updateCountdown(container, endDate);
@@ -1763,26 +1766,26 @@ function initCountdownTimers() {
 function updateCountdown(container, endDate) {
     const now = new Date();
     const timeLeft = endDate - now;
-    
+
     if (timeLeft <= 0) {
         // Abonnement expiré - recharger la page pour mettre à jour l'affichage
         location.reload();
         return;
     }
-    
+
     // Calculer les jours, heures, minutes, secondes
     const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
     const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-    
+
     // Mettre à jour l'affichage avec animation fluide
     const daysElement = container.querySelector('.countdown-days');
     const hoursElement = container.querySelector('.countdown-hours');
     const minutesElement = container.querySelector('.countdown-minutes');
     const secondsElement = container.querySelector('.countdown-seconds');
     const labelElement = container.querySelector('.countdown-label');
-    
+
     if (daysElement && daysElement.textContent != days) {
         animateNumberChange(daysElement, days);
         // Mettre à jour le label des jours
@@ -1790,19 +1793,19 @@ function updateCountdown(container, endDate) {
             labelElement.textContent = `jour${days !== 1 ? 's' : ''} restant${days !== 1 ? 's' : ''}`;
         }
     }
-    
+
     if (hoursElement) {
         animateNumberChange(hoursElement, hours.toString().padStart(2, '0'));
     }
-    
+
     if (minutesElement) {
         animateNumberChange(minutesElement, minutes.toString().padStart(2, '0'));
     }
-    
+
     if (secondsElement) {
         animateNumberChange(secondsElement, seconds.toString().padStart(2, '0'));
     }
-    
+
     // Animation de pulsation pour les dernières 24h
     if (days === 0) {
         container.style.animation = 'pulse 2s ease-in-out infinite';
@@ -1815,7 +1818,7 @@ function animateNumberChange(element, newValue) {
     if (element && element.textContent !== newValue.toString()) {
         element.style.transform = 'scale(1.1)';
         element.style.transition = 'transform 0.2s ease';
-        
+
         setTimeout(() => {
             element.textContent = newValue;
             element.style.transform = 'scale(1)';
@@ -1830,37 +1833,37 @@ function initCountdownTimers() {
     console.log('⏰ Recherche des conteneurs de décompte...');
     const countdownContainers = document.querySelectorAll('.countdown-container');
     console.log(`📊 ${countdownContainers.length} conteneurs trouvés`);
-    
+
     countdownContainers.forEach((container, index) => {
         const endDateStr = container.dataset.endDate;
         console.log(`🎯 Conteneur ${index + 1}: Date = ${endDateStr}`);
-        
+
         if (!endDateStr) {
             console.warn(`⚠️ Pas de date pour le conteneur ${index + 1}`);
             return;
         }
-        
+
         const endDate = new Date(endDateStr);
         const now = new Date();
         console.log(`📅 Date fin: ${endDate.toLocaleString()}, Maintenant: ${now.toLocaleString()}`);
-        
+
         // Vérifier si l'abonnement n'est pas déjà expiré
         if (endDate > now) {
             console.log(`✅ Démarrage du décompte pour le conteneur ${index + 1}`);
-            
+
             // Arrêter tout intervalle existant pour éviter les doublons
             if (container.dataset.intervalId) {
                 clearInterval(container.dataset.intervalId);
             }
-            
+
             // Mise à jour immédiate
             updateSimpleCountdown(container, endDate);
-            
+
             // Mettre à jour en temps réel (chaque seconde)
             const intervalId = setInterval(() => {
                 updateSimpleCountdown(container, endDate);
             }, 1000); // 1 seconde
-            
+
             container.dataset.intervalId = intervalId;
             console.log(`🔄 Intervalle créé avec ID: ${intervalId}`);
         } else {
@@ -1873,7 +1876,7 @@ function initCountdownTimers() {
 function updateSimpleCountdown(container, endDate) {
     const now = new Date();
     const timeLeft = endDate - now;
-    
+
     if (timeLeft <= 0) {
         // Abonnement expiré - arrêter le décompte et recharger
         console.log('⏰ Abonnement expiré - arrêt du décompte');
@@ -1884,38 +1887,38 @@ function updateSimpleCountdown(container, endDate) {
         setTimeout(() => location.reload(), 2000);
         return;
     }
-    
+
     // Calculer les unités de temps
     const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
     const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
     // Secondes qui comptent de 1 à 60 au lieu de décompter
     const seconds = 60 - Math.floor((timeLeft % (1000 * 60)) / 1000);
-    
+
     // Debug: afficher le temps calculé
     console.log(`⏱️ Temps: ${days}j ${hours}h ${minutes}m ${seconds}s`);
-    
+
     // Mettre à jour les éléments avec animation douce
     const daysElement = container.querySelector('.countdown-days');
     const hoursElement = container.querySelector('.countdown-hours');
     const minutesElement = container.querySelector('.countdown-minutes');
     const secondsElement = container.querySelector('.countdown-seconds');
-    
+
     // Debug: vérifier si les éléments sont trouvés
     console.log(`🔍 Éléments trouvés: jours=${!!daysElement}, heures=${!!hoursElement}, minutes=${!!minutesElement}, secondes=${!!secondsElement}`);
-    
+
     if (daysElement) {
         animateNumberChange(daysElement, days);
     }
-    
+
     if (hoursElement) {
         animateNumberChange(hoursElement, hours.toString().padStart(2, '0'));
     }
-    
+
     if (minutesElement) {
         animateNumberChange(minutesElement, minutes.toString().padStart(2, '0'));
     }
-    
+
     if (secondsElement) {
         animateNumberChange(secondsElement, seconds.toString().padStart(2, '0'));
     }
@@ -1925,43 +1928,43 @@ function updateSimpleCountdown(container, endDate) {
 function startRealTimeCountdown() {
     // Trouver tous les éléments de décompte
     const countdowns = document.querySelectorAll('.countdown-container');
-    
+
     countdowns.forEach(container => {
         const endDateStr = container.dataset.endDate;
         if (!endDateStr) return;
-        
+
         const endDate = new Date(endDateStr);
-        
+
         // Fonction de mise à jour pour ce conteneur spécifique
         function updateThisCountdown() {
             const now = new Date();
             const timeLeft = endDate - now;
-            
+
             if (timeLeft <= 0) {
                 location.reload();
                 return;
             }
-            
+
             const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
             const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = 60 - Math.floor((timeLeft % (1000 * 60)) / 1000);
-            
+
             // Mise à jour directe des éléments
             const daysEl = container.querySelector('.countdown-days');
             const hoursEl = container.querySelector('.countdown-hours');
             const minutesEl = container.querySelector('.countdown-minutes');
             const secondsEl = container.querySelector('.countdown-seconds');
-            
+
             if (daysEl) daysEl.textContent = days;
             if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
             if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
             if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
         }
-        
+
         // Mise à jour immédiate
         updateThisCountdown();
-        
+
         // Démarrer l'intervalle
         setInterval(updateThisCountdown, 1000);
     });
@@ -1983,11 +1986,11 @@ function testCountdown() {
     `;
     testDiv.textContent = 'TEST: Script chargé!';
     document.body.appendChild(testDiv);
-    
+
     // Tester la recherche d'éléments
     const containers = document.querySelectorAll('.countdown-container');
     testDiv.innerHTML = `TEST: ${containers.length} conteneurs trouvés`;
-    
+
     // Si on trouve des conteneurs, tester la mise à jour
     if (containers.length > 0) {
         const firstContainer = containers[0];
@@ -1995,9 +1998,9 @@ function testCountdown() {
         const hoursEl = firstContainer.querySelector('.countdown-hours');
         const minutesEl = firstContainer.querySelector('.countdown-minutes');
         const secondsEl = firstContainer.querySelector('.countdown-seconds');
-        
+
         testDiv.innerHTML += `<br>Éléments: J=${!!daysEl} H=${!!hoursEl} M=${!!minutesEl} S=${!!secondsEl}`;
-        
+
         // Test de mise à jour
         let counter = 0;
         setInterval(() => {
@@ -2465,21 +2468,21 @@ setTimeout(testCountdown, 2000);
     .stats-revolutionary-container {
         padding: 1.5rem 0;
     }
-    
+
     .revolutionary-title {
         font-size: 1.6rem;
     }
-    
+
     .revolutionary-grid {
         grid-template-columns: 1fr;
         gap: 1.5rem;
         padding: 0 0.5rem;
     }
-    
+
     .revolutionary-card {
         padding: 1.5rem;
     }
-    
+
     .header-decoration {
         display: none;
     }

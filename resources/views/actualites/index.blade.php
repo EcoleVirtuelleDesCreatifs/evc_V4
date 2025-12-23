@@ -97,7 +97,7 @@
                 <div class="row g-0">
                     <div class="col-md-5">
                         <div class="d-flex align-items-center justify-content-center" style="height: 100%; min-height: 400px; background-color: #f8f9fa; padding: 1rem;">
-                            <img src="{{ asset('storage/' . $featured->cover_image) }}"
+                            <img src="{{ $featured->cover_image_url }}"
                                  alt="{{ $featured->title }}"
                                  class="img-fluid"
                                  style="max-height: 400px; max-width: 100%; width: auto; object-fit: contain;">
@@ -177,7 +177,7 @@
             <div class="card h-100 border-0 shadow-sm hover-card" style="border-radius: 16px; transition: all 0.3s ease;">
                 <!-- Image -->
                 <div class="position-relative d-flex align-items-center justify-content-center" style="border-radius: 16px 16px 0 0; min-height: 250px; background-color: #f8f9fa; padding: 1rem;">
-                    <img src="{{ asset('storage/' . $actualite->cover_image) }}"
+                    <img src="{{ $actualite->cover_image_url }}"
                          alt="{{ $actualite->title }}"
                          class="img-fluid"
                          style="max-height: 250px; width: auto; max-width: 100%; object-fit: contain; transition: transform 0.3s ease;">

@@ -11,7 +11,7 @@
                 <i class="fas fa-calendar-alt me-2"></i>{{ $actualite->title }}
             </h1>
             <p class="text-muted mb-0">
-                <i class="fas fa-user me-1"></i>Par {{ $actualite->author->name ?? 'Administrateur' }} 
+                <i class="fas fa-user me-1"></i>Par {{ $actualite->author->name ?? 'Administrateur' }}
                 • <i class="fas fa-clock me-1"></i>{{ $actualite->created_at->format('d/m/Y à H:i') }}
             </p>
         </div>
@@ -32,8 +32,8 @@
             @if($actualite->cover_image)
             <div class="card modern-card mb-4">
                 <div class="card-body p-0">
-                    <img src="{{ asset('storage/' . $actualite->cover_image) }}" 
-                         alt="{{ $actualite->cover_image_alt ?? $actualite->title }}" 
+                    <img src="{{ $actualite->cover_image_url }}"
+                         alt="{{ $actualite->cover_image_alt ?? $actualite->title }}"
                          class="img-fluid w-100" style="border-radius: 12px; object-fit: contain; max-height: 500px;">
                 </div>
             </div>

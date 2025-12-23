@@ -284,7 +284,7 @@
                         @if($actualite->cover_image)
                         <div class="mb-3">
                             <label class="form-label">Image actuelle</label>
-                            <img src="{{ asset('storage/' . $actualite->cover_image) }}"
+                            <img src="{{ $actualite->cover_image_url }}"
                                  alt="{{ $actualite->title }}"
                                  class="img-fluid rounded" style="max-height: 200px; object-fit: cover;">
                         </div>

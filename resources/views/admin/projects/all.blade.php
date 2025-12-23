@@ -282,17 +282,7 @@
                 <div class="project-card">
                     <div class="student-info">
                         @php
-                            $photoUrl = null;
-                            if (!empty($project->profile_photo)) {
-                                $filename = basename($project->profile_photo);
-                                if (file_exists(public_path('uploads/photos/' . $filename))) {
-                                    $photoUrl = asset('uploads/photos/' . $filename);
-                                } elseif (file_exists(public_path($project->profile_photo))) {
-                                    $photoUrl = asset($project->profile_photo);
-                                } elseif (file_exists(public_path('storage/' . $project->profile_photo))) {
-                                    $photoUrl = asset('storage/' . $project->profile_photo);
-                                }
-                            }
+                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($project->profile_photo ?? null);
                         @endphp
                         @if($photoUrl)
                             <img src="{{ $photoUrl }}" alt="Photo" class="student-avatar">
@@ -355,17 +345,7 @@
                 <div class="project-card">
                     <div class="student-info">
                         @php
-                            $photoUrl = null;
-                            if (!empty($project->profile_photo)) {
-                                $filename = basename($project->profile_photo);
-                                if (file_exists(public_path('uploads/photos/' . $filename))) {
-                                    $photoUrl = asset('uploads/photos/' . $filename);
-                                } elseif (file_exists(public_path($project->profile_photo))) {
-                                    $photoUrl = asset($project->profile_photo);
-                                } elseif (file_exists(public_path('storage/' . $project->profile_photo))) {
-                                    $photoUrl = asset('storage/' . $project->profile_photo);
-                                }
-                            }
+                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($project->profile_photo ?? null);
                         @endphp
                         @if($photoUrl)
                             <img src="{{ $photoUrl }}" alt="Photo" class="student-avatar">
@@ -428,17 +408,7 @@
                 <div class="project-card">
                     <div class="student-info">
                         @php
-                            $photoUrl = null;
-                            if (!empty($project->profile_photo)) {
-                                $filename = basename($project->profile_photo);
-                                if (file_exists(public_path('uploads/photos/' . $filename))) {
-                                    $photoUrl = asset('uploads/photos/' . $filename);
-                                } elseif (file_exists(public_path($project->profile_photo))) {
-                                    $photoUrl = asset($project->profile_photo);
-                                } elseif (file_exists(public_path('storage/' . $project->profile_photo))) {
-                                    $photoUrl = asset('storage/' . $project->profile_photo);
-                                }
-                            }
+                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($project->profile_photo ?? null);
                         @endphp
                         @if($photoUrl)
                             <img src="{{ $photoUrl }}" alt="Photo" class="student-avatar">
@@ -502,17 +472,7 @@
                 <div class="project-card">
                     <div class="student-info">
                         @php
-                            $photoUrl = null;
-                            if (!empty($project->profile_photo)) {
-                                $filename = basename($project->profile_photo);
-                                if (file_exists(public_path('uploads/photos/' . $filename))) {
-                                    $photoUrl = asset('uploads/photos/' . $filename);
-                                } elseif (file_exists(public_path($project->profile_photo))) {
-                                    $photoUrl = asset($project->profile_photo);
-                                } elseif (file_exists(public_path('storage/' . $project->profile_photo))) {
-                                    $photoUrl = asset('storage/' . $project->profile_photo);
-                                }
-                            }
+                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($project->profile_photo ?? null);
                         @endphp
                         @if($photoUrl)
                             <img src="{{ $photoUrl }}" alt="Photo" class="student-avatar">

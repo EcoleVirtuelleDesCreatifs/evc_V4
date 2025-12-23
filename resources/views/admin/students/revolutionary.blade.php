@@ -191,17 +191,7 @@
                     <div class="student-info">
                         <div class="student-avatar-small">
                             @php
-                                $photoUrl2 = null;
-                                if (!empty($student->profile_photo)) {
-                                    $filename2 = basename($student->profile_photo);
-                                    if (file_exists(public_path('uploads/photos/' . $filename2))) {
-                                        $photoUrl2 = asset('uploads/photos/' . $filename2);
-                                    } elseif (file_exists(public_path($student->profile_photo))) {
-                                        $photoUrl2 = asset($student->profile_photo);
-                                    } elseif (file_exists(public_path('storage/' . $student->profile_photo))) {
-                                        $photoUrl2 = asset('storage/' . $student->profile_photo);
-                                    }
-                                }
+                                $photoUrl2 = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
                             @endphp
                             @if($photoUrl2)
                                 <img src="{{ $photoUrl2 }}" alt="Photo">

@@ -18,7 +18,7 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="event-cover-image">
-                <img src="{{ asset('storage/' . $event->cover_image) }}" 
+                <img src="{{ $event->cover_image_url }}"
                      alt="{{ $event->title }}"
                      class="w-100">
                 @if($event->is_featured)
@@ -41,7 +41,7 @@
                 <div class="card-body">
                     <h1 class="event-title">{{ $event->title }}</h1>
                     <p class="event-excerpt">{{ $event->excerpt }}</p>
-                    
+
                     <div class="event-meta">
                         <span class="meta-item">
                             <i class="fas fa-eye me-1"></i>
@@ -134,8 +134,8 @@
 
                     @if($event->registration_link)
                     <div class="mt-4">
-                        <a href="{{ $event->registration_link }}" 
-                           target="_blank" 
+                        <a href="{{ $event->registration_link }}"
+                           target="_blank"
                            class="btn btn-success w-100 btn-lg">
                             <i class="fas fa-user-plus me-2"></i>
                             S'inscrire à l'événement

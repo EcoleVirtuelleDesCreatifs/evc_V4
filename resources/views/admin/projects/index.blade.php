@@ -484,17 +484,7 @@
                             <div class="card h-100" style="background-color: #0f172a; border: 1px solid #334155;">
                                 <div class="card-body d-flex gap-3">
                                     @php
-                                        $photoUrl = null;
-                                        if (!empty($profile->profile_photo)) {
-                                            $filename = basename($profile->profile_photo);
-                                            if (file_exists(public_path('uploads/photos/' . $filename))) {
-                                                $photoUrl = asset('uploads/photos/' . $filename);
-                                            } elseif (file_exists(public_path($profile->profile_photo))) {
-                                                $photoUrl = asset($profile->profile_photo);
-                                            } elseif (file_exists(public_path('storage/' . $profile->profile_photo))) {
-                                                $photoUrl = asset('storage/' . $profile->profile_photo);
-                                            }
-                                        }
+                                        $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($profile->profile_photo ?? null);
                                     @endphp
                                     @if($photoUrl)
                                         <img src="{{ $photoUrl }}" alt="{{ $fullName }}" class="rounded-circle" style="width: 56px; height: 56px; object-fit: cover;">

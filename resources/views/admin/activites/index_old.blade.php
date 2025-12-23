@@ -80,13 +80,9 @@
                                     $photoUrl = 'https://ui-avatars.com/api/?name=' . urlencode(($activity->first_name ?? 'E') . ' ' . ($activity->last_name ?? 'T')) . '&background=833AB4&color=fff&size=120';
 
                                     if ($activity->profile_photo ?? false) {
-                                        // Essayer différents chemins possibles
-                                        if (file_exists(public_path('uploads/photos/' . basename($activity->profile_photo)))) {
-                                            $photoUrl = asset('uploads/photos/' . basename($activity->profile_photo));
-                                        } elseif (file_exists(public_path($activity->profile_photo))) {
-                                            $photoUrl = asset($activity->profile_photo);
-                                        } elseif (file_exists(public_path('storage/' . $activity->profile_photo))) {
-                                            $photoUrl = asset('storage/' . $activity->profile_photo);
+                                        $resolved = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($activity->profile_photo);
+                                        if (!str_contains($resolved, 'default-avatar') && !str_contains($resolved, 'avatar.png')) {
+                                            $photoUrl = $resolved;
                                         }
                                     }
                                 @endphp

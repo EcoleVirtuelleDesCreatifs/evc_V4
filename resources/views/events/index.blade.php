@@ -106,8 +106,8 @@
                                 <div class="col-md-5">
                                     <div class="featured-image-container">
                                         @if($event->cover_image)
-                                            <img src="{{ asset('storage/' . $event->cover_image) }}" 
-                                                 class="featured-image" 
+                                            <img src="{{ $event->cover_image_url }}"
+                                                 class="featured-image"
                                                  alt="{{ $event->title }}">
                                         @else
                                             <div class="featured-image-placeholder">
@@ -178,8 +178,8 @@
                                                 Voir les détails
                                             </a>
                                             @if($event->registration_link)
-                                                <a href="{{ $event->registration_link }}" 
-                                                   target="_blank" 
+                                                <a href="{{ $event->registration_link }}"
+                                                   target="_blank"
                                                    class="btn-featured-secondary">
                                                     <i class="fas fa-user-plus me-2"></i>
                                                     S'inscrire maintenant
@@ -215,12 +215,12 @@
                                 <div class="col-md-6 col-lg-4 mb-4">
                                     <div class="card h-100 shadow-sm event-card">
                                         @if($event->cover_image)
-                                            <img src="{{ asset('storage/' . $event->cover_image) }}" 
-                                                 class="card-img-top" 
+                                            <img src="{{ $event->cover_image_url }}"
+                                                 class="card-img-top"
                                                  alt="{{ $event->title }}"
                                                  style="height: 300px; object-fit: contain; background: #f8fafc; padding: 1rem;">
                                         @else
-                                            <div class="bg-secondary d-flex align-items-center justify-content-center" 
+                                            <div class="bg-secondary d-flex align-items-center justify-content-center"
                                                  style="height: 300px;">
                                                 <i class="fas fa-calendar-alt fa-3x text-muted"></i>
                                             </div>
@@ -228,14 +228,14 @@
                                         <div class="card-body">
                                             <h5 class="card-title">{{ $event->title }}</h5>
                                             <p class="card-text text-muted">{{ Str::limit($event->excerpt, 100) }}</p>
-                                            
+
                                             <div class="mb-2">
                                                 <small class="text-muted">
                                                     <i class="fas fa-calendar me-1"></i>
                                                     {{ \Carbon\Carbon::parse($event->event_date)->format('d/m/Y à H:i') }}
                                                 </small>
                                             </div>
-                                            
+
                                             @if($event->location)
                                                 <div class="mb-2">
                                                     <small class="text-muted">
@@ -244,7 +244,7 @@
                                                     </small>
                                                 </div>
                                             @endif
-                                            
+
                                             <div class="mb-3">
                                                 @if($event->event_type == 'physical')
                                                     <span class="badge bg-success">Présentiel</span>
@@ -253,7 +253,7 @@
                                                 @else
                                                     <span class="badge bg-info">Hybride</span>
                                                 @endif
-                                                
+
                                                 @if($event->is_featured)
                                                     <span class="badge bg-warning text-dark">
                                                         <i class="fas fa-star"></i> À la une
@@ -268,8 +268,8 @@
                                                     Détails
                                                 </a>
                                                 @if($event->registration_link)
-                                                    <a href="{{ $event->registration_link }}" 
-                                                       target="_blank" 
+                                                    <a href="{{ $event->registration_link }}"
+                                                       target="_blank"
                                                        class="btn btn-sm btn-success">
                                                         <i class="fas fa-user-plus me-1"></i>
                                                         S'inscrire
@@ -311,8 +311,8 @@
                                 <div class="card h-100 shadow-sm event-card-past">
                                     @if($event->cover_image)
                                         <div class="position-relative">
-                                            <img src="{{ asset('storage/' . $event->cover_image) }}" 
-                                                 class="card-img-top" 
+                                            <img src="{{ $event->cover_image_url }}"
+                                                 class="card-img-top"
                                                  alt="{{ $event->title }}"
                                                  style="height: 200px; object-fit: cover; opacity: 0.7;">
                                             <div class="position-absolute top-0 end-0 m-2">
@@ -320,7 +320,7 @@
                                             </div>
                                         </div>
                                     @else
-                                        <div class="bg-secondary d-flex align-items-center justify-content-center" 
+                                        <div class="bg-secondary d-flex align-items-center justify-content-center"
                                              style="height: 200px; opacity: 0.7;">
                                             <i class="fas fa-calendar-alt fa-3x text-muted"></i>
                                         </div>
@@ -328,14 +328,14 @@
                                     <div class="card-body">
                                         <h5 class="card-title text-muted">{{ $event->title }}</h5>
                                         <p class="card-text text-muted small">{{ Str::limit($event->excerpt, 80) }}</p>
-                                        
+
                                         <div class="mb-2">
                                             <small class="text-muted">
                                                 <i class="fas fa-calendar me-1"></i>
                                                 {{ \Carbon\Carbon::parse($event->event_date)->format('d/m/Y') }}
                                             </small>
                                         </div>
-                                        
+
                                         <div class="mb-3">
                                             @if($event->event_type == 'physical')
                                                 <span class="badge bg-secondary">Présentiel</span>
@@ -668,15 +668,15 @@
     .featured-image-container {
         min-height: 300px;
     }
-    
+
     .featured-event-content {
         padding: 1.5rem;
     }
-    
+
     .featured-event-title {
         font-size: 1.5rem;
     }
-    
+
     .btn-featured-primary,
     .btn-featured-secondary {
         min-width: 100%;

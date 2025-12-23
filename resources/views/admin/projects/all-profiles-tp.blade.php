@@ -164,17 +164,7 @@
             <div class="profile-header" onclick="toggleProfile({{ $loop->index }})">
                 <div class="profile-info">
                     @php
-                        $photoUrl = null;
-                        if (!empty($profile['profile_photo'])) {
-                            $filename = basename($profile['profile_photo']);
-                            if (file_exists(public_path('uploads/photos/' . $filename))) {
-                                $photoUrl = asset('uploads/photos/' . $filename);
-                            } elseif (file_exists(public_path($profile['profile_photo']))) {
-                                $photoUrl = asset($profile['profile_photo']);
-                            } elseif (file_exists(public_path('storage/' . $profile['profile_photo']))) {
-                                $photoUrl = asset('storage/' . $profile['profile_photo']);
-                            }
-                        }
+                        $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($profile['profile_photo'] ?? null);
                     @endphp
                     @if($photoUrl)
                         <img src="{{ $photoUrl }}" class="profile-avatar">

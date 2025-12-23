@@ -13,13 +13,18 @@
                     <div class="row align-items-center mb-4">
                         <div class="col-md-3 text-center">
                             <div class="dashboard-avatar-large mx-auto mb-3">
-                                @if(isset($student->profile_photo) && $student->profile_photo)
-                                    <img src="{{ asset('uploads/photos/' . basename($student->profile_photo)) }}"
-                                         alt="Photo de {{ $student->first_name }}"
-                                         class="rounded-circle img-fluid shadow-lg"
-                                         style="width: 140px; height: 140px; object-fit: cover; border: 4px solid #FF6B35;">
-                                @elseif(isset($student->photo) && $student->photo)
-                                    <img src="{{ asset('uploads/photos/' . basename($student->photo)) }}"
+                                @php
+                                    $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
+                                    if (str_contains($photoUrl, 'default-avatar') || str_contains($photoUrl, 'avatar.png')) {
+                                        $fallback = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->photo ?? null);
+                                        if (!str_contains($fallback, 'default-avatar') && !str_contains($fallback, 'avatar.png')) {
+                                            $photoUrl = $fallback;
+                                        }
+                                    }
+                                @endphp
+
+                                @if($photoUrl && !str_contains($photoUrl, 'default-avatar') && !str_contains($photoUrl, 'avatar.png'))
+                                    <img src="{{ $photoUrl }}"
                                          alt="Photo de {{ $student->first_name }}"
                                          class="rounded-circle img-fluid shadow-lg"
                                          style="width: 140px; height: 140px; object-fit: cover; border: 4px solid #FF6B35;">
@@ -523,7 +528,7 @@
                                             return \Carbon\Carbon::parse($activity->created_at)->format('Y-m-d');
                                         });
                                     @endphp
-                                    
+
                                     @foreach($activitiesByDate->take(7) as $date => $dayActivities)
                                         <div class="mb-4">
                                             <div class="text-white-75 fw-bold mb-2 border-bottom border-secondary pb-1">
@@ -531,7 +536,7 @@
                                                 {{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}
                                                 <span class="badge bg-info ms-2">{{ count($dayActivities) }} activité(s)</span>
                                             </div>
-                                            
+
                                             @foreach($dayActivities->take(5) as $activity)
                                                 <div class="mb-2 p-3 rounded d-flex align-items-center" style="background: var(--dashboard-bg); border: 1px solid var(--dashboard-border);">
                                                     <div class="flex-shrink-0 me-3">
@@ -573,7 +578,7 @@
                                             return \Carbon\Carbon::parse($login->created_at)->format('Y-m');
                                         });
                                     @endphp
-                                    
+
                                     @foreach($loginsByMonth->take(3) as $month => $monthLogins)
                                         <div class="mb-4">
                                             <div class="text-white-75 fw-bold mb-3">
@@ -581,19 +586,19 @@
                                                 {{ \Carbon\Carbon::parse($month . '-01')->format('F Y') }}
                                                 <span class="badge bg-success ms-2">{{ count($monthLogins) }} connexion(s)</span>
                                             </div>
-                                            
+
                                             @php
                                                 $loginsByDay = $monthLogins->groupBy(function($login) {
                                                     return \Carbon\Carbon::parse($login->created_at)->format('Y-m-d');
                                                 });
                                             @endphp
-                                            
+
                                             @foreach($loginsByDay->take(10) as $day => $dayLogins)
                                                 <div class="mb-3">
                                                     <div class="text-white-50 small fw-bold mb-2">
                                                         {{ \Carbon\Carbon::parse($day)->format('d/m/Y') }} - {{ count($dayLogins) }} connexion(s)
                                                     </div>
-                                                    
+
                                                     @foreach($dayLogins as $login)
                                                         <div class="mb-2 p-2 rounded d-flex align-items-center" style="background: rgba(40, 167, 69, 0.1); border: 1px solid rgba(40, 167, 69, 0.3);">
                                                             <div class="flex-shrink-0 me-3">
@@ -663,37 +668,37 @@
                 margin-right: 0.5rem;
                 transition: all 0.3s ease;
             }
-            
+
             .nav-pills .nav-link:hover {
                 background: rgba(255, 255, 255, 0.2);
                 color: white;
             }
-            
+
             .nav-pills .nav-link.active {
                 background: linear-gradient(135deg, #3399ff, #0066cc);
                 color: white;
                 border-color: #3399ff;
             }
-            
+
             .dashboard-timeline {
                 max-height: 500px;
                 overflow-y: auto;
             }
-            
+
             .dashboard-timeline::-webkit-scrollbar {
                 width: 6px;
             }
-            
+
             .dashboard-timeline::-webkit-scrollbar-track {
                 background: rgba(255, 255, 255, 0.1);
                 border-radius: 3px;
             }
-            
+
             .dashboard-timeline::-webkit-scrollbar-thumb {
                 background: rgba(255, 255, 255, 0.3);
                 border-radius: 3px;
             }
-            
+
             .dashboard-timeline::-webkit-scrollbar-thumb:hover {
                 background: rgba(255, 255, 255, 0.5);
             }

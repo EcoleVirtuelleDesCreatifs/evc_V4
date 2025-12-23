@@ -78,17 +78,11 @@
                             <div class="student-header" onclick="toggleActivities({{ $student->student_id }})" style="cursor: pointer;">
                                 <div class="student-info-left">
                                     @php
-                                        // Générer URL de la photo
-                                        $photoUrl = 'https://ui-avatars.com/api/?name=' . urlencode(($student->first_name ?? 'E') . ' ' . ($student->last_name ?? 'T')) . '&background=833AB4&color=fff&size=120';
+                                        $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
 
-                                        if ($student->profile_photo ?? false) {
-                                            if (file_exists(public_path('uploads/photos/' . basename($student->profile_photo)))) {
-                                                $photoUrl = asset('uploads/photos/' . basename($student->profile_photo));
-                                            } elseif (file_exists(public_path($student->profile_photo))) {
-                                                $photoUrl = asset($student->profile_photo);
-                                            } elseif (file_exists(public_path('storage/' . $student->profile_photo))) {
-                                                $photoUrl = asset('storage/' . $student->profile_photo);
-                                            }
+                                        // Si c'est l'avatar par défaut, utiliser ui-avatars
+                                        if (str_contains($photoUrl, 'default-avatar') || str_contains($photoUrl, 'avatar.png')) {
+                                            $photoUrl = 'https://ui-avatars.com/api/?name=' . urlencode(($student->first_name ?? 'E') . ' ' . ($student->last_name ?? 'T')) . '&background=833AB4&color=fff&size=120';
                                         }
                                     @endphp
 

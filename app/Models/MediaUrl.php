@@ -32,6 +32,12 @@ class MediaUrl
             $path = Str::after($path, 'storage/');
         }
 
-        return asset('storage/app/public/' . ltrim($path, '/'));
+        $path = ltrim($path, '/');
+        $parts = explode('/', $path);
+        $filename = array_pop($parts);
+        $encodedFilename = rawurlencode((string) $filename);
+        $encodedPath = implode('/', $parts) . ($parts ? '/' : '') . $encodedFilename;
+
+        return asset('storage/app/public/' . $encodedPath);
     }
 }

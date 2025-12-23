@@ -136,35 +136,11 @@
 
                     // Fonction pour obtenir l'URL correcte du fichier
                     $getFileUrl = function($filePath) {
-                        $filePath = (string) $filePath;
-                        $filePath = ltrim($filePath, '/');
-
-                        // Si c'est déjà une URL, retourner tel quel
-                        if (str_starts_with($filePath, 'http://') || str_starts_with($filePath, 'https://')) {
-                            return $filePath;
-                        }
-
-                        // Aligner sur Actualite::getCoverImageUrlAttribute()
-                        if (str_starts_with($filePath, 'storage/app/public/uploads/')) {
-                            $filePath = substr($filePath, strlen('storage/app/public/uploads/'));
-                        }
-
-                        return asset('storage/app/public/uploads/' . $filePath);
+                        return \App\Models\MediaUrl::fromPath($filePath);
                     };
 
                     $getFileUrlFallback = function($filePath) {
-                        $filePath = (string) $filePath;
-                        $filePath = ltrim($filePath, '/');
-
-                        if (str_starts_with($filePath, 'http://') || str_starts_with($filePath, 'https://')) {
-                            return $filePath;
-                        }
-
-                        if (str_starts_with($filePath, 'storage/app/public/uploads/')) {
-                            $filePath = substr($filePath, strlen('storage/app/public/uploads/'));
-                        }
-
-                        return asset('storage/app/public/uploads/' . $filePath);
+                        return \App\Models\MediaUrl::fromPath($filePath);
                     };
 
                     $imageFiles = $project->files->filter($isImage);

@@ -267,17 +267,7 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 @php
-                                                    $rpPhotoUrl = null;
-                                                    if (!empty($rpStudent?->profile_photo)) {
-                                                        $rpFilename = basename($rpStudent->profile_photo);
-                                                        if (file_exists(public_path('uploads/photos/' . $rpFilename))) {
-                                                            $rpPhotoUrl = asset('uploads/photos/' . $rpFilename);
-                                                        } elseif (file_exists(public_path($rpStudent->profile_photo))) {
-                                                            $rpPhotoUrl = asset($rpStudent->profile_photo);
-                                                        } elseif (file_exists(public_path('storage/' . $rpStudent->profile_photo))) {
-                                                            $rpPhotoUrl = asset('storage/' . $rpStudent->profile_photo);
-                                                        }
-                                                    }
+                                                    $rpPhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($rpStudent?->profile_photo ?? null);
                                                 @endphp
                                                 @if($rpPhotoUrl)
                                                     <img src="{{ $rpPhotoUrl }}" alt="{{ $rpName }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">

@@ -38,7 +38,7 @@
                         ];
                         $category = $categoryLabels[$actualite->category] ?? ['label' => 'N/A', 'color' => 'secondary', 'icon' => 'tag'];
                     @endphp
-                    
+
                     <span class="badge bg-{{ $category['color'] }} mb-3" style="font-size: 0.9rem; padding: 0.6rem 1.2rem; border-radius: 10px;">
                         <i class="fas fa-{{ $category['icon'] }} me-2"></i>{{ $category['label'] }}
                     </span>
@@ -97,8 +97,8 @@
             <!-- Image de couverture -->
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 20px; overflow: hidden;">
                 <div class="d-flex align-items-center justify-content-center p-4" style="background-color: #f8f9fa; min-height: 400px;">
-                    <img src="{{ asset('storage/' . $actualite->cover_image) }}" 
-                         alt="{{ $actualite->cover_image_alt ?? $actualite->title }}" 
+                    <img src="{{ $actualite->cover_image_url }}"
+                         alt="{{ $actualite->cover_image_alt ?? $actualite->title }}"
                          class="img-fluid"
                          style="max-height: 500px; max-width: 100%; width: auto; object-fit: contain; border-radius: 12px;">
                 </div>
@@ -145,23 +145,23 @@
                         <i class="fas fa-share-alt me-2"></i>Partager cette actualité
                     </h5>
                     <div class="d-flex flex-wrap gap-2">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}" 
-                           target="_blank" 
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
+                           target="_blank"
                            class="btn btn-light flex-fill" style="border-radius: 10px;">
                             <i class="fab fa-facebook-f me-2"></i>Facebook
                         </a>
-                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($actualite->title) }}" 
-                           target="_blank" 
+                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(url()->current()) }}&text={{ urlencode($actualite->title) }}"
+                           target="_blank"
                            class="btn btn-light flex-fill" style="border-radius: 10px;">
                             <i class="fab fa-twitter me-2"></i>Twitter
                         </a>
-                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}" 
-                           target="_blank" 
+                        <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ urlencode(url()->current()) }}"
+                           target="_blank"
                            class="btn btn-light flex-fill" style="border-radius: 10px;">
                             <i class="fab fa-linkedin-in me-2"></i>LinkedIn
                         </a>
-                        <a href="https://wa.me/?text={{ urlencode($actualite->title . ' - ' . url()->current()) }}" 
-                           target="_blank" 
+                        <a href="https://wa.me/?text={{ urlencode($actualite->title . ' - ' . url()->current()) }}"
+                           target="_blank"
                            class="btn btn-light flex-fill" style="border-radius: 10px;">
                             <i class="fab fa-whatsapp me-2"></i>WhatsApp
                         </a>
@@ -171,7 +171,7 @@
 
             <!-- Bouton retour -->
             <div class="mb-4">
-                <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/index') }}" 
+                <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/index') }}"
                    class="btn btn-outline-primary btn-lg" style="border-radius: 12px;">
                     <i class="fas fa-arrow-left me-2"></i>Retour aux actualités
                 </a>
@@ -190,12 +190,12 @@
                 </div>
                 <div class="card-body p-4">
                     @foreach($similaires as $similaire)
-                    <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/' . $similaire->id) }}" 
+                    <a href="{{ url(request()->segment(1) . '/' . request()->segment(2) . '/' . request()->segment(3) . '/actualites/' . $similaire->id) }}"
                        class="text-decoration-none d-block mb-3 pb-3 {{ !$loop->last ? 'border-bottom' : '' }}">
                         <div class="d-flex gap-3 hover-item" style="transition: all 0.3s ease;">
                             <div style="flex-shrink: 0;">
                                 <div class="d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; background-color: #f8f9fa; border-radius: 12px; overflow: hidden;">
-                                    <img src="{{ asset('storage/' . $similaire->cover_image) }}" 
+                                    <img src="{{ asset('storage/' . $similaire->cover_image) }}"
                                          alt="{{ $similaire->title }}"
                                          class="img-fluid"
                                          style="max-width: 100%; max-height: 100%; object-fit: contain;">

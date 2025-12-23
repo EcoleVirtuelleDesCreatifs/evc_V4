@@ -55,7 +55,7 @@
     @php
         $now = \Carbon\Carbon::now();
     @endphp
-    
+
     <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
         <div class="card-body">
             <div class="table-responsive">
@@ -79,7 +79,7 @@
                             <tr>
                                 <td>
                                     @if($evenement->cover_image)
-                                        <img src="{{ asset('storage/' . $evenement->cover_image) }}"
+                                        <img src="{{ $evenement->cover_image_url }}"
                                              alt="{{ $evenement->title }}"
                                              class="img-thumbnail"
                                              style="width: 160px; height: 100px; object-fit: cover; border-radius: 8px;">
@@ -128,8 +128,8 @@
                                     @else
                                         @php
                                             // Handle both JSON string and array
-                                            $formationsIds = is_array($evenement->formations) 
-                                                ? $evenement->formations 
+                                            $formationsIds = is_array($evenement->formations)
+                                                ? $evenement->formations
                                                 : (json_decode($evenement->formations, true) ?? []);
                                             $formationsNames = [];
                                             foreach($formationsIds as $id) {
@@ -205,11 +205,11 @@
     <!-- Historique des événements passés -->
     @php
         $eventsPasses = $evenements->filter(function($event) use ($now) {
-            return \Carbon\Carbon::parse($event->event_date)->isPast() && 
+            return \Carbon\Carbon::parse($event->event_date)->isPast() &&
                    !\Carbon\Carbon::parse($event->event_date)->isToday();
         });
     @endphp
-    
+
     @if($eventsPasses->count() > 0)
     <div class="card mt-4" style="background-color: #1e293b; border: 1px solid #334155;">
         <div class="card-header" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%); border-bottom: 2px solid #94a3b8;">
@@ -239,7 +239,7 @@
                             <tr style="opacity: 0.7;">
                                 <td>
                                     @if($evenement->cover_image)
-                                        <img src="{{ asset('storage/' . $evenement->cover_image) }}"
+                                        <img src="{{ $evenement->cover_image_url }}"
                                              alt="{{ $evenement->title }}"
                                              class="img-thumbnail"
                                              style="width: 160px; height: 100px; object-fit: cover; border-radius: 8px; filter: grayscale(30%);">
@@ -276,8 +276,8 @@
                                         </span>
                                     @else
                                         @php
-                                            $formationsIds = is_array($evenement->formations) 
-                                                ? $evenement->formations 
+                                            $formationsIds = is_array($evenement->formations)
+                                                ? $evenement->formations
                                                 : (json_decode($evenement->formations, true) ?? []);
                                             $formationsNames = [];
                                             foreach($formationsIds as $id) {

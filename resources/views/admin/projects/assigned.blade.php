@@ -92,17 +92,7 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         @php
-                                            $photoUrl = null;
-                                            if (!empty($work->profile_photo)) {
-                                                $filename = basename($work->profile_photo);
-                                                if (file_exists(public_path('uploads/photos/' . $filename))) {
-                                                    $photoUrl = asset('uploads/photos/' . $filename);
-                                                } elseif (file_exists(public_path($work->profile_photo))) {
-                                                    $photoUrl = asset($work->profile_photo);
-                                                } elseif (file_exists(public_path('storage/' . $work->profile_photo))) {
-                                                    $photoUrl = asset('storage/' . $work->profile_photo);
-                                                }
-                                            }
+                                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($work->profile_photo ?? null);
                                         @endphp
                                         @if($photoUrl)
                                             <img src="{{ $photoUrl }}" alt="{{ $work->first_name }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">

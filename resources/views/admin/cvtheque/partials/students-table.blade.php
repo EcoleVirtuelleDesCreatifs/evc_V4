@@ -20,19 +20,7 @@
                 <td>
                     @if(!empty($student->profile_photo))
                         @php
-                            // Gérer différents formats de chemins de photos
-                            $photoPath = $student->profile_photo;
-                            if (str_starts_with($photoPath, 'photos_preregistrations/')) {
-                                $photoUrl = asset('storage/' . $photoPath);
-                            } elseif (str_starts_with($photoPath, 'uploads/')) {
-                                $photoUrl = asset($photoPath);
-                            } elseif (str_starts_with($photoPath, 'storage/')) {
-                                $photoUrl = asset($photoPath);
-                            } elseif (str_contains($photoPath, '/')) {
-                                $photoUrl = asset('storage/' . $photoPath);
-                            } else {
-                                $photoUrl = asset('uploads/photos/' . $photoPath);
-                            }
+                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
                         @endphp
                         <img src="{{ $photoUrl }}"
                              class="rounded-circle"

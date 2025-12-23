@@ -125,36 +125,7 @@
                 @php
                     // Fonction pour obtenir l'URL correcte du fichier
                     $getFileUrl = function($filePath) {
-                        $path = str_replace(['public/', 'storage/'], '', $filePath);
-                        $path = ltrim($path, '/');
-
-                        // Préparer le chemin pour l'URL (encodage des espaces, accents, etc)
-                        $parts = explode('/', $path);
-                        $filename = array_pop($parts);
-                        $urlPath = implode('/', $parts) . ($parts ? '/' : '') . rawurlencode($filename);
-
-                        // Préparer le chemin pour le système de fichiers (décodé)
-                        $fsPath = $path;
-
-                        // 1. Priorité aux dossiers connus dans storage
-                        if (str_starts_with($path, 'tp_submissions/') ||
-                            str_starts_with($path, 'tp_files/') ||
-                            str_starts_with($path, 'uploads/') ||
-                            str_starts_with($path, 'project_images/')) {
-                            return asset('storage/' . $urlPath);
-                        }
-
-                        // 2. Vérification physique si possible
-                        if (file_exists(public_path('storage/' . $fsPath))) {
-                            return asset('storage/' . $urlPath);
-                        }
-
-                        if (file_exists(public_path($fsPath))) {
-                             return asset($urlPath);
-                        }
-
-                        // 3. Fallback standard
-                        return asset('storage/' . $urlPath);
+                        return \App\Models\MediaUrl::fromPath($filePath);
                     };
 
                     // Fonction pour détecter si c'est une image
@@ -261,7 +232,7 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <a href="{{ asset($file->file_path) }}"
+                                    <a href="{{ $getFileUrl($file->file_path) }}"
                                        download="{{ $file->original_name }}"
                                        class="btn btn-sm btn-primary"
                                        title="Télécharger">
