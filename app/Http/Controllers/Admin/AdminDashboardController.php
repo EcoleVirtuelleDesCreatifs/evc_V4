@@ -2203,6 +2203,20 @@ class AdminDashboardController extends Controller
         $rapports = DB::table('tp')
             ->join('users', 'tp.user_id', '=', 'users.id')
             ->leftJoin('students', 'users.id', '=', 'students.user_id')
+            ->when(\Illuminate\Support\Facades\Schema::hasColumn('tp', 'is_report'), function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('tp.is_report', 1)
+                        ->orWhere('tp.title', 'LIKE', '%rapport%')
+                        ->orWhere('tp.title', 'LIKE', '%Rapport%')
+                        ->orWhere('tp.title', 'LIKE', '%RAPPORT%');
+                });
+            }, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('tp.title', 'LIKE', '%rapport%')
+                        ->orWhere('tp.title', 'LIKE', '%Rapport%')
+                        ->orWhere('tp.title', 'LIKE', '%RAPPORT%');
+                });
+            })
             ->select(
                 'tp.id',
                 'tp.title',
@@ -2249,6 +2263,20 @@ class AdminDashboardController extends Controller
             ->join('users', 'tp.user_id', '=', 'users.id')
             ->leftJoin('students', 'users.id', '=', 'students.user_id')
             ->where('tp.status', 'pending')
+            ->when(\Illuminate\Support\Facades\Schema::hasColumn('tp', 'is_report'), function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('tp.is_report', 1)
+                        ->orWhere('tp.title', 'LIKE', '%rapport%')
+                        ->orWhere('tp.title', 'LIKE', '%Rapport%')
+                        ->orWhere('tp.title', 'LIKE', '%RAPPORT%');
+                });
+            }, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('tp.title', 'LIKE', '%rapport%')
+                        ->orWhere('tp.title', 'LIKE', '%Rapport%')
+                        ->orWhere('tp.title', 'LIKE', '%RAPPORT%');
+                });
+            })
             ->select(
                 'tp.id',
                 'tp.title',

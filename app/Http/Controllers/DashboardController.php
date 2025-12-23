@@ -1828,12 +1828,15 @@ class DashboardController extends Controller
                 return redirect()->back()->withInput()->with('error', 'Erreur système.');
             }
 
+            $isReport = $request->input('redirect_to') === 'documents';
+
             $tpId = DB::table('tp')->insertGetId([
                 'user_id' => $user->id,
                 'title' => $validated['title'],
                 'description' => $validated['description'] ?? null,
                 'formation' => $validated['formation'] ?? null,
                 'link' => $link,
+                'is_report' => $isReport,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -1873,8 +1876,6 @@ class DashboardController extends Controller
                 ? DB::table('tp_files')->where('tp_id', $tpId)->count()
                 : 0;
 
-
-            $isReport = $request->input('redirect_to') === 'documents';
 
             // Récupérer le TP pour l'email
             $createdTp = DB::table('tp')->where('id', $tpId)->first();
@@ -3289,7 +3290,11 @@ class DashboardController extends Controller
         // 1. Récupérer les rapports depuis la table tp (legacy)
         $tps = \App\Models\TP::where('user_id', $user->id)
             ->where(function ($query) {
-                $query->where('title', 'LIKE', '%rapport%')
+                if (\Illuminate\Support\Facades\Schema::hasColumn('tp', 'is_report')) {
+                    $query->where('is_report', 1);
+                }
+
+                $query->orWhere('title', 'LIKE', '%rapport%')
                     ->orWhere('title', 'LIKE', '%Rapport%')
                     ->orWhere('title', 'LIKE', '%RAPPORT%');
             })
