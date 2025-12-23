@@ -80,7 +80,7 @@
                                 </div>
                                 <input type="file" id="image" name="image" class="d-none" accept="image/*">
                                 <div class="image-preview-container {{ $formation->image_url ? '' : 'd-none' }}">
-                                    <img id="image-preview" src="{{ $formation->image_url ? asset('storage/' . $formation->image_url) : '#' }}" alt="Aperçu" />
+                                    <img id="image-preview" src="{{ $formation->image_url ? \App\Models\MediaUrl::fromPath($formation->image_url) : '#' }}" alt="Aperçu" />
                                     <button type="button" id="remove-image-btn" class="btn btn-danger btn-sm">&times;</button>
                                 </div>
                             </div>
