@@ -617,14 +617,21 @@ function viewReportDetails(rapport) {
         rapport.files.forEach(file => {
             const fileSize = file.file_size ? (file.file_size / 1024).toFixed(2) : 'N/A';
             // Construire le chemin correct du fichier
-            let filePath = file.file_path;
-            if (!filePath.startsWith('http')) {
-                // Nettoyer le chemin
-                filePath = filePath.replace(/^public\//, '').replace(/^storage\//, '').replace(/^\//, '');
+            let filePath = (file.file_path || '').toString();
+            if (filePath && !filePath.startsWith('http')) {
+                // Aligner avec MediaUrl::fromPath()
+                filePath = filePath.replace(/^\//, '');
+                filePath = filePath.replace(/^storage\/app\/public\//, '');
+                filePath = filePath.replace(/^public\/storage\//, '');
+                filePath = filePath.replace(/^storage\//, '');
 
-                // Forcer l'utilisation de storage/ pour tous les fichiers locaux
-                // y compris ceux dans uploads/
-                filePath = '{{ asset("storage") }}/' + filePath;
+                // Encode uniquement le nom de fichier (comme MediaUrl)
+                const parts = filePath.split('/');
+                const filename = parts.pop() || '';
+                const encodedFilename = encodeURIComponent(filename).replace(/%2F/g, '/');
+                const encodedPath = (parts.length ? parts.join('/') + '/' : '') + encodedFilename;
+
+                filePath = '{{ asset('storage/app/public') }}/' + encodedPath;
             }
             const fileIcon = file.original_name.toLowerCase().endsWith('.pdf') ? 'fa-file-pdf text-danger' : 'fa-file text-primary';
             filesHtml += `
