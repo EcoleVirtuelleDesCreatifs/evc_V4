@@ -3968,6 +3968,80 @@ class AdminDashboardController extends Controller
         return view('admin.paiements.reste-a-payer', compact('students', 'stats'));
     }
 
+    public function editPaiementRestant($preRegistrationId)
+    {
+        $preRegistrationId = (int) $preRegistrationId;
+
+        $preReg = DB::table('pre_registrations')->where('id', $preRegistrationId)->first();
+        if (!$preReg) {
+            return redirect()->route('admin.paiements.a-solder')->with('error', 'Préinscription introuvable.');
+        }
+
+        $student = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.email', $preReg->email)
+            ->select(
+                'students.*',
+                'users.email as user_email'
+            )
+            ->first();
+
+        $payments = DB::table('payments')
+            ->where('pre_registration_id', $preRegistrationId)
+            ->get();
+
+        $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
+        $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
+        $remaining = max(0, $totalAmount - $amountPaid);
+
+        $displayEmail = $student->user_email ?? ($student->email ?? $preReg->email);
+
+        return view('admin.paiements.edit-restant', [
+            'preReg' => $preReg,
+            'student' => $student,
+            'email' => $displayEmail,
+            'amountPaid' => $amountPaid,
+            'totalAmount' => $totalAmount,
+            'remaining' => $remaining,
+        ]);
+    }
+
+    public function updatePaiementRestant(Request $request, $preRegistrationId)
+    {
+        $preRegistrationId = (int) $preRegistrationId;
+
+        $validated = $request->validate([
+            'remaining' => 'required|integer|min:0',
+        ]);
+
+        $preReg = DB::table('pre_registrations')->where('id', $preRegistrationId)->first();
+        if (!$preReg) {
+            return redirect()->route('admin.paiements.a-solder')->with('error', 'Préinscription introuvable.');
+        }
+
+        $payments = DB::table('payments')
+            ->where('pre_registration_id', $preRegistrationId)
+            ->get();
+
+        if ($payments->isEmpty()) {
+            return redirect()->route('admin.paiements.a-solder')->with('error', 'Aucun paiement trouvé pour cette préinscription.');
+        }
+
+        $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
+        $newRemaining = (int) $validated['remaining'];
+        $newTotalAmount = $amountPaid + $newRemaining;
+
+        DB::table('payments')
+            ->where('pre_registration_id', $preRegistrationId)
+            ->update([
+                'total_amount' => $newTotalAmount,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->route('admin.paiements.a-solder')
+            ->with('success', 'Montant restant mis à jour avec succès.');
+    }
+
     /**
      * Envoyer un email de relance de paiement à un étudiant
      */

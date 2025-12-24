@@ -1034,6 +1034,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         // Gestion des Paiements
         Route::get('/paiements/a-jour', [AdminDashboardController::class, 'paiementsAJour'])->name('paiements.a-jour');
         Route::get('/paiements/a-solder', [AdminDashboardController::class, 'paiementsASolder'])->name('paiements.a-solder');
+        Route::get('/paiements/a-solder/{preRegistrationId}/edit-restant', [AdminDashboardController::class, 'editPaiementRestant'])->name('paiements.a-solder.edit-restant');
+        Route::post('/paiements/a-solder/{preRegistrationId}/update-restant', [AdminDashboardController::class, 'updatePaiementRestant'])->name('paiements.a-solder.update-restant');
         Route::get('/paiements/reste-a-payer', [AdminDashboardController::class, 'paiementsResteAPayer'])->name('paiements.reste-a-payer');
         Route::post('/paiements/send-reminder/{id}', [AdminDashboardController::class, 'sendPaymentReminder'])->name('paiements.send-reminder');
 

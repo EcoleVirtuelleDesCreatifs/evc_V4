@@ -133,6 +133,7 @@
                             <th>Reste</th>
                             <th>Progression</th>
                             <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -151,10 +152,21 @@
                                 </div>
                             </td>
                             <td><span class="badge-partial"><i class="fas fa-hourglass-half me-1"></i>Partiel</span></td>
+                            <td>
+                                @if(!empty($student->pre_registration_id))
+                                    <a href="{{ route('admin.paiements.a-solder.edit-restant', $student->pre_registration_id) }}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-edit me-1"></i>Modifier reste
+                                    </a>
+                                @else
+                                    <button class="btn btn-sm btn-secondary" disabled>
+                                        <i class="fas fa-ban me-1"></i>Indisponible
+                                    </button>
+                                @endif
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">Aucun paiement partiel</p>
                             </td>
