@@ -3466,7 +3466,12 @@ class DashboardController extends Controller
             $filePath = storage_path('app/public/' . $document->pdf_path);
 
             if (file_exists($filePath)) {
-                return response()->download($filePath, $document->title . '.pdf');
+                $safeTitle = trim((string) $document->title);
+                $fileName = ($safeTitle !== '' ? $safeTitle : 'document') . '.pdf';
+                return response()->file($filePath, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="' . addslashes($fileName) . '"',
+                ]);
             }
         }
 
