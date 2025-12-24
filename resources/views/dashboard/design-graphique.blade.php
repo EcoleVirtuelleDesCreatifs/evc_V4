@@ -1273,7 +1273,7 @@
                 }
 
                 pillEl.classList.remove('remaining-pill--orange', 'remaining-pill--pulse', 'remaining-pill--pulse-urgent');
-                if (days <= 30 && totalSeconds > 0) {
+                if (totalSeconds > 0) {
                     pillEl.classList.add('remaining-pill--orange');
                     if (days <= 7) {
                         pillEl.classList.add('remaining-pill--pulse-urgent');
