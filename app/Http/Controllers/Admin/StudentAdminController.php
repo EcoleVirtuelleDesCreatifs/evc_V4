@@ -380,6 +380,14 @@ class StudentAdminController extends Controller
                 }
             }
 
+            // Détecter une expiration auto erronée basée sur "maintenant + durée" (affiche 120 jours identiques)
+            if (!$shouldIgnoreStored && $storedExpiration && $computedExpiration) {
+                $nowBasedExpiration = \Carbon\Carbon::now()->addMonths($durationMonths);
+                if ($storedExpiration->isSameDay($nowBasedExpiration) && !$storedExpiration->isSameDay($computedExpiration)) {
+                    $shouldIgnoreStored = true;
+                }
+            }
+
             if ($computedExpiration && $storedExpiration) {
                 if ($shouldIgnoreStored) {
                     $expirationDate = $computedExpiration;
@@ -1046,6 +1054,14 @@ class StudentAdminController extends Controller
         $shouldIgnoreStored = false;
         if ($storedExpiration && $userBasedExpiration && $registrationCarbon) {
             if ($storedExpiration->isSameDay($userBasedExpiration) && !$registrationCarbon->isSameDay($userCreatedAtCarbon)) {
+                $shouldIgnoreStored = true;
+            }
+        }
+
+        // Détecter une expiration auto erronée basée sur "maintenant + durée"
+        if (!$shouldIgnoreStored && $storedExpiration && $computedExpiration) {
+            $nowBasedExpiration = Carbon::now()->addMonths($durationMonths);
+            if ($storedExpiration->isSameDay($nowBasedExpiration) && !$storedExpiration->isSameDay($computedExpiration)) {
                 $shouldIgnoreStored = true;
             }
         }

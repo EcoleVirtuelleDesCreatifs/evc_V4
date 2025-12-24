@@ -1044,6 +1044,20 @@ function computeExpirationFromRegistration(regIso, durationMonths) {
     return exp;
 }
 
+function computeExpirationFromNow(durationMonths) {
+    const now = new Date();
+    const exp = new Date(now.getTime());
+    const months = Number.isFinite(durationMonths) ? durationMonths : 4;
+    exp.setMonth(exp.getMonth() + months);
+    return exp;
+}
+
+function isSameDay(a, b) {
+    return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
+}
+
 function computeRemainingParts(expDate) {
     if (!expDate) return null;
     const now = new Date();
@@ -1080,10 +1094,23 @@ window.updateDaysRemainingBadges = function updateDaysRemainingBadges() {
             }
         }
 
+        // Ignorer une expiration stockée manifestement auto/erronée (basée sur maintenant + durée)
+        let shouldIgnoreStored = false;
+        if (storedExp && computedExp) {
+            const nowBased = computeExpirationFromNow(durationMonths);
+            if (isSameDay(storedExp, nowBased) && !isSameDay(storedExp, computedExp)) {
+                shouldIgnoreStored = true;
+            }
+        }
+
         // Utiliser la date la plus tardive (prolongations manuelles prises en compte)
         let expDate = null;
         if (computedExp && storedExp) {
-            expDate = storedExp.getTime() > computedExp.getTime() ? storedExp : computedExp;
+            if (shouldIgnoreStored) {
+                expDate = computedExp;
+            } else {
+                expDate = storedExp.getTime() > computedExp.getTime() ? storedExp : computedExp;
+            }
         } else {
             expDate = storedExp || computedExp;
         }
