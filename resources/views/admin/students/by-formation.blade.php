@@ -158,10 +158,14 @@
                                                 $daysInt = (int) $student['days_remaining'];
                                                 $expDate = isset($student['expiration_date']) ? $student['expiration_date']->format('d/m/Y à H:i') : '';
                                                 $expIso = isset($student['expiration_date']) ? $student['expiration_date']->toIso8601String() : '';
+                                                $regIso = !empty($student['created_at']) ? \Carbon\Carbon::parse($student['created_at'])->toIso8601String() : '';
+                                                $durationMonths = isset($student['duration_months']) ? (int) $student['duration_months'] : 4;
                                             @endphp
                                             @if($student['is_expired'])
                                                 <span class="badge bg-danger px-3 py-2 js-days-remaining"
                                                       data-expiration="{{ $expIso }}"
+                                                      data-registration="{{ $regIso }}"
+                                                      data-duration-months="{{ $durationMonths }}"
                                                       data-bs-toggle="tooltip"
                                                       data-bs-placement="top"
                                                       title="Expiré le {{ $expDate }}"
@@ -171,6 +175,8 @@
                                             @elseif($daysInt <= 7)
                                                 <span class="badge bg-danger px-3 py-2 js-days-remaining"
                                                       data-expiration="{{ $expIso }}"
+                                                      data-registration="{{ $regIso }}"
+                                                      data-duration-months="{{ $durationMonths }}"
                                                       data-bs-toggle="tooltip"
                                                       data-bs-placement="top"
                                                       title="Expire le {{ $expDate }}"
@@ -180,6 +186,8 @@
                                             @elseif($daysInt <= 30)
                                                 <span class="badge bg-warning text-dark px-3 py-2 js-days-remaining"
                                                       data-expiration="{{ $expIso }}"
+                                                      data-registration="{{ $regIso }}"
+                                                      data-duration-months="{{ $durationMonths }}"
                                                       data-bs-toggle="tooltip"
                                                       data-bs-placement="top"
                                                       title="Expire le {{ $expDate }}"
@@ -189,6 +197,8 @@
                                             @else
                                                 <span class="badge bg-success px-3 py-2 js-days-remaining"
                                                       data-expiration="{{ $expIso }}"
+                                                      data-registration="{{ $regIso }}"
+                                                      data-duration-months="{{ $durationMonths }}"
                                                       data-bs-toggle="tooltip"
                                                       data-bs-placement="top"
                                                       title="Expire le {{ $expDate }}"
@@ -986,20 +996,39 @@ function deleteStudent(studentId, studentName) {
 
 @push('scripts')
 <script>
-function computeDaysRemaining(expirationIso) {
-    if (!expirationIso) return null;
-    const exp = new Date(expirationIso);
-    if (Number.isNaN(exp.getTime())) return null;
+function computeExpirationFromRegistration(regIso, durationMonths) {
+    if (!regIso) return null;
+    const reg = new Date(regIso);
+    if (Number.isNaN(reg.getTime())) return null;
+    const exp = new Date(reg.getTime());
+    const months = Number.isFinite(durationMonths) ? durationMonths : 4;
+    exp.setMonth(exp.getMonth() + months);
+    return exp;
+}
+
+function computeDaysRemainingFromExpirationDate(expDate) {
+    if (!expDate) return null;
     const now = new Date();
-    const diffMs = exp.getTime() - now.getTime();
+    const diffMs = expDate.getTime() - now.getTime();
     return Math.floor(diffMs / 86400000);
 }
 
 function updateDaysRemainingBadges() {
     const badges = document.querySelectorAll('.js-days-remaining');
     badges.forEach((badge) => {
+        const regIso = badge.getAttribute('data-registration') || '';
+        const durationMonths = parseInt(badge.getAttribute('data-duration-months') || '4', 10);
         const expIso = badge.getAttribute('data-expiration') || '';
-        const days = computeDaysRemaining(expIso);
+
+        let expDate = computeExpirationFromRegistration(regIso, durationMonths);
+        if (!expDate && expIso) {
+            const parsed = new Date(expIso);
+            if (!Number.isNaN(parsed.getTime())) {
+                expDate = parsed;
+            }
+        }
+
+        const days = computeDaysRemainingFromExpirationDate(expDate);
         if (days === null) return;
 
         const iconEl = badge.querySelector('i');

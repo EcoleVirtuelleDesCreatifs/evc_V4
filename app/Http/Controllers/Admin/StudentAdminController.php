@@ -307,20 +307,20 @@ class StudentAdminController extends Controller
                 $durationMonths = 7;
             }
 
-            // Essayer d'abord avec expiration_date de la table students
-            if (!empty($s->expiration_date)) {
+            // Priorité: date d'inscription + durée (4/7 mois)
+            if (!empty($registrationDate)) {
                 try {
-                    $expirationDate = \Carbon\Carbon::parse($s->expiration_date);
+                    $createdAt = \Carbon\Carbon::parse($registrationDate);
+                    $expirationDate = $createdAt->copy()->addMonths($durationMonths);
                 } catch (\Exception $e) {
                     $expirationDate = null;
                 }
             }
 
-            // Fallback : calculer depuis created_at + 4 mois
-            if (!$expirationDate && !empty($registrationDate)) {
+            // Fallback: utiliser expiration_date stockée si on ne peut pas calculer
+            if (!$expirationDate && !empty($s->expiration_date)) {
                 try {
-                    $createdAt = \Carbon\Carbon::parse($registrationDate);
-                    $expirationDate = $createdAt->copy()->addMonths($durationMonths);
+                    $expirationDate = \Carbon\Carbon::parse($s->expiration_date);
                 } catch (\Exception $e) {
                     $expirationDate = null;
                 }
@@ -378,6 +378,7 @@ class StudentAdminController extends Controller
                 'phone' => $s->phone ?? '',
                 'pays' => $s->country ?? '',
                 'created_at' => $registrationDate,
+                'duration_months' => $durationMonths,
                 'tp_count' => $tpCount,
                 'progression' => $progression,
                 'photo_url' => $photoUrl,
