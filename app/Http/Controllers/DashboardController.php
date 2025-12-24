@@ -1317,10 +1317,14 @@ class DashboardController extends Controller
 
         // Mapper les fichiers
         $files = $submissionFiles->map(function ($file) {
+            $path = ltrim((string) ($file->file_path ?? ''), '/');
+            if (str_starts_with($path, 'storage/app/public/')) {
+                $path = substr($path, strlen('storage/app/public/'));
+            }
             return (object) [
                 'id' => $file->id,
                 'original_name' => $file->file_name ?? 'Fichier',
-                'file_path' => $file->file_path,
+                'file_path' => $path,
                 'file_size' => $file->file_size ?? 0,
                 'mime_type' => $file->mime_type ?? 'application/octet-stream',
                 'created_at' => $file->created_at,
@@ -1501,7 +1505,11 @@ class DashboardController extends Controller
                     ->where('tp_assignment_id', $assignedProject->id)
                     ->get()
                     ->map(function ($file) {
-                        $file->url = asset('storage/app/public/' . ltrim((string) $file->file_path, '/'));
+                        $path = ltrim((string) $file->file_path, '/');
+                        if (str_starts_with($path, 'storage/app/public/')) {
+                            $path = substr($path, strlen('storage/app/public/'));
+                        }
+                        $file->url = \App\Models\MediaUrl::fromPath($path);
                         $file->name = $file->file_name ?? 'fichier';
                         return $file;
                     });
@@ -1513,7 +1521,11 @@ class DashboardController extends Controller
                 ->orderBy('order_index', 'asc')
                 ->get()
                 ->map(function ($file) {
-                    $file->url = asset('storage/app/public/' . ltrim((string) $file->file_path, '/'));
+                    $path = ltrim((string) $file->file_path, '/');
+                    if (str_starts_with($path, 'storage/app/public/')) {
+                        $path = substr($path, strlen('storage/app/public/'));
+                    }
+                    $file->url = \App\Models\MediaUrl::fromPath($path);
                     $file->name = $file->original_name ?? $file->filename ?? 'fichier';
                     return $file;
                 });
@@ -3323,17 +3335,10 @@ class DashboardController extends Controller
             $filePath = '#';
             if ($pdfFile) {
                 $path = ltrim((string) $pdfFile->file_path, '/');
-                // Si le chemin commence par 'storage/', utiliser asset directement
                 if (str_starts_with($path, 'storage/app/public/')) {
-                    $filePath = asset($path);
+                    $path = substr($path, strlen('storage/app/public/'));
                 }
-                // Sinon ajouter 'storage/' au début
-                else {
-                    if (str_starts_with($path, 'storage/app/public/')) {
-                        $path = substr($path, strlen('storage/app/public/'));
-                    }
-                    $filePath = asset('storage/app/public/' . ltrim($path, '/'));
-                }
+                $filePath = \App\Models\MediaUrl::fromPath($path);
             }
 
             return [
@@ -3402,15 +3407,11 @@ class DashboardController extends Controller
                 // Construire le bon chemin pour le fichier
                 $filePath = '#';
                 if ($pdfFile && isset($pdfFile->file_path)) {
-                    $path = $pdfFile->file_path;
-                    // Si le chemin commence par 'storage/', utiliser asset directement
+                    $path = ltrim((string) $pdfFile->file_path, '/');
                     if (str_starts_with($path, 'storage/app/public/')) {
-                        $filePath = asset($path);
+                        $path = substr($path, strlen('storage/app/public/'));
                     }
-                    // Sinon ajouter 'storage/' au début
-                    else {
-                        $filePath = asset('storage/app/public/' . ltrim($path, '/'));
-                    }
+                    $filePath = \App\Models\MediaUrl::fromPath($path);
                 }
 
                 // Afficher tous les rapports, même sans PDF

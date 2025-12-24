@@ -429,22 +429,22 @@ class CVThequeController extends Controller
                 [
                     'name' => 'CV',
                     'available' => !empty($cvthequeProfile->cv_file_path),
-                    'url' => $cvthequeProfile->cv_file_path ? asset('storage/' . $cvthequeProfile->cv_file_path) : null
+                    'url' => $cvthequeProfile->cv_file_path ? \App\Models\MediaUrl::fromPath($cvthequeProfile->cv_file_path) : null
                 ],
                 [
                     'name' => 'Lettre de motivation',
                     'available' => !empty($cvthequeProfile->motivation_letter_path),
-                    'url' => $cvthequeProfile->motivation_letter_path ? asset('storage/' . $cvthequeProfile->motivation_letter_path) : null
+                    'url' => $cvthequeProfile->motivation_letter_path ? \App\Models\MediaUrl::fromPath($cvthequeProfile->motivation_letter_path) : null
                 ],
                 [
                     'name' => 'Pressbook',
                     'available' => !empty($cvthequeProfile->pressbook_file_path),
-                    'url' => $cvthequeProfile->pressbook_file_path ? asset('storage/' . $cvthequeProfile->pressbook_file_path) : null
+                    'url' => $cvthequeProfile->pressbook_file_path ? \App\Models\MediaUrl::fromPath($cvthequeProfile->pressbook_file_path) : null
                 ],
                 [
                     'name' => 'Rapport de formation',
                     'available' => !empty($cvthequeProfile->report_file_path),
-                    'url' => $cvthequeProfile->report_file_path ? asset('storage/' . $cvthequeProfile->report_file_path) : null
+                    'url' => $cvthequeProfile->report_file_path ? \App\Models\MediaUrl::fromPath($cvthequeProfile->report_file_path) : null
                 ]
             ];
 
@@ -495,22 +495,22 @@ class CVThequeController extends Controller
                 [
                     'name' => 'CV',
                     'available' => !empty($cvthequeProfile->cv_file_path),
-                    'url' => $cvthequeProfile->cv_file_path ? asset('storage/' . $cvthequeProfile->cv_file_path) : null
+                    'url' => $cvthequeProfile->cv_file_path ? \App\Models\MediaUrl::fromPath($cvthequeProfile->cv_file_path) : null
                 ],
                 [
                     'name' => 'Lettre de motivation',
                     'available' => !empty($cvthequeProfile->motivation_letter_path),
-                    'url' => $cvthequeProfile->motivation_letter_path ? asset('storage/' . $cvthequeProfile->motivation_letter_path) : null
+                    'url' => $cvthequeProfile->motivation_letter_path ? \App\Models\MediaUrl::fromPath($cvthequeProfile->motivation_letter_path) : null
                 ],
                 [
                     'name' => 'Pressbook',
                     'available' => !empty($cvthequeProfile->pressbook_file_path),
-                    'url' => $cvthequeProfile->pressbook_file_path ? asset('storage/' . $cvthequeProfile->pressbook_file_path) : null
+                    'url' => $cvthequeProfile->pressbook_file_path ? \App\Models\MediaUrl::fromPath($cvthequeProfile->pressbook_file_path) : null
                 ],
                 [
                     'name' => 'Rapport de formation',
                     'available' => !empty($cvthequeProfile->report_file_path),
-                    'url' => $cvthequeProfile->report_file_path ? asset('storage/' . $cvthequeProfile->report_file_path) : null
+                    'url' => $cvthequeProfile->report_file_path ? \App\Models\MediaUrl::fromPath($cvthequeProfile->report_file_path) : null
                 ]
             ];
 

@@ -783,7 +783,7 @@
                                 $photoPath = 'students/photos/' . $photoPath;
                             }
                         @endphp
-                        <img src="{{ asset('storage/' . $photoPath) }}"
+                        <img src="{{ \App\Models\MediaUrl::fromPath($photoPath) }}"
                              alt="{{ $userInfo->first_name }}"
                              class="profile-avatar-large"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -1030,7 +1030,7 @@
                         <div class="document-name">{{ $doc['name'] }}</div>
                         @if(!empty($doc['file']))
                             <span class="document-badge badge-available">✓ Disponible</span>
-                            <a href="{{ asset('storage/' . $doc['file']) }}"
+                            <a href="{{ \App\Models\MediaUrl::fromPath($doc['file']) }}"
                                class="download-link"
                                target="_blank"
                                download>
