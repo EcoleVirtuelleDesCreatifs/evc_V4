@@ -1046,12 +1046,22 @@ function updateDaysRemainingBadges() {
         const durationMonths = parseInt(badge.getAttribute('data-duration-months') || '4', 10);
         const expIso = badge.getAttribute('data-expiration') || '';
 
-        let expDate = computeExpirationFromRegistration(regIso, durationMonths);
-        if (!expDate && expIso) {
+        const computedExp = computeExpirationFromRegistration(regIso, durationMonths);
+
+        let storedExp = null;
+        if (expIso) {
             const parsed = new Date(expIso);
             if (!Number.isNaN(parsed.getTime())) {
-                expDate = parsed;
+                storedExp = parsed;
             }
+        }
+
+        // Utiliser la date la plus tardive (prolongations manuelles prises en compte)
+        let expDate = null;
+        if (computedExp && storedExp) {
+            expDate = storedExp.getTime() > computedExp.getTime() ? storedExp : computedExp;
+        } else {
+            expDate = storedExp || computedExp;
         }
 
         const days = computeDaysRemainingFromExpirationDate(expDate);

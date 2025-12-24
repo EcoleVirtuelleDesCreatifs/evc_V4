@@ -308,23 +308,32 @@ class StudentAdminController extends Controller
                 $durationMonths = 7;
             }
 
-            // Priorité: date d'inscription + durée (4/7 mois)
+            // Calculer l'expiration depuis inscription + durée (4/7 mois)
+            $computedExpiration = null;
             if (!empty($registrationDate)) {
                 try {
                     $createdAt = \Carbon\Carbon::parse($registrationDate);
-                    $expirationDate = $createdAt->copy()->addMonths($durationMonths);
+                    $computedExpiration = $createdAt->copy()->addMonths($durationMonths);
                 } catch (\Exception $e) {
-                    $expirationDate = null;
+                    $computedExpiration = null;
                 }
             }
 
-            // Fallback: utiliser expiration_date stockée si on ne peut pas calculer
-            if (!$expirationDate && !empty($s->expiration_date)) {
+            // Lire l'expiration stockée (prolongations manuelles)
+            $storedExpiration = null;
+            if (!empty($s->expiration_date)) {
                 try {
-                    $expirationDate = \Carbon\Carbon::parse($s->expiration_date);
+                    $storedExpiration = \Carbon\Carbon::parse($s->expiration_date);
                 } catch (\Exception $e) {
-                    $expirationDate = null;
+                    $storedExpiration = null;
                 }
+            }
+
+            // Règle: utiliser la date la plus tardive (si une prolongation existe, elle doit primer)
+            if ($computedExpiration && $storedExpiration) {
+                $expirationDate = $storedExpiration->greaterThan($computedExpiration) ? $storedExpiration : $computedExpiration;
+            } else {
+                $expirationDate = $storedExpiration ?: $computedExpiration;
             }
 
             // Calculer les jours restants
