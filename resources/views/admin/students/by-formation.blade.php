@@ -349,7 +349,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialiser DataTable
     if (document.getElementById('formationStudentsTable')) {
-        $('#formationStudentsTable').DataTable({
+        const dt = $('#formationStudentsTable').DataTable({
             responsive: true,
             pageLength: 25,
             order: [[0, 'asc']],
@@ -360,6 +360,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 { orderable: false, targets: [7] } // Colonne Actions non triable
             ]
         });
+
+        // Assurer le recalcul du décompte après les redraw (pagination/recherche)
+        $('#formationStudentsTable').on('draw.dt', function() {
+            if (typeof window.updateDaysRemainingBadges === 'function') {
+                window.updateDaysRemainingBadges();
+            }
+        });
+
+        // Premier calcul après init
+        if (typeof window.updateDaysRemainingBadges === 'function') {
+            window.updateDaysRemainingBadges();
+        }
     }
 
     // Initialiser les tooltips Bootstrap
@@ -1051,7 +1063,7 @@ function computeRemainingParts(expDate) {
     return { expired: false, days, hours, minutes, seconds };
 }
 
-function updateDaysRemainingBadges() {
+window.updateDaysRemainingBadges = function updateDaysRemainingBadges() {
     const badges = document.querySelectorAll('.js-days-remaining');
     badges.forEach((badge) => {
         const regIso = badge.getAttribute('data-registration') || '';
@@ -1114,49 +1126,55 @@ function updateDaysRemainingBadges() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    updateDaysRemainingBadges();
-    setInterval(updateDaysRemainingBadges, 1000);
+    if (typeof window.updateDaysRemainingBadges === 'function') {
+        window.updateDaysRemainingBadges();
+        setInterval(window.updateDaysRemainingBadges, 1000);
+    }
 
-    document.querySelectorAll('.js-extend-expiration').forEach((btn) => {
-        btn.addEventListener('click', async function() {
-            const studentId = this.getAttribute('data-student-id');
-            const months = this.getAttribute('data-months');
-            if (!studentId || !months) return;
+    // Délégation d'événements pour supporter DataTables (DOM reconstruit)
+    document.addEventListener('click', async function(e) {
+        const btn = e.target.closest('.js-extend-expiration');
+        if (!btn) return;
 
-            try {
-                const urlBase = @json(url('/evc/app/admin/students'));
-                const url = `${urlBase}/${String(studentId)}/extend-expiration`;
+        const studentId = btn.getAttribute('data-student-id');
+        const months = btn.getAttribute('data-months');
+        if (!studentId || !months) return;
 
-                const res = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': getCsrfToken(),
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ months: parseInt(months, 10) })
-                });
+        try {
+            const urlBase = @json(url('/evc/app/admin/students'));
+            const url = `${urlBase}/${String(studentId)}/extend-expiration`;
 
-                const data = await res.json();
-                if (!res.ok || !data.success) {
-                    alert(data.message || 'Erreur lors de la prolongation');
-                    return;
-                }
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': getCsrfToken(),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ months: parseInt(months, 10) })
+            });
 
-                const row = this.closest('tr');
-                if (!row) return;
-                const badge = row.querySelector('.js-days-remaining');
-                if (!badge) return;
-
-                if (data.expiration_iso) {
-                    badge.setAttribute('data-expiration', data.expiration_iso);
-                }
-
-                updateDaysRemainingBadges();
-            } catch (e) {
-                alert('Erreur réseau lors de la prolongation');
+            const data = await res.json();
+            if (!res.ok || !data.success) {
+                alert(data.message || 'Erreur lors de la prolongation');
+                return;
             }
-        });
+
+            const row = btn.closest('tr');
+            if (!row) return;
+            const badge = row.querySelector('.js-days-remaining');
+            if (!badge) return;
+
+            if (data.expiration_iso) {
+                badge.setAttribute('data-expiration', data.expiration_iso);
+            }
+
+            if (typeof window.updateDaysRemainingBadges === 'function') {
+                window.updateDaysRemainingBadges();
+            }
+        } catch (err) {
+            alert('Erreur réseau lors de la prolongation');
+        }
     });
 });
 </script>
