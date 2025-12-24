@@ -3993,7 +3993,7 @@ class DashboardController extends Controller
                             if (str_starts_with($path, 'storage/app/public/')) {
                                 $path = substr($path, strlen('storage/app/public/'));
                             }
-                            $file->file_path = asset('storage/app/public/' . ltrim($path, '/'));
+                            $file->file_path = \App\Models\MediaUrl::fromPath($path);
                         }
                         $file->file_name = $file->file_name ?? 'fichier';
                         return $file;
@@ -4018,7 +4018,7 @@ class DashboardController extends Controller
                             if (str_starts_with($path, 'storage/app/public/')) {
                                 $path = substr($path, strlen('storage/app/public/'));
                             }
-                            $file->file_path = asset('storage/app/public/' . ltrim($path, '/'));
+                            $file->file_path = \App\Models\MediaUrl::fromPath($path);
                         }
                         $file->file_name = $file->original_name ?? $file->filename ?? 'fichier';
                         return $file;

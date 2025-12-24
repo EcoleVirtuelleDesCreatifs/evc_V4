@@ -95,7 +95,7 @@
                             </div>
 
                             <!-- Bouton téléchargement -->
-                            <a href="{{ asset('storage/' . $programme->fichier_pdf) }}"
+                            <a href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}"
                                target="_blank"
                                class="instagram-btn w-100"
                                download>

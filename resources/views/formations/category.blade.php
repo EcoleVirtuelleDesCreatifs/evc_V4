@@ -123,7 +123,7 @@
                         <!-- Image de la formation -->
                         <div class="position-relative" style="height: 200px; overflow: hidden;">
                             @if(isset($formation->image_url) && $formation->image_url)
-                                <img src="{{ asset('storage/' . $formation->image_url) }}" class="w-100 h-100" alt="{{ $formation->name }}" style="object-fit: cover;">
+                                <img src="{{ \App\Models\MediaUrl::fromPath($formation->image_url) }}" class="w-100 h-100" alt="{{ $formation->name }}" style="object-fit: cover;">
                             @else
                                 <div class="w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg,
                                     @if($category == 'photoshop') #667eea 0%, #764ba2 100%
