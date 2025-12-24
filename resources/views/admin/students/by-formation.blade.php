@@ -1097,8 +1097,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!studentId || !months) return;
 
             try {
-                const urlTemplate = @json(route('admin.students.extend-expiration', ['studentId' => '__ID__']));
-                const url = urlTemplate.replace('__ID__', String(studentId));
+                const urlBase = @json(url('/evc/app/admin/students'));
+                const url = `${urlBase}/${String(studentId)}/extend-expiration`;
 
                 const res = await fetch(url, {
                     method: 'POST',
