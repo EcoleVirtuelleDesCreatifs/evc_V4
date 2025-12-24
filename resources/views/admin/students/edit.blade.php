@@ -567,6 +567,9 @@ function addMonths(months) {
     const dateInput = document.getElementById('expiration_date');
     const currentDate = dateInput.value ? new Date(dateInput.value) : new Date();
 
+    // Si on prolonge via bouton, on considère l'expiration comme manuelle (ne pas écraser par le calcul auto)
+    expirationManuallyChanged = true;
+
     currentDate.setMonth(currentDate.getMonth() + months);
 
     // Format YYYY-MM-DD
@@ -745,12 +748,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const formationEl = document.getElementById('formation_souhaitee');
     const expirationEl = document.getElementById('expiration_date');
 
+    // Si une expiration est déjà renseignée au chargement, on la traite comme une valeur manuelle
+    // afin d'éviter qu'elle soit écrasée par le calcul auto.
+    if (expirationEl && expirationEl.value) {
+        expirationManuallyChanged = true;
+    }
+
     if (expirationEl) {
         expirationEl.addEventListener('input', function() {
-            expirationManuallyChanged = true;
+            expirationManuallyChanged = !!this.value;
         });
         expirationEl.addEventListener('change', function() {
-            expirationManuallyChanged = true;
+            expirationManuallyChanged = !!this.value;
         });
     }
 
