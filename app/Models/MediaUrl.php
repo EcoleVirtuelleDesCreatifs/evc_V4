@@ -42,16 +42,8 @@ class MediaUrl
         try {
             $req = request();
             $fallbackBase = rtrim($req->getSchemeAndHttpHost() . $req->getBaseUrl(), '/');
-
-            // Important: l'app peut être servie dans un sous-dossier (ex: /evc).
-            // Dans ce cas, le fallback basé sur la requête donne une URL correcte: https://domaine.tld/evc/storage/...
-            $fallbackStorageBaseUrl = $fallbackBase . '/storage';
-
-            // Ne surcharger que si une URL de disque public est explicitement configurée (via PUBLIC_DISK_URL)
-            $configuredDiskUrl = (string) Config::get('filesystems.disks.public.url', '');
-            $configuredDiskUrl = rtrim($configuredDiskUrl, '/');
-            $diskBaseUrl = $configuredDiskUrl !== '' ? $configuredDiskUrl : $fallbackStorageBaseUrl;
-
+            $diskBaseUrl = (string) Config::get('filesystems.disks.public.url', $fallbackBase . '/storage');
+            $diskBaseUrl = rtrim($diskBaseUrl, '/');
             return $diskBaseUrl . '/' . $encodedPath;
         } catch (\Throwable $e) {
             $diskBaseUrl = (string) Config::get('filesystems.disks.public.url', '');
