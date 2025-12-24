@@ -332,17 +332,19 @@ class StudentAdminController extends Controller
             }
 
             // Calculer l'expiration depuis inscription + durée (4/7 mois)
+            $registrationCarbon = null;
             $computedExpiration = null;
             if (!empty($registrationDate)) {
                 try {
-                    $createdAt = \Carbon\Carbon::parse($registrationDate);
-                    $computedExpiration = $createdAt->copy()->addMonths($durationMonths);
+                    $registrationCarbon = \Carbon\Carbon::parse($registrationDate);
+                    $computedExpiration = $registrationCarbon->copy()->addMonths($durationMonths);
                 } catch (\Exception $e) {
+                    $registrationCarbon = null;
                     $computedExpiration = null;
                 }
             }
 
-            // Lire l'expiration stockée (prolongations manuelles)
+            // Lire l'expiration stockée (potentiellement prolongations)
             $storedExpiration = null;
             if (!empty($s->expiration_date)) {
                 try {
@@ -352,9 +354,37 @@ class StudentAdminController extends Controller
                 }
             }
 
-            // Règle: utiliser la date la plus tardive (si une prolongation existe, elle doit primer)
+            // Détecter une expiration auto obsolète basée sur users.created_at (date de création du compte)
+            $userCreatedAtCarbon = null;
+            if ($userRecord && !empty($userRecord->created_at)) {
+                try {
+                    $userCreatedAtCarbon = \Carbon\Carbon::parse($userRecord->created_at);
+                } catch (\Exception $e) {
+                    $userCreatedAtCarbon = null;
+                }
+            }
+
+            $userBasedExpiration = null;
+            if ($userCreatedAtCarbon) {
+                $userBasedExpiration = $userCreatedAtCarbon->copy()->addMonths($durationMonths);
+            }
+
+            $shouldIgnoreStored = false;
+            if ($storedExpiration && $userBasedExpiration && $registrationCarbon) {
+                // Si l'expiration stockée correspond au calcul basé sur users.created_at
+                // et que la vraie date d'inscription est différente, alors expiration_date est obsolète.
+                if ($storedExpiration->isSameDay($userBasedExpiration) && !$registrationCarbon->isSameDay($userCreatedAtCarbon)) {
+                    $shouldIgnoreStored = true;
+                }
+            }
+
             if ($computedExpiration && $storedExpiration) {
-                $expirationDate = $storedExpiration->greaterThan($computedExpiration) ? $storedExpiration : $computedExpiration;
+                if ($shouldIgnoreStored) {
+                    $expirationDate = $computedExpiration;
+                } else {
+                    // Prolongation manuelle = garder la plus tardive
+                    $expirationDate = $storedExpiration->greaterThan($computedExpiration) ? $storedExpiration : $computedExpiration;
+                }
             } else {
                 $expirationDate = $storedExpiration ?: $computedExpiration;
             }
@@ -945,37 +975,89 @@ class StudentAdminController extends Controller
 
         $monthsToAdd = (int) $validated['months'];
 
-        $registrationDate = $student->created_at ?? null;
-        if (!$registrationDate && !empty($student->email)) {
+        $userId = null;
+        $userCreatedAt = null;
+        if (!empty($student->email)) {
             $userId = DB::table('users')->where('email', $student->email)->value('id');
             if ($userId) {
-                $registrationDate = DB::table('users')->where('id', $userId)->value('created_at');
+                $userCreatedAt = DB::table('users')->where('id', $userId)->value('created_at');
             }
         }
 
-        // Déterminer la base d'expiration
-        $baseExpiration = null;
+        $registrationDate = null;
+        if (Schema::hasColumn('students', 'registration_date') && !empty($student->registration_date)) {
+            $registrationDate = $student->registration_date;
+        }
+        if (!$registrationDate && !empty($student->created_at)) {
+            $registrationDate = $student->created_at;
+        }
+        if (!$registrationDate && $userCreatedAt) {
+            $registrationDate = $userCreatedAt;
+        }
+
+        $durationMonths = 4;
+        if (($student->program ?? null) === 'design_graphique_community_management' || ($student->specialization ?? null) === 'design_graphique_community_management') {
+            $durationMonths = 7;
+        }
+
+        // Calculer expiration depuis inscription
+        $computedExpiration = null;
+        $registrationCarbon = null;
+        if ($registrationDate) {
+            try {
+                $registrationCarbon = Carbon::parse($registrationDate);
+                $computedExpiration = $registrationCarbon->copy()->addMonths($durationMonths);
+            } catch (\Exception $e) {
+                $computedExpiration = null;
+                $registrationCarbon = null;
+            }
+        }
+
+        // Expiration stockée (potentiellement obsolète)
+        $storedExpiration = null;
         if (!empty($student->expiration_date)) {
             try {
-                $baseExpiration = Carbon::parse($student->expiration_date);
+                $storedExpiration = Carbon::parse($student->expiration_date);
             } catch (\Exception $e) {
-                $baseExpiration = null;
+                $storedExpiration = null;
             }
         }
 
-        if (!$baseExpiration && $registrationDate) {
+        // Expiration auto basée sur users.created_at (si dispo)
+        $userBasedExpiration = null;
+        $userCreatedAtCarbon = null;
+        if ($userCreatedAt) {
+            try {
+                $userCreatedAtCarbon = Carbon::parse($userCreatedAt);
+                $userBasedExpiration = $userCreatedAtCarbon->copy()->addMonths($durationMonths);
+            } catch (\Exception $e) {
+                $userBasedExpiration = null;
+                $userCreatedAtCarbon = null;
+            }
+        }
+
+        $shouldIgnoreStored = false;
+        if ($storedExpiration && $userBasedExpiration && $registrationCarbon) {
+            if ($storedExpiration->isSameDay($userBasedExpiration) && !$registrationCarbon->isSameDay($userCreatedAtCarbon)) {
+                $shouldIgnoreStored = true;
+            }
+        }
+
+        // Déterminer la base d'expiration (celle qu'on va prolonger)
+        $baseExpiration = null;
+        if ($computedExpiration && $storedExpiration) {
+            $baseExpiration = $shouldIgnoreStored
+                ? $computedExpiration
+                : ($storedExpiration->greaterThan($computedExpiration) ? $storedExpiration : $computedExpiration);
+        } else {
+            $baseExpiration = $storedExpiration ?: $computedExpiration;
+        }
+
+        if (!$baseExpiration) {
             $durationMonths = 4;
             if (($student->program ?? null) === 'design_graphique_community_management' || ($student->specialization ?? null) === 'design_graphique_community_management') {
                 $durationMonths = 7;
             }
-            try {
-                $baseExpiration = Carbon::parse($registrationDate)->copy()->addMonths($durationMonths);
-            } catch (\Exception $e) {
-                $baseExpiration = null;
-            }
-        }
-
-        if (!$baseExpiration) {
             return response()->json([
                 'success' => false,
                 'message' => 'Impossible de déterminer la date d\'expiration actuelle',
