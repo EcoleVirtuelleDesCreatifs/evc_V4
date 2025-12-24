@@ -1173,27 +1173,27 @@
                         </h6>
                         <div class="d-flex flex-wrap gap-2">
                             @if(!empty($data['cvtheque']['cv_file_path']))
-                            <a href="{{ asset('storage/' . $data['cvtheque']['cv_file_path']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
+                            <a href="{{ \App\Models\MediaUrl::fromPath($data['cvtheque']['cv_file_path']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: white;">
                                 <i class="fas fa-file-pdf me-1"></i>CV
                             </a>
                             @endif
                             @if(!empty($data['cvtheque']['motivation_letter_path']))
-                            <a href="{{ asset('storage/' . $data['cvtheque']['motivation_letter_path']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white;">
+                            <a href="{{ \App\Models\MediaUrl::fromPath($data['cvtheque']['motivation_letter_path']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); color: white;">
                                 <i class="fas fa-envelope me-1"></i>Lettre de motivation
                             </a>
                             @endif
                             @if(!empty($data['cvtheque']['portfolio_files']))
-                            <a href="{{ asset('storage/' . $data['cvtheque']['portfolio_files']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <a href="{{ \App\Models\MediaUrl::fromPath($data['cvtheque']['portfolio_files']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
                                 <i class="fas fa-images me-1"></i>Portfolio
                             </a>
                             @endif
                             @if(!empty($data['cvtheque']['pressbook_file_path']))
-                            <a href="{{ asset('storage/' . $data['cvtheque']['pressbook_file_path']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%); color: white;">
+                            <a href="{{ \App\Models\MediaUrl::fromPath($data['cvtheque']['pressbook_file_path']) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%); color: white;">
                                 <i class="fas fa-book me-1"></i>Pressbook
                             </a>
                             @endif
                             @if(!empty($rapportPath))
-                            <a href="{{ asset('storage/' . $rapportPath) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #198754 0%, #157347 100%); color: white;">
+                            <a href="{{ \App\Models\MediaUrl::fromPath($rapportPath) }}" target="_blank" class="btn btn-sm btn-modern" style="background: linear-gradient(135deg, #198754 0%, #157347 100%); color: white;">
                                 <i class="fas fa-graduation-cap me-1"></i>Rapport de fin de formation
                             </a>
                             @endif

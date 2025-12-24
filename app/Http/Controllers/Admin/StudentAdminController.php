@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Helpers\ProfilePhotoHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
-use App\Helpers\ProfilePhotoHelper;
 
 class StudentAdminController extends Controller
 {
@@ -70,34 +70,7 @@ class StudentAdminController extends Controller
                 // Photo de profil - multiples chemins possibles
                 $photoUrl = null;
                 if (!empty($student->profile_photo)) {
-                    $photo = $student->profile_photo;
-
-                    // Option 1: Chemin complet déjà présent
-                    if (str_starts_with($photo, 'uploads/') ||
-                        str_starts_with($photo, 'photos_preregistrations/') ||
-                        str_starts_with($photo, 'storage/')) {
-                        $photoUrl = asset($photo);
-                    }
-                    // Option 2: Chemin avec profile_photos/
-                    elseif (str_starts_with($photo, 'profile_photos/')) {
-                        $photoUrl = asset('storage/' . $photo);
-                    }
-                    // Option 3: Juste le nom du fichier
-                    else {
-                        $filename = basename($photo);
-                        if (file_exists(public_path('storage/profile_photos/' . $filename))) {
-                            $photoUrl = asset('storage/profile_photos/' . $filename);
-                        }
-                        elseif (file_exists(public_path('uploads/photos/' . $filename))) {
-                            $photoUrl = asset('uploads/photos/' . $filename);
-                        }
-                        elseif (file_exists(public_path('photos_preregistrations/' . $filename))) {
-                            $photoUrl = asset('photos_preregistrations/' . $filename);
-                        }
-                        else {
-                            $photoUrl = asset('storage/profile_photos/' . $filename);
-                        }
-                    }
+                    $photoUrl = ProfilePhotoHelper::getUrl($student->profile_photo);
                 }
 
                 // Calculer les jours restants avant expiration
@@ -298,15 +271,15 @@ class StudentAdminController extends Controller
                     // Essayer d'abord storage/app/public/
                     $storagePath = storage_path('app/public/' . $s->profile_photo);
                     if (file_exists($storagePath)) {
-                        $photoUrl = asset('storage/' . $s->profile_photo);
+                        $photoUrl = ProfilePhotoHelper::getUrl($s->profile_photo);
                     } else {
                         // Sinon essayer directement public/
-                        $photoUrl = asset($s->profile_photo);
+                        $photoUrl = ProfilePhotoHelper::getUrl($s->profile_photo);
                     }
                 }
                 // Sinon, considérer que c'est juste le nom de fichier
                 else {
-                    $photoUrl = asset('uploads/photos/' . basename($s->profile_photo));
+                    $photoUrl = ProfilePhotoHelper::getUrl($s->profile_photo);
                 }
             }
 
@@ -774,7 +747,7 @@ class StudentAdminController extends Controller
 
         $photoUrl = null;
         if (in_array('profile_photo', $cols, true) && !empty($u->profile_photo)) {
-            $photoUrl = asset('storage/' . ltrim($u->profile_photo, '/'));
+            $photoUrl = ProfilePhotoHelper::getUrl($u->profile_photo);
         }
 
         // Récupérer la date d'expiration depuis la table students

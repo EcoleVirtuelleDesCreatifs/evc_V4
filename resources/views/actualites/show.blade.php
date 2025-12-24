@@ -195,7 +195,7 @@
                         <div class="d-flex gap-3 hover-item" style="transition: all 0.3s ease;">
                             <div style="flex-shrink: 0;">
                                 <div class="d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; background-color: #f8f9fa; border-radius: 12px; overflow: hidden;">
-                                    <img src="{{ asset('storage/' . $similaire->cover_image) }}"
+                                    <img src="{{ \App\Models\MediaUrl::fromPath($similaire->cover_image) }}"
                                          alt="{{ $similaire->title }}"
                                          class="img-fluid"
                                          style="max-width: 100%; max-height: 100%; object-fit: contain;">

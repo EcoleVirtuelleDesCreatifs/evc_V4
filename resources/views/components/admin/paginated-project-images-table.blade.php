@@ -339,11 +339,11 @@
                                     <td class="text-center">
                                         <div class="image-preview-container" style="width: 70px; height: 70px;">
                                             @if($project->has_image && !empty($project->image_path))
-                                                <img src="{{ asset('storage/' . $project->image_path) }}"
+                                                <img src="{{ \App\Models\MediaUrl::fromPath($project->image_path) }}"
                                                      alt="{{ $project->image_name }}"
                                                      class="img-thumbnail rounded"
                                                      style="width: 70px; height: 70px; object-fit: cover; cursor: pointer; border: 2px solid #007bff;"
-                                                     onclick="viewProjectImageModal({{ $project->image_id }}, '{{ asset('storage/' . $project->image_path) }}', '{{ $project->image_name }}')">
+                                                     onclick="viewProjectImageModal({{ $project->image_id }}, '{{ \App\Models\MediaUrl::fromPath($project->image_path) }}', '{{ $project->image_name }}')">
                                             @else
                                                 <div class="d-flex align-items-center justify-content-center bg-secondary rounded"
                                                      style="width: 70px; height: 70px;">
@@ -359,7 +359,7 @@
                                             @php
                                                 // Utiliser les données enrichies du service qui contiennent déjà software_used formaté
                                                 $softwareList = [];
-                                                
+
                                                 // Le service enrichit déjà les données avec software_used décodé
                                                 if (isset($project->software_used) && !empty($project->software_used)) {
                                                     if (is_array($project->software_used)) {
@@ -373,19 +373,19 @@
                                                         }
                                                     }
                                                 }
-                                                
+
                                                 // Fallback: utiliser software_list si disponible (données enrichies)
                                                 if (empty($softwareList) && isset($project->software_list) && !empty($project->software_list)) {
                                                     $softwareList = is_array($project->software_list) ? $project->software_list : [$project->software_list];
                                                 }
                                             @endphp
-                                            
+
                                             @if(!empty($softwareList))
                                                 <div class="d-flex flex-wrap gap-1">
                                                     @foreach(array_slice($softwareList, 0, 3) as $software)
                                                         @php
-                                                            $softwareName = is_array($software) ? 
-                                                                (isset($software['name']) ? $software['name'] : (isset($software[0]) ? $software[0] : 'Logiciel')) : 
+                                                            $softwareName = is_array($software) ?
+                                                                (isset($software['name']) ? $software['name'] : (isset($software[0]) ? $software[0] : 'Logiciel')) :
                                                                 (string)$software;
                                                             $softwareName = trim($softwareName);
                                                         @endphp

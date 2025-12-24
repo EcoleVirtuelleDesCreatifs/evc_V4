@@ -13,27 +13,27 @@
         margin-bottom: 1.5rem;
         backdrop-filter: blur(10px);
     }
-    
+
     .detail-header {
         border-bottom: 1px solid var(--form-border);
         padding-bottom: 1.5rem;
         margin-bottom: 1.5rem;
     }
-    
+
     .detail-title {
         font-size: 1.8rem;
         font-weight: 700;
         color: var(--form-text);
         margin-bottom: 0.5rem;
     }
-    
+
     .detail-meta {
         display: flex;
         gap: 1.5rem;
         flex-wrap: wrap;
         color: var(--form-text-muted);
     }
-    
+
     .meta-badge {
         display: inline-flex;
         align-items: center;
@@ -44,15 +44,15 @@
         border-radius: 8px;
         font-size: 0.9rem;
     }
-    
+
     .meta-badge i {
         color: var(--form-primary);
     }
-    
+
     .detail-section {
         margin-bottom: 2rem;
     }
-    
+
     .section-title {
         font-size: 1.2rem;
         font-weight: 600;
@@ -62,11 +62,11 @@
         align-items: center;
         gap: 0.75rem;
     }
-    
+
     .section-title i {
         color: var(--form-primary);
     }
-    
+
     .description-content {
         color: var(--form-text);
         line-height: 1.8;
@@ -75,13 +75,13 @@
         border-radius: 12px;
         border: 1px solid var(--form-border);
     }
-    
+
     .students-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 1rem;
     }
-    
+
     .student-card {
         background: rgba(15, 23, 42, 0.5);
         border: 1px solid var(--form-border);
@@ -89,18 +89,18 @@
         padding: 1rem;
         transition: all 0.3s ease;
     }
-    
+
     .student-card:hover {
         border-color: var(--form-primary);
         transform: translateY(-3px);
     }
-    
+
     .student-name {
         font-weight: 600;
         color: var(--form-text);
         margin-bottom: 0.5rem;
     }
-    
+
     .student-info {
         font-size: 0.875rem;
         color: var(--form-text-muted);
@@ -109,7 +109,7 @@
         gap: 0.5rem;
         margin-bottom: 0.35rem;
     }
-    
+
     .status-badge {
         display: inline-flex;
         align-items: center;
@@ -119,22 +119,22 @@
         font-weight: 600;
         font-size: 0.9rem;
     }
-    
+
     .status-assigned {
         background: rgba(56, 189, 248, 0.2);
         color: #38bdf8;
     }
-    
+
     .status-submitted {
         background: rgba(251, 191, 36, 0.2);
         color: #fbbf24;
     }
-    
+
     .status-validated {
         background: rgba(16, 185, 129, 0.2);
         color: #10b981;
     }
-    
+
     .status-rejected {
         background: rgba(239, 68, 68, 0.2);
         color: #ef4444;
@@ -204,12 +204,12 @@
                 </h2>
                 <div class="students-grid">
                     @foreach($files as $file)
-                        <div class="student-card" style="cursor: pointer;" onclick="window.open('{{ asset('storage/' . $file->file_path) }}', '_blank')">
+                        <div class="student-card" style="cursor: pointer;" onclick="window.open('{{ \App\Models\MediaUrl::fromPath($file->file_path) }}', '_blank')">
                             <div style="text-align: center; margin-bottom: 1rem;">
                                 @if(str_contains($file->file_type ?? '', 'image'))
                                     <!-- Afficher l'image réelle -->
-                                    <img src="{{ asset('storage/' . $file->file_path) }}" 
-                                         alt="{{ $file->file_name }}" 
+                                    <img src="{{ \App\Models\MediaUrl::fromPath($file->file_path) }}"
+                                         alt="{{ $file->file_name }}"
                                          style="width: 100%; height: 150px; object-fit: cover; border-radius: 8px;"
                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                                     <i class="fas fa-file-image" style="font-size: 3rem; color: #10b981; display: none;"></i>
@@ -244,7 +244,7 @@
                 <i class="fas fa-users"></i>
                 Étudiants assignés ({{ $students->count() }})
             </h2>
-            
+
             <div class="students-grid">
                 @foreach($students as $student)
                     <div class="student-card">

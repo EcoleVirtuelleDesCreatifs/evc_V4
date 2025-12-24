@@ -465,11 +465,11 @@
         if (preg_match('/^https?:\/\//', $rawPhoto)) {
             $photoUrl = $rawPhoto;
         } elseif (str_starts_with($rawPhoto, 'photos_preregistrations/')) {
-            $photoUrl = asset('storage/' . $rawPhoto);
+            $photoUrl = \App\Models\MediaUrl::fromPath($rawPhoto);
         } elseif (str_starts_with($rawPhoto, 'uploads/')) {
             $photoUrl = asset($rawPhoto);
         } else {
-            $photoUrl = asset('storage/' . $rawPhoto);
+            $photoUrl = \App\Models\MediaUrl::fromPath($rawPhoto);
         }
     } else {
         $photoUrl = asset('assets/img/avatar.png');

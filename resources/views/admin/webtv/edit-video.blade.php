@@ -263,7 +263,7 @@
                     @if($video->thumbnail)
                     <div class="current-thumbnail">
                         <p style="margin: 0 0 10px 0; font-weight: 600; color: #374151;">Miniature actuelle :</p>
-                        <img src="{{ Storage::url($video->thumbnail) }}" alt="Miniature">
+                        <img src="{{ \App\Models\MediaUrl::fromPath($video->thumbnail) }}" alt="Miniature">
                     </div>
                     @endif
                 </div>

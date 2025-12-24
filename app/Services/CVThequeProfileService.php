@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\MediaUrl;
 use App\Models\CVThequeProfile;
 use App\Models\DocumentValidation;
 use Illuminate\Support\Facades\Log;
@@ -610,7 +611,7 @@ class CVThequeProfileService
                 'name' => $file->getClientOriginalName(),
                 'size' => $file->getSize(),
                 'type' => $file->getMimeType(),
-                'url' => asset('storage/' . $path)
+                'url' => MediaUrl::fromPath($path)
             ];
 
         } catch (\Exception $e) {

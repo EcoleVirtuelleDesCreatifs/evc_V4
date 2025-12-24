@@ -463,8 +463,8 @@
                             $photoUrl = asset('uploads/photos/' . $filename);
                         } elseif (file_exists(public_path($userInfo->profile_photo))) {
                             $photoUrl = asset($userInfo->profile_photo);
-                        } elseif (file_exists(public_path('storage/' . $userInfo->profile_photo))) {
-                            $photoUrl = asset('storage/' . $userInfo->profile_photo);
+                        } else {
+                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrl($userInfo->profile_photo);
                         }
                     }
                 @endphp

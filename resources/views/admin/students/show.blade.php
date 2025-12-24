@@ -738,7 +738,7 @@
                     const modalTitle = document.getElementById('documentViewerModalLabel');
 
                     // Construire l'URL complète du fichier
-                    const fileUrl = '{{ asset("storage/") }}/' + filePath;
+                    const fileUrl = '{{ asset("storage/app/public/") }}/' + filePath;
 
                     // Mettre à jour le modal
                     iframe.src = fileUrl;

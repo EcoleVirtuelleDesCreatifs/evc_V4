@@ -295,7 +295,7 @@
 
                 <div class="text-center mb-4">
                     @if(isset($admin->photo) && $admin->photo)
-                        <img src="{{ asset('storage/' . $admin->photo) }}" alt="Photo de profil" class="profile-avatar">
+                        <img src="{{ \App\Models\MediaUrl::fromPath($admin->photo) }}" alt="Photo de profil" class="profile-avatar">
                     @else
                         <div class="profile-avatar" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white;">
                             {{ strtoupper(substr($admin->name, 0, 1)) }}

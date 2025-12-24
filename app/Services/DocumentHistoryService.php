@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\CVThequeProfile;
+use App\Models\CVThequeValidation;
 use App\Models\DocumentValidation;
-use Illuminate\Support\Facades\Log;
+use App\Models\MediaUrl;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 /**
@@ -67,7 +69,7 @@ class DocumentHistoryService
     {
         try {
             $profile = CVThequeProfile::where('user_id', $userId)->first();
-            
+
             if (!$profile) {
                 Log::info('Aucun profil trouvé pour l\'historique', ['user_id' => $userId]);
                 return [];
@@ -153,7 +155,7 @@ class DocumentHistoryService
             'icon' => $config['icon'],
             'color' => $config['color'],
             'badge' => $config['badge'],
-            'download_url' => $exists ? Storage::url($filePath) : null,
+            'download_url' => $exists ? MediaUrl::fromPath($filePath) : null,
             'can_delete' => true,
             'document_type_key' => $type,
             // Données de validation
@@ -197,7 +199,7 @@ class DocumentHistoryService
                 'icon' => $config['icon'],
                 'color' => $config['color'],
                 'badge' => $config['badge'],
-                'download_url' => $exists ? Storage::url($file['path']) : null,
+                'download_url' => $exists ? MediaUrl::fromPath($file['path']) : null,
                 'can_delete' => true,
                 'document_type_key' => 'realisations',
                 // Données de validation
@@ -301,7 +303,7 @@ class DocumentHistoryService
     public function getDocumentStatistics(int $userId): array
     {
         $documents = $this->getUserDocumentHistory($userId);
-        
+
         $stats = [
             'total_documents' => count($documents),
             'total_size' => 0,
@@ -332,7 +334,7 @@ class DocumentHistoryService
     {
         try {
             $profile = CVThequeProfile::where('user_id', $userId)->first();
-            
+
             if (!$profile) {
                 return false;
             }
@@ -341,19 +343,19 @@ class DocumentHistoryService
             switch ($documentType) {
                 case 'CV':
                     return $this->deleteSingleFile($profile, 'cv_file_path', 'cv_file_name');
-                    
+
                 case 'Lettre de motivation':
                     return $this->deleteSingleFile($profile, 'motivation_letter_path', 'motivation_letter_name');
-                    
+
                 case 'Pressbook':
                     return $this->deleteSingleFile($profile, 'pressbook_file_path', 'pressbook_file_name');
-                    
+
                 case 'Rapport':
                     return $this->deleteSingleFile($profile, 'report_file_path', 'report_file_name');
-                    
+
                 case 'Réalisation':
                     return $this->deletePortfolioFile($profile, $documentName);
-                    
+
                 default:
                     return false;
             }
@@ -375,7 +377,7 @@ class DocumentHistoryService
     private function deleteSingleFile(CVThequeProfile $profile, string $pathField, string $nameField): bool
     {
         $filePath = $profile->$pathField;
-        
+
         if ($filePath && Storage::disk('public')->exists($filePath)) {
             Storage::disk('public')->delete($filePath);
         }
@@ -422,9 +424,9 @@ class DocumentHistoryService
     public function exportToCSV(int $userId): string
     {
         $documents = $this->getUserDocumentHistory($userId);
-        
+
         $csv = "Type,Nom,Taille,Date d'upload,Statut\n";
-        
+
         foreach ($documents as $document) {
             $csv .= sprintf(
                 '"%s","%s","%s","%s","%s"' . "\n",
@@ -435,7 +437,7 @@ class DocumentHistoryService
                 $document['exists'] ? 'Disponible' : 'Manquant'
             );
         }
-        
+
         return $csv;
     }
 }

@@ -108,7 +108,7 @@
                             </td>
                             <td class="text-center">
                                 @if($expense->proof_path)
-                                    <a href="{{ Storage::url($expense->proof_path) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Voir le justificatif">
+                                    <a href="{{ \App\Models\MediaUrl::fromPath($expense->proof_path) }}" target="_blank" class="btn btn-sm btn-outline-primary me-1" title="Voir le justificatif">
                                         <i class="fas fa-file-alt"></i>
                                     </a>
                                 @endif

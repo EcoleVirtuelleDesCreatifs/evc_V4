@@ -318,7 +318,7 @@
                     $photoUrl = null;
                     if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo) {
                         if (strpos($user->profile_photo, 'photos_preregistrations/') !== false) {
-                            $photoUrl = asset('storage/' . $user->profile_photo);
+                            $photoUrl = \App\Models\MediaUrl::fromPath($user->profile_photo);
                         } elseif (strpos($user->profile_photo, '/') === false) {
                             $photoUrl = asset('uploads/photos/' . $user->profile_photo);
                         } else {
@@ -381,7 +381,7 @@
                     $photoDisplay = null;
                     if(isset($user) && property_exists($user, 'profile_photo') && $user->profile_photo) {
                         if (strpos($user->profile_photo, 'photos_preregistrations/') !== false) {
-                            $photoDisplay = asset('storage/' . $user->profile_photo);
+                            $photoDisplay = \App\Models\MediaUrl::fromPath($user->profile_photo);
                         } elseif (strpos($user->profile_photo, '/') === false) {
                             $photoDisplay = asset('uploads/photos/' . $user->profile_photo);
                         } else {

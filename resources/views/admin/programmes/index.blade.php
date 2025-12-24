@@ -358,7 +358,7 @@
                                 {{ \Carbon\Carbon::parse($programme->created_at)->format('d/m/Y') }}
                             </small>
                             <div class="d-flex gap-2">
-                                <a href="{{ asset('storage/' . $programme->fichier_pdf) }}" target="_blank" class="btn-download btn-sm">
+                                <a href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}" target="_blank" class="btn-download btn-sm">
                                     <i class="fas fa-download me-1"></i>
                                     Télécharger
                                 </a>

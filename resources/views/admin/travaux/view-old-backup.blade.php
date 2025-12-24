@@ -16,7 +16,7 @@
                     Détails du TP
                 </h1>
                 <p class="text-white-50 mb-0">
-                    <i class="fas fa-hashtag me-1"></i> ID: {{ $tp->id }} | 
+                    <i class="fas fa-hashtag me-1"></i> ID: {{ $tp->id }} |
                     <i class="fas fa-calendar me-1"></i> {{ \Carbon\Carbon::parse($tp->created_at)->format('d M Y') }}
                 </p>
             </div>
@@ -131,12 +131,12 @@
                                                     // Si le chemin ne commence pas par http ou /, c'est un chemin storage
                                                     if (!str_starts_with($imageUrl, 'http') && !str_starts_with($imageUrl, '/')) {
                                                         // Pour les fichiers dans storage/app/public/
-                                                        $imageUrl = asset('storage/' . $file->file_path);
+                                                        $imageUrl = \App\Models\MediaUrl::fromPath($file->file_path);
                                                     } else {
                                                         $imageUrl = asset($file->file_path);
                                                     }
                                                 @endphp
-                                                <img src="{{ $imageUrl }}" 
+                                                <img src="{{ $imageUrl }}"
                                                      alt="{{ $file->original_name }}"
                                                      class="w-100 h-100"
                                                      style="object-fit: cover;"
@@ -154,7 +154,7 @@
                                                     @php
                                                         $iconClass = 'fa-file';
                                                         $iconColor = 'text-secondary';
-                                                        
+
                                                         if (in_array(strtolower($extension), ['pdf'])) {
                                                             $iconClass = 'fa-file-pdf';
                                                             $iconColor = 'text-danger';
@@ -179,7 +179,7 @@
                                                 </div>
                                             </div>
                                         @endif
-                                        
+
                                         <div class="card-body">
                                             <h6 class="card-title text-truncate" title="{{ $file->original_name }}">
                                                 {{ $file->original_name }}
@@ -189,13 +189,13 @@
                                                 {{ $fileSize }} KB
                                             </p>
                                             <div class="d-flex gap-2">
-                                                <a href="{{ asset($file->file_path) }}" 
-                                                   target="_blank" 
+                                                <a href="{{ asset($file->file_path) }}"
+                                                   target="_blank"
                                                    class="btn btn-sm btn-outline-primary flex-fill">
                                                     <i class="fas fa-eye me-1"></i>
                                                     Voir
                                                 </a>
-                                                <a href="{{ asset($file->file_path) }}" 
+                                                <a href="{{ asset($file->file_path) }}"
                                                    download="{{ $file->original_name }}"
                                                    class="btn btn-sm btn-outline-success flex-fill">
                                                     <i class="fas fa-download me-1"></i>
@@ -234,12 +234,12 @@
                     <div class="text-center mb-3">
                         @if($student && $student->profile_photo)
                             <div class="d-inline-block" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; box-shadow: 0 4px 16px rgba(30, 60, 114, 0.3);">
-                                <img src="{{ asset($student->profile_photo) }}" 
+                                <img src="{{ asset($student->profile_photo) }}"
                                      alt="{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}"
                                      style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                         @else
-                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center" 
+                            <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
                                  style="width: 80px; height: 80px; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; font-weight: bold; font-size: 2rem; box-shadow: 0 4px 16px rgba(30, 60, 114, 0.3);">
                                 {{ strtoupper(substr($student->first_name ?? $user->name, 0, 1)) }}{{ strtoupper(substr($student->last_name ?? '', 0, 1)) }}
                             </div>
@@ -248,17 +248,17 @@
                     <h5 class="text-center mb-3">
                         {{ $student->first_name ?? '' }} {{ $student->last_name ?? $user->name }}
                     </h5>
-                    
+
                     <div class="mb-2">
                         <small class="text-muted">ID Étudiant</small>
                         <div class="fw-bold">{{ $student->student_id ?? 'N/A' }}</div>
                     </div>
-                    
+
                     <div class="mb-2">
                         <small class="text-muted">Email</small>
                         <div class="fw-bold">{{ $user->email }}</div>
                     </div>
-                    
+
                     @if($student && $student->program)
                         <div class="mb-2">
                             <small class="text-muted">Formation</small>
@@ -317,7 +317,7 @@
                                 Rejeter le TP
                             </button>
                         </div>
-                        
+
                         <!-- Formulaire de rejet -->
                         <div id="rejectFormContainer" style="display: none; margin-top: 1rem;">
                             <div class="card border-danger">
@@ -337,12 +337,12 @@
                                             <label for="rejectReason" class="form-label fw-bold">
                                                 Raison du rejet <span class="text-danger">*</span>
                                             </label>
-                                            <textarea 
-                                                class="form-control" 
-                                                id="rejectReason" 
-                                                name="reason" 
-                                                rows="6" 
-                                                required 
+                                            <textarea
+                                                class="form-control"
+                                                id="rejectReason"
+                                                name="reason"
+                                                rows="6"
+                                                required
                                                 placeholder="Expliquez pourquoi ce TP est rejeté et ce que l'étudiant doit améliorer..."></textarea>
                                             <small class="text-muted">Minimum 10 caractères</small>
                                         </div>
@@ -370,14 +370,14 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Page chargée, initialisation des événements...');
-    
+
     // Bouton pour afficher le formulaire de rejet
     const btnShowReject = document.getElementById('btnShowReject');
     const btnCancelReject = document.getElementById('btnCancelReject');
     const rejectFormContainer = document.getElementById('rejectFormContainer');
     const rejectReason = document.getElementById('rejectReason');
     const formReject = document.getElementById('formReject');
-    
+
     // Vérifier que les éléments existent
     console.log('Éléments trouvés:', {
         btnShowReject: !!btnShowReject,
@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rejectReason: !!rejectReason,
         formReject: !!formReject
     });
-    
+
     // Afficher le formulaire de rejet
     if (btnShowReject && rejectFormContainer && rejectReason) {
         btnShowReject.addEventListener('click', function() {
@@ -398,7 +398,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 100);
         });
     }
-    
+
     // Annuler et masquer le formulaire
     if (btnCancelReject && rejectFormContainer && rejectReason) {
         btnCancelReject.addEventListener('click', function() {
@@ -407,29 +407,29 @@ document.addEventListener('DOMContentLoaded', function() {
             rejectReason.value = '';
         });
     }
-    
+
     // Validation avant soumission
     if (formReject && rejectReason) {
         formReject.addEventListener('submit', function(e) {
             const reason = rejectReason.value.trim();
             console.log('📝 Soumission du formulaire, raison:', reason);
-            
+
             if (reason.length < 10) {
                 e.preventDefault();
                 alert('⚠️ La raison du rejet doit contenir au moins 10 caractères.');
                 return false;
             }
-            
+
             if (!confirm('❌ Êtes-vous sûr de vouloir rejeter ce TP ?\n\nL\'étudiant recevra un email avec votre commentaire.')) {
                 e.preventDefault();
                 return false;
             }
-            
+
             console.log('✅ Formulaire validé, soumission en cours...');
             return true;
         });
     }
-    
+
     console.log('✅ Tous les événements initialisés');
 });
 </script>

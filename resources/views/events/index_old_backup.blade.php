@@ -386,12 +386,12 @@
                                 <div class="col-md-6 col-lg-4 mb-4">
                                     <div class="card h-100 shadow-sm">
                                         @if($event->cover_image)
-                                            <img src="{{ asset('storage/' . $event->cover_image) }}" 
-                                                 class="card-img-top" 
+                                            <img src="{{ \App\Models\MediaUrl::fromPath($event->cover_image) }}"
+                                                 class="card-img-top"
                                                  alt="{{ $event->title }}"
                                                  style="height: 200px; object-fit: cover;">
                                         @else
-                                            <div class="bg-secondary d-flex align-items-center justify-content-center" 
+                                            <div class="bg-secondary d-flex align-items-center justify-content-center"
                                                  style="height: 200px;">
                                                 <i class="fas fa-calendar-alt fa-3x text-muted"></i>
                                             </div>
@@ -399,14 +399,14 @@
                                         <div class="card-body">
                                             <h5 class="card-title">{{ $event->title }}</h5>
                                             <p class="card-text text-muted">{{ Str::limit($event->excerpt, 100) }}</p>
-                                            
+
                                             <div class="mb-2">
                                                 <small class="text-muted">
                                                     <i class="fas fa-calendar me-1"></i>
                                                     {{ \Carbon\Carbon::parse($event->event_date)->format('d/m/Y à H:i') }}
                                                 </small>
                                             </div>
-                                            
+
                                             @if($event->location)
                                                 <div class="mb-2">
                                                     <small class="text-muted">
@@ -415,7 +415,7 @@
                                                     </small>
                                                 </div>
                                             @endif
-                                            
+
                                             <div class="mb-3">
                                                 @if($event->event_type == 'physical')
                                                     <span class="badge bg-primary">Présentiel</span>
@@ -424,7 +424,7 @@
                                                 @else
                                                     <span class="badge bg-info">Hybride</span>
                                                 @endif
-                                                
+
                                                 @if($event->is_featured)
                                                     <span class="badge bg-warning text-dark">
                                                         <i class="fas fa-star"></i> À la une
@@ -439,8 +439,8 @@
                                                     Détails
                                                 </button>
                                                 @if($event->registration_link)
-                                                    <a href="{{ $event->registration_link }}" 
-                                                       target="_blank" 
+                                                    <a href="{{ $event->registration_link }}"
+                                                       target="_blank"
                                                        class="btn btn-sm btn-success">
                                                         <i class="fas fa-user-plus me-1"></i>
                                                         S'inscrire

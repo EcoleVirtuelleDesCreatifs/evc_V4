@@ -39,7 +39,7 @@
             }
             // Si le chemin commence par 'photos_preregistrations/', ajouter 'storage/'
             elseif (str_starts_with($rawPhoto, 'photos_preregistrations/')) {
-                $photoUrl = asset('storage/' . $rawPhoto);
+                $photoUrl = \App\Models\MediaUrl::fromPath($rawPhoto);
             }
             // Si le chemin commence par 'uploads/', c'est déjà dans public/
             elseif (str_starts_with($rawPhoto, 'uploads/')) {
@@ -47,7 +47,7 @@
             }
             // Autres cas : supposer que c'est dans storage
             else {
-                $photoUrl = asset('storage/' . $rawPhoto);
+                $photoUrl = \App\Models\MediaUrl::fromPath($rawPhoto);
             }
         } else {
             $photoUrl = asset('assets/img/avatar.png');

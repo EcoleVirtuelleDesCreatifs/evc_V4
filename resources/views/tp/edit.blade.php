@@ -152,11 +152,11 @@
 
                                     // Cas spécifique pour le dossier uploads
                                     if (str_starts_with($path, 'uploads/')) {
-                                        return asset('storage/' . $path);
+                                        return asset($path);
                                     }
 
                                     // Fallback vers storage
-                                    return asset('storage/' . $path);
+                                    return \App\Models\MediaUrl::fromPath($path);
                                 };
 
                                 $isImage = function($file) {
