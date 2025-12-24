@@ -581,11 +581,149 @@ function addMonths(months) {
     setTimeout(() => {
         dateInput.classList.remove('border-success');
     }, 1000);
+
+    updateDynamicCountdown();
+}
+
+function parseDateInput(value) {
+    if (!value) return null;
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return null;
+    return d;
+}
+
+function formatDateYmd(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function getDurationMonths() {
+    const formationEl = document.getElementById('formation_souhaitee');
+    const formation = formationEl ? formationEl.value : '';
+    if (['design_graphique_community_management', 'design_graphique_community_manager', 'design-graphique-community-manager'].includes(formation)) {
+        return 7;
+    }
+    return 4;
+}
+
+function computeExpirationDate() {
+    const expirationEl = document.getElementById('expiration_date');
+    const registrationEl = document.getElementById('registration_date');
+    if (!expirationEl || !registrationEl) return null;
+
+    const exp = parseDateInput(expirationEl.value);
+    if (exp) return exp;
+
+    const reg = parseDateInput(registrationEl.value);
+    if (!reg) return null;
+
+    const months = getDurationMonths();
+    const computed = new Date(reg.getTime());
+    computed.setMonth(computed.getMonth() + months);
+    return computed;
+}
+
+function computeDaysRemaining(expirationDate) {
+    if (!expirationDate) return null;
+    const now = new Date();
+    const diffMs = expirationDate.getTime() - now.getTime();
+    return Math.floor(diffMs / 86400000);
+}
+
+function updateDynamicCountdown() {
+    const card = document.querySelector('.expiration-status-card');
+    if (!card) return;
+
+    const expirationEl = document.getElementById('expiration_date');
+    const registrationEl = document.getElementById('registration_date');
+    if (!expirationEl || !registrationEl) return;
+
+    const expDate = computeExpirationDate();
+    const days = computeDaysRemaining(expDate);
+    if (days === null) return;
+
+    const titleEl = card.querySelector('h4');
+    const dateTextEl = card.querySelector('p');
+    const iconWrapper = card.querySelector('.expiration-icon i');
+    const badgeEl = card.querySelector('.badge');
+
+    const expYmd = expDate ? formatDateYmd(expDate) : '';
+    const expFr = expDate ? expDate.toLocaleDateString('fr-FR') : '';
+
+    // Mettre à jour la date affichée
+    if (dateTextEl) {
+        dateTextEl.innerHTML = `<i class="fas fa-calendar-day me-1"></i>Date d'expiration : ${expFr}`;
+    }
+
+    // Si expiration_date est vide, on propose la date calculée (sans forcer si déjà rempli)
+    if (!expirationEl.value && expYmd) {
+        expirationEl.value = expYmd;
+    }
+
+    // Mettre à jour le contenu principal
+    if (titleEl) {
+        if (days < 0) {
+            titleEl.textContent = `Expiré depuis ${Math.abs(days)} jour${Math.abs(days) > 1 ? 's' : ''}`;
+        } else {
+            titleEl.textContent = `${days} jour${days > 1 ? 's' : ''} restant${days > 1 ? 's' : ''}`;
+        }
+    }
+
+    // Mettre à jour les classes / badge
+    card.classList.remove('alert-danger', 'alert-warning', 'alert-success');
+    if (days < 0) {
+        card.classList.add('alert-danger');
+        if (iconWrapper) iconWrapper.className = 'fas fa-times-circle';
+        if (badgeEl) {
+            badgeEl.className = 'badge bg-danger';
+            badgeEl.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>EXPIRÉ';
+        }
+    } else if (days <= 7) {
+        card.classList.add('alert-warning');
+        if (iconWrapper) iconWrapper.className = 'fas fa-clock';
+        if (badgeEl) {
+            badgeEl.className = 'badge bg-danger';
+            badgeEl.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>URGENT';
+        }
+    } else if (days <= 30) {
+        card.classList.add('alert-warning');
+        if (iconWrapper) iconWrapper.className = 'fas fa-clock';
+        if (badgeEl) {
+            badgeEl.className = 'badge bg-warning text-dark';
+            badgeEl.innerHTML = '<i class="fas fa-clock me-1"></i>ATTENTION';
+        }
+    } else {
+        card.classList.add('alert-success');
+        if (iconWrapper) iconWrapper.className = 'fas fa-clock';
+        if (badgeEl) {
+            badgeEl.className = 'badge bg-success';
+            badgeEl.innerHTML = '<i class="fas fa-check-circle me-1"></i>OK';
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('editStudentForm');
     const saveBtn = document.getElementById('saveBtn');
+
+    const registrationEl = document.getElementById('registration_date');
+    const formationEl = document.getElementById('formation_souhaitee');
+    const expirationEl = document.getElementById('expiration_date');
+
+    if (registrationEl) registrationEl.addEventListener('change', updateDynamicCountdown);
+    if (formationEl) formationEl.addEventListener('change', function() {
+        const exp = document.getElementById('expiration_date');
+        if (exp && !exp.value) {
+            updateDynamicCountdown();
+        } else {
+            updateDynamicCountdown();
+        }
+    });
+    if (expirationEl) expirationEl.addEventListener('change', updateDynamicCountdown);
+
+    updateDynamicCountdown();
 
     // Validation en temps réel
     const inputs = form.querySelectorAll('input[required], select[required]');

@@ -157,9 +157,11 @@
                                             @php
                                                 $daysInt = (int) $student['days_remaining'];
                                                 $expDate = isset($student['expiration_date']) ? $student['expiration_date']->format('d/m/Y à H:i') : '';
+                                                $expIso = isset($student['expiration_date']) ? $student['expiration_date']->toIso8601String() : '';
                                             @endphp
                                             @if($student['is_expired'])
-                                                <span class="badge bg-danger px-3 py-2"
+                                                <span class="badge bg-danger px-3 py-2 js-days-remaining"
+                                                      data-expiration="{{ $expIso }}"
                                                       data-bs-toggle="tooltip"
                                                       data-bs-placement="top"
                                                       title="Expiré le {{ $expDate }}"
@@ -167,7 +169,8 @@
                                                     <i class="fas fa-times-circle me-1"></i>Expiré
                                                 </span>
                                             @elseif($daysInt <= 7)
-                                                <span class="badge bg-danger px-3 py-2"
+                                                <span class="badge bg-danger px-3 py-2 js-days-remaining"
+                                                      data-expiration="{{ $expIso }}"
                                                       data-bs-toggle="tooltip"
                                                       data-bs-placement="top"
                                                       title="Expire le {{ $expDate }}"
@@ -175,7 +178,8 @@
                                                     <i class="fas fa-exclamation-triangle me-1"></i>{{ $daysInt }} jour{{ $daysInt > 1 ? 's' : '' }}
                                                 </span>
                                             @elseif($daysInt <= 30)
-                                                <span class="badge bg-warning text-dark px-3 py-2"
+                                                <span class="badge bg-warning text-dark px-3 py-2 js-days-remaining"
+                                                      data-expiration="{{ $expIso }}"
                                                       data-bs-toggle="tooltip"
                                                       data-bs-placement="top"
                                                       title="Expire le {{ $expDate }}"
@@ -183,7 +187,8 @@
                                                     <i class="fas fa-clock me-1"></i>{{ $daysInt }} jours
                                                 </span>
                                             @else
-                                                <span class="badge bg-success px-3 py-2"
+                                                <span class="badge bg-success px-3 py-2 js-days-remaining"
+                                                      data-expiration="{{ $expIso }}"
                                                       data-bs-toggle="tooltip"
                                                       data-bs-placement="top"
                                                       title="Expire le {{ $expDate }}"
@@ -978,3 +983,57 @@ function deleteStudent(studentId, studentName) {
 </style>
 @endpush
 @endsection
+
+@push('scripts')
+<script>
+function computeDaysRemaining(expirationIso) {
+    if (!expirationIso) return null;
+    const exp = new Date(expirationIso);
+    if (Number.isNaN(exp.getTime())) return null;
+    const now = new Date();
+    const diffMs = exp.getTime() - now.getTime();
+    return Math.floor(diffMs / 86400000);
+}
+
+function updateDaysRemainingBadges() {
+    const badges = document.querySelectorAll('.js-days-remaining');
+    badges.forEach((badge) => {
+        const expIso = badge.getAttribute('data-expiration') || '';
+        const days = computeDaysRemaining(expIso);
+        if (days === null) return;
+
+        const iconEl = badge.querySelector('i');
+        const iconClass = iconEl ? iconEl.className : '';
+
+        if (days < 0) {
+            badge.classList.remove('bg-success', 'bg-warning', 'text-dark');
+            badge.classList.add('bg-danger');
+            badge.innerHTML = `<i class="${iconClass || 'fas fa-times-circle me-1'}"></i>Expiré`;
+            return;
+        }
+
+        const label = days <= 1 ? 'jour' : 'jours';
+
+        badge.classList.remove('bg-danger');
+        if (days <= 7) {
+            badge.classList.remove('bg-success', 'bg-warning', 'text-dark');
+            badge.classList.add('bg-danger');
+            badge.innerHTML = `<i class="${iconClass || 'fas fa-exclamation-triangle me-1'}"></i>${days} ${label}`;
+        } else if (days <= 30) {
+            badge.classList.remove('bg-success', 'bg-danger');
+            badge.classList.add('bg-warning', 'text-dark');
+            badge.innerHTML = `<i class="${iconClass || 'fas fa-clock me-1'}"></i>${days} ${label}`;
+        } else {
+            badge.classList.remove('bg-warning', 'text-dark', 'bg-danger');
+            badge.classList.add('bg-success');
+            badge.innerHTML = `<i class="${iconClass || 'fas fa-check-circle me-1'}"></i>${days} ${label}`;
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateDaysRemainingBadges();
+    setInterval(updateDaysRemainingBadges, 60000);
+});
+</script>
+@endpush
