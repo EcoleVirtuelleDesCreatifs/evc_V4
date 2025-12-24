@@ -253,6 +253,16 @@ class StudentAdminController extends Controller
             $userId = $userIds[$s->email] ?? null;
             $tpCount = $userId ? ($tpCounts[$userId] ?? 0) : 0;
 
+            $userRecord = null;
+            if ($userId) {
+                $userRecord = DB::table('users')->where('id', $userId)->first();
+            }
+
+            $registrationDate = $s->created_at ?? null;
+            if (!$registrationDate && $userRecord && !empty($userRecord->created_at)) {
+                $registrationDate = $userRecord->created_at;
+            }
+
             // Calculer la progression
             $totalTpRequis = 20;
             $progression = $tpCount > 0 ? min(100, round(($tpCount / $totalTpRequis) * 100)) : 0;
@@ -307,19 +317,12 @@ class StudentAdminController extends Controller
             }
 
             // Fallback : calculer depuis created_at + 4 mois
-            if (!$expirationDate && !empty($s->created_at)) {
+            if (!$expirationDate && !empty($registrationDate)) {
                 try {
-                    $createdAt = \Carbon\Carbon::parse($s->created_at);
+                    $createdAt = \Carbon\Carbon::parse($registrationDate);
                     $expirationDate = $createdAt->copy()->addMonths($durationMonths);
                 } catch (\Exception $e) {
-                    // Si créated_at aussi échoue, essayer avec users.created_at
-                    if ($userId) {
-                        $userRecord = DB::table('users')->where('id', $userId)->first();
-                        if ($userRecord && !empty($userRecord->created_at)) {
-                            $createdAt = \Carbon\Carbon::parse($userRecord->created_at);
-                            $expirationDate = $createdAt->copy()->addMonths($durationMonths);
-                        }
-                    }
+                    $expirationDate = null;
                 }
             }
 
@@ -374,7 +377,7 @@ class StudentAdminController extends Controller
                 'nom' => $s->last_name ?? '',
                 'phone' => $s->phone ?? '',
                 'pays' => $s->country ?? '',
-                'created_at' => $s->created_at,
+                'created_at' => $registrationDate,
                 'tp_count' => $tpCount,
                 'progression' => $progression,
                 'photo_url' => $photoUrl,
@@ -1295,7 +1298,15 @@ class StudentAdminController extends Controller
                 'updated_fields' => array_keys($updateData)
             ]);
 
-            return redirect()->route('admin.students.profile', $id)
+            $studentIdForProfile = $id;
+            if (Schema::hasTable('students')) {
+                $studentRecord = DB::table('students')->where('user_id', $id)->first();
+                if ($studentRecord && !empty($studentRecord->id)) {
+                    $studentIdForProfile = (int) $studentRecord->id;
+                }
+            }
+
+            return redirect()->route('admin.students.profile', $studentIdForProfile)
                 ->with('success', '✅ Les informations de l\'étudiant ont été mises à jour avec succès.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
