@@ -21,11 +21,30 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 
 
 // Page d'accueil et pré-inscription
 Route::get('/', [HomepageController::class, 'index'])->name('homepage');
+
+$servePublicStorage = function (string $path) {
+    $path = ltrim($path, '/');
+    if (str_contains($path, '..')) {
+        abort(404);
+    }
+
+    if (!Storage::disk('public')->exists($path)) {
+        abort(404);
+    }
+
+    $fullPath = storage_path('app/public/' . $path);
+    return response()->file($fullPath);
+};
+
+Route::get('/storage/app/public/{path}', $servePublicStorage)->where('path', '.*');
+Route::get('/evc/storage/app/public/{path}', $servePublicStorage)->where('path', '.*');
+
 Route::get('/preinscription', function () {
     return view('preinscription.index');
 })->name('preinscription.start');
