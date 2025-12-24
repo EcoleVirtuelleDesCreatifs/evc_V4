@@ -38,9 +38,15 @@ class MediaUrl
         $encodedFilename = rawurlencode((string) $filename);
         $encodedPath = implode('/', $parts) . ($parts ? '/' : '') . $encodedFilename;
 
-        if (app()->environment('production')) {
-            return secure_asset('storage/' . $encodedPath);
+        try {
+            $req = request();
+            $base = rtrim($req->getSchemeAndHttpHost() . $req->getBaseUrl(), '/');
+            return $base . '/storage/' . $encodedPath;
+        } catch (\Throwable $e) {
+            if (app()->environment('production')) {
+                return secure_asset('storage/' . $encodedPath);
+            }
+            return asset('storage/' . $encodedPath);
         }
-        return asset('storage/' . $encodedPath);
     }
 }
