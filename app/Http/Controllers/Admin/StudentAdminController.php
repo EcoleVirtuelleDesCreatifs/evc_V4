@@ -324,10 +324,12 @@ class StudentAdminController extends Controller
 
             // Durée d'accès par formation (fallback quand expiration_date n'est pas stockée)
             $durationMonths = 4;
-            if (
-                ($s->program ?? null) === 'design_graphique_community_management' ||
-                ($s->specialization ?? null) === 'design_graphique_community_management'
-            ) {
+            $sevenMonthsPrograms = [
+                'design_graphique_community_management',
+                'design_graphique_community_manager',
+                'design-graphique-community-manager',
+            ];
+            if (in_array(($s->program ?? null), $sevenMonthsPrograms, true) || in_array(($s->specialization ?? null), $sevenMonthsPrograms, true)) {
                 $durationMonths = 7;
             }
 
@@ -996,7 +998,12 @@ class StudentAdminController extends Controller
         }
 
         $durationMonths = 4;
-        if (($student->program ?? null) === 'design_graphique_community_management' || ($student->specialization ?? null) === 'design_graphique_community_management') {
+        $sevenMonthsPrograms = [
+            'design_graphique_community_management',
+            'design_graphique_community_manager',
+            'design-graphique-community-manager',
+        ];
+        if (in_array(($student->program ?? null), $sevenMonthsPrograms, true) || in_array(($student->specialization ?? null), $sevenMonthsPrograms, true)) {
             $durationMonths = 7;
         }
 
