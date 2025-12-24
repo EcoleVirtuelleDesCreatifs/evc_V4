@@ -5,6 +5,7 @@ namespace App\Helpers;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AccountExpirationHelper
 {
@@ -75,9 +76,27 @@ class AccountExpirationHelper
     {
         $durations = [
             'Design Graphique' => 4,
-            'Community Management' => 3,
+            'design_graphique' => 4,
+            'design-graphique' => 4,
+
+            'Community Management' => 4,
+            'community_management' => 4,
+            'community-manager' => 4,
+            'community-management' => 4,
+
+            'Design Graphique & Community Management' => 7,
+            'Design Graphique & Community Manager' => 7,
+            'design_graphique_community_management' => 7,
+            'design_graphique_community_manager' => 7,
+            'design-graphique-community-manager' => 7,
+
             'Intelligence Artificielle' => 4,
+            'intelligence_artificielle' => 4,
+            'intelligence-artificielle' => 4,
+
             'Gestion Informatique' => 4,
+            'gestion_informatique' => 4,
+            'gestion-informatique' => 4,
         ];
 
         if ($program && isset($durations[$program])) {
@@ -104,18 +123,74 @@ class AccountExpirationHelper
             ->orWhere('email', $user->email)
             ->first();
 
-        if ($studentRecord && !empty($studentRecord->expiration_date)) {
-            return Carbon::parse($studentRecord->expiration_date);
-        }
-
-        // Fallback : created_at + durée selon le programme
-        $accountCreatedAt = Carbon::parse($user->created_at);
-
-        // Déterminer la durée selon le programme
         $program = $studentRecord->program ?? null;
         $durationMonths = self::getDefaultDurationMonths($program);
 
-        return $accountCreatedAt->copy()->addMonths($durationMonths);
+        // Date d'inscription fiable
+        $registrationCandidates = [];
+        if ($studentRecord && Schema::hasColumn('students', 'registration_date') && !empty($studentRecord->registration_date)) {
+            $registrationCandidates[] = $studentRecord->registration_date;
+        }
+        if ($studentRecord && !empty($studentRecord->created_at)) {
+            $registrationCandidates[] = $studentRecord->created_at;
+        }
+        if (!empty($user->created_at)) {
+            $registrationCandidates[] = $user->created_at;
+        }
+
+        $registrationDate = null;
+        if (!empty($registrationCandidates)) {
+            $registrationDate = collect($registrationCandidates)
+                ->map(function ($d) {
+                    try {
+                        return Carbon::parse($d);
+                    } catch (\Exception $e) {
+                        return null;
+                    }
+                })
+                ->filter()
+                ->sort()
+                ->first();
+        }
+
+        $computedExpiration = $registrationDate ? $registrationDate->copy()->addMonths($durationMonths) : null;
+
+        // Expiration stockée (potentiellement prolongation)
+        $storedExpiration = null;
+        if ($studentRecord && !empty($studentRecord->expiration_date)) {
+            try {
+                $storedExpiration = Carbon::parse($studentRecord->expiration_date);
+            } catch (\Exception $e) {
+                $storedExpiration = null;
+            }
+        }
+
+        // Détecter une expiration auto erronée basée sur "maintenant + durée"
+        $shouldIgnoreStored = false;
+        if ($storedExpiration && $computedExpiration) {
+            $nowBased = Carbon::now()->addMonths($durationMonths);
+            if ($storedExpiration->isSameDay($nowBased) && !$storedExpiration->isSameDay($computedExpiration)) {
+                $shouldIgnoreStored = true;
+            }
+        }
+
+        // Détecter une expiration auto obsolète basée sur users.created_at + durée (si la vraie date d'inscription diffère)
+        if (!$shouldIgnoreStored && $storedExpiration && $computedExpiration && !empty($user->created_at) && $registrationDate) {
+            $userCreatedAt = Carbon::parse($user->created_at);
+            $userBased = $userCreatedAt->copy()->addMonths($durationMonths);
+            if ($storedExpiration->isSameDay($userBased) && !$registrationDate->isSameDay($userCreatedAt)) {
+                $shouldIgnoreStored = true;
+            }
+        }
+
+        if ($storedExpiration && !$shouldIgnoreStored) {
+            if ($computedExpiration) {
+                return $storedExpiration->greaterThan($computedExpiration) ? $storedExpiration : $computedExpiration;
+            }
+            return $storedExpiration;
+        }
+
+        return $computedExpiration ?: Carbon::parse($user->created_at)->copy()->addMonths($durationMonths);
     }
 
     /**

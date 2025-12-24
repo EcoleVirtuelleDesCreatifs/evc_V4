@@ -520,8 +520,8 @@
 
                 <div class="row g-3 mt-3">
                     <div class="col-md-4 text-center text-lg-start">
-                        <div style="font-size: 3rem; font-weight: 900; color: white;">{{ $daysRemaining }}</div>
-                        <div style="color: white; opacity: 0.9; font-weight: 500;">jours restants</div>
+                        <div style="font-size: 3rem; font-weight: 900; color: white;"><span id="js-remaining-days">{{ $daysRemaining }}</span>j</div>
+                        <div style="color: white; opacity: 0.95; font-weight: 800;" id="js-remaining-hms">--h --m --s</div>
                     </div>
                     <div class="col-md-4 text-center">
                         <div class="text-white small" style="opacity: 0.8; text-transform: uppercase; font-weight: 600;">Expire le</div>
@@ -529,15 +529,9 @@
                         <div class="text-white" style="opacity: 0.8;">{{ $expirationDate->format('H:i') }}</div>
                     </div>
                     <div class="col-md-4">
-                        @php
-                            $totalDays = 120;
-                            $progress = ($daysRemaining / $totalDays) * 100;
-                        @endphp
-                        <div class="text-white small mb-2" style="opacity: 0.8; text-transform: uppercase; font-weight: 600;">Progression</div>
-                        <div class="progress-bar-custom">
-                            <div class="progress-bar-fill" style="width: {{ $progress }}%;"></div>
-                        </div>
-                        <div class="text-white mt-2" style="font-weight: 600;">{{ round($progress) }}% de votre formation</div>
+                        <div class="text-white small mb-2" style="opacity: 0.85; text-transform: uppercase; font-weight: 700;">Temps restant</div>
+                        <div class="text-white" style="font-weight: 800; font-size: 1.15rem;" id="js-remaining-full">{{ $daysRemaining }} jours</div>
+                        <div class="text-white" style="opacity: 0.85; font-weight: 600;" id="js-remaining-message">Accélérez maintenant pour finir avant la deadline</div>
                     </div>
                 </div>
             </div>
@@ -874,6 +868,7 @@
 <script>
     (function() {
         const statsUrl = @json(route('dashboard.design-graphique-cm.stats'));
+        const expirationIso = @json($expirationDate->toIso8601String());
 
         const el = {
             formations: document.getElementById('dg_formations_disponibles'),
@@ -964,6 +959,46 @@
 
         refreshStats();
         window.setInterval(refreshStats, 30000);
+
+        function pad2(n) {
+            return String(n).padStart(2, '0');
+        }
+
+        function updateRemaining() {
+            const exp = new Date(expirationIso);
+            if (Number.isNaN(exp.getTime())) return;
+
+            const now = new Date();
+            let diff = exp.getTime() - now.getTime();
+            if (diff < 0) diff = 0;
+
+            const totalSeconds = Math.floor(diff / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            const daysEl = document.getElementById('js-remaining-days');
+            const hmsEl = document.getElementById('js-remaining-hms');
+            const fullEl = document.getElementById('js-remaining-full');
+            const msgEl = document.getElementById('js-remaining-message');
+
+            if (daysEl) daysEl.textContent = `${days}`;
+            if (hmsEl) hmsEl.textContent = `${pad2(hours)}h ${pad2(minutes)}m ${pad2(seconds)}s`;
+            if (fullEl) fullEl.textContent = `${days} jours • ${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
+            if (msgEl) {
+                if (days <= 7) {
+                    msgEl.textContent = `Dernière ligne droite: terminez vos TP aujourd'hui`;
+                } else if (days <= 30) {
+                    msgEl.textContent = `Objectif: valider 2 TP/semaine jusqu'à la fin`;
+                } else {
+                    msgEl.textContent = `Accélérez maintenant pour finir avant la deadline`;
+                }
+            }
+        }
+
+        updateRemaining();
+        window.setInterval(updateRemaining, 1000);
     })();
 </script>
 @endsection

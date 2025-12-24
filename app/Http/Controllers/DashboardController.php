@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use App\Http\Requests\StudentProfileRequest;
 use App\Services\StudentProfileService;
+use App\Helpers\AccountExpirationHelper;
 
 class DashboardController extends Controller
 {
@@ -134,7 +135,7 @@ class DashboardController extends Controller
 
         // Calculer l'expiration d'abord pour filtrer les stats
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
-        $expirationDate = $accountCreatedAt->copy()->addMonths(4);
+        $expirationDate = AccountExpirationHelper::getExpirationDate($user);
         $now = \Carbon\Carbon::now();
         $isExpiredNow = $now->greaterThan($expirationDate);
 
@@ -303,36 +304,13 @@ class DashboardController extends Controller
             $stats['montant_restant'] = $preReg->montant_total - $preReg->montant_paye;
         }
 
-        // Calcul de l'expiration du compte depuis la table students ou fallback sur user created_at
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
-
-        // Essayer de récupérer la date d'expiration depuis la table students
-        $studentRecord = null;
-        if ($student && isset($student->expiration_date) && !empty($student->expiration_date)) {
-            $expirationDate = \Carbon\Carbon::parse($student->expiration_date);
-        } else {
-            // Fallback: chercher dans la table students directement
-            $studentRecord = DB::table('students')
-                ->where('user_id', $user->id)
-                ->orWhere('email', $user->email)
-                ->first();
-
-            if ($studentRecord && !empty($studentRecord->expiration_date)) {
-                $expirationDate = \Carbon\Carbon::parse($studentRecord->expiration_date);
-            } else {
-                // Fallback final: 4 mois après création du compte
-                $expirationDate = $accountCreatedAt->copy()->addMonths(4);
-            }
-        }
-
+        $expirationDate = AccountExpirationHelper::getExpirationDate($user);
         $now = \Carbon\Carbon::now();
-
-        if ($expirationDate->isFuture()) {
-            $daysRemaining = (int) $now->diffInDays($expirationDate);
-            $isExpired = false;
-        } else {
+        $daysRemaining = (int) $now->diffInDays($expirationDate, false);
+        $isExpired = $daysRemaining <= 0;
+        if ($daysRemaining < 0) {
             $daysRemaining = 0;
-            $isExpired = true;
         }
 
         $isExpiringSoon = !$isExpired && $daysRemaining <= 30; // Alerte si moins de 30 jours
@@ -403,7 +381,7 @@ class DashboardController extends Controller
 
         // Calculer l'expiration d'abord pour filtrer les stats
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
-        $expirationDate = $accountCreatedAt->copy()->addMonths(4);
+        $expirationDate = AccountExpirationHelper::getExpirationDate($user);
         $now = \Carbon\Carbon::now();
         $isExpiredNow = $now->greaterThan($expirationDate);
 
@@ -560,28 +538,11 @@ class DashboardController extends Controller
             $stats['montant_restant'] = $preReg->montant_total - $preReg->montant_paye;
         }
 
-        // Calcul de l'expiration du compte
-        if ($student && isset($student->expiration_date) && !empty($student->expiration_date)) {
-            $expirationDate = \Carbon\Carbon::parse($student->expiration_date);
-        } else {
-            $studentRecord = DB::table('students')
-                ->where('user_id', $user->id)
-                ->orWhere('email', $user->email)
-                ->first();
-
-            if ($studentRecord && !empty($studentRecord->expiration_date)) {
-                $expirationDate = \Carbon\Carbon::parse($studentRecord->expiration_date);
-            } else {
-                $expirationDate = $accountCreatedAt->copy()->addMonths(4);
-            }
-        }
-
-        if ($expirationDate->isFuture()) {
-            $daysRemaining = (int) $now->diffInDays($expirationDate);
-            $isExpired = false;
-        } else {
+        $expirationDate = AccountExpirationHelper::getExpirationDate($user);
+        $daysRemaining = (int) $now->diffInDays($expirationDate, false);
+        $isExpired = $daysRemaining <= 0;
+        if ($daysRemaining < 0) {
             $daysRemaining = 0;
-            $isExpired = true;
         }
 
         $isExpiringSoon = !$isExpired && $daysRemaining <= 30;
@@ -4895,38 +4856,13 @@ class DashboardController extends Controller
 
         $stats['montant_restant'] = $montantRestant;
 
-        // Calcul de l'expiration du compte avec AccountExpirationHelper
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
-
-        // Essayer de récupérer la date d'expiration depuis la table students
-        $studentRecord = null;
-        if ($student && isset($student->expiration_date) && !empty($student->expiration_date)) {
-            $expirationDate = \Carbon\Carbon::parse($student->expiration_date);
-        } else {
-            // Fallback: chercher dans la table students directement
-            $studentRecord = DB::table('students')
-                ->where('user_id', $user->id)
-                ->orWhere('email', $user->email)
-                ->first();
-
-            if ($studentRecord && !empty($studentRecord->expiration_date)) {
-                $expirationDate = \Carbon\Carbon::parse($studentRecord->expiration_date);
-            } else {
-                // Fallback final: durée selon le programme (3 mois pour Community Management)
-                $program = $studentRecord->program ?? 'Community Management';
-                $durationMonths = ($program === 'Community Management') ? 3 : 4;
-                $expirationDate = $accountCreatedAt->copy()->addMonths($durationMonths);
-            }
-        }
-
+        $expirationDate = AccountExpirationHelper::getExpirationDate($user);
         $now = \Carbon\Carbon::now();
-
-        if ($expirationDate->isFuture()) {
-            $daysRemaining = (int) $now->diffInDays($expirationDate);
-            $isExpired = false;
-        } else {
+        $daysRemaining = (int) $now->diffInDays($expirationDate, false);
+        $isExpired = $daysRemaining <= 0;
+        if ($daysRemaining < 0) {
             $daysRemaining = 0;
-            $isExpired = true;
         }
 
         $isExpiringSoon = !$isExpired && $daysRemaining <= 30;
