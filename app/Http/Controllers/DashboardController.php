@@ -16,6 +16,7 @@ use App\Models\DesignProject;
 use App\Models\TP;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Http\Requests\StudentProfileRequest;
 use App\Services\StudentProfileService;
@@ -23,6 +24,25 @@ use App\Helpers\AccountExpirationHelper;
 
 class DashboardController extends Controller
 {
+    private function normalizePublicDiskPath(?string $path): string
+    {
+        $path = ltrim((string) ($path ?? ''), '/');
+
+        if (Str::startsWith($path, 'storage/app/public/')) {
+            $path = Str::after($path, 'storage/app/public/');
+        }
+
+        if (Str::startsWith($path, 'public/storage/')) {
+            $path = Str::after($path, 'public/storage/');
+        }
+
+        if (Str::startsWith($path, 'storage/')) {
+            $path = Str::after($path, 'storage/');
+        }
+
+        return ltrim($path, '/');
+    }
+
     use AuthorizesRequests;
     /**
      * Redirect to the login page to ensure stability.
@@ -3463,9 +3483,10 @@ class DashboardController extends Controller
 
         // Priorité: télécharger le PDF si présent
         if ($document->pdf_path) {
-            $filePath = storage_path('app/public/' . $document->pdf_path);
+            $pdfRelativePath = $this->normalizePublicDiskPath($document->pdf_path);
 
-            if (file_exists($filePath)) {
+            if ($pdfRelativePath !== '' && Storage::disk('public')->exists($pdfRelativePath)) {
+                $filePath = storage_path('app/public/' . $pdfRelativePath);
                 $safeTitle = trim((string) $document->title);
                 $fileName = ($safeTitle !== '' ? $safeTitle : 'document') . '.pdf';
                 if (request()->boolean('inline')) {
@@ -3483,9 +3504,10 @@ class DashboardController extends Controller
 
         // Sinon, fallback sur le fichier principal (peut être une image pour l'ancien système)
         if ($document->path) {
-            $filePath = storage_path('app/public/' . $document->path);
+            $relativePath = $this->normalizePublicDiskPath($document->path);
+            $filePath = storage_path('app/public/' . $relativePath);
 
-            if (file_exists($filePath)) {
+            if ($relativePath !== '' && Storage::disk('public')->exists($relativePath)) {
                 $extension = $document->file_type ?: pathinfo($document->path, PATHINFO_EXTENSION);
                 $fileName = $extension ? ($document->title . '.' . $extension) : $document->title;
                 return response()->download($filePath, $fileName);
