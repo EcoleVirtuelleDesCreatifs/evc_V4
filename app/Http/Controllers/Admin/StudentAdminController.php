@@ -756,6 +756,13 @@ class StudentAdminController extends Controller
             $expirationDate = $studentRecord->expiration_date;
         }
 
+        $registrationDate = null;
+        if ($studentRecord && !empty($studentRecord->created_at)) {
+            $registrationDate = $studentRecord->created_at;
+        } elseif (!empty($u->created_at)) {
+            $registrationDate = $u->created_at;
+        }
+
         // Email - Prioriser students puis users
         $email = '';
         if ($studentRecord && !empty($studentRecord->email)) {
@@ -774,6 +781,7 @@ class StudentAdminController extends Controller
             'ville' => $ville ?: '',
             'pays' => $pays ?: '',
             'created_at' => $u->created_at,
+            'registration_date' => $registrationDate,
             'formation_souhaitee' => $normalizedFormation ?: '',
             'photo_url' => $photoUrl,
             'expiration_date' => $expirationDate,
@@ -1185,6 +1193,7 @@ class StudentAdminController extends Controller
                 'formation_souhaitee' => 'required|string',
                 'ville' => 'nullable|string|max:255',
                 'pays' => 'nullable|string|max:255',
+                'registration_date' => 'nullable|date',
                 'expiration_date' => 'nullable|date',
             ]);
 
@@ -1254,9 +1263,28 @@ class StudentAdminController extends Controller
                         $studentUpdateData['program'] = $formationMap[$validated['formation_souhaitee']];
                     }
 
+                    $durationMonths = 4;
+                    if (in_array($validated['formation_souhaitee'], ['design_graphique_community_management', 'design_graphique_community_manager', 'design-graphique-community-manager'], true)) {
+                        $durationMonths = 7;
+                    }
+
+                    // Gérer la date d'inscription (created_at)
+                    if (!empty($validated['registration_date'])) {
+                        DB::table('users')
+                            ->where('id', $id)
+                            ->update([
+                                'created_at' => $validated['registration_date'],
+                                'updated_at' => now(),
+                            ]);
+
+                        $studentUpdateData['created_at'] = $validated['registration_date'];
+                    }
+
                     // Gérer la date d'expiration
                     if (!empty($validated['expiration_date'])) {
                         $studentUpdateData['expiration_date'] = $validated['expiration_date'];
+                    } elseif (!empty($validated['registration_date'])) {
+                        $studentUpdateData['expiration_date'] = \Carbon\Carbon::parse($validated['registration_date'])->addMonths($durationMonths)->format('Y-m-d');
                     }
 
                     DB::table('students')

@@ -317,6 +317,20 @@ body {
 
                             <div class="col-md-6">
                                 <div class="form-group">
+                                    <label for="registration_date" class="form-label">
+                                        <i class="fas fa-calendar-plus text-muted me-1"></i>Date d'inscription
+                                    </label>
+                                    <input type="date" class="form-control @error('registration_date') is-invalid @enderror"
+                                           id="registration_date" name="registration_date"
+                                           value="{{ old('registration_date', isset($student['registration_date']) ? \Carbon\Carbon::parse($student['registration_date'])->format('Y-m-d') : '') }}">
+                                    @error('registration_date')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group">
                                     <label for="formation_souhaitee" class="form-label">
                                         <i class="fas fa-graduation-cap text-muted me-1"></i>Formation <span class="text-danger">*</span>
                                     </label>
@@ -399,8 +413,9 @@ body {
                                 if (isset($student['expiration_date'])) {
                                     $expirationDate = \Carbon\Carbon::parse($student['expiration_date'])->format('Y-m-d');
                                     $daysRemaining = (int) \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($student['expiration_date']), false);
-                                } elseif (isset($student['created_at'])) {
-                                    $createdAt = \Carbon\Carbon::parse($student['created_at']);
+                                } elseif (isset($student['registration_date']) || isset($student['created_at'])) {
+                                    $baseDate = isset($student['registration_date']) ? $student['registration_date'] : $student['created_at'];
+                                    $createdAt = \Carbon\Carbon::parse($baseDate);
                                     $expirationDate = $createdAt->copy()->addMonths($durationMonths)->format('Y-m-d');
                                     $daysRemaining = (int) \Carbon\Carbon::now()->diffInDays($createdAt->copy()->addMonths($durationMonths), false);
                                 }
@@ -512,7 +527,7 @@ body {
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Date d'inscription</span>
-                        <span class="stat-value">{{ isset($student['created_at']) ? date('d/m/Y', strtotime($student['created_at'])) : '-' }}</span>
+                        <span class="stat-value">{{ isset($student['registration_date']) ? date('d/m/Y', strtotime($student['registration_date'])) : (isset($student['created_at']) ? date('d/m/Y', strtotime($student['created_at'])) : '-') }}</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-label">Dernière modification</span>
