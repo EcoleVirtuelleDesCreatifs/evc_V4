@@ -602,6 +602,19 @@ function formatDateYmd(date) {
     return `${year}-${month}-${day}`;
 }
 
+function isSameDay(a, b) {
+    return a.getFullYear() === b.getFullYear()
+        && a.getMonth() === b.getMonth()
+        && a.getDate() === b.getDate();
+}
+
+function computeExpirationFromNow(durationMonths) {
+    const now = new Date();
+    const exp = new Date(now.getTime());
+    exp.setMonth(exp.getMonth() + durationMonths);
+    return exp;
+}
+
 function getDurationMonths() {
     const formationEl = document.getElementById('formation_souhaitee');
     const formation = formationEl ? formationEl.value : '';
@@ -625,6 +638,20 @@ function computeExpirationDate() {
     const computed = new Date(reg.getTime());
     computed.setMonth(computed.getMonth() + months);
 
+    // Si expiration_date ressemble à une valeur auto erronée (maintenant + durée), on l'ignore.
+    const exp = parseDateInput(expirationEl.value);
+    if (exp) {
+        const nowBased = computeExpirationFromNow(months);
+        if (isSameDay(exp, nowBased) && !isSameDay(exp, computed)) {
+            expirationManuallyChanged = false;
+            const expYmd = formatDateYmd(computed);
+            if (expYmd && expirationEl.value !== expYmd) {
+                expirationEl.value = expYmd;
+            }
+            return computed;
+        }
+    }
+
     // Tant que l'admin n'a pas modifié manuellement la date d'expiration, on force la valeur calculée
     if (!expirationManuallyChanged) {
         const expYmd = formatDateYmd(computed);
@@ -635,7 +662,6 @@ function computeExpirationDate() {
     }
 
     // Si l'admin a modifié manuellement, on prend la plus tardive entre la date calculée et celle saisie
-    const exp = parseDateInput(expirationEl.value);
     if (exp) {
         return exp.getTime() > computed.getTime() ? exp : computed;
     }
@@ -751,7 +777,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Si une expiration est déjà renseignée au chargement, on la traite comme une valeur manuelle
     // afin d'éviter qu'elle soit écrasée par le calcul auto.
     if (expirationEl && expirationEl.value) {
-        expirationManuallyChanged = true;
+        const exp = parseDateInput(expirationEl.value);
+        const months = getDurationMonths();
+        const nowBased = computeExpirationFromNow(months);
+        // Si expiration_date est une valeur auto erronée (maintenant + durée), on ne la considère pas comme manuelle.
+        expirationManuallyChanged = !!(exp && !isSameDay(exp, nowBased));
     }
 
     if (expirationEl) {
