@@ -1529,9 +1529,10 @@ class AdminDashboardController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|string|max:255',
             'cover_image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048', // Max 2MB pour l'image
-            'pdf_file' => 'required|file|mimes:pdf|max:51200', // Max 50MB pour le PDF
+            'pdf_file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx,xls,xlsx|max:51200', // Max 50MB
             'library_category_id' => 'nullable|exists:library_categories,id',
             'download_url' => 'nullable|url',
+            'external_link' => 'nullable|url',
             'recipients' => 'nullable|array',
         ]);
 
@@ -1539,9 +1540,23 @@ class AdminDashboardController extends Controller
         $coverImage = $request->file('cover_image');
         $coverPath = $coverImage->store('library/covers', 'public');
 
-        // Upload du fichier PDF
+        // Exiger au moins un fichier OU un lien (comme indiqué dans l'UI)
+        $hasFile = $request->hasFile('pdf_file');
+        $hasLink = !empty($validatedData['external_link'] ?? null) || !empty($validatedData['download_url'] ?? null);
+        if (!$hasFile && !$hasLink) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors([
+                    'pdf_file' => 'Veuillez fournir soit un fichier, soit un lien de téléchargement.',
+                    'external_link' => 'Veuillez fournir soit un fichier, soit un lien de téléchargement.',
+                ]);
+        }
+
+        $pdfPath = null;
         $pdfFile = $request->file('pdf_file');
-        $pdfPath = $pdfFile->store('library/pdfs', 'public');
+        if ($pdfFile) {
+            $pdfPath = $pdfFile->store('library/pdfs', 'public');
+        }
 
         Library::create([
             'title' => $validatedData['title'],
@@ -1552,6 +1567,7 @@ class AdminDashboardController extends Controller
             'size' => $coverImage->getSize(),
             'library_category_id' => $validatedData['library_category_id'] ?? null,
             'download_url' => $validatedData['download_url'] ?? null,
+            'external_link' => $validatedData['external_link'] ?? null,
             'recipients' => $validatedData['recipients'] ?? [],
         ]);
 
