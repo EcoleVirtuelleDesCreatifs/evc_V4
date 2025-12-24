@@ -4,28 +4,23 @@
 @section('description', $actualite->meta_description ?? $actualite->excerpt)
 @section('keywords', $actualite->meta_keywords ?? 'actualité, blog, EVC')
 
+@section('og:type', 'article')
+@section('og:url', route('actualite.show', $actualite->slug))
+@section('og:title', $actualite->meta_title ?? $actualite->title)
+@section('og:description', $actualite->meta_description ?? $actualite->excerpt)
+@section('og:image', $actualite->cover_image ? $actualite->cover_image_url : asset('assets/img/logo.png'))
+
+@section('twitter:url', route('actualite.show', $actualite->slug))
+@section('twitter:title', $actualite->meta_title ?? $actualite->title)
+@section('twitter:description', $actualite->meta_description ?? $actualite->excerpt)
+@section('twitter:image', $actualite->cover_image ? $actualite->cover_image_url : asset('assets/img/logo.png'))
+
 @push('head')
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ route('actualite.show', $actualite->slug) }}" />
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="article" />
-    <meta property="og:url" content="{{ route('actualite.show', $actualite->slug) }}" />
-    <meta property="og:title" content="{{ $actualite->meta_title ?? $actualite->title }}" />
-    <meta property="og:description" content="{{ $actualite->meta_description ?? $actualite->excerpt }}" />
-    <meta property="og:image" content="{{ $actualite->cover_image ? $actualite->cover_image_url : asset('assets/img/logo.png') }}" />
-    <meta property="og:locale" content="fr_FR" />
-    <meta property="og:site_name" content="École Virtuelle des Créatifs" />
     @if($actualite->published_at)
     <meta property="article:published_time" content="{{ $actualite->published_at->toIso8601String() }}" />
     @endif
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="{{ route('actualite.show', $actualite->slug) }}" />
-    <meta name="twitter:title" content="{{ $actualite->meta_title ?? $actualite->title }}" />
-    <meta name="twitter:description" content="{{ $actualite->meta_description ?? $actualite->excerpt }}" />
-    <meta name="twitter:image" content="{{ $actualite->cover_image ? $actualite->cover_image_url : asset('assets/img/logo.png') }}" />
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">

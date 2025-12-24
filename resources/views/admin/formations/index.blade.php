@@ -154,12 +154,14 @@
                         @php
                             $moduleColors = [
                                 'design-graphique' => ['bg' => 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', 'icon' => 'fa-palette'],
+                                'design-graphique-cm' => ['bg' => 'linear-gradient(135deg, #2563eb 0%, #f97316 100%)', 'icon' => 'fa-object-group'],
                                 'community-management' => ['bg' => 'linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%)', 'icon' => 'fa-users'],
                                 'gestion-informatique' => ['bg' => 'linear-gradient(135deg, #ff9800 0%, #fb8c00 100%)', 'icon' => 'fa-laptop-code'],
                                 'intelligence-artificielle' => ['bg' => 'linear-gradient(135deg, #26c6da 0%, #00acc1 100%)', 'icon' => 'fa-brain'],
                             ];
                             $moduleNames = [
                                 'design-graphique' => 'Design Graphique',
+                                'design-graphique-cm' => 'Design Graphique & Community Management',
                                 'community-management' => 'Community Management',
                                 'gestion-informatique' => 'Gestion Informatique',
                                 'intelligence-artificielle' => 'Intelligence Artificielle',
@@ -418,6 +420,7 @@ function updateFilterUI(module, category, count) {
 
     const moduleNames = {
         'design-graphique': 'Design Graphique',
+        'design-graphique-cm': 'Design Graphique & Community Management',
         'community-management': 'Community Management',
         'gestion-informatique': 'Gestion Informatique',
         'intelligence-artificielle': 'Intelligence Artificielle'

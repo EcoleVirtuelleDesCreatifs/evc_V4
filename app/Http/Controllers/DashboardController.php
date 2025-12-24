@@ -4475,7 +4475,12 @@ class DashboardController extends Controller
         $reportProgress = 0;
 
         // Critères d'éligibilité (valeurs minimales requises)
-        $minTPRequired = 15;
+        $minTPRequired = match (true) {
+            $currentModule === 'design-graphique-cm' => 50,
+            $currentModule === 'design-graphique' => 35,
+            in_array($currentModule, ['community-management', 'community-manager'], true) => 15,
+            default => 15,
+        };
         $minProjectsRequired = 4;
         $minGrade = 12; // /20
 
@@ -5113,6 +5118,8 @@ class DashboardController extends Controller
         $user = Auth::user();
         $student = DB::table('students')->where('user_id', $user->id)->first();
 
+        $currentModule = request()->segment(3);
+
         if (!$student) {
             return back()->with('error', 'Profil étudiant non trouvé');
         }
@@ -5133,7 +5140,12 @@ class DashboardController extends Controller
             ->first();
 
         // Critères minimums
-        $minTPRequired = 15;
+        $minTPRequired = match (true) {
+            $currentModule === 'design-graphique-cm' => 50,
+            $currentModule === 'design-graphique' => 35,
+            in_array($currentModule, ['community-management', 'community-manager'], true) => 15,
+            default => 15,
+        };
         $minProjectsRequired = 4;
 
         $tpEligible = $tpValidated >= $minTPRequired;
@@ -5188,6 +5200,8 @@ class DashboardController extends Controller
         $user = Auth::user();
         $student = DB::table('students')->where('user_id', $user->id)->first();
 
+        $currentModule = request()->segment(3);
+
         if (!$student) {
             return back()->with('error', 'Profil étudiant non trouvé');
         }
@@ -5208,7 +5222,12 @@ class DashboardController extends Controller
             ->first();
 
         // Critères minimums
-        $minTPRequired = 15;
+        $minTPRequired = match (true) {
+            $currentModule === 'design-graphique-cm' => 50,
+            $currentModule === 'design-graphique' => 35,
+            in_array($currentModule, ['community-management', 'community-manager'], true) => 15,
+            default => 15,
+        };
         $minProjectsRequired = 4;
 
         $tpEligible = $tpValidated >= $minTPRequired;

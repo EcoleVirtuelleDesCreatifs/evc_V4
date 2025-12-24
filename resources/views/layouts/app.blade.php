@@ -20,8 +20,8 @@
     <meta name="ICBM" content="5.316667, -4.033333">
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="@yield('og:type', 'website')">
+    <meta property="og:url" content="@yield('og:url', url()->current())">
     <meta property="og:site_name" content="EVC - École Virtuelle des Créatifs">
     <meta property="og:title" content="@yield('og:title', 'EVC - Première École Virtuelle de Côte d&rsquo;Ivoire | Formations Certifiantes')">
     <meta property="og:description" content="@yield('og:description', 'Formations en Design Graphique, Community Management et Intelligence Artificielle. +500 étudiants formés à Abidjan. Inscriptions ouvertes !')">
@@ -35,6 +35,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@EcoleVirtuelleCi">
     <meta name="twitter:creator" content="@EcoleVirtuelleCi">
+    <meta name="twitter:url" content="@yield('twitter:url', url()->current())">
     <meta name="twitter:title" content="@yield('twitter:title', 'EVC - Formations Professionnelles en Ligne | Abidjan')">
     <meta name="twitter:description" content="@yield('twitter:description', 'Design, Marketing Digital, IA. Formations certifiantes avec suivi personnalisé à Abidjan.')">
     <meta name="twitter:image" content="@yield('twitter:image', asset('assets/img/hero-1.jpg'))">

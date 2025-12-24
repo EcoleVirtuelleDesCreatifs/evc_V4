@@ -72,7 +72,11 @@ class Actualite extends Model
     public function getCoverImageUrlAttribute()
     {
         if ($this->cover_image) {
-            return MediaUrl::fromPath($this->cover_image);
+            $path = ltrim((string) $this->cover_image, '/');
+            if (Str::startsWith($path, 'storage/')) {
+                $path = Str::after($path, 'storage/');
+            }
+            return asset('storage/' . $path);
         }
 
         return asset('assets/img/logo.png');

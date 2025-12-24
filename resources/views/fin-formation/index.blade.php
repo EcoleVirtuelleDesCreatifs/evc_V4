@@ -384,7 +384,7 @@
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-laptop-code text-warning me-2"></i>
-                                <strong>15 TP obligatoires</strong>
+                                <strong>{{ $minTPRequired }} TP obligatoires</strong>
                             </div>
                             @if($tpEligible)
                                 <span class="badge bg-success">{{ $tpValidated }}/{{ $minTPRequired }}</span>

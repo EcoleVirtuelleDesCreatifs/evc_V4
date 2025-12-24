@@ -154,6 +154,7 @@
                         <select class="form-select" id="module" name="module" required>
                             <option value="" disabled {{ (old('module', $formation->modules[0] ?? '') == '') ? 'selected' : '' }}>Choisir un module...</option>
                             <option value="design-graphique" {{ (old('module', $formation->modules[0] ?? '') == 'design-graphique') ? 'selected' : '' }}>Design Graphique</option>
+                            <option value="design-graphique-cm" {{ (old('module', $formation->modules[0] ?? '') == 'design-graphique-cm') ? 'selected' : '' }}>Design Graphique &amp; Community Management</option>
                             <option value="community-management" {{ (old('module', $formation->modules[0] ?? '') == 'community-management') ? 'selected' : '' }}>Community Management</option>
                             <option value="gestion-informatique" {{ (old('module', $formation->modules[0] ?? '') == 'gestion-informatique') ? 'selected' : '' }}>Gestion Informatique</option>
                             <option value="intelligence-artificielle" {{ (old('module', $formation->modules[0] ?? '') == 'intelligence-artificielle') ? 'selected' : '' }}>Intelligence Artificielle</option>

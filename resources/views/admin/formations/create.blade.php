@@ -170,6 +170,7 @@
                         <select class="form-select" id="module" name="module" required>
                             <option value="" disabled {{ old('module') ? '' : 'selected' }}>Choisir un module...</option>
                             <option value="design-graphique" {{ old('module') == 'design-graphique' ? 'selected' : '' }}>Design Graphique</option>
+                            <option value="design-graphique-cm" {{ old('module') == 'design-graphique-cm' ? 'selected' : '' }}>Design Graphique &amp; Community Management</option>
                             <option value="community-manager" {{ old('module') == 'community-manager' ? 'selected' : '' }}>Community Manager</option>
                             <option value="informatique" {{ old('module') == 'informatique' ? 'selected' : '' }}>Informatique</option>
                             <option value="intelligence-artificielle" {{ old('module') == 'intelligence-artificielle' ? 'selected' : '' }}>Intelligence Artificielle</option>
