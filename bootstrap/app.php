@@ -21,6 +21,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.expiration' => \App\Http\Middleware\CheckAccountExpiration::class,
         ]);
 
+        $middleware->web(prepend: [
+            \App\Http\Middleware\ForceSessionDomain::class,
+        ]);
+
         // Appliquer le middleware de suivi du statut en ligne et vérification d'expiration sur toutes les routes web
         $middleware->web(append: [
             \App\Http\Middleware\TrackOnlineStatus::class,
