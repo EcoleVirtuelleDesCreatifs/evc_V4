@@ -60,7 +60,39 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="details-label">Module Principal</div>
-                            <div class="details-value">{{ $formation->modules[0] ?? 'N/A' }}</div>
+                            <div class="details-value">
+                                @php
+                                    $modules = $formation->modules ?? [];
+                                    if (!is_array($modules)) { $modules = []; }
+                                    $legacyMap = [
+                                        'design-graphique-cm' => 'design-graphique-community-manager',
+                                        'community-manager' => 'community-management',
+                                        'informatique' => 'gestion-informatique',
+                                    ];
+                                    $modules = array_values(array_unique(array_filter(array_map(function ($m) use ($legacyMap) {
+                                        $m = $legacyMap[$m] ?? $m;
+                                        return is_string($m) ? trim($m) : '';
+                                    }, $modules), function ($m) {
+                                        return $m !== '';
+                                    })));
+
+                                    $labelMap = [
+                                        'design-graphique' => 'Design Graphique',
+                                        'design-graphique-community-manager' => 'Design Graphique & Community Management',
+                                        'community-management' => 'Community Management',
+                                        'gestion-informatique' => 'Gestion Informatique',
+                                        'intelligence-artificielle' => 'Intelligence Artificielle',
+                                    ];
+                                @endphp
+
+                                @if(count($modules) > 0)
+                                    @foreach($modules as $m)
+                                        <span class="badge bg-info text-dark me-1 mb-1">{{ $labelMap[$m] ?? $m }}</span>
+                                    @endforeach
+                                @else
+                                    N/A
+                                @endif
+                            </div>
                         </div>
                         <div class="col-md-6 mb-3">
                             <div class="details-label">Statut</div>
