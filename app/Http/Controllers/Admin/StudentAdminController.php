@@ -259,7 +259,13 @@ class StudentAdminController extends Controller
                 $userRecord = DB::table('users')->where('id', $userId)->first();
             }
 
-            $registrationDate = $s->created_at ?? null;
+            $registrationDate = null;
+            if (Schema::hasColumn('students', 'registration_date') && !empty($s->registration_date)) {
+                $registrationDate = $s->registration_date;
+            }
+            if (!$registrationDate && !empty($s->created_at)) {
+                $registrationDate = $s->created_at;
+            }
             if (!$registrationDate && $userRecord && !empty($userRecord->created_at)) {
                 $registrationDate = $userRecord->created_at;
             }
@@ -767,7 +773,9 @@ class StudentAdminController extends Controller
         }
 
         $registrationDate = null;
-        if ($studentRecord && !empty($studentRecord->created_at)) {
+        if ($studentRecord && Schema::hasColumn('students', 'registration_date') && !empty($studentRecord->registration_date)) {
+            $registrationDate = $studentRecord->registration_date;
+        } elseif ($studentRecord && !empty($studentRecord->created_at)) {
             $registrationDate = $studentRecord->created_at;
         } elseif (!empty($u->created_at)) {
             $registrationDate = $u->created_at;
@@ -1358,16 +1366,20 @@ class StudentAdminController extends Controller
                         $durationMonths = 7;
                     }
 
-                    // Gérer la date d'inscription (created_at)
+                    // Gérer la date d'inscription
                     if (!empty($validated['registration_date'])) {
-                        DB::table('users')
-                            ->where('id', $id)
-                            ->update([
-                                'created_at' => $validated['registration_date'],
-                                'updated_at' => now(),
-                            ]);
+                        if (Schema::hasColumn('students', 'registration_date')) {
+                            $studentUpdateData['registration_date'] = $validated['registration_date'];
+                        } else {
+                            DB::table('users')
+                                ->where('id', $id)
+                                ->update([
+                                    'created_at' => $validated['registration_date'],
+                                    'updated_at' => now(),
+                                ]);
 
-                        $studentUpdateData['created_at'] = $validated['registration_date'];
+                            $studentUpdateData['created_at'] = $validated['registration_date'];
+                        }
                     }
 
                     // Gérer la date d'expiration
