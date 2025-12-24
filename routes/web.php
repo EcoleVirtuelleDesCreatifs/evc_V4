@@ -483,6 +483,91 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
     Route::get('/notifications/toutes', [DashboardController::class, 'notificationsIndex'])->name('notifications.index');
 });
 
+// Groupe de routes pour Design Graphique & Community Management (design-graphique-cm)
+Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->middleware(['auth', 'student.active', 'formation.access'])->group(function () {
+    // Profil
+    Route::get('/profil/editer/{id?}', [DashboardController::class, 'editProfile'])->name('profil.editer');
+    Route::post('/profil/editer/{id?}', [DashboardController::class, 'updateProfile'])->name('profil.update');
+
+    // CVThèque
+    Route::get('/cvtheque/index', [CVThequeController::class, 'index'])->name('cvtheque.index');
+    Route::get('/cvtheque/historique', [CVThequeController::class, 'historique'])->name('cvtheque.historique');
+    Route::post('/cvtheque/update-profile', [CVThequeController::class, 'updateProfile'])->name('cvtheque.update-profile');
+    Route::delete('/cvtheque/documents/delete', [CVThequeController::class, 'deleteDocument'])->name('cvtheque.documents.delete');
+    Route::get('/cvtheque/documents/export', [CVThequeController::class, 'exportDocuments'])->name('cvtheque.documents.export');
+    Route::get('/cvtheque/preview', [CVThequeController::class, 'preview'])->name('cvtheque.preview');
+    Route::get('/cvtheque/profile-display', [CVThequeController::class, 'profileDisplay'])->name('cvtheque.profile-display');
+    Route::get('/cvtheque/mon-profil', [CVThequeController::class, 'monProfil'])->name('cvtheque.mon-profil');
+    Route::post('/cvtheque/upload-cv', [CVThequeController::class, 'uploadCV'])->name('cvtheque.upload-cv');
+    Route::post('/cvtheque/upload-motivation', [CVThequeController::class, 'uploadMotivation'])->name('cvtheque.upload-motivation');
+    Route::post('/cvtheque/upload-realisation', [CVThequeController::class, 'uploadRealisations'])->name('cvtheque.upload-realisation');
+    Route::post('/cvtheque/upload-pressbook', [CVThequeController::class, 'uploadPressbook'])->name('cvtheque.upload-pressbook');
+    Route::post('/cvtheque/upload-rapport', [CVThequeController::class, 'uploadRapport'])->name('cvtheque.upload-rapport');
+
+    // TP
+    Route::get('/tp/index', [DashboardController::class, 'listTP'])->name('tp.index');
+    Route::get('/tp/tous', [DashboardController::class, 'showAllTP'])->name('tp.tous');
+    Route::get('/tp/voir/{id}', [DashboardController::class, 'viewTP'])->name('tp.voir');
+    Route::get('/tp/ajouter', [DashboardController::class, 'createTP'])->name('tp.ajouter');
+    Route::post('/tp/ajouter', [DashboardController::class, 'storeTP'])->name('tp.store');
+    Route::get('/tp/modifier/{id}', [DashboardController::class, 'editTP'])->name('tp.modifier');
+    Route::get('/tp/{id}/soumettre', [DashboardController::class, 'showSubmitPage'])->name('tp.soumettre');
+    Route::post('/tp/{id}/submit', [DashboardController::class, 'submitTP'])->name('tp.submit');
+    Route::put('/tp/modifier/{id}', [DashboardController::class, 'updateProject'])->name('tp.update');
+    Route::post('/tp/modifier/{id}/images', [DashboardController::class, 'updateProjectWithImages'])->name('tp.update.images');
+    Route::delete('/tp/{tpId}/fichier/{fileId}', [DashboardController::class, 'deleteTPFile'])->name('tp.fichier.supprimer');
+    Route::delete('/tp/supprimer/{id}', [DashboardController::class, 'deleteProject'])->name('tp.supprimer');
+
+    // Projets
+    Route::get('/projets', [DashboardController::class, 'projets'])->name('projets.index');
+    Route::post('/projets', [App\Http\Controllers\DesignProjectController::class, 'store'])->name('projets.store');
+    Route::get('/projets/stats/json', [App\Http\Controllers\DesignProjectController::class, 'getStats'])->name('projets.stats');
+    Route::get('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'show'])->name('projets.show');
+    Route::get('/projets/{id}/edit', [App\Http\Controllers\DesignProjectController::class, 'edit'])->name('projets.edit');
+    Route::put('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'update'])->name('projets.update');
+    Route::delete('/projets/{projectId}/files/{fileId}', [App\Http\Controllers\DesignProjectController::class, 'removeFile'])->name('projets.removeFile');
+    Route::patch('/projets/{id}/status', [App\Http\Controllers\DesignProjectController::class, 'updateStatus'])->name('projets.updateStatus');
+    Route::delete('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'destroy'])->name('projets.destroy');
+    Route::get('/projets/solo/liste', [App\Http\Controllers\DesignProjectController::class, 'soloProjects'])->name('projets.solo');
+    Route::get('/projets/groupe/liste', [App\Http\Controllers\DesignProjectController::class, 'groupProjects'])->name('projets.groupe');
+    Route::get('/projets/tous/liste', [App\Http\Controllers\DesignProjectController::class, 'allProjects'])->name('projets.tous');
+
+    // Programme
+    Route::get('/programme/index', [DashboardController::class, 'programmeIndex'])->name('programme.index');
+
+    // Paiements
+    Route::get('/paiements/index', [DashboardController::class, 'paiementsIndex'])->name('paiements.index');
+    Route::get('/paiements/invoice/{paymentId}', [DashboardController::class, 'downloadInvoice'])->name('paiements.invoice');
+
+    // Fin de formation
+    Route::get('/fin-formation/index', [DashboardController::class, 'finFormationIndex'])->name('fin-formation.index');
+    Route::post('/fin-formation/upload-report', [DashboardController::class, 'uploadReport'])->name('fin-formation.upload-report');
+    Route::get('/fin-formation/download-report/{id}', [DashboardController::class, 'downloadReport'])->name('fin-formation.download-report');
+
+    // Certificat
+    Route::get('/certificate/preview', [DashboardController::class, 'previewCertificateStudent'])->name('certificate.preview');
+    Route::get('/certificate/download', [DashboardController::class, 'downloadCertificate'])->name('certificate.download');
+
+    // Paramètres
+    Route::get('/parametres/index', [App\Http\Controllers\ProfileController::class, 'index'])->name('parametres.index');
+    Route::post('/parametres', [App\Http\Controllers\ProfileController::class, 'update'])->name('parametres.update');
+    Route::post('/parametres/update-login', [App\Http\Controllers\ProfileController::class, 'updateLoginInfo'])->name('parametres.update-login');
+    Route::post('/parametres/upload-photo', [App\Http\Controllers\ProfileController::class, 'uploadPhoto'])->name('parametres.upload-photo');
+
+    // Actualités
+    Route::get('/actualites/index', [DashboardController::class, 'actualitesIndex'])->name('actualites.index');
+    Route::get('/actualites/{id}', [DashboardController::class, 'actualitesShow'])->name('actualites.show');
+
+    // Documents
+    Route::get('/documents/index', [DashboardController::class, 'documentsIndex'])->name('documents.index');
+    Route::get('/documents/download/{id}', [DashboardController::class, 'downloadDocument'])->name('documents.download');
+
+    // Notifications
+    Route::get('/notifications', [DashboardController::class, 'notificationsFeed'])->name('notifications.feed');
+    Route::post('/notifications/mark-read', [DashboardController::class, 'notificationsMarkRead'])->name('notifications.mark-read');
+    Route::get('/notifications/toutes', [DashboardController::class, 'notificationsIndex'])->name('notifications.index');
+});
+
 // Groupe de routes pour Community Management avec préfixe commun (PROTÉGÉ PAR AUTH + VÉRIFICATION COMPTE ACTIF + ACCÈS FORMATION)
 Route::prefix('/evc/compte/community-management')->name('community-management.')->middleware(['auth', 'student.active', 'formation.access'])->group(function () {
     // Profil - Structure: /evc/compte/community-management/profil/{action}
