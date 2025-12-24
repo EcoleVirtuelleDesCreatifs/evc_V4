@@ -199,7 +199,7 @@ class StudentAdminController extends Controller
             'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique','design_graphique','infographie','design-graphique']],
             'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager']],
             'community-management' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager','community-management']],
-            'design-graphique-community-manager' => ['label' => 'Design Graphique & Community Manager', 'keys' => ['Design Graphique & Community Manager','design_graphique_community_manager','design_graphique_community_management','design-graphique-community-manager']],
+            'design-graphique-community-manager' => ['label' => 'Design Graphique & Community Manager', 'keys' => ['Design Graphique & Community Manager','Design Graphique & Community Management','design_graphique_community_manager','design_graphique_community_management','design-graphique-community-manager']],
             'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'keys' => ['Intelligence Artificielle','intelligence_artificielle','intelligence-artificielle']],
             'gestion-informatique' => ['label' => 'Gestion Informatique', 'keys' => ['Gestion Informatique','gestion_informatique','informatique','gestion-informatique']],
         ];
@@ -220,6 +220,18 @@ class StudentAdminController extends Controller
                 $q->whereIn('program', $keys)
                   ->orWhereIn('specialization', $keys);
             });
+
+            // Cas particulier: /admin/etudiants/design-graphique doit exclure DG+CM
+            // (certains profils DG+CM ont une specialization "Design Graphique" et remontent sinon)
+            if ($formation === 'design-graphique') {
+                $dgcmKeys = $formationMap['design-graphique-community-manager']['keys'];
+                $query->where(function ($q) use ($dgcmKeys) {
+                    $q->whereNull('program')->orWhereNotIn('program', $dgcmKeys);
+                });
+                $query->where(function ($q) use ($dgcmKeys) {
+                    $q->whereNull('specialization')->orWhereNotIn('specialization', $dgcmKeys);
+                });
+            }
 
             // Trier par statut (actifs d'abord) puis par id
             $students = $query->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
