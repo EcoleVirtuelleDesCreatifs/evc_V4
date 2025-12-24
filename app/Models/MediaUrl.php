@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Config;
 
 class MediaUrl
 {
@@ -40,11 +41,15 @@ class MediaUrl
 
         try {
             $req = request();
-            $base = rtrim($req->getSchemeAndHttpHost() . $req->getBaseUrl(), '/');
-            return $base . '/storage/' . $encodedPath;
+            $fallbackBase = rtrim($req->getSchemeAndHttpHost() . $req->getBaseUrl(), '/');
+            $diskBaseUrl = (string) Config::get('filesystems.disks.public.url', $fallbackBase . '/storage');
+            $diskBaseUrl = rtrim($diskBaseUrl, '/');
+            return $diskBaseUrl . '/' . $encodedPath;
         } catch (\Throwable $e) {
-            if (app()->environment('production')) {
-                return secure_asset('storage/' . $encodedPath);
+            $diskBaseUrl = (string) Config::get('filesystems.disks.public.url', '');
+            $diskBaseUrl = rtrim($diskBaseUrl, '/');
+            if ($diskBaseUrl !== '') {
+                return $diskBaseUrl . '/' . $encodedPath;
             }
             return asset('storage/' . $encodedPath);
         }
