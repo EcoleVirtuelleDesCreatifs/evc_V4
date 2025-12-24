@@ -259,15 +259,32 @@ class StudentAdminController extends Controller
                 $userRecord = DB::table('users')->where('id', $userId)->first();
             }
 
-            $registrationDate = null;
+            // Déterminer une date d'inscription fiable (cohérente avec la page edit)
+            // Règle: prendre la plus ancienne date disponible (évite un students.created_at récent qui fausse le compteur)
+            $registrationCandidates = [];
             if (Schema::hasColumn('students', 'registration_date') && !empty($s->registration_date)) {
-                $registrationDate = $s->registration_date;
+                $registrationCandidates[] = $s->registration_date;
             }
-            if (!$registrationDate && !empty($s->created_at)) {
-                $registrationDate = $s->created_at;
+            if ($userRecord && !empty($userRecord->created_at)) {
+                $registrationCandidates[] = $userRecord->created_at;
             }
-            if (!$registrationDate && $userRecord && !empty($userRecord->created_at)) {
-                $registrationDate = $userRecord->created_at;
+            if (!empty($s->created_at)) {
+                $registrationCandidates[] = $s->created_at;
+            }
+
+            $registrationDate = null;
+            if (!empty($registrationCandidates)) {
+                $registrationDate = collect($registrationCandidates)
+                    ->map(function ($d) {
+                        try {
+                            return \Carbon\Carbon::parse($d);
+                        } catch (\Exception $e) {
+                            return null;
+                        }
+                    })
+                    ->filter()
+                    ->sort()
+                    ->first();
             }
 
             // Calculer la progression
