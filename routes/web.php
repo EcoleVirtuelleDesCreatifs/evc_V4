@@ -52,7 +52,10 @@ Route::get('/jury', [HomepageController::class, 'jury'])->name('jury');
 Route::get('/evenements', [App\Http\Controllers\EvenementPublicController::class, 'allEvenements'])->name('evenements.all');
 Route::get('/evenement/{slug}', [HomepageController::class, 'showEvenement'])->name('evenement.show');
 Route::get('/actualites', [HomepageController::class, 'actualites'])->name('actualites');
-Route::get('/actualite/{slug}', [HomepageController::class, 'showActualite'])->name('actualite.show');
+Route::get('/actualite/{slug}', function ($slug) {
+    return redirect()->route('actualite.show', ['slug' => $slug], 301);
+})->name('actualite.redirect');
+Route::get('/actualites/{slug}', [HomepageController::class, 'showActualite'])->name('actualite.show');
 
 // Pages légales
 Route::get('/mentions-legales', function () {
