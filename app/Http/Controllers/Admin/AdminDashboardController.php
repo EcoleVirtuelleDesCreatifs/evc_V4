@@ -604,9 +604,19 @@ class AdminDashboardController extends Controller
      */
     public function getStudentsByModule(Request $request)
     {
+        $modules = $request->input('modules');
         $module = $request->input('module');
 
-        if (!$module) {
+        $modulesToUse = [];
+        if (is_array($modules)) {
+            $modulesToUse = array_values(array_filter($modules, function ($m) {
+                return is_string($m) && trim($m) !== '';
+            }));
+        } elseif (is_string($module) && trim($module) !== '') {
+            $modulesToUse = [trim($module)];
+        }
+
+        if (empty($modulesToUse)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Module non spécifié'
@@ -614,12 +624,6 @@ class AdminDashboardController extends Controller
         }
 
         try {
-            // Normaliser le nom du module : convertir les tirets en underscores
-            // pour correspondre au format de la base de données
-            // Ex: 'intelligence-artificielle' -> 'intelligence_artificielle'
-            $moduleNormalized = str_replace('-', '_', $module);
-
-            // Mapper les noms de modules vers les valeurs dans la table students
             $moduleMapping = [
                 'design_graphique' => ['Design Graphique', 'design_graphique'],
                 'community_management' => ['Community Management', 'community_management'],
@@ -628,14 +632,22 @@ class AdminDashboardController extends Controller
                 'design_graphique_community_manager' => ['Design Graphique & Community Manager', 'design_graphique_community_manager'],
             ];
 
-            // Récupérer les variantes possibles du module
-            $moduleVariants = $moduleMapping[$moduleNormalized] ?? [$moduleNormalized];
+            $allVariants = [];
+            foreach ($modulesToUse as $m) {
+                $moduleNormalized = str_replace('-', '_', $m);
+                $variants = $moduleMapping[$moduleNormalized] ?? [$moduleNormalized];
+                $allVariants = array_merge($allVariants, $variants);
+            }
+
+            $allVariants = array_values(array_unique(array_filter($allVariants, function ($v) {
+                return is_string($v) && trim($v) !== '';
+            })));
 
             // Récupérer les étudiants du module depuis la table students
             $students = DB::table('students')
                 ->join('users', 'students.user_id', '=', 'users.id')
-                ->where(function($query) use ($moduleVariants) {
-                    foreach ($moduleVariants as $variant) {
+                ->where(function($query) use ($allVariants) {
+                    foreach ($allVariants as $variant) {
                         $query->orWhere('students.program', $variant)
                               ->orWhere('students.specialization', $variant);
                     }
@@ -753,7 +765,8 @@ class AdminDashboardController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'vimeo_code' => 'nullable|string',
-            'module' => 'required|string',
+            'modules' => 'required|array|min:1',
+            'modules.*' => 'required|string',
             'type' => 'required|in:en_ligne,presentiel',
             'destinataire' => 'required|in:etudiants-actifs,etudiants-specifiques',
             'is_featured' => 'required|boolean',
@@ -786,7 +799,9 @@ class AdminDashboardController extends Controller
             ];
             $formation->status = $statusMap[$validatedData['action']];
 
-            $formation->modules = [$validatedData['module']];
+            $formation->modules = array_values(array_unique(array_filter($validatedData['modules'], function ($m) {
+                return is_string($m) && trim($m) !== '';
+            })));
 
             $formation->format = ($validatedData['type'] === 'en_ligne') ? 'online' : 'offline';
             $formation->student_restriction = ($validatedData['destinataire'] === 'etudiants-actifs') ? 'active_only' : 'all';
@@ -915,7 +930,8 @@ class AdminDashboardController extends Controller
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'vimeo_code' => 'nullable|string',
-            'module' => 'required|string',
+            'modules' => 'required|array|min:1',
+            'modules.*' => 'required|string',
             'type' => 'required|in:en_ligne,presentiel',
             'destinataire' => 'required|in:etudiants-actifs,etudiants-specifiques',
             'is_featured' => 'required|boolean',
@@ -945,7 +961,9 @@ class AdminDashboardController extends Controller
             ];
             $formation->status = $statusMap[$validatedData['action']];
 
-            $formation->modules = [$validatedData['module']];
+            $formation->modules = array_values(array_unique(array_filter($validatedData['modules'], function ($m) {
+                return is_string($m) && trim($m) !== '';
+            })));
 
             $formation->format = ($validatedData['type'] === 'en_ligne') ? 'online' : 'offline';
             $formation->student_restriction = ($validatedData['destinataire'] === 'etudiants-actifs') ? 'active_only' : 'all';

@@ -151,13 +151,24 @@
                 <div class="form-card-body row">
                     <div class="col-md-4 form-group">
                         <label for="module">Module Principal</label>
-                        <select class="form-select" id="module" name="module" required>
-                            <option value="" disabled {{ (old('module', $formation->modules[0] ?? '') == '') ? 'selected' : '' }}>Choisir un module...</option>
-                            <option value="design-graphique" {{ (old('module', $formation->modules[0] ?? '') == 'design-graphique') ? 'selected' : '' }}>Design Graphique</option>
-                            <option value="design-graphique-cm" {{ (old('module', $formation->modules[0] ?? '') == 'design-graphique-cm') ? 'selected' : '' }}>Design Graphique &amp; Community Management</option>
-                            <option value="community-management" {{ (old('module', $formation->modules[0] ?? '') == 'community-management') ? 'selected' : '' }}>Community Management</option>
-                            <option value="gestion-informatique" {{ (old('module', $formation->modules[0] ?? '') == 'gestion-informatique') ? 'selected' : '' }}>Gestion Informatique</option>
-                            <option value="intelligence-artificielle" {{ (old('module', $formation->modules[0] ?? '') == 'intelligence-artificielle') ? 'selected' : '' }}>Intelligence Artificielle</option>
+                        <select class="form-select" id="module" name="modules[]" multiple="multiple" required>
+                            @php
+                                $selectedModules = old('modules', $formation->modules ?? []);
+                                if (!is_array($selectedModules)) { $selectedModules = []; }
+                                $legacyMap = [
+                                    'design-graphique-cm' => 'design-graphique-community-manager',
+                                    'community-manager' => 'community-management',
+                                    'informatique' => 'gestion-informatique',
+                                ];
+                                $selectedModules = array_map(function ($m) use ($legacyMap) {
+                                    return $legacyMap[$m] ?? $m;
+                                }, $selectedModules);
+                            @endphp
+                            <option value="design-graphique" {{ in_array('design-graphique', $selectedModules) ? 'selected' : '' }}>Design Graphique</option>
+                            <option value="design-graphique-community-manager" {{ in_array('design-graphique-community-manager', $selectedModules) ? 'selected' : '' }}>Design Graphique &amp; Community Management</option>
+                            <option value="community-management" {{ in_array('community-management', $selectedModules) ? 'selected' : '' }}>Community Management</option>
+                            <option value="gestion-informatique" {{ in_array('gestion-informatique', $selectedModules) ? 'selected' : '' }}>Gestion Informatique</option>
+                            <option value="intelligence-artificielle" {{ in_array('intelligence-artificielle', $selectedModules) ? 'selected' : '' }}>Intelligence Artificielle</option>
                         </select>
                     </div>
                     <div class="col-md-4 form-group">
@@ -296,8 +307,8 @@ $(document).ready(function() {
     });
 
     // Fonction pour charger les étudiants selon le module sélectionné
-    function loadStudentsByModule(module, selectedIds = []) {
-        if (!module) {
+    function loadStudentsByModule(modules, selectedIds = []) {
+        if (!modules || (Array.isArray(modules) && modules.length === 0)) {
             $('#student_ids').empty().trigger('change');
             return;
         }
@@ -309,7 +320,7 @@ $(document).ready(function() {
         $.ajax({
             url: '{{ route("admin.api.students-by-module") }}',
             method: 'GET',
-            data: { module: module },
+            data: { modules: modules },
             success: function(response) {
                 if (response.success) {
                     // Vider le select
@@ -349,13 +360,13 @@ $(document).ready(function() {
     function toggleStudentsSelect() {
         const destinataire = $('#destinataire').val();
         const studentsContainer = $('#students-select-container');
-        const module = $('#module').val();
+        const modules = $('#module').val();
 
         if (destinataire === 'etudiants-specifiques') {
             studentsContainer.removeClass('d-none').addClass('animate__animated animate__fadeIn');
             $('#student_ids').prop('required', true);
             // Charger les étudiants du module sélectionné
-            loadStudentsByModule(module);
+            loadStudentsByModule(modules);
         } else {
             studentsContainer.addClass('d-none').removeClass('animate__animated animate__fadeIn');
             $('#student_ids').prop('required', false);
@@ -375,6 +386,17 @@ $(document).ready(function() {
 
     // Vérifier l'état initial au chargement de la page
     toggleStudentsSelect();
+
+    // Précharger les étudiants selon les modules déjà sélectionnés (édition)
+    @php
+        $initialSelectedStudentIds = old('student_ids', $formation->target_student_types ?? []);
+        if (!is_array($initialSelectedStudentIds)) { $initialSelectedStudentIds = []; }
+    @endphp
+    const initialSelectedStudentIds = @json($initialSelectedStudentIds);
+    const initialSelectedModules = @json(old('modules', $formation->modules ?? []));
+    if (Array.isArray(initialSelectedModules) && initialSelectedModules.length > 0 && $('#destinataire').val() === 'etudiants-specifiques') {
+        loadStudentsByModule(initialSelectedModules, initialSelectedStudentIds);
+    }
 
     // Gestion de l'aperçu vidéo YouTube
     const vimeoInput = document.getElementById('vimeo_code');

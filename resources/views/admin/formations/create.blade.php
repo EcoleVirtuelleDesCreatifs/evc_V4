@@ -167,13 +167,16 @@
                 <div class="form-card-body row">
                     <div class="col-md-4 form-group">
                         <label for="module">Module Principal</label>
-                        <select class="form-select" id="module" name="module" required>
-                            <option value="" disabled {{ old('module') ? '' : 'selected' }}>Choisir un module...</option>
-                            <option value="design-graphique" {{ old('module') == 'design-graphique' ? 'selected' : '' }}>Design Graphique</option>
-                            <option value="design-graphique-cm" {{ old('module') == 'design-graphique-cm' ? 'selected' : '' }}>Design Graphique &amp; Community Management</option>
-                            <option value="community-manager" {{ old('module') == 'community-manager' ? 'selected' : '' }}>Community Manager</option>
-                            <option value="informatique" {{ old('module') == 'informatique' ? 'selected' : '' }}>Informatique</option>
-                            <option value="intelligence-artificielle" {{ old('module') == 'intelligence-artificielle' ? 'selected' : '' }}>Intelligence Artificielle</option>
+                        <select class="form-select" id="module" name="modules[]" multiple="multiple" required>
+                            @php
+                                $selectedModules = old('modules', []);
+                                if (!is_array($selectedModules)) { $selectedModules = []; }
+                            @endphp
+                            <option value="design-graphique" {{ in_array('design-graphique', $selectedModules) ? 'selected' : '' }}>Design Graphique</option>
+                            <option value="design-graphique-community-manager" {{ in_array('design-graphique-community-manager', $selectedModules) ? 'selected' : '' }}>Design Graphique &amp; Community Management</option>
+                            <option value="community-management" {{ in_array('community-management', $selectedModules) ? 'selected' : '' }}>Community Management</option>
+                            <option value="gestion-informatique" {{ in_array('gestion-informatique', $selectedModules) ? 'selected' : '' }}>Gestion Informatique</option>
+                            <option value="intelligence-artificielle" {{ in_array('intelligence-artificielle', $selectedModules) ? 'selected' : '' }}>Intelligence Artificielle</option>
                         </select>
                     </div>
                     <div class="col-md-4 form-group">
@@ -355,8 +358,8 @@ $(document).ready(function() {
     });
 
     // Fonction pour charger les étudiants selon le module sélectionné
-    function loadStudentsByModule(module) {
-        if (!module) {
+    function loadStudentsByModule(modules) {
+        if (!modules || (Array.isArray(modules) && modules.length === 0)) {
             $('#student_ids').empty().trigger('change');
             return;
         }
@@ -368,7 +371,7 @@ $(document).ready(function() {
         $.ajax({
             url: '{{ route("admin.api.students-by-module") }}',
             method: 'GET',
-            data: { module: module },
+            data: { modules: modules },
             success: function(response) {
                 if (response.success) {
                     // Vider le select
@@ -401,13 +404,13 @@ $(document).ready(function() {
     function toggleStudentsSelect() {
         const destinataire = $('#destinataire').val();
         const studentsContainer = $('#students-select-container');
-        const module = $('#module').val();
+        const modules = $('#module').val();
 
         if (destinataire === 'etudiants-specifiques') {
             studentsContainer.removeClass('d-none').addClass('animate__animated animate__fadeIn');
             $('#student_ids').prop('required', true);
             // Charger les étudiants du module sélectionné
-            loadStudentsByModule(module);
+            loadStudentsByModule(modules);
         } else {
             studentsContainer.addClass('d-none').removeClass('animate__animated animate__fadeIn');
             $('#student_ids').prop('required', false);
@@ -715,9 +718,9 @@ $(document).ready(function() {
     // Afficher le conteneur d'étudiants si "étudiants-specifiques" était sélectionné
     @if(old('destinataire') == 'etudiants-specifiques')
         document.getElementById('students-select-container').classList.remove('d-none');
-        const oldModule = '{{ old("module") }}';
-        if (oldModule) {
-            loadStudentsByModule(oldModule);
+        const oldModules = @json(old('modules', []));
+        if (Array.isArray(oldModules) && oldModules.length > 0) {
+            loadStudentsByModule(oldModules);
         }
     @endif
 });
