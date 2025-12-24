@@ -613,23 +613,38 @@ function computeExpirationDate() {
     const registrationEl = document.getElementById('registration_date');
     if (!expirationEl || !registrationEl) return null;
 
-    const exp = parseDateInput(expirationEl.value);
-    if (exp) return exp;
-
     const reg = parseDateInput(registrationEl.value);
     if (!reg) return null;
 
     const months = getDurationMonths();
     const computed = new Date(reg.getTime());
     computed.setMonth(computed.getMonth() + months);
+
+    const exp = parseDateInput(expirationEl.value);
+    if (exp) {
+        return exp.getTime() > computed.getTime() ? exp : computed;
+    }
+
     return computed;
 }
 
-function computeDaysRemaining(expirationDate) {
+function computeRemainingParts(expirationDate) {
     if (!expirationDate) return null;
     const now = new Date();
     const diffMs = expirationDate.getTime() - now.getTime();
-    return Math.floor(diffMs / 86400000);
+    if (Number.isNaN(diffMs)) return null;
+
+    if (diffMs <= 0) {
+        return { expired: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return { expired: false, days, hours, minutes, seconds };
 }
 
 function updateDynamicCountdown() {
@@ -641,8 +656,8 @@ function updateDynamicCountdown() {
     if (!expirationEl || !registrationEl) return;
 
     const expDate = computeExpirationDate();
-    const days = computeDaysRemaining(expDate);
-    if (days === null) return;
+    const remaining = computeRemainingParts(expDate);
+    if (!remaining) return;
 
     const titleEl = card.querySelector('h4');
     const dateTextEl = card.querySelector('p');
@@ -664,30 +679,36 @@ function updateDynamicCountdown() {
 
     // Mettre à jour le contenu principal
     if (titleEl) {
-        if (days < 0) {
-            titleEl.textContent = `Expiré depuis ${Math.abs(days)} jour${Math.abs(days) > 1 ? 's' : ''}`;
+        const days = remaining.days;
+        const hh = String(remaining.hours).padStart(2, '0');
+        const mm = String(remaining.minutes).padStart(2, '0');
+        const ss = String(remaining.seconds).padStart(2, '0');
+        const timeLabel = `${hh}h ${mm}m ${ss}s`;
+
+        if (remaining.expired) {
+            titleEl.textContent = `Expiré`;
         } else {
-            titleEl.textContent = `${days} jour${days > 1 ? 's' : ''} restant${days > 1 ? 's' : ''}`;
+            titleEl.textContent = `${days} jour${days > 1 ? 's' : ''} restant${days > 1 ? 's' : ''} : ${timeLabel}`;
         }
     }
 
     // Mettre à jour les classes / badge
     card.classList.remove('alert-danger', 'alert-warning', 'alert-success');
-    if (days < 0) {
+    if (remaining.expired) {
         card.classList.add('alert-danger');
         if (iconWrapper) iconWrapper.className = 'fas fa-times-circle';
         if (badgeEl) {
             badgeEl.className = 'badge bg-danger';
             badgeEl.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>EXPIRÉ';
         }
-    } else if (days <= 7) {
+    } else if (remaining.days <= 7) {
         card.classList.add('alert-warning');
         if (iconWrapper) iconWrapper.className = 'fas fa-clock';
         if (badgeEl) {
             badgeEl.className = 'badge bg-danger';
             badgeEl.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>URGENT';
         }
-    } else if (days <= 30) {
+    } else if (remaining.days <= 30) {
         card.classList.add('alert-warning');
         if (iconWrapper) iconWrapper.className = 'fas fa-clock';
         if (badgeEl) {
@@ -724,6 +745,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (expirationEl) expirationEl.addEventListener('change', updateDynamicCountdown);
 
     updateDynamicCountdown();
+    setInterval(updateDynamicCountdown, 1000);
 
     // Validation en temps réel
     const inputs = form.querySelectorAll('input[required], select[required]');

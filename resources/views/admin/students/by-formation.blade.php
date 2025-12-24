@@ -1032,11 +1032,23 @@ function computeExpirationFromRegistration(regIso, durationMonths) {
     return exp;
 }
 
-function computeDaysRemainingFromExpirationDate(expDate) {
+function computeRemainingParts(expDate) {
     if (!expDate) return null;
     const now = new Date();
     const diffMs = expDate.getTime() - now.getTime();
-    return Math.floor(diffMs / 86400000);
+    if (Number.isNaN(diffMs)) return null;
+
+    if (diffMs <= 0) {
+        return { expired: true, days: 0, hours: 0, minutes: 0, seconds: 0 };
+    }
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return { expired: false, days, hours, minutes, seconds };
 }
 
 function updateDaysRemainingBadges() {
@@ -1064,41 +1076,46 @@ function updateDaysRemainingBadges() {
             expDate = storedExp || computedExp;
         }
 
-        const days = computeDaysRemainingFromExpirationDate(expDate);
-        if (days === null) return;
+        const remaining = computeRemainingParts(expDate);
+        if (!remaining) return;
 
         const iconEl = badge.querySelector('i');
         const iconClass = iconEl ? iconEl.className : '';
 
-        if (days < 0) {
+        if (remaining.expired) {
             badge.classList.remove('bg-success', 'bg-warning', 'text-dark');
             badge.classList.add('bg-danger');
             badge.innerHTML = `<i class="${iconClass || 'fas fa-times-circle me-1'}"></i>Expiré`;
             return;
         }
 
+        const days = remaining.days;
         const label = days <= 1 ? 'jour' : 'jours';
+        const hh = String(remaining.hours).padStart(2, '0');
+        const mm = String(remaining.minutes).padStart(2, '0');
+        const ss = String(remaining.seconds).padStart(2, '0');
+        const timeLabel = `${hh}h ${mm}m ${ss}s`;
 
         badge.classList.remove('bg-danger');
         if (days <= 7) {
             badge.classList.remove('bg-success', 'bg-warning', 'text-dark');
             badge.classList.add('bg-danger');
-            badge.innerHTML = `<i class="${iconClass || 'fas fa-exclamation-triangle me-1'}"></i>${days} ${label}`;
+            badge.innerHTML = `<i class="${iconClass || 'fas fa-exclamation-triangle me-1'}"></i>${days} ${label} ${timeLabel}`;
         } else if (days <= 30) {
             badge.classList.remove('bg-success', 'bg-danger');
             badge.classList.add('bg-warning', 'text-dark');
-            badge.innerHTML = `<i class="${iconClass || 'fas fa-clock me-1'}"></i>${days} ${label}`;
+            badge.innerHTML = `<i class="${iconClass || 'fas fa-clock me-1'}"></i>${days} ${label} ${timeLabel}`;
         } else {
             badge.classList.remove('bg-warning', 'text-dark', 'bg-danger');
             badge.classList.add('bg-success');
-            badge.innerHTML = `<i class="${iconClass || 'fas fa-check-circle me-1'}"></i>${days} ${label}`;
+            badge.innerHTML = `<i class="${iconClass || 'fas fa-check-circle me-1'}"></i>${days} ${label} ${timeLabel}`;
         }
     });
 }
 
 document.addEventListener('DOMContentLoaded', function() {
     updateDaysRemainingBadges();
-    setInterval(updateDaysRemainingBadges, 60000);
+    setInterval(updateDaysRemainingBadges, 1000);
 
     document.querySelectorAll('.js-extend-expiration').forEach((btn) => {
         btn.addEventListener('click', async function() {
