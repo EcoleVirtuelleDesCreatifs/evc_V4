@@ -76,6 +76,9 @@ class Actualite extends Model
             if (Str::startsWith($path, 'storage/')) {
                 $path = Str::after($path, 'storage/');
             }
+            if (app()->environment('production')) {
+                return secure_asset('storage/' . $path);
+            }
             return asset('storage/' . $path);
         }
 
