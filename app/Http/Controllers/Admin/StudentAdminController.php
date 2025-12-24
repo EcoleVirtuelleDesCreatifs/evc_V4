@@ -1300,9 +1300,16 @@ class StudentAdminController extends Controller
 
             $studentIdForProfile = $id;
             if (Schema::hasTable('students')) {
-                $studentRecord = DB::table('students')->where('user_id', $id)->first();
+                $studentRecord = DB::table('students')
+                    ->where('user_id', $id)
+                    ->orWhere('email', $validated['email'])
+                    ->first();
                 if ($studentRecord && !empty($studentRecord->id)) {
                     $studentIdForProfile = (int) $studentRecord->id;
+                } else {
+                    return redirect()->route('admin.students.edit', $id)
+                        ->with('success', '✅ Les informations de l\'étudiant ont été mises à jour avec succès.')
+                        ->with('warning', '⚠️ Redirection vers le profil impossible (enregistrement étudiant introuvable dans la table students).');
                 }
             }
 
