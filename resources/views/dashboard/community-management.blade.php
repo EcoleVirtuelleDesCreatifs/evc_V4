@@ -388,6 +388,116 @@
         animation: fadeInUp 0.6s ease-out;
     }
 
+    .remaining-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.25);
+        background: rgba(255,255,255,0.16);
+        color: #fff;
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        box-shadow: 0 10px 22px rgba(0,0,0,0.14);
+        backdrop-filter: blur(10px);
+    }
+
+    .remaining-pill--orange {
+        background: linear-gradient(135deg, rgba(255,149,0,0.95) 0%, rgba(255,94,0,0.95) 100%);
+        border-color: rgba(255,255,255,0.45);
+        box-shadow: 0 14px 30px rgba(255, 149, 0, 0.25);
+    }
+
+    .remaining-pill--pulse {
+        animation: remainingPulse 1.2s ease-in-out infinite;
+    }
+
+    .remaining-pill--pulse-urgent {
+        animation: remainingPulseUrgent 0.85s ease-in-out infinite;
+    }
+
+    @keyframes remainingPulse {
+        0%, 100% {
+            transform: scale(1);
+            filter: brightness(1);
+            box-shadow: 0 14px 30px rgba(255, 149, 0, 0.25);
+        }
+        50% {
+            transform: scale(1.05);
+            filter: brightness(1.08);
+            box-shadow: 0 20px 40px rgba(255, 149, 0, 0.38);
+        }
+    }
+
+    @keyframes remainingPulseUrgent {
+        0%, 100% {
+            transform: scale(1);
+            filter: brightness(1.02);
+            box-shadow: 0 18px 42px rgba(255, 94, 0, 0.42);
+        }
+        50% {
+            transform: scale(1.08);
+            filter: brightness(1.15);
+            box-shadow: 0 26px 60px rgba(255, 94, 0, 0.55);
+        }
+    }
+
+    .remaining-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.9rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.25);
+        background: rgba(255,255,255,0.16);
+        color: #fff;
+        font-weight: 900;
+        letter-spacing: -0.01em;
+        box-shadow: 0 10px 22px rgba(0,0,0,0.14);
+        backdrop-filter: blur(10px);
+    }
+
+    .remaining-pill--orange {
+        background: linear-gradient(135deg, rgba(255,149,0,0.95) 0%, rgba(255,94,0,0.95) 100%);
+        border-color: rgba(255,255,255,0.45);
+        box-shadow: 0 14px 30px rgba(255, 149, 0, 0.25);
+    }
+
+    .remaining-pill--pulse {
+        animation: remainingPulse 1.2s ease-in-out infinite;
+    }
+
+    .remaining-pill--pulse-urgent {
+        animation: remainingPulseUrgent 0.85s ease-in-out infinite;
+    }
+
+    @keyframes remainingPulse {
+        0%, 100% {
+            transform: scale(1);
+            filter: brightness(1);
+            box-shadow: 0 14px 30px rgba(255, 149, 0, 0.25);
+        }
+        50% {
+            transform: scale(1.05);
+            filter: brightness(1.08);
+            box-shadow: 0 20px 40px rgba(255, 149, 0, 0.38);
+        }
+    }
+
+    @keyframes remainingPulseUrgent {
+        0%, 100% {
+            transform: scale(1);
+            filter: brightness(1.02);
+            box-shadow: 0 18px 42px rgba(255, 94, 0, 0.42);
+        }
+        50% {
+            transform: scale(1.08);
+            filter: brightness(1.15);
+            box-shadow: 0 26px 60px rgba(255, 94, 0, 0.55);
+        }
+    }
+
     @media (max-width: 768px) {
         .stat-number {
             font-size: 2.5rem;
@@ -454,6 +564,12 @@
                                 <i class="fas fa-bolt"></i>
                                 <span>Objectif : publier chaque semaine</span>
                             </a>
+                            @if(!$isExpired)
+                                <span class="remaining-pill" id="js-remaining-pill">
+                                    <i class="fas fa-clock"></i>
+                                    <span>{{ $daysRemaining }} jours restants</span>
+                                </span>
+                            @endif
                         </div>
 
                         <h1 class="text-white mb-2" style="font-size: 2.05rem; font-weight: 900; letter-spacing: -0.02em;">
@@ -1104,14 +1220,28 @@
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const seconds = totalSeconds % 60;
 
+            const pillEl = document.getElementById('js-remaining-pill');
             const daysEl = document.getElementById('js-remaining-days');
             const hmsEl = document.getElementById('js-remaining-hms');
             const fullEl = document.getElementById('js-remaining-full');
             const msgEl = document.getElementById('js-remaining-message');
 
-            if (daysEl) daysEl.textContent = `${days}`;
-            if (hmsEl) hmsEl.textContent = `${pad2(hours)}h ${pad2(minutes)}m ${pad2(seconds)}s`;
-            if (fullEl) fullEl.textContent = `${days} jours • ${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
+            if (pillEl) {
+                const pillTextNode = pillEl.querySelector('span');
+                if (pillTextNode) {
+                    pillTextNode.textContent = `${days} jours restants`;
+                }
+                pillEl.classList.remove('remaining-pill--orange', 'remaining-pill--pulse', 'remaining-pill--pulse-urgent');
+                if (totalSeconds > 0) {
+                    pillEl.classList.add('remaining-pill--orange');
+                    if (days <= 7) {
+                        pillEl.classList.add('remaining-pill--pulse-urgent');
+                    } else {
+                        pillEl.classList.add('remaining-pill--pulse');
+                    }
+                }
+            }
+
             if (msgEl) {
                 if (days <= 7) {
                     msgEl.textContent = `Semaine décisive: planifiez vos publications maintenant`;
