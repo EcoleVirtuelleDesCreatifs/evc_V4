@@ -3461,22 +3461,23 @@ class DashboardController extends Controller
             return redirect($document->external_link);
         }
 
-        // Sinon, télécharger le fichier principal
-        if ($document->path) {
-            $filePath = storage_path('app/public/' . $document->path);
-
-            if (file_exists($filePath)) {
-                $fileName = $document->title . '.' . $document->file_type;
-                return response()->download($filePath, $fileName);
-            }
-        }
-
-        // Si le fichier PDF existe (ancien système)
+        // Priorité: télécharger le PDF si présent
         if ($document->pdf_path) {
             $filePath = storage_path('app/public/' . $document->pdf_path);
 
             if (file_exists($filePath)) {
                 return response()->download($filePath, $document->title . '.pdf');
+            }
+        }
+
+        // Sinon, fallback sur le fichier principal (peut être une image pour l'ancien système)
+        if ($document->path) {
+            $filePath = storage_path('app/public/' . $document->path);
+
+            if (file_exists($filePath)) {
+                $extension = $document->file_type ?: pathinfo($document->path, PATHINFO_EXTENSION);
+                $fileName = $extension ? ($document->title . '.' . $extension) : $document->title;
+                return response()->download($filePath, $fileName);
             }
         }
 
