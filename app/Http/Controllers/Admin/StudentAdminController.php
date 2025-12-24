@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class StudentAdminController extends Controller
 {
@@ -885,6 +886,86 @@ class StudentAdminController extends Controller
                 'message' => 'Erreur lors de la modification du statut: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function extendExpiration(Request $request, int $studentId)
+    {
+        $validated = $request->validate([
+            'months' => 'required|integer|in:1,3,6',
+        ]);
+
+        if (!Schema::hasTable('students')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Table students introuvable',
+            ], 404);
+        }
+
+        $student = DB::table('students')->where('id', $studentId)->first();
+        if (!$student) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Étudiant introuvable',
+            ], 404);
+        }
+
+        $monthsToAdd = (int) $validated['months'];
+
+        $registrationDate = $student->created_at ?? null;
+        if (!$registrationDate && !empty($student->email)) {
+            $userId = DB::table('users')->where('email', $student->email)->value('id');
+            if ($userId) {
+                $registrationDate = DB::table('users')->where('id', $userId)->value('created_at');
+            }
+        }
+
+        // Déterminer la base d'expiration
+        $baseExpiration = null;
+        if (!empty($student->expiration_date)) {
+            try {
+                $baseExpiration = Carbon::parse($student->expiration_date);
+            } catch (\Exception $e) {
+                $baseExpiration = null;
+            }
+        }
+
+        if (!$baseExpiration && $registrationDate) {
+            $durationMonths = 4;
+            if (($student->program ?? null) === 'design_graphique_community_management' || ($student->specialization ?? null) === 'design_graphique_community_management') {
+                $durationMonths = 7;
+            }
+            try {
+                $baseExpiration = Carbon::parse($registrationDate)->copy()->addMonths($durationMonths);
+            } catch (\Exception $e) {
+                $baseExpiration = null;
+            }
+        }
+
+        if (!$baseExpiration) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible de déterminer la date d\'expiration actuelle',
+            ], 422);
+        }
+
+        $newExpiration = $baseExpiration->copy()->addMonths($monthsToAdd);
+
+        DB::table('students')
+            ->where('id', $studentId)
+            ->update([
+                'expiration_date' => $newExpiration->format('Y-m-d'),
+                'updated_at' => now(),
+            ]);
+
+        $daysRemaining = (int) Carbon::now()->diffInDays($newExpiration, false);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Expiration prolongée avec succès',
+            'expiration_iso' => $newExpiration->toIso8601String(),
+            'expiration_date' => $newExpiration->format('Y-m-d'),
+            'days_remaining' => $daysRemaining,
+        ]);
     }
 
     /**

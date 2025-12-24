@@ -226,6 +226,27 @@
                                                data-bs-toggle="tooltip">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button type="button"
+                                                        class="btn btn-outline-success btn-action dropdown-toggle"
+                                                        data-bs-toggle="dropdown"
+                                                        aria-expanded="false"
+                                                        title="Prolonger"
+                                                        data-bs-toggle="tooltip">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <button class="dropdown-item js-extend-expiration" type="button" data-student-id="{{ $student['student_id'] ?? $student['id'] }}" data-months="1">Prolonger de 1 mois</button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item js-extend-expiration" type="button" data-student-id="{{ $student['student_id'] ?? $student['id'] }}" data-months="3">Prolonger de 3 mois</button>
+                                                    </li>
+                                                    <li>
+                                                        <button class="dropdown-item js-extend-expiration" type="button" data-student-id="{{ $student['student_id'] ?? $student['id'] }}" data-months="6">Prolonger de 6 mois</button>
+                                                    </li>
+                                                </ul>
+                                            </div>
                                             @if(isset($student['status']) && $student['status'] === 'inactive')
                                                 <button type="button"
                                                         class="btn btn-outline-success btn-action"
@@ -996,6 +1017,11 @@ function deleteStudent(studentId, studentName) {
 
 @push('scripts')
 <script>
+function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+}
+
 function computeExpirationFromRegistration(regIso, durationMonths) {
     if (!regIso) return null;
     const reg = new Date(regIso);
@@ -1063,6 +1089,48 @@ function updateDaysRemainingBadges() {
 document.addEventListener('DOMContentLoaded', function() {
     updateDaysRemainingBadges();
     setInterval(updateDaysRemainingBadges, 60000);
+
+    document.querySelectorAll('.js-extend-expiration').forEach((btn) => {
+        btn.addEventListener('click', async function() {
+            const studentId = this.getAttribute('data-student-id');
+            const months = this.getAttribute('data-months');
+            if (!studentId || !months) return;
+
+            try {
+                const urlTemplate = @json(route('admin.students.extend-expiration', ['studentId' => '__ID__']));
+                const url = urlTemplate.replace('__ID__', String(studentId));
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': getCsrfToken(),
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ months: parseInt(months, 10) })
+                });
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    alert(data.message || 'Erreur lors de la prolongation');
+                    return;
+                }
+
+                const row = this.closest('tr');
+                if (!row) return;
+                const badge = row.querySelector('.js-days-remaining');
+                if (!badge) return;
+
+                if (data.expiration_iso) {
+                    badge.setAttribute('data-expiration', data.expiration_iso);
+                }
+
+                updateDaysRemainingBadges();
+            } catch (e) {
+                alert('Erreur réseau lors de la prolongation');
+            }
+        });
+    });
 });
 </script>
 @endpush

@@ -186,6 +186,10 @@ Route::put('/evc/app/admin/students/{id}', [\App\Http\Controllers\Admin\StudentA
     ->whereNumber('id')
     ->name('admin.students.update');
 
+Route::post('/evc/app/admin/students/{studentId}/extend-expiration', [\App\Http\Controllers\Admin\StudentAdminController::class, 'extendExpiration'])
+    ->whereNumber('studentId')
+    ->name('admin.students.extend-expiration');
+
 Route::post('/evc/app/admin/students/{id}/toggle-status', [\App\Http\Controllers\Admin\StudentAdminController::class, 'toggleStatus'])
     ->whereNumber('id')
     ->name('admin.students.toggle-status');
