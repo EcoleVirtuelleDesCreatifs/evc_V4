@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\Models\MediaUrl;
 
 class Actualite extends Model
 {
@@ -71,17 +72,7 @@ class Actualite extends Model
 
     public function getCoverImageUrlAttribute()
     {
-        if ($this->cover_image) {
-            $path = ltrim((string) $this->cover_image, '/');
-            if (Str::startsWith($path, 'storage/')) {
-                $path = Str::after($path, 'storage/');
-            }
-            if (app()->environment('production')) {
-                return secure_asset('storage/' . $path);
-            }
-            return asset('storage/' . $path);
-        }
-
-        return asset('assets/img/logo.png');
+        $url = MediaUrl::fromPath($this->cover_image);
+        return $url ?: asset('assets/img/logo.png');
     }
 }

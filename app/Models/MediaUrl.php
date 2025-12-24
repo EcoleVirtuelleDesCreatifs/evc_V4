@@ -38,6 +38,9 @@ class MediaUrl
         $encodedFilename = rawurlencode((string) $filename);
         $encodedPath = implode('/', $parts) . ($parts ? '/' : '') . $encodedFilename;
 
-        return asset('storage/app/public/' . $encodedPath);
+        if (app()->environment('production')) {
+            return secure_asset('storage/' . $encodedPath);
+        }
+        return asset('storage/' . $encodedPath);
     }
 }
