@@ -608,6 +608,8 @@ function getDurationMonths() {
     return 4;
 }
 
+let expirationManuallyChanged = false;
+
 function computeExpirationDate() {
     const expirationEl = document.getElementById('expiration_date');
     const registrationEl = document.getElementById('registration_date');
@@ -620,6 +622,16 @@ function computeExpirationDate() {
     const computed = new Date(reg.getTime());
     computed.setMonth(computed.getMonth() + months);
 
+    // Tant que l'admin n'a pas modifié manuellement la date d'expiration, on force la valeur calculée
+    if (!expirationManuallyChanged) {
+        const expYmd = formatDateYmd(computed);
+        if (expYmd && expirationEl.value !== expYmd) {
+            expirationEl.value = expYmd;
+        }
+        return computed;
+    }
+
+    // Si l'admin a modifié manuellement, on prend la plus tardive entre la date calculée et celle saisie
     const exp = parseDateInput(expirationEl.value);
     if (exp) {
         return exp.getTime() > computed.getTime() ? exp : computed;
@@ -733,14 +745,28 @@ document.addEventListener('DOMContentLoaded', function() {
     const formationEl = document.getElementById('formation_souhaitee');
     const expirationEl = document.getElementById('expiration_date');
 
-    if (registrationEl) registrationEl.addEventListener('change', updateDynamicCountdown);
+    if (expirationEl) {
+        expirationEl.addEventListener('input', function() {
+            expirationManuallyChanged = true;
+        });
+        expirationEl.addEventListener('change', function() {
+            expirationManuallyChanged = true;
+        });
+    }
+
+    if (registrationEl) {
+        registrationEl.addEventListener('input', function() {
+            expirationManuallyChanged = false;
+            updateDynamicCountdown();
+        });
+        registrationEl.addEventListener('change', function() {
+            expirationManuallyChanged = false;
+            updateDynamicCountdown();
+        });
+    }
     if (formationEl) formationEl.addEventListener('change', function() {
-        const exp = document.getElementById('expiration_date');
-        if (exp && !exp.value) {
-            updateDynamicCountdown();
-        } else {
-            updateDynamicCountdown();
-        }
+        expirationManuallyChanged = false;
+        updateDynamicCountdown();
     });
     if (expirationEl) expirationEl.addEventListener('change', updateDynamicCountdown);
 
