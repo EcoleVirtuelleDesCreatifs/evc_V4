@@ -41,12 +41,12 @@ class MediaUrl
         try {
             $req = request();
             $base = rtrim($req->getSchemeAndHttpHost() . $req->getBaseUrl(), '/');
-            return $base . '/storage/app/public/' . $encodedPath;
+            return $base . '/storage/' . $encodedPath;
         } catch (\Throwable $e) {
             if (app()->environment('production')) {
-                return secure_asset('storage/app/public/' . $encodedPath);
+                return secure_asset('storage/' . $encodedPath);
             }
-            return asset('storage/app/public/' . $encodedPath);
+            return asset('storage/' . $encodedPath);
         }
     }
 }
