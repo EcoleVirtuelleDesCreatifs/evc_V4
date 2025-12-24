@@ -199,13 +199,13 @@
                                     </td>
                                     <td class="text-center">
                                         <div class="btn-group btn-group-sm" role="group">
-                                            <a href="{{ route('admin.students.profile', $student['id']) }}"
+                                            <a href="{{ route('admin.students.profile', $student['student_id'] ?? $student['id']) }}"
                                                class="btn btn-outline-primary btn-action"
                                                title="Voir profil"
                                                data-bs-toggle="tooltip">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('admin.students.edit', $student['id']) }}"
+                                            <a href="{{ route('admin.students.edit', $student['user_id'] ?? $student['id']) }}"
                                                class="btn btn-outline-warning btn-action"
                                                title="Modifier"
                                                data-bs-toggle="tooltip">

@@ -1271,18 +1271,12 @@ class AdminDashboardController extends Controller
 
     public function studentsDesignGraphique()
     {
-        $students = User::whereHas('formations.category', function ($query) {
-            $query->where('name', 'Design Graphique');
-        })->get();
-        return view('admin.etudiants.design-graphique', compact('students'));
+        return redirect()->route('admin.students.by-formation', ['formation' => 'design-graphique']);
     }
 
     public function studentsCommunityManagement()
     {
-        $students = User::whereHas('formations.category', function ($query) {
-            $query->where('name', 'Community Management');
-        })->get();
-        return view('admin.etudiants.community-management', compact('students'));
+        return redirect()->route('admin.students.by-formation', ['formation' => 'community-management']);
     }
 
     public function studentsDesignGraphiqueCommunityManager()

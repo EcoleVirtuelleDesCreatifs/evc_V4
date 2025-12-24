@@ -327,13 +327,8 @@ class StudentAdminController extends Controller
             if ($expirationDate) {
                 $now = \Carbon\Carbon::now();
 
-                if ($expirationDate->isFuture()) {
-                    $daysRemaining = (int) $now->diffInDays($expirationDate);
-                    $isExpired = false;
-                } else {
-                    $daysRemaining = 0;
-                    $isExpired = true;
-                }
+                $daysRemaining = (int) $now->diffInDays($expirationDate, false);
+                $isExpired = $daysRemaining < 0;
             }
 
             // Déterminer le statut : si expiré, le compte doit être inactif, sinon actif
@@ -371,8 +366,9 @@ class StudentAdminController extends Controller
             }
 
             return [
-                'id' => $userId ?? $s->id, // Utiliser le user_id si disponible pour les routes
+                'id' => $s->id,
                 'student_id' => $s->id,
+                'user_id' => $userId,
                 'email' => $s->email,
                 'prenom' => $s->first_name ?? '',
                 'nom' => $s->last_name ?? '',
