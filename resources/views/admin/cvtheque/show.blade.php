@@ -687,10 +687,21 @@
  .cvt-show #portfolioCarousel .carousel-control-next {
      width: 12%;
      z-index: 6;
+     pointer-events: auto;
  }
  .cvt-show #portfolioCarousel .carousel-indicators {
      z-index: 7;
      margin-bottom: 0.35rem;
+     pointer-events: auto;
+ }
+ .cvt-show #portfolioCarousel .carousel-inner {
+     position: relative;
+     z-index: 2;
+ }
+ .cvt-show #portfolioCarousel .carousel-control-prev,
+ .cvt-show #portfolioCarousel .carousel-control-next,
+ .cvt-show #portfolioCarousel .carousel-indicators {
+     position: absolute;
  }
  .cvt-show #portfolioCarousel .carousel-indicators [data-bs-target] {
      width: 10px;
@@ -752,11 +763,33 @@
                 wrap: true,
             });
 
-            try {
-                instance.to(0);
-            } catch (e) {
-                // noop
+            const prevBtn = carouselEl.querySelector('.carousel-control-prev');
+            const nextBtn = carouselEl.querySelector('.carousel-control-next');
+            const indicators = carouselEl.querySelectorAll('.carousel-indicators [data-bs-slide-to]');
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    instance.prev();
+                }, { passive: false });
             }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    instance.next();
+                }, { passive: false });
+            }
+
+            indicators.forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const to = parseInt(btn.getAttribute('data-bs-slide-to') || '0', 10);
+                    if (!Number.isNaN(to)) {
+                        instance.to(to);
+                    }
+                }, { passive: false });
+            });
         });
 
         modalEl.addEventListener('hidden.bs.modal', function () {
