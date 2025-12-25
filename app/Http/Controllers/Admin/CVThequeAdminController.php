@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 class CVThequeAdminController extends Controller
 {
@@ -79,25 +80,37 @@ class CVThequeAdminController extends Controller
      */
     public function show($id): View
     {
+        $select = [
+            'cvtheque_profiles.*',
+            'users.email as user_email',
+            'students.first_name',
+            'students.last_name',
+            'students.phone',
+            'students.whatsapp',
+            'students.profile_photo',
+            'students.program as formation',
+            'students.specialization',
+            'students.status as student_status',
+            'students.country',
+            'students.city',
+        ];
+
+        if (Schema::hasColumn('students', 'education_level')) {
+            $select[] = 'students.education_level';
+        } else {
+            $select[] = DB::raw('NULL as education_level');
+        }
+
+        if (Schema::hasColumn('students', 'last_diploma')) {
+            $select[] = 'students.last_diploma';
+        } else {
+            $select[] = DB::raw('NULL as last_diploma');
+        }
+
         $profile = CVThequeProfile::with('user')
             ->join('users', 'cvtheque_profiles.user_id', '=', 'users.id')
             ->leftJoin('students', 'users.id', '=', 'students.user_id')
-            ->select(
-                'cvtheque_profiles.*',
-                'users.email as user_email',
-                'students.first_name',
-                'students.last_name',
-                'students.phone',
-                'students.whatsapp',
-                'students.profile_photo',
-                'students.program as formation',
-                'students.specialization',
-                'students.status as student_status',
-                'students.country',
-                'students.city',
-                'students.education_level',
-                'students.last_diploma'
-            )
+            ->select($select)
             ->where('cvtheque_profiles.id', $id)
             ->firstOrFail();
 
