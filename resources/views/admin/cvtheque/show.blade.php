@@ -329,32 +329,9 @@
                                 </div>
                                 <div class="cvt-doc-actions">
                                     @if($hasPortfolioFiles)
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="fas fa-eye me-2"></i>Voir
-                                            </button>
-                                            <ul class="dropdown-menu dropdown-menu-end">
-                                                @foreach($portfolioFiles as $file)
-                                                    @php
-                                                        $filePath = null;
-                                                        if (is_string($file)) {
-                                                            $filePath = $file;
-                                                        } elseif (is_array($file)) {
-                                                            $filePath = $file['path'] ?? $file['file_path'] ?? null;
-                                                        } elseif (is_object($file)) {
-                                                            $filePath = $file->path ?? $file->file_path ?? null;
-                                                        }
-                                                    @endphp
-                                                    @if(!empty($filePath))
-                                                        <li>
-                                                            <a class="dropdown-item" href="{{ \App\Models\MediaUrl::fromPath($filePath) }}" target="_blank" rel="noopener">
-                                                                <i class="fas fa-external-link-alt me-2"></i>Fichier {{ $loop->iteration }}
-                                                            </a>
-                                                        </li>
-                                                    @endif
-                                                @endforeach
-                                            </ul>
-                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" data-bs-toggle="modal" data-bs-target="#portfolioGalleryModal">
+                                            <i class="fas fa-images me-2"></i>Galerie
+                                        </button>
                                     @else
                                         <button class="btn btn-sm btn-outline-secondary" disabled>Indisponible</button>
                                     @endif
@@ -467,12 +444,113 @@
             </div>
         </div>
     </div>
+
+    @if($hasPortfolioFiles)
+        @php
+            $galleryItems = [];
+            foreach ($portfolioFiles as $file) {
+                $filePath = null;
+                $label = null;
+
+                if (is_string($file)) {
+                    $filePath = $file;
+                } elseif (is_array($file)) {
+                    $filePath = $file['path'] ?? $file['file_path'] ?? null;
+                    $label = $file['name'] ?? $file['file_name'] ?? null;
+                } elseif (is_object($file)) {
+                    $filePath = $file->path ?? $file->file_path ?? null;
+                    $label = $file->name ?? $file->file_name ?? null;
+                }
+
+                if (!$filePath) {
+                    continue;
+                }
+
+                $url = \App\Models\MediaUrl::fromPath($filePath);
+                $ext = strtolower(pathinfo(parse_url($url, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg']);
+                $galleryItems[] = [
+                    'url' => $url,
+                    'label' => $label,
+                    'is_image' => $isImage,
+                    'ext' => $ext,
+                ];
+            }
+        @endphp
+
+        <div class="modal fade" id="portfolioGalleryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content cvt-modal">
+                    <div class="modal-header">
+                        <div>
+                            <div class="modal-title h5 mb-0 text-white fw-bold">Portfolio / réalisations</div>
+                            <div class="text-muted small">{{ count($galleryItems) }} élément(s)</div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if(count($galleryItems) > 0)
+                            <div id="portfolioCarousel" class="carousel slide" data-bs-ride="false">
+                                <div class="carousel-indicators">
+                                    @foreach($galleryItems as $item)
+                                        <button type="button" data-bs-target="#portfolioCarousel" data-bs-slide-to="{{ $loop->index }}" class="@if($loop->first) active @endif" aria-current="@if($loop->first) true @endif" aria-label="Slide {{ $loop->iteration }}"></button>
+                                    @endforeach
+                                </div>
+
+                                <div class="carousel-inner">
+                                    @foreach($galleryItems as $item)
+                                        <div class="carousel-item @if($loop->first) active @endif" data-index="{{ $loop->index }}">
+                                            <div class="cvt-gallery-stage">
+                                                @if($item['is_image'])
+                                                    <img src="{{ $item['url'] }}" class="d-block cvt-gallery-img" alt="{{ $item['label'] ?? ('Portfolio ' . $loop->iteration) }}">
+                                                @else
+                                                    <div class="cvt-gallery-file">
+                                                        <div class="cvt-gallery-file-icon">
+                                                            <i class="fas fa-file"></i>
+                                                        </div>
+                                                        <div class="cvt-gallery-file-title">Fichier {{ $loop->iteration }}</div>
+                                                        <div class="cvt-gallery-file-meta text-muted">{{ strtoupper($item['ext'] ?: 'FICHIER') }}</div>
+                                                        <a class="btn btn-outline-light mt-3" href="{{ $item['url'] }}" target="_blank" rel="noopener">
+                                                            <i class="fas fa-external-link-alt me-2"></i>Ouvrir
+                                                        </a>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div class="cvt-gallery-caption">
+                                                <div class="fw-semibold text-white">{{ $item['label'] ?? ('Élément ' . $loop->iteration) }}</div>
+                                                <div class="text-muted small">{{ $profile->first_name }} {{ $profile->last_name }}</div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <button class="carousel-control-prev" type="button" data-bs-target="#portfolioCarousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Précédent</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#portfolioCarousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Suivant</span>
+                                </button>
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <div class="text-muted">Aucun élément de portfolio exploitable.</div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 
 <style>
  .cvt-show {
      color: var(--form-text);
  }
+ .cvt-show .text-muted { color: var(--form-text-muted) !important; }
+ .cvt-show .card, .cvt-show .card-body { color: var(--form-text); }
  .cvt-show a { color: var(--form-primary); }
  .cvt-show a:hover { color: #7dd3fc; }
 
@@ -578,6 +656,54 @@
  .cvt-show .btn-outline-light:hover { border-color: rgba(56,189,248,0.55); background: rgba(56,189,248,0.12); color: #e2e8f0; }
  .cvt-show .btn-light { background: rgba(226,232,240,0.10); border-color: rgba(226,232,240,0.18); color: #e2e8f0; }
  .cvt-show .btn-light:hover { background: rgba(226,232,240,0.14); border-color: rgba(56,189,248,0.55); color: #e2e8f0; }
+
+ .cvt-show .cvt-modal {
+     background: rgba(15, 23, 42, 0.92);
+     border: 1px solid var(--form-border);
+     border-radius: 18px;
+ }
+ .cvt-show .cvt-modal .modal-header {
+     border-bottom: 1px solid var(--form-border);
+ }
+ .cvt-show .cvt-modal .modal-body {
+     color: var(--form-text);
+ }
+ .cvt-show .cvt-gallery-stage {
+     height: min(70vh, 560px);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     background: rgba(2, 6, 23, 0.55);
+     border: 1px solid var(--form-border);
+     border-radius: 16px;
+     overflow: hidden;
+ }
+ .cvt-show .cvt-gallery-img {
+     max-width: 100%;
+     max-height: 100%;
+     object-fit: contain;
+ }
+ .cvt-show .cvt-gallery-caption {
+     margin-top: 12px;
+ }
+ .cvt-show .cvt-gallery-file {
+     text-align: center;
+     padding: 24px;
+ }
+ .cvt-show .cvt-gallery-file-icon {
+     width: 64px;
+     height: 64px;
+     border-radius: 16px;
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+     background: rgba(56, 189, 248, 0.10);
+     border: 1px solid rgba(56, 189, 248, 0.25);
+     font-size: 1.6rem;
+     color: #e2e8f0;
+     margin-bottom: 10px;
+ }
+ .cvt-show .cvt-gallery-file-title { font-weight: 800; color: #e2e8f0; }
 
  @media (max-width: 991.98px) {
      .cvt-show .cvt-sticky { position: static; }

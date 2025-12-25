@@ -218,6 +218,13 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="design-cm-tab" data-bs-toggle="tab" data-bs-target="#design-cm" type="button" role="tab">
+                        <i class="fas fa-object-group me-2"></i>
+                        Design Graphique &amp; Community Manager
+                        <span class="badge bg-info ms-2">{{ ($studentsByFormation['Design Graphique & Community Manager'] ?? collect())->count() }}</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
                     <button class="nav-link" id="gestion-tab" data-bs-toggle="tab" data-bs-target="#gestion" type="button" role="tab">
                         <i class="fas fa-laptop-code me-2"></i>
                         Gestion Informatique
@@ -248,6 +255,11 @@
                 <!-- Onglet Community Management -->
                 <div class="tab-pane fade" id="community" role="tabpanel">
                     @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Community Management'] ?? collect()])
+                </div>
+
+                <!-- Onglet Design Graphique & Community Manager -->
+                <div class="tab-pane fade" id="design-cm" role="tabpanel">
+                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Design Graphique & Community Manager'] ?? collect()])
                 </div>
 
                 <!-- Onglet Gestion Informatique -->
