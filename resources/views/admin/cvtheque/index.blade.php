@@ -126,6 +126,49 @@
 
 @section('content')
 <div class="container-fluid py-4">
+    @php
+        $normalizeFormation = function ($value) {
+            $value = trim((string) $value);
+            $value = preg_replace('/\s+/', ' ', $value);
+            $value = mb_strtolower($value, 'UTF-8');
+            return $value;
+        };
+
+        $designStudents = $students->filter(function ($s) use ($normalizeFormation) {
+            return $normalizeFormation($s->program ?? '') === $normalizeFormation('Design Graphique');
+        });
+
+        $communityStudents = $students->filter(function ($s) use ($normalizeFormation) {
+            $v = $normalizeFormation($s->program ?? '');
+            return in_array($v, [
+                $normalizeFormation('Community Management'),
+                $normalizeFormation('Community Manager'),
+                $normalizeFormation('Community Management & Social Media Management'),
+                $normalizeFormation('CM'),
+            ], true);
+        });
+
+        $designCmStudents = $students->filter(function ($s) use ($normalizeFormation) {
+            $v = $normalizeFormation($s->program ?? '');
+            return in_array($v, [
+                $normalizeFormation('Design Graphique & Community Manager'),
+                $normalizeFormation('Design Graphique & Community Management'),
+                $normalizeFormation('Design Graphique et Community Manager'),
+                $normalizeFormation('Design Graphique et Community Management'),
+                $normalizeFormation('Design Graphique & Community Management & Social Media Management'),
+                $normalizeFormation('Design Graphique & Community Management (CM)'),
+            ], true);
+        });
+
+        $gestionStudents = $students->filter(function ($s) use ($normalizeFormation) {
+            return $normalizeFormation($s->program ?? '') === $normalizeFormation('Gestion Informatique');
+        });
+
+        $iaStudents = $students->filter(function ($s) use ($normalizeFormation) {
+            return $normalizeFormation($s->program ?? '') === $normalizeFormation('Intelligence Artificielle');
+        });
+    @endphp
+
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 text-white mb-0">
@@ -207,35 +250,35 @@
                     <button class="nav-link" id="design-tab" data-bs-toggle="tab" data-bs-target="#design" type="button" role="tab">
                         <i class="fas fa-palette me-2"></i>
                         Design Graphique
-                        <span class="badge bg-primary ms-2">{{ ($studentsByFormation['Design Graphique'] ?? collect())->count() }}</span>
+                        <span class="badge bg-primary ms-2">{{ $designStudents->count() }}</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="community-tab" data-bs-toggle="tab" data-bs-target="#community" type="button" role="tab">
                         <i class="fas fa-users me-2"></i>
                         Community Management
-                        <span class="badge bg-warning ms-2">{{ ($studentsByFormation['Community Management'] ?? collect())->count() }}</span>
+                        <span class="badge bg-warning ms-2">{{ $communityStudents->count() }}</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="design-cm-tab" data-bs-toggle="tab" data-bs-target="#design-cm" type="button" role="tab">
                         <i class="fas fa-object-group me-2"></i>
                         Design Graphique &amp; Community Manager
-                        <span class="badge bg-info ms-2">{{ ($studentsByFormation['Design Graphique & Community Manager'] ?? collect())->count() }}</span>
+                        <span class="badge bg-info ms-2">{{ $designCmStudents->count() }}</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="gestion-tab" data-bs-toggle="tab" data-bs-target="#gestion" type="button" role="tab">
                         <i class="fas fa-laptop-code me-2"></i>
                         Gestion Informatique
-                        <span class="badge bg-success ms-2">{{ ($studentsByFormation['Gestion Informatique'] ?? collect())->count() }}</span>
+                        <span class="badge bg-success ms-2">{{ $gestionStudents->count() }}</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="ia-tab" data-bs-toggle="tab" data-bs-target="#ia" type="button" role="tab">
                         <i class="fas fa-brain me-2"></i>
                         Intelligence Artificielle
-                        <span class="badge bg-danger ms-2">{{ ($studentsByFormation['Intelligence Artificielle'] ?? collect())->count() }}</span>
+                        <span class="badge bg-danger ms-2">{{ $iaStudents->count() }}</span>
                     </button>
                 </li>
             </ul>
@@ -249,27 +292,27 @@
 
                 <!-- Onglet Design Graphique -->
                 <div class="tab-pane fade" id="design" role="tabpanel">
-                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Design Graphique'] ?? collect()])
+                    @include('admin.cvtheque.partials.students-table', ['students' => $designStudents])
                 </div>
 
                 <!-- Onglet Community Management -->
                 <div class="tab-pane fade" id="community" role="tabpanel">
-                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Community Management'] ?? collect()])
+                    @include('admin.cvtheque.partials.students-table', ['students' => $communityStudents])
                 </div>
 
                 <!-- Onglet Design Graphique & Community Manager -->
                 <div class="tab-pane fade" id="design-cm" role="tabpanel">
-                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Design Graphique & Community Manager'] ?? collect()])
+                    @include('admin.cvtheque.partials.students-table', ['students' => $designCmStudents])
                 </div>
 
                 <!-- Onglet Gestion Informatique -->
                 <div class="tab-pane fade" id="gestion" role="tabpanel">
-                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Gestion Informatique'] ?? collect()])
+                    @include('admin.cvtheque.partials.students-table', ['students' => $gestionStudents])
                 </div>
 
                 <!-- Onglet Intelligence Artificielle -->
                 <div class="tab-pane fade" id="ia" role="tabpanel">
-                    @include('admin.cvtheque.partials.students-table', ['students' => $studentsByFormation['Intelligence Artificielle'] ?? collect()])
+                    @include('admin.cvtheque.partials.students-table', ['students' => $iaStudents])
                 </div>
             </div>
         </div>
