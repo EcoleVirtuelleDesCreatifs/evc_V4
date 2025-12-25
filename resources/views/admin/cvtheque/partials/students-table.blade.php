@@ -148,12 +148,21 @@
                 </td>
                 <td>
                     <div class="d-flex gap-1">
-                        <a href="{{ url('/evc/app/admin/students/' . $student->user_id . '/profile') }}"
-                           class="btn btn-sm text-white"
-                           style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; border-radius: 8px; padding: 0.4rem 0.8rem;"
-                           title="Voir le profil CVthèque">
-                            <i class="fas fa-eye"></i>
-                        </a>
+                        @if(!empty($student->profile_id))
+                            <a href="{{ route('admin.cvtheque.show', ['id' => $student->profile_id]) }}"
+                               class="btn btn-sm text-white"
+                               style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; border-radius: 8px; padding: 0.4rem 0.8rem;"
+                               title="Voir le profil CVthèque">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        @else
+                            <button type="button"
+                                    class="btn btn-sm text-white"
+                                    style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%); border: none; border-radius: 8px; padding: 0.4rem 0.8rem;"
+                                    title="Aucun profil CVthèque">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        @endif
                     </div>
                 </td>
             </tr>
