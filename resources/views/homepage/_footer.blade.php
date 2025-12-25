@@ -201,7 +201,7 @@
                     Pré-inscription
                 </a>
 
-                <a href="https://wa.me/2250747259507?text={{ urlencode('Bonjour EVC, je souhaite faire un don. Pouvez-vous me donner les modalités ?') }}" target="_blank" rel="noopener" class="mt-4 inline-flex items-center justify-center w-full px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full hover:from-emerald-600 hover:to-teal-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-emerald-500/40">
+                <a href="{{ route('donation.index') }}" class="mt-4 inline-flex items-center justify-center w-full px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full hover:from-emerald-600 hover:to-teal-700 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-emerald-500/40">
                     <i class="fas fa-hand-holding-heart mr-2"></i>
                     Faire un don
                 </a>

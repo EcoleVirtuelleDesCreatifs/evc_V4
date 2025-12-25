@@ -17,6 +17,7 @@ use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\Api\ProjectApiController;
 use App\Http\Controllers\AdminStatisticsDetailController;
 use App\Http\Controllers\StudentConfirmationController;
+use App\Http\Controllers\DonationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -50,6 +51,10 @@ Route::get('/preinscription', function () {
 })->name('preinscription.start');
 Route::post('/pre-registration', [HomepageController::class, 'store'])->name('pre-registration.store');
 Route::post('/candidature', [HomepageController::class, 'candidatureStore'])->name('candidature.store');
+
+Route::get('/faire-un-don', [DonationController::class, 'index'])->name('donation.index');
+Route::post('/faire-un-don', [DonationController::class, 'submit'])->name('donation.submit');
+
 Route::get('/webtv', [HomepageController::class, 'webtv'])->name('webtv');
 Route::get('/webtv/thematique/{category}', [HomepageController::class, 'webtvThematique'])->name('webtv.thematique');
 
