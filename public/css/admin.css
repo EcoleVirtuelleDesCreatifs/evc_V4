@@ -9,6 +9,7 @@ body {
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
     color: white;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 .admin-container {
@@ -26,6 +27,36 @@ body {
     height: 100vh;
     overflow-y: auto;
     z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+/* Overlay mobile (injecté depuis le layout) */
+.admin-sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.admin-mobile-menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.admin-mobile-menu-btn:hover {
+    border-color: rgba(0, 212, 255, 0.6);
+    color: rgba(0, 212, 255, 0.95);
 }
 
 .admin-logo {
@@ -315,14 +346,27 @@ body {
     padding: 2rem;
 }
 
-@media (max-width: 992px) {
+@media (max-width: 1024px) {
     .admin-sidebar {
         transform: translateX(-100%);
-        transition: transform 0.3s ease;
+    }
+
+    body.sidebar-open .admin-sidebar {
+        transform: translateX(0);
+    }
+
+    body.sidebar-open .admin-sidebar-overlay {
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .admin-main {
         margin-left: 0;
+        padding: 1rem;
+    }
+
+    .admin-mobile-menu-btn {
+        display: inline-flex;
     }
 }
 

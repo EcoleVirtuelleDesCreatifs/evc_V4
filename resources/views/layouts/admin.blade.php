@@ -31,6 +31,7 @@
 </head>
 <body>
     <div id="toast-container"></div>
+    <div class="admin-sidebar-overlay" id="adminSidebarOverlay"></div>
     <div class="admin-container">
         <!-- Sidebar -->
         <aside class="admin-sidebar">
@@ -437,7 +438,12 @@
         <main class="admin-main">
             <!-- Header -->
             <header class="admin-header">
-                <h1>@yield('title', 'Dashboard Admin')</h1>
+                <div class="d-flex align-items-center gap-3">
+                    <button type="button" class="admin-mobile-menu-btn" id="adminMobileMenuBtn" aria-label="Ouvrir le menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 class="mb-0">@yield('title', 'Dashboard Admin')</h1>
+                </div>
 
                 <div class="admin-user">
                     <div class="admin-user-avatar">
@@ -511,5 +517,34 @@
 
         @yield('scripts')
     @stack('scripts')
+
+    <script>
+        (function () {
+            const btn = document.getElementById('adminMobileMenuBtn');
+            const overlay = document.getElementById('adminSidebarOverlay');
+            if (!btn || !overlay) return;
+
+            function openSidebar() { document.body.classList.add('sidebar-open'); }
+            function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+
+            btn.addEventListener('click', function () {
+                if (document.body.classList.contains('sidebar-open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+
+            overlay.addEventListener('click', function () {
+                closeSidebar();
+            });
+
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 1024) {
+                    closeSidebar();
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

@@ -377,6 +377,68 @@
         font-size: 0.9rem;
     }
 
+    /* Responsive */
+    @media (max-width: 992px) {
+        .dashboard-header {
+            padding: 1.5rem;
+        }
+        .header-time {
+            position: static;
+            margin-top: 1rem;
+            text-align: left;
+        }
+        .header-title {
+            font-size: 2rem;
+        }
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .quick-actions-grid {
+            grid-template-columns: 1fr;
+        }
+        .activity-section {
+            padding: 1.25rem;
+        }
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .dashboard-header {
+            padding: 1.25rem;
+            border-radius: 18px;
+        }
+        .header-title {
+            font-size: 1.6rem;
+        }
+        .header-subtitle {
+            font-size: 0.95rem;
+        }
+        .stat-card {
+            padding: 1.25rem;
+            border-radius: 16px;
+        }
+        .stat-number {
+            font-size: 2rem;
+        }
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            font-size: 22px;
+        }
+        .activity-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .activity-time {
+            white-space: normal;
+        }
+    }
+
     /* Animations */
     @keyframes fadeIn {
         from {
