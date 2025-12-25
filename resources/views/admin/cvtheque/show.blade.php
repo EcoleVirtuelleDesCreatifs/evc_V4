@@ -683,6 +683,20 @@
      max-height: 100%;
      object-fit: contain;
  }
+ .cvt-show #portfolioCarousel .carousel-control-prev,
+ .cvt-show #portfolioCarousel .carousel-control-next {
+     width: 12%;
+     z-index: 6;
+ }
+ .cvt-show #portfolioCarousel .carousel-indicators {
+     z-index: 7;
+     margin-bottom: 0.35rem;
+ }
+ .cvt-show #portfolioCarousel .carousel-indicators [data-bs-target] {
+     width: 10px;
+     height: 10px;
+     border-radius: 999px;
+ }
  .cvt-show .cvt-gallery-caption {
      margin-top: 12px;
  }
@@ -718,4 +732,40 @@
      }
  }
 </style>
+
+@push('scripts')
+<script>
+    (function () {
+        const modalEl = document.getElementById('portfolioGalleryModal');
+        const carouselEl = document.getElementById('portfolioCarousel');
+
+        if (!modalEl || !carouselEl || typeof bootstrap === 'undefined') {
+            return;
+        }
+
+        modalEl.addEventListener('shown.bs.modal', function () {
+            const instance = bootstrap.Carousel.getOrCreateInstance(carouselEl, {
+                interval: false,
+                ride: false,
+                touch: true,
+                keyboard: true,
+                wrap: true,
+            });
+
+            try {
+                instance.to(0);
+            } catch (e) {
+                // noop
+            }
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            const instance = bootstrap.Carousel.getInstance(carouselEl);
+            if (instance) {
+                instance.pause();
+            }
+        });
+    })();
+</script>
+@endpush
 @endsection
