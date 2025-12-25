@@ -277,11 +277,23 @@
                                 @if($profile->portfolio_files && count($portfolioFiles) > 0)
                                     <div class="mt-2">
                                         @foreach($portfolioFiles as $file)
-                                            <a href="{{ \App\Models\MediaUrl::fromPath($file) }}"
+                                            @php
+                                                $filePath = null;
+                                                if (is_string($file)) {
+                                                    $filePath = $file;
+                                                } elseif (is_array($file)) {
+                                                    $filePath = $file['path'] ?? $file['file_path'] ?? null;
+                                                } elseif (is_object($file)) {
+                                                    $filePath = $file->path ?? $file->file_path ?? null;
+                                                }
+                                            @endphp
+                                            @if(!empty($filePath))
+                                            <a href="{{ \App\Models\MediaUrl::fromPath($filePath) }}"
                                                target="_blank"
                                                class="btn btn-sm btn-outline-warning w-100 mb-1">
                                                 <i class="fas fa-external-link-alt me-2"></i>Voir fichier {{ $loop->iteration }}
                                             </a>
+                                            @endif
                                         @endforeach
                                     </div>
                                 @endif
