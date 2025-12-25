@@ -24,10 +24,16 @@ body {
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem 0;
     position: fixed;
+    top: 0;
+    left: 0;
     height: 100vh;
     overflow-y: auto;
     z-index: 1000;
     transition: transform 0.3s ease;
+}
+
+body.sidebar-open {
+    overflow: hidden;
 }
 
 /* Overlay mobile (injecté depuis le layout) */
@@ -349,6 +355,7 @@ body {
 @media (max-width: 1024px) {
     .admin-sidebar {
         transform: translateX(-100%);
+        max-width: 85vw;
     }
 
     body.sidebar-open .admin-sidebar {
