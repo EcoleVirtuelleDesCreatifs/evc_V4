@@ -58,6 +58,7 @@
                             <th>Montant</th>
                             <th>Moyen</th>
                             <th>Statut</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -81,10 +82,15 @@
                                     @endphp
                                     <span class="badge bg-{{ $badge }}">{{ $donation->status }}</span>
                                 </td>
+                                <td>
+                                    <a href="{{ route('admin.donations.show', $donation->id) }}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-eye me-1"></i>Voir
+                                    </a>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-white-50 py-4">Aucun don enregistré pour le moment.</td>
+                                <td colspan="8" class="text-center text-white-50 py-4">Aucun don enregistré pour le moment.</td>
                             </tr>
                         @endforelse
                     </tbody>

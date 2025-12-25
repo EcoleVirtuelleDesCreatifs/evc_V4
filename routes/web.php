@@ -729,6 +729,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
 
         Route::get('/dons', [DonationAdminController::class, 'index'])->name('donations.index');
+        Route::get('/dons/{id}', [DonationAdminController::class, 'show'])->whereNumber('id')->name('donations.show');
 
         // Dernières connexions étudiants (liste paginée)
         Route::get('/connexions', [AdminDashboardController::class, 'connexions'])->name('connexions.index');

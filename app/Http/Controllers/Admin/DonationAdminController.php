@@ -32,4 +32,15 @@ class DonationAdminController extends Controller
 
         return view('admin.donations.index', compact('donations', 'stats'));
     }
+
+    public function show($id): View
+    {
+        if (session('admin_role') !== 'super_admin') {
+            abort(403);
+        }
+
+        $donation = Donation::query()->where('id', $id)->firstOrFail();
+
+        return view('admin.donations.show', compact('donation'));
+    }
 }
