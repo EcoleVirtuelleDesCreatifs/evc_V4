@@ -94,7 +94,7 @@
                                     }
                                 @endphp
                                 @if($hasFile)
-                                    <a href="{{ route($formationPrefix . '.bibliotheque.download', $featuredMedia->id) }}" class="instagram-btn">
+                                    <a href="{{ route($formationPrefix . '.bibliotheque.download', $featuredMedia->id) }}?inline=1" class="instagram-btn">
                                         <i class="fas fa-download me-2"></i>Télécharger
                                     </a>
                                 @endif
@@ -207,7 +207,7 @@
                                     }
                                 @endphp
                                 @if($hasFile)
-                                    <a href="{{ route($formationPrefix . '.bibliotheque.download', $item->id) }}"
+                                    <a href="{{ route($formationPrefix . '.bibliotheque.download', $item->id) }}?inline=1"
                                        class="instagram-btn w-100 mb-2">
                                         <i class="fas fa-download me-2"></i>
                                         Télécharger
