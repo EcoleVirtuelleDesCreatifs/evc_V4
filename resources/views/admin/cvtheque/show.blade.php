@@ -171,7 +171,18 @@
             </div>
 
             <!-- Compétences -->
-            @if($profile->skills && is_array(json_decode($profile->skills, true)))
+            @php
+                $skills = [];
+                if (!empty($profile->skills)) {
+                    if (is_array($profile->skills)) {
+                        $skills = $profile->skills;
+                    } elseif (is_string($profile->skills)) {
+                        $decoded = json_decode($profile->skills, true);
+                        $skills = is_array($decoded) ? $decoded : [];
+                    }
+                }
+            @endphp
+            @if(!empty($skills))
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">
@@ -180,7 +191,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex flex-wrap gap-2">
-                        @foreach(json_decode($profile->skills, true) as $skill)
+                        @foreach($skills as $skill)
                             <span class="badge badge-secondary badge-lg px-3 py-2">{{ $skill }}</span>
                         @endforeach
                     </div>
