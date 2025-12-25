@@ -3488,16 +3488,19 @@ class DashboardController extends Controller
             if ($pdfRelativePath !== '' && Storage::disk('public')->exists($pdfRelativePath)) {
                 $filePath = storage_path('app/public/' . $pdfRelativePath);
                 $safeTitle = trim((string) $document->title);
-                $fileName = ($safeTitle !== '' ? $safeTitle : 'document') . '.pdf';
-                if (request()->boolean('inline')) {
+                $extension = strtolower((string) pathinfo($pdfRelativePath, PATHINFO_EXTENSION));
+                $mime = (string) (Storage::disk('public')->mimeType($pdfRelativePath) ?? 'application/octet-stream');
+                $fileName = ($safeTitle !== '' ? $safeTitle : 'document') . ($extension !== '' ? ('.' . $extension) : '');
+
+                if ($extension === 'pdf' && request()->boolean('inline')) {
                     return response()->file($filePath, [
-                        'Content-Type' => 'application/pdf',
+                        'Content-Type' => $mime,
                         'Content-Disposition' => 'inline; filename="' . addslashes($fileName) . '"',
                     ]);
                 }
 
                 return response()->download($filePath, $fileName, [
-                    'Content-Type' => 'application/pdf',
+                    'Content-Type' => $mime,
                 ]);
             }
         }
