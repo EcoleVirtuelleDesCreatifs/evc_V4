@@ -11,6 +11,7 @@ use App\Models\LibraryCategory;
 use App\Models\Formation;
 use App\Models\Library;
 use App\Models\AccountingTransaction;
+use App\Models\Donation;
 use App\Models\Project;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
@@ -93,6 +94,18 @@ class AdminDashboardController extends Controller
             ->where('status', 'completed')
             ->sum('amount');
 
+        // --- Statistiques Dons (formulaire public) ---
+        $donationsCount = 0;
+        $donationsTotalAmount = 0;
+        try {
+            if (Schema::hasTable('donations')) {
+                $donationsCount = Donation::count();
+                $donationsTotalAmount = Donation::whereNotNull('amount')->sum('amount');
+            }
+        } catch (\Throwable $e) {
+            Log::error('Erreur stats dons dashboard: ' . $e->getMessage());
+        }
+
         return view('admin.dashboard', compact(
             'studentHistory',
             'totalIncome',
@@ -106,7 +119,9 @@ class AdminDashboardController extends Controller
             'paymentsCount',
             'completedPaymentsCount',
             'pendingPaymentsCount',
-            'paymentsThisMonth'
+            'paymentsThisMonth',
+            'donationsCount',
+            'donationsTotalAmount'
         ));
     }
 

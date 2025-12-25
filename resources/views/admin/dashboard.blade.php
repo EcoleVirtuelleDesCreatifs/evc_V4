@@ -608,6 +608,20 @@
             </div>
         </div>
 
+        @if(session('admin_role') === 'super_admin')
+        <div class="stat-card" onclick="window.location='{{ route('admin.donations.index') }}'" style="cursor:pointer;">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);">
+                <i class="fas fa-hand-holding-heart"></i>
+            </div>
+            <div class="stat-number" data-target="{{ number_format($donationsCount ?? 0, 0, '', '') }}">0</div>
+            <div class="stat-label">Dons (demandes)</div>
+            <div class="stat-change positive">
+                <i class="fas fa-coins"></i>
+                <span>{{ number_format($donationsTotalAmount ?? 0, 0, ',', ' ') }} XOF déclarés</span>
+            </div>
+        </div>
+        @endif
+
         @if(session('admin_role') !== 'assistant')
         <!-- Statistiques Paiements -->
         <div class="stat-card">
@@ -657,6 +671,9 @@
                 </span>
                 Actions Rapides
             </h2>
+            <a href="{{ route('admin.statistics.all') }}" class="view-all-btn">
+                Voir tout <i class="fas fa-arrow-right ms-1"></i>
+            </a>
         </div>
 
         <div class="quick-actions-grid">
@@ -708,6 +725,15 @@
                 </div>
                 <div class="quick-action-label">Gérer Paiements</div>
             </a>
+
+            @if(session('admin_role') === 'super_admin')
+            <a href="{{ route('admin.donations.index') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+                <div class="quick-action-label">Gérer Dons</div>
+            </a>
+            @endif
         </div>
     </div>
 

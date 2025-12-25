@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Donation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -27,6 +28,21 @@ class DonationController extends Controller
         ]);
 
         $validated['currency'] = $validated['currency'] ?? 'XOF';
+
+        try {
+            Donation::create([
+                'full_name' => $validated['full_name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'] ?? null,
+                'amount' => $validated['amount'] ?? null,
+                'currency' => $validated['currency'] ?? 'XOF',
+                'payment_method' => $validated['payment_method'] ?? null,
+                'message' => $validated['message'] ?? null,
+                'status' => 'new',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Erreur enregistrement don en base: ' . $e->getMessage());
+        }
 
         // Email admin
         try {

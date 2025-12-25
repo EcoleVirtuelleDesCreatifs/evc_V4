@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminStatisticsController;
 use App\Http\Controllers\Admin\SimpleProjectController;
 use App\Http\Controllers\Admin\PreRegistrationAdminController;
 use App\Http\Controllers\Admin\CVThequeAdminController;
+use App\Http\Controllers\Admin\DonationAdminController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\Api\ProjectApiController;
@@ -726,6 +727,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
     Route::middleware('admin.auth')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/dons', [DonationAdminController::class, 'index'])->name('donations.index');
 
         // Dernières connexions étudiants (liste paginée)
         Route::get('/connexions', [AdminDashboardController::class, 'connexions'])->name('connexions.index');

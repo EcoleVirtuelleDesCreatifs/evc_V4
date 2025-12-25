@@ -359,6 +359,15 @@
                     </li>
                     @endif
 
+                    @if(session('admin_role') === 'super_admin')
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.donations.index') }}" class="admin-nav-link {{ request()->routeIs('admin.donations.*') ? 'active' : '' }}">
+                            <i class="fas fa-hand-holding-heart"></i>
+                            Dons
+                        </a>
+                    </li>
+                    @endif
+
                     @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
                     <!-- Gestion WebTV -->
                     <li class="admin-nav-item dropdown">
