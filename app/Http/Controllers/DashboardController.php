@@ -5075,6 +5075,9 @@ class DashboardController extends Controller
             'progression_globale' => 50,
             'tp_a_faire' => 10,
             'projets_actifs' => 4,
+            'projets_en_cours' => 4,
+            'eligible_certificat' => false,
+            'formation_semaine' => 'Administration Système',
         ];
 
         return view('dashboard.gestion-informatique', [

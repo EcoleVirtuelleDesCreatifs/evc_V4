@@ -45,12 +45,12 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold text-dark fs-5">{{ $stats['progression_globale'] }}%</div>
+                            <div class="fw-bold text-dark fs-5">{{ $stats['progression_globale'] ?? 0 }}%</div>
                             <div class="text-muted small">Progression Globale</div>
                         </div>
                     </div>
                     <div class="progress mt-3" style="height: 6px;">
-                        <div class="progress-bar" style="width: {{ $stats['progression_globale'] }}%; background: #6C5CE7;"></div>
+                        <div class="progress-bar" style="width: {{ $stats['progression_globale'] ?? 0 }}%; background: #6C5CE7;"></div>
                     </div>
                 </div>
             </div>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold text-dark fs-5">{{ $stats['tp_a_faire'] }}</div>
+                            <div class="fw-bold text-dark fs-5">{{ $stats['tp_a_faire'] ?? 0 }}</div>
                             <div class="text-muted small">Labs Système</div>
                         </div>
                     </div>
@@ -84,7 +84,7 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <div class="fw-bold text-dark fs-5">{{ $stats['projets_en_cours'] }}</div>
+                            <div class="fw-bold text-dark fs-5">{{ $stats['projets_en_cours'] ?? 0 }}</div>
                             <div class="text-muted small">Infra Projets</div>
                         </div>
                     </div>
@@ -103,7 +103,7 @@
                         </div>
                         <div class="flex-grow-1 ms-3">
                             <div class="fw-bold text-dark fs-5">
-                                @if($stats['eligible_certificat'])
+                                @if($stats['eligible_certificat'] ?? false)
                                     <span class="text-success">Éligible</span>
                                 @else
                                     <span class="text-warning">En cours</span>
@@ -191,7 +191,7 @@
                             <i class="fas fa-server"></i>
                         </div>
                         <div>
-                            <h6 class="mb-1">{{ $stats['formation_semaine'] }}</h6>
+                            <h6 class="mb-1">{{ $stats['formation_semaine'] ?? '' }}</h6>
                             <small class="text-muted">Configuration et maintenance des serveurs Windows/Linux</small>
                         </div>
                     </div>
