@@ -169,6 +169,13 @@
                         <i class="fas fa-tasks me-2"></i>Travaux & Projets
                     </li>
 
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.projets.design-graphique.to-send') }}" class="admin-nav-link {{ request()->routeIs('admin.projets.design-graphique.to-send') ? 'active' : '' }}">
+                            <i class="fas fa-paper-plane"></i>
+                            ENVOYER UN PROJET
+                        </a>
+                    </li>
+
                     <!-- Projets Design Graphique -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.projets.design-graphique.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#designGraphiqueMenu">
@@ -180,9 +187,6 @@
                             <ul class="admin-nav-submenu">
                                 <li><a href="{{ route('admin.projets.design-graphique.pending') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.pending') ? 'active' : '' }}">
                                     <i class="fas fa-clock"></i>À valider
-                                </a></li>
-                                <li><a href="{{ route('admin.projets.design-graphique.to-send') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.to-send') ? 'active' : '' }}">
-                                    <i class="fas fa-paper-plane"></i>À envoyer
                                 </a></li>
                                 <li><a href="{{ route('admin.studio-creative') }}" class="admin-nav-sublink">
                                     <i class="fas fa-external-link-alt"></i>Studio Creative

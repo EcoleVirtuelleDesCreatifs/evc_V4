@@ -921,6 +921,21 @@ function showDetails(tpId) {
 
         text = text.replace(/\r\n/g, '\n');
 
+        // Forcer des retours à la ligne pour les paires clé/valeur courantes
+        // Exemple: "Dimension : ...Mode : ..." => chaque clé sur sa ligne
+        const configKeys = [
+            'Dimension',
+            'Mode',
+            'Charte Graphique',
+            "Nombre d'Affiches",
+            'Nombre d’Affiches',
+        ];
+
+        configKeys.forEach((key) => {
+            const re = new RegExp('\\s*' + key.replace(/[-/\\^$*+?.()|[\\]{}]/g, '\\$&') + '\\s*:', 'gi');
+            text = text.replace(re, '\n' + key + ' :');
+        });
+
         const headings = [
             'CONTEXTE',
             'CONSIGNE',
