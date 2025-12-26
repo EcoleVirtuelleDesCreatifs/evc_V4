@@ -1350,7 +1350,7 @@
                                     $notifRoute = 'design-graphique.notifications.index';
                                 }
                             @endphp
-                            <a href="{{ route($notifRoute) }}" class="btn btn-sm" style="background: #0d6efd; border-color: #0d6efd; color: #fff;">Voir toutes les notifications</a>
+                            <a href="{{ \Illuminate\Support\Facades\Route::has($notifRoute) ? route($notifRoute) : route($dashboardRoute) }}" class="btn btn-sm" style="background: #0d6efd; border-color: #0d6efd; color: #fff;">Voir toutes les notifications</a>
                             <div class="small text-muted" id="notificationsFooter">Mise à jour…</div>
                         </div>
                     </div>
