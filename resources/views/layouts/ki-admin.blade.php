@@ -1214,7 +1214,7 @@
                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </div>
                 <div class="submenu {{ request()->routeIs($formationPrefix . '.tp.*') || request()->routeIs($formationPrefix . '.projets.*') || request()->routeIs($formationPrefix . '.todo.*') ? 'open' : '' }}">
-                    <a href="{{ route($formationPrefix . '.tp.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.tp.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.tp.index') ? route($formationPrefix . '.tp.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.tp.*') ? 'active' : '' }}">
                         <i class="fas fa-tasks"></i>
                         Travaux Pratiques
                     </a>
@@ -1222,7 +1222,7 @@
                         <i class="fas fa-external-link-alt"></i>
                         Studio Creative
                     </a>
-                    <a href="{{ route($formationPrefix . '.todo.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.todo.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.todo.index') ? route($formationPrefix . '.todo.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.todo.*') ? 'active' : '' }}">
                         <i class="fas fa-list-check"></i>
                         To Do List
                     </a>
@@ -1237,7 +1237,7 @@
             @endphp
             @if(!$isExpired)
             <div class="nav-item">
-                <a href="{{ route($formationPrefix . '.bibliotheque.index') }}" class="nav-link {{ request()->routeIs($formationPrefix . '.bibliotheque.*') ? 'active' : '' }}">
+                <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.bibliotheque.index') ? route($formationPrefix . '.bibliotheque.index') : route($dashboardRoute) }}" class="nav-link {{ request()->routeIs($formationPrefix . '.bibliotheque.*') ? 'active' : '' }}">
                     <i class="fas fa-book-open"></i>
                     <span>Bibliothèque</span>
                 </a>
@@ -1254,11 +1254,11 @@
                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </div>
                 <div class="submenu {{ request()->routeIs($formationPrefix . '.events.*') || request()->routeIs($formationPrefix . '.actualites.*') ? 'open' : '' }}">
-                    <a href="{{ route($formationPrefix . '.events.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.events.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.events.index') ? route($formationPrefix . '.events.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.events.*') ? 'active' : '' }}">
                         <i class="fas fa-calendar-alt"></i>
                         Événements
                     </a>
-                    <a href="{{ route($formationPrefix . '.actualites.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.actualites.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.actualites.index') ? route($formationPrefix . '.actualites.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.actualites.*') ? 'active' : '' }}">
                         <i class="fas fa-newspaper"></i>
                         Actualités
                     </a>
@@ -1275,15 +1275,15 @@
                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </div>
                 <div class="submenu {{ request()->routeIs($formationPrefix . '.parametres.*') || request()->routeIs($formationPrefix . '.documents.*') || request()->routeIs($formationPrefix . '.cvtheque.*') ? 'open' : '' }}">
-                    <a href="{{ route($formationPrefix . '.parametres.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.parametres.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.parametres.index') ? route($formationPrefix . '.parametres.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.parametres.*') ? 'active' : '' }}">
                         <i class="fas fa-cog"></i>
                         Paramètres
                     </a>
-                    <a href="{{ route($formationPrefix . '.documents.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.documents.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.documents.index') ? route($formationPrefix . '.documents.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.documents.*') ? 'active' : '' }}">
                         <i class="fas fa-file-alt"></i>
                         Mes rapports
                     </a>
-                    <a href="{{ route($formationPrefix . '.cvtheque.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.cvtheque.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.cvtheque.index') ? route($formationPrefix . '.cvtheque.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.cvtheque.*') ? 'active' : '' }}">
                         <i class="fas fa-briefcase"></i>
                         CVthèque
                     </a>
@@ -1295,7 +1295,7 @@
 
             <!-- Fin de Formation -->
             <div class="nav-item">
-                <a href="{{ route($formationPrefix . '.fin-formation.index') }}" class="nav-link {{ request()->routeIs($formationPrefix . '.fin-formation.*') ? 'active' : '' }}">
+                <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.fin-formation.index') ? route($formationPrefix . '.fin-formation.index') : route($dashboardRoute) }}" class="nav-link {{ request()->routeIs($formationPrefix . '.fin-formation.*') ? 'active' : '' }}">
                     <i class="fas fa-certificate"></i>
                     Fin de Formation
                 </a>
@@ -1431,23 +1431,23 @@
                             <i class="fas fa-chart-pie me-3"></i>
                             <span>Mon Espace Étudiant</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.profil.editer') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.profil.editer') ? route($formationPrefix . '.profil.editer') : route($dashboardRoute) }}">
                             <i class="fas fa-user-edit me-3"></i>
                             <span>Modifier mon Profil</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.cvtheque.index') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.cvtheque.index') ? route($formationPrefix . '.cvtheque.index') : route($dashboardRoute) }}">
                             <i class="fas fa-briefcase me-3"></i>
                             <span>Ma CVThèque</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.programme.index') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.programme.index') ? route($formationPrefix . '.programme.index') : route($dashboardRoute) }}">
                             <i class="fas fa-calendar-alt me-3"></i>
                             <span>Mon Programme</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.paiements.index') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.paiements.index') ? route($formationPrefix . '.paiements.index') : route($dashboardRoute) }}">
                             <i class="fas fa-credit-card me-3"></i>
                             <span>Mes Paiements</span>
                         </a></li>
-                        <li><a class="dropdown-item profile-menu-item" href="{{ route($formationPrefix . '.parametres.index') }}">
+                        <li><a class="dropdown-item profile-menu-item" href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.parametres.index') ? route($formationPrefix . '.parametres.index') : route($dashboardRoute) }}">
                             <i class="fas fa-cog me-3"></i>
                             <span>Paramètres</span>
                         </a></li>
