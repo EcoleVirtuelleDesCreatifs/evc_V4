@@ -1,17 +1,28 @@
 @extends('layouts.admin')
 
+@section('title', 'Éditer une Pré-inscription')
+
+@push('styles')
+<link href="{{ asset('css/admin/formation-create.css') }}?v={{ time() }}" rel="stylesheet" />
+@endpush
+
 @section('content')
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+<form method="POST" action="{{ route('admin.preinscriptions.update', $pre->id) }}" class="interactive-dashboard-form">
+    @csrf
+    @method('PUT')
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
         <div>
-            <h3 class="mb-1" style="font-weight: 800; color: #0f172a;">Éditer la candidature</h3>
-            <div class="text-muted">Modifier les informations de la pré-inscription.</div>
+            <h2 class="text-white mb-1" style="font-weight: 800;">
+                <i class="fas fa-edit me-2"></i>Éditer la candidature
+            </h2>
+            <div class="text-white-50">Modifier les informations de la pré-inscription.</div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="{{ route('admin.preinscriptions.show', $pre->id) }}" class="btn btn-outline-secondary" style="border-radius: 12px;">
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('admin.preinscriptions.show', $pre->id) }}" class="btn btn-light">
                 <i class="fas fa-eye me-2"></i>Voir
             </a>
-            <a href="{{ route('admin.preinscriptions.index') }}" class="btn btn-outline-primary" style="border-radius: 12px;">
+            <a href="{{ route('admin.preinscriptions.index') }}" class="btn btn-light">
                 <i class="fas fa-arrow-left me-2"></i>Retour
             </a>
         </div>
@@ -23,17 +34,14 @@
         </div>
     @endif
 
-    <div class="card border-0 shadow-sm" style="border-radius: 16px;">
-        <div class="card-header bg-white border-0 py-3" style="border-radius: 16px 16px 0 0;">
-            <h5 class="mb-0 d-flex align-items-center">
-                <i class="fas fa-edit me-2" style="color: #1e3c72;"></i>
-                Formulaire de modification
-            </h5>
-        </div>
-        <div class="card-body">
-            <form method="POST" action="{{ route('admin.preinscriptions.update', $pre->id) }}">
-                @csrf
-                @method('PUT')
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="form-card">
+                <div class="form-card-header">
+                    <i class="fas fa-edit"></i>
+                    <h3>Formulaire de modification</h3>
+                </div>
+                <div class="form-card-body">
 
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -184,14 +192,17 @@
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end gap-2 mt-4">
-                    <a href="{{ route('admin.preinscriptions.index') }}" class="btn btn-outline-secondary" style="border-radius: 12px;">Annuler</a>
-                    <button type="submit" class="btn btn-primary" style="border-radius: 12px;">
-                        <i class="fas fa-save me-2"></i>Enregistrer
-                    </button>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
+
+    <div class="form-footer mt-4 d-flex justify-content-between align-items-center">
+        <a href="{{ route('admin.preinscriptions.index') }}" class="btn btn-light"><i class="fas fa-arrow-left me-2"></i>Retour</a>
+        <div>
+            <a href="{{ route('admin.preinscriptions.index') }}" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Annuler</a>
+            <button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>Enregistrer</button>
+        </div>
+    </div>
+</form>
 @endsection
