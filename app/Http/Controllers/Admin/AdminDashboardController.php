@@ -4737,7 +4737,8 @@ class AdminDashboardController extends Controller
             'category' => 'required|string|max:100',
             'description' => 'required|string',
             'deadline' => 'required|date|after_or_equal:today',
-            'formation' => 'required|string',
+            'formation' => 'required|array',
+            'formation.*' => 'required|string',
             'tags' => 'nullable|string',
             'software_used' => 'nullable|string',
             'reference_link' => 'nullable|url',
@@ -4780,7 +4781,16 @@ class AdminDashboardController extends Controller
         // Déterminer les étudiants cibles
         $targetStudents = [];
 
-        if ($request->formation === 'all') {
+        $formations = $request->input('formation', []);
+        if (!is_array($formations)) {
+            $formations = [$formations];
+        }
+        $formations = array_values(array_filter($formations, function ($f) {
+            return is_string($f) && trim($f) !== '';
+        }));
+        $hasAll = in_array('all', $formations, true);
+
+        if ($hasAll) {
             // Tous les étudiants actifs
             $targetStudents = DB::table('students')
                 ->where('status', 'active')
@@ -4790,35 +4800,33 @@ class AdminDashboardController extends Controller
             // Étudiants spécifiques sélectionnés
             $targetStudents = $request->students;
         } else {
-            // Tous les étudiants de la formation sélectionnée
-            // Gérer les différents formats de noms de formation
-            $formation = $request->formation;
+            // Tous les étudiants des formations sélectionnées
+            $selectedSpecificFormations = array_values(array_filter($formations, function ($f) {
+                return $f !== 'all';
+            }));
 
-            if ($formation === 'Sans formation') {
-                // Étudiants sans formation (program NULL ou vide)
-                $targetStudents = DB::table('students')
-                    ->where('status', 'active')
-                    ->where(function ($query) {
-                        $query->whereNull('program')
-                            ->orWhere('program', '');
-                    })
-                    ->pluck('id')
-                    ->toArray();
-            } else {
-                // Recherche flexible pour gérer les variations (minuscules, underscores, etc.)
-                $normalizedSearch = strtolower(str_replace([' ', '_', '-', '&'], '', $formation));
+            $wantsSansFormation = in_array('Sans formation', $selectedSpecificFormations, true);
+            $normalizedSearches = collect($selectedSpecificFormations)
+                ->reject(fn ($f) => $f === 'Sans formation')
+                ->map(function ($formation) {
+                    return strtolower(str_replace([' ', '_', '-', '&'], '', $formation));
+                })
+                ->unique()
+                ->values();
 
-                $targetStudents = DB::table('students')
-                    ->where('status', 'active')
-                    ->get()
-                    ->filter(function ($student) use ($normalizedSearch) {
-                        if (!$student->program) return false;
-                        $studentProgramNormalized = strtolower(str_replace([' ', '_', '-', '&'], '', $student->program));
-                        return $studentProgramNormalized === $normalizedSearch;
-                    })
-                    ->pluck('id')
-                    ->toArray();
-            }
+            $targetStudents = DB::table('students')
+                ->where('status', 'active')
+                ->get()
+                ->filter(function ($student) use ($normalizedSearches, $wantsSansFormation) {
+                    $program = $student->program;
+                    if (!$program || trim((string) $program) === '') {
+                        return $wantsSansFormation;
+                    }
+                    $studentProgramNormalized = strtolower(str_replace([' ', '_', '-', '&'], '', (string) $program));
+                    return $normalizedSearches->contains($studentProgramNormalized);
+                })
+                ->pluck('id')
+                ->toArray();
         }
 
         // Créer un projet pour chaque étudiant cible
@@ -4858,8 +4866,7 @@ class AdminDashboardController extends Controller
                             }
                         }
 
-                        $formationSlugFixed = $this->getFormationSlug($formation);
-                        $studentUrl = url("/evc/compte/{$formationSlugFixed}/projets");
+                        $studentUrl = url("/evc/compte/{$formationSlug}/projets");
 
                         $user->notify(new ProjectAssignedNotification([
                             'category' => 'project',

@@ -287,22 +287,36 @@
                                 </label>
                                 <select class="form-select @error('formation') is-invalid @enderror"
                                         id="formation"
-                                        name="formation"
+                                        name="formation[]"
+                                        multiple
+                                        size="6"
                                         required>
-                                    <option value="">-- Sélectionner --</option>
                                     <option value="all">📚 Toutes les formations</option>
-                                    <option value="Design Graphique" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Design Graphique' ? 'selected' : '' }}>🎨 Design Graphique ({{ $stats['design_graphique'] }})</option>
-                                    <option value="Design Graphique & Community Management" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Design Graphique & Community Management' ? 'selected' : '' }}>🎨📱 Design Graphique & Community Management ({{ $stats['design_graphique_cm'] ?? 0 }})</option>
-                                    <option value="Community Management" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Community Management' ? 'selected' : '' }}>📱 Community Management ({{ $stats['community_management'] }})</option>
-                                    <option value="Gestion Informatique" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Gestion Informatique' ? 'selected' : '' }}>💻 Gestion Informatique ({{ $stats['gestion_informatique'] }})</option>
-                                    <option value="Intelligence Artificielle" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Intelligence Artificielle' ? 'selected' : '' }}>🤖 Intelligence Artificielle ({{ $stats['intelligence_artificielle'] ?? 0 }})</option>
+                                    @php
+                                        $oldFormations = old('formation');
+                                        if (!is_array($oldFormations)) {
+                                            $oldFormations = $oldFormations ? [$oldFormations] : [];
+                                        }
+                                        if (empty($oldFormations) && !empty($defaultFormation)) {
+                                            $oldFormations = [$defaultFormation];
+                                        }
+                                    @endphp
+                                    <option value="Design Graphique" {{ in_array('Design Graphique', $oldFormations, true) ? 'selected' : '' }}>🎨 Design Graphique ({{ $stats['design_graphique'] }})</option>
+                                    <option value="Design Graphique & Community Management" {{ in_array('Design Graphique & Community Management', $oldFormations, true) ? 'selected' : '' }}>🎨📱 Design Graphique & Community Management ({{ $stats['design_graphique_cm'] ?? 0 }})</option>
+                                    <option value="Community Management" {{ in_array('Community Management', $oldFormations, true) ? 'selected' : '' }}>📱 Community Management ({{ $stats['community_management'] }})</option>
+                                    <option value="Gestion Informatique" {{ in_array('Gestion Informatique', $oldFormations, true) ? 'selected' : '' }}>💻 Gestion Informatique ({{ $stats['gestion_informatique'] }})</option>
+                                    <option value="Intelligence Artificielle" {{ in_array('Intelligence Artificielle', $oldFormations, true) ? 'selected' : '' }}>🤖 Intelligence Artificielle ({{ $stats['intelligence_artificielle'] ?? 0 }})</option>
                                     @if($stats['sans_formation'] > 0)
-                                        <option value="Sans formation" {{ (old('formation') ?? ($defaultFormation ?? null)) === 'Sans formation' ? 'selected' : '' }}>❓ Sans formation ({{ $stats['sans_formation'] }})</option>
+                                        <option value="Sans formation" {{ in_array('Sans formation', $oldFormations, true) ? 'selected' : '' }}>❓ Sans formation ({{ $stats['sans_formation'] }})</option>
                                     @endif
                                 </select>
                                 @error('formation')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Maintenez Ctrl/Cmd pour sélectionner plusieurs formations
+                                </small>
                             </div>
 
                             <!-- Sélection étudiants spécifiques -->
@@ -520,9 +534,18 @@ const stats = {
 };
 
 formationSelect.addEventListener('change', function() {
-    const selectedFormation = this.value;
+    const selectedFormations = Array.from(this.selectedOptions).map(o => o.value).filter(Boolean);
+    const hasAll = selectedFormations.includes('all');
+    const selectedSpecificFormations = selectedFormations.filter(v => v !== 'all');
 
-    if (selectedFormation && selectedFormation !== 'all') {
+    if (hasAll) {
+        studentsSelectContainer.style.display = 'none';
+        // Laisser les étudiants sélectionnés intacts uniquement si on repasse sur 'all'
+        recipientsCount.textContent = `Tous les étudiants (${stats['all']} étudiants)`;
+        return;
+    }
+
+    if (selectedSpecificFormations.length > 0) {
         // Afficher le sélecteur d'étudiants
         studentsSelectContainer.style.display = 'block';
 
@@ -530,7 +553,7 @@ formationSelect.addEventListener('change', function() {
         const options = studentsSelect.querySelectorAll('option');
         options.forEach(option => {
             const optionFormation = option.getAttribute('data-formation');
-            if (optionFormation === selectedFormation || !optionFormation) {
+            if (!optionFormation || selectedSpecificFormations.includes(optionFormation)) {
                 option.style.display = 'block';
             } else {
                 option.style.display = 'none';
@@ -539,9 +562,6 @@ formationSelect.addEventListener('change', function() {
         });
 
         updateRecipientsCount();
-    } else if (selectedFormation === 'all') {
-        studentsSelectContainer.style.display = 'none';
-        recipientsCount.textContent = `Tous les étudiants (${stats['all']} étudiants)`;
     } else {
         studentsSelectContainer.style.display = 'none';
         recipientsCount.textContent = 'Sélectionnez une formation';
@@ -557,14 +577,23 @@ if (formationSelect.value) {
 }
 
 function updateRecipientsCount() {
-    const selectedFormation = formationSelect.value;
+    const selectedFormations = Array.from(formationSelect.selectedOptions).map(o => o.value).filter(Boolean);
+    const hasAll = selectedFormations.includes('all');
+    const selectedSpecificFormations = selectedFormations.filter(v => v !== 'all');
     const selectedStudents = Array.from(studentsSelect.selectedOptions);
 
     if (selectedStudents.length > 0) {
         recipientsCount.textContent = `${selectedStudents.length} étudiant(s) sélectionné(s)`;
-    } else if (selectedFormation && selectedFormation !== 'all') {
-        const count = stats[selectedFormation] || 0;
-        recipientsCount.textContent = `Tous les étudiants de ${selectedFormation} (${count} étudiants)`;
+    } else if (hasAll) {
+        recipientsCount.textContent = `Tous les étudiants (${stats['all']} étudiants)`;
+    } else if (selectedSpecificFormations.length > 0) {
+        const total = selectedSpecificFormations.reduce((sum, f) => sum + (stats[f] || 0), 0);
+        if (selectedSpecificFormations.length === 1) {
+            const f = selectedSpecificFormations[0];
+            recipientsCount.textContent = `Tous les étudiants de ${f} (${stats[f] || 0} étudiants)`;
+        } else {
+            recipientsCount.textContent = `Étudiants des formations sélectionnées (${total} étudiants)`;
+        }
     }
 }
 
@@ -583,8 +612,8 @@ document.getElementById('sendProjectForm').addEventListener('submit', function(e
         return false;
     }
 
-    const formation = formationSelect.value;
-    if (!formation) {
+    const formations = Array.from(formationSelect.selectedOptions).map(o => o.value).filter(Boolean);
+    if (!formations.length) {
         e.preventDefault();
         alert('⚠️ Veuillez sélectionner une formation');
         formationSelect.focus();
@@ -597,11 +626,18 @@ document.getElementById('sendProjectForm').addEventListener('submit', function(e
 
     if (selectedStudents.length > 0) {
         message = `Envoyer ce projet à ${selectedStudents.length} étudiant(s) sélectionné(s) ?`;
-    } else if (formation === 'all') {
+    } else if (formations.includes('all')) {
         message = `Envoyer ce projet à TOUS les étudiants (${stats['all']} étudiants) ?`;
     } else {
-        const count = stats[formation] || 0;
-        message = `Envoyer ce projet à tous les étudiants de ${formation} (${count} étudiants) ?`;
+        const selectedSpecificFormations = formations.filter(v => v !== 'all');
+        const total = selectedSpecificFormations.reduce((sum, f) => sum + (stats[f] || 0), 0);
+        if (selectedSpecificFormations.length === 1) {
+            const f = selectedSpecificFormations[0];
+            const count = stats[f] || 0;
+            message = `Envoyer ce projet à tous les étudiants de ${f} (${count} étudiants) ?`;
+        } else {
+            message = `Envoyer ce projet aux formations sélectionnées (${total} étudiants) ?`;
+        }
     }
 
     if (!confirm(message)) {
