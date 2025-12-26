@@ -348,6 +348,46 @@
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.1); }
     }
+
+    .project-richtext {
+        color: rgba(255, 255, 255, 0.75);
+        line-height: 1.6;
+        word-break: break-word;
+    }
+
+    .project-richtext p {
+        margin: 0 0 0.75rem;
+    }
+
+    .project-richtext p:last-child {
+        margin-bottom: 0;
+    }
+
+    .project-richtext ul,
+    .project-richtext ol {
+        margin: 0.25rem 0 0.75rem 1.25rem;
+        padding: 0;
+    }
+
+    .project-richtext li {
+        margin: 0.25rem 0;
+    }
+
+    .project-richtext a {
+        color: #4fc3f7;
+        text-decoration: underline;
+    }
+
+    .project-richtext h1,
+    .project-richtext h2,
+    .project-richtext h3,
+    .project-richtext h4,
+    .project-richtext h5,
+    .project-richtext h6 {
+        color: rgba(255, 255, 255, 0.92);
+        margin: 0 0 0.75rem;
+        line-height: 1.25;
+    }
     </style>
 
     <!-- Projet Principal -->
@@ -401,7 +441,7 @@
                                         <i class="fas fa-align-left me-2"></i>Description
                                     </h5>
                                     <div class="p-3 rounded" style="background: rgba(255,255,255,0.1); border-left: 4px solid #007bff;">
-                                        <p class="text-white-50 mb-0">{{ $project->description }}</p>
+                                        <div class="project-richtext">{!! $project->description !!}</div>
                                     </div>
                                 </div>
                             @endif
