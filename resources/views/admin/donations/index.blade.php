@@ -86,6 +86,9 @@
                                     <a href="{{ route('admin.donations.show', $donation->id) }}" class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-eye me-1"></i>Voir
                                     </a>
+                                    <button class="btn btn-sm btn-outline-warning" onclick="sendDonationReminder({{ $donation->id }}, this)">
+                                        <i class="fas fa-envelope me-1"></i>Relance
+                                    </button>
                                 </td>
                             </tr>
                         @empty
@@ -104,3 +107,42 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function sendDonationReminder(donationId, btn) {
+    if (!confirm('Envoyer un email de relance à ce donateur ?')) {
+        return;
+    }
+
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Envoi...';
+
+    fetch(`{{ url('/evc/app/admin/dons') }}/${donationId}/send-reminder`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+
+        if (data.success) {
+            alert(data.message);
+        } else {
+            alert(data.message || "Erreur lors de l'envoi");
+        }
+    })
+    .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        alert('Erreur de connexion. Veuillez réessayer.');
+    });
+}
+</script>
+@endpush

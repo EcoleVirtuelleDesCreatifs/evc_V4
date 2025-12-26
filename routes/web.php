@@ -730,6 +730,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
 
         Route::get('/dons', [DonationAdminController::class, 'index'])->name('donations.index');
         Route::get('/dons/{id}', [DonationAdminController::class, 'show'])->whereNumber('id')->name('donations.show');
+        Route::post('/dons/{id}/send-reminder', [DonationAdminController::class, 'sendReminder'])->whereNumber('id')->name('donations.send-reminder');
 
         // Dernières connexions étudiants (liste paginée)
         Route::get('/connexions', [AdminDashboardController::class, 'connexions'])->name('connexions.index');
