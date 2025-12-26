@@ -3493,6 +3493,8 @@ class AdminDashboardController extends Controller
      */
     private function generateStudentsReport()
     {
+        $legacyInactiveStudents = 1509;
+
         $students = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->select(
@@ -3512,6 +3514,8 @@ class AdminDashboardController extends Controller
 
         return [
             'total_students' => $students->count(),
+            'legacy_inactive_students' => $legacyInactiveStudents,
+            'total_students_including_legacy' => $students->count() + $legacyInactiveStudents,
             'active_students' => $students->where('status', 'active')->count(),
             'by_formation' => $byFormation,
             'avg_tp_validated' => round($students->avg('tp_validated'), 2),

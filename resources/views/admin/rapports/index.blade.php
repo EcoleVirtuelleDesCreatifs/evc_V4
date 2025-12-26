@@ -453,7 +453,7 @@ function showReportModal(type, data) {
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="stat-box">
-                                <h3 class="text-primary">${data.total_students}</h3>
+                                <h3 class="text-primary">${data.total_students_including_legacy ?? data.total_students}</h3>
                                 <p class="mb-0">Total Étudiants</p>
                             </div>
                         </div>
@@ -461,6 +461,12 @@ function showReportModal(type, data) {
                             <div class="stat-box">
                                 <h3 class="text-success">${data.active_students}</h3>
                                 <p class="mb-0">Étudiants Actifs</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-box">
+                                <h3 class="text-warning">${data.legacy_inactive_students ?? 0}</h3>
+                                <p class="mb-0">Anciens formés (inactifs)</p>
                             </div>
                         </div>
                         <div class="col-md-6">
