@@ -151,39 +151,45 @@
                             <td class="text-nowrap">
                                 <div class="btn-group" role="group" aria-label="Actions">
                                     <a href="{{ route('admin.preinscriptions.payment', $pre->id) }}"
-                                       class="btn btn-sm btn-primary"
+                                       class="btn btn-sm btn-primary btn-icon"
                                        title="Gérer les paiements"
                                        aria-label="Paiement">
-                                        <i class="fas fa-coins"></i> Paiement
+                                        <i class="fas fa-coins"></i>
                                     </a>
                                     @if(!in_array($pre->status, ['accepted','Validé','Actif']))
                                         {{-- Bouton Accepter --}}
                                         <form action="{{ route('admin.preinscriptions.accept', $pre->id) }}" method="POST" class="d-inline" onsubmit="return confirm('✅ Accepter cette candidature ?\n\nLe candidat recevra un email avec le lien de paiement (50 000 FCFA).');">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-success" title="Accepter et envoyer lien paiement" aria-label="Accepter">
-                                                <i class="fas fa-check-circle"></i> Accepter
+                                            <button type="submit" class="btn btn-sm btn-success btn-icon" title="Accepter et envoyer lien paiement" aria-label="Accepter">
+                                                <i class="fas fa-check-circle"></i>
                                             </button>
                                         </form>
 
                                         {{-- Bouton Rejeter --}}
                                         <form action="{{ route('admin.preinscriptions.reject', $pre->id) }}" method="POST" class="d-inline" onsubmit="return confirm('❌ Rejeter cette candidature ?');">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Rejeter" aria-label="Rejeter">
-                                                <i class="fas fa-times-circle"></i> Rejeter
+                                            <button type="submit" class="btn btn-sm btn-danger btn-icon" title="Rejeter" aria-label="Rejeter">
+                                                <i class="fas fa-times-circle"></i>
                                             </button>
                                         </form>
                                     @endif
 
                                     {{-- Bouton Voir --}}
-                                    <a href="{{ route('admin.preinscriptions.show', $pre->id) }}" class="btn btn-sm btn-outline-secondary" title="Voir détails" aria-label="Voir">
-                                        <i class="fas fa-eye"></i> Voir
+                                    <a href="{{ route('admin.preinscriptions.show', $pre->id) }}" class="btn btn-sm btn-outline-secondary btn-icon" title="Voir détails" aria-label="Voir">
+                                        <i class="fas fa-eye"></i>
                                     </a>
+
+                                    @if(\Illuminate\Support\Facades\Route::has('admin.preinscriptions.edit'))
+                                        <a href="{{ route('admin.preinscriptions.edit', $pre->id) }}" class="btn btn-sm btn-outline-warning btn-icon" title="Éditer" aria-label="Éditer">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    @endif
 
                                     {{-- Bouton Supprimer --}}
                                     <form action="{{ route('admin.preinscriptions.destroy', $pre->id) }}" method="POST" onsubmit="return confirm('⚠️ Êtes-vous sûr de vouloir supprimer définitivement cette pré-inscription ?\n\nNom: {{ $pre->nom }} {{ $pre->prenom }}\nEmail: {{ $pre->email }}\n\nCette action est irréversible.');" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer définitivement" aria-label="Supprimer">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger btn-icon" title="Supprimer définitivement" aria-label="Supprimer">
                                             <i class="fas fa-trash-alt"></i>
                                         </button>
                                     </form>
@@ -228,6 +234,15 @@
     gap: 1rem;
     transition: transform 0.3s, box-shadow 0.3s;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .stat-card:hover {
