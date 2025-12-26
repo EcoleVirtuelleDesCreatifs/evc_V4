@@ -215,11 +215,32 @@ class StudentAdminController extends Controller
                 ->select('students.*');
             // NE PAS filtrer par statut - afficher actifs ET inactifs
 
-            // Filtrer par formation (program ou specialization)
-            $query->where(function($q) use ($keys) {
-                $q->whereIn('program', $keys)
-                  ->orWhereIn('specialization', $keys);
-            });
+            // Filtrer par formation
+            // - Cas standard : program OU specialization correspond à la formation
+            // - Cas DG+CM : certains profils peuvent avoir program=DG et specialization=CM (ou inversement)
+            if ($formation === 'design-graphique-community-manager') {
+                $dgKeys = $formationMap['design-graphique']['keys'];
+                $cmKeys = $formationMap['community-management']['keys'];
+                $dgcmKeys = $formationMap['design-graphique-community-manager']['keys'];
+
+                $query->where(function ($q) use ($dgKeys, $cmKeys, $dgcmKeys) {
+                    $q->whereIn('program', $dgcmKeys)
+                        ->orWhereIn('specialization', $dgcmKeys)
+                        ->orWhere(function ($q2) use ($dgKeys, $cmKeys) {
+                            $q2->whereIn('program', $dgKeys)
+                                ->whereIn('specialization', $cmKeys);
+                        })
+                        ->orWhere(function ($q2) use ($dgKeys, $cmKeys) {
+                            $q2->whereIn('program', $cmKeys)
+                                ->whereIn('specialization', $dgKeys);
+                        });
+                });
+            } else {
+                $query->where(function ($q) use ($keys) {
+                    $q->whereIn('program', $keys)
+                        ->orWhereIn('specialization', $keys);
+                });
+            }
 
             // Cas particulier: /admin/etudiants/design-graphique doit exclure DG+CM
             // (certains profils DG+CM ont une specialization "Design Graphique" et remontent sinon)
