@@ -93,18 +93,59 @@ class PreRegistrationAdminController extends Controller
             'domaine_etude' => 'nullable|string|max:191',
             'competences' => 'nullable|string',
             'choix_formation' => 'required|string|in:design_graphique,community_management,design_graphique_community_manager,gestion_informatique,intelligence_artificielle,design_cm,design_graphique_community_management',
-            'niveau_dans_formation' => 'nullable|string|max:191',
+            'niveau_dans_formation' => 'nullable|string|in:aucune_notion,quelques_notions,me_perfectionner,Aucune notion,Certaines notions,Monter en compétence',
             'programme' => 'nullable|string|max:191',
-            'how_known' => 'nullable|string|max:191',
+            'how_known' => 'nullable|string|in:reseaux,ami,publicite,autre,Réseaux sociaux,Reseaux sociaux,Ami,Publicité,Publicite,Autre',
             'has_computer' => 'nullable|boolean',
             'has_smartphone' => 'nullable|boolean',
-            'disponibilite' => 'nullable|string|max:191',
+            'disponibilite' => 'nullable|string|in:semaine_soir,weekend,flexible,Semaine (soir),Week-end,Weekend,Flexible',
             'motivation' => 'nullable|string',
             'status' => 'required|string|in:pending,en cours,accepted,Validé,Actif,rejected,Rejeté,En attente,paid',
         ]);
 
         $validated['has_computer'] = (bool) ($validated['has_computer'] ?? false);
         $validated['has_smartphone'] = (bool) ($validated['has_smartphone'] ?? false);
+
+        // Normaliser les valeurs legacy (évite les doublons et aligne avec /preinscription)
+        $niveauLegacyMap = [
+            'Aucune notion' => 'aucune_notion',
+            'Certaines notions' => 'quelques_notions',
+            'Monter en compétence' => 'me_perfectionner',
+        ];
+        if (!empty($validated['niveau_dans_formation']) && isset($niveauLegacyMap[$validated['niveau_dans_formation']])) {
+            $validated['niveau_dans_formation'] = $niveauLegacyMap[$validated['niveau_dans_formation']];
+        }
+
+        $howKnownLegacyMap = [
+            'Réseaux sociaux' => 'reseaux',
+            'Reseaux sociaux' => 'reseaux',
+            'Ami' => 'ami',
+            'Publicité' => 'publicite',
+            'Publicite' => 'publicite',
+            'Autre' => 'autre',
+        ];
+        if (!empty($validated['how_known']) && isset($howKnownLegacyMap[$validated['how_known']])) {
+            $validated['how_known'] = $howKnownLegacyMap[$validated['how_known']];
+        }
+
+        $disponibiliteLegacyMap = [
+            'Semaine (soir)' => 'semaine_soir',
+            'Week-end' => 'weekend',
+            'Weekend' => 'weekend',
+            'Flexible' => 'flexible',
+        ];
+        if (!empty($validated['disponibilite']) && isset($disponibiliteLegacyMap[$validated['disponibilite']])) {
+            $validated['disponibilite'] = $disponibiliteLegacyMap[$validated['disponibilite']];
+        }
+
+        $statusLegacyMap = [
+            'en cours' => 'pending',
+            'En cours' => 'pending',
+            'Rejeté' => 'rejected',
+        ];
+        if (!empty($validated['status']) && isset($statusLegacyMap[$validated['status']])) {
+            $validated['status'] = $statusLegacyMap[$validated['status']];
+        }
 
         $pre->update($validated);
 

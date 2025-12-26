@@ -147,13 +147,55 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Niveau dans la formation</label>
-                        <input type="text" name="niveau_dans_formation" value="{{ old('niveau_dans_formation', $pre->niveau_dans_formation) }}" class="form-control @error('niveau_dans_formation') is-invalid @enderror" />
+                        @php
+                            $niveauDansFormationValue = old('niveau_dans_formation', $pre->niveau_dans_formation);
+                            $niveauDansFormationOptions = [
+                                'aucune_notion' => 'Aucune notion',
+                                'quelques_notions' => 'Certaines notions',
+                                'me_perfectionner' => 'Monter en compétence',
+                            ];
+
+                            $niveauDansFormationLegacyMap = [
+                                'Aucune notion' => 'aucune_notion',
+                                'Certaines notions' => 'quelques_notions',
+                                'Monter en compétence' => 'me_perfectionner',
+                            ];
+
+                            $niveauDansFormationValue = $niveauDansFormationLegacyMap[$niveauDansFormationValue] ?? $niveauDansFormationValue;
+                        @endphp
+                        <select name="niveau_dans_formation" class="form-select @error('niveau_dans_formation') is-invalid @enderror">
+                            @foreach($niveauDansFormationOptions as $value => $label)
+                                <option value="{{ $value }}" @selected($niveauDansFormationValue===$value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
                         @error('niveau_dans_formation')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Comment avez-vous connu ?</label>
-                        <input type="text" name="how_known" value="{{ old('how_known', $pre->how_known) }}" class="form-control @error('how_known') is-invalid @enderror" />
+                        @php
+                            $howKnownValue = old('how_known', $pre->how_known);
+                            $howKnownOptions = [
+                                'reseaux' => 'Réseaux sociaux',
+                                'ami' => 'Ami',
+                                'publicite' => 'Publicité',
+                                'autre' => 'Autre',
+                            ];
+
+                            $howKnownLegacyMap = [
+                                'Réseaux sociaux' => 'reseaux',
+                                'Reseaux sociaux' => 'reseaux',
+                                'Publicité' => 'publicite',
+                                'Publicite' => 'publicite',
+                            ];
+
+                            $howKnownValue = $howKnownLegacyMap[$howKnownValue] ?? $howKnownValue;
+                        @endphp
+                        <select name="how_known" class="form-select @error('how_known') is-invalid @enderror">
+                            @foreach($howKnownOptions as $value => $label)
+                                <option value="{{ $value }}" @selected($howKnownValue===$value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
                         @error('how_known')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
@@ -161,17 +203,28 @@
                         <label class="form-label">Statut *</label>
                         @php
                             $statusValue = old('status', $pre->status);
+                            $statusOptions = [
+                                'pending' => 'En cours',
+                                'accepted' => 'Accepté',
+                                'Validé' => 'Validé',
+                                'Actif' => 'Actif',
+                                'rejected' => 'Rejeté',
+                                'En attente' => 'En attente',
+                                'paid' => 'Payé',
+                            ];
+
+                            $statusLegacyMap = [
+                                'en cours' => 'pending',
+                                'Rejeté' => 'rejected',
+                                'En cours' => 'pending',
+                            ];
+
+                            $statusValue = $statusLegacyMap[$statusValue] ?? $statusValue;
                         @endphp
                         <select name="status" class="form-select @error('status') is-invalid @enderror">
-                            <option value="pending" @selected($statusValue==='pending')>En cours</option>
-                            <option value="en cours" @selected($statusValue==='en cours')>En cours</option>
-                            <option value="accepted" @selected($statusValue==='accepted')>Accepté</option>
-                            <option value="Validé" @selected($statusValue==='Validé')>Validé</option>
-                            <option value="Actif" @selected($statusValue==='Actif')>Actif</option>
-                            <option value="rejected" @selected($statusValue==='rejected')>Rejeté</option>
-                            <option value="Rejeté" @selected($statusValue==='Rejeté')>Rejeté</option>
-                            <option value="En attente" @selected($statusValue==='En attente')>En attente</option>
-                            <option value="paid" @selected($statusValue==='paid')>Payé</option>
+                            @foreach($statusOptions as $value => $label)
+                                <option value="{{ $value }}" @selected($statusValue===$value)>{{ $label }}</option>
+                            @endforeach
                         </select>
                         @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
@@ -184,7 +237,28 @@
 
                     <div class="col-md-12">
                         <label class="form-label">Disponibilité</label>
-                        <input type="text" name="disponibilite" value="{{ old('disponibilite', $pre->disponibilite) }}" class="form-control @error('disponibilite') is-invalid @enderror" />
+                        @php
+                            $disponibiliteValue = old('disponibilite', $pre->disponibilite);
+                            $disponibiliteOptions = [
+                                'semaine_soir' => 'Semaine (soir)',
+                                'weekend' => 'Week-end',
+                                'flexible' => 'Flexible',
+                            ];
+
+                            $disponibiliteLegacyMap = [
+                                'Semaine (soir)' => 'semaine_soir',
+                                'Week-end' => 'weekend',
+                                'Weekend' => 'weekend',
+                                'Flexible' => 'flexible',
+                            ];
+
+                            $disponibiliteValue = $disponibiliteLegacyMap[$disponibiliteValue] ?? $disponibiliteValue;
+                        @endphp
+                        <select name="disponibilite" class="form-select @error('disponibilite') is-invalid @enderror">
+                            @foreach($disponibiliteOptions as $value => $label)
+                                <option value="{{ $value }}" @selected($disponibiliteValue===$value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
                         @error('disponibilite')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
