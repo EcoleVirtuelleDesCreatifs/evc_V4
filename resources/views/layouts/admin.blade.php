@@ -177,13 +177,17 @@
                     </li>
 
                     <!-- Projets Design Graphique -->
+                    @php
+                        $isDesignGraphiqueMenuActive = request()->routeIs('admin.projets.design-graphique.*')
+                            && !request()->routeIs('admin.projets.design-graphique.to-send');
+                    @endphp
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.projets.design-graphique.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#designGraphiqueMenu">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ $isDesignGraphiqueMenuActive ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#designGraphiqueMenu">
                             <i class="fas fa-palette"></i>
                             Projets Design Graphique
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse {{ request()->routeIs('admin.projets.design-graphique.*') ? 'show' : '' }}" id="designGraphiqueMenu">
+                        <div class="collapse {{ $isDesignGraphiqueMenuActive ? 'show' : '' }}" id="designGraphiqueMenu">
                             <ul class="admin-nav-submenu">
                                 <li><a href="{{ route('admin.projets.design-graphique.pending') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.pending') ? 'active' : '' }}">
                                     <i class="fas fa-clock"></i>À valider

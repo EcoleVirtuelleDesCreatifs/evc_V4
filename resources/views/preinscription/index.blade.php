@@ -550,23 +550,28 @@
                             <div style="font-size: 13px; line-height: 1.8;">
                                 <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
                                     <strong style="color: var(--primary);">Design Graphique</strong><br>
-                                    <span style="color: var(--text-secondary);">75.000 FCFA</span><br>
-                                    <small style="color: var(--text-secondary);">50.000F à l'inscription + 25.000F après 2 mois</small>
+                                    <span style="color: var(--text-secondary);">80.000 FCFA</span><br>
+                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
                                 </div>
                                 <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
                                     <strong style="color: var(--primary);">Community Management</strong><br>
                                     <span style="color: var(--text-secondary);">100.000 FCFA</span><br>
-                                    <small style="color: var(--text-secondary);">50.000F à l'inscription + 50.000F après 2 mois</small>
+                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
+                                </div>
+                                <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
+                                    <strong style="color: var(--primary);">Design Graphique &amp; Community Management</strong><br>
+                                    <span style="color: var(--text-secondary);">165.000 FCFA</span><br>
+                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
                                 </div>
                                 <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
                                     <strong style="color: var(--primary);">Gestion Informatique</strong><br>
                                     <span style="color: var(--text-secondary);">150.000 FCFA</span><br>
-                                    <small style="color: var(--text-secondary);">100.000F à l'inscription + 50.000F après 1 mois</small>
+                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
                                 </div>
                                 <div>
                                     <strong style="color: var(--primary);">Intelligence Artificielle</strong><br>
                                     <span style="color: var(--text-secondary);">55.000 FCFA</span><br>
-                                    <small style="color: var(--text-secondary);">Paiement en un seul coup</small>
+                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
                                 </div>
                             </div>
                         </div>
@@ -653,6 +658,27 @@
     </div>
 </div>
 
+<div id="programme-price-modal" class="loading-overlay" style="display:none; z-index: 99999;">
+    <div class="loader-container" style="max-width: 520px; width: calc(100% - 40px);">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap: 12px;">
+            <div style="font-weight: 800; font-size: 18px; color: var(--text-primary);">Confirmer la formation</div>
+            <button type="button" id="programme-price-close" aria-label="Fermer" style="background: transparent; border: 0; color: var(--text-secondary); font-size: 20px; line-height: 1; padding: 6px; cursor: pointer;">&times;</button>
+        </div>
+        <div style="margin-top: 14px; text-align: left;">
+            <div style="color: var(--text-secondary); font-size: 14px;">Formation sélectionnée</div>
+            <div id="programme-price-name" style="color: var(--text-primary); font-size: 18px; font-weight: 800; margin-top: 4px;"></div>
+
+            <div style="color: var(--text-secondary); font-size: 14px; margin-top: 14px;">Prix de la formation</div>
+            <div id="programme-price-amount" style="color: var(--primary); font-size: 26px; font-weight: 900; margin-top: 4px;"></div>
+
+            <div style="margin-top: 18px; display:flex; gap: 12px; justify-content:flex-end; flex-wrap: wrap;">
+                <button type="button" id="programme-price-cancel" style="padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: var(--text-primary); font-weight: 700;">Annuler</button>
+                <button type="button" id="programme-price-confirm" style="padding: 10px 14px; border-radius: 10px; border: 0; background: var(--primary-gradient); color: #111827; font-weight: 900;">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="loader-container">
@@ -669,7 +695,86 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('preinscriptionForm');
     const submitBtn = form ? form.querySelector('.submit-btn') : null;
     const loadingOverlay = document.getElementById('loadingOverlay');
-    
+
+    const programmeSelect = document.querySelector('select[name="programme"]');
+    const priceModal = document.getElementById('programme-price-modal');
+    const priceName = document.getElementById('programme-price-name');
+    const priceAmount = document.getElementById('programme-price-amount');
+    const closeBtn = document.getElementById('programme-price-close');
+    const cancelBtn = document.getElementById('programme-price-cancel');
+    const confirmBtn = document.getElementById('programme-price-confirm');
+
+    let lastProgrammeValue = programmeSelect ? (programmeSelect.value || '') : '';
+    let pendingProgrammeValue = '';
+
+    const prices = {
+        'design-graphique': { name: 'Design Graphique', amount: '80.000 FCFA' },
+        'community-manager': { name: 'Community Management', amount: '100.000 FCFA' },
+        'design-graphique-community-manager': { name: 'Design Graphique & Community Management', amount: '165.000 FCFA' },
+        'intelligence-artificielle': { name: 'Intelligence Artificielle', amount: '55.000 FCFA' },
+        'gestion-informatique': { name: 'Gestion Informatique', amount: '150.000 FCFA' },
+    };
+
+    const openPriceModal = (value) => {
+        if (!priceModal || !priceName || !priceAmount) return;
+        const entry = prices[value];
+        if (!entry) return;
+        pendingProgrammeValue = value;
+        priceName.textContent = entry.name;
+        priceAmount.textContent = entry.amount;
+        priceModal.style.display = 'flex';
+        priceModal.classList.add('active');
+    };
+
+    const closePriceModal = () => {
+        if (!priceModal) return;
+        priceModal.classList.remove('active');
+        priceModal.style.display = 'none';
+        pendingProgrammeValue = '';
+    };
+
+    const revertProgramme = () => {
+        if (!programmeSelect) return;
+        programmeSelect.value = lastProgrammeValue;
+    };
+
+    if (programmeSelect) {
+        programmeSelect.addEventListener('focus', () => {
+            lastProgrammeValue = programmeSelect.value || '';
+        });
+
+        programmeSelect.addEventListener('change', () => {
+            const v = programmeSelect.value || '';
+            if (!v) {
+                lastProgrammeValue = '';
+                return;
+            }
+            if (!prices[v]) {
+                lastProgrammeValue = v;
+                return;
+            }
+            openPriceModal(v);
+        });
+    }
+
+    if (closeBtn) closeBtn.addEventListener('click', () => { revertProgramme(); closePriceModal(); });
+    if (cancelBtn) cancelBtn.addEventListener('click', () => { revertProgramme(); closePriceModal(); });
+    if (confirmBtn) confirmBtn.addEventListener('click', () => {
+        if (pendingProgrammeValue) {
+            lastProgrammeValue = pendingProgrammeValue;
+        }
+        closePriceModal();
+    });
+
+    if (priceModal) {
+        priceModal.addEventListener('click', (e) => {
+            if (e.target === priceModal) {
+                revertProgramme();
+                closePriceModal();
+            }
+        });
+    }
+
     // Marquer les champs avec erreurs de validation
     @if($errors->any())
         const errorFields = @json($errors->keys());
@@ -686,7 +791,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
-        
+
         // Scroll vers la première erreur
         const firstError = document.querySelector('.form-control.error, .form-select.error');
         if (firstError) {
@@ -694,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function() {
             setTimeout(() => firstError.focus(), 500);
         }
     @endif
-    
+
     // Gestion du loader lors de la soumission
     if (form && submitBtn && loadingOverlay) {
         form.addEventListener('submit', function(e) {
