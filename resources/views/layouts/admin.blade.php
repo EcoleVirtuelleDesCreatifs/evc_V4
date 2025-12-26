@@ -213,9 +213,6 @@
                                 <li><a href="{{ route('admin.projets.cm-smm.pending') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.cm-smm.pending') ? 'active' : '' }}">
                                     <i class="fas fa-clock"></i>À valider
                                 </a></li>
-                                <li><a href="{{ route('admin.projets.cm-smm.to-send') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.cm-smm.to-send') ? 'active' : '' }}">
-                                    <i class="fas fa-paper-plane"></i>À envoyer
-                                </a></li>
                                 <li><a href="{{ route('admin.projets.cm-smm.all') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.cm-smm.all') ? 'active' : '' }}">
                                     <i class="fas fa-list"></i>Tous les projets
                                 </a></li>
@@ -234,9 +231,6 @@
                             <ul class="admin-nav-submenu">
                                 <li><a href="{{ route('admin.projets.design-cm.pending') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-cm.pending') ? 'active' : '' }}">
                                     <i class="fas fa-clock"></i>À valider
-                                </a></li>
-                                <li><a href="{{ route('admin.projets.design-cm.to-send') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-cm.to-send') ? 'active' : '' }}">
-                                    <i class="fas fa-paper-plane"></i>À envoyer
                                 </a></li>
                                 <li><a href="{{ route('admin.projets.design-cm.all') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-cm.all') ? 'active' : '' }}">
                                     <i class="fas fa-list"></i>Tous les projets
