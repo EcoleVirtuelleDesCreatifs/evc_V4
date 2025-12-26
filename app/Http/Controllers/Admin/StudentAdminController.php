@@ -255,6 +255,14 @@ class StudentAdminController extends Controller
                     $q->whereNull('specialization')->orWhereNotIn('specialization', $dgcmKeys);
                 });
 
+                // Exclure aussi les profils Community Management (évite qu'un CM avec un champ DG remonte ici)
+                $query->where(function ($q) use ($cmKeys) {
+                    $q->whereNull('program')->orWhereNotIn('program', $cmKeys);
+                });
+                $query->where(function ($q) use ($cmKeys) {
+                    $q->whereNull('specialization')->orWhereNotIn('specialization', $cmKeys);
+                });
+
                 // Exclure aussi les profils DG+CM stockés sous forme de combinaison
                 $query->where(function ($q) use ($dgKeys, $cmKeys) {
                     $q->whereNot(function ($q2) use ($dgKeys, $cmKeys) {
