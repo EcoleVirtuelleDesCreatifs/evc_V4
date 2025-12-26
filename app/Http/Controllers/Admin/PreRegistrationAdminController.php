@@ -69,6 +69,49 @@ class PreRegistrationAdminController extends Controller
         return view('admin.preregistrations.show', compact('pre'));
     }
 
+    public function edit($id)
+    {
+        $pre = PreRegistration::findOrFail($id);
+        return view('admin.preregistrations.edit', compact('pre'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $pre = PreRegistration::findOrFail($id);
+
+        $validated = $request->validate([
+            'nom' => 'required|string|max:191',
+            'prenom' => 'required|string|max:191',
+            'email' => 'required|email|max:191',
+            'whatsapp' => 'nullable|string|max:50',
+            'age' => 'nullable|integer|min:1|max:120',
+            'sexe' => 'nullable|string|max:50',
+            'nationalite' => 'nullable|string|max:191',
+            'ville' => 'nullable|string|max:191',
+            'pays' => 'nullable|string|max:191',
+            'niveau_etude' => 'nullable|string|max:191',
+            'domaine_etude' => 'nullable|string|max:191',
+            'competences' => 'nullable|string',
+            'choix_formation' => 'required|string|in:design_graphique,community_management,design_graphique_community_manager,gestion_informatique,intelligence_artificielle,design_cm,design_graphique_community_management',
+            'niveau_dans_formation' => 'nullable|string|max:191',
+            'programme' => 'nullable|string|max:191',
+            'how_known' => 'nullable|string|max:191',
+            'has_computer' => 'nullable|boolean',
+            'has_smartphone' => 'nullable|boolean',
+            'disponibilite' => 'nullable|string|max:191',
+            'motivation' => 'nullable|string',
+            'status' => 'required|string|in:pending,en cours,accepted,Validé,Actif,rejected,Rejeté,En attente,paid',
+        ]);
+
+        $validated['has_computer'] = (bool) ($validated['has_computer'] ?? false);
+        $validated['has_smartphone'] = (bool) ($validated['has_smartphone'] ?? false);
+
+        $pre->update($validated);
+
+        return redirect()->route('admin.preinscriptions.show', $pre->id)
+            ->with('success', '✅ Candidature mise à jour avec succès.');
+    }
+
     public function payment($id)
     {
         $pre = PreRegistration::findOrFail($id);

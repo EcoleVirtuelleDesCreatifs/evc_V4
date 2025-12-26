@@ -838,6 +838,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/preinscriptions', [PreRegistrationAdminController::class, 'index'])->name('preinscriptions.index');
         Route::get('/preinscriptions/export', [PreRegistrationAdminController::class, 'export'])->name('preinscriptions.export');
         Route::get('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'show'])->name('preinscriptions.show');
+        Route::get('/preinscriptions/{id}/edit', [PreRegistrationAdminController::class, 'edit'])->name('preinscriptions.edit');
+        Route::put('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'update'])->name('preinscriptions.update');
         Route::get('/preinscriptions/{id}/payment', [PreRegistrationAdminController::class, 'payment'])->name('preinscriptions.payment');
         Route::post('/preinscriptions/bulk-status', [PreRegistrationAdminController::class, 'bulkStatus'])->name('preinscriptions.bulk-status');
         Route::get('/preinscriptions/{id}/download-photo', [PreRegistrationAdminController::class, 'downloadPhoto'])->name('preinscriptions.download-photo');
