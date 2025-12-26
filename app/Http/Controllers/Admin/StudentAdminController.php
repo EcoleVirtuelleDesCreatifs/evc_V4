@@ -197,8 +197,8 @@ class StudentAdminController extends Controller
         // Map slug -> label et clés internes possibles
         $formationMap = [
             'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique', 'design_graphique', 'infographie', 'design-graphique']],
-            'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management', 'community_management', 'community-manager']],
-            'community-management' => ['label' => 'Community Management', 'keys' => ['Community Management', 'community_management', 'community-manager', 'community-management']],
+            'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management', 'Community Manager', 'community_management', 'community-manager', 'community manager']],
+            'community-management' => ['label' => 'Community Management', 'keys' => ['Community Management', 'Community Manager', 'community_management', 'community-manager', 'community-management', 'community manager']],
             'design-graphique-community-manager' => ['label' => 'Design Graphique & Community Manager', 'keys' => ['Design Graphique & Community Manager', 'Design Graphique & Community Management', 'design_graphique_community_manager', 'design_graphique_community_management', 'design-graphique-community-manager']],
             'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'keys' => ['Intelligence Artificielle', 'intelligence_artificielle', 'intelligence-artificielle']],
             'gestion-informatique' => ['label' => 'Gestion Informatique', 'keys' => ['Gestion Informatique', 'gestion_informatique', 'informatique', 'gestion-informatique']],
@@ -248,6 +248,11 @@ class StudentAdminController extends Controller
                 $dgcmKeys = $formationMap['design-graphique-community-manager']['keys'];
                 $dgKeys = $formationMap['design-graphique']['keys'];
                 $cmKeys = $formationMap['community-management']['keys'];
+
+                $cmKeysNormalized = array_values(array_unique(array_map(function ($v) {
+                    return strtolower(trim((string) $v));
+                }, $cmKeys)));
+
                 $query->where(function ($q) use ($dgcmKeys) {
                     $q->whereNull('program')->orWhereNotIn('program', $dgcmKeys);
                 });
@@ -256,11 +261,13 @@ class StudentAdminController extends Controller
                 });
 
                 // Exclure aussi les profils Community Management (évite qu'un CM avec un champ DG remonte ici)
-                $query->where(function ($q) use ($cmKeys) {
-                    $q->whereNull('program')->orWhereNotIn('program', $cmKeys);
+                $query->where(function ($q) use ($cmKeysNormalized) {
+                    $q->whereNull('program')
+                        ->orWhereNotIn(DB::raw('LOWER(TRIM(program))'), $cmKeysNormalized);
                 });
-                $query->where(function ($q) use ($cmKeys) {
-                    $q->whereNull('specialization')->orWhereNotIn('specialization', $cmKeys);
+                $query->where(function ($q) use ($cmKeysNormalized) {
+                    $q->whereNull('specialization')
+                        ->orWhereNotIn(DB::raw('LOWER(TRIM(specialization))'), $cmKeysNormalized);
                 });
 
                 // Exclure aussi les profils DG+CM stockés sous forme de combinaison
