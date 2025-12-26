@@ -53,13 +53,39 @@
     </script>
 @endpush
 
+@push('styles')
+<style>
+    .actualite-content img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .actualite-content iframe,
+    .actualite-content video {
+        max-width: 100%;
+    }
+
+    .actualite-content table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .actualite-content pre {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Hero Section avec Image de couverture -->
-<div class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-40 sm:pt-48 lg:pt-56 pb-12">
-    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+<div class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-28 sm:pt-40 lg:pt-56 pb-10 sm:pb-12">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-4xl">
             <!-- Breadcrumb -->
-            <nav class="flex mb-8" aria-label="Breadcrumb">
+            <nav class="flex mb-6 sm:mb-8" aria-label="Breadcrumb">
                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                     <li class="inline-flex items-center">
                         <a href="{{ route('homepage') }}" class="inline-flex items-center text-sm font-medium text-gray-300 hover:text-orange-500">
@@ -92,7 +118,7 @@
             <div class="relative rounded-3xl overflow-hidden mb-8 shadow-2xl">
                 <img src="{{ $actualite->cover_image ? $actualite->cover_image_url : 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1600&q=80' }}"
                      alt="{{ $actualite->cover_image_alt ?? $actualite->title }}"
-                     class="w-full h-[400px] object-cover">
+                     class="w-full h-56 sm:h-72 md:h-[400px] object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
             </div>
 
@@ -150,12 +176,12 @@
             </div>
 
             <!-- Titre -->
-            <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-5 sm:mb-6 leading-tight">
                 {{ $actualite->title }}
             </h1>
 
             <!-- Description courte -->
-            <p class="text-xl text-gray-300 mb-8 leading-relaxed">
+            <p class="text-base sm:text-lg md:text-xl text-gray-300 mb-7 sm:mb-8 leading-relaxed">
                 {{ $actualite->excerpt }}
             </p>
         </div>
@@ -163,17 +189,17 @@
 </div>
 
 <!-- Contenu principal -->
-<div class="bg-white py-16">
-    <div class="mx-auto max-w-4xl px-6 lg:px-8">
+<div class="bg-white py-10 sm:py-16">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <!-- Contenu complet -->
-        <div class="prose prose-lg max-w-none">
-            <div class="text-gray-800 leading-relaxed space-y-4">
+        <div class="prose prose-sm sm:prose-base lg:prose-lg max-w-none actualite-content">
+            <div class="text-gray-800 leading-relaxed space-y-4 break-words">
                 {!! $actualite->content !!}
             </div>
         </div>
 
         <!-- Section Partage sur les réseaux sociaux -->
-        <div class="mt-12 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
+        <div class="mt-10 sm:mt-12 p-5 sm:p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl border border-gray-200">
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div class="text-center sm:text-left">
                     <h3 class="text-lg font-bold text-gray-900 mb-1">Partager cet article</h3>
