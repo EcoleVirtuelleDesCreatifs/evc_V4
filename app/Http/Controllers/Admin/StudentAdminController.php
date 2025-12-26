@@ -236,10 +236,22 @@ class StudentAdminController extends Controller
                         });
                 });
             } else {
-                $query->where(function ($q) use ($keys) {
-                    $q->whereIn('program', $keys)
-                        ->orWhereIn('specialization', $keys);
-                });
+                // Cas spécial (DEMANDE MÉTIER): la page Design Graphique doit refléter le choix de formation
+                // fait à la pré-inscription. Or ce choix est sauvegardé dans students.program.
+                if ($formation === 'design-graphique') {
+                    $dgKeysNormalized = array_values(array_unique(array_map(function ($v) {
+                        return strtolower(trim((string) $v));
+                    }, $formationMap['design-graphique']['keys'])));
+
+                    $query->where(function ($q) use ($dgKeysNormalized) {
+                        $q->whereIn(DB::raw('LOWER(TRIM(program))'), $dgKeysNormalized);
+                    });
+                } else {
+                    $query->where(function ($q) use ($keys) {
+                        $q->whereIn('program', $keys)
+                            ->orWhereIn('specialization', $keys);
+                    });
+                }
             }
 
             // Cas particulier: /admin/etudiants/design-graphique doit exclure DG+CM
