@@ -5,6 +5,11 @@
 @push('styles')
 <link href="{{ asset('css/admin/formation-create.css') }}?v={{ time() }}" rel="stylesheet" />
 <style>
+    .interactive-dashboard-form .form-label,
+    .interactive-dashboard-form .form-group label {
+        color: var(--form-primary) !important;
+    }
+
     .interactive-dashboard-form select option {
         background: #0f172a;
         color: #e2e8f0;
