@@ -904,6 +904,55 @@ function showDetails(tpId) {
         return text;
     }
 
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    function formatDescription(raw) {
+        let text = toPlainText(raw);
+        if (!text) {
+            return '<span style="color:#64748b;">Aucune description.</span>';
+        }
+
+        text = text.replace(/\r\n/g, '\n');
+
+        const headings = [
+            'CONTEXTE',
+            'CONSIGNE',
+            'CONFIGURATION',
+            'OBJECTIF',
+            'OBJECTIFS',
+            'LIVRABLE',
+            'LIVRABLES',
+            'CONTRAINTES',
+        ];
+
+        const headingsRegex = new RegExp('(' + headings.join('|') + ')', 'gi');
+
+        // Insérer des retours avant les titres même s'ils sont collés au texte
+        text = text
+            .replace(headingsRegex, '\n\n$1\n')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
+
+        const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+        const htmlLines = lines.map((line) => {
+            const upper = line.toUpperCase();
+            if (headings.includes(upper)) {
+                return `<div style="margin: 0.25rem 0 0.5rem; font-weight: 900; letter-spacing: 0.04em; color: #0f172a;">${escapeHtml(upper)}</div>`;
+            }
+            return `<div style="margin: 0 0 0.6rem; color:#111827;">${escapeHtml(line)}</div>`;
+        });
+
+        return htmlLines.join('');
+    }
+
     const deadlineDate = new Date(tp.deadline).toLocaleDateString('fr-FR', {
         day: 'numeric',
         month: 'long',
@@ -973,7 +1022,7 @@ function showDetails(tpId) {
                 <i class="fas fa-align-left me-2"></i>Description
             </h4>
             <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; line-height: 1.8; color: #111827;">
-                ${toPlainText(tp.description).replace(/\n/g, '<br>')}
+                ${formatDescription(tp.description)}
             </div>
         </div>
     `;
