@@ -201,7 +201,7 @@
                     <div class="flex items-center justify-between mb-3">
                         <div>
                             <div class="text-sm text-gray-400">Tarif Total</div>
-                            <div class="text-2xl font-black text-white">75.000 <span class="text-sm">FCFA</span></div>
+                            <div class="text-2xl font-black text-white">80.000 <span class="text-sm">FCFA</span></div>
                         </div>
                         <div class="text-right">
                             <div class="text-sm text-gray-400">Durée</div>
@@ -210,7 +210,7 @@
                     </div>
                     <div class="pt-3 border-t border-slate-700">
                         <div class="text-xs text-gray-400 mb-1">Modalités de paiement :</div>
-                        <div class="text-sm text-gray-300">50.000F à l'inscription + 25.000F après 2 mois</div>
+                        <div class="text-sm text-gray-300">Paiement en une ou plusieurs tranches</div>
                     </div>
                 </div>
 
@@ -285,7 +285,7 @@
                     </div>
                     <div class="pt-3 border-t border-slate-700">
                         <div class="text-xs text-gray-400 mb-1">Modalités de paiement :</div>
-                        <div class="text-sm text-gray-300">50.000F à l'inscription + 50.000F après 2 mois</div>
+                        <div class="text-sm text-gray-300">Paiement en une ou plusieurs tranches</div>
                     </div>
                 </div>
 
@@ -356,7 +356,7 @@
                     </div>
                     <div class="pt-3 border-t border-slate-700">
                         <div class="text-xs text-gray-400 mb-1">Modalités de paiement :</div>
-                        <div class="text-sm text-gray-300">100.000F à l'inscription + 50.000F après 1 mois</div>
+                        <div class="text-sm text-gray-300">Paiement en une ou plusieurs tranches</div>
                     </div>
                 </div>
 
@@ -427,7 +427,7 @@
                     </div>
                     <div class="pt-3 border-t border-slate-700">
                         <div class="text-xs text-gray-400 mb-1">Modalités de paiement :</div>
-                        <div class="text-sm text-gray-300">Paiement en un seul coup</div>
+                        <div class="text-sm text-gray-300">Paiement en une ou plusieurs tranches</div>
                     </div>
                 </div>
 
