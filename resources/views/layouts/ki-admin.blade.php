@@ -1183,20 +1183,20 @@
                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </div>
                 <div class="submenu {{ request()->routeIs($formationPrefix . '.formations.*') || request()->routeIs($formationPrefix . '.programme.*') || request()->routeIs($formationPrefix . '.paiements.*') || request()->routeIs($formationPrefix . '.communaute.*') ? 'open' : '' }}">
-                    <a href="{{ route($formationPrefix . '.formations.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.formations.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.formations.index') ? route($formationPrefix . '.formations.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.formations.*') ? 'active' : '' }}">
                         <i class="fas fa-book-reader"></i>
                         Formation
                     </a>
-                    <a href="{{ route($formationPrefix . '.programme.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.programme.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.programme.index') ? route($formationPrefix . '.programme.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.programme.*') ? 'active' : '' }}">
                         <i class="fas fa-book"></i>
                         Programme
                     </a>
-                    <a href="{{ route($formationPrefix . '.paiements.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.paiements.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.paiements.index') ? route($formationPrefix . '.paiements.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.paiements.*') ? 'active' : '' }}">
                         <i class="fas fa-credit-card"></i>
                         Paiements
                     </a>
                     @if(!$isExpired)
-                    <a href="{{ route($formationPrefix . '.communaute.index') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.communaute.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.communaute.index') ? route($formationPrefix . '.communaute.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.communaute.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         Communauté
                     </a>
