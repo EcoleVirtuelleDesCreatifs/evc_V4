@@ -344,7 +344,7 @@
             <div class="report-icon-modern primary">
                 <i class="fas fa-users"></i>
             </div>
-            <h3 class="report-title-modern">Rapport Étudiants</h3>
+            <h3 class="report-title-modern">Rapport Étudiants EVC</h3>
             <p class="report-description-modern">
                 Statistiques complètes sur les étudiants inscrits et leur progression
             </p>
@@ -449,7 +449,7 @@ function showReportModal(type, data) {
         case 'students':
             content = `
                 <div class="report-details">
-                    <h4 class="text-white mb-3">📊 Rapport Étudiants</h4>
+                    <h4 class="text-white mb-3">📊 Rapport Étudiants EVC</h4>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="stat-box">
