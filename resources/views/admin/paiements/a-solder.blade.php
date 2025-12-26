@@ -77,6 +77,31 @@
         height: 100%;
         background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
     }
+
+    #paymentRecapModal.modal,
+    #paymentRecapModal .modal-dialog,
+    #paymentRecapModal .modal-content,
+    .modal-backdrop {
+        pointer-events: auto !important;
+    }
+
+    #paymentRecapModal {
+        z-index: 2000;
+    }
+
+    .modal-backdrop {
+        z-index: 1999;
+    }
+
+    .action-icon-btn {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        padding: 0;
+    }
 </style>
 @endpush
 
@@ -155,7 +180,7 @@
                             <td>
                                 <button
                                     type="button"
-                                    class="btn btn-sm btn-secondary me-1"
+                                    class="btn btn-sm btn-secondary me-1 action-icon-btn"
                                     data-bs-toggle="modal"
                                     data-bs-target="#paymentRecapModal"
                                     data-student-name="{{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')) }}"
@@ -164,16 +189,19 @@
                                     data-total-amount="{{ (int) ($student->total_amount ?? 0) }}"
                                     data-amount-paid="{{ (int) ($student->amount_paid ?? 0) }}"
                                     data-remaining="{{ (int) ($student->remaining ?? 0) }}"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Voir le récap"
                                 >
-                                    <i class="fas fa-eye me-1"></i>Voir
+                                    <i class="fas fa-eye"></i>
                                 </button>
                                 @if(!empty($student->pre_registration_id))
-                                    <a href="{{ route('admin.paiements.a-solder.edit-restant', $student->pre_registration_id) }}" class="btn btn-sm btn-info">
-                                        <i class="fas fa-edit me-1"></i>Modifier reste
+                                    <a href="{{ route('admin.paiements.a-solder.edit-restant', $student->pre_registration_id) }}" class="btn btn-sm btn-info action-icon-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier le reste">
+                                        <i class="fas fa-pen"></i>
                                     </a>
                                 @else
-                                    <button class="btn btn-sm btn-secondary" disabled>
-                                        <i class="fas fa-ban me-1"></i>Indisponible
+                                    <button class="btn btn-sm btn-secondary action-icon-btn" disabled data-bs-toggle="tooltip" data-bs-placement="top" title="Indisponible">
+                                        <i class="fas fa-ban"></i>
                                     </button>
                                 @endif
                             </td>
@@ -194,7 +222,7 @@
 </div>
 
 <!-- Modal Récap Paiement -->
-<div class="modal fade" id="paymentRecapModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="paymentRecapModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="true" data-bs-keyboard="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="background: #0f172a; border: 1px solid #334155; border-radius: 16px; color: #fff;">
             <div class="modal-header" style="border-bottom: 1px solid #334155;">
@@ -252,6 +280,15 @@
 document.addEventListener('DOMContentLoaded', function () {
     const modalEl = document.getElementById('paymentRecapModal');
     if (!modalEl) return;
+
+    try {
+        const triggers = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        triggers.forEach(function (el) {
+            new bootstrap.Tooltip(el);
+        });
+    } catch (e) {
+        // ignore
+    }
 
     const formatFcfa = (value) => {
         try {
