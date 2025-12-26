@@ -71,7 +71,6 @@
                             <th>#</th>
                             <th>Nom Complet</th>
                             <th>Formation</th>
-                            <th>Email</th>
                             <th class="text-center">TP</th>
                             <th class="text-center">Projets</th>
                             <th class="text-center">Rapport</th>
@@ -109,9 +108,6 @@
                                     @else
                                         <span class="badge bg-secondary">{{ $student->program ?? 'N/A' }}</span>
                                     @endif
-                                </td>
-                                <td>
-                                    <small>{{ $student->email ?? 'N/A' }}</small>
                                 </td>
                                 <td class="text-center">
                                     @if($item['tp_eligible'])
