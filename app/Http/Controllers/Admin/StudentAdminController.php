@@ -219,21 +219,16 @@ class StudentAdminController extends Controller
             // - Cas standard : program OU specialization correspond à la formation
             // - Cas DG+CM : certains profils peuvent avoir program=DG et specialization=CM (ou inversement)
             if ($formation === 'design-graphique-community-manager') {
-                $dgKeys = $formationMap['design-graphique']['keys'];
-                $cmKeys = $formationMap['community-management']['keys'];
                 $dgcmKeys = $formationMap['design-graphique-community-manager']['keys'];
 
-                $query->where(function ($q) use ($dgKeys, $cmKeys, $dgcmKeys) {
-                    $q->whereIn('program', $dgcmKeys)
-                        ->orWhereIn('specialization', $dgcmKeys)
-                        ->orWhere(function ($q2) use ($dgKeys, $cmKeys) {
-                            $q2->whereIn('program', $dgKeys)
-                                ->whereIn('specialization', $cmKeys);
-                        })
-                        ->orWhere(function ($q2) use ($dgKeys, $cmKeys) {
-                            $q2->whereIn('program', $cmKeys)
-                                ->whereIn('specialization', $dgKeys);
-                        });
+                // DEMANDE MÉTIER: la liste DG+CM doit refléter le choix de formation fait à la pré-inscription.
+                // Ce choix est sauvegardé dans students.program.
+                $dgcmKeysNormalized = array_values(array_unique(array_map(function ($v) {
+                    return strtolower(trim((string) $v));
+                }, $dgcmKeys)));
+
+                $query->where(function ($q) use ($dgcmKeysNormalized) {
+                    $q->whereIn(DB::raw('LOWER(TRIM(program))'), $dgcmKeysNormalized);
                 });
             } else {
                 // Cas spécial (DEMANDE MÉTIER): la page Design Graphique doit refléter le choix de formation
