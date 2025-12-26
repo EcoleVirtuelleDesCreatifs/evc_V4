@@ -196,12 +196,12 @@ class StudentAdminController extends Controller
     {
         // Map slug -> label et clés internes possibles
         $formationMap = [
-            'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique','design_graphique','infographie','design-graphique']],
-            'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager']],
-            'community-management' => ['label' => 'Community Management', 'keys' => ['Community Management','community_management','community-manager','community-management']],
-            'design-graphique-community-manager' => ['label' => 'Design Graphique & Community Manager', 'keys' => ['Design Graphique & Community Manager','Design Graphique & Community Management','design_graphique_community_manager','design_graphique_community_management','design-graphique-community-manager']],
-            'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'keys' => ['Intelligence Artificielle','intelligence_artificielle','intelligence-artificielle']],
-            'gestion-informatique' => ['label' => 'Gestion Informatique', 'keys' => ['Gestion Informatique','gestion_informatique','informatique','gestion-informatique']],
+            'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique', 'design_graphique', 'infographie', 'design-graphique']],
+            'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management', 'community_management', 'community-manager']],
+            'community-management' => ['label' => 'Community Management', 'keys' => ['Community Management', 'community_management', 'community-manager', 'community-management']],
+            'design-graphique-community-manager' => ['label' => 'Design Graphique & Community Manager', 'keys' => ['Design Graphique & Community Manager', 'Design Graphique & Community Management', 'design_graphique_community_manager', 'design_graphique_community_management', 'design-graphique-community-manager']],
+            'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'keys' => ['Intelligence Artificielle', 'intelligence_artificielle', 'intelligence-artificielle']],
+            'gestion-informatique' => ['label' => 'Gestion Informatique', 'keys' => ['Gestion Informatique', 'gestion_informatique', 'informatique', 'gestion-informatique']],
         ];
         abort_unless(isset($formationMap[$formation]), 404);
 
@@ -246,18 +246,31 @@ class StudentAdminController extends Controller
             // (certains profils DG+CM ont une specialization "Design Graphique" et remontent sinon)
             if ($formation === 'design-graphique') {
                 $dgcmKeys = $formationMap['design-graphique-community-manager']['keys'];
+                $dgKeys = $formationMap['design-graphique']['keys'];
+                $cmKeys = $formationMap['community-management']['keys'];
                 $query->where(function ($q) use ($dgcmKeys) {
                     $q->whereNull('program')->orWhereNotIn('program', $dgcmKeys);
                 });
                 $query->where(function ($q) use ($dgcmKeys) {
                     $q->whereNull('specialization')->orWhereNotIn('specialization', $dgcmKeys);
                 });
+
+                // Exclure aussi les profils DG+CM stockés sous forme de combinaison
+                $query->where(function ($q) use ($dgKeys, $cmKeys) {
+                    $q->whereNot(function ($q2) use ($dgKeys, $cmKeys) {
+                        $q2->whereIn('program', $dgKeys)
+                            ->whereIn('specialization', $cmKeys);
+                    })->whereNot(function ($q2) use ($dgKeys, $cmKeys) {
+                        $q2->whereIn('program', $cmKeys)
+                            ->whereIn('specialization', $dgKeys);
+                    });
+                });
             }
 
             // Trier par statut (actifs d'abord) puis par id
             $students = $query->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
-                             ->orderBy('id','desc')
-                             ->get();
+                ->orderBy('id', 'desc')
+                ->get();
         }
 
         // Récupérer les user_id depuis users via email pour les TPs
@@ -282,7 +295,7 @@ class StudentAdminController extends Controller
         }
 
         // Formatter pour la vue existante
-        $rows = $students->map(function($s) use ($tpCounts, $userIds) {
+        $rows = $students->map(function ($s) use ($tpCounts, $userIds) {
             // Récupérer le user_id correspondant
             $userId = $userIds[$s->email] ?? null;
             $tpCount = $userId ? ($tpCounts[$userId] ?? 0) : 0;
@@ -332,9 +345,11 @@ class StudentAdminController extends Controller
                     $photoUrl = $s->profile_photo;
                 }
                 // Vérifier si c'est un chemin relatif
-                elseif (str_starts_with($s->profile_photo, 'uploads/') ||
-                        str_starts_with($s->profile_photo, 'photos_preregistrations/') ||
-                        str_starts_with($s->profile_photo, 'photos/')) {
+                elseif (
+                    str_starts_with($s->profile_photo, 'uploads/') ||
+                    str_starts_with($s->profile_photo, 'photos_preregistrations/') ||
+                    str_starts_with($s->profile_photo, 'photos/')
+                ) {
                     // Essayer d'abord storage/app/public/
                     $storagePath = storage_path('app/public/' . $s->profile_photo);
                     if (file_exists($storagePath)) {
@@ -752,8 +767,8 @@ class StudentAdminController extends Controller
     public function edit(int $id)
     {
         $cols = Schema::getColumnListing('users');
-        $select = ['id','email','created_at'];
-        foreach (['first_name','last_name','name','phone','city','country','ville','pays','formation_souhaitee','choix_formation','profile_photo'] as $c) {
+        $select = ['id', 'email', 'created_at'];
+        foreach (['first_name', 'last_name', 'name', 'phone', 'city', 'country', 'ville', 'pays', 'formation_souhaitee', 'choix_formation', 'profile_photo'] as $c) {
             if (in_array($c, $cols, true)) $select[] = $c;
         }
         $u = DB::table('users')->select($select)->where('id', $id)->first();
@@ -771,18 +786,18 @@ class StudentAdminController extends Controller
 
         if ($studentRecord && !empty($studentRecord->first_name)) {
             $prenom = $studentRecord->first_name;
-        } elseif (property_exists($u,'first_name') && !empty($u->first_name)) {
+        } elseif (property_exists($u, 'first_name') && !empty($u->first_name)) {
             $prenom = $u->first_name;
         }
 
         if ($studentRecord && !empty($studentRecord->last_name)) {
             $nom = $studentRecord->last_name;
-        } elseif (property_exists($u,'last_name') && !empty($u->last_name)) {
+        } elseif (property_exists($u, 'last_name') && !empty($u->last_name)) {
             $nom = $u->last_name;
         }
 
         // Si toujours vide, essayer de split le name
-        if ((!$prenom || !$nom) && property_exists($u,'name') && !empty($u->name)) {
+        if ((!$prenom || !$nom) && property_exists($u, 'name') && !empty($u->name)) {
             $parts = preg_split('/\s+/', (string)$u->name, 2);
             $prenom = $prenom ?: ($parts[0] ?? '');
             $nom = $nom ?: ($parts[1] ?? '');
@@ -792,9 +807,9 @@ class StudentAdminController extends Controller
         $ville = '';
         if ($studentRecord && !empty($studentRecord->city)) {
             $ville = $studentRecord->city;
-        } elseif (property_exists($u,'city') && !empty($u->city)) {
+        } elseif (property_exists($u, 'city') && !empty($u->city)) {
             $ville = $u->city;
-        } elseif (property_exists($u,'ville') && !empty($u->ville)) {
+        } elseif (property_exists($u, 'ville') && !empty($u->ville)) {
             $ville = $u->ville;
         }
 
@@ -802,9 +817,9 @@ class StudentAdminController extends Controller
         $pays = '';
         if ($studentRecord && !empty($studentRecord->country)) {
             $pays = $studentRecord->country;
-        } elseif (property_exists($u,'country') && !empty($u->country)) {
+        } elseif (property_exists($u, 'country') && !empty($u->country)) {
             $pays = $u->country;
-        } elseif (property_exists($u,'pays') && !empty($u->pays)) {
+        } elseif (property_exists($u, 'pays') && !empty($u->pays)) {
             $pays = $u->pays;
         }
 
@@ -812,15 +827,15 @@ class StudentAdminController extends Controller
         $phone = '';
         if ($studentRecord && !empty($studentRecord->phone)) {
             $phone = $studentRecord->phone;
-        } elseif (property_exists($u,'phone') && !empty($u->phone)) {
+        } elseif (property_exists($u, 'phone') && !empty($u->phone)) {
             $phone = $u->phone;
         }
 
         // Récupérer la formation depuis users ou students
         $formationKey = '';
-        if (property_exists($u,'formation_souhaitee') && !empty($u->formation_souhaitee)) {
+        if (property_exists($u, 'formation_souhaitee') && !empty($u->formation_souhaitee)) {
             $formationKey = (string)$u->formation_souhaitee;
-        } elseif (property_exists($u,'choix_formation') && !empty($u->choix_formation)) {
+        } elseif (property_exists($u, 'choix_formation') && !empty($u->choix_formation)) {
             $formationKey = (string)$u->choix_formation;
         } elseif ($studentRecord && !empty($studentRecord->program)) {
             $formationKey = $studentRecord->program;
@@ -953,9 +968,9 @@ class StudentAdminController extends Controller
                         'studentName' => $student->first_name . ' ' . $student->last_name,
                         'reason' => $reason,
                         'date' => now()->format('d/m/Y à H:i')
-                    ], function($message) use ($student) {
+                    ], function ($message) use ($student) {
                         $message->to($student->email)
-                                ->subject('⚠️ Votre compte EVC a été désactivé');
+                            ->subject('⚠️ Votre compte EVC a été désactivé');
                     });
                 } catch (\Exception $e) {
                     Log::error('Erreur envoi email désactivation: ' . $e->getMessage());
@@ -967,9 +982,9 @@ class StudentAdminController extends Controller
                     Mail::send('emails.account-reactivated', [
                         'studentName' => $student->first_name . ' ' . $student->last_name,
                         'date' => now()->format('d/m/Y à H:i')
-                    ], function($message) use ($student) {
+                    ], function ($message) use ($student) {
                         $message->to($student->email)
-                                ->subject('✅ Votre compte EVC a été réactivé');
+                            ->subject('✅ Votre compte EVC a été réactivé');
                     });
                 } catch (\Exception $e) {
                     Log::error('Erreur envoi email réactivation: ' . $e->getMessage());
@@ -986,7 +1001,6 @@ class StudentAdminController extends Controller
                 'message' => $message,
                 'new_status' => $newStatus
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -1169,7 +1183,7 @@ class StudentAdminController extends Controller
                     ->orderBy('created_at', 'desc')
                     ->get();
 
-                $files = $projectFiles->map(function($file) {
+                $files = $projectFiles->map(function ($file) {
                     return [
                         'id' => $file->id,
                         'name' => $file->original_name,
@@ -1195,7 +1209,6 @@ class StudentAdminController extends Controller
                 'success' => true,
                 'project' => $projectData
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de la récupération du projet: ' . $e->getMessage());
             return response()->json([
@@ -1261,7 +1274,7 @@ class StudentAdminController extends Controller
                     'validatedAt' => now()->format('d/m/Y à H:i')
                 ], function ($message) use ($student, $project) {
                     $message->to($student->email)
-                            ->subject('🎉 Félicitations ! Votre projet "' . $project->title . '" a été validé - EVC');
+                        ->subject('🎉 Félicitations ! Votre projet "' . $project->title . '" a été validé - EVC');
                 });
 
                 Log::info('Email de validation envoyé à l\'étudiant', [
@@ -1283,7 +1296,6 @@ class StudentAdminController extends Controller
                 'success' => true,
                 'message' => 'Projet validé avec succès !'
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de la validation du projet: ' . $e->getMessage());
             return response()->json([
@@ -1357,7 +1369,6 @@ class StudentAdminController extends Controller
             } else {
                 return redirect()->back()->with('error', 'Impossible de créer l\'archive ZIP');
             }
-
         } catch (\Exception $e) {
             Log::error('Erreur lors du téléchargement du projet: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Erreur lors du téléchargement du projet');
@@ -1421,7 +1432,6 @@ class StudentAdminController extends Controller
                 'success' => true,
                 'message' => 'Projet supprimé avec succès !'
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de la suppression du projet: ' . $e->getMessage());
             return response()->json([
@@ -1573,7 +1583,6 @@ class StudentAdminController extends Controller
 
             return redirect()->route('admin.students.profile', $studentIdForProfile)
                 ->with('success', '✅ Les informations de l\'étudiant ont été mises à jour avec succès.');
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
                 ->withErrors($e->errors())
@@ -1647,7 +1656,6 @@ class StudentAdminController extends Controller
             ]);
 
             return redirect()->back()->with('success', "✅ L'étudiant {$studentName} a été supprimé définitivement avec toutes ses données.");
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de la suppression de l\'étudiant: ' . $e->getMessage());
             return redirect()->back()->with('error', '❌ Erreur lors de la suppression de l\'étudiant : ' . $e->getMessage());
