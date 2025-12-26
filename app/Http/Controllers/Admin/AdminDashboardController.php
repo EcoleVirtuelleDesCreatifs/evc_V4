@@ -3505,6 +3505,10 @@ class AdminDashboardController extends Controller
             )
             ->get();
 
+        $inactiveStudentsDb = $students->filter(function ($s) {
+            return ($s->status ?? null) !== 'active';
+        })->count();
+
         $byFormation = $students->groupBy('program')->map(function ($group) {
             return [
                 'total' => $group->count(),
@@ -3514,7 +3518,8 @@ class AdminDashboardController extends Controller
 
         return [
             'total_students' => $students->count(),
-            'legacy_inactive_students' => $legacyInactiveStudents,
+            'inactive_students_db' => $inactiveStudentsDb,
+            'legacy_inactive_students' => $legacyInactiveStudents + $inactiveStudentsDb,
             'total_students_including_legacy' => $students->count() + $legacyInactiveStudents,
             'active_students' => $students->where('status', 'active')->count(),
             'by_formation' => $byFormation,
