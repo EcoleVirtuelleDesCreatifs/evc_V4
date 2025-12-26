@@ -273,7 +273,7 @@
         @php
             $editions = [
                 [
-                    'numero' => 4,
+                    'numero' => 3,
                     'annee' => '2024',
                     'badge' => 'Promotion Actuelle',
                     'color' => 'from-orange-500 to-red-500',
@@ -287,7 +287,7 @@
                     ]
                 ],
                 [
-                    'numero' => '2 & 3',
+                    'numero' => '1 & 2',
                     'annee' => '2022-2023',
                     'badge' => 'Confirmés',
                     'color' => 'from-blue-500 to-cyan-500',
@@ -298,6 +298,13 @@
                         ['image' => 'laureats/edition-2022-2023/Kouame-Yvannes-Cote-d-Ivoire.jpg', 'color' => 'from-cyan-500 to-cyan-600', 'name' => 'Kouamé Yvannes', 'title' => 'Entrepreneur social | Fondateur Le Cercle Rouge', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/maloudayvanneskouame5843/'],
                         ['image' => 'laureats/edition-2022-2023/Nagalo-Parfait-Burkina-Faso.jpg', 'color' => 'from-amber-500 to-amber-600', 'name' => 'Nagalo Parfait', 'title' => 'Heavy Equipment Trainer', 'country' => 'Burkina Faso', 'flag' => '🇧🇫', 'linkedin' => 'https://www.linkedin.com/in/y-boulayom-parfait-nagalo-583b2985/'],
                     ]
+                ],
+                [
+                    'numero' => 4,
+                    'annee' => '2025',
+                    'badge' => 'À venir',
+                    'color' => 'from-purple-500 to-indigo-500',
+                    'laureats' => []
                 ],
             ];
         @endphp
@@ -320,7 +327,7 @@
 
             <!-- Grille des lauréats améliorée -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                @foreach($edition['laureats'] as $index => $laureat)
+                @forelse($edition['laureats'] as $index => $laureat)
                 <div class="group" data-aos="fade-up" data-aos-delay="{{ $index * 100 }}">
                     <div class="relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-lg rounded-3xl p-6 border border-white/10 h-full flex flex-col text-center transition-all duration-500 hover:border-orange-500/50 hover:transform hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/20">
                         <!-- Badge succès -->
@@ -367,7 +374,17 @@
                         @endif
                     </div>
                 </div>
-                @endforeach
+                @empty
+                <div class="group" data-aos="fade-up">
+                    <div class="relative bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/10 h-full flex flex-col text-center">
+                        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-orange-500/20 to-orange-600/20 border border-orange-500/30 flex items-center justify-center">
+                            <i class="fas fa-hourglass-half text-orange-400 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-2">Lauréats à venir</h3>
+                        <p class="text-sm text-gray-400">Cette édition est en cours. Les lauréats seront publiés prochainement.</p>
+                    </div>
+                </div>
+                @endforelse
             </div>
         </div>
         @endforeach
