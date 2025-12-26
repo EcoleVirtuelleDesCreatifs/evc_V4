@@ -84,7 +84,7 @@
                             'name' => 'Frank Ouedraogo',
                             'title' => 'Graphiste',
                             'country' => 'Burkina Faso',
-                            'flag' => '🇧🇫',
+                            'flag' => "\u{1F1E7}\u{1F1EB}",
                             'image' => 'Frank-Ouedraogo-Graphiste-Burkina-Faso.jpg'
                         ],
                         [
@@ -98,14 +98,14 @@
                             'name' => 'Abdoul Latif',
                             'title' => 'Senior Graphiste',
                             'country' => 'Burkina Faso',
-                            'flag' => '🇧🇫',
+                            'flag' => "\u{1F1E7}\u{1F1EB}",
                             'image' => 'Abdoul-Latif-Senior-Graphiste-Burkina-Faso.jpg'
                         ],
                         [
                             'name' => 'Lydie Wendkuuni',
                             'title' => 'Graphic Designer',
                             'country' => 'Burkina Faso',
-                            'flag' => '🇧🇫',
+                            'flag' => "\u{1F1E7}\u{1F1EB}",
                             'image' => 'Lydie-Wendkuuni-Graphic-Designer-Burkina-Faso.jpg'
                         ],
                         [
@@ -126,7 +126,7 @@
                             'name' => 'Check Maiga',
                             'title' => 'Graphiste Imprimeur',
                             'country' => 'Burkina Faso',
-                            'flag' => '🇧🇫',
+                            'flag' => "\u{1F1E7}\u{1F1EB}",
                             'image' => 'Check-Maiga-Graphiste-Imprimeur-Burkina-Faso.jpg'
                         ],
                         [
