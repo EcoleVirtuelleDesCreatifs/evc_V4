@@ -375,13 +375,50 @@ class DashboardController extends Controller
 
         $pendingAssignments = $pendingAssignmentsQuery->get();
 
+        $assignedProjects = collect();
+        if (Schema::hasTable('projects')) {
+            $assignedProjectsQuery = DB::table('projects')
+                ->where('user_id', $user->id)
+                ->whereIn('status', ['en_cours', 'termine'])
+                ->orderByRaw('deadline is null asc')
+                ->orderBy('deadline', 'asc')
+                ->orderBy('created_at', 'desc');
+
+            if ($isExpiredNow) {
+                $assignedProjectsQuery->where('created_at', '<=', $expirationDate);
+            }
+
+            $statusMap = [
+                'en_cours' => 'assigned',
+                'termine' => 'submitted',
+            ];
+
+            $assignedProjects = $assignedProjectsQuery->get()->map(function ($project) use ($statusMap) {
+                $project->status = $statusMap[$project->status] ?? 'assigned';
+                $project->source_table = 'projects';
+                return $project;
+            });
+        }
+
+        $pendingAssignments = $pendingAssignments->map(function ($assignment) {
+            $assignment->source_table = 'tp_assignments';
+            return $assignment;
+        });
+
+        $pendingWorks = $pendingAssignments
+            ->concat($assignedProjects)
+            ->sortBy(function ($item) {
+                return $item->deadline ?? $item->created_at;
+            })
+            ->values();
+
         return view('dashboard.design-graphique', [
             'user' => $user,
             'student' => $student,
             'preReg' => $preReg,
             'stats' => $stats,
             'featured_formations' => $featured_formations,
-            'pendingAssignments' => $pendingAssignments,
+            'pendingAssignments' => $pendingWorks,
             'accountCreatedAt' => $accountCreatedAt,
             'expirationDate' => $expirationDate,
             'daysRemaining' => $daysRemaining, // Déjà un entier positif

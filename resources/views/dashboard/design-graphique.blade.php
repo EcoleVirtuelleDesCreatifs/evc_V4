@@ -953,9 +953,13 @@
                                                     <i class="fas fa-file-alt text-white"></i>
                                                 </div>
                                                 <div class="flex-grow-1">
+                                                    @php
+                                                        $source = $assignment->source_table ?? 'tp_assignments';
+                                                        $isAssignedProject = $source === 'projects';
+                                                    @endphp
                                                     <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
                                                         <h5 class="mb-1" style="font-weight: 800; color: #1f2937;">
-                                                            {{ $assignment->title ?? 'Travail' }}
+                                                            {{ $assignment->title ?? ($isAssignedProject ? 'Projet' : 'Travail') }}
                                                         </h5>
                                                         @php
                                                             $status = $assignment->status ?? 'pending';
@@ -986,10 +990,17 @@
                                                     @endif
 
                                                     <div class="mt-4">
-                                                        <a href="{{ route('design-graphique.tp.voir', ['id' => $assignment->id]) }}" class="btn btn-primary" style="border-radius: 12px; font-weight: 700;">
-                                                            Voir le travail
-                                                            <i class="fas fa-arrow-right ms-2"></i>
-                                                        </a>
+                                                        @if($isAssignedProject)
+                                                            <a href="{{ route('design-graphique.todo.traiter', ['projectId' => $assignment->id]) }}" class="btn btn-primary" style="border-radius: 12px; font-weight: 700;">
+                                                                Traiter le projet
+                                                                <i class="fas fa-arrow-right ms-2"></i>
+                                                            </a>
+                                                        @else
+                                                            <a href="{{ route('design-graphique.tp.voir', ['id' => $assignment->id]) }}" class="btn btn-primary" style="border-radius: 12px; font-weight: 700;">
+                                                                Voir le travail
+                                                                <i class="fas fa-arrow-right ms-2"></i>
+                                                            </a>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>

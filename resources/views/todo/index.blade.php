@@ -897,6 +897,13 @@ function showDetails(tpId) {
         year: 'numeric'
     });
 
+    function toPlainText(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html || '';
+        const text = (tmp.textContent || tmp.innerText || '').trim();
+        return text;
+    }
+
     const deadlineDate = new Date(tp.deadline).toLocaleDateString('fr-FR', {
         day: 'numeric',
         month: 'long',
@@ -965,8 +972,8 @@ function showDetails(tpId) {
             <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
                 <i class="fas fa-align-left me-2"></i>Description
             </h4>
-            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; line-height: 1.8; color: #555;">
-                ${tp.description}
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; line-height: 1.8; color: #111827;">
+                ${toPlainText(tp.description).replace(/\n/g, '<br>')}
             </div>
         </div>
     `;
