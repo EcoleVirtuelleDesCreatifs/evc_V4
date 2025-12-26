@@ -584,6 +584,19 @@ class AdminDashboardController extends Controller
         try {
             $user = \App\Models\User::find($targetUserId);
             if ($user) {
+                $formationSlug = 'design-graphique';
+                $studentProgram = $user->student->program ?? null;
+                if (is_string($studentProgram) && trim($studentProgram) !== '') {
+                    $prog = strtolower((string) $studentProgram);
+                    if (str_contains($prog, 'community')) {
+                        $formationSlug = 'community-management';
+                    } elseif (str_contains($prog, 'informatique')) {
+                        $formationSlug = 'gestion-informatique';
+                    } elseif (str_contains($prog, 'intelligence')) {
+                        $formationSlug = 'intelligence-artificielle';
+                    }
+                }
+
                 $user->notify(new ProjectAssignedNotification([
                     'category' => 'project',
                     'event' => 'assigned',
@@ -592,7 +605,7 @@ class AdminDashboardController extends Controller
                     'project_id' => $newProject->id,
                     'project_title' => $newProject->title ?? null,
                     'created_at' => now()->toIso8601String(),
-                    'url' => url('/evc/compte/design-graphique/projets'),
+                    'url' => url("/evc/compte/{$formationSlug}/projets"),
                 ]));
             }
         } catch (\Exception $e) {

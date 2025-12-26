@@ -212,13 +212,63 @@
                                 <label for="student_user_id" class="form-label">Ajouter un étudiant</label>
                                 <select class="form-select" id="student_user_id" name="student_user_id" required>
                                     <option value="">-- Sélectionner --</option>
-                                    @foreach($studentsList as $u)
+                                    @php
+                                        $groupedStudents = collect($studentsList ?? [])->groupBy(function ($u) {
+                                            $program = $u->student->program ?? null;
+                                            $program = is_string($program) ? trim($program) : '';
+                                            if ($program === '') {
+                                                return 'Sans formation';
+                                            }
+
+                                            $normalized = strtolower(str_replace([' ', '_', '-', '&'], '', $program));
+                                            if (str_contains($normalized, 'designgraphiquecommunity') || (str_contains($normalized, 'designgraphique') && str_contains($normalized, 'community'))) {
+                                                return 'Design Graphique & Community Management';
+                                            }
+                                            if (str_contains($normalized, 'designgraphique')) {
+                                                return 'Design Graphique';
+                                            }
+                                            if (str_contains($normalized, 'community')) {
+                                                return 'Community Management';
+                                            }
+                                            if (str_contains($normalized, 'informatique') || str_contains($normalized, 'gestioninformatique')) {
+                                                return 'Gestion Informatique';
+                                            }
+                                            if (str_contains($normalized, 'intelligence')) {
+                                                return 'Intelligence Artificielle';
+                                            }
+
+                                            return $program;
+                                        });
+
+                                        $order = [
+                                            'Design Graphique',
+                                            'Design Graphique & Community Management',
+                                            'Community Management',
+                                            'Gestion Informatique',
+                                            'Intelligence Artificielle',
+                                            'Sans formation',
+                                        ];
+
+                                        $sortedGroups = collect($order)
+                                            ->filter(fn ($k) => $groupedStudents->has($k))
+                                            ->merge($groupedStudents->keys()->diff($order)->sort())
+                                            ->values();
+                                    @endphp
+
+                                    @foreach($sortedGroups as $groupName)
                                         @php
-                                            $st = $u->student;
-                                            $n = trim(($st->first_name ?? '') . ' ' . ($st->last_name ?? ''));
-                                            if ($n === '') { $n = $u->name ?? $u->email; }
+                                            $users = $groupedStudents->get($groupName, collect());
                                         @endphp
-                                        <option value="{{ $u->id }}">{{ $n }} ({{ $u->email }})</option>
+                                        <optgroup label="{{ $groupName }} ({{ $users->count() }})">
+                                            @foreach($users as $u)
+                                                @php
+                                                    $st = $u->student;
+                                                    $n = trim(($st->first_name ?? '') . ' ' . ($st->last_name ?? ''));
+                                                    if ($n === '') { $n = $u->name ?? $u->email; }
+                                                @endphp
+                                                <option value="{{ $u->id }}">{{ $n }} ({{ $u->email }})</option>
+                                            @endforeach
+                                        </optgroup>
                                     @endforeach
                                 </select>
                                 <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
