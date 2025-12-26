@@ -4,6 +4,16 @@
 
 @push('styles')
 <link href="{{ asset('css/admin/formation-create.css') }}?v={{ time() }}" rel="stylesheet" />
+<style>
+    .interactive-dashboard-form select option {
+        background: #0f172a;
+        color: #e2e8f0;
+    }
+
+    .interactive-dashboard-form select {
+        pointer-events: auto;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -21,9 +31,6 @@
         <div class="d-flex gap-2 flex-wrap">
             <a href="{{ route('admin.preinscriptions.show', $pre->id) }}" class="btn btn-light">
                 <i class="fas fa-eye me-2"></i>Voir
-            </a>
-            <a href="{{ route('admin.preinscriptions.index') }}" class="btn btn-light">
-                <i class="fas fa-arrow-left me-2"></i>Retour
             </a>
         </div>
     </div>
@@ -114,14 +121,26 @@
                         <select name="choix_formation" class="form-select @error('choix_formation') is-invalid @enderror">
                             @php
                                 $formationValue = old('choix_formation', $pre->choix_formation);
+                                $formations = [
+                                    'design_graphique' => 'Design Graphique',
+                                    'community_management' => 'Community Management',
+                                    'design_graphique_community_manager' => 'Design Graphique & Community Manager',
+                                    'gestion_informatique' => 'Gestion Informatique',
+                                    'intelligence_artificielle' => 'Intelligence Artificielle',
+                                ];
+
+                                $legacyFormations = [
+                                    'design_graphique_community_management' => 'Design Graphique & Community Management (ancien)',
+                                    'design_cm' => 'Design & Community Management (ancien)',
+                                ];
                             @endphp
-                            <option value="design_graphique" @selected($formationValue==='design_graphique')>Design Graphique</option>
-                            <option value="community_management" @selected($formationValue==='community_management')>Community Management</option>
-                            <option value="design_graphique_community_manager" @selected($formationValue==='design_graphique_community_manager')>Design Graphique & Community Manager</option>
-                            <option value="design_graphique_community_management" @selected($formationValue==='design_graphique_community_management')>Design Graphique & Community Management</option>
-                            <option value="gestion_informatique" @selected($formationValue==='gestion_informatique')>Gestion Informatique</option>
-                            <option value="intelligence_artificielle" @selected($formationValue==='intelligence_artificielle')>Intelligence Artificielle</option>
-                            <option value="design_cm" @selected($formationValue==='design_cm')>Design & Community Management</option>
+                            @foreach($formations as $value => $label)
+                                <option value="{{ $value }}" @selected($formationValue===$value)>{{ $label }}</option>
+                            @endforeach
+
+                            @if(isset($legacyFormations[$formationValue]))
+                                <option value="{{ $formationValue }}" selected>{{ $legacyFormations[$formationValue] }}</option>
+                            @endif
                         </select>
                         @error('choix_formation')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
@@ -197,8 +216,7 @@
         </div>
     </div>
 
-    <div class="form-footer mt-4 d-flex justify-content-between align-items-center">
-        <a href="{{ route('admin.preinscriptions.index') }}" class="btn btn-light"><i class="fas fa-arrow-left me-2"></i>Retour</a>
+    <div class="form-footer mt-4 d-flex justify-content-end align-items-center">
         <div>
             <a href="{{ route('admin.preinscriptions.index') }}" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Annuler</a>
             <button type="submit" class="btn btn-success"><i class="fas fa-save me-2"></i>Enregistrer</button>
