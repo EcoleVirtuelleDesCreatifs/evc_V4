@@ -96,7 +96,7 @@
                         'title' => 'Chef d\'Entreprise',
                         'country' => 'Côte d\'Ivoire',
                         'flag' => '🇨🇮',
-                        'image' => 'Alban-MLan-Chef-d-Entreprise-Cote-d-Ivoire.jpg'
+                        'image' => 'Alban-M-Lan-Chef-d-Entreprise-Cote-d-Ivoire.jpg'
                     ],
                     [
                         'name' => 'Abdoul Latif',
