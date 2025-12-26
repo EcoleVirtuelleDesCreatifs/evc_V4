@@ -6,15 +6,17 @@
     <title>Page introuvable (404) - École Virtuelle des Créatifs</title>
     <style>
         :root {
-            --evc-purple: #833AB4;
-            --evc-pink: #C13584;
-            --evc-red: #E1306C;
-            --evc-orange: #F56040;
-            --evc-dark: #0b1220;
+            --evc-blue-900: #0b1b3a;
+            --evc-blue-700: #1e3c72;
+            --evc-blue-500: #2a5298;
+            --evc-orange-600: #ff8a00;
+            --evc-orange-500: #ff6a00;
+            --evc-dark: #070f1e;
             --evc-card: rgba(255, 255, 255, 0.08);
             --evc-border: rgba(255, 255, 255, 0.14);
             --evc-text: rgba(255, 255, 255, 0.92);
             --evc-muted: rgba(255, 255, 255, 0.7);
+            --evc-glow: rgba(255, 138, 0, 0.22);
         }
 
         * { box-sizing: border-box; }
@@ -23,10 +25,10 @@
             margin: 0;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
             background:
-                radial-gradient(1200px 700px at 18% 18%, rgba(131, 58, 180, 0.45), transparent 60%),
-                radial-gradient(1200px 700px at 82% 30%, rgba(193, 53, 132, 0.35), transparent 60%),
-                radial-gradient(900px 600px at 55% 90%, rgba(245, 96, 64, 0.25), transparent 55%),
-                linear-gradient(135deg, #060a12, var(--evc-dark));
+                radial-gradient(900px 600px at 12% 18%, rgba(42, 82, 152, 0.55), transparent 60%),
+                radial-gradient(900px 600px at 80% 30%, rgba(30, 60, 114, 0.45), transparent 60%),
+                radial-gradient(900px 600px at 60% 90%, rgba(255, 138, 0, 0.28), transparent 55%),
+                linear-gradient(135deg, #050912, var(--evc-dark));
             color: var(--evc-text);
             display: grid;
             place-items: center;
@@ -48,9 +50,19 @@
             padding: 22px;
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
             overflow: hidden;
             position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(30, 60, 114, 0.26), rgba(255, 138, 0, 0.14));
+            opacity: 0.9;
+            pointer-events: none;
+            mask-image: radial-gradient(420px 220px at 18% 8%, #000 20%, transparent 65%);
         }
 
         .brand {
@@ -64,12 +76,12 @@
             width: 44px;
             height: 44px;
             border-radius: 14px;
-            background: linear-gradient(135deg, var(--evc-purple), var(--evc-pink), var(--evc-red));
+            background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-500), var(--evc-orange-600));
             display: grid;
             place-items: center;
             font-weight: 800;
             letter-spacing: 0.5px;
-            box-shadow: 0 10px 26px rgba(193, 53, 132, 0.28);
+            box-shadow: 0 12px 28px rgba(42, 82, 152, 0.22), 0 10px 30px var(--evc-glow);
         }
 
         .brand-title {
@@ -163,12 +175,12 @@
 
         .btn.primary {
             border: none;
-            background: linear-gradient(135deg, var(--evc-purple), var(--evc-pink), var(--evc-red));
-            box-shadow: 0 12px 30px rgba(193, 53, 132, 0.22);
+            background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-500), var(--evc-orange-600));
+            box-shadow: 0 12px 30px rgba(42, 82, 152, 0.22), 0 14px 36px var(--evc-glow);
         }
 
         .btn.primary:hover {
-            background: linear-gradient(135deg, var(--evc-pink), var(--evc-red), var(--evc-orange));
+            background: linear-gradient(135deg, var(--evc-blue-500), var(--evc-orange-600), var(--evc-orange-500));
         }
 
         .side {
