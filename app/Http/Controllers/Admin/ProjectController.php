@@ -14,27 +14,57 @@ class ProjectController extends Controller
     // Méthodes pour les projets Design Graphique
     public function pendingDesignGraphique()
     {
-        $baseQuery = DesignProject::query()
+        $designQuery = DesignProject::query()
+            ->whereHas('user.student', function ($query) {
+                $query->whereRaw('LOWER(program) LIKE ?', ['%design%graph%'])
+                    ->whereRaw('LOWER(program) NOT LIKE ?', ['%community%']);
+            });
+
+        $tpQuery = TP::query()
             ->whereHas('user.student', function ($query) {
                 $query->whereRaw('LOWER(program) LIKE ?', ['%design%graph%'])
                     ->whereRaw('LOWER(program) NOT LIKE ?', ['%community%']);
             });
 
         $stats = [
-            'total' => (clone $baseQuery)->count(),
-            'pending' => (clone $baseQuery)->where('status', 'pending')->count(),
+            'total' => (clone $designQuery)->count() + (clone $tpQuery)->count(),
+            'pending' => (clone $designQuery)->where('status', 'pending')->count() + (clone $tpQuery)->where('status', 'pending')->count(),
             // Compat UI (vue admin.projects.index affiche aussi une card "À envoyer")
-            'to_send' => 0,
-            'validated' => (clone $baseQuery)->where('status', 'validated')->count(),
+            'to_send' => (clone $tpQuery)->where('status', 'to_send')->count(),
+            'validated' => (clone $designQuery)->where('status', 'validated')->count() + (clone $tpQuery)->where('status', 'validated')->count(),
             // Compat
-            'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
+            'rejected' => (clone $designQuery)->where('status', 'rejected')->count() + (clone $tpQuery)->where('status', 'rejected')->count(),
         ];
 
-        $projects = (clone $baseQuery)
+        // Fusionner les deux sources (DesignProject + TP), trier par date et paginer manuellement
+        $designPending = (clone $designQuery)
             ->where('status', 'pending')
             ->with(['user', 'user.student', 'files'])
-            ->orderByDesc('created_at')
-            ->paginate(15);
+            ->get();
+
+        $tpPending = (clone $tpQuery)
+            ->where('status', 'pending')
+            ->with(['user', 'user.student', 'files'])
+            ->get();
+
+        $allPending = $tpPending
+            ->concat($designPending)
+            ->sortByDesc(function ($item) {
+                return $item->created_at;
+            })
+            ->values();
+
+        $perPage = 15;
+        $currentPage = (int) request()->get('page', 1);
+        $currentItems = $allPending->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        $projects = new LengthAwarePaginator(
+            $currentItems,
+            $allPending->count(),
+            $perPage,
+            $currentPage,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('admin.projects.index', [
             'projects' => $projects,

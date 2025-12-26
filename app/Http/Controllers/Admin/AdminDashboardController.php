@@ -1775,13 +1775,21 @@ class AdminDashboardController extends Controller
 
             // Normaliser la formation (même logique que projets)
             if ($student->program) {
-                $normalized = match (strtolower(str_replace([' ', '_', '-'], '', $student->program))) {
-                    'designgraphique' => 'Design Graphique',
-                    'communitymanagement' => 'Community Management',
-                    'gestioninformatique' => 'Gestion Informatique',
-                    'intelligenceartificielle' => 'Intelligence Artificielle',
-                    default => $student->program
-                };
+                $programNormalizedKey = strtolower(str_replace([' ', '_', '-'], '', $student->program));
+                $containsDesign = str_contains($programNormalizedKey, 'design');
+                $containsCommunity = str_contains($programNormalizedKey, 'community');
+
+                if ($containsDesign && $containsCommunity) {
+                    $normalized = 'Design Graphique & Community Management';
+                } else {
+                    $normalized = match ($programNormalizedKey) {
+                        'designgraphique' => 'Design Graphique',
+                        'communitymanagement' => 'Community Management',
+                        'gestioninformatique' => 'Gestion Informatique',
+                        'intelligenceartificielle' => 'Intelligence Artificielle',
+                        default => $student->program
+                    };
+                }
                 $student->formation = $normalized;
                 $student->formation_normalized = $normalized;
             } else {
@@ -1797,6 +1805,7 @@ class AdminDashboardController extends Controller
             'total_formations' => $formations->count(),
             'total_students' => $students->count(),
             'design_graphique' => $students->where('formation_normalized', 'Design Graphique')->count(),
+            'design_graphique_cm' => $students->where('formation_normalized', 'Design Graphique & Community Management')->count(),
             'community_management' => $students->where('formation_normalized', 'Community Management')->count(),
             'gestion_informatique' => $students->where('formation_normalized', 'Gestion Informatique')->count(),
             'intelligence_artificielle' => $students->where('formation_normalized', 'Intelligence Artificielle')->count(),

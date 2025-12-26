@@ -147,6 +147,24 @@
             <div class="stat-card">
                 <div class="stat-header">
                     <div>
+                        <div class="stat-title">Design Graphique &amp; Community Management</div>
+                        <h2 class="stat-value" style="color: #833AB4;">{{ $stats['design_graphique_cm'] ?? 0 }}</h2>
+                    </div>
+                    <div class="stat-icon" style="background: linear-gradient(135deg, #833AB4, #C13584);">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                </div>
+                <div class="stat-footer">
+                    <i class="fas fa-user-check"></i>
+                    <span>Étudiants actifs</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
                         <div class="stat-title">Community Management</div>
                         <h2 class="stat-value" style="color: #4fc3f7;">{{ $stats['community_management'] }}</h2>
                     </div>

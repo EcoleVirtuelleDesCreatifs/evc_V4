@@ -219,7 +219,9 @@
 .content-card:hover, .sidebar-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.12); transform: translateY(-2px); }
 .content-card h5, .sidebar-card h5 { font-weight: 700; color: #1e3c72; margin-bottom: 1rem; font-size: 1.1rem; }
 .content-card h5 i, .sidebar-card h5 i { margin-right: 0.5rem; color: #4fc3f7; }
-.description-text { color: #495057; line-height: 1.8; }
+.description-text { color: #495057 !important; line-height: 1.8; }
+.description-text * { color: #495057 !important; }
+.description-text a { color: #1e3c72 !important; text-decoration: underline; }
 .external-link { color: #1e3c72; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; transition: 0.3s; }
 .external-link:hover { color: #4fc3f7; transform: translateX(5px); }
 .external-link i { margin-right: 0.5rem; }
