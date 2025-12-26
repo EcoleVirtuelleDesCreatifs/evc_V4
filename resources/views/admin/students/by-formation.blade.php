@@ -22,7 +22,7 @@
 
     <!-- Statistiques de la formation -->
     <div class="row mb-4 g-3">
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <div class="card border-0 shadow-sm stat-card stat-card-primary h-100">
                 <div class="card-body text-center p-4">
                     <div class="stat-icon mb-3">
@@ -33,7 +33,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <div class="card border-0 shadow-sm stat-card stat-card-success h-100">
                 <div class="card-body text-center p-4">
                     <div class="stat-icon mb-3">
@@ -44,7 +44,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-3">
             <div class="card border-0 shadow-sm stat-card stat-card-info h-100">
                 <div class="card-body text-center p-4">
                     <div class="stat-icon mb-3">
@@ -52,6 +52,17 @@
                     </div>
                     <div class="h2 fw-bold mb-1 stat-number">{{ $data['stats']['avg_progression'] }}%</div>
                     <div class="text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">Progression Moyenne</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm stat-card stat-card-danger h-100">
+                <div class="card-body text-center p-4">
+                    <div class="stat-icon mb-3">
+                        <i class="fas fa-user-times fa-2x"></i>
+                    </div>
+                    <div class="h2 fw-bold mb-1 stat-number">{{ $data['stats']['inactive'] ?? 0 }}</div>
+                    <div class="text-uppercase" style="font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px;">Étudiants Inactifs</div>
                 </div>
             </div>
         </div>
@@ -665,6 +676,11 @@ function deleteStudent(studentId, studentName) {
 
 .stat-card-info {
     background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.stat-card-danger {
+    background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
     color: white;
 }
 

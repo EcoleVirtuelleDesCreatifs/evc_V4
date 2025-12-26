@@ -543,6 +543,7 @@ class StudentAdminController extends Controller
         // Calculer les statistiques
         $avgProgression = $rows->count() > 0 ? round($rows->avg('progression')) : 0;
         $activeCount = $rows->where('status', 'active')->count();
+        $inactiveCount = $rows->where('status', 'inactive')->count();
 
         $data = [
             'formation' => $formation,
@@ -551,6 +552,7 @@ class StudentAdminController extends Controller
             'stats' => [
                 'total' => $rows->count(),
                 'active' => $activeCount,
+                'inactive' => $inactiveCount,
                 'avg_progression' => $avgProgression,
             ],
         ];
