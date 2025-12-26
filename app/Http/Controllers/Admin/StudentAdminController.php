@@ -249,15 +249,23 @@ class StudentAdminController extends Controller
                 $dgKeys = $formationMap['design-graphique']['keys'];
                 $cmKeys = $formationMap['community-management']['keys'];
 
+                $dgcmKeysNormalized = array_values(array_unique(array_map(function ($v) {
+                    return strtolower(trim((string) $v));
+                }, $dgcmKeys)));
+                $dgKeysNormalized = array_values(array_unique(array_map(function ($v) {
+                    return strtolower(trim((string) $v));
+                }, $dgKeys)));
                 $cmKeysNormalized = array_values(array_unique(array_map(function ($v) {
                     return strtolower(trim((string) $v));
                 }, $cmKeys)));
 
-                $query->where(function ($q) use ($dgcmKeys) {
-                    $q->whereNull('program')->orWhereNotIn('program', $dgcmKeys);
+                $query->where(function ($q) use ($dgcmKeysNormalized) {
+                    $q->whereNull('program')
+                        ->orWhereNotIn(DB::raw('LOWER(TRIM(program))'), $dgcmKeysNormalized);
                 });
-                $query->where(function ($q) use ($dgcmKeys) {
-                    $q->whereNull('specialization')->orWhereNotIn('specialization', $dgcmKeys);
+                $query->where(function ($q) use ($dgcmKeysNormalized) {
+                    $q->whereNull('specialization')
+                        ->orWhereNotIn(DB::raw('LOWER(TRIM(specialization))'), $dgcmKeysNormalized);
                 });
 
                 // Exclure aussi les profils Community Management (évite qu'un CM avec un champ DG remonte ici)
@@ -271,13 +279,13 @@ class StudentAdminController extends Controller
                 });
 
                 // Exclure aussi les profils DG+CM stockés sous forme de combinaison
-                $query->where(function ($q) use ($dgKeys, $cmKeys) {
-                    $q->whereNot(function ($q2) use ($dgKeys, $cmKeys) {
-                        $q2->whereIn('program', $dgKeys)
-                            ->whereIn('specialization', $cmKeys);
-                    })->whereNot(function ($q2) use ($dgKeys, $cmKeys) {
-                        $q2->whereIn('program', $cmKeys)
-                            ->whereIn('specialization', $dgKeys);
+                $query->where(function ($q) use ($dgKeysNormalized, $cmKeysNormalized) {
+                    $q->whereNot(function ($q2) use ($dgKeysNormalized, $cmKeysNormalized) {
+                        $q2->whereIn(DB::raw('LOWER(TRIM(program))'), $dgKeysNormalized)
+                            ->whereIn(DB::raw('LOWER(TRIM(specialization))'), $cmKeysNormalized);
+                    })->whereNot(function ($q2) use ($dgKeysNormalized, $cmKeysNormalized) {
+                        $q2->whereIn(DB::raw('LOWER(TRIM(program))'), $cmKeysNormalized)
+                            ->whereIn(DB::raw('LOWER(TRIM(specialization))'), $dgKeysNormalized);
                     });
                 });
             }
