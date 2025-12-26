@@ -273,6 +273,18 @@
         @php
             $editions = [
                 [
+                    'numero' => 4,
+                    'annee' => '2025',
+                    'badge' => 'Promotion Actuelle',
+                    'color' => 'from-purple-500 to-indigo-500',
+                    'laureats' => [
+                        ['image' => 'laureats/edition-4-2025/Agnero-Alexandre-Cote-D-Ivoire.png', 'color' => 'from-indigo-500 to-indigo-600', 'name' => 'Agnero Alexandre', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
+                        ['image' => 'laureats/edition-4-2025/Pascal-Adjiri-Cote-d-Ivoire.png', 'color' => 'from-green-500 to-green-600', 'name' => 'Pascal Adjiri', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
+                        ['image' => 'laureats/edition-4-2025/Dao-Sidiki-Burkina-Faso.png', 'color' => 'from-orange-500 to-orange-600', 'name' => 'Dao Sidiki', 'title' => '', 'country' => 'Burkina Faso', 'flag' => '🇧🇫'],
+                        ['image' => 'laureats/edition-4-2025/Soma-Roseline-Burkina-Faso.png', 'color' => 'from-purple-500 to-purple-600', 'name' => 'Soma Roseline', 'title' => '', 'country' => 'Burkina Faso', 'flag' => '🇧🇫'],
+                    ]
+                ],
+                [
                     'numero' => 3,
                     'annee' => '2024',
                     'badge' => 'Promotion Actuelle',
@@ -298,13 +310,6 @@
                         ['image' => 'laureats/edition-2022-2023/Kouame-Yvannes-Cote-d-Ivoire.jpg', 'color' => 'from-cyan-500 to-cyan-600', 'name' => 'Kouamé Yvannes', 'title' => 'Entrepreneur social | Fondateur Le Cercle Rouge', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮', 'linkedin' => 'https://www.linkedin.com/in/maloudayvanneskouame5843/'],
                         ['image' => 'laureats/edition-2022-2023/Nagalo-Parfait-Burkina-Faso.jpg', 'color' => 'from-amber-500 to-amber-600', 'name' => 'Nagalo Parfait', 'title' => 'Heavy Equipment Trainer', 'country' => 'Burkina Faso', 'flag' => '🇧🇫', 'linkedin' => 'https://www.linkedin.com/in/y-boulayom-parfait-nagalo-583b2985/'],
                     ]
-                ],
-                [
-                    'numero' => 4,
-                    'annee' => '2025',
-                    'badge' => 'À venir',
-                    'color' => 'from-purple-500 to-indigo-500',
-                    'laureats' => []
                 ],
             ];
         @endphp
