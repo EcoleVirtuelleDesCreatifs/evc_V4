@@ -89,10 +89,15 @@
                                     <div>
                                         <h6 class="student-name mb-1">{{ $fullName ?: 'Étudiant' }}</h6>
                                         <div class="student-meta">
+                                            @php
+                                                $formationLower = strtolower((string) $formation);
+                                                $isDGCM = str_contains($formationLower, 'design') && str_contains($formationLower, 'community');
+                                            @endphp
                                             <span class="badge-formation" style="background: {{
-                                                str_contains(strtolower($formation), 'design') ? 'linear-gradient(135deg, #667eea, #764ba2)' :
-                                                (str_contains(strtolower($formation), 'community') ? 'linear-gradient(135deg, #f093fb, #f5576c)' :
-                                                'linear-gradient(135deg, #4facfe, #00f2fe)')
+                                                $isDGCM ? 'linear-gradient(135deg, #ff9800 0%, #4facfe 100%)' :
+                                                (str_contains($formationLower, 'design') ? 'linear-gradient(135deg, #667eea, #764ba2)' :
+                                                (str_contains($formationLower, 'community') ? 'linear-gradient(135deg, #f093fb, #f5576c)' :
+                                                'linear-gradient(135deg, #4facfe, #00f2fe)'))
                                             }}">
                                                 {{ $formation }}
                                             </span>
