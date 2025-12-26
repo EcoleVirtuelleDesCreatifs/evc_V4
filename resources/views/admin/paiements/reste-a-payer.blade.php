@@ -134,6 +134,7 @@
                             <th>Email</th>
                             <th>Formation</th>
                             <th>Montant Dû</th>
+                            <th>Relances</th>
                             <th>Date Inscription</th>
                             <th>Statut</th>
                             <th>Actions</th>
@@ -151,6 +152,9 @@
                             </td>
                             <td>
                                 <strong class="text-danger">{{ number_format($student->remaining, 0, ',', ' ') }} FCFA</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ (int) ($student->reminders_count ?? 0) }}</span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($student->created_at)->format('d/m/Y') }}</td>
                             <td>
@@ -172,7 +176,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
                                 <p class="text-muted">Aucun impayé ! Tous les étudiants sont à jour.</p>
                             </td>

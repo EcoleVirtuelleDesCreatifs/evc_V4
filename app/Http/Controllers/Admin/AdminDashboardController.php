@@ -3985,6 +3985,29 @@ class AdminDashboardController extends Controller
             ->filter(fn($s) => ($s->total_amount ?? 0) > 0 && ($s->remaining ?? 0) > 0 && ($s->amount_paid ?? 0) < ($s->total_amount ?? 0))
             ->values();
 
+        if (Schema::hasTable('payment_reminders')) {
+            $studentIds = $students->pluck('id')->filter()->unique()->values()->toArray();
+
+            $reminderCounts = empty($studentIds)
+                ? collect()
+                : DB::table('payment_reminders')
+                    ->select('student_id', DB::raw('COUNT(*) as reminders_count'))
+                    ->whereIn('student_id', $studentIds)
+                    ->groupBy('student_id')
+                    ->get()
+                    ->keyBy('student_id');
+
+            $students = $students->map(function ($s) use ($reminderCounts) {
+                $s->reminders_count = (int) (($reminderCounts[$s->id]->reminders_count ?? 0) ?: 0);
+                return $s;
+            });
+        } else {
+            $students = $students->map(function ($s) {
+                $s->reminders_count = 0;
+                return $s;
+            });
+        }
+
         $stats = [
             'total' => $students->count(),
             'total_amount_due' => $students->sum('remaining'),
@@ -4158,6 +4181,15 @@ class AdminDashboardController extends Controller
                 $message->to($emailTo)
                     ->subject('Rappel de Paiement - École Virtuelle des Créatifs');
             });
+
+            if (Schema::hasTable('payment_reminders') && $student) {
+                DB::table('payment_reminders')->insert([
+                    'student_id' => $student->id,
+                    'sent_at' => now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             Log::info('Email de relance de paiement envoyé', [
                 'student_id' => $id,
