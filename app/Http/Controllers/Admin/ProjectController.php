@@ -139,8 +139,10 @@ class ProjectController extends Controller
             ->leftJoin('users', 'projects.user_id', '=', 'users.id')
             ->leftJoin('students', 'students.user_id', '=', 'users.id')
             ->where(function ($q) {
-                $q->whereRaw('LOWER(students.program) LIKE ?', ['%design%'])
-                    ->whereRaw('LOWER(students.program) LIKE ?', ['%graph%']);
+                $q->where(function ($qq) {
+                    $qq->whereRaw('LOWER(students.program) LIKE ?', ['%design%'])
+                        ->whereRaw('LOWER(students.program) LIKE ?', ['%graph%']);
+                })->orWhereRaw('LOWER(students.program) LIKE ?', ['%community%']);
             });
 
         $stats = [
@@ -166,11 +168,72 @@ class ProjectController extends Controller
                 'users.email as student_email'
             )
             ->orderByDesc('projects.created_at')
-            ->paginate(20);
+            ->get();
+
+        $normalized = $assignments->map(function ($work) {
+            $program = mb_strtolower((string) ($work->formation ?? ''));
+            $isDesignGraph = str_contains($program, 'design') && str_contains($program, 'graph');
+            $isCommunity = str_contains($program, 'community');
+
+            if ($isDesignGraph && $isCommunity) {
+                $work->formation_group = 'Design Graphique et Community Management';
+            } elseif ($isDesignGraph) {
+                $work->formation_group = 'Design Graphique';
+            } elseif ($isCommunity) {
+                $work->formation_group = 'Community Management';
+            } else {
+                $work->formation_group = 'Autres';
+            }
+
+            // Regrouper par "projet" (même titre/catégorie/deadline)
+            $work->project_group_key = implode('|', [
+                (string) ($work->title ?? ''),
+                (string) ($work->category ?? ''),
+                (string) ($work->deadline ?? ''),
+            ]);
+
+            return $work;
+        });
+
+        $formationOrder = [
+            'Design Graphique',
+            'Community Management',
+            'Design Graphique et Community Management',
+        ];
+
+        $grouped = $normalized
+            ->whereIn('formation_group', $formationOrder)
+            ->groupBy('formation_group')
+            ->map(function ($items) {
+                return $items
+                    ->groupBy('project_group_key')
+                    ->map(function ($projectItems) {
+                        $first = $projectItems->first();
+                        return [
+                            'title' => $first->title,
+                            'category' => $first->category,
+                            'deadline' => $first->deadline,
+                            'created_at' => $first->created_at,
+                            'status' => $first->status,
+                            'students' => $projectItems->values(),
+                        ];
+                    })
+                    ->sortByDesc(function ($project) {
+                        return $project['created_at'];
+                    })
+                    ->values();
+            });
+
+        // Assurer l'ordre des formations dans l'affichage
+        $grouped = collect($formationOrder)
+            ->mapWithKeys(function ($name) use ($grouped) {
+                return [$name => $grouped->get($name, collect())];
+            });
 
         return view('admin.projects.assigned', [
             'assignments' => $assignments,
             'stats' => $stats,
+            'groupedAssignments' => $grouped,
         ]);
     }
 

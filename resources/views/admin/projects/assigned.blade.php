@@ -65,98 +65,79 @@
 
     <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
         <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
-            <h5 class="mb-0 text-white"><i class="fas fa-list me-2"></i>Liste des travaux attribués</h5>
+            <h5 class="mb-0 text-white"><i class="fas fa-layer-group me-2"></i>Travaux attribués</h5>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-dark table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Travail</th>
-                            <th>Catégorie</th>
-                            <th>Étudiant</th>
-                            <th>Formation</th>
-                            <th>Attribué le</th>
-                            <th>Deadline</th>
-                            <th>Statut</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($assignments as $work)
-                            <tr>
-                                <td>#{{ $work->id }}</td>
-                                <td>{{ $work->title }}</td>
-                                <td>{{ $work->category ?? '' }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        @php
-                                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($work->profile_photo ?? null);
-                                        @endphp
-                                        @if($photoUrl)
-                                            <img src="{{ $photoUrl }}" alt="{{ $work->first_name }}" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
-                                        @else
-                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-weight: 600;">
-                                                {{ strtoupper(substr($work->first_name ?? 'E', 0, 1)) }}{{ strtoupper(substr($work->last_name ?? '', 0, 1)) }}
+            @php
+                $formations = [
+                    'Design Graphique',
+                    'Community Management',
+                    'Design Graphique et Community Management',
+                ];
+            @endphp
+
+            <div class="accordion mb-4" id="formationsAccordion">
+                @foreach($formations as $formation)
+                    @php
+                        $projects = $groupedAssignments[$formation] ?? collect();
+                        $formationId = 'formation_' . md5($formation);
+                    @endphp
+
+                    <div class="accordion-item" style="background-color: #0f172a; border: 1px solid #334155;">
+                        <h2 class="accordion-header" id="heading_{{ $formationId }}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $formationId }}" aria-expanded="false" aria-controls="collapse_{{ $formationId }}" style="background-color: #0f172a; color: white;">
+                                <i class="fas fa-graduation-cap me-2"></i>
+                                {{ $formation }}
+                                <span class="badge bg-secondary ms-3">{{ $projects->count() }} projet(s)</span>
+                            </button>
+                        </h2>
+                        <div id="collapse_{{ $formationId }}" class="accordion-collapse collapse" aria-labelledby="heading_{{ $formationId }}" data-bs-parent="#formationsAccordion">
+                            <div class="accordion-body" style="background-color: #1e293b;">
+                                @if($projects->isEmpty())
+                                    <div class="text-center py-3 text-muted">Aucun projet attribué pour cette formation.</div>
+                                @else
+                                    <div class="accordion" id="projectsAccordion_{{ $formationId }}">
+                                        @foreach($projects as $index => $project)
+                                            @php
+                                                $projectId = $formationId . '_project_' . $index;
+                                                $students = collect($project['students'] ?? []);
+                                            @endphp
+
+                                            <div class="accordion-item" style="background-color: #0f172a; border: 1px solid #334155;">
+                                                <h2 class="accordion-header" id="heading_{{ $projectId }}">
+                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $projectId }}" aria-expanded="false" aria-controls="collapse_{{ $projectId }}" style="background-color: #0f172a; color: white;">
+                                                        <i class="fas fa-tasks me-2"></i>
+                                                        {{ $project['title'] ?? 'Projet' }}
+                                                        <span class="badge bg-primary ms-2">{{ $students->count() }} étudiant(s)</span>
+                                                    </button>
+                                                </h2>
+                                                <div id="collapse_{{ $projectId }}" class="accordion-collapse collapse" aria-labelledby="heading_{{ $projectId }}" data-bs-parent="#projectsAccordion_{{ $formationId }}">
+                                                    <div class="accordion-body" style="background-color: #1e293b;">
+                                                        <div class="list-group">
+                                                            @foreach($students as $studentWork)
+                                                                <div class="list-group-item d-flex justify-content-between align-items-center" style="background-color: #0f172a; border: 1px solid #334155; color: white;">
+                                                                    <div>
+                                                                        <div class="fw-bold">{{ $studentWork->first_name }} {{ $studentWork->last_name }}</div>
+                                                                        <div class="text-white-50 small">{{ $studentWork->student_email }}</div>
+                                                                    </div>
+                                                                    <a href="{{ route('admin.projects.view', $studentWork->id) }}" class="btn btn-sm btn-outline-info">
+                                                                        <i class="fas fa-eye me-1"></i>Voir
+                                                                    </a>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        @endif
-                                        <div>
-                                            <div class="fw-medium">{{ $work->first_name }} {{ $work->last_name }}</div>
-                                            <small class="text-muted">{{ $work->student_email }}</small>
-                                        </div>
+                                        @endforeach
                                     </div>
-                                </td>
-                                <td>{{ $work->formation }}</td>
-                                <td>{{ $work->created_at ? \Carbon\Carbon::parse($work->created_at)->format('d/m/Y H:i') : '' }}</td>
-                                <td>{{ $work->deadline ? \Carbon\Carbon::parse($work->deadline)->format('d/m/Y') : '' }}</td>
-                                <td>
-                                    @php
-                                        $status = $work->status ?? '';
-                                        $statusLabel = $status === 'en_cours' ? 'Pas encore Fait' : $status;
-                                        $statusClass = match ($status) {
-                                            'en_cours' => 'bg-warning text-dark',
-                                            'termine' => 'bg-info text-dark',
-                                            'valide' => 'bg-success',
-                                            'rejete' => 'bg-danger',
-                                            default => 'bg-secondary',
-                                        };
-                                    @endphp
-                                    <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
-                                </td>
-                                <td>
-                                    <a href="{{ route('admin.projects.view', $work->id) }}" class="btn btn-sm btn-outline-info">
-                                        <i class="fas fa-eye me-1"></i>Voir
-                                    </a>
-
-                                    <a href="{{ route('admin.projects.edit', $work->id) }}" class="btn btn-sm btn-outline-warning ms-1">
-                                        <i class="fas fa-edit me-1"></i>Modifier
-                                    </a>
-
-                                    <form action="{{ route('admin.projects.assigned.delete', $work->id) }}" method="POST" class="d-inline ms-1" onsubmit="return confirm('Supprimer ce projet ? Cette action est irréversible.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-trash me-1"></i>Supprimer
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9" class="text-center py-4">Aucun projet attribué trouvé.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
-
-        @if($assignments->hasPages())
-            <div class="card-footer">
-                {{ $assignments->withQueryString()->links() }}
-            </div>
-        @endif
     </div>
 </div>
 @endsection
