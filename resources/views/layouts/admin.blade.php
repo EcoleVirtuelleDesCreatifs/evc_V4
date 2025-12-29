@@ -176,10 +176,18 @@
                         </a>
                     </li>
 
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.projets.design-graphique.assigned') }}" class="admin-nav-link {{ request()->routeIs('admin.projets.design-graphique.assigned') ? 'active' : '' }}">
+                            <i class="fas fa-tasks"></i>
+                            Projets attribués
+                        </a>
+                    </li>
+
                     <!-- Projets Design Graphique -->
                     @php
                         $isDesignGraphiqueMenuActive = request()->routeIs('admin.projets.design-graphique.*')
-                            && !request()->routeIs('admin.projets.design-graphique.to-send');
+                            && !request()->routeIs('admin.projets.design-graphique.to-send')
+                            && !request()->routeIs('admin.projets.design-graphique.assigned');
                     @endphp
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ $isDesignGraphiqueMenuActive ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#designGraphiqueMenu">
@@ -194,9 +202,6 @@
                                 </a></li>
                                 <li><a href="{{ route('admin.studio-creative') }}" class="admin-nav-sublink">
                                     <i class="fas fa-external-link-alt"></i>Studio Creative
-                                </a></li>
-                                <li><a href="{{ route('admin.projets.design-graphique.assigned') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.assigned') ? 'active' : '' }}">
-                                    <i class="fas fa-tasks"></i>Projets attribués
                                 </a></li>
                                 <li><a href="{{ route('admin.projets.design-graphique.all') }}" class="admin-nav-sublink {{ request()->routeIs('admin.projets.design-graphique.all') ? 'active' : '' }}">
                                     <i class="fas fa-list"></i>Tous les projets
