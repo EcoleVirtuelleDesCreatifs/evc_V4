@@ -496,9 +496,18 @@ class AdminDashboardController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
+        $alreadyAssignedUserIds = $relatedProjects
+            ->pluck('user_id')
+            ->filter()
+            ->unique()
+            ->values();
+
         $studentsList = User::query()
             ->whereHas('student', function ($q) {
                 $q->where('status', 'active');
+            })
+            ->when($alreadyAssignedUserIds->isNotEmpty(), function ($query) use ($alreadyAssignedUserIds) {
+                $query->whereNotIn('id', $alreadyAssignedUserIds->all());
             })
             ->with('student')
             ->orderBy('name')
