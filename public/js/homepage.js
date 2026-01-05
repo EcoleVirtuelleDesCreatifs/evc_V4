@@ -4,15 +4,27 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         const preloader = document.getElementById('preloader');
         if (preloader) {
-            // Cacher le preloader au chargement initial après 5 secondes
-            window.addEventListener('load', () => {
+            const hidePreloader = () => {
+                preloader.style.opacity = '0';
                 setTimeout(() => {
-                    preloader.style.opacity = '0';
-                    setTimeout(() => {
-                        preloader.style.display = 'none';
-                    }, 500);
-                }, 3000); // 3 secondes
-            });
+                    preloader.style.display = 'none';
+                }, 200);
+            };
+
+            const showPreloader = () => {
+                preloader.style.display = 'flex';
+                preloader.style.opacity = '1';
+
+                // Fallback: ne jamais bloquer l'utilisateur trop longtemps
+                clearTimeout(window.__evcPreloaderTimeout);
+                window.__evcPreloaderTimeout = setTimeout(() => {
+                    hidePreloader();
+                }, 800);
+            };
+
+            // Chargement initial: ne pas afficher de loader (site perçu instantané)
+            hidePreloader();
+            window.addEventListener('load', hidePreloader);
 
             // Afficher le loader lors de la navigation
             document.querySelectorAll('a').forEach(link => {
@@ -28,9 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         !link.classList.contains('no-loader') &&
                         !link.hasAttribute('data-fancybox')) {
 
-                        // Afficher le preloader
-                        preloader.style.display = 'flex';
-                        preloader.style.opacity = '1';
+                        // Afficher le preloader uniquement pour les navigations internes
+                        showPreloader();
                     }
                 });
             });
@@ -38,8 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Cacher le loader si l'utilisateur revient en arrière
             window.addEventListener('pageshow', (event) => {
                 if (event.persisted) {
-                    preloader.style.opacity = '0';
-                    preloader.style.display = 'none';
+                    hidePreloader();
                 }
             });
         }
