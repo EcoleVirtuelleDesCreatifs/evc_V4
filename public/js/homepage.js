@@ -57,6 +57,27 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Preloader Error:', e);
     }
 
+    // --- Deferred background images (data-bg) ---
+    try {
+        const applyDeferredBackgrounds = () => {
+            document.querySelectorAll('[data-bg]').forEach((el) => {
+                const url = el.getAttribute('data-bg');
+                if (!url) return;
+                if (el.style.backgroundImage && el.style.backgroundImage !== 'none') return;
+                el.style.backgroundImage = `url('${url}')`;
+                el.removeAttribute('data-bg');
+            });
+        };
+
+        if ('requestIdleCallback' in window) {
+            requestIdleCallback(applyDeferredBackgrounds, { timeout: 1500 });
+        } else {
+            setTimeout(applyDeferredBackgrounds, 400);
+        }
+    } catch (e) {
+        console.error('Deferred BG Error:', e);
+    }
+
     // --- Header Scroll Effect ---
     try {
         const header = document.getElementById('main-header');

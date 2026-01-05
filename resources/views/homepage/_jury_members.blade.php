@@ -121,7 +121,7 @@
                         <div class="w-32 h-32 mx-auto mb-4 relative rounded-full overflow-hidden border-4 border-white/20 shadow-lg group-hover:border-orange-500 transition-colors duration-300">
                             <img src="{{ asset('assets/img/membre_du_jury/' . $member['image']) }}"
                                  alt="{{ $member['name'] }}"
-                                 class="w-full h-full object-cover object-top transition-transform duration-500">
+                                 class="w-full h-full object-cover object-top transition-transform duration-500" loading="lazy" decoding="async">
                         </div>
                         <h3 class="mt-4 text-lg font-semibold leading-tight tracking-tight text-white group-hover:text-orange-400 transition-colors">{{ $member['name'] }}</h3>
                         <p class="text-xs text-gray-300 mt-1"><span class="text-lg">{{ $member['flag'] }}</span> {{ $member['country'] }}</p>

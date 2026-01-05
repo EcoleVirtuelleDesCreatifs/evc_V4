@@ -19,7 +19,7 @@
             <!-- Column 1: Logo & Description -->
             <div class="lg:col-span-1 space-y-8">
                 <div>
-                    <img class="h-16 w-auto" src="{{ asset('assets/img/logo.png') }}" alt="EVC Logo">
+                    <img class="h-16 w-auto" src="{{ asset('assets/img/logo.png') }}" alt="EVC Logo" loading="lazy" decoding="async">
                 </div>
                 <p class="text-sm leading-6 text-gray-300">
                     L'École Virtuelle des Créatifs (EVC) est une référence incontournable en formation digitale. Reconnue par l'État ivoirien, cette SARL mise sur une pédagogie 100 % Ultra-pratique, axée sur les besoins réels du marché.

@@ -21,7 +21,7 @@
                 <div class="card-hover-effect" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
                     <a href="{{ asset('assets/img/' . $laureat['img']) }}" data-fancybox="laureats-gallery" data-caption="{{ $laureat['name'] }} - {{ $laureat['title'] }}">
                         <div class="bg-black/20 backdrop-blur-lg rounded-2xl p-6 border border-white/10 h-full flex flex-col text-center">
-                            <img class="aspect-square w-full rounded-full object-cover mx-auto shadow-lg" src="{{ asset('assets/img/' . $laureat['img']) }}" alt="Photo de {{ $laureat['name'] }}">
+                            <img class="aspect-square w-full rounded-full object-cover mx-auto shadow-lg" src="{{ asset('assets/img/' . $laureat['img']) }}" alt="Photo de {{ $laureat['name'] }}" loading="lazy" decoding="async">
                             <h3 class="mt-6 text-lg font-semibold leading-tight tracking-tight text-white">{{ $laureat['name'] }}</h3>
                             <p class="text-xs text-gray-300 mt-1"><span class="text-lg">{{ $laureat['flag'] }}</span> {{ $laureat['country'] }}</p>
                             <p class="text-sm leading-7 text-gray-400 flex-grow mt-2">{{ $laureat['title'] }}</p>

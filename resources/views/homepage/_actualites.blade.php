@@ -25,7 +25,7 @@
                     <a href="{{ route('actualite.show', $actualite->slug) }}" class="block">
                         <img src="{{ $actualite->cover_image ? $actualite->cover_image_url : 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80' }}"
                              alt="{{ $actualite->cover_image_alt ?? $actualite->title }}"
-                             class="aspect-[16/9] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2] hover:opacity-90 transition-opacity duration-300">
+                             class="aspect-[16/9] w-full rounded-2xl bg-gray-100 object-cover sm:aspect-[2/1] lg:aspect-[3/2] hover:opacity-90 transition-opacity duration-300" loading="lazy" decoding="async">
                     </a>
                 </div>
                 <div class="max-w-xl">

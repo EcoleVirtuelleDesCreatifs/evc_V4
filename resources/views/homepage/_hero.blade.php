@@ -14,12 +14,12 @@
                             </div>
                             <div class="swiper-slide">
                                 <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ asset('assets/img/cover/formation-community-manager-a-abidjan.jpg') }}');"></div>
+                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ asset('assets/img/cover/formation-community-manager-a-abidjan.jpg') }}"></div>
                                 </div>
                             </div>
                             <div class="swiper-slide">
                                 <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ asset('assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg') }}');"></div>
+                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ asset('assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg') }}"></div>
                                 </div>
                             </div>
                         </div>
@@ -62,12 +62,12 @@
                     </div>
                     <div class="swiper-slide">
                         <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ asset('assets/img/cover/formation-community-manager-a-abidjan.jpg') }}');"></div>
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ asset('assets/img/cover/formation-community-manager-a-abidjan.jpg') }}"></div>
                         </div>
                     </div>
                     <div class="swiper-slide">
                         <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ asset('assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg') }}');"></div>
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ asset('assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg') }}"></div>
                         </div>
                     </div>
                 </div>

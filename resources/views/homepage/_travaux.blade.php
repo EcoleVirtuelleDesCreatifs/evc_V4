@@ -27,7 +27,7 @@
                                     <div class="overflow-hidden rounded-2xl shadow-lg aspect-square">
                                         <img src="{{ asset('assets/img/tp_etudiant_evc/' . $category . '/' . $imageNum . '.jpg') }}"
                                              alt="{{ ucfirst($category) }} {{ $imageNum }}"
-                                             class="h-full w-full object-cover object-center transition-transform duration-300 hover:scale-105">
+                                             class="h-full w-full object-cover object-center transition-transform duration-300 hover:scale-105" loading="lazy" decoding="async">
                                     </div>
                                 </a>
                             </div>

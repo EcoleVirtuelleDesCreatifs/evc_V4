@@ -4,7 +4,7 @@
         <div class="mx-auto grid max-w-5xl grid-cols-1 items-center gap-x-0 gap-y-16 lg:grid-cols-2">
             <!-- Left Column: Image - visible uniquement sur desktop -->
             <div class="hidden lg:block">
-                <img class="w-full max-w-sm mx-auto rounded-lg shadow-lg" src="{{ asset('assets/img/founder/Bile_Bossombra.jpg') }}" alt="Photo de Bilé Bossombra, Fondateur & Formateur Principal">
+                <img class="w-full max-w-sm mx-auto rounded-lg shadow-lg" src="{{ asset('assets/img/founder/Bile_Bossombra.jpg') }}" alt="Photo de Bilé Bossombra, Fondateur & Formateur Principal" loading="lazy" decoding="async">
             </div>
 
             <!-- Right Column: Text -->
@@ -15,7 +15,7 @@
 
                 <!-- Image mobile - visible uniquement sur mobile, positionnée après la barre orange -->
                 <div class="lg:hidden mt-6">
-                    <img class="w-full max-w-sm mx-auto rounded-lg shadow-lg" src="{{ asset('assets/img/founder/Bile_Bossombra.jpg') }}" alt="Photo de Bilé Bossombra, Fondateur & Formateur Principal">
+                    <img class="w-full max-w-sm mx-auto rounded-lg shadow-lg" src="{{ asset('assets/img/founder/Bile_Bossombra.jpg') }}" alt="Photo de Bilé Bossombra, Fondateur & Formateur Principal" loading="lazy" decoding="async">
                 </div>
 
                 <p class="mt-6 text-gray-600">
