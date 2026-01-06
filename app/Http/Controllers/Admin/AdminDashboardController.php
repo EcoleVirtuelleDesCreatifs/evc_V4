@@ -636,7 +636,6 @@ class AdminDashboardController extends Controller
             $existing = (clone $dupQuery)->first();
             if ($existing) {
                 $existing->status = 'en_cours';
-                $existing->link = null;
                 if (Schema::hasColumn('projects', 'thumbnail_image')) {
                     $existing->thumbnail_image = null;
                 }
@@ -656,7 +655,6 @@ class AdminDashboardController extends Controller
         ]);
         $newProject->user_id = $targetUserId;
         $newProject->status = 'en_cours';
-        $newProject->link = null;
         if (Schema::hasColumn('projects', 'thumbnail_image')) {
             $newProject->thumbnail_image = null;
         }

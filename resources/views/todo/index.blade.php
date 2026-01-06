@@ -1042,6 +1042,21 @@ function showDetails(tpId) {
         </div>
     `;
 
+    if (tp.link) {
+        const briefHref = tp.link;
+        const briefLabel = escapeHtml(tp.link);
+        content += `
+            <div style="margin-bottom: 1.5rem;">
+                <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
+                    <i class="fas fa-link me-2"></i>Lien
+                </h4>
+                <a href="${briefHref}" target="_blank" rel="noopener noreferrer" style="background: #e3f2fd; color: #1976d2; padding: 1rem; border-radius: 12px; text-decoration: none; display: block; transition: all 0.3s;" onmouseover="this.style.background='#bbdefb'" onmouseout="this.style.background='#e3f2fd'">
+                    <i class="fas fa-external-link-alt me-2"></i>${briefLabel}
+                </a>
+            </div>
+        `;
+    }
+
     // Ajouter les fichiers joints si présents
     if (tp.files && tp.files.length > 0) {
         content += `
