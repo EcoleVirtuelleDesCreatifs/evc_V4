@@ -239,6 +239,60 @@
         line-height: 1.7;
     }
 
+    .course-description {
+        color: rgba(255, 255, 255, 0.88);
+        line-height: 1.75;
+        font-size: 1rem;
+        word-break: break-word;
+    }
+
+    .course-description p {
+        margin: 0 0 1rem;
+    }
+
+    .course-description h1,
+    .course-description h2,
+    .course-description h3,
+    .course-description h4 {
+        color: rgba(255, 255, 255, 0.95);
+        font-weight: 800;
+        margin: 1.25rem 0 0.75rem;
+        line-height: 1.25;
+    }
+
+    .course-description h1 { font-size: 1.6rem; }
+    .course-description h2 { font-size: 1.4rem; }
+    .course-description h3 { font-size: 1.2rem; }
+    .course-description h4 { font-size: 1.1rem; }
+
+    .course-description ul,
+    .course-description ol {
+        margin: 0 0 1rem 1.25rem;
+        padding: 0;
+    }
+
+    .course-description li {
+        margin: 0.25rem 0;
+    }
+
+    .course-description a {
+        color: #f97316;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    .course-description blockquote {
+        border-left: 3px solid rgba(249, 115, 22, 0.6);
+        padding-left: 1rem;
+        margin: 0 0 1rem;
+        color: rgba(255, 255, 255, 0.85);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
     /* Scrollbar */
     ::-webkit-scrollbar { width: 8px; }
     ::-webkit-scrollbar-track { background: #0f172a; }
@@ -382,8 +436,24 @@
 
                     <div id="tab-description" class="tab-content">
                         <h3 class="h4 fw-bold text-white mb-3">À propos du cours</h3>
-                        <div class="text-light-80">
-                            {!! nl2br(e(strip_tags($formation->description ?? 'Aucune description disponible.'))) !!}
+                        <div class="course-description">
+                            @php
+                                $rawDescription = (string) ($formation->description ?? 'Aucune description disponible.');
+                                $rawDescription = html_entity_decode($rawDescription);
+
+                                // Autoriser un sous-ensemble de balises pour conserver la mise en forme.
+                                $allowedTags = '<p><br><strong><b><em><i><u><h1><h2><h3><h4><ul><ol><li><blockquote><a>';
+                                $sanitized = strip_tags($rawDescription, $allowedTags);
+
+                                // Fallback: si aucun HTML significatif, conserver les retours à la ligne.
+                                $fallbackText = nl2br(e(trim(strip_tags($rawDescription))));
+                            @endphp
+
+                            @if(trim(strip_tags($sanitized)) === '')
+                                {!! $fallbackText !!}
+                            @else
+                                {!! $sanitized !!}
+                            @endif
                         </div>
                     </div>
 
