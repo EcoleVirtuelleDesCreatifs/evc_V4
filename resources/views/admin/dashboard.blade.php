@@ -1105,7 +1105,8 @@ function updateGreeting() {
     else if (hour < 18) greeting = 'Bon après-midi';
     else greeting = 'Bonsoir';
 
-    document.getElementById('greeting').textContent = greeting;
+    const greetingEl = document.getElementById('greetingText');
+    if (greetingEl) greetingEl.textContent = greeting;
 }
 
 // Animate numbers with easing
