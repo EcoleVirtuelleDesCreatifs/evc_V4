@@ -191,6 +191,11 @@
                                     <i class="fas fa-file-alt me-2"></i>
                                     {{ $stats['total_tps'] }} TP
                                 </span>
+                                <br>
+                                <span class="badge bg-light text-dark badge-modern mt-2">
+                                    <i class="fas fa-folder-open me-2"></i>
+                                    {{ $stats['pending_projects'] ?? 0 }} Projets
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -462,6 +467,134 @@
                             <i class="fas fa-check-circle text-success" style="font-size: 4rem; opacity: 0.3;"></i>
                             <h4 class="mt-3 text-muted">Aucun travail en attente</h4>
                             <p class="text-muted">Tous les travaux ont été traités !</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 fade-in-up" style="animation-delay: 0.55s;">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header py-4 px-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-bottom: 2px solid #dee2e6;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 fw-bold">
+                            <i class="fas fa-folder-open me-3 text-primary"></i>
+                            Projets à Valider
+                        </h4>
+                        <div>
+                            <span class="badge bg-warning text-dark badge-modern">
+                                <i class="fas fa-clock me-2"></i>
+                                {{ $stats['pending_projects'] ?? 0 }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+                    @if(!empty($pendingProjects) && $pendingProjects->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="px-4 py-3" style="width: 50px;">#</th>
+                                        <th class="py-3">Étudiant</th>
+                                        <th class="py-3">Formation</th>
+                                        <th class="py-3">Projet</th>
+                                        <th class="py-3 text-center" style="width: 120px;">Fichiers</th>
+                                        <th class="py-3 text-center" style="width: 180px;">Soumis le</th>
+                                        <th class="py-3 text-center" style="width: 220px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($pendingProjects as $index => $project)
+                                        <tr class="student-card">
+                                            <td class="px-4 align-middle">
+                                                <div class="badge bg-gradient-primary badge-modern">{{ $index + 1 }}</div>
+                                            </td>
+                                            <td class="align-middle py-3">
+                                                <div class="d-flex align-items-center">
+                                                    @if(!empty($project->profile_photo))
+                                                        <div class="me-3" style="width: 50px; height: 50px; border-radius: 50%; overflow: hidden; box-shadow: 0 4px 12px rgba(30, 60, 114, 0.4);">
+                                                            <img src="{{ asset($project->profile_photo) }}"
+                                                                 alt="{{ $project->first_name ?? '' }} {{ $project->last_name ?? '' }}"
+                                                                 style="width: 100%; height: 100%; object-fit: cover;">
+                                                        </div>
+                                                    @else
+                                                        <div class="avatar-circle me-3">
+                                                            {{ strtoupper(substr($project->first_name ?? 'U', 0, 1)) }}{{ strtoupper(substr($project->last_name ?? 'N', 0, 1)) }}
+                                                        </div>
+                                                    @endif
+
+                                                    <div>
+                                                        <div class="fw-bold fs-6 mb-1">
+                                                            {{ $project->first_name ?? '' }} {{ $project->last_name ?? '' }}
+                                                        </div>
+                                                        <small class="text-muted d-flex align-items-center">
+                                                            <i class="fas fa-envelope me-1"></i>
+                                                            <span>{{ $project->student_email ?? '' }}</span>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="badge badge-modern" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white;">
+                                                    {{ $project->formation ?? 'Non spécifié' }}
+                                                </span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <div class="fw-bold">{!! Str::limit($project->title ?? 'Projet', 60) !!}</div>
+                                                @if(!empty($project->category))
+                                                    <small class="text-muted">{{ $project->category }}</small>
+                                                @endif
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span class="badge bg-warning text-dark badge-modern fs-6">
+                                                    <i class="fas fa-paperclip me-1"></i>
+                                                    {{ isset($project->files) ? $project->files->count() : 0 }}
+                                                </span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <div class="fw-bold text-primary mb-1">
+                                                    <i class="fas fa-calendar-alt me-1"></i>
+                                                    {{ \Carbon\Carbon::parse($project->submitted_at ?? $project->updated_at)->format('d/m/Y') }}
+                                                </div>
+                                                <small class="text-muted">
+                                                    {{ \Carbon\Carbon::parse($project->submitted_at ?? $project->updated_at)->diffForHumans() }}
+                                                </small>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ route('admin.projets.pending.show', $project->id) }}"
+                                                       class="btn btn-outline-primary"
+                                                       title="Voir">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <form action="{{ route('admin.projets.pending.validate', $project->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-success" title="Valider" onclick="return confirm('✅ Valider ce projet ?');">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    </form>
+                                                    <form action="{{ route('admin.projets.pending.reject', $project->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-outline-warning" title="Rejeter" onclick="return confirm('❌ Rejeter ce projet ?');">
+                                                            <i class="fas fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle text-success" style="font-size: 4rem; opacity: 0.3;"></i>
+                            <h4 class="mt-3 text-muted">Aucun projet à valider</h4>
+                            <p class="text-muted">Tous les projets ont été traités !</p>
                         </div>
                     @endif
                 </div>

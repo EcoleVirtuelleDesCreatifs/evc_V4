@@ -1764,6 +1764,34 @@ class AdminDashboardController extends Controller
             ->orderBy('tp_assignments.created_at', 'desc')
             ->get();
 
+        // Récupérer tous les projets à valider (status = termine)
+        $pendingProjects = DB::table('projects')
+            ->where('projects.status', 'termine')
+            ->leftJoin('users', 'projects.user_id', '=', 'users.id')
+            ->leftJoin('students', 'users.id', '=', 'students.user_id')
+            ->select(
+                'projects.*',
+                'users.email as student_email',
+                'students.first_name',
+                'students.last_name',
+                'students.program as formation',
+                'students.profile_photo'
+            )
+            ->orderBy('projects.updated_at', 'desc')
+            ->get();
+
+        $pendingProjects = $pendingProjects->map(function ($project) {
+            $files = DB::table('project_images')
+                ->where('project_id', $project->id)
+                ->select('id', 'image_path', 'created_at')
+                ->get();
+
+            $project->files = $files;
+            $project->submitted_at = $project->updated_at;
+
+            return $project;
+        });
+
         // Grouper les TP par étudiant et formation
         $studentsByFormation = $pendingTps->groupBy('formation')->map(function ($formationTps) {
             return $formationTps->groupBy('student_id')->map(function ($studentTps) {
@@ -1795,6 +1823,7 @@ class AdminDashboardController extends Controller
             'total_pending' => $pendingTps->count(),
             'total_students' => $totalStudents,
             'total_tps' => DB::table('tp_assignments')->count(),
+            'pending_projects' => $pendingProjects->count(),
             'design_graphique' => $pendingTps->where('formation', 'Design Graphique')->count(),
             'community_management' => $pendingTps->where('formation', 'Community Management')->count(),
             'gestion_informatique' => $pendingTps->where('formation', 'Gestion Informatique')->count(),
@@ -1810,7 +1839,8 @@ class AdminDashboardController extends Controller
         return view('admin.travaux.pending', [
             'students_by_formation' => $studentsByFormation,
             'studentsTps' => $studentsTps,
-            'stats' => $stats
+            'stats' => $stats,
+            'pendingProjects' => $pendingProjects,
         ]);
     }
 
