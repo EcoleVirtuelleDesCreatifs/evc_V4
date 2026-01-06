@@ -770,6 +770,13 @@
                 <div class="quick-action-label">Gérer Étudiants</div>
             </a>
 
+            <a href="{{ route('admin.preinscriptions.index') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="quick-action-label">Préinscriptions</div>
+            </a>
+
             <a href="{{ route('admin.travaux.pending') }}" class="quick-action-card">
                 <div class="quick-action-icon">
                     <i class="fas fa-tasks"></i>
