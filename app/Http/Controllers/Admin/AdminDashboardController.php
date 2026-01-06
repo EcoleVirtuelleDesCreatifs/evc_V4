@@ -32,6 +32,8 @@ class AdminDashboardController extends Controller
 {
     public function dashboard(): View
     {
+        $currentWeekStart = now()->startOfWeek();
+
         // Récupérer les historiques de connexion récents
         $recentLogins = DB::table('user_activities')
             ->where('activity_type', 'login')
@@ -95,6 +97,22 @@ class AdminDashboardController extends Controller
             ->where('status', 'completed')
             ->sum('amount');
 
+        // Paiements cette semaine
+        $paymentsThisWeek = DB::table('payments')
+            ->where('status', 'completed')
+            ->where(function ($q) use ($currentWeekStart) {
+                $q->where('paid_at', '>=', $currentWeekStart)
+                    ->orWhere(function ($q2) use ($currentWeekStart) {
+                        $q2->whereNull('paid_at')->where('created_at', '>=', $currentWeekStart);
+                    });
+            })
+            ->sum('amount');
+
+        // Inscriptions cette semaine
+        $registrationsThisWeek = DB::table('students')
+            ->where('created_at', '>=', $currentWeekStart)
+            ->count();
+
         // --- Statistiques Dons (formulaire public) ---
         $donationsCount = 0;
         $donationsTotalAmount = 0;
@@ -121,6 +139,8 @@ class AdminDashboardController extends Controller
             'completedPaymentsCount',
             'pendingPaymentsCount',
             'paymentsThisMonth',
+            'paymentsThisWeek',
+            'registrationsThisWeek',
             'donationsCount',
             'donationsTotalAmount'
         ));

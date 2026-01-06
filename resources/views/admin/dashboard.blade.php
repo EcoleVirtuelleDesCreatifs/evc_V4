@@ -670,6 +670,30 @@
             </div>
         </div>
 
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="stat-number" data-target="{{ number_format($paymentsThisWeek ?? 0, 0, '', '') }}">0</div>
+            <div class="stat-label">Paiements de la semaine (XOF)</div>
+            <div class="stat-change positive">
+                <i class="fas fa-coins"></i>
+                <span>Depuis lundi</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="stat-number" data-target="{{ (int) ($registrationsThisWeek ?? 0) }}">0</div>
+            <div class="stat-label">Inscriptions de la semaine</div>
+            <div class="stat-change positive">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Depuis lundi</span>
+            </div>
+        </div>
+
         @if(session('admin_role') === 'super_admin')
         <div class="stat-card" onclick="window.location='{{ route('admin.donations.index') }}'" style="cursor:pointer;">
             <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);">
