@@ -2263,6 +2263,8 @@ class AdminDashboardController extends Controller
         // Calculer les statistiques globales
         $totalStudents = $allTravaux->unique('student_id')->count();
 
+        $assignedCount = $allTravaux->where('status', 'assigned')->count();
+        $submittedCount = $allTravaux->where('status', 'submitted')->count();
         $pendingCount = $allTravaux->where('status', 'pending')->count();
         $validatedCount = $allTravaux->where('status', 'validated')->count();
         $rejectedCount = $allTravaux->where('status', 'rejected')->count();
@@ -2272,8 +2274,8 @@ class AdminDashboardController extends Controller
             'total_assignments' => $allTravaux->count(),
             'total_tps' => $allTravaux->count(),  // Alias pour compatibilité
             'total_students' => $totalStudents,  // Nombre d'étudiants uniques
-            'assigned' => $allTravaux->count(),
-            'submitted' => $allTravaux->whereNotNull('submitted_at')->count(),
+            'assigned' => $assignedCount,
+            'submitted' => $submittedCount,
             'pending' => $pendingCount,
             'pending_tps' => $pendingCount,  // Alias pour compatibilité
             'validated' => $validatedCount,
@@ -2311,11 +2313,13 @@ class AdminDashboardController extends Controller
                 'program' => $formation,                            // Alias
                 'profile_photo' => $firstTravail->profile_photo,
                 'tps_count' => $studentTravaux->count(),
+                'assigned_count' => $studentTravaux->where('status', 'assigned')->count(),
+                'submitted_count' => $studentTravaux->where('status', 'submitted')->count(),
                 'pending_count' => $studentTravaux->where('status', 'pending')->count(),
                 'validated_count' => $studentTravaux->where('status', 'validated')->count(),
                 'rejected_count' => $studentTravaux->where('status', 'rejected')->count(),
                 'latest_submission' => $latestSubmission ? $latestSubmission->submitted_at : null,
-                'tps' => $studentTravaux->values()->toArray(),      // Tableau des TP pour le détail
+                'tps' => $studentTravaux->values(),      // Collection des TP pour le détail
             ];
         })->values();
 

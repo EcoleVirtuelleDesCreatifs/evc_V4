@@ -156,6 +156,22 @@
 
     <!-- Statistiques par statut -->
     <div class="row mb-4">
+        <div class="col-md-4 mb-3 fade-in-up" style="animation-delay: 0.05s;">
+            <div class="card border-0 shadow-sm h-100 stat-card" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-2">À faire</h6>
+                            <h2 class="mb-0 fw-bold">{{ $stats['assigned'] ?? 0 }}</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-tasks fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="col-md-4 mb-3 fade-in-up" style="animation-delay: 0.1s;">
             <div class="card border-0 shadow-sm h-100 stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);">
                 <div class="card-body text-white">
@@ -166,6 +182,22 @@
                         </div>
                         <div>
                             <i class="fas fa-clock fs-1 opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3 fade-in-up" style="animation-delay: 0.15s;">
+            <div class="card border-0 shadow-sm h-100 stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                <div class="card-body text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50 mb-2">Soumis</h6>
+                            <h2 class="mb-0 fw-bold">{{ $stats['submitted'] ?? 0 }}</h2>
+                        </div>
+                        <div>
+                            <i class="fas fa-paper-plane fs-1 opacity-50"></i>
                         </div>
                     </div>
                 </div>
@@ -302,7 +334,9 @@
                                         <th class="px-4 py-3">Étudiant</th>
                                         <th class="text-center py-3">Formation</th>
                                         <th class="text-center py-3">Total TP</th>
+                                        <th class="text-center py-3">À faire</th>
                                         <th class="text-center py-3">En Attente</th>
+                                        <th class="text-center py-3">Soumis</th>
                                         <th class="text-center py-3">Validés</th>
                                         <th class="text-center py-3">Rejetés</th>
                                         <th class="text-center py-3">Dernière Soumission</th>
@@ -353,8 +387,18 @@
                                                 </span>
                                             </td>
                                             <td class="text-center align-middle">
+                                                <span class="badge bg-info text-white fs-6">
+                                                    {{ $student['assigned_count'] ?? 0 }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center align-middle">
                                                 <span class="badge bg-warning text-dark fs-6">
                                                     {{ $student['pending_count'] }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center align-middle">
+                                                <span class="badge bg-success fs-6">
+                                                    {{ $student['submitted_count'] ?? 0 }}
                                                 </span>
                                             </td>
                                             <td class="text-center align-middle">
@@ -370,7 +414,11 @@
                                             <td class="text-center align-middle">
                                                 <small class="text-muted">
                                                     <i class="fas fa-calendar me-1"></i>
-                                                    {{ \Carbon\Carbon::parse($student['latest_submission'])->format('d/m/Y H:i') }}
+                                                    @if(!empty($student['latest_submission']))
+                                                        {{ \Carbon\Carbon::parse($student['latest_submission'])->format('d/m/Y H:i') }}
+                                                    @else
+                                                        -
+                                                    @endif
                                                 </small>
                                             </td>
                                             <td class="text-center align-middle">
@@ -385,7 +433,7 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colspan="8" class="p-0 border-0">
+                                            <td colspan="10" class="p-0 border-0">
                                                 <div class="collapse" id="student-{{ $student['user_id'] }}">
                                                     <div class="p-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
                                                         <h6 class="mb-3 fw-bold">
@@ -443,7 +491,13 @@
                                                                                 @endif
                                                                             </td>
                                                                             <td class="text-center align-middle">
-                                                                                <small>{{ \Carbon\Carbon::parse($tp->created_at)->format('d/m/Y H:i') }}</small>
+                                                                                <small>
+                                                                                    @if(!empty($tp->submitted_at))
+                                                                                        {{ \Carbon\Carbon::parse($tp->submitted_at)->format('d/m/Y H:i') }}
+                                                                                    @else
+                                                                                        {{ \Carbon\Carbon::parse($tp->created_at)->format('d/m/Y H:i') }}
+                                                                                    @endif
+                                                                                </small>
                                                                             </td>
                                                                             <td class="text-center align-middle">
                                                                                 <div class="btn-group btn-group-sm" role="group">
