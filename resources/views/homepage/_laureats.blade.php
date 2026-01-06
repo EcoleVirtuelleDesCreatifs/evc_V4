@@ -10,10 +10,10 @@
         <div class="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-4 lg:gap-8">
             @php
                 $laureats = [
-                    ['img' => 'laureats/edition-2024/Adobley-Innocent-Togo.jpg', 'name' => 'Adobley Innocent', 'title' => 'Lauréat Édition 2024', 'country' => 'Togo', 'flag' => '🇹🇬'],
-                    ['img' => 'laureats/edition-2024/Dakouri-Isaie-Cote-d-Ivoire.jpg', 'name' => 'Dakouri Isaie', 'title' => 'Lauréat Édition 2024', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
-                    ['img' => 'laureats/edition-2024/Fatou-Rebecca-Cote-d-Ivoire.jpg', 'name' => 'Fatou Rebecca', 'title' => 'Graphic Designer | Communicante Junior', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
-                    ['img' => 'laureats/edition-2024/Jean-Baptiste-Cote-d-Ivoire.jpg', 'name' => 'Jean Baptiste', 'title' => 'Infographiste & Community Manager', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
+                    ['img' => 'laureats/edition-4-2025/Agnero-Alexandre-Cote-D-Ivoire.png', 'name' => 'Agnero Alexandre', 'title' => 'Lauréat Édition 4 - 2025', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
+                    ['img' => 'laureats/edition-4-2025/Pascal-Adjiri-Cote-d-Ivoire.png', 'name' => 'Pascal Adjiri', 'title' => 'Lauréat Édition 4 - 2025', 'country' => 'Côte d’Ivoire', 'flag' => '🇨🇮'],
+                    ['img' => 'laureats/edition-4-2025/Dao-Sidiki-Burkina-Faso.png', 'name' => 'Dao Sidiki', 'title' => 'Lauréat Édition 4 - 2025', 'country' => 'Burkina Faso', 'flag' => '🇧🇫'],
+                    ['img' => 'laureats/edition-4-2025/Soma-Roseline-Burkina-Faso.png', 'name' => 'Soma Roseline', 'title' => 'Lauréat Édition 4 - 2025', 'country' => 'Burkina Faso', 'flag' => '🇧🇫'],
                 ];
             @endphp
 
