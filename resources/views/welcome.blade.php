@@ -5,7 +5,6 @@
 @section('keywords', 'école virtuelle, formation design graphique Abidjan, formation community management, école digitale Côte d\'Ivoire, formation certifiante, Adobe Photoshop Abidjan, formation en ligne Afrique, école créatifs, EVC, formation bureautique, intelligence artificielle')
 
 @section('content')
-    @include('homepage._preloader')
     @include('homepage._hero')
     @include('homepage._communique')
     @include('homepage._webtv_home')

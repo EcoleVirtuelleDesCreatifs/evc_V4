@@ -55,6 +55,33 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <script>
+        (function () {
+            var shouldShowForLink = function (a) {
+                if (!a) return false;
+                var href = a.getAttribute('href');
+                if (!href) return false;
+                if (href.startsWith('#')) return false;
+                if (href.startsWith('javascript:')) return false;
+                if (href.startsWith('mailto:')) return false;
+                if (href.startsWith('tel:')) return false;
+                if (a.getAttribute('target')) return false;
+                if (a.classList && a.classList.contains('no-loader')) return false;
+                if (a.hasAttribute('data-fancybox')) return false;
+                return true;
+            };
+
+            document.addEventListener('click', function (e) {
+                var a = e.target && e.target.closest ? e.target.closest('a') : null;
+                if (!shouldShowForLink(a)) return;
+                var preloader = document.getElementById('preloader');
+                if (!preloader) return;
+                preloader.style.display = 'flex';
+                preloader.style.opacity = '1';
+            }, true);
+        })();
+    </script>
+
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
@@ -153,6 +180,8 @@
 </head>
 <body class="bg-black font-sans antialiased">
     <div id="particles-js"></div>
+
+    @include('homepage._preloader')
 
     @include('homepage._header')
 
