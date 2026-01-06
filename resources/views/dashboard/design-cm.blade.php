@@ -773,7 +773,11 @@
 
                     @if($projet->description)
                     <p class="text-muted small mb-3" style="line-height: 1.6;">
-                        {{ Str::limit($projet->description, 100) }}
+                        @php
+                            $desc = html_entity_decode((string) $projet->description);
+                            $desc = preg_replace('/\s+/', ' ', strip_tags($desc));
+                        @endphp
+                        {{ Str::limit(trim((string) $desc), 100) }}
                     </p>
                     @endif
 
