@@ -4350,7 +4350,7 @@ class AdminDashboardController extends Controller
                 'nom' => $studentData['first_name'] . ' ' . $studentData['last_name']
             ]);
 
-            $remindersCount = null;
+            $remindersCount = 0;
             if (Schema::hasTable('payment_reminders') && $student) {
                 $remindersCount = (int) DB::table('payment_reminders')
                     ->where('student_id', $student->id)

@@ -213,10 +213,13 @@ function sendReminder(studentId, buttonEl) {
         btn.innerHTML = originalHTML;
 
         if (data.success) {
-            if (typeof data.reminders_count !== 'undefined') {
-                const badge = document.getElementById(`reminders-count-${studentId}`);
-                if (badge) {
+            const badge = document.getElementById(`reminders-count-${studentId}`);
+            if (badge) {
+                if (typeof data.reminders_count === 'number') {
                     badge.textContent = data.reminders_count;
+                } else {
+                    const current = parseInt((badge.textContent || '0').toString(), 10);
+                    badge.textContent = isNaN(current) ? '1' : String(current + 1);
                 }
             }
             // Afficher un message de succès
