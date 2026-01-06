@@ -27,7 +27,7 @@
 
             <!-- Sous-titre -->
             <p class="text-base md:text-lg text-gray-300 text-center mb-4 md:mb-6">
-                Rejoignez <span class="text-orange-400 font-bold">+1509 étudiants</span> qui ont déjà fait le choix de l'excellence digitale
+                Rejoignez <span class="text-orange-400 font-bold">+1542 étudiants</span> qui ont déjà fait le choix de l'excellence digitale
             </p>
 
             <!-- Avantages -->
@@ -68,7 +68,7 @@
                     </div>
                     <div>
                         <h3 class="text-white font-semibold text-sm md:text-base mb-0.5">Insertion Pro</h3>
-                        <p class="text-gray-400 text-xs md:text-sm">+90 étudiants embauchés</p>
+                        <p class="text-gray-400 text-xs md:text-sm">+54 étudiants embauchés</p>
                     </div>
                 </div>
             </div>

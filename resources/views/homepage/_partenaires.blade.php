@@ -163,7 +163,7 @@
         <!-- Statistiques Partenariats -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8" data-aos="fade-up" data-aos-delay="300">
             <div class="text-center p-8 bg-gradient-to-br from-blue-500/10 to-blue-600/10 rounded-2xl border border-blue-500/20">
-                <div class="text-4xl font-bold text-white mb-2">+90</div>
+                <div class="text-4xl font-bold text-white mb-2">+54</div>
                 <p class="text-gray-300">Étudiants Embauchés</p>
             </div>
             <div class="text-center p-8 bg-gradient-to-br from-green-500/10 to-green-600/10 rounded-2xl border border-green-500/20">

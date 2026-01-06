@@ -9,19 +9,19 @@
             <dl class="mt-16 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-4">
                 <div class="flex flex-col bg-white/5 p-8 transition-all duration-300 hover:bg-gradient-to-br hover:from-orange-600 hover:via-orange-500 hover:to-orange-400 cursor-pointer" data-aos="fade-up" data-aos-delay="100">
                     <dt class="text-sm font-semibold leading-6 text-gray-300">Étudiants Formés</dt>
-                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+1509</dd>
+                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+1542</dd>
                 </div>
                 <div class="flex flex-col bg-white/5 p-8 transition-all duration-300 hover:bg-gradient-to-br hover:from-orange-600 hover:via-orange-500 hover:to-orange-400 cursor-pointer" data-aos="fade-up" data-aos-delay="200">
-                    <dt class="text-sm font-semibold leading-6 text-gray-300">Étudiants Certifiés</dt>
-                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+457</dd>
+                    <dt class="text-sm font-semibold leading-6 text-gray-300">Étudiants Certifiés et Confirmés</dt>
+                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+473</dd>
                 </div>
                 <div class="flex flex-col bg-white/5 p-8 transition-all duration-300 hover:bg-gradient-to-br hover:from-orange-600 hover:via-orange-500 hover:to-orange-400 cursor-pointer" data-aos="fade-up" data-aos-delay="300">
-                    <dt class="text-sm font-semibold leading-6 text-gray-300">Stagiaires & Embauchés</dt>
-                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+90</dd>
+                    <dt class="text-sm font-semibold leading-6 text-gray-300">Étudiants Déjà Embauchés</dt>
+                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+54</dd>
                 </div>
                 <div class="flex flex-col bg-white/5 p-8 transition-all duration-300 hover:bg-gradient-to-br hover:from-orange-600 hover:via-orange-500 hover:to-orange-400 cursor-pointer" data-aos="fade-up" data-aos-delay="400">
-                    <dt class="text-sm font-semibold leading-6 text-gray-300">Pays Représentés</dt>
-                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+18</dd>
+                    <dt class="text-sm font-semibold leading-6 text-gray-300">Stagiaires Intégrés en Entreprise</dt>
+                    <dd class="order-first text-3xl font-semibold tracking-tight text-white">+72</dd>
                 </div>
             </dl>
             <div class="mt-10 text-center text-lg text-gray-300" data-aos="fade-up" data-aos-delay="500">
