@@ -633,6 +633,20 @@ class AdminDashboardController extends Controller
         }
 
         if ($dupQuery->exists()) {
+            $existing = (clone $dupQuery)->first();
+            if ($existing) {
+                $existing->status = 'en_cours';
+                $existing->link = null;
+                if (Schema::hasColumn('projects', 'thumbnail_image')) {
+                    $existing->thumbnail_image = null;
+                }
+                $existing->updated_at = now();
+                $existing->save();
+
+                return redirect()->route('admin.projects.edit', $project->id)
+                    ->with('success', "Projet réinitialisé pour cet étudiant.");
+            }
+
             return redirect()->back()->with('error', "Cet étudiant a déjà ce projet.");
         }
 
@@ -641,8 +655,6 @@ class AdminDashboardController extends Controller
             'updated_at',
         ]);
         $newProject->user_id = $targetUserId;
-        // IMPORTANT: le nouvel étudiant doit recevoir un projet "neuf" à faire.
-        // On ne doit pas hériter du statut traité (valide/rejete/termine) ni des liens de soumission.
         $newProject->status = 'en_cours';
         $newProject->link = null;
         if (Schema::hasColumn('projects', 'thumbnail_image')) {
