@@ -158,6 +158,8 @@
             <div class="urgent">
                 <strong>⏰ Action requise :</strong> Pour continuer à bénéficier de votre formation
                 et accéder à tous les contenus, merci de régulariser votre situation dans les plus brefs délais.
+                <br>
+                Vous pouvez effectuer votre paiement directement depuis votre espace étudiant : <strong>Gestion de formation &gt; Paiement</strong>.
             </div>
 
             <!-- Payment Methods -->
