@@ -218,6 +218,8 @@
                     <a href="{{ route('mentions-legales') }}" class="text-gray-400 hover:text-orange-400 transition-colors">Mentions Légales</a>
                     <span class="text-gray-600">|</span>
                     <a href="{{ route('politique-confidentialite') }}" class="text-gray-400 hover:text-orange-400 transition-colors">Politique de Confidentialité</a>
+                    <span class="text-gray-600">|</span>
+                    <a href="{{ route('reglement-interieur') }}" class="text-gray-400 hover:text-orange-400 transition-colors">Règlement Intérieur</a>
                 </div>
             </div>
         </div>

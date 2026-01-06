@@ -91,6 +91,10 @@ Route::get('/politique-confidentialite', function () {
     return view('legal.politique-confidentialite');
 })->name('politique-confidentialite');
 
+Route::get('/reglement-interieur', function () {
+    return view('legal.reglement-interieur');
+})->name('reglement-interieur');
+
 // Routes "Rejoignez-nous"
 Route::get('/rejoignez-nous', function () {
     return view('rejoignez-nous');

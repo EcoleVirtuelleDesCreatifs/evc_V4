@@ -27,6 +27,13 @@
                             </div>
                         </div>
                     </div>
+
+                    <button type="button" class="hero-nav-btn hero-nav-prev" aria-label="Slide précédent">
+                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="hero-nav-btn hero-nav-next" aria-label="Slide suivant">
+                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                    </button>
                 </div>
 
                 <!-- Text Slider -->
@@ -75,6 +82,13 @@
                     </div>
                 </div>
             </div>
+
+            <button type="button" class="hero-nav-btn hero-nav-prev" aria-label="Slide précédent">
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="hero-nav-btn hero-nav-next" aria-label="Slide suivant">
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+            </button>
         </div>
     </div>
 </main>

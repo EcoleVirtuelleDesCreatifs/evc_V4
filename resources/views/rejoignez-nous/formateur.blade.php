@@ -513,30 +513,6 @@
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="row">
-            <div class="col-lg-10 offset-lg-1">
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number">20+</div>
-                        <div class="stat-label">Formateurs</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">50+</div>
-                        <div class="stat-label">Cours</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">1000+</div>
-                        <div class="stat-label">Étudiants</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">4.8/5</div>
-                        <div class="stat-label">Satisfaction</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Content -->
         <div class="row">
             <div class="col-lg-10 offset-lg-1">
@@ -707,7 +683,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form[action*="formateur"]');
     const submitBtn = form ? form.querySelector('.submit-btn') : null;
     const loadingOverlay = document.getElementById('loadingOverlay');
-    
+
     if (form && submitBtn && loadingOverlay) {
         form.addEventListener('submit', function(e) {
             // Vérifier si le formulaire est valide
@@ -716,7 +692,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadingOverlay.classList.add('active');
                 submitBtn.classList.add('loading');
                 submitBtn.disabled = true;
-                
+
                 // Changer le texte du bouton
                 const btnText = submitBtn.querySelector('span');
                 if (btnText) {

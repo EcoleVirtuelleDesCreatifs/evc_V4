@@ -518,9 +518,9 @@
                             <h3>Contact</h3>
                             <div class="contact-info">
                                 <strong>Email:</strong><br>
-                                partenariats@evc.ci<br><br>
+                                info@ecolevirtuelledescreatifs.com<br><br>
                                 <strong>Téléphone:</strong><br>
-                                +225 XX XX XX XX
+                                +225 07 47 25 95 07
                             </div>
                         </div>
                     </aside>
@@ -655,7 +655,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form[action*="partenaire"]');
     const submitBtn = document.querySelector('.submit-btn');
     const loadingOverlay = document.getElementById('loadingOverlay');
-    
+
     if (form && submitBtn && loadingOverlay) {
         form.addEventListener('submit', function(e) {
             // Vérifier si le formulaire est valide
@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadingOverlay.classList.add('active');
                 submitBtn.classList.add('loading');
                 submitBtn.disabled = true;
-                
+
                 // Changer le texte du bouton
                 const btnText = submitBtn.querySelector('span');
                 if (btnText) {
