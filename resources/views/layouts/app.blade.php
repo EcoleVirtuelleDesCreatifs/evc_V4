@@ -66,18 +66,30 @@
                 if (href.startsWith('mailto:')) return false;
                 if (href.startsWith('tel:')) return false;
                 if (a.getAttribute('target')) return false;
+                if (a.hasAttribute('download')) return false;
                 if (a.classList && a.classList.contains('no-loader')) return false;
                 if (a.hasAttribute('data-fancybox')) return false;
                 return true;
             };
 
             document.addEventListener('click', function (e) {
+                if (e.defaultPrevented) return;
+                if (e.button && e.button !== 0) return;
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
                 var a = e.target && e.target.closest ? e.target.closest('a') : null;
                 if (!shouldShowForLink(a)) return;
                 var preloader = document.getElementById('preloader');
                 if (!preloader) return;
                 preloader.style.display = 'flex';
                 preloader.style.opacity = '1';
+
+                var href = a.href;
+                if (!href) return;
+                // Laisser le temps au navigateur d'afficher le loader avant de naviguer
+                e.preventDefault();
+                setTimeout(function () {
+                    window.location.href = href;
+                }, 50);
             }, true);
         })();
     </script>
