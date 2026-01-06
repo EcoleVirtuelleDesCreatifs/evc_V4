@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use setasign\Fpdf\Fpdf;
+use setasign\Fpdi\Fpdi;
 
 class PaymentReceiptGenerator
 {
@@ -23,7 +23,7 @@ class PaymentReceiptGenerator
      */
     public function generate(array $data): array
     {
-        $pdf = new Fpdf('P', 'mm', 'A4');
+        $pdf = new Fpdi('P', 'mm', 'A4');
         $pdf->SetAutoPageBreak(true, 18);
         $pdf->AddPage();
 
