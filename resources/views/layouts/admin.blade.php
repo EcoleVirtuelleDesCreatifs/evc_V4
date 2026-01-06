@@ -529,10 +529,19 @@
         (function () {
             const btn = document.getElementById('adminMobileMenuBtn');
             const overlay = document.getElementById('adminSidebarOverlay');
+            const sidebar = document.querySelector('.admin-sidebar');
             if (!btn || !overlay) return;
 
-            function openSidebar() { document.body.classList.add('sidebar-open'); }
-            function closeSidebar() { document.body.classList.remove('sidebar-open'); }
+            function openSidebar() {
+                document.body.classList.add('sidebar-open');
+                if (sidebar) sidebar.classList.add('show');
+                overlay.classList.add('show');
+            }
+            function closeSidebar() {
+                document.body.classList.remove('sidebar-open');
+                if (sidebar) sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            }
 
             btn.addEventListener('click', function () {
                 if (document.body.classList.contains('sidebar-open')) {

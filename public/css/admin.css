@@ -325,6 +325,9 @@ body.sidebar-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .admin-user {
@@ -362,7 +365,16 @@ body.sidebar-open {
         transform: translateX(0);
     }
 
+    .admin-sidebar.show {
+        transform: translateX(0);
+    }
+
     body.sidebar-open .admin-sidebar-overlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .admin-sidebar-overlay.show {
         opacity: 1;
         pointer-events: auto;
     }
@@ -374,6 +386,8 @@ body.sidebar-open {
 
     .admin-mobile-menu-btn {
         display: inline-flex;
+        position: relative;
+        z-index: 11;
     }
 }
 
