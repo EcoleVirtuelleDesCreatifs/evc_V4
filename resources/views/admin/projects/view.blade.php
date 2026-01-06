@@ -397,6 +397,36 @@
         margin: 0 0 0.75rem;
         line-height: 1.25;
     }
+
+    .modern-card {
+        background: #0b1220;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .modern-card .card-header {
+        background: rgba(15, 23, 42, 0.95);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        color: #fff;
+    }
+
+    .modern-card .card-body {
+        background: transparent;
+        color: #fff;
+    }
+
+    .modern-card .text-muted {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .modern-card .btn-outline-secondary {
+        border-color: rgba(148, 163, 184, 0.35);
+        color: rgba(255, 255, 255, 0.75);
+    }
+
+    .modern-card .btn-outline-secondary:hover {
+        background: rgba(148, 163, 184, 0.12);
+        color: #fff;
+    }
     </style>
 
     <!-- Projet Principal -->
