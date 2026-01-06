@@ -15,7 +15,20 @@ class CommuniqueController extends Controller
 {
     public function index()
     {
-        $communiques = Communique::orderBy('order')->orderBy('created_at', 'desc')->get();
+        $now = now();
+
+        $communiques = Communique::query()
+            ->orderByRaw(
+                "CASE 
+                    WHEN end_at IS NOT NULL AND end_at < ? THEN 2
+                    WHEN start_at IS NOT NULL AND start_at > ? THEN 1
+                    ELSE 0
+                END ASC",
+                [$now, $now]
+            )
+            ->orderBy('order')
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('admin.communiques.index', compact('communiques'));
     }
 
