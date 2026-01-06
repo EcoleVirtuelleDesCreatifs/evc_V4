@@ -500,7 +500,8 @@
                                     <div class="d-flex align-items-center">
                                         <div class="me-2">
                                             @php
-                                                $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($project->user->profile_photo ?? null);
+                                                $studentProfilePhoto = $project->user->student->profile_photo ?? null;
+                                                $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($studentProfilePhoto);
                                             @endphp
                                             @if($photoUrl)
                                                 <img src="{{ $photoUrl }}"
@@ -519,9 +520,11 @@
                                             <small class="text-white-50">{{ $project->user->email }}</small>
                                         </div>
                                     </div>
-                                    <a href="{{ route('admin.students.profile', $project->user->id) }}" class="btn btn-outline-info btn-sm mt-2 w-100">
-                                        <i class="fas fa-user me-1"></i>Voir le profil
-                                    </a>
+                                    @if(!empty($project->user->student) && !empty($project->user->student->id))
+                                        <a href="{{ route('admin.students.profile', $project->user->student->id) }}" class="btn btn-outline-info btn-sm mt-2 w-100">
+                                            <i class="fas fa-user me-1"></i>Voir le profil
+                                        </a>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -639,9 +642,11 @@
                             </form>
                         @endif
 
-                        <a href="{{ route('admin.students.profile', $project->user->id) }}" class="btn btn-info">
-                            <i class="fas fa-user me-2"></i>Voir l'étudiant
-                        </a>
+                        @if(!empty($project->user->student) && !empty($project->user->student->id))
+                            <a href="{{ route('admin.students.profile', $project->user->student->id) }}" class="btn btn-info">
+                                <i class="fas fa-user me-2"></i>Voir l'étudiant
+                            </a>
+                        @endif
 
                         <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i>Retour au dashboard
