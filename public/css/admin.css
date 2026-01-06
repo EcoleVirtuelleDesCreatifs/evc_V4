@@ -359,14 +359,15 @@ body.sidebar-open {
     .admin-sidebar {
         transform: translateX(-100%);
         max-width: 85vw;
+        will-change: transform;
     }
 
     body.sidebar-open .admin-sidebar {
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0) !important;
     }
 
     .admin-sidebar.show {
-        transform: translateX(0);
+        transform: translate3d(0, 0, 0) !important;
     }
 
     body.sidebar-open .admin-sidebar-overlay {

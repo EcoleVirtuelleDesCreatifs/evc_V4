@@ -543,13 +543,21 @@
                 overlay.classList.remove('show');
             }
 
-            btn.addEventListener('click', function () {
+            function toggleSidebar() {
                 if (document.body.classList.contains('sidebar-open')) {
                     closeSidebar();
                 } else {
                     openSidebar();
                 }
-            });
+            }
+
+            window.__toggleAdminSidebar = toggleSidebar;
+
+            btn.addEventListener('click', toggleSidebar);
+            btn.addEventListener('touchstart', function (e) {
+                e.preventDefault();
+                toggleSidebar();
+            }, { passive: false });
 
             overlay.addEventListener('click', function () {
                 closeSidebar();
