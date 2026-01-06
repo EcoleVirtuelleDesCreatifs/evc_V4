@@ -196,6 +196,9 @@
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 @if(!empty($student->pre_registration_id))
+                                    <a href="{{ route('admin.paiements.receipt', $student->pre_registration_id) }}" class="btn btn-sm btn-secondary me-1 action-icon-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Télécharger le reçu" target="_blank">
+                                        <i class="fas fa-receipt"></i>
+                                    </a>
                                     <a href="{{ route('admin.paiements.a-solder.edit-restant', $student->pre_registration_id) }}" class="btn btn-sm btn-info action-icon-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Modifier le reste">
                                         <i class="fas fa-pen"></i>
                                     </a>

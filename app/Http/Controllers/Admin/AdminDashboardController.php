@@ -13,6 +13,7 @@ use App\Models\Library;
 use App\Models\AccountingTransaction;
 use App\Models\Donation;
 use App\Models\Project;
+use App\Services\PaymentReceiptGenerator;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -3964,6 +3965,109 @@ class AdminDashboardController extends Controller
         ];
 
         return view('admin.paiements.a-solder', compact('students', 'stats'));
+    }
+
+    /**
+     * Télécharger un reçu PDF pour une pré-inscription (agrège les paiements liés)
+     */
+    public function downloadPaymentReceipt($preRegistrationId)
+    {
+        $preRegistrationId = (int) $preRegistrationId;
+
+        $preReg = DB::table('pre_registrations')->where('id', $preRegistrationId)->first();
+        if (!$preReg) {
+            return redirect()->back()->with('error', 'Préinscription introuvable.');
+        }
+
+        $student = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.email', $preReg->email)
+            ->select('students.*', 'users.email as user_email')
+            ->first();
+
+        $payments = DB::table('payments')
+            ->where('pre_registration_id', $preRegistrationId)
+            ->orderByRaw("CASE WHEN paid_at IS NULL THEN 1 ELSE 0 END")
+            ->orderBy('paid_at', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        if ($payments->isEmpty()) {
+            return redirect()->back()->with('error', 'Aucun paiement trouvé pour cette préinscription.');
+        }
+
+        $formationTotals = (array) config('chariow.formation_amounts', []);
+        $formationLabel = $preReg->choix_formation ?? (($student->program ?? null) ?: 'Formation');
+
+        $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
+        if ($totalAmount <= 0) {
+            $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+        }
+
+        $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
+        $remaining = max(0, $totalAmount - $amountPaid);
+
+        $studentName = trim((($student->first_name ?? null) ?: ($preReg->prenom ?? '')) . ' ' . (($student->last_name ?? null) ?: ($preReg->nom ?? '')));
+        $studentEmail = ($student->user_email ?? null) ?: (($student->email ?? null) ?: $preReg->email);
+
+        $receiptNumber = 'EVC-RC-' . str_pad((string) $preRegistrationId, 6, '0', STR_PAD_LEFT) . '-' . now()->format('Ymd');
+
+        $paymentsForPdf = $payments->map(function ($p) {
+            $installmentLabel = '';
+            if (($p->payment_type ?? null) === 'installment' && !empty($p->installment_number) && !empty($p->total_installments)) {
+                $installmentLabel = 'Tranche ' . $p->installment_number . '/' . $p->total_installments;
+            } elseif (($p->payment_type ?? null) === 'installment' && !empty($p->installment_number)) {
+                $installmentLabel = 'Tranche ' . $p->installment_number;
+            } else {
+                $installmentLabel = 'Paiement';
+            }
+
+            $statusLabel = match ($p->status) {
+                'completed' => 'Payé',
+                'pending' => 'En attente',
+                'failed' => 'Échoué',
+                'cancelled' => 'Annulé',
+                'refunded' => 'Remboursé',
+                default => (string) ($p->status ?? ''),
+            };
+
+            $paidAt = $p->paid_at ? \Carbon\Carbon::parse($p->paid_at)->format('d/m/Y') : '';
+            $createdAt = $p->created_at ? \Carbon\Carbon::parse($p->created_at)->format('d/m/Y') : '';
+
+            return [
+                'amount' => (float) ($p->amount ?? 0),
+                'status' => $p->status,
+                'status_label' => $statusLabel,
+                'payment_reference' => (string) ($p->payment_reference ?? ''),
+                'installment_label' => $installmentLabel,
+                'paid_at' => $paidAt,
+                'created_at' => $createdAt,
+            ];
+        })->toArray();
+
+        $downloadName = 'Recu_' . str_replace(' ', '_', $studentName ?: 'Etudiant') . '_' . now()->format('Ymd_His') . '.pdf';
+
+        $primaryRef = '';
+        $primaryPayment = $payments->firstWhere('payment_reference', '!=', null);
+        if ($primaryPayment && !empty($primaryPayment->payment_reference)) {
+            $primaryRef = (string) $primaryPayment->payment_reference;
+        }
+
+        $generator = new PaymentReceiptGenerator();
+        $result = $generator->generate([
+            'receipt_number' => $receiptNumber,
+            'issued_at' => now()->format('d/m/Y H:i'),
+            'student_name' => $studentName,
+            'student_email' => $studentEmail,
+            'formation' => $formationLabel,
+            'payment_reference' => $primaryRef,
+            'total_amount' => $totalAmount,
+            'amount_paid' => $amountPaid,
+            'remaining' => $remaining,
+            'payments' => $paymentsForPdf,
+        ]);
+
+        return response()->download($result['path'], $downloadName)->deleteFileAfterSend(true);
     }
 
     /**

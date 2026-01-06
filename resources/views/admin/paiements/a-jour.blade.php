@@ -156,6 +156,7 @@
                             <th>Montant Payé</th>
                             <th>Statut</th>
                             <th>Date d'Inscription</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -177,10 +178,21 @@
                                 </span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($student->created_at)->format('d/m/Y') }}</td>
+                            <td>
+                                @if(!empty($student->pre_registration_id))
+                                    <a href="{{ route('admin.paiements.receipt', $student->pre_registration_id) }}" class="btn btn-sm btn-secondary" title="Télécharger le reçu" target="_blank">
+                                        <i class="fas fa-receipt me-1"></i>Reçu
+                                    </a>
+                                @else
+                                    <button class="btn btn-sm btn-secondary" disabled title="Reçu indisponible">
+                                        <i class="fas fa-ban me-1"></i>Reçu
+                                    </button>
+                                @endif
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">Aucun étudiant à jour pour le moment</p>
                             </td>
