@@ -449,7 +449,7 @@
                     <button type="button" class="admin-mobile-menu-btn" id="adminMobileMenuBtn" aria-label="Ouvrir le menu">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h1 class="mb-0">@yield('title', 'Dashboard Admin')</h1>
+                    <h1 class="mb-0">@yield('title', 'CRM-EVC')</h1>
                 </div>
 
                 <div class="admin-user">

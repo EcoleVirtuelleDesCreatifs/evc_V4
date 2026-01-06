@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard Admin - EVC')
+@section('title', 'CRM-EVC')
 
 @push('styles')
 <style>
@@ -508,11 +508,11 @@
     <div class="dashboard-header">
         <div>
             <h1 class="header-title">
-                <i class="fas fa-tachometer-alt me-3"></i>Dashboard Admin
+                <i class="fas fa-tachometer-alt me-3"></i>CRM-EVC
             </h1>
             <p class="header-subtitle mb-0">
                 Bienvenue, <strong>{{ session('admin_name') ?? 'Administrateur' }}</strong> •
-                <span id="greeting"></span>
+                <span id="greetingText">Bon retour !</span>
             </p>
         </div>
         <div class="header-time">
