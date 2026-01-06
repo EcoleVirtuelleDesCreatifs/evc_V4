@@ -145,9 +145,11 @@ class ProjectController extends Controller
                 })->orWhereRaw('LOWER(students.program) LIKE ?', ['%community%']);
             });
 
+        $doneStatuses = ['termine', 'valide', 'rejete'];
+
         $stats = [
             'total' => (clone $baseQuery)->count(),
-            'en_cours' => (clone $baseQuery)->where('projects.status', 'en_cours')->count(),
+            'en_cours' => (clone $baseQuery)->whereNotIn('projects.status', $doneStatuses)->count(),
             'termine' => (clone $baseQuery)->where('projects.status', 'termine')->count(),
             'valide' => (clone $baseQuery)->where('projects.status', 'valide')->count(),
             'rejete' => (clone $baseQuery)->where('projects.status', 'rejete')->count(),
@@ -229,8 +231,6 @@ class ProjectController extends Controller
             ->mapWithKeys(function ($name) use ($grouped) {
                 return [$name => $grouped->get($name, collect())];
             });
-
-        $doneStatuses = ['termine', 'valide', 'rejete'];
 
         $groupedAssignmentsDone = $grouped->map(function ($projects) use ($doneStatuses) {
             return $projects

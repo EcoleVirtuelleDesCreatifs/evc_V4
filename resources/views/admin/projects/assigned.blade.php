@@ -4,6 +4,19 @@
 
 @section('content')
 <style>
+    :root {
+        --dg-start: #1e3c72;
+        --dg-end: #2a5298;
+        --cm-start: #ff9800;
+        --cm-end: #fb8c00;
+        --dgc-start: #2a5298;
+        --dgc-end: #ff9800;
+        --zone-done-start: #22c55e;
+        --zone-done-end: #16a34a;
+        --zone-todo-start: #ef4444;
+        --zone-todo-end: #b91c1c;
+    }
+
     .assigned-page .top-actions .btn {
         border-radius: 14px;
         font-weight: 700;
@@ -23,6 +36,16 @@
         border-bottom: 1px solid rgba(148, 163, 184, 0.16);
         color: white;
         padding: 1rem 1.25rem;
+    }
+
+    .assigned-card.zone-done .card-header {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(22, 163, 74, 0.85));
+        border-bottom-color: rgba(34, 197, 94, 0.25);
+    }
+
+    .assigned-card.zone-todo .card-header {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(185, 28, 28, 0.85));
+        border-bottom-color: rgba(239, 68, 68, 0.25);
     }
 
     .assigned-card .card-body {
@@ -55,6 +78,21 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+    }
+
+    .assigned-card-tile.formation-dg {
+        border-color: rgba(42, 82, 152, 0.45);
+        background: linear-gradient(135deg, rgba(30, 60, 114, 0.55), rgba(15, 23, 42, 0.90));
+    }
+
+    .assigned-card-tile.formation-cm {
+        border-color: rgba(251, 140, 0, 0.45);
+        background: linear-gradient(135deg, rgba(251, 140, 0, 0.35), rgba(15, 23, 42, 0.90));
+    }
+
+    .assigned-card-tile.formation-dgcm {
+        border-color: rgba(255, 152, 0, 0.35);
+        background: linear-gradient(135deg, rgba(42, 82, 152, 0.55), rgba(255, 152, 0, 0.28));
     }
 
     .assigned-card-tile:hover {
@@ -162,6 +200,21 @@
         border: 1px solid rgba(255, 255, 255, 0.12);
         color: rgba(255, 255, 255, 0.9);
         flex: 0 0 auto;
+    }
+
+    .assigned-pill.formation-dg {
+        background: linear-gradient(135deg, var(--dg-start), var(--dg-end));
+        border-color: rgba(42, 82, 152, 0.35);
+    }
+
+    .assigned-pill.formation-cm {
+        background: linear-gradient(135deg, var(--cm-start), var(--cm-end));
+        border-color: rgba(251, 140, 0, 0.35);
+    }
+
+    .assigned-pill.formation-dgcm {
+        background: linear-gradient(135deg, var(--dgc-start), var(--dgc-end));
+        border-color: rgba(255, 152, 0, 0.25);
     }
 
     .assigned-badges {
@@ -310,7 +363,7 @@
         ];
     @endphp
 
-    <div class="card assigned-card mb-4">
+    <div class="card assigned-card zone-done mb-4">
         <div class="card-header">
             <div class="d-flex align-items-center justify-content-between gap-3">
                 <div class="d-flex align-items-center gap-2">
@@ -326,17 +379,22 @@
                     @php
                         $projects = $groupedAssignmentsDone[$formation] ?? collect();
                         $formationId = 'done_formation_' . md5($formation);
+                        $formationTheme = $formation === 'Design Graphique'
+                            ? 'formation-dg'
+                            : ($formation === 'Community Management'
+                                ? 'formation-cm'
+                                : 'formation-dgcm');
                     @endphp
 
-                    <button class="assigned-card-tile" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $formationId }}" aria-expanded="false" aria-controls="collapse_{{ $formationId }}">
+                    <button class="assigned-card-tile {{ $formationTheme }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $formationId }}" aria-expanded="false" aria-controls="collapse_{{ $formationId }}">
                         <div class="assigned-tile-top">
-                            <span class="assigned-pill"><i class="fas fa-graduation-cap"></i></span>
+                            <span class="assigned-pill {{ $formationTheme }}"><i class="fas fa-graduation-cap"></i></span>
                             <div class="assigned-tile-title">{{ $formation }}</div>
                             <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
                         </div>
                         <div class="assigned-tile-meta">
                             <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
-                            <span class="text-white-50 small">Voir les projets attribués</span>
+                            <span class="text-white-50 small">Voir les projets terminés</span>
                         </div>
                     </button>
                 @endforeach
@@ -346,13 +404,18 @@
                 @php
                     $projects = $groupedAssignmentsDone[$formation] ?? collect();
                     $formationId = 'done_formation_' . md5($formation);
+                    $formationTheme = $formation === 'Design Graphique'
+                        ? 'formation-dg'
+                        : ($formation === 'Community Management'
+                            ? 'formation-cm'
+                            : 'formation-dgcm');
                 @endphp
 
                 <div class="collapse" id="collapse_{{ $formationId }}">
                     <div class="assigned-panel">
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                             <div class="text-white fw-bold">
-                                <i class="fas fa-graduation-cap me-2"></i>{{ $formation }}
+                                <span class="assigned-pill {{ $formationTheme }} me-2" style="width: 32px; height: 32px;"><i class="fas fa-graduation-cap"></i></span>{{ $formation }}
                             </div>
                             <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
                         </div>
@@ -419,7 +482,7 @@
         </div>
     </div>
 
-    <div class="card assigned-card">
+    <div class="card assigned-card zone-todo">
         <div class="card-header">
             <div class="d-flex align-items-center justify-content-between gap-3">
                 <div class="d-flex align-items-center gap-2">
@@ -435,17 +498,22 @@
                     @php
                         $projects = $groupedAssignmentsTodo[$formation] ?? collect();
                         $formationId = 'todo_formation_' . md5($formation);
+                        $formationTheme = $formation === 'Design Graphique'
+                            ? 'formation-dg'
+                            : ($formation === 'Community Management'
+                                ? 'formation-cm'
+                                : 'formation-dgcm');
                     @endphp
 
-                    <button class="assigned-card-tile" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $formationId }}" aria-expanded="false" aria-controls="collapse_{{ $formationId }}">
+                    <button class="assigned-card-tile {{ $formationTheme }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $formationId }}" aria-expanded="false" aria-controls="collapse_{{ $formationId }}">
                         <div class="assigned-tile-top">
-                            <span class="assigned-pill"><i class="fas fa-graduation-cap"></i></span>
+                            <span class="assigned-pill {{ $formationTheme }}"><i class="fas fa-graduation-cap"></i></span>
                             <div class="assigned-tile-title">{{ $formation }}</div>
                             <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
                         </div>
                         <div class="assigned-tile-meta">
                             <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
-                            <span class="text-white-50 small">Voir les projets attribués</span>
+                            <span class="text-white-50 small">Voir les projets à faire</span>
                         </div>
                     </button>
                 @endforeach
@@ -455,13 +523,18 @@
                 @php
                     $projects = $groupedAssignmentsTodo[$formation] ?? collect();
                     $formationId = 'todo_formation_' . md5($formation);
+                    $formationTheme = $formation === 'Design Graphique'
+                        ? 'formation-dg'
+                        : ($formation === 'Community Management'
+                            ? 'formation-cm'
+                            : 'formation-dgcm');
                 @endphp
 
                 <div class="collapse" id="collapse_{{ $formationId }}">
                     <div class="assigned-panel">
                         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                             <div class="text-white fw-bold">
-                                <i class="fas fa-graduation-cap me-2"></i>{{ $formation }}
+                                <span class="assigned-pill {{ $formationTheme }} me-2" style="width: 32px; height: 32px;"><i class="fas fa-graduation-cap"></i></span>{{ $formation }}
                             </div>
                             <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
                         </div>
