@@ -33,6 +33,7 @@ class AdminDashboardController extends Controller
     public function dashboard(): View
     {
         $currentWeekStart = now()->startOfWeek();
+        $currentDayStart = now()->startOfDay();
 
         // Récupérer les historiques de connexion récents
         $recentLogins = DB::table('user_activities')
@@ -91,6 +92,36 @@ class AdminDashboardController extends Controller
         $completedPaymentsCount = DB::table('payments')->where('status', 'completed')->count();
         $pendingPaymentsCount = DB::table('payments')->where('status', 'pending')->count();
 
+        // --- Statistiques Visiteurs (sessions) ---
+        // Approximation: un visiteur = combinaison IP + User-Agent
+        $nowTs = time();
+        $onlineCutoff = $nowTs - 300; // 5 minutes
+        $todayCutoff = $currentDayStart->timestamp;
+        $weekCutoff = $currentWeekStart->timestamp;
+        $monthCutoff = $currentMonthStart->timestamp;
+
+        $visitorKeyExpr = DB::raw("CONCAT(COALESCE(ip_address,''),'|',COALESCE(user_agent,''))");
+
+        $visitorsOnline = (int) DB::table('sessions')
+            ->where('last_activity', '>=', $onlineCutoff)
+            ->distinct($visitorKeyExpr)
+            ->count($visitorKeyExpr);
+
+        $visitorsToday = (int) DB::table('sessions')
+            ->where('last_activity', '>=', $todayCutoff)
+            ->distinct($visitorKeyExpr)
+            ->count($visitorKeyExpr);
+
+        $visitorsThisWeek = (int) DB::table('sessions')
+            ->where('last_activity', '>=', $weekCutoff)
+            ->distinct($visitorKeyExpr)
+            ->count($visitorKeyExpr);
+
+        $visitorsThisMonth = (int) DB::table('sessions')
+            ->where('last_activity', '>=', $monthCutoff)
+            ->distinct($visitorKeyExpr)
+            ->count($visitorKeyExpr);
+
         // Paiements ce mois
         $paymentsThisMonth = DB::table('payments')
             ->where('created_at', '>=', $currentMonthStart)
@@ -141,6 +172,10 @@ class AdminDashboardController extends Controller
             'paymentsThisMonth',
             'paymentsThisWeek',
             'registrationsThisWeek',
+            'visitorsOnline',
+            'visitorsToday',
+            'visitorsThisWeek',
+            'visitorsThisMonth',
             'donationsCount',
             'donationsTotalAmount'
         ));

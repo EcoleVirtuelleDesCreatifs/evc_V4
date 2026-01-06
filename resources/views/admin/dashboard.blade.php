@@ -659,6 +659,54 @@
         </div>
 
         <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="stat-number" data-target="{{ (int) ($visitorsOnline ?? 0) }}">0</div>
+            <div class="stat-label">Visiteurs en ligne (5 min)</div>
+            <div class="stat-change positive">
+                <i class="fas fa-signal"></i>
+                <span>Temps réel</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f97316 0%, #fb7185 100%);">
+                <i class="fas fa-calendar-day"></i>
+            </div>
+            <div class="stat-number" data-target="{{ (int) ($visitorsToday ?? 0) }}">0</div>
+            <div class="stat-label">Visiteurs (Aujourd'hui)</div>
+            <div class="stat-change positive">
+                <i class="fas fa-clock"></i>
+                <span>Depuis minuit</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%);">
+                <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="stat-number" data-target="{{ (int) ($visitorsThisWeek ?? 0) }}">0</div>
+            <div class="stat-label">Visiteurs (Semaine)</div>
+            <div class="stat-change positive">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Depuis lundi</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                <i class="fas fa-calendar"></i>
+            </div>
+            <div class="stat-number" data-target="{{ (int) ($visitorsThisMonth ?? 0) }}">0</div>
+            <div class="stat-label">Visiteurs (Mois)</div>
+            <div class="stat-change positive">
+                <i class="fas fa-chart-line"></i>
+                <span>{{ \Carbon\Carbon::now()->format('F') }}</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-tv"></i>
             </div>
