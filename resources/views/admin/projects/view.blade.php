@@ -2,22 +2,31 @@
 
 @section('title', 'Détails du Projet - ' . $project->title)
 
+@push('meta')
+    <meta name="keywords" content="ecole d'infographie abidjan, ecole de community management à abidjan, cocody, yopougon, koumassi, palmeraie, portbouet, ecole d'infographie pres de chez moi, ecole d'infographie près de chez moi, ecole de design graphique abidjan, ecole de community management abidjan, formation infographie abidjan, formation community management abidjan">
+@endpush
+
 @section('content')
-<div class="container-fluid">
-    <!-- Header avec retour -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex align-items-center justify-content-between">
-                <div>
-                    <h2 class="text-white mb-1">
-                        <i class="fas fa-eye me-2"></i>Détails du Projet
-                    </h2>
-                    <p class="text-white-50 mb-0">Visualisation complète du projet étudiant</p>
-                </div>
-                <a href="{{ url()->previous() }}" class="btn btn-outline-light">
-                    <i class="fas fa-arrow-left me-2"></i>Retour
-                </a>
-            </div>
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="text-white mb-1">
+                <i class="fas fa-project-diagram me-2"></i>{{ $project->title }}
+            </h1>
+            <p class="text-muted mb-0">
+                <i class="fas fa-user me-1"></i>{{ $project->user->name ?? 'Étudiant' }}
+                • <i class="fas fa-clock me-1"></i>{{ $project->created_at->format('d/m/Y à H:i') }}
+                • <span class="text-white-50">ID: #{{ $project->id }}</span>
+            </p>
+        </div>
+        <div>
+            <a href="{{ route('admin.projects.edit', $project->id) }}" class="btn btn-warning">
+                <i class="fas fa-edit me-2"></i>Modifier
+            </a>
+            <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
         </div>
     </div>
 
@@ -394,8 +403,8 @@
     <div class="row">
         <div class="col-12">
             <!-- Carte Principale du Projet -->
-            <div class="dashboard-card text-white mb-4">
-                <div class="card-header border-secondary d-flex align-items-center justify-content-between">
+            <div class="card modern-card mb-4">
+                <div class="card-header d-flex align-items-center justify-content-between">
                     <div>
                         <h3 class="text-primary mb-1">
                             <i class="fas fa-project-diagram me-2"></i>{{ $project->title }}
@@ -431,7 +440,7 @@
                         <i class="{{ $statusIcon }} me-2"></i>{{ $statusLabel }}
                     </span>
                 </div>
-                <div class="card-body">
+                <div class="card-body text-white">
                     <div class="row">
                         <!-- Informations Principales -->
                         <div class="col-lg-8">
@@ -536,14 +545,14 @@
     <!-- Images et Fichiers du Projet -->
     <div class="row">
         <div class="col-12">
-            <div class="dashboard-card text-white mb-4">
-                <div class="card-header border-secondary">
+            <div class="card modern-card mb-4">
+                <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-folder-open me-2"></i>Fichiers du projet
                         <span class="badge bg-primary ms-2">{{ $project->images->count() }}</span>
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body text-white">
                     @if($project->images->count() > 0)
                         <div class="row">
                             @foreach($project->images as $image)
@@ -621,13 +630,13 @@
     <!-- Actions sur une seule ligne -->
     <div class="row">
         <div class="col-12">
-            <div class="dashboard-card text-white">
-                <div class="card-header border-secondary">
+            <div class="card modern-card">
+                <div class="card-header">
                     <h5 class="mb-0">
                         <i class="fas fa-cogs me-2"></i>Actions disponibles
                     </h5>
                 </div>
-                <div class="card-body">
+                <div class="card-body text-white">
                     <div class="d-flex flex-wrap gap-3 justify-content-center">
                         <a href="{{ route('admin.projects.edit', $project->id) }}" class="btn btn-warning">
                             <i class="fas fa-edit me-2"></i>Modifier
