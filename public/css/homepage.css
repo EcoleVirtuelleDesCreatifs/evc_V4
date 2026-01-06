@@ -112,6 +112,55 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* =============================================
+  HERO SLIDER STABILITY (anti-CLS)
+  ============================================= */
+
+/*
+  Tailwind est chargé via CDN (runtime). Durant ce court laps de temps,
+  les classes utilitaires (ex: aspect-square) ne sont pas encore appliquées,
+  ce qui provoque un reflow visible sur les sliders. On verrouille donc le layout
+  du hero slider avec du CSS natif pour éviter les "sauts" au chargement.
+*/
+
+.hero-bg-slider,
+.hero-bg-slider-mobile {
+    width: 100%;
+}
+
+/* Ratio stable (carré) sans dépendre de .aspect-square */
+.hero-bg-slider::before,
+.hero-bg-slider-mobile::before {
+    content: "";
+    display: block;
+    padding-top: 100%;
+}
+
+.hero-bg-slider > .swiper-wrapper,
+.hero-bg-slider-mobile > .swiper-wrapper {
+    position: absolute;
+    inset: 0;
+}
+
+.hero-bg-slider,
+.hero-bg-slider-mobile {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+}
+
+.hero-slide-shell,
+.hero-slide-bg {
+    height: 100%;
+    width: 100%;
+}
+
+.hero-slide-bg {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* =============================================
    HERO SLIDER NAVIGATION
    ============================================= */
 
@@ -134,6 +183,7 @@ h1, h2, h3, h4, h5, h6 {
     z-index: 50;
     transition: var(--transition-fast);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    pointer-events: auto;
 }
 
 .hero-nav-btn:hover {
@@ -148,11 +198,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-nav-prev {
-    left: -14px;
+    left: 18px;
 }
 
 .hero-nav-next {
-    right: -14px;
+    right: 18px;
 }
 
 .hero-nav-btn i {
@@ -161,10 +211,10 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 1024px) {
     .hero-nav-prev {
-        left: 6px;
+        left: 12px;
     }
     .hero-nav-next {
-        right: 6px;
+        right: 12px;
     }
 }
 

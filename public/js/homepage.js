@@ -122,6 +122,8 @@ document.addEventListener('DOMContentLoaded', () => {
             fadeEffect: {
                 crossFade: true
             },
+            observer: true,
+            observeParents: true,
         });
 
         // Hero Slider Mobile
@@ -131,6 +133,8 @@ document.addEventListener('DOMContentLoaded', () => {
             fadeEffect: {
                 crossFade: true
             },
+            observer: true,
+            observeParents: true,
         });
 
         // Hero Text Slider (contrôle les deux sliders d'images)
@@ -141,20 +145,46 @@ document.addEventListener('DOMContentLoaded', () => {
             fadeEffect: {
                 crossFade: true
             },
+            observer: true,
+            observeParents: true,
             controller: {
                 control: [heroBgSlider, heroBgSliderMobile]
             }
         });
+
+        // Après chargement complet (images/fonts/css), forcer un recalcul.
+        const updateHeroSwipers = () => {
+            try {
+                heroBgSlider.update();
+                heroBgSliderMobile.update();
+                heroTextSwiper.update();
+            } catch (e) {
+                console.error('Hero Swiper Update Error:', e);
+            }
+        };
+
+        window.addEventListener('load', updateHeroSwipers);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(updateHeroSwipers).catch(() => {});
+        }
 
 
 
         // Hero Navigation Buttons
         try {
             document.querySelectorAll('.hero-nav-prev').forEach((btn) => {
-                btn.addEventListener('click', () => heroTextSwiper.slidePrev());
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    heroTextSwiper.slidePrev();
+                });
             });
             document.querySelectorAll('.hero-nav-next').forEach((btn) => {
-                btn.addEventListener('click', () => heroTextSwiper.slideNext());
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    heroTextSwiper.slideNext();
+                });
             });
         } catch (e) {
             console.error('Hero Nav Error:', e);

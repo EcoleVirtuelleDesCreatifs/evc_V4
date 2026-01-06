@@ -11,29 +11,22 @@
                     <div class="swiper-container hero-bg-slider-mobile w-full max-w-md aspect-square">
                         <div class="swiper-wrapper">
                             <div class="swiper-slide">
-                                <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-infographie-a-abidjan.jpg'), url('/assets/img/cover/formation-infographie-a-abidjan.jpg');"></div>
+                                <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full hero-slide-shell">
+                                    <div class="h-full w-full bg-cover bg-center rounded-2xl hero-slide-bg" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-infographie-a-abidjan.jpg'), url('/assets/img/cover/formation-infographie-a-abidjan.jpg');"></div>
                                 </div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-community-manager-a-abidjan.jpg'), url('/assets/img/cover/formation-community-manager-a-abidjan.jpg');"></div>
+                                <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full hero-slide-shell">
+                                    <div class="h-full w-full bg-cover bg-center rounded-2xl hero-slide-bg" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-community-manager-a-abidjan.jpg'), url('/assets/img/cover/formation-community-manager-a-abidjan.jpg');"></div>
                                 </div>
                             </div>
                             <div class="swiper-slide">
-                                <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ $basePath }}/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg'), url('/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg');"></div>
+                                <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full hero-slide-shell">
+                                    <div class="h-full w-full bg-cover bg-center rounded-2xl hero-slide-bg" style="background-image: url('{{ $basePath }}/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg'), url('/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg');"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <button type="button" class="hero-nav-btn hero-nav-prev" aria-label="Slide précédent">
-                        <i class="fas fa-chevron-left" aria-hidden="true"></i>
-                    </button>
-                    <button type="button" class="hero-nav-btn hero-nav-next" aria-label="Slide suivant">
-                        <i class="fas fa-chevron-right" aria-hidden="true"></i>
-                    </button>
                 </div>
 
                 <!-- Text Slider -->
@@ -66,29 +59,29 @@
             <div class="swiper-container hero-bg-slider w-full max-w-md lg:max-w-none aspect-square">
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
-                        <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-infographie-a-abidjan.jpg'), url('/assets/img/cover/formation-infographie-a-abidjan.jpg');"></div>
+                        <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full hero-slide-shell">
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl hero-slide-bg" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-infographie-a-abidjan.jpg'), url('/assets/img/cover/formation-infographie-a-abidjan.jpg');"></div>
                         </div>
                     </div>
                     <div class="swiper-slide">
-                        <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-community-manager-a-abidjan.jpg'), url('/assets/img/cover/formation-community-manager-a-abidjan.jpg');"></div>
+                        <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full hero-slide-shell">
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl hero-slide-bg" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-community-manager-a-abidjan.jpg'), url('/assets/img/cover/formation-community-manager-a-abidjan.jpg');"></div>
                         </div>
                     </div>
                     <div class="swiper-slide">
-                        <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ $basePath }}/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg'), url('/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg');"></div>
+                        <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full hero-slide-shell">
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl hero-slide-bg" style="background-image: url('{{ $basePath }}/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg'), url('/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg');"></div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <button type="button" class="hero-nav-btn hero-nav-prev" aria-label="Slide précédent">
-                <i class="fas fa-chevron-left" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="hero-nav-btn hero-nav-next" aria-label="Slide suivant">
-                <i class="fas fa-chevron-right" aria-hidden="true"></i>
-            </button>
         </div>
     </div>
+
+    <button type="button" class="hero-nav-btn hero-nav-prev" aria-label="Slide précédent">
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="hero-nav-btn hero-nav-next" aria-label="Slide suivant">
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+    </button>
 </main>

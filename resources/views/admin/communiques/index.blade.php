@@ -57,6 +57,23 @@
                             </td>
                             <td>{{ $communique->order }}</td>
                             <td>
+                                @php
+                                    $now = now();
+                                    $isExpired = $communique->end_at && $communique->end_at->lt($now);
+                                    $isScheduled = $communique->start_at && $communique->start_at->gt($now);
+                                    $isInWindow = !$isExpired && !$isScheduled;
+                                @endphp
+
+                                <div class="mb-2">
+                                    @if($isExpired)
+                                        <span class="badge bg-danger">Expiré</span>
+                                    @elseif($isScheduled)
+                                        <span class="badge bg-warning text-dark">Programmé</span>
+                                    @elseif($isInWindow)
+                                        <span class="badge bg-primary">En cours</span>
+                                    @endif
+                                </div>
+
                                 <form action="{{ route('admin.communiques.toggle-status', $communique) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('PATCH')
