@@ -122,15 +122,20 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
-                            <p class="text-uppercase fw-bold text-white-50 text-xs mb-1 ls-1">CAISSE</p>
-                            <h3 class="display-6 fw-bold text-white mb-0">{{ number_format($balance, 0, ',', ' ') }} <span class="fs-6 text-white-50">FCFA</span></h3>
+                            <p class="text-uppercase fw-bold text-white-50 text-xs mb-1 ls-1">CAISSE (GLOBAL)</p>
+                            <h3 class="display-6 fw-bold text-white mb-0">{{ number_format($globalBalance, 0, ',', ' ') }} <span class="fs-6 text-white-50">FCFA</span></h3>
                         </div>
                         <div class="icon-shape bg-white bg-opacity-25 text-white rounded-circle p-3">
                             <i class="fas fa-university fa-2x"></i>
                         </div>
                     </div>
                     <div>
-                        @if($balance >= 0)
+                        <div class="text-white-50 text-sm mb-2">
+                            Site: {{ number_format($balance, 0, ',', ' ') }} FCFA
+                            <span class="mx-2">|</span>
+                            Excel: {{ number_format($legacyBalance, 0, ',', ' ') }} FCFA
+                        </div>
+                        @if($globalBalance >= 0)
                             <div class="d-flex align-items-center text-success">
                                 <i class="fas fa-check-circle me-2"></i>
                                 <span class="fw-medium">Situation saine</span>
@@ -146,6 +151,57 @@
                 <!-- Background Decoration -->
                 <div class="position-absolute top-0 end-0 p-3 opacity-10">
                     <i class="fas fa-chart-pie fa-5x text-white"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold"><i class="fas fa-layer-group me-2 text-muted"></i>Détail des cumuls</h5>
+                    <span class="text-muted text-sm">Montants en FCFA</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-lg-4">
+                            <div class="p-3 border rounded-3 h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="fw-bold text-dark">Cumul Site (jusqu'à {{ $selectedYear }})</div>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">Site</span>
+                                </div>
+                                <div class="d-flex justify-content-between"><span class="text-muted">Entrées</span><span class="fw-bold text-success">{{ number_format($totalIncome, 0, ',', ' ') }}</span></div>
+                                <div class="d-flex justify-content-between"><span class="text-muted">Sorties</span><span class="fw-bold text-danger">{{ number_format($totalExpenses, 0, ',', ' ') }}</span></div>
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between"><span class="text-muted">Solde</span><span class="fw-bold">{{ number_format($balance, 0, ',', ' ') }}</span></div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="p-3 border rounded-3 h-100" style="background: rgba(255, 193, 7, 0.06);">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="fw-bold text-dark">Historique (Excel)</div>
+                                    <span class="badge bg-warning bg-opacity-10 text-dark">Avant site</span>
+                                </div>
+                                <div class="d-flex justify-content-between"><span class="text-muted">Entrées</span><span class="fw-bold text-success">{{ number_format($legacyIncome, 0, ',', ' ') }}</span></div>
+                                <div class="d-flex justify-content-between"><span class="text-muted">Sorties</span><span class="fw-bold text-danger">{{ number_format($legacyExpenses, 0, ',', ' ') }}</span></div>
+                                <hr class="my-2">
+                                <div class="d-flex justify-content-between"><span class="text-muted">Solde</span><span class="fw-bold">{{ number_format($legacyBalance, 0, ',', ' ') }}</span></div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="p-3 border rounded-3 h-100 bg-dark text-white">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="fw-bold">Total Global</div>
+                                    <span class="badge bg-light bg-opacity-10 text-white">Global</span>
+                                </div>
+                                <div class="d-flex justify-content-between"><span class="text-white-50">Entrées</span><span class="fw-bold text-success">{{ number_format($globalTotalIncome, 0, ',', ' ') }}</span></div>
+                                <div class="d-flex justify-content-between"><span class="text-white-50">Sorties</span><span class="fw-bold text-danger">{{ number_format($globalTotalExpenses, 0, ',', ' ') }}</span></div>
+                                <hr class="my-2 border-white border-opacity-25">
+                                <div class="d-flex justify-content-between"><span class="text-white-50">Solde</span><span class="fw-bold">{{ number_format($globalBalance, 0, ',', ' ') }}</span></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

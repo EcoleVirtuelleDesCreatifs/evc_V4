@@ -41,6 +41,16 @@ class AccountingController extends Controller
 
         $balance = $totalIncome - $totalExpenses;
 
+        // Historique avant implémentation du site (fichier Excel)
+        $legacyIncome = 5061050;
+        $legacyExpenses = 1938000;
+        $legacyBalance = $legacyIncome - $legacyExpenses;
+
+        // Totaux globaux (site + historique)
+        $globalTotalIncome = $totalIncome + $legacyIncome;
+        $globalTotalExpenses = $totalExpenses + $legacyExpenses;
+        $globalBalance = $globalTotalIncome - $globalTotalExpenses;
+
         // Stats de l'exercice (Année sélectionnée uniquement)
         $yearIncome = AccountingTransaction::where('type', 'income')
             ->whereYear('date', $selectedYear)
@@ -76,6 +86,8 @@ class AccountingController extends Controller
 
         return view('admin.accounting.index', compact(
             'totalIncome', 'totalExpenses', 'balance',
+            'legacyIncome', 'legacyExpenses', 'legacyBalance',
+            'globalTotalIncome', 'globalTotalExpenses', 'globalBalance',
             'yearIncome', 'yearExpenses',
             'incomeThisMonth', 'expensesThisMonth', 'recentTransactions',
             'selectedYear', 'years'
