@@ -803,6 +803,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gestion du loader lors de la soumission
     if (form && submitBtn && loadingOverlay) {
         form.addEventListener('submit', function(e) {
+            const photoInput = form.querySelector('input[name="photo_profil"]');
+            const maxBytes = 2 * 1024 * 1024;
+            if (photoInput && photoInput.files && photoInput.files.length > 0) {
+                const file = photoInput.files[0];
+                if (file && typeof file.size === 'number' && file.size > maxBytes) {
+                    e.preventDefault();
+                    alert('❌ La photo de profil est trop lourde (max 2 Mo). Veuillez choisir une photo plus légère.');
+                    return;
+                }
+            }
+
             if (form.checkValidity()) {
                 loadingOverlay.classList.add('active');
                 submitBtn.classList.add('loading');
