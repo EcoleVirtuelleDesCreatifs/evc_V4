@@ -641,6 +641,13 @@ class AdminDashboardController extends Controller
             'updated_at',
         ]);
         $newProject->user_id = $targetUserId;
+        // IMPORTANT: le nouvel étudiant doit recevoir un projet "neuf" à faire.
+        // On ne doit pas hériter du statut traité (valide/rejete/termine) ni des liens de soumission.
+        $newProject->status = 'en_cours';
+        $newProject->link = null;
+        if (Schema::hasColumn('projects', 'thumbnail_image')) {
+            $newProject->thumbnail_image = null;
+        }
         $newProject->created_at = now();
         $newProject->updated_at = now();
         $newProject->save();
