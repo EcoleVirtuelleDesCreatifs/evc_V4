@@ -152,31 +152,30 @@
                     <thead>
                         <tr>
                             <th>Étudiant</th>
-                            <th>Email</th>
+                            <th>Pays</th>
                             <th>Formation</th>
                             <th>Payé</th>
                             <th>Reste</th>
-                            <th>Progression</th>
-                            <th>Statut</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($students as $student)
                         <tr>
-                            <td><strong>{{ $student->first_name }} {{ $student->last_name }}</strong></td>
-                            <td>{{ $student->email }}</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img
+                                        src="{{ \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null) }}"
+                                        alt="Photo"
+                                        style="width: 40px; height: 40px; border-radius: 9999px; object-fit: cover; border: 1px solid #334155;"
+                                    />
+                                    <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
+                                </div>
+                            </td>
+                            <td>{{ $student->country ?? '-' }}</td>
                             <td><span class="badge bg-primary">{{ $student->program }}</span></td>
                             <td class="text-success"><strong>{{ number_format($student->amount_paid, 0, ',', ' ') }} FCFA</strong></td>
                             <td class="text-warning"><strong>{{ number_format($student->remaining, 0, ',', ' ') }} FCFA</strong></td>
-                            <td>
-                                @php $percentage = ($student->amount_paid / $student->total_amount) * 100; @endphp
-                                <div>{{ number_format($percentage, 0) }}%</div>
-                                <div class="progress-payment">
-                                    <div class="progress-bar-payment" style="width: {{ $percentage }}%"></div>
-                                </div>
-                            </td>
-                            <td><span class="badge-partial"><i class="fas fa-hourglass-half me-1"></i>Partiel</span></td>
                             <td>
                                 <button
                                     type="button"
@@ -211,7 +210,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="6" class="text-center py-5">
                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">Aucun paiement partiel</p>
                             </td>

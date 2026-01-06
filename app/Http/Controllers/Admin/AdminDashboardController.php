@@ -4350,9 +4350,17 @@ class AdminDashboardController extends Controller
                 'nom' => $studentData['first_name'] . ' ' . $studentData['last_name']
             ]);
 
+            $remindersCount = null;
+            if (Schema::hasTable('payment_reminders') && $student) {
+                $remindersCount = (int) DB::table('payment_reminders')
+                    ->where('student_id', $student->id)
+                    ->count();
+            }
+
             return response()->json([
                 'success' => true,
-                'message' => 'Email de relance envoyé avec succès à ' . $emailTo
+                'message' => 'Email de relance envoyé avec succès à ' . $emailTo,
+                'reminders_count' => $remindersCount,
             ]);
 
         } catch (\Exception $e) {

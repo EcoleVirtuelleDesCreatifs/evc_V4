@@ -131,12 +131,11 @@
                     <thead>
                         <tr>
                             <th>Étudiant</th>
-                            <th>Email</th>
+                            <th>Pays</th>
                             <th>Formation</th>
                             <th>Montant Dû</th>
                             <th>Relances</th>
                             <th>Date Inscription</th>
-                            <th>Statut</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -144,9 +143,16 @@
                         @forelse($students as $student)
                         <tr>
                             <td>
-                                <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img
+                                        src="{{ \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null) }}"
+                                        alt="Photo"
+                                        style="width: 40px; height: 40px; border-radius: 9999px; object-fit: cover; border: 1px solid #334155;"
+                                    />
+                                    <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
+                                </div>
                             </td>
-                            <td>{{ $student->email }}</td>
+                            <td>{{ $student->country ?? '-' }}</td>
                             <td>
                                 <span class="badge bg-primary">{{ $student->program }}</span>
                             </td>
@@ -154,29 +160,18 @@
                                 <strong class="text-danger">{{ number_format($student->remaining, 0, ',', ' ') }} FCFA</strong>
                             </td>
                             <td>
-                                <span class="badge bg-secondary">{{ (int) ($student->reminders_count ?? 0) }}</span>
+                                <span class="badge bg-secondary" id="reminders-count-{{ $student->id }}">{{ (int) ($student->reminders_count ?? 0) }}</span>
                             </td>
                             <td>{{ \Carbon\Carbon::parse($student->created_at)->format('d/m/Y') }}</td>
                             <td>
-                                @if(((float) ($student->amount_paid ?? 0)) > 0)
-                                    <span class="badge bg-warning text-dark">
-                                        <i class="fas fa-clock me-1"></i>Partiel
-                                    </span>
-                                @else
-                                    <span class="badge-unpaid">
-                                        <i class="fas fa-times me-1"></i>Non payé
-                                    </span>
-                                @endif
-                            </td>
-                            <td>
-                                <button class="action-btn" onclick="sendReminder({{ $student->id }})">
+                                <button class="action-btn" onclick="sendReminder({{ $student->id }}, this)">
                                     <i class="fas fa-envelope me-1"></i>Relance
                                 </button>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="7" class="text-center py-5">
                                 <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
                                 <p class="text-muted">Aucun impayé ! Tous les étudiants sont à jour.</p>
                             </td>
@@ -192,13 +187,13 @@
 
 @push('scripts')
 <script>
-function sendReminder(studentId) {
+function sendReminder(studentId, buttonEl) {
     if (!confirm('Envoyer un email de relance à cet étudiant ?')) {
         return;
     }
 
     // Désactiver le bouton pour éviter les doubles clics
-    const btn = event.target.closest('button');
+    const btn = buttonEl;
     const originalHTML = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Envoi...';
@@ -218,6 +213,12 @@ function sendReminder(studentId) {
         btn.innerHTML = originalHTML;
 
         if (data.success) {
+            if (typeof data.reminders_count !== 'undefined') {
+                const badge = document.getElementById(`reminders-count-${studentId}`);
+                if (badge) {
+                    badge.textContent = data.reminders_count;
+                }
+            }
             // Afficher un message de succès
             showNotification('success', data.message);
         } else {
