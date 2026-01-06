@@ -257,29 +257,29 @@
                 <div class="text-5xl font-black text-orange-500 mb-3">
                     <i class="fas fa-users"></i>
                 </div>
-                <div class="text-4xl font-black text-white mb-2">1509+</div>
+                <div class="text-4xl font-black text-white mb-2">1542+</div>
                 <div class="text-gray-400 font-semibold">Étudiants Formés</div>
             </div>
             <div class="stat-card rounded-2xl p-8 text-center animate-on-scroll" style="animation-delay: 0.1s">
                 <div class="text-5xl font-black text-orange-500 mb-3">
                     <i class="fas fa-certificate"></i>
                 </div>
-                <div class="text-4xl font-black text-white mb-2">457</div>
-                <div class="text-gray-400 font-semibold">Certifiés</div>
+                <div class="text-4xl font-black text-white mb-2">473</div>
+                <div class="text-gray-400 font-semibold">Étudiants Certifiés et Confirmés</div>
             </div>
             <div class="stat-card rounded-2xl p-8 text-center animate-on-scroll" style="animation-delay: 0.2s">
                 <div class="text-5xl font-black text-blue-500 mb-3">
                     <i class="fas fa-briefcase"></i>
                 </div>
-                <div class="text-4xl font-black text-white mb-2">90%</div>
-                <div class="text-gray-400 font-semibold">Employabilité</div>
+                <div class="text-4xl font-black text-white mb-2">54</div>
+                <div class="text-gray-400 font-semibold">Étudiants Déjà Embauchés</div>
             </div>
             <div class="stat-card rounded-2xl p-8 text-center animate-on-scroll" style="animation-delay: 0.3s">
                 <div class="text-5xl font-black text-orange-500 mb-3">
                     <i class="fas fa-award"></i>
                 </div>
-                <div class="text-4xl font-black text-white mb-2">4</div>
-                <div class="text-gray-400 font-semibold">Formations Certifiées</div>
+                <div class="text-4xl font-black text-white mb-2">72</div>
+                <div class="text-gray-400 font-semibold">Stagiaires Intégrés en Entreprise</div>
             </div>
         </div>
     </div>
