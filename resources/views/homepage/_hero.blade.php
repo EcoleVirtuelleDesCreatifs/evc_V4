@@ -1,5 +1,8 @@
 <!-- Hero Section -->
 <main id="hero-section" class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-24 sm:pt-32 pb-12 sm:pb-16 z-40">
+    @php
+        $basePath = rtrim(request()->getBasePath(), '/');
+    @endphp
     <div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-3 lg:px-8">
         <div class="px-6 lg:col-span-7 xl:col-span-6 text-center lg:text-left flex flex-col justify-center">
             <div class="relative z-10">
@@ -9,17 +12,17 @@
                         <div class="swiper-wrapper">
                             <div class="swiper-slide">
                                 <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ url('assets/img/cover/formation-infographie-a-abidjan.jpg') }}');"></div>
+                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-infographie-a-abidjan.jpg');"></div>
                                 </div>
                             </div>
                             <div class="swiper-slide">
                                 <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ url('assets/img/cover/formation-community-manager-a-abidjan.jpg') }}"></div>
+                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ $basePath }}/assets/img/cover/formation-community-manager-a-abidjan.jpg"></div>
                                 </div>
                             </div>
                             <div class="swiper-slide">
                                 <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ url('assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg') }}"></div>
+                                    <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ $basePath }}/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg"></div>
                                 </div>
                             </div>
                         </div>
@@ -57,17 +60,17 @@
                 <div class="swiper-wrapper">
                     <div class="swiper-slide">
                         <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ url('assets/img/cover/formation-infographie-a-abidjan.jpg') }}');"></div>
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl" style="background-image: url('{{ $basePath }}/assets/img/cover/formation-infographie-a-abidjan.jpg');"></div>
                         </div>
                     </div>
                     <div class="swiper-slide">
                         <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ url('assets/img/cover/formation-community-manager-a-abidjan.jpg') }}"></div>
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ $basePath }}/assets/img/cover/formation-community-manager-a-abidjan.jpg"></div>
                         </div>
                     </div>
                     <div class="swiper-slide">
                         <div class="bg-white/10 p-2 rounded-3xl backdrop-blur-sm h-full w-full">
-                            <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ url('assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg') }}"></div>
+                            <div class="h-full w-full bg-cover bg-center rounded-2xl" data-bg="{{ $basePath }}/assets/img/cover/premiere-ecole-dgitale-ultra-pratique-a-abidjan.jpg"></div>
                         </div>
                     </div>
                 </div>

@@ -8,6 +8,7 @@
     @include('homepage._hero')
     @include('homepage._communique')
     @include('homepage._webtv_home')
+    @include('homepage._travaux')
     @include('homepage._chiffres')
     @include('homepage._presentation')
     @include('homepage._fondateur_homepage')
@@ -17,7 +18,6 @@
     @include('homepage._avantages')
     @include('homepage._formations')
     @include('homepage._processus-inscription')
-    @include('homepage._travaux')
 
     @include('homepage._evenements')
     @include('homepage._actualites')
