@@ -475,11 +475,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const form = e.currentTarget;
                     const formData = new FormData(form);
-                    // CSRF token from meta if needed
-                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    // CSRF token (meta first, fallback to hidden input)
+                    const metaTokenEl = document.querySelector('meta[name="csrf-token"]');
+                    const inputTokenEl = form.querySelector('input[name="_token"]');
+                    const token = (metaTokenEl && metaTokenEl.getAttribute('content')) || (inputTokenEl && inputTokenEl.value) || '';
 
                     const resp = await fetch(form.getAttribute('action') || '/pre-registration', {
                         method: (form.getAttribute('method') || 'POST').toUpperCase(),
+                        credentials: 'same-origin',
                         headers: {
                             'X-CSRF-TOKEN': token,
                             'Accept': 'application/json',
