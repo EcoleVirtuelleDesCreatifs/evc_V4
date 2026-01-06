@@ -64,25 +64,25 @@
                                     $isInWindow = !$isExpired && !$isScheduled;
                                 @endphp
 
-                                <div class="mb-2">
-                                    @if($isExpired)
-                                        <span class="badge bg-danger">Expiré</span>
-                                    @elseif($isScheduled)
-                                        <span class="badge bg-warning text-dark">Programmé</span>
-                                    @elseif($isInWindow)
-                                        <span class="badge bg-primary">En cours</span>
-                                    @endif
-                                </div>
-
-                                <form action="{{ route('admin.communiques.toggle-status', $communique) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('PATCH')
-                                    <button type="submit" class="btn btn-sm {{ $communique->is_active ? 'btn-success' : 'btn-secondary' }} rounded-pill px-3">
-                                        {{ $communique->is_active ? 'Actif' : 'Inactif' }}
-                                    </button>
-                                </form>
+                                @if($isExpired)
+                                    <span class="badge bg-danger">Expiré</span>
+                                @elseif($isScheduled)
+                                    <span class="badge bg-warning text-dark">Programmé</span>
+                                @elseif($isInWindow)
+                                    <span class="badge bg-primary">En cours</span>
+                                @endif
                             </td>
                             <td class="text-end">
+                                @if(!$isExpired)
+                                    <form action="{{ route('admin.communiques.toggle-status', $communique) }}" method="POST" class="d-inline me-1">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" class="btn btn-sm {{ $communique->is_active ? 'btn-success' : 'btn-secondary' }} rounded-pill px-3">
+                                            {{ $communique->is_active ? 'Actif' : 'Inactif' }}
+                                        </button>
+                                    </form>
+                                @endif
+
                                 <a href="{{ route('admin.communiques.edit', $communique) }}" class="btn btn-sm btn-outline-primary me-1">
                                     <i class="fas fa-edit"></i>
                                 </a>
