@@ -215,7 +215,8 @@ function sendReminder(studentId, buttonEl) {
         if (data.success) {
             const badge = document.getElementById(`reminders-count-${studentId}`);
             if (badge) {
-                if (typeof data.reminders_count === 'number') {
+                const isPersisted = data && data.persisted === true;
+                if (isPersisted && typeof data.reminders_count === 'number') {
                     badge.textContent = data.reminders_count;
                 } else {
                     const current = parseInt((badge.textContent || '0').toString(), 10);
