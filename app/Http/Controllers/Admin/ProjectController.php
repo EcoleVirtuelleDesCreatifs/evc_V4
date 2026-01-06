@@ -230,10 +230,50 @@ class ProjectController extends Controller
                 return [$name => $grouped->get($name, collect())];
             });
 
+        $doneStatuses = ['termine', 'valide', 'rejete'];
+
+        $groupedAssignmentsDone = $grouped->map(function ($projects) use ($doneStatuses) {
+            return $projects
+                ->map(function ($project) use ($doneStatuses) {
+                    $students = collect($project['students'] ?? [])->filter(function ($studentWork) use ($doneStatuses) {
+                        return in_array($studentWork->status ?? null, $doneStatuses, true);
+                    })->values();
+
+                    if ($students->isEmpty()) {
+                        return null;
+                    }
+
+                    $project['students'] = $students;
+                    return $project;
+                })
+                ->filter()
+                ->values();
+        });
+
+        $groupedAssignmentsTodo = $grouped->map(function ($projects) use ($doneStatuses) {
+            return $projects
+                ->map(function ($project) use ($doneStatuses) {
+                    $students = collect($project['students'] ?? [])->filter(function ($studentWork) use ($doneStatuses) {
+                        return !in_array($studentWork->status ?? null, $doneStatuses, true);
+                    })->values();
+
+                    if ($students->isEmpty()) {
+                        return null;
+                    }
+
+                    $project['students'] = $students;
+                    return $project;
+                })
+                ->filter()
+                ->values();
+        });
+
         return view('admin.projects.assigned', [
             'assignments' => $assignments,
             'stats' => $stats,
             'groupedAssignments' => $grouped,
+            'groupedAssignmentsDone' => $groupedAssignmentsDone,
+            'groupedAssignmentsTodo' => $groupedAssignmentsTodo,
         ]);
     }
 

@@ -302,30 +302,30 @@
         </div>
     </div>
 
-    <div class="card assigned-card">
+    @php
+        $formations = [
+            'Design Graphique',
+            'Community Management',
+            'Design Graphique et Community Management',
+        ];
+    @endphp
+
+    <div class="card assigned-card mb-4">
         <div class="card-header">
             <div class="d-flex align-items-center justify-content-between gap-3">
                 <div class="d-flex align-items-center gap-2">
-                    <i class="fas fa-layer-group"></i>
-                    <h5 class="mb-0">Travaux attribués</h5>
+                    <i class="fas fa-check-circle"></i>
+                    <h5 class="mb-0">Déjà fait</h5>
                 </div>
                 <div class="text-white-50 small">Clique une formation, puis un projet</div>
             </div>
         </div>
         <div class="card-body">
-            @php
-                $formations = [
-                    'Design Graphique',
-                    'Community Management',
-                    'Design Graphique et Community Management',
-                ];
-            @endphp
-
-            <div class="assigned-grid" id="formationsCards">
+            <div class="assigned-grid">
                 @foreach($formations as $formation)
                     @php
-                        $projects = $groupedAssignments[$formation] ?? collect();
-                        $formationId = 'formation_' . md5($formation);
+                        $projects = $groupedAssignmentsDone[$formation] ?? collect();
+                        $formationId = 'done_formation_' . md5($formation);
                     @endphp
 
                     <button class="assigned-card-tile" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $formationId }}" aria-expanded="false" aria-controls="collapse_{{ $formationId }}">
@@ -344,8 +344,117 @@
 
             @foreach($formations as $formation)
                 @php
-                    $projects = $groupedAssignments[$formation] ?? collect();
-                    $formationId = 'formation_' . md5($formation);
+                    $projects = $groupedAssignmentsDone[$formation] ?? collect();
+                    $formationId = 'done_formation_' . md5($formation);
+                @endphp
+
+                <div class="collapse" id="collapse_{{ $formationId }}">
+                    <div class="assigned-panel">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                            <div class="text-white fw-bold">
+                                <i class="fas fa-graduation-cap me-2"></i>{{ $formation }}
+                            </div>
+                            <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
+                        </div>
+
+                        @if($projects->isEmpty())
+                            <div class="text-center py-3 text-muted">Aucun projet attribué pour cette formation.</div>
+                        @else
+                            <div class="projects-grid">
+                                @foreach($projects as $index => $project)
+                                    @php
+                                        $projectId = $formationId . '_project_' . $index;
+                                        $students = collect($project['students'] ?? []);
+                                    @endphp
+
+                                    <div>
+                                        <button class="assigned-card-tile" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $projectId }}" aria-expanded="false" aria-controls="collapse_{{ $projectId }}">
+                                            <div class="assigned-tile-top">
+                                                <span class="assigned-pill"><i class="fas fa-tasks"></i></span>
+                                                <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
+                                                <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
+                                            </div>
+                                            <div class="assigned-tile-meta">
+                                                <span class="assigned-badge primary">{{ $students->count() }} étudiant(s)</span>
+                                                <span class="text-white-50 small">Voir la liste</span>
+                                            </div>
+                                        </button>
+
+                                        <div class="collapse" id="collapse_{{ $projectId }}">
+                                            <div class="students-panel">
+                                                <div class="list-group assigned-students">
+                                                    @foreach($students as $studentWork)
+                                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                                            <div class="d-flex align-items-center gap-3">
+                                                                @php
+                                                                    $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($studentWork->profile_photo ?? null);
+                                                                @endphp
+                                                                @if($photoUrl)
+                                                                    <img src="{{ $photoUrl }}" alt="{{ $studentWork->first_name }}" class="student-avatar">
+                                                                @else
+                                                                    <div class="student-avatar-fallback">
+                                                                        {{ strtoupper(substr($studentWork->first_name ?? 'E', 0, 1)) }}{{ strtoupper(substr($studentWork->last_name ?? '', 0, 1)) }}
+                                                                    </div>
+                                                                @endif
+                                                                <div>
+                                                                    <div class="fw-bold">{{ $studentWork->first_name }} {{ $studentWork->last_name }}</div>
+                                                                    <div class="text-white-50 small">{{ $studentWork->student_email }}</div>
+                                                                </div>
+                                                            </div>
+                                                            <a href="{{ route('admin.projects.view', $studentWork->id) }}" class="btn btn-sm btn-outline-info">
+                                                                <i class="fas fa-eye me-1"></i>Voir
+                                                            </a>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="card assigned-card">
+        <div class="card-header">
+            <div class="d-flex align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fas fa-clock"></i>
+                    <h5 class="mb-0">Pas encore fait</h5>
+                </div>
+                <div class="text-white-50 small">Clique une formation, puis un projet</div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="assigned-grid">
+                @foreach($formations as $formation)
+                    @php
+                        $projects = $groupedAssignmentsTodo[$formation] ?? collect();
+                        $formationId = 'todo_formation_' . md5($formation);
+                    @endphp
+
+                    <button class="assigned-card-tile" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $formationId }}" aria-expanded="false" aria-controls="collapse_{{ $formationId }}">
+                        <div class="assigned-tile-top">
+                            <span class="assigned-pill"><i class="fas fa-graduation-cap"></i></span>
+                            <div class="assigned-tile-title">{{ $formation }}</div>
+                            <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
+                        </div>
+                        <div class="assigned-tile-meta">
+                            <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
+                            <span class="text-white-50 small">Voir les projets attribués</span>
+                        </div>
+                    </button>
+                @endforeach
+            </div>
+
+            @foreach($formations as $formation)
+                @php
+                    $projects = $groupedAssignmentsTodo[$formation] ?? collect();
+                    $formationId = 'todo_formation_' . md5($formation);
                 @endphp
 
                 <div class="collapse" id="collapse_{{ $formationId }}">
