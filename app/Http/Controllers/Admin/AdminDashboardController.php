@@ -1522,10 +1522,12 @@ class AdminDashboardController extends Controller
     {
         $validatedData = $request->validate([
             'titre' => 'required|string|max:255',
-            'formation' => 'required|string',
+            'recipients_mode' => 'required|in:formation,students',
+            'formation' => 'required_if:recipients_mode,formation|array|min:1',
+            'formation.*' => 'string',
             'description' => 'nullable|string',
             'fichier_pdf' => 'required|file|mimes:pdf|max:51200', // Max 50MB
-            'students' => 'nullable|array',
+            'students' => 'required_if:recipients_mode,students|array|min:1',
             'students.*' => 'integer|exists:students,id',
         ]);
 
@@ -1533,94 +1535,196 @@ class AdminDashboardController extends Controller
         $pdfFile = $request->file('fichier_pdf');
         $pdfPath = $pdfFile->store('programmes/pdfs', 'public');
 
-        // Créer le programme
-        $programmeId = DB::table('programmes')->insertGetId([
-            'titre' => $validatedData['titre'],
-            'formation' => $validatedData['formation'],
-            'description' => $validatedData['description'],
-            'fichier_pdf' => $pdfPath,
-            'student_ids' => !empty($validatedData['students']) ? json_encode(array_values($validatedData['students'])) : null,
-            'created_by' => session('admin_id'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        // Récupérer les étudiants concernés par ce programme
-        $studentsQuery = DB::table('students')
-            ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->where('students.status', 'active')
-            ->select('students.*', 'users.email');
-
-        // Si l'admin a sélectionné des étudiants spécifiques, on cible uniquement ceux-ci
-        if (!empty($validatedData['students'])) {
-            $studentsQuery->whereIn('students.id', $validatedData['students']);
-        }
-
-        // Filtrer selon la formation
-        if (empty($validatedData['students']) && $validatedData['formation'] !== 'Toutes') {
-            $studentsQuery->where(function($query) use ($validatedData) {
-                // Accepter toutes les variantes de la formation
-                $query->where('students.program', $validatedData['formation'])
-                      ->orWhere('students.program', 'Design Graphique')
-                      ->orWhere('students.program', 'design-graphique')
-                      ->orWhere('students.program', 'design_graphique')
-                      ->orWhere('students.program', 'Community Management')
-                      ->orWhere('students.program', 'community-management')
-                      ->orWhere('students.program', 'Gestion Informatique')
-                      ->orWhere('students.program', 'gestion-informatique')
-                      ->orWhere('students.program', 'Intelligence Artificielle')
-                      ->orWhere('students.program', 'intelligence-artificielle');
-            });
-        }
-
-        $students = $studentsQuery->get();
-
-        // Envoyer les emails de notification
+        $programmesCreated = 0;
         $emailsSent = 0;
         $emailsFailures = [];
 
-        foreach ($students as $student) {
-            if (empty($student->email)) {
-                continue;
-            }
+        if (($validatedData['recipients_mode'] ?? 'formation') === 'students') {
+            // Mode: étudiants spécifiques -> 1 programme ciblé
+            $studentIds = array_values($validatedData['students'] ?? []);
 
-            try {
-                // Déterminer l'URL du programme selon la formation de l'étudiant
-                $formationSlug = 'design-graphique'; // Par défaut
-                if ($student->program) {
-                    if (str_contains(strtolower($student->program), 'community')) {
-                        $formationSlug = 'community-management';
-                    } elseif (str_contains(strtolower($student->program), 'informatique')) {
-                        $formationSlug = 'gestion-informatique';
-                    } elseif (str_contains(strtolower($student->program), 'intelligence')) {
-                        $formationSlug = 'intelligence-artificielle';
-                    }
+            DB::table('programmes')->insert([
+                'titre' => $validatedData['titre'],
+                'formation' => 'Ciblage',
+                'description' => $validatedData['description'] ?? null,
+                'fichier_pdf' => $pdfPath,
+                'student_ids' => json_encode($studentIds),
+                'created_by' => session('admin_id'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $programmesCreated++;
+
+            $students = DB::table('students')
+                ->leftJoin('users', 'students.user_id', '=', 'users.id')
+                ->where('students.status', 'active')
+                ->whereIn('students.id', $studentIds)
+                ->select('students.*', 'users.email')
+                ->get();
+
+            foreach ($students as $student) {
+                if (empty($student->email)) {
+                    continue;
                 }
 
-                $programmeUrl = url("/evc/compte/{$formationSlug}/programme/index");
+                try {
+                    // Déterminer l'URL du programme selon la formation de l'étudiant
+                    $formationSlug = 'design-graphique'; // Par défaut
+                    if ($student->program) {
+                        if (str_contains(strtolower($student->program), 'community')) {
+                            $formationSlug = 'community-management';
+                        } elseif (str_contains(strtolower($student->program), 'informatique')) {
+                            $formationSlug = 'gestion-informatique';
+                        } elseif (str_contains(strtolower($student->program), 'intelligence')) {
+                            $formationSlug = 'intelligence-artificielle';
+                        }
+                    }
 
-                \Mail::send('emails.programme_published', [
-                    'student' => $student,
-                    'programme' => [
-                        'titre' => $validatedData['titre'],
-                        'formation' => $validatedData['formation'],
-                        'description' => $validatedData['description'],
-                    ],
-                    'programmeUrl' => $programmeUrl,
-                ], function ($message) use ($student, $validatedData) {
-                    $message->to($student->email)
-                        ->subject('📚 Nouveau Programme : ' . $validatedData['titre']);
-                });
+                    $programmeUrl = url("/evc/compte/{$formationSlug}/programme/index");
 
-                $emailsSent++;
-            } catch (\Exception $e) {
-                $emailsFailures[] = $student->email;
-                \Log::error('Erreur envoi email programme à ' . $student->email . ': ' . $e->getMessage());
+                    \Mail::send('emails.programme_published', [
+                        'student' => $student,
+                        'programme' => [
+                            'titre' => $validatedData['titre'],
+                            'formation' => 'Ciblage',
+                            'description' => $validatedData['description'] ?? null,
+                        ],
+                        'programmeUrl' => $programmeUrl,
+                    ], function ($message) use ($student, $validatedData) {
+                        $message->to($student->email)
+                            ->subject('📚 Nouveau Programme : ' . $validatedData['titre']);
+                    });
+
+                    $emailsSent++;
+                } catch (\Exception $e) {
+                    $emailsFailures[] = $student->email;
+                    \Log::error('Erreur envoi email programme à ' . $student->email . ': ' . $e->getMessage());
+                }
+            }
+        } else {
+            // Mode: formation(s)
+            $formations = array_values($validatedData['formation'] ?? []);
+            if (in_array('Toutes', $formations, true)) {
+                $formations = ['Toutes'];
+            }
+
+            foreach ($formations as $formation) {
+                DB::table('programmes')->insert([
+                    'titre' => $validatedData['titre'],
+                    'formation' => $formation,
+                    'description' => $validatedData['description'] ?? null,
+                    'fichier_pdf' => $pdfPath,
+                    'student_ids' => null,
+                    'created_by' => session('admin_id'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $programmesCreated++;
+
+                // Récupérer les étudiants concernés par cette formation
+                $studentsQuery = DB::table('students')
+                    ->leftJoin('users', 'students.user_id', '=', 'users.id')
+                    ->where('students.status', 'active')
+                    ->select('students.*', 'users.email');
+
+                if ($formation !== 'Toutes') {
+                    $studentsQuery->where(function($query) use ($formation) {
+                        // Accepter les variantes de la formation sélectionnée
+                        $query->where('students.program', $formation);
+
+                        $formationLower = strtolower($formation);
+                        if (str_contains($formationLower, 'design') && str_contains($formationLower, 'community')) {
+                            $query->orWhereIn('students.program', [
+                                'Design Graphique & Community Management',
+                                'Design Graphique & Community Manager',
+                                'design-graphique-community-manager',
+                                'design_graphique_community_management',
+                                'design-graphique-cm',
+                                'design_cm',
+                            ]);
+                        } elseif (str_contains($formationLower, 'design')) {
+                            $query->orWhereIn('students.program', [
+                                'Design Graphique',
+                                'Infographie',
+                                'design-graphique',
+                                'design_graphique',
+                                'infographie',
+                                'Design graphique',
+                            ]);
+                        } elseif (str_contains($formationLower, 'community')) {
+                            $query->orWhereIn('students.program', [
+                                'Community Management',
+                                'community-management',
+                                'community_management',
+                                'Community management',
+                                'CM',
+                            ]);
+                        } elseif (str_contains($formationLower, 'informatique')) {
+                            $query->orWhereIn('students.program', [
+                                'Gestion Informatique',
+                                'gestion-informatique',
+                                'gestion_informatique',
+                                'Gestion informatique',
+                                'GI',
+                            ]);
+                        } elseif (str_contains($formationLower, 'intelligence')) {
+                            $query->orWhereIn('students.program', [
+                                'Intelligence Artificielle',
+                                'intelligence-artificielle',
+                                'intelligence_artificielle',
+                                'Intelligence artificielle',
+                                'IA',
+                            ]);
+                        }
+                    });
+                }
+
+                $students = $studentsQuery->get();
+
+                foreach ($students as $student) {
+                    if (empty($student->email)) {
+                        continue;
+                    }
+
+                    try {
+                        // Déterminer l'URL du programme selon la formation de l'étudiant
+                        $formationSlug = 'design-graphique'; // Par défaut
+                        if ($student->program) {
+                            if (str_contains(strtolower($student->program), 'community')) {
+                                $formationSlug = 'community-management';
+                            } elseif (str_contains(strtolower($student->program), 'informatique')) {
+                                $formationSlug = 'gestion-informatique';
+                            } elseif (str_contains(strtolower($student->program), 'intelligence')) {
+                                $formationSlug = 'intelligence-artificielle';
+                            }
+                        }
+
+                        $programmeUrl = url("/evc/compte/{$formationSlug}/programme/index");
+
+                        \Mail::send('emails.programme_published', [
+                            'student' => $student,
+                            'programme' => [
+                                'titre' => $validatedData['titre'],
+                                'formation' => $formation,
+                                'description' => $validatedData['description'] ?? null,
+                            ],
+                            'programmeUrl' => $programmeUrl,
+                        ], function ($message) use ($student, $validatedData) {
+                            $message->to($student->email)
+                                ->subject('📚 Nouveau Programme : ' . $validatedData['titre']);
+                        });
+
+                        $emailsSent++;
+                    } catch (\Exception $e) {
+                        $emailsFailures[] = $student->email;
+                        \Log::error('Erreur envoi email programme à ' . $student->email . ': ' . $e->getMessage());
+                    }
+                }
             }
         }
 
         // Message de succès avec info sur les emails
-        $message = 'Programme ajouté avec succès';
+        $message = $programmesCreated > 1 ? ($programmesCreated . ' programmes ajoutés avec succès') : 'Programme ajouté avec succès';
         if ($emailsSent > 0) {
             $message .= '. ' . $emailsSent . ' email(s) de notification envoyé(s) aux étudiants';
         }

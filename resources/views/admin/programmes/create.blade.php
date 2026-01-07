@@ -125,31 +125,42 @@
                             </label>
                             <select class="form-select @error('formation') is-invalid @enderror"
                                     id="formation"
-                                    name="formation"
+                                    name="formation[]"
+                                    multiple
+                                    size="6"
                                     required>
-                                <option value="">-- Sélectionner --</option>
-                                <option value="Design Graphique" {{ old('formation') == 'Design Graphique' ? 'selected' : '' }}>
+                                @php
+                                    $oldFormations = old('formation');
+                                    if (!is_array($oldFormations)) {
+                                        $oldFormations = $oldFormations ? [$oldFormations] : [];
+                                    }
+                                @endphp
+                                <option value="Toutes" {{ in_array('Toutes', $oldFormations, true) ? 'selected' : '' }}>
+                                    📚 Toutes les formations
+                                </option>
+                                <option value="Design Graphique" {{ in_array('Design Graphique', $oldFormations, true) ? 'selected' : '' }}>
                                     🎨 Design Graphique
                                 </option>
-                                <option value="Community Management" {{ old('formation') == 'Community Management' ? 'selected' : '' }}>
+                                <option value="Community Management" {{ in_array('Community Management', $oldFormations, true) ? 'selected' : '' }}>
                                     📱 Community Management
                                 </option>
-                                <option value="Design Graphique & Community Manager" {{ old('formation') == 'Design Graphique & Community Manager' ? 'selected' : '' }}>
+                                <option value="Design Graphique & Community Manager" {{ in_array('Design Graphique & Community Manager', $oldFormations, true) ? 'selected' : '' }}>
                                     🎨📱 Design Graphique & Community Manager
                                 </option>
-                                <option value="Gestion Informatique" {{ old('formation') == 'Gestion Informatique' ? 'selected' : '' }}>
+                                <option value="Gestion Informatique" {{ in_array('Gestion Informatique', $oldFormations, true) ? 'selected' : '' }}>
                                     💻 Gestion Informatique
                                 </option>
-                                <option value="Intelligence Artificielle" {{ old('formation') == 'Intelligence Artificielle' ? 'selected' : '' }}>
+                                <option value="Intelligence Artificielle" {{ in_array('Intelligence Artificielle', $oldFormations, true) ? 'selected' : '' }}>
                                     🤖 Intelligence Artificielle
-                                </option>
-                                <option value="Toutes" {{ old('formation') == 'Toutes' ? 'selected' : '' }}>
-                                    📚 Toutes les formations
                                 </option>
                             </select>
                             @error('formation')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Maintenez Ctrl/Cmd pour sélectionner plusieurs formations
+                            </small>
                         </div>
 
                         <div class="form-group mt-4" id="studentsSelectContainer" style="display: none;">
@@ -273,7 +284,7 @@ function updateRecipientsModeUI() {
     if (formationSelect) {
         formationSelect.required = !isStudents;
         if (isStudents) {
-            formationSelect.value = '';
+            Array.from(formationSelect.options).forEach(o => { o.selected = false; });
         }
     }
 }
@@ -281,6 +292,18 @@ function updateRecipientsModeUI() {
 if (modeFormation) modeFormation.addEventListener('change', updateRecipientsModeUI);
 if (modeStudents) modeStudents.addEventListener('change', updateRecipientsModeUI);
 updateRecipientsModeUI();
+
+// Si "Toutes" est sélectionné, on désélectionne les autres formations
+if (formationSelect) {
+    formationSelect.addEventListener('change', function() {
+        const selectedValues = Array.from(this.selectedOptions).map(o => o.value);
+        if (selectedValues.includes('Toutes') && selectedValues.length > 1) {
+            Array.from(this.options).forEach(opt => {
+                opt.selected = (opt.value === 'Toutes');
+            });
+        }
+    });
+}
 
 // Validation du formulaire
 document.querySelector('form[action="{{ route('admin.programmes.store') }}"]').addEventListener('submit', function(e) {
@@ -294,9 +317,10 @@ document.querySelector('form[action="{{ route('admin.programmes.store') }}"]').a
             return false;
         }
     } else {
-        if (!formationSelect || !formationSelect.value) {
+        const selectedFormations = formationSelect ? Array.from(formationSelect.selectedOptions).map(o => o.value).filter(Boolean) : [];
+        if (!selectedFormations.length) {
             e.preventDefault();
-            alert('⚠️ Veuillez sélectionner une formation');
+            alert('⚠️ Veuillez sélectionner au moins une formation');
             formationSelect && formationSelect.focus();
             return false;
         }
