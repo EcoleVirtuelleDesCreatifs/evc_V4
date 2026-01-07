@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('fichier_pdf', 500); // Chemin du fichier PDF
             $table->string('formation', 100); // Formation destinataire
             $table->text('description')->nullable();
+            $table->json('student_ids')->nullable(); // Ciblage optionnel: liste d'IDs étudiants
             $table->unsignedBigInteger('created_by'); // ID de l'admin qui a créé
             $table->timestamps();
             

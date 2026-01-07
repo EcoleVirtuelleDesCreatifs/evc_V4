@@ -1501,7 +1501,21 @@ class AdminDashboardController extends Controller
 
     public function createProgramme()
     {
-        return view('admin.programmes.create');
+        // Liste des étudiants actifs (pour ciblage spécifique)
+        $students = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
+            ->select(
+                'students.*',
+                'users.email'
+            )
+            ->orderBy('students.first_name')
+            ->orderBy('students.last_name')
+            ->get();
+
+        return view('admin.programmes.create', [
+            'students' => $students,
+        ]);
     }
 
     public function storeProgramme(Request $request)
@@ -1511,6 +1525,8 @@ class AdminDashboardController extends Controller
             'formation' => 'required|string',
             'description' => 'nullable|string',
             'fichier_pdf' => 'required|file|mimes:pdf|max:51200', // Max 50MB
+            'students' => 'nullable|array',
+            'students.*' => 'integer|exists:students,id',
         ]);
 
         // Upload du fichier PDF
@@ -1523,6 +1539,7 @@ class AdminDashboardController extends Controller
             'formation' => $validatedData['formation'],
             'description' => $validatedData['description'],
             'fichier_pdf' => $pdfPath,
+            'student_ids' => !empty($validatedData['students']) ? json_encode(array_values($validatedData['students'])) : null,
             'created_by' => session('admin_id'),
             'created_at' => now(),
             'updated_at' => now(),
@@ -1534,8 +1551,13 @@ class AdminDashboardController extends Controller
             ->where('students.status', 'active')
             ->select('students.*', 'users.email');
 
+        // Si l'admin a sélectionné des étudiants spécifiques, on cible uniquement ceux-ci
+        if (!empty($validatedData['students'])) {
+            $studentsQuery->whereIn('students.id', $validatedData['students']);
+        }
+
         // Filtrer selon la formation
-        if ($validatedData['formation'] !== 'Toutes') {
+        if (empty($validatedData['students']) && $validatedData['formation'] !== 'Toutes') {
             $studentsQuery->where(function($query) use ($validatedData) {
                 // Accepter toutes les variantes de la formation
                 $query->where('students.program', $validatedData['formation'])

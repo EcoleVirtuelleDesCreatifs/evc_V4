@@ -99,6 +99,26 @@
                         <h3>Ciblage</h3>
                     </div>
                     <div class="form-card-body">
+                        <div class="form-group mb-4">
+                            <label class="form-label">
+                                Destinataires <span class="text-danger">*</span>
+                            </label>
+                            <div class="mt-2">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="recipients_mode" id="recipients_mode_formation" value="formation" {{ old('recipients_mode', 'formation') === 'formation' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="recipients_mode_formation">
+                                        Formation
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recipients_mode" id="recipients_mode_students" value="students" {{ old('recipients_mode') === 'students' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="recipients_mode_students">
+                                        Étudiants spécifiques
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label for="formation" class="form-label">
                                 Formation destinataire <span class="text-danger">*</span>
@@ -130,6 +150,42 @@
                             @error('formation')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+
+                        <div class="form-group mt-4" id="studentsSelectContainer" style="display: none;">
+                            <label for="students" class="form-label">
+                                Étudiants spécifiques <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select @error('students') is-invalid @enderror"
+                                    id="students"
+                                    name="students[]"
+                                    multiple
+                                    size="10">
+                                @php
+                                    $oldStudents = old('students');
+                                    if (!is_array($oldStudents)) {
+                                        $oldStudents = $oldStudents ? [$oldStudents] : [];
+                                    }
+                                @endphp
+                                @foreach(($students ?? []) as $student)
+                                    <option value="{{ $student->id }}" {{ in_array($student->id, $oldStudents, false) ? 'selected' : '' }}>
+                                        {{ $student->first_name }} {{ $student->last_name }}
+                                        @if($student->email)
+                                            ({{ $student->email }})
+                                        @endif
+                                        @if($student->program)
+                                            - {{ $student->program }}
+                                        @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('students')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Maintenez Ctrl/Cmd pour sélectionner plusieurs étudiants
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -193,6 +249,57 @@ document.getElementById('fichier_pdf').addEventListener('change', function(e) {
     const fileName = e.target.files[0]?.name;
     if (fileName) {
         console.log('Fichier sélectionné:', fileName);
+    }
+});
+
+const modeFormation = document.getElementById('recipients_mode_formation');
+const modeStudents = document.getElementById('recipients_mode_students');
+const studentsSelectContainer = document.getElementById('studentsSelectContainer');
+const studentsSelect = document.getElementById('students');
+const formationSelect = document.getElementById('formation');
+
+function updateRecipientsModeUI() {
+    const isStudents = modeStudents && modeStudents.checked;
+    if (studentsSelectContainer) {
+        studentsSelectContainer.style.display = isStudents ? 'block' : 'none';
+    }
+    if (studentsSelect) {
+        studentsSelect.required = !!isStudents;
+        if (!isStudents) {
+            // vider la sélection si on repasse en mode formation
+            Array.from(studentsSelect.options).forEach(o => { o.selected = false; });
+        }
+    }
+    if (formationSelect) {
+        formationSelect.required = !isStudents;
+        if (isStudents) {
+            formationSelect.value = '';
+        }
+    }
+}
+
+if (modeFormation) modeFormation.addEventListener('change', updateRecipientsModeUI);
+if (modeStudents) modeStudents.addEventListener('change', updateRecipientsModeUI);
+updateRecipientsModeUI();
+
+// Validation du formulaire
+document.querySelector('form[action="{{ route('admin.programmes.store') }}"]').addEventListener('submit', function(e) {
+    const isStudents = modeStudents && modeStudents.checked;
+    if (isStudents) {
+        const selectedStudents = studentsSelect ? Array.from(studentsSelect.selectedOptions) : [];
+        if (!selectedStudents.length) {
+            e.preventDefault();
+            alert('⚠️ Veuillez sélectionner au moins un étudiant');
+            studentsSelect && studentsSelect.focus();
+            return false;
+        }
+    } else {
+        if (!formationSelect || !formationSelect.value) {
+            e.preventDefault();
+            alert('⚠️ Veuillez sélectionner une formation');
+            formationSelect && formationSelect.focus();
+            return false;
+        }
     }
 });
 </script>

@@ -3855,9 +3855,19 @@ class DashboardController extends Controller
         // Toujours inclure "Toutes"
         $allowedFormations = array_values(array_unique(array_merge(['Toutes'], $studentFormationVariants)));
 
-        // Récupérer les programmes publiés par l'admin (formation de l'étudiant + Toutes)
+        // Récupérer les programmes publiés par l'admin
+        // Visible si :
+        // - formation = Toutes
+        // - formation correspond à la formation de l'étudiant (mapping)
+        // - OU ciblage spécifique via student_ids
         $programmes = DB::table('programmes')
-            ->whereIn('formation', $allowedFormations)
+            ->where(function ($query) use ($allowedFormations, $student) {
+                $query->whereIn('formation', $allowedFormations);
+
+                if (!empty($student?->id)) {
+                    $query->orWhereJsonContains('student_ids', (int) $student->id);
+                }
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
