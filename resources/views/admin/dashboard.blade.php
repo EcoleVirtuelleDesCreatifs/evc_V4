@@ -796,6 +796,74 @@
         @endif
     </div>
 
+    @if(session('admin_role') === 'super_admin' && !empty($assistantSalarySummary))
+        <div class="activity-section" style="margin-bottom: 2rem;">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <span class="icon">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </span>
+                    Salaires Assistant
+                </h2>
+                <a href="{{ route('admin.assistant.tasks.index') }}" class="view-all-btn">
+                    Tâches Assistant <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+            </div>
+
+            <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+                <div class="card-body" style="background: #ffffff;">
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Assistant</th>
+                                    <th class="text-center">Tâches (mois)</th>
+                                    <th class="text-end">Aujourd'hui</th>
+                                    <th class="text-end">Semaine</th>
+                                    <th class="text-end">Mois</th>
+                                    <th class="text-center">Délais</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach(($assistantSalarySummary['assistants'] ?? []) as $a)
+                                    @php
+                                        $credited = (int) ($a['credited_units_month'] ?? 0);
+                                        $totalUnits = (int) ($a['total_units'] ?? 0);
+                                        $progressLabel = $totalUnits > 0 ? ($credited . '/' . $totalUnits) : '-';
+                                        $isCompliant = (bool) ($a['is_compliant'] ?? true);
+                                    @endphp
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight: 700;">{{ $a['name'] ?? '' }}</div>
+                                            <div class="text-muted" style="font-size: 0.9rem;">{{ $a['email'] ?? '' }}</div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="badge bg-secondary">{{ $progressLabel }}</span>
+                                        </td>
+                                        <td class="text-end" style="font-weight: 700;">{{ number_format((int)($a['earned_day'] ?? 0), 0, ',', ' ') }} FCFA</td>
+                                        <td class="text-end" style="font-weight: 700;">{{ number_format((int)($a['earned_week'] ?? 0), 0, ',', ' ') }} FCFA</td>
+                                        <td class="text-end" style="font-weight: 800;">{{ number_format((int)($a['earned_month'] ?? 0), 0, ',', ' ') }} FCFA</td>
+                                        <td class="text-center">
+                                            <form method="POST" action="{{ route('admin.salaries.assistant.compliance', ['adminId' => $a['admin_id']]) }}" style="display: inline;">
+                                                @csrf
+                                                <input type="hidden" name="year" value="{{ (int)($a['year'] ?? now()->year) }}">
+                                                <input type="hidden" name="month" value="{{ (int)($a['month'] ?? now()->month) }}">
+                                                <input type="hidden" name="is_compliant" value="{{ $isCompliant ? 0 : 1 }}">
+                                                <button type="submit" class="btn btn-sm {{ $isCompliant ? 'btn-success' : 'btn-danger' }}" style="border-radius: 10px;">
+                                                    {{ $isCompliant ? 'OK' : '/2' }}
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Quick Actions -->
     <div class="activity-section">
         <div class="section-header">

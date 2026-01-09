@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ActualiteController extends Controller
 {
@@ -96,7 +98,35 @@ class ActualiteController extends Controller
         // Set author
         $validated['admin_id'] = session('admin_id');
 
-        Actualite::create($validated);
+        $actualite = Actualite::create($validated);
+
+        // Auto-log assistant task if module is installed
+        try {
+            if (session('admin_role') === 'assistant'
+                && Schema::hasTable('admin_task_types')
+                && Schema::hasTable('admin_task_logs')) {
+
+                $taskTypeId = DB::table('admin_task_types')
+                    ->where('code', 'assistant_publish_actualite')
+                    ->where('role', 'assistant')
+                    ->where('is_active', 1)
+                    ->value('id');
+
+                if ($taskTypeId) {
+                    DB::table('admin_task_logs')->insert([
+                        'admin_id' => (int) session('admin_id'),
+                        'task_type_id' => (int) $taskTypeId,
+                        'quantity' => 1,
+                        'performed_at' => now(),
+                        'meta' => json_encode(['actualite_id' => $actualite->id]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            // No-op: logging should never break actualite creation
+        }
 
         return redirect()->route('admin.articles.actualites')
             ->with('success', 'Actualité créée avec succès !');

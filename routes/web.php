@@ -732,6 +732,10 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
 
+        Route::get('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'index'])->name('assistant.tasks.index');
+        Route::post('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'store'])->name('assistant.tasks.store');
+        Route::post('/salaries/assistant/{adminId}/compliance', [App\Http\Controllers\Admin\AdminSalaryController::class, 'toggleAssistantMonthCompliance'])->name('salaries.assistant.compliance');
+
         Route::get('/dons', [DonationAdminController::class, 'index'])->name('donations.index');
         Route::get('/dons/{id}', [DonationAdminController::class, 'show'])->whereNumber('id')->name('donations.show');
         Route::post('/dons/{id}/send-reminder', [DonationAdminController::class, 'sendReminder'])->whereNumber('id')->name('donations.send-reminder');

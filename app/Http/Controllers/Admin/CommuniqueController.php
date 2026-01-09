@@ -10,6 +10,8 @@ use App\Models\Student;
 use App\Mail\CommuniqueNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CommuniqueController extends Controller
 {
@@ -19,7 +21,7 @@ class CommuniqueController extends Controller
 
         $communiques = Communique::query()
             ->orderByRaw(
-                "CASE 
+                "CASE
                     WHEN end_at IS NOT NULL AND end_at < ? THEN 2
                     WHEN start_at IS NOT NULL AND start_at > ? THEN 1
                     ELSE 0
@@ -167,6 +169,34 @@ class CommuniqueController extends Controller
             'actualite_id' => $request->actualite_id,
             'evenement_id' => $request->evenement_id,
         ]);
+
+        // Auto-log assistant task if module is installed
+        try {
+            if (session('admin_role') === 'assistant'
+                && Schema::hasTable('admin_task_types')
+                && Schema::hasTable('admin_task_logs')) {
+
+                $taskTypeId = DB::table('admin_task_types')
+                    ->where('code', 'assistant_publish_communique')
+                    ->where('role', 'assistant')
+                    ->where('is_active', 1)
+                    ->value('id');
+
+                if ($taskTypeId) {
+                    DB::table('admin_task_logs')->insert([
+                        'admin_id' => (int) session('admin_id'),
+                        'task_type_id' => (int) $taskTypeId,
+                        'quantity' => 1,
+                        'performed_at' => now(),
+                        'meta' => json_encode(['communique_id' => $communique->id]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            // No-op: logging should never break communique creation
+        }
 
         // Envoyer un email à tous les étudiants actifs si le communiqué est actif
         $sentCount = 0;

@@ -34,6 +34,7 @@ class AdminDashboardController extends Controller
     {
         $currentWeekStart = now()->startOfWeek();
         $currentDayStart = now()->startOfDay();
+        $currentMonthStart = now()->startOfMonth();
 
         // Récupérer les historiques de connexion récents
         $recentLogins = DB::table('user_activities')
@@ -76,7 +77,6 @@ class AdminDashboardController extends Controller
         $totalExpenses = AccountingTransaction::where('type', 'expense')->sum('amount');
         $balance = $totalIncome - $totalExpenses;
 
-        $currentMonthStart = now()->startOfMonth();
         $incomeThisMonth = AccountingTransaction::where('type', 'income')
             ->where('date', '>=', $currentMonthStart)
             ->sum('amount');
@@ -156,6 +156,135 @@ class AdminDashboardController extends Controller
             Log::error('Erreur stats dons dashboard: ' . $e->getMessage());
         }
 
+        $assistantSalarySummary = null;
+        if (session('admin_role') === 'super_admin'
+            && Schema::hasTable('admins')
+            && Schema::hasTable('admin_task_types')
+            && Schema::hasTable('admin_task_logs')
+            && Schema::hasTable('admin_salary_months')) {
+
+            $year = (int) now()->year;
+            $month = (int) now()->month;
+            $monthEnd = now()->endOfMonth();
+            $weekStart = $currentWeekStart;
+            $dayStart = $currentDayStart;
+
+            $taskTypes = DB::table('admin_task_types')
+                ->where('role', 'assistant')
+                ->where('is_active', 1)
+                ->orderBy('id')
+                ->get();
+
+            $totalUnits = (int) $taskTypes->sum(function ($t) {
+                return (int) ($t->expected_per_month ?? 0);
+            });
+
+            $assistants = DB::table('admins')
+                ->where('role', 'assistant')
+                ->where('is_active', 1)
+                ->orderBy('name')
+                ->get(['id', 'name', 'email']);
+
+            $assistantIds = $assistants->pluck('id')->all();
+
+            $salaryMonths = DB::table('admin_salary_months')
+                ->whereIn('admin_id', $assistantIds)
+                ->where('year', $year)
+                ->where('month', $month)
+                ->get()
+                ->keyBy('admin_id');
+
+            $monthLogs = DB::table('admin_task_logs')
+                ->select('admin_id', 'task_type_id', DB::raw('SUM(quantity) as qty'))
+                ->whereIn('admin_id', $assistantIds)
+                ->whereBetween('performed_at', [$currentMonthStart, $monthEnd])
+                ->groupBy('admin_id', 'task_type_id')
+                ->get();
+
+            $weekLogs = DB::table('admin_task_logs')
+                ->select('admin_id', 'task_type_id', DB::raw('SUM(quantity) as qty'))
+                ->whereIn('admin_id', $assistantIds)
+                ->whereBetween('performed_at', [$weekStart, $monthEnd])
+                ->groupBy('admin_id', 'task_type_id')
+                ->get();
+
+            $dayLogs = DB::table('admin_task_logs')
+                ->select('admin_id', 'task_type_id', DB::raw('SUM(quantity) as qty'))
+                ->whereIn('admin_id', $assistantIds)
+                ->whereBetween('performed_at', [$dayStart, $monthEnd])
+                ->groupBy('admin_id', 'task_type_id')
+                ->get();
+
+            $monthLogsByAdmin = $monthLogs->groupBy('admin_id');
+            $weekLogsByAdmin = $weekLogs->groupBy('admin_id');
+            $dayLogsByAdmin = $dayLogs->groupBy('admin_id');
+
+            $assistantsComputed = $assistants->map(function ($a) use (
+                $salaryMonths,
+                $taskTypes,
+                $totalUnits,
+                $monthLogsByAdmin,
+                $weekLogsByAdmin,
+                $dayLogsByAdmin,
+                $year,
+                $month
+            ) {
+                $salaryMonth = $salaryMonths[$a->id] ?? null;
+                $isCompliant = (bool) ($salaryMonth->is_compliant ?? true);
+                $baseAmount = (int) ($salaryMonth->base_amount ?? 25000);
+                $effectiveBase = $isCompliant ? $baseAmount : (int) floor($baseAmount / 2);
+                $unitValue = $totalUnits > 0 ? ($effectiveBase / $totalUnits) : 0;
+
+                $monthDoneByType = collect($monthLogsByAdmin[$a->id] ?? [])->pluck('qty', 'task_type_id');
+                $weekDoneByType = collect($weekLogsByAdmin[$a->id] ?? [])->pluck('qty', 'task_type_id');
+                $dayDoneByType = collect($dayLogsByAdmin[$a->id] ?? [])->pluck('qty', 'task_type_id');
+
+                $creditedUnitsMonth = 0;
+                $creditedUnitsWeek = 0;
+                $creditedUnitsDay = 0;
+
+                foreach ($taskTypes as $t) {
+                    $expected = (int) ($t->expected_per_month ?? 0);
+
+                    $doneMonth = (int) ($monthDoneByType[$t->id] ?? 0);
+                    $doneWeek = (int) ($weekDoneByType[$t->id] ?? 0);
+                    $doneDay = (int) ($dayDoneByType[$t->id] ?? 0);
+
+                    $creditedUnitsMonth += min($doneMonth, $expected);
+                    $creditedUnitsWeek += min($doneWeek, $expected);
+                    $creditedUnitsDay += min($doneDay, $expected);
+                }
+
+                $earnedMonth = (int) round($creditedUnitsMonth * $unitValue);
+                $earnedWeek = min($earnedMonth, (int) round($creditedUnitsWeek * $unitValue));
+                $earnedDay = min($earnedMonth, (int) round($creditedUnitsDay * $unitValue));
+
+                return [
+                    'admin_id' => (int) $a->id,
+                    'name' => $a->name,
+                    'email' => $a->email,
+                    'year' => $year,
+                    'month' => $month,
+                    'is_compliant' => $isCompliant,
+                    'base_amount' => $baseAmount,
+                    'effective_base' => $effectiveBase,
+                    'total_units' => $totalUnits,
+                    'credited_units_month' => $creditedUnitsMonth,
+                    'earned_day' => $earnedDay,
+                    'earned_week' => $earnedWeek,
+                    'earned_month' => $earnedMonth,
+                ];
+            })->values();
+
+            $assistantSalarySummary = [
+                'year' => $year,
+                'month' => $month,
+                'total_units' => $totalUnits,
+                'task_types' => $taskTypes,
+                'assistants' => $assistantsComputed,
+            ];
+        }
+
         return view('admin.dashboard', compact(
             'studentHistory',
             'totalIncome',
@@ -177,7 +306,8 @@ class AdminDashboardController extends Controller
             'visitorsThisWeek',
             'visitorsThisMonth',
             'donationsCount',
-            'donationsTotalAmount'
+            'donationsTotalAmount',
+            'assistantSalarySummary'
         ));
     }
 
