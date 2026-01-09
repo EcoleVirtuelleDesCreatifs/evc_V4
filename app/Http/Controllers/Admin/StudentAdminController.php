@@ -1290,6 +1290,13 @@ class StudentAdminController extends Controller
                 ], 404);
             }
 
+            if ((string) ($project->status ?? '') === 'validated') {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Projet déjà validé.'
+                ]);
+            }
+
             // Mettre à jour le statut du projet
             DB::table('design_projects')
                 ->where('id', $projectId)
@@ -1298,6 +1305,59 @@ class StudentAdminController extends Controller
                     'validated_at' => now(),
                     'updated_at' => now()
                 ]);
+
+            try {
+                $adminId = (int) session('admin_id');
+                if ($adminId > 0 && Schema::hasTable('admin_task_logs') && Schema::hasTable('admin_task_types')) {
+                    $q = DB::table('admin_task_types')->where('is_active', 1);
+
+                    if (Schema::hasColumn('admin_task_types', 'kpi_catalog_key')) {
+                        $q->where('kpi_catalog_key', 'validate_projects');
+                    }
+
+                    if (Schema::hasColumn('admin_task_types', 'job_profile_id') && Schema::hasTable('admin_admin_job_profiles')) {
+                        $profileIds = DB::table('admin_admin_job_profiles')
+                            ->where('admin_id', $adminId)
+                            ->where(function ($q2) {
+                                $q2->whereNull('starts_at')->orWhere('starts_at', '<=', now()->toDateString());
+                            })
+                            ->where(function ($q2) {
+                                $q2->whereNull('ends_at')->orWhere('ends_at', '>=', now()->toDateString());
+                            })
+                            ->pluck('job_profile_id')
+                            ->map(fn ($v) => (int) $v)
+                            ->unique()
+                            ->values()
+                            ->all();
+
+                        if (!empty($profileIds)) {
+                            $q->whereIn('job_profile_id', $profileIds);
+                        }
+                    }
+
+                    $taskTypeId = (int) ($q->orderBy('id')->value('id') ?? 0);
+
+                    if ($taskTypeId > 0) {
+                        DB::table('admin_task_logs')->insert([
+                            'admin_id' => $adminId,
+                            'task_type_id' => $taskTypeId,
+                            'quantity' => 1,
+                            'performed_at' => now(),
+                            'meta' => json_encode([
+                                'design_project_id' => (int) $projectId,
+                                'event' => 'validated',
+                            ]),
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Unable to create admin task log for project validation (StudentAdminController)', [
+                    'design_project_id' => $projectId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             // Envoyer un email de validation à l'étudiant
             try {
