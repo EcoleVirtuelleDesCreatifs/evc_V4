@@ -321,7 +321,6 @@ class ProjectController extends Controller
                     'students.program',
                     'students.country'
                 )
-                ->orderBy('students.first_name')
                 ->get()
                 ->map(function ($student) {
                     $tpCount = DB::table('tp')->where('user_id', $student->user_id)->count();
@@ -338,7 +337,11 @@ class ProjectController extends Controller
                         ->count();
                     $student->pending_count = $tpPendingCount + $designPendingCount;
                     return $student;
-                });
+                })
+                ->sortByDesc(function ($student) {
+                    return (int) ($student->projects_count ?? 0);
+                })
+                ->values();
 
             return view('admin.projects.index', [
                 'projects' => new LengthAwarePaginator([], 0, 15, 1, ['path' => request()->url(), 'query' => request()->query()]),
