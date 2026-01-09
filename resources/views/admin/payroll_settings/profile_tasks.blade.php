@@ -147,5 +147,35 @@
     .form-label, .form-text { color: #e2e8f0; }
     .table { color: #e2e8f0; }
     .table thead th { color: #e2e8f0; }
+    .table>:not(caption)>*>* {
+        background-color: transparent;
+        color: inherit;
+        box-shadow: none;
+    }
+    .table thead th {
+        background-color: rgba(15, 23, 42, 0.92);
+        border-color: rgba(148, 163, 184, 0.18);
+    }
+    .table tbody td {
+        background-color: rgba(15, 23, 42, 0.55);
+        border-color: rgba(148, 163, 184, 0.12);
+    }
+    .table tbody tr:hover td {
+        background-color: rgba(30, 41, 59, 0.70);
+    }
+    .form-control, .form-select {
+        background-color: rgba(15, 23, 42, 0.70);
+        border-color: rgba(148, 163, 184, 0.22);
+        color: #e2e8f0;
+    }
+    .form-control:focus, .form-select:focus {
+        background-color: rgba(15, 23, 42, 0.85);
+        border-color: rgba(59, 130, 246, 0.60);
+        box-shadow: 0 0 0 .2rem rgba(59, 130, 246, 0.15);
+        color: #e2e8f0;
+    }
+    .form-select option {
+        color: #0f172a;
+    }
 </style>
 @endpush
