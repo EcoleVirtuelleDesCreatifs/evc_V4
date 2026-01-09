@@ -582,7 +582,7 @@
 
                                     <!-- Titre du projet -->
                                     <div class="project-title">
-                                        <a href="{{ $isDesignProject ? route('admin.design-projects.view', $project->id) : route('admin.tp.view', $project->id) }}">
+                                        <a href="{{ $isDesignProject ? route('admin.design-projects.view', $project->id) : route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']) }}">
                                             {{ $project->title }}
                                         </a>
                                     </div>
@@ -616,7 +616,7 @@
 
                                     <!-- Boutons d'action -->
                                     <div class="action-buttons">
-                                        <a href="{{ $isDesignProject ? route('admin.design-projects.view', $project->id) : route('admin.tp.view', $project->id) }}" class="btn btn-action btn-view" title="Voir">
+                                        <a href="{{ $isDesignProject ? route('admin.design-projects.view', $project->id) : route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']) }}" class="btn btn-action btn-view" title="Voir">
                                             <i class="fas fa-eye"></i>
                                         </a>
 

@@ -2626,6 +2626,35 @@ class AdminDashboardController extends Controller
      */
     public function viewTp(int $id)
     {
+        // Si on force l'affichage d'un rapport TP (table `tp`), éviter toute collision d'ID
+        // avec `tp_assignments` / `projects`.
+        if (request()->get('source') === 'tp_report') {
+            $tp = DB::table('tp')->where('id', $id)->first();
+
+            if (!$tp) {
+                abort(404, 'TP introuvable');
+            }
+
+            // Récupérer l'utilisateur associé
+            $user = DB::table('users')->where('id', $tp->user_id)->first();
+
+            // Récupérer les fichiers associés au TP
+            $files = collect([]);
+            if (Schema::hasTable('tp_files')) {
+                $files = DB::table('tp_files')->where('tp_id', $id)->get();
+            }
+
+            // Ajouter les propriétés manquantes au TP
+            $tp->tags = $tp->tags ?? null;
+            $tp->software_used = $tp->software_used ?? null;
+            $tp->files = $files;
+
+            return view('tp.view-admin', [
+                'project' => $tp,
+                'user' => $user
+            ]);
+        }
+
         // Chercher d'abord dans tp_assignments (travaux)
         $tp = DB::table('tp_assignments')
             ->leftJoin('students', 'tp_assignments.student_id', '=', 'students.id')
