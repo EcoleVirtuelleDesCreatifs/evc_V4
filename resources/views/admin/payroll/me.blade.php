@@ -279,5 +279,21 @@
 
     .table { color: #e2e8f0; }
     .table thead th { color: #e2e8f0; }
+    .table>:not(caption)>*>* {
+        background-color: transparent;
+        color: inherit;
+        box-shadow: none;
+    }
+    .table thead th {
+        background-color: rgba(15, 23, 42, 0.92);
+        border-color: rgba(148, 163, 184, 0.18);
+    }
+    .table tbody td {
+        background-color: rgba(15, 23, 42, 0.55);
+        border-color: rgba(148, 163, 184, 0.12);
+    }
+    .table tbody tr:hover td {
+        background-color: rgba(30, 41, 59, 0.70);
+    }
 </style>
 @endpush
