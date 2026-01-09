@@ -753,14 +753,15 @@ class AdminDashboardController extends Controller
             ->values();
 
         $studentsList = User::query()
-            ->whereHas('student', function ($q) {
-                $q->where('status', 'active');
-            })
+            ->leftJoin('students', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
             ->when($alreadyAssignedUserIds->isNotEmpty(), function ($query) use ($alreadyAssignedUserIds) {
-                $query->whereNotIn('id', $alreadyAssignedUserIds->all());
+                $query->whereNotIn('users.id', $alreadyAssignedUserIds->all());
             })
+            ->select('users.*')
             ->with('student')
-            ->orderBy('name')
+            ->orderByRaw("LOWER(COALESCE(NULLIF(TRIM(students.last_name), ''), NULLIF(TRIM(users.name), ''), users.email)) asc")
+            ->orderByRaw("LOWER(COALESCE(NULLIF(TRIM(students.first_name), ''), users.email)) asc")
             ->get();
 
         return view('admin.projects.edit', [
