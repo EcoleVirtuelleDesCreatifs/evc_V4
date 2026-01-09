@@ -288,19 +288,21 @@
                                         <i class="fas fa-edit me-1"></i>Modifier
                                     </a>
 
-                                    <form action="{{ route('admin.design-projects.validate', $project->id) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-success btn-sm" style="border-radius: 8px;">
-                                            <i class="fas fa-check me-1"></i>Valider
-                                        </button>
-                                    </form>
+                                    @if(($project->status ?? null) !== 'validated')
+                                        <form action="{{ route('admin.design-projects.validate', $project->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success btn-sm" style="border-radius: 8px;">
+                                                <i class="fas fa-check me-1"></i>Valider
+                                            </button>
+                                        </form>
 
-                                    <form action="{{ route('admin.design-projects.reject', $project->id) }}" method="POST" style="display: inline;">
-                                        @csrf
-                                        <button type="submit" class="btn btn-warning btn-sm" style="border-radius: 8px;">
-                                            <i class="fas fa-times me-1"></i>Rejeter
-                                        </button>
-                                    </form>
+                                        <form action="{{ route('admin.design-projects.reject', $project->id) }}" method="POST" style="display: inline;">
+                                            @csrf
+                                            <button type="submit" class="btn btn-warning btn-sm" style="border-radius: 8px;">
+                                                <i class="fas fa-times me-1"></i>Rejeter
+                                            </button>
+                                        </form>
+                                    @endif
 
                                     <form action="{{ route('admin.design-projects.delete', $project->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce projet ?');">
                                         @csrf
