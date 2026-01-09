@@ -171,6 +171,15 @@
                         <i class="fas fa-tasks me-2"></i>Travaux & Projets
                     </li>
 
+                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.assistant.tasks.index') }}" class="admin-nav-link {{ request()->routeIs('admin.assistant.tasks.*') ? 'active' : '' }}">
+                            <i class="fas fa-clipboard-check"></i>
+                            Tâches Assistant
+                        </a>
+                    </li>
+                    @endif
+
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.projets.design-graphique.to-send') }}" class="admin-nav-link {{ request()->routeIs('admin.projets.design-graphique.to-send') ? 'active' : '' }}">
                             <i class="fas fa-paper-plane"></i>
