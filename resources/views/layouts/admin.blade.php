@@ -173,7 +173,7 @@
 
                     @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
                     <li class="admin-nav-item">
-                        <a href="{{ route('admin.assistant.tasks.index') }}" class="admin-nav-link {{ request()->routeIs('admin.assistant.tasks.*') ? 'active' : '' }}">
+                        <a href="{{ session('admin_role') === 'super_admin' ? route('admin.payroll.index') : route('admin.payroll.me') }}" class="admin-nav-link {{ (request()->routeIs('admin.payroll.*') || request()->routeIs('admin.assistant.tasks.*')) ? 'active' : '' }}">
                             <i class="fas fa-clipboard-check"></i>
                             Gestion des Salaires
                         </a>

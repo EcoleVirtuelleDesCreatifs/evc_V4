@@ -736,6 +736,11 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'store'])->name('assistant.tasks.store');
         Route::post('/salaries/assistant/{adminId}/compliance', [App\Http\Controllers\Admin\AdminSalaryController::class, 'toggleAssistantMonthCompliance'])->name('salaries.assistant.compliance');
 
+        Route::get('/payroll', [App\Http\Controllers\Admin\AdminPayrollController::class, 'index'])->name('payroll.index');
+        Route::post('/payroll/admin/{adminId}/profiles', [App\Http\Controllers\Admin\AdminPayrollController::class, 'updateAdminProfiles'])->name('payroll.admin.profiles');
+        Route::post('/payroll/admin/{adminId}/visibility', [App\Http\Controllers\Admin\AdminPayrollController::class, 'updateSalaryVisibility'])->name('payroll.admin.visibility');
+        Route::get('/payroll/me', [App\Http\Controllers\Admin\AdminPayrollController::class, 'me'])->name('payroll.me');
+
         Route::get('/dons', [DonationAdminController::class, 'index'])->name('donations.index');
         Route::get('/dons/{id}', [DonationAdminController::class, 'show'])->whereNumber('id')->name('donations.show');
         Route::post('/dons/{id}/send-reminder', [DonationAdminController::class, 'sendReminder'])->whereNumber('id')->name('donations.send-reminder');

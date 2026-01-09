@@ -805,7 +805,7 @@
                     </span>
                     Salaires Assistant
                 </h2>
-                <a href="{{ route('admin.assistant.tasks.index') }}" class="view-all-btn">
+                <a href="{{ route('admin.payroll.index') }}" class="view-all-btn">
                     Gestion des Salaires <i class="fas fa-arrow-right ms-1"></i>
                 </a>
             </div>
