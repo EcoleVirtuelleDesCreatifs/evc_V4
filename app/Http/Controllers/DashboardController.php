@@ -443,26 +443,23 @@ class DashboardController extends Controller
         $isExpiredNow = $now->greaterThan($expirationDate);
 
         // Compter les programmes disponibles pour Design & CM
-        $programmesQuery = DB::table('programmes')
-            ->where(function ($query) use ($student) {
-                $query->where('formation', 'Toutes');
+        $formationsDisponibles = 0;
+        if (Schema::hasTable('formations')) {
+            $formationsQuery = DB::table('formations')
+                ->where('status', 'active')
+                ->where(function ($query) {
+                    $query->whereJsonContains('modules', 'design-graphique')
+                        ->orWhereJsonContains('modules', 'community-management')
+                        ->orWhereJsonContains('modules', 'Design Graphique')
+                        ->orWhereJsonContains('modules', 'Community Management');
+                });
 
-                if ($student && isset($student->program) && $student->program) {
-                    $query->orWhere(function ($q) use ($student) {
-                        $q->where('formation', $student->program)
-                            ->orWhere('formation', 'Design Graphique')
-                            ->orWhere('formation', 'Community Management')
-                            ->orWhere('formation', 'Design Graphique & Community Management')
-                            ->orWhere('formation', 'Design Graphique & Community Manager');
-                    });
-                }
-            });
+            if ($isExpiredNow) {
+                $formationsQuery->where('created_at', '<=', $expirationDate);
+            }
 
-        if ($isExpiredNow) {
-            $programmesQuery->where('created_at', '<=', $expirationDate);
+            $formationsDisponibles = $formationsQuery->count();
         }
-
-        $formationsDisponibles = $programmesQuery->count();
 
         // Compter les TP depuis tp_assignments
         $tpRealises = 0;
@@ -3864,7 +3861,7 @@ class DashboardController extends Controller
             ->where(function ($query) use ($allowedFormations, $student) {
                 $query->whereIn('formation', $allowedFormations);
 
-                if (!empty($student?->id)) {
+                if (!empty($student?->id) && Schema::hasColumn('programmes', 'student_ids')) {
                     $query->orWhereJsonContains('student_ids', (int) $student->id);
                 }
             })
