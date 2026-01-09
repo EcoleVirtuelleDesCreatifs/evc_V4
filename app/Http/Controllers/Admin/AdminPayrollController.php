@@ -218,12 +218,12 @@ class AdminPayrollController extends Controller
                 'email' => $a->email,
                 'role' => $a->role,
                 'can_view_salary_amount' => (bool) ($a->can_view_salary_amount ?? false),
-                'profile_ids' => $assigned,
-                'profile_labels' => $assignedLabels,
+                'profile_ids' => $assigned->map(fn ($v) => (int) $v)->values()->all(),
+                'profile_labels' => $assignedLabels->values()->all(),
                 'kpi_avg' => $kpiAvg,
                 'base_total' => $baseTotal,
                 'earned_total' => $earnedTotal,
-                'breakdown' => $breakdown,
+                'breakdown' => $breakdown->all(),
                 'commercial_sales_month' => (int) round($commercialSales),
                 'commercial_commission_month' => $commission,
             ];
@@ -392,7 +392,7 @@ class AdminPayrollController extends Controller
             'kpiAvg' => $kpiAvg,
             'baseTotal' => $baseTotal,
             'earnedTotal' => $earnedTotal,
-            'breakdown' => $breakdown,
+            'breakdown' => $breakdown->all(),
         ]);
     }
 }
