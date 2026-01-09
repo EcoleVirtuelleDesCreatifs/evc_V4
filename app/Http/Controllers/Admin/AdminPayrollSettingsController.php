@@ -238,6 +238,49 @@ class AdminPayrollSettingsController extends Controller
         return redirect()->route('admin.payroll.settings.index')->with('success', 'Profil mis à jour');
     }
 
+    public function destroyProfile(int $profileId)
+    {
+        if (session('admin_role') !== 'super_admin') {
+            abort(403);
+        }
+
+        if (!Schema::hasTable('admin_job_profiles')) {
+            return redirect()->route('admin.payroll.settings.index')->with('error', 'Module profils indisponible');
+        }
+
+        $profile = DB::table('admin_job_profiles')->where('id', $profileId)->first(['id', 'code', 'label']);
+        if (!$profile) {
+            return redirect()->route('admin.payroll.settings.index')->with('error', 'Profil introuvable');
+        }
+
+        $taskTypeIds = collect();
+        if (Schema::hasTable('admin_task_types') && Schema::hasColumn('admin_task_types', 'job_profile_id')) {
+            $taskTypeIds = DB::table('admin_task_types')
+                ->where('job_profile_id', $profileId)
+                ->pluck('id');
+        }
+
+        if (Schema::hasTable('admin_task_logs') && $taskTypeIds->count() > 0) {
+            $hasLogs = DB::table('admin_task_logs')
+                ->whereIn('task_type_id', $taskTypeIds->all())
+                ->exists();
+
+            if ($hasLogs) {
+                return redirect()->route('admin.payroll.settings.index')->with('error', 'Suppression impossible: ce profil a déjà des historiques de tâches (logs).');
+            }
+        }
+
+        DB::transaction(function () use ($profileId) {
+            if (Schema::hasTable('admin_task_types') && Schema::hasColumn('admin_task_types', 'job_profile_id')) {
+                DB::table('admin_task_types')->where('job_profile_id', $profileId)->delete();
+            }
+
+            DB::table('admin_job_profiles')->where('id', $profileId)->delete();
+        });
+
+        return redirect()->route('admin.payroll.settings.index')->with('success', 'Profil supprimé');
+    }
+
     public function profileTasks(int $profileId): View
     {
         if (session('admin_role') !== 'super_admin') {

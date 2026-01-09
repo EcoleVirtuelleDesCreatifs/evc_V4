@@ -98,6 +98,12 @@
                                         <a class="btn btn-sm btn-primary" href="{{ route('admin.payroll.settings.profile.tasks', ['profileId' => (int)($p->id ?? 0)]) }}">
                                             <i class="fas fa-sliders-h me-1"></i>Conditions KPI
                                         </a>
+                                        <form method="POST" action="{{ route('admin.payroll.settings.profile.delete', ['profileId' => (int)($p->id ?? 0)]) }}" class="d-inline" onsubmit="return confirm('Supprimer ce profil salaire ? Cette action est irréversible.');">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash me-1"></i>Supprimer
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
