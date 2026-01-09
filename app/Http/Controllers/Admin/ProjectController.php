@@ -318,7 +318,8 @@ class ProjectController extends Controller
                     'students.first_name',
                     'students.last_name',
                     'students.profile_photo',
-                    'students.program'
+                    'students.program',
+                    'students.country'
                 )
                 ->orderBy('students.first_name')
                 ->get()

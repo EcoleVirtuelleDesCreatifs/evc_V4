@@ -502,7 +502,7 @@
 
                                     <div class="flex-grow-1">
                                         <div class="text-white fw-bold">{{ $fullName }}</div>
-                                        <div class="text-white-50 small">{{ $profile->user_email ?? '' }}</div>
+                                        <div class="text-white-50 small">{{ $profile->country ?? '' }}</div>
                                         @if(($profile->program ?? null))
                                             <div class="text-white-50 small">{{ $profile->program }}</div>
                                         @endif
