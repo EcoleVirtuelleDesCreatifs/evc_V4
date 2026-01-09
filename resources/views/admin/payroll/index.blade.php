@@ -11,6 +11,9 @@
                 <div class="payroll-hero-subtitle">{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}/{{ $year }} — Commission Commercial: {{ number_format(((int)($commercial_rate_bp ?? 0)) / 100, 2, ',', ' ') }}%</div>
             </div>
             <div class="d-flex flex-wrap gap-2">
+                <a href="{{ route('admin.payroll.settings.index') }}" class="btn btn-outline-light">
+                    <i class="fas fa-sliders-h me-2"></i>Paramètres
+                </a>
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-light">
                     <i class="fas fa-arrow-left me-2"></i>Dashboard
                 </a>

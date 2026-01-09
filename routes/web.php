@@ -743,6 +743,12 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/payroll/admin/{adminId}/visibility', [App\Http\Controllers\Admin\AdminPayrollController::class, 'updateSalaryVisibility'])->name('payroll.admin.visibility');
         Route::get('/payroll/me', [App\Http\Controllers\Admin\AdminPayrollController::class, 'me'])->name('payroll.me');
 
+        Route::get('/payroll/settings', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'index'])->name('payroll.settings.index');
+        Route::get('/payroll/settings/profile/{profileId}', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'editProfile'])->name('payroll.settings.profile.edit');
+        Route::post('/payroll/settings/profile/{profileId}', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'updateProfile'])->name('payroll.settings.profile.update');
+        Route::get('/payroll/settings/profile/{profileId}/tasks', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'profileTasks'])->name('payroll.settings.profile.tasks');
+        Route::post('/payroll/settings/task/{taskTypeId}', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'updateTaskType'])->name('payroll.settings.task.update');
+
         Route::get('/dons', [DonationAdminController::class, 'index'])->name('donations.index');
         Route::get('/dons/{id}', [DonationAdminController::class, 'show'])->whereNumber('id')->name('donations.show');
         Route::post('/dons/{id}/send-reminder', [DonationAdminController::class, 'sendReminder'])->whereNumber('id')->name('donations.send-reminder');
