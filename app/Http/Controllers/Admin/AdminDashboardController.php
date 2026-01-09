@@ -2773,6 +2773,22 @@ class AdminDashboardController extends Controller
     public function validateTp(Request $request, int $id)
     {
         try {
+            if ($request->input('source') === 'tp_report') {
+                $tpReport = DB::table('tp')->where('id', $id)->first();
+
+                if (!$tpReport) {
+                    return redirect()->back()->with('error', 'TP introuvable');
+                }
+
+                DB::table('tp')->where('id', $id)->update([
+                    'status' => 'validated',
+                    'validated_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                return redirect()->back()->with('success', 'TP validé avec succès.');
+            }
+
             // Chercher d'abord dans tp_assignments
             $tp = DB::table('tp_assignments')
                 ->leftJoin('students', 'tp_assignments.student_id', '=', 'students.id')
@@ -2947,6 +2963,22 @@ class AdminDashboardController extends Controller
             ]);
 
             $reason = $request->input('reason');
+
+            if ($request->input('source') === 'tp_report') {
+                $tpReport = DB::table('tp')->where('id', $id)->first();
+
+                if (!$tpReport) {
+                    return redirect()->back()->with('error', 'TP introuvable');
+                }
+
+                DB::table('tp')->where('id', $id)->update([
+                    'status' => 'rejected',
+                    'admin_comment' => $reason,
+                    'updated_at' => now(),
+                ]);
+
+                return redirect()->back()->with('success', 'TP rejeté avec succès.');
+            }
 
             // Chercher d'abord dans tp_assignments
             $tp = DB::table('tp_assignments')

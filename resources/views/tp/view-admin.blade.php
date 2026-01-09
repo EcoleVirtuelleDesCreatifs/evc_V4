@@ -263,6 +263,9 @@
                         @if($project->status === 'pending')
                             <form action="{{ route('admin.tp.validate', $project->id) }}" method="POST" class="mb-2" id="validateForm" onsubmit="return handleValidateSubmit(event)">
                                 @csrf
+                                @if(request()->get('source') === 'tp_report')
+                                    <input type="hidden" name="source" value="tp_report">
+                                @endif
                                 <button type="submit" class="btn btn-success w-100" id="validateBtn">
                                     <span id="validateBtnText">
                                         <i class="fas fa-check-circle me-2"></i>
@@ -327,6 +330,9 @@
             <!-- Form -->
             <form action="{{ route('admin.tp.reject', $project->id) }}" method="POST" id="customRejectForm" onsubmit="return validateCustomReject(event)">
                 @csrf
+                @if(request()->get('source') === 'tp_report')
+                    <input type="hidden" name="source" value="tp_report">
+                @endif
                 <div style="padding: 20px;">
                     <!-- Alert -->
                     <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 12px; margin-bottom: 20px;">
