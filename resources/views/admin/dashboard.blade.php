@@ -935,6 +935,15 @@
                 <div class="quick-action-label">Gérer Paiements</div>
             </a>
 
+            @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
+            <a href="{{ session('admin_role') === 'super_admin' ? route('admin.payroll.index') : route('admin.payroll.me') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="quick-action-label">Gestion salaires</div>
+            </a>
+            @endif
+
             @if(session('admin_role') === 'super_admin')
             <a href="{{ route('admin.donations.index') }}" class="quick-action-card">
                 <div class="quick-action-icon" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);">
