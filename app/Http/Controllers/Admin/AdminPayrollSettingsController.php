@@ -175,6 +175,71 @@ class AdminPayrollSettingsController extends Controller
         ]);
     }
 
+    public function storeTaskType(Request $request, int $profileId)
+    {
+        if (session('admin_role') !== 'super_admin') {
+            abort(403);
+        }
+
+        if (!Schema::hasTable('admin_job_profiles')) {
+            return redirect()->route('admin.payroll.settings.index')->with('error', 'Module profils indisponible');
+        }
+        if (!Schema::hasTable('admin_task_types')) {
+            return redirect()->back()->with('error', 'Module tâches indisponible');
+        }
+        if (!Schema::hasColumn('admin_task_types', 'job_profile_id')) {
+            return redirect()->back()->with('error', 'La colonne job_profile_id est manquante. Lance les migrations KPI.');
+        }
+
+        $profile = DB::table('admin_job_profiles')->where('id', $profileId)->first(['id', 'label', 'code']);
+        if (!$profile) {
+            return redirect()->route('admin.payroll.settings.index')->with('error', 'Profil introuvable');
+        }
+
+        $validated = $request->validate([
+            'code' => 'required|string|max:255|regex:/^[a-z0-9_]+$/',
+            'label' => 'required|string|max:255',
+            'expected_per_month' => 'nullable|integer|min:0|max:1000000',
+            'weight' => 'nullable|integer|min:0|max:1000',
+            'deadline_hours' => 'nullable|integer|min:0|max:100000',
+            'is_critical' => 'required|boolean',
+            'is_active' => 'required|boolean',
+        ]);
+
+        $exists = DB::table('admin_task_types')->where('code', $validated['code'])->exists();
+        if ($exists) {
+            return redirect()->back()->withInput()->withErrors([
+                'code' => 'Ce code existe déjà. Utilise un code unique (ex: kpi_support_ticket).',
+            ]);
+        }
+
+        $payload = [
+            'code' => $validated['code'],
+            'label' => $validated['label'],
+            'role' => 'profile',
+            'recurrence' => 'monthly',
+            'expected_per_month' => (int) ($validated['expected_per_month'] ?? 0),
+            'is_active' => (bool) $validated['is_active'],
+            'job_profile_id' => (int) $profileId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+
+        if (Schema::hasColumn('admin_task_types', 'weight')) {
+            $payload['weight'] = (int) ($validated['weight'] ?? 10);
+        }
+        if (Schema::hasColumn('admin_task_types', 'deadline_hours')) {
+            $payload['deadline_hours'] = (int) ($validated['deadline_hours'] ?? 0);
+        }
+        if (Schema::hasColumn('admin_task_types', 'is_critical')) {
+            $payload['is_critical'] = (bool) $validated['is_critical'];
+        }
+
+        DB::table('admin_task_types')->insert($payload);
+
+        return redirect()->route('admin.payroll.settings.profile.tasks', ['profileId' => (int) $profileId])->with('success', 'Condition KPI ajoutée');
+    }
+
     public function updateTaskType(Request $request, int $taskTypeId)
     {
         if (session('admin_role') !== 'super_admin') {
