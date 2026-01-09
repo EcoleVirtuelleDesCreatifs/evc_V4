@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class AdminPayrollSettingsController extends Controller
@@ -48,6 +49,63 @@ class AdminPayrollSettingsController extends Controller
             'default_is_critical' => false,
         ],
     ];
+
+    private const SUPER_ADMIN_ACTIONS_FALLBACK = [
+        'Dashboard',
+        'Formations',
+        'Pré-inscriptions',
+        'Étudiants',
+        'Évènements',
+        'Actualités',
+        'Bibliothèque',
+        'TP',
+        'Projets',
+        'Paiements',
+        'Rapports',
+        'Statistiques',
+        'Gestion des Admins',
+    ];
+
+    private function getSuperAdminActions(): array
+    {
+        $raw = session('admin_permissions');
+        if (!is_array($raw) || count($raw) === 0) {
+            $raw = self::SUPER_ADMIN_ACTIONS_FALLBACK;
+        }
+
+        return collect($raw)
+            ->filter(fn ($v) => is_string($v) && trim($v) !== '')
+            ->map(fn ($v) => trim($v))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function getExtendedKpiCatalog()
+    {
+        $base = collect(self::KPI_TASK_CATALOG);
+
+        $actions = collect($this->getSuperAdminActions())
+            ->map(function (string $label) {
+                $key = 'action_' . Str::slug($label, '_');
+
+                return [
+                    'key' => $key,
+                    'label' => $label,
+                    'default_recurrence' => 'monthly',
+                    'default_expected_per_month' => 0,
+                    'default_deadline_hours' => 0,
+                    'default_weight' => 5,
+                    'default_is_critical' => false,
+                ];
+            });
+
+        return $base
+            ->concat($actions)
+            ->filter(fn ($t) => is_array($t) && !empty($t['key']))
+            ->unique('key')
+            ->values();
+    }
 
     public function index(): View
     {
@@ -208,7 +266,7 @@ class AdminPayrollSettingsController extends Controller
             $taskTypes = $q->get();
         }
 
-        $catalog = collect(self::KPI_TASK_CATALOG);
+        $catalog = $this->getExtendedKpiCatalog();
         $selectedCatalogKeys = $taskTypes
             ->pluck('kpi_catalog_key')
             ->filter(fn ($v) => is_string($v) && $v !== '')
@@ -245,7 +303,7 @@ class AdminPayrollSettingsController extends Controller
             return redirect()->route('admin.payroll.settings.index')->with('error', 'Profil introuvable');
         }
 
-        $catalogByKey = collect(self::KPI_TASK_CATALOG)->keyBy('key');
+        $catalogByKey = $this->getExtendedKpiCatalog()->keyBy('key');
 
         $validated = $request->validate([
             'task_keys' => 'required|array|min:1',
