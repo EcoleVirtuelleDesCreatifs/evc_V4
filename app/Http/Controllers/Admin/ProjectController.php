@@ -784,7 +784,8 @@ class ProjectController extends Controller
                 'students.profile_photo',
                 'students.program as formation',
                 'users.email as user_email',
-                'users.id as user_id'
+                'users.id as user_id',
+                DB::raw("'tp_assignments' as source_table")
             )
             ->get();
 
@@ -806,7 +807,8 @@ class ProjectController extends Controller
                 'students.profile_photo',
                 'students.program as formation',
                 'users.email as user_email',
-                'users.id as user_id'
+                'users.id as user_id',
+                DB::raw("'projects' as source_table")
             )
             ->get();
 
@@ -840,7 +842,8 @@ class ProjectController extends Controller
                 'students.profile_photo',
                 'students.program as formation',
                 'users.email as user_email',
-                'users.id as user_id'
+                'users.id as user_id',
+                DB::raw("'design_projects' as source_table")
             )
             ->get();
 
@@ -875,7 +878,8 @@ class ProjectController extends Controller
                 'students.profile_photo',
                 'students.program as formation',
                 'users.email as user_email',
-                'users.id as user_id'
+                'users.id as user_id',
+                DB::raw("'tp' as source_table")
             )
             ->get();
 

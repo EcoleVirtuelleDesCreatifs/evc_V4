@@ -220,7 +220,19 @@
                                         <h5 style="color: #1a202c !important; font-weight: 600;">{{ $project->title }}</h5>
                                         <p class="text-muted" style="color: #6b7280 !important;">{!! Str::limit(strip_tags($project->description), 120) !!}</p>
                                     </div>
-                                    <a href="{{ route('admin.tp.view', $project->id) }}" class="btn btn-sm btn-primary">Voir</a>
+                                    @php
+                                        $sourceTable = $project->source_table ?? null;
+                                        if ($sourceTable === 'design_projects') {
+                                            $viewUrl = route('admin.design-projects.view', $project->id);
+                                        } elseif ($sourceTable === 'projects') {
+                                            $viewUrl = route('admin.projects.view', $project->id);
+                                        } elseif ($sourceTable === 'tp') {
+                                            $viewUrl = route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']);
+                                        } else {
+                                            $viewUrl = route('admin.tp.view', $project->id);
+                                        }
+                                    @endphp
+                                    <a href="{{ $viewUrl }}" class="btn btn-sm btn-primary">Voir</a>
                                 </div>
                             </div>
                         @endforeach
@@ -235,7 +247,19 @@
                                         <h5 style="color: #1a202c !important; font-weight: 600;">{{ $project->title }}</h5>
                                         <p class="text-muted" style="color: #6b7280 !important;">{!! Str::limit(strip_tags($project->description), 120) !!}</p>
                                     </div>
-                                    <a href="{{ route('admin.tp.view', $project->id) }}" class="btn btn-sm btn-primary">Voir</a>
+                                    @php
+                                        $sourceTable = $project->source_table ?? null;
+                                        if ($sourceTable === 'design_projects') {
+                                            $viewUrl = route('admin.design-projects.view', $project->id);
+                                        } elseif ($sourceTable === 'projects') {
+                                            $viewUrl = route('admin.projects.view', $project->id);
+                                        } elseif ($sourceTable === 'tp') {
+                                            $viewUrl = route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']);
+                                        } else {
+                                            $viewUrl = route('admin.tp.view', $project->id);
+                                        }
+                                    @endphp
+                                    <a href="{{ $viewUrl }}" class="btn btn-sm btn-primary">Voir</a>
                                 </div>
                             </div>
                         @endforeach
@@ -250,7 +274,19 @@
                                         <h5 style="color: #1a202c !important; font-weight: 600;">{{ $project->title }}</h5>
                                         <p class="text-muted" style="color: #6b7280 !important;">{!! Str::limit(strip_tags($project->description), 120) !!}</p>
                                     </div>
-                                    <a href="{{ route('admin.tp.view', $project->id) }}" class="btn btn-sm btn-primary">Voir</a>
+                                    @php
+                                        $sourceTable = $project->source_table ?? null;
+                                        if ($sourceTable === 'design_projects') {
+                                            $viewUrl = route('admin.design-projects.view', $project->id);
+                                        } elseif ($sourceTable === 'projects') {
+                                            $viewUrl = route('admin.projects.view', $project->id);
+                                        } elseif ($sourceTable === 'tp') {
+                                            $viewUrl = route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']);
+                                        } else {
+                                            $viewUrl = route('admin.tp.view', $project->id);
+                                        }
+                                    @endphp
+                                    <a href="{{ $viewUrl }}" class="btn btn-sm btn-primary">Voir</a>
                                 </div>
                             </div>
                         @endforeach
@@ -265,7 +301,19 @@
                                         <h5 style="color: #1a202c !important; font-weight: 600;">{{ $project->title }}</h5>
                                         <p class="text-muted" style="color: #6b7280 !important;">{!! Str::limit(strip_tags($project->description), 120) !!}</p>
                                     </div>
-                                    <a href="{{ route('admin.tp.view', $project->id) }}" class="btn btn-sm btn-primary">Voir</a>
+                                    @php
+                                        $sourceTable = $project->source_table ?? null;
+                                        if ($sourceTable === 'design_projects') {
+                                            $viewUrl = route('admin.design-projects.view', $project->id);
+                                        } elseif ($sourceTable === 'projects') {
+                                            $viewUrl = route('admin.projects.view', $project->id);
+                                        } elseif ($sourceTable === 'tp') {
+                                            $viewUrl = route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']);
+                                        } else {
+                                            $viewUrl = route('admin.tp.view', $project->id);
+                                        }
+                                    @endphp
+                                    <a href="{{ $viewUrl }}" class="btn btn-sm btn-primary">Voir</a>
                                 </div>
                             </div>
                         @endforeach
