@@ -10,6 +10,89 @@ use Illuminate\View\View;
 
 class AdminPayrollController extends Controller
 {
+    private function computeCommercialSalesForAdmins(array $adminIds, $monthStart)
+    {
+        if (empty($adminIds) || !Schema::hasTable('payments') || !Schema::hasColumn('payments', 'commercial_admin_id')) {
+            return collect();
+        }
+
+        return DB::table('payments')
+            ->select('commercial_admin_id', DB::raw('SUM(amount) as total_amount'))
+            ->whereIn('commercial_admin_id', $adminIds)
+            ->where('status', 'completed')
+            ->where(function ($q) use ($monthStart) {
+                $q->where('paid_at', '>=', $monthStart)->orWhere(function ($q2) use ($monthStart) {
+                    $q2->whereNull('paid_at')->where('created_at', '>=', $monthStart);
+                });
+            })
+            ->groupBy('commercial_admin_id')
+            ->pluck('total_amount', 'commercial_admin_id');
+    }
+
+    private function computeLogsByAdminByType(array $adminIds, $monthStart, $monthEnd)
+    {
+        if (empty($adminIds) || !Schema::hasTable('admin_task_logs')) {
+            return collect();
+        }
+
+        $logs = DB::table('admin_task_logs')
+            ->select('admin_id', 'task_type_id', DB::raw('SUM(quantity) as qty'))
+            ->whereIn('admin_id', $adminIds)
+            ->whereBetween('performed_at', [$monthStart, $monthEnd])
+            ->groupBy('admin_id', 'task_type_id')
+            ->get();
+
+        return $logs->groupBy('admin_id')->map(function ($rows) {
+            return collect($rows)->pluck('qty', 'task_type_id');
+        });
+    }
+
+    private function buildRowForAdmin(
+        object $admin,
+        \Illuminate\Support\Collection $profilesById,
+        \Illuminate\Support\Collection $profilesByAdmin,
+        \Illuminate\Support\Collection $logsByAdminByType,
+        \Illuminate\Support\Collection $commercialSalesByAdmin,
+        int $commercialRateBp,
+        int $daysInMonth,
+        int $dayOfMonth
+    ): array {
+        $assigned = $profilesByAdmin[$admin->id] ?? collect();
+        $assignedProfiles = $assigned->map(function ($pid) use ($profilesById) {
+            return $profilesById[$pid] ?? null;
+        })->filter()->values();
+
+        $assignedLabels = $assignedProfiles->pluck('label')->values();
+        $logsByType = $logsByAdminByType[$admin->id] ?? collect();
+
+        $breakdown = $assignedProfiles->map(function ($p) use ($admin, $logsByType, $daysInMonth, $dayOfMonth) {
+            return $this->computeProfileKpiForAdmin((int) $admin->id, $p, $logsByType, $daysInMonth, $dayOfMonth);
+        })->values();
+
+        $baseTotal = (int) $breakdown->sum('base_monthly_amount');
+        $earnedTotal = (int) $breakdown->sum('earned');
+        $kpiAvg = $breakdown->count() > 0 ? (int) round($breakdown->avg('final_score')) : 0;
+
+        $commercialSales = (float) ($commercialSalesByAdmin[$admin->id] ?? 0);
+        $commission = $commercialRateBp > 0 ? (int) round($commercialSales * ($commercialRateBp / 10000)) : 0;
+
+        return [
+            'id' => (int) $admin->id,
+            'name' => $admin->name,
+            'email' => $admin->email,
+            'role' => $admin->role,
+            'can_view_salary_amount' => (bool) ($admin->can_view_salary_amount ?? false),
+            'profile_ids' => $assigned->map(fn ($v) => (int) $v)->values()->all(),
+            'profile_labels' => $assignedLabels->values()->all(),
+            'kpi_avg' => $kpiAvg,
+            'base_total' => $baseTotal,
+            'earned_total' => $earnedTotal,
+            'breakdown' => $breakdown->all(),
+            'commercial_sales_month' => (int) round($commercialSales),
+            'commercial_commission_month' => $commission,
+        ];
+    }
+
     private function resolveProfileTaskTypes(int $jobProfileId, string $jobProfileCode)
     {
         if (!Schema::hasTable('admin_task_types')) {
@@ -152,91 +235,174 @@ class AdminPayrollController extends Controller
         $daysInMonth = (int) $monthEnd->day;
         $dayOfMonth = (int) now()->day;
 
-        $logsByAdminByType = collect();
-        if (!empty($adminIds) && Schema::hasTable('admin_task_logs')) {
-            $logs = DB::table('admin_task_logs')
-                ->select('admin_id', 'task_type_id', DB::raw('SUM(quantity) as qty'))
-                ->whereIn('admin_id', $adminIds)
-                ->whereBetween('performed_at', [$monthStart, $monthEnd])
-                ->groupBy('admin_id', 'task_type_id')
-                ->get();
-
-            $logsByAdminByType = $logs->groupBy('admin_id')->map(function ($rows) {
-                return collect($rows)->pluck('qty', 'task_type_id');
-            });
-        }
-
-        $commercialSalesByAdmin = collect();
-        if (!empty($adminIds) && Schema::hasTable('payments') && Schema::hasColumn('payments', 'commercial_admin_id')) {
-            $commercialSalesByAdmin = DB::table('payments')
-                ->select('commercial_admin_id', DB::raw('SUM(amount) as total_amount'))
-                ->whereIn('commercial_admin_id', $adminIds)
-                ->where('status', 'completed')
-                ->where(function ($q) use ($monthStart) {
-                    $q->where('paid_at', '>=', $monthStart)->orWhere(function ($q2) use ($monthStart) {
-                        $q2->whereNull('paid_at')->where('created_at', '>=', $monthStart);
-                    });
-                })
-                ->groupBy('commercial_admin_id')
-                ->pluck('total_amount', 'commercial_admin_id');
-        }
+        $logsByAdminByType = $this->computeLogsByAdminByType($adminIds, $monthStart, $monthEnd);
+        $commercialSalesByAdmin = $this->computeCommercialSalesForAdmins($adminIds, $monthStart);
 
         $rows = $admins->map(function ($a) use (
-            $profilesByAdmin,
             $profilesById,
+            $profilesByAdmin,
+            $logsByAdminByType,
             $commercialSalesByAdmin,
             $commercialRateBp,
-            $logsByAdminByType,
             $daysInMonth,
             $dayOfMonth
         ) {
-            $assigned = $profilesByAdmin[$a->id] ?? collect();
-            $assignedProfiles = $assigned->map(function ($pid) use ($profilesById) {
-                return $profilesById[$pid] ?? null;
-            })->filter()->values();
-
-            $assignedLabels = $assignedProfiles->pluck('label')->values();
-
-            $logsByType = $logsByAdminByType[$a->id] ?? collect();
-            $breakdown = $assignedProfiles->map(function ($p) use ($a, $logsByType, $daysInMonth, $dayOfMonth) {
-                return $this->computeProfileKpiForAdmin((int) $a->id, $p, $logsByType, $daysInMonth, $dayOfMonth);
-            })->values();
-
-            $baseTotal = (int) $breakdown->sum('base_monthly_amount');
-            $earnedTotal = (int) $breakdown->sum('earned');
-            $kpiAvg = $breakdown->count() > 0 ? (int) round($breakdown->avg('final_score')) : 0;
-
-            $commercialSales = (float) ($commercialSalesByAdmin[$a->id] ?? 0);
-            $commission = 0;
-            if ($commercialRateBp > 0) {
-                $commission = (int) round($commercialSales * ($commercialRateBp / 10000));
-            }
-
-            return [
-                'id' => (int) $a->id,
-                'name' => $a->name,
-                'email' => $a->email,
-                'role' => $a->role,
-                'can_view_salary_amount' => (bool) ($a->can_view_salary_amount ?? false),
-                'profile_ids' => $assigned->map(fn ($v) => (int) $v)->values()->all(),
-                'profile_labels' => $assignedLabels->values()->all(),
-                'kpi_avg' => $kpiAvg,
-                'base_total' => $baseTotal,
-                'earned_total' => $earnedTotal,
-                'breakdown' => $breakdown->all(),
-                'commercial_sales_month' => (int) round($commercialSales),
-                'commercial_commission_month' => $commission,
-            ];
+            return $this->buildRowForAdmin(
+                $a,
+                $profilesById,
+                $profilesByAdmin,
+                $logsByAdminByType,
+                $commercialSalesByAdmin,
+                $commercialRateBp,
+                $daysInMonth,
+                $dayOfMonth
+            );
         })->values();
+
+        $totalAdmins = (int) $rows->count();
+        $totalBase = (int) $rows->sum('base_total');
+        $totalEarned = (int) $rows->sum('earned_total');
+        $totalCommercialSales = (int) $rows->sum('commercial_sales_month');
+        $totalCommercialCommission = (int) $rows->sum('commercial_commission_month');
+        $avgKpi = $totalAdmins > 0 ? (int) round($rows->avg('kpi_avg')) : 0;
+
+        $topKpi = $rows->sortByDesc('kpi_avg')->take(5)->values()->all();
+        $topEarned = $rows->sortByDesc('earned_total')->take(5)->values()->all();
+        $topCommission = $rows->sortByDesc('commercial_commission_month')->take(5)->values()->all();
 
         return view('admin.payroll.index', [
             'year' => $year,
             'month' => $month,
             'profiles' => $profiles,
             'rows' => $rows,
+            'totalAdmins' => $totalAdmins,
+            'totalBase' => $totalBase,
+            'totalEarned' => $totalEarned,
+            'avgKpi' => $avgKpi,
+            'totalCommercialSales' => $totalCommercialSales,
+            'totalCommercialCommission' => $totalCommercialCommission,
+            'topKpi' => $topKpi,
+            'topEarned' => $topEarned,
+            'topCommission' => $topCommission,
             'commercial_rate_bp' => $commercialRateBp,
             'monthStart' => $monthStart,
             'monthEnd' => $monthEnd,
+        ]);
+    }
+
+    public function showAdmin(int $adminId): View
+    {
+        if (session('admin_role') !== 'super_admin') {
+            abort(403);
+        }
+
+        $monthStart = now()->startOfMonth();
+        $monthEnd = now()->endOfMonth();
+
+        $profiles = collect();
+        if (Schema::hasTable('admin_job_profiles')) {
+            $profiles = DB::table('admin_job_profiles')
+                ->where('is_active', 1)
+                ->orderBy('label')
+                ->get(['id', 'code', 'label', 'base_monthly_amount', 'commission_rate_bp']);
+        }
+        $profilesById = $profiles->keyBy('id');
+        $commercialProfile = $profiles->firstWhere('code', 'commercial');
+        $commercialRateBp = (int) ($commercialProfile->commission_rate_bp ?? 0);
+
+        $admin = null;
+        if (Schema::hasTable('admins')) {
+            $admin = DB::table('admins')->where('id', $adminId)->first(['id', 'name', 'email', 'role', 'is_active', 'can_view_salary_amount']);
+        }
+        if (!$admin) {
+            abort(404);
+        }
+
+        $assignedProfiles = collect();
+        if (Schema::hasTable('admin_admin_job_profiles')) {
+            $assignedProfiles = DB::table('admin_admin_job_profiles')
+                ->where('admin_id', $adminId)
+                ->where(function ($q) {
+                    $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()->toDateString());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()->toDateString());
+                })
+                ->pluck('job_profile_id');
+        }
+
+        $profilesByAdmin = collect([
+            $adminId => collect($assignedProfiles)->unique()->values(),
+        ]);
+
+        $daysInMonth = (int) $monthEnd->day;
+        $dayOfMonth = (int) now()->day;
+
+        $logsByAdminByType = $this->computeLogsByAdminByType([$adminId], $monthStart, $monthEnd);
+        $commercialSalesByAdmin = $this->computeCommercialSalesForAdmins([$adminId], $monthStart);
+
+        $row = $this->buildRowForAdmin(
+            $admin,
+            $profilesById,
+            $profilesByAdmin,
+            $logsByAdminByType,
+            $commercialSalesByAdmin,
+            $commercialRateBp,
+            $daysInMonth,
+            $dayOfMonth
+        );
+
+        return view('admin.payroll.admin_show', [
+            'row' => $row,
+            'month' => (int) now()->month,
+            'year' => (int) now()->year,
+            'commercial_rate_bp' => $commercialRateBp,
+        ]);
+    }
+
+    public function editAdminProfiles(int $adminId): View
+    {
+        if (session('admin_role') !== 'super_admin') {
+            abort(403);
+        }
+
+        $admin = null;
+        if (Schema::hasTable('admins')) {
+            $admin = DB::table('admins')->where('id', $adminId)->first(['id', 'name', 'email', 'role', 'is_active', 'can_view_salary_amount']);
+        }
+        if (!$admin) {
+            abort(404);
+        }
+
+        $profiles = collect();
+        if (Schema::hasTable('admin_job_profiles')) {
+            $profiles = DB::table('admin_job_profiles')
+                ->where('is_active', 1)
+                ->orderBy('label')
+                ->get(['id', 'code', 'label', 'base_monthly_amount', 'commission_rate_bp']);
+        }
+
+        $assigned = collect();
+        if (Schema::hasTable('admin_admin_job_profiles')) {
+            $assigned = DB::table('admin_admin_job_profiles')
+                ->where('admin_id', $adminId)
+                ->where(function ($q) {
+                    $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()->toDateString());
+                })
+                ->where(function ($q) {
+                    $q->whereNull('ends_at')->orWhere('ends_at', '>=', now()->toDateString());
+                })
+                ->pluck('job_profile_id')
+                ->map(fn ($v) => (int) $v)
+                ->unique()
+                ->values()
+                ->all();
+        }
+
+        return view('admin.payroll.admin_profiles', [
+            'admin' => $admin,
+            'profiles' => $profiles,
+            'assigned' => $assigned,
         ]);
     }
 
