@@ -656,28 +656,31 @@ class DashboardController extends Controller
         $preReg = $service->loadPreRegistration($student, $user);
 
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
-        $expirationDate = $accountCreatedAt->copy()->addMonths(4);
+        $expirationDate = AccountExpirationHelper::getExpirationDate($user);
         $now = \Carbon\Carbon::now();
         $isExpiredNow = $now->greaterThan($expirationDate);
 
-        $programmesQuery = DB::table('programmes')
-            ->where(function ($query) use ($student) {
-                $query->where('formation', 'Toutes');
-                if ($student && isset($student->program) && $student->program) {
-                    $query->orWhere(function ($q) use ($student) {
-                        $q->where('formation', $student->program)
-                            ->orWhere('formation', 'Design Graphique')
-                            ->orWhere('formation', 'Community Management')
-                            ->orWhere('formation', 'Design Graphique & Community Management');
+        $formationsDisponibles = 0;
+        try {
+            if (Schema::hasTable('formations') && Schema::hasColumn('formations', 'modules')) {
+                $formationsQuery = DB::table('formations')
+                    ->where('status', 'active')
+                    ->where(function ($query) {
+                        $query->whereJsonContains('modules', 'design-graphique')
+                            ->orWhereJsonContains('modules', 'community-management')
+                            ->orWhereJsonContains('modules', 'Design Graphique')
+                            ->orWhereJsonContains('modules', 'Community Management');
                     });
+
+                if ($isExpiredNow) {
+                    $formationsQuery->where('created_at', '<=', $expirationDate);
                 }
-            });
 
-        if ($isExpiredNow) {
-            $programmesQuery->where('created_at', '<=', $expirationDate);
+                $formationsDisponibles = $formationsQuery->count();
+            }
+        } catch (\Exception $e) {
+            $formationsDisponibles = 0;
         }
-
-        $formationsDisponibles = $programmesQuery->count();
 
         $tpRealises = 0;
         $tpTotal = 0;
