@@ -5275,6 +5275,10 @@ class AdminDashboardController extends Controller
      */
     public function projetsAll()
     {
+        $dayStart = now()->startOfDay();
+        $weekStart = now()->startOfWeek();
+        $monthStart = now()->startOfMonth();
+
         // Récupérer tous les projets avec les informations des étudiants
         $projects = DB::table('projects')
             ->leftJoin('users', 'projects.user_id', '=', 'users.id')
@@ -5305,6 +5309,15 @@ class AdminDashboardController extends Controller
             'termine' => $projects->where('status', 'termine')->count(),
             'valide' => $projects->where('status', 'valide')->count(),
             'rejete' => $projects->where('status', 'rejete')->count(),
+            'created_today' => DB::table('projects')
+                ->where('created_at', '>=', $dayStart)
+                ->count(),
+            'created_week' => DB::table('projects')
+                ->where('created_at', '>=', $weekStart)
+                ->count(),
+            'created_month' => DB::table('projects')
+                ->where('created_at', '>=', $monthStart)
+                ->count(),
         ];
 
         return view('admin.projets.all', [
