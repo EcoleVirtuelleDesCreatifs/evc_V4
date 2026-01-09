@@ -166,16 +166,16 @@
                     </li>
                     @endif
 
-                    <!-- Séparateur : Travaux & Projets -->
+                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
+                    <!-- Séparateur : Gestion des Salaires -->
                     <li class="nav-section-title">
-                        <i class="fas fa-tasks me-2"></i>Travaux & Projets
+                        <i class="fas fa-hand-holding-usd me-2"></i>Gestion des Salaires
                     </li>
 
-                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.payroll.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#salaryMenu">
-                            <i class="fas fa-hand-holding-usd"></i>
-                            Gestion des Salaires
+                            <i class="fas fa-chart-line"></i>
+                            Salaires
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
                         <div class="collapse {{ request()->routeIs('admin.payroll.*') ? 'show' : '' }}" id="salaryMenu">
@@ -196,6 +196,11 @@
                         </div>
                     </li>
                     @endif
+
+                    <!-- Séparateur : Travaux & Projets -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-tasks me-2"></i>Travaux & Projets
+                    </li>
 
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.projets.design-graphique.to-send') }}" class="admin-nav-link {{ request()->routeIs('admin.projets.design-graphique.to-send') ? 'active' : '' }}">
