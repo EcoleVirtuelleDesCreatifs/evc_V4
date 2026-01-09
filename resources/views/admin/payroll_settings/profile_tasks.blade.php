@@ -33,52 +33,38 @@
         <div class="card-body">
             <div class="card mb-3" style="background-color: #0f172a; border: 1px solid #334155; border-radius: 14px; overflow: hidden;">
                 <div class="card-header" style="background-color: #0b1220; border-bottom: 1px solid #334155;">
-                    <div class="fw-bold text-white"><i class="fas fa-plus me-2"></i>Ajouter une condition KPI</div>
+                    <div class="fw-bold text-white"><i class="fas fa-list-check me-2"></i>Catalogue des tâches KPI</div>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('admin.payroll.settings.profile.tasks.store', ['profileId' => (int)($profile->id ?? 0)]) }}">
+                    <form method="POST" action="{{ route('admin.payroll.settings.profile.tasks.catalog.store', ['profileId' => (int)($profile->id ?? 0)]) }}">
                         @csrf
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Code (unique)</label>
-                                <input class="form-control" name="code" value="{{ old('code') }}" placeholder="ex: kpi_ticket" required>
-                                <div class="form-text">Minuscules + chiffres + underscore uniquement.</div>
-                            </div>
-                            <div class="col-md-8">
-                                <label class="form-label">Libellé</label>
-                                <input class="form-control" name="label" value="{{ old('label') }}" placeholder="ex: Tickets support traités" required>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Objectif/mois</label>
-                                <input type="number" class="form-control" name="expected_per_month" value="{{ old('expected_per_month', 0) }}" min="0">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Poids</label>
-                                <input type="number" class="form-control" name="weight" value="{{ old('weight', 10) }}" min="0">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Deadline (h)</label>
-                                <input type="number" class="form-control" name="deadline_hours" value="{{ old('deadline_hours', 0) }}" min="0">
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Critique</label>
-                                <select class="form-select" name="is_critical" required>
-                                    <option value="0" {{ ((int)old('is_critical', 0) === 0) ? 'selected' : '' }}>Non</option>
-                                    <option value="1" {{ ((int)old('is_critical', 0) === 1) ? 'selected' : '' }}>Oui</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Actif</label>
-                                <select class="form-select" name="is_active" required>
-                                    <option value="1" {{ ((int)old('is_active', 1) === 1) ? 'selected' : '' }}>Oui</option>
-                                    <option value="0" {{ ((int)old('is_active', 1) === 0) ? 'selected' : '' }}>Non</option>
-                                </select>
-                            </div>
-                            <div class="col-md-9 d-flex align-items-end justify-content-end">
-                                <button class="btn btn-success">
-                                    <i class="fas fa-save me-2"></i>Ajouter
-                                </button>
-                            </div>
+
+                        @php
+                            $selected = collect($selectedCatalogKeys ?? [])->map(fn ($v) => (string)$v)->all();
+                        @endphp
+
+                        <div class="row g-2">
+                            @foreach(($kpiCatalog ?? collect()) as $c)
+                                @php
+                                    $k = (string)($c['key'] ?? '');
+                                    $isChecked = in_array($k, $selected, true);
+                                @endphp
+                                <div class="col-md-6">
+                                    <label class="d-flex align-items-start gap-2 p-3" style="border: 1px solid #334155; border-radius: 12px; background-color: rgba(15, 23, 42, 0.35);">
+                                        <input type="checkbox" class="form-check-input mt-1" name="task_keys[]" value="{{ $k }}" {{ $isChecked ? 'checked disabled' : '' }}>
+                                        <div>
+                                            <div class="fw-bold text-white">{{ $c['label'] ?? '' }}</div>
+                                            <div class="text-white-50" style="font-size: 0.9rem;">Fréquence: {{ $c['default_recurrence'] ?? 'monthly' }} — Deadline: {{ (int)($c['default_deadline_hours'] ?? 0) }}h</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-3">
+                            <button class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>Ajouter les tâches sélectionnées
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -93,6 +79,7 @@
                             <tr>
                                 <th>Tâche</th>
                                 <th class="text-center">Actif</th>
+                                <th class="text-center">Fréquence</th>
                                 <th class="text-end">Objectif/mois</th>
                                 <th class="text-end">Poids</th>
                                 <th class="text-end">Deadline (h)</th>
@@ -112,6 +99,14 @@
                                             <select class="form-select" name="is_active" style="min-width: 110px;">
                                                 <option value="1" {{ ((int)($t->is_active ?? 1) === 1) ? 'selected' : '' }}>Oui</option>
                                                 <option value="0" {{ ((int)($t->is_active ?? 1) === 0) ? 'selected' : '' }}>Non</option>
+                                            </select>
+                                        </td>
+                                        <td class="text-center">
+                                            <select class="form-select" name="recurrence" style="min-width: 140px;">
+                                                @php $r = (string)($t->recurrence ?? 'monthly'); @endphp
+                                                <option value="daily" {{ $r === 'daily' ? 'selected' : '' }}>Daily</option>
+                                                <option value="weekly" {{ $r === 'weekly' ? 'selected' : '' }}>Weekly</option>
+                                                <option value="monthly" {{ $r === 'monthly' ? 'selected' : '' }}>Monthly</option>
                                             </select>
                                         </td>
                                         <td class="text-end">

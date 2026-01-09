@@ -14,6 +14,10 @@ return new class extends Migration
                 $table->unsignedBigInteger('job_profile_id')->nullable()->index()->after('role');
             }
 
+            if (!Schema::hasColumn('admin_task_types', 'kpi_catalog_key')) {
+                $table->string('kpi_catalog_key')->nullable()->index()->after('job_profile_id');
+            }
+
             if (!Schema::hasColumn('admin_task_types', 'weight')) {
                 $table->unsignedTinyInteger('weight')->default(10)->after('expected_per_month');
             }
@@ -40,6 +44,10 @@ return new class extends Migration
             if (Schema::hasColumn('admin_task_types', 'job_profile_id')) {
                 $table->dropForeign(['job_profile_id']);
                 $table->dropColumn('job_profile_id');
+            }
+
+            if (Schema::hasColumn('admin_task_types', 'kpi_catalog_key')) {
+                $table->dropColumn('kpi_catalog_key');
             }
 
             if (Schema::hasColumn('admin_task_types', 'weight')) {

@@ -749,6 +749,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/payroll/settings/profile/{profileId}', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'editProfile'])->name('payroll.settings.profile.edit');
         Route::post('/payroll/settings/profile/{profileId}', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'updateProfile'])->name('payroll.settings.profile.update');
         Route::get('/payroll/settings/profile/{profileId}/tasks', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'profileTasks'])->name('payroll.settings.profile.tasks');
+        Route::post('/payroll/settings/profile/{profileId}/tasks/catalog', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'storeTaskCatalog'])->name('payroll.settings.profile.tasks.catalog.store');
         Route::post('/payroll/settings/profile/{profileId}/tasks', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'storeTaskType'])->name('payroll.settings.profile.tasks.store');
         Route::post('/payroll/settings/task/{taskTypeId}', [App\Http\Controllers\Admin\AdminPayrollSettingsController::class, 'updateTaskType'])->name('payroll.settings.task.update');
 

@@ -10,6 +10,45 @@ use Illuminate\View\View;
 
 class AdminPayrollSettingsController extends Controller
 {
+    private const KPI_TASK_CATALOG = [
+        [
+            'key' => 'validate_projects',
+            'label' => 'Valider les projets',
+            'default_recurrence' => 'monthly',
+            'default_expected_per_month' => 0,
+            'default_deadline_hours' => 48,
+            'default_weight' => 10,
+            'default_is_critical' => true,
+        ],
+        [
+            'key' => 'followup_student_payments',
+            'label' => 'Relancer les paiements des étudiants',
+            'default_recurrence' => 'weekly',
+            'default_expected_per_month' => 0,
+            'default_deadline_hours' => 24,
+            'default_weight' => 10,
+            'default_is_critical' => true,
+        ],
+        [
+            'key' => 'followup_profile_completion',
+            'label' => 'Relancer les étudiants pour compléter leur profil',
+            'default_recurrence' => 'weekly',
+            'default_expected_per_month' => 0,
+            'default_deadline_hours' => 72,
+            'default_weight' => 8,
+            'default_is_critical' => false,
+        ],
+        [
+            'key' => 'followup_training_reports',
+            'label' => 'Relancer les étudiants pour déposer leur rapport',
+            'default_recurrence' => 'weekly',
+            'default_expected_per_month' => 0,
+            'default_deadline_hours' => 72,
+            'default_weight' => 8,
+            'default_is_critical' => false,
+        ],
+    ];
+
     public function index(): View
     {
         if (session('admin_role') !== 'super_admin') {
@@ -169,10 +208,115 @@ class AdminPayrollSettingsController extends Controller
             $taskTypes = $q->get();
         }
 
+        $catalog = collect(self::KPI_TASK_CATALOG);
+        $selectedCatalogKeys = $taskTypes
+            ->pluck('kpi_catalog_key')
+            ->filter(fn ($v) => is_string($v) && $v !== '')
+            ->unique()
+            ->values()
+            ->all();
+
         return view('admin.payroll_settings.profile_tasks', [
             'profile' => $profile,
             'taskTypes' => $taskTypes,
+            'kpiCatalog' => $catalog,
+            'selectedCatalogKeys' => $selectedCatalogKeys,
         ]);
+    }
+
+    public function storeTaskCatalog(Request $request, int $profileId)
+    {
+        if (session('admin_role') !== 'super_admin') {
+            abort(403);
+        }
+
+        if (!Schema::hasTable('admin_job_profiles')) {
+            return redirect()->route('admin.payroll.settings.index')->with('error', 'Module profils indisponible');
+        }
+        if (!Schema::hasTable('admin_task_types')) {
+            return redirect()->back()->with('error', 'Module tâches indisponible');
+        }
+        if (!Schema::hasColumn('admin_task_types', 'job_profile_id')) {
+            return redirect()->back()->with('error', 'La colonne job_profile_id est manquante. Lance les migrations KPI.');
+        }
+
+        $profile = DB::table('admin_job_profiles')->where('id', $profileId)->first(['id', 'code']);
+        if (!$profile) {
+            return redirect()->route('admin.payroll.settings.index')->with('error', 'Profil introuvable');
+        }
+
+        $catalogByKey = collect(self::KPI_TASK_CATALOG)->keyBy('key');
+
+        $validated = $request->validate([
+            'task_keys' => 'required|array|min:1',
+            'task_keys.*' => 'string',
+        ]);
+
+        $taskKeys = collect($validated['task_keys'] ?? [])
+            ->filter(fn ($k) => is_string($k) && $catalogByKey->has($k))
+            ->unique()
+            ->values()
+            ->all();
+
+        if (count($taskKeys) === 0) {
+            return redirect()->back()->with('error', 'Aucune tâche valide sélectionnée');
+        }
+
+        if (!Schema::hasColumn('admin_task_types', 'kpi_catalog_key')) {
+            return redirect()->back()->with('error', 'La colonne kpi_catalog_key est manquante. Lance les migrations KPI.');
+        }
+
+        $now = now();
+        $created = 0;
+        foreach ($taskKeys as $key) {
+            $task = (array) $catalogByKey->get($key);
+            $code = $key . '_p' . (int) $profileId;
+
+            $existsForProfile = DB::table('admin_task_types')
+                ->where('job_profile_id', $profileId)
+                ->where('kpi_catalog_key', $key)
+                ->exists();
+            if ($existsForProfile) {
+                continue;
+            }
+
+            $codeExists = DB::table('admin_task_types')->where('code', $code)->exists();
+            if ($codeExists) {
+                continue;
+            }
+
+            $payload = [
+                'code' => $code,
+                'label' => (string) ($task['label'] ?? $key),
+                'role' => 'profile',
+                'recurrence' => (string) ($task['default_recurrence'] ?? 'monthly'),
+                'expected_per_month' => (int) ($task['default_expected_per_month'] ?? 0),
+                'is_active' => true,
+                'job_profile_id' => (int) $profileId,
+                'kpi_catalog_key' => $key,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+
+            if (Schema::hasColumn('admin_task_types', 'weight')) {
+                $payload['weight'] = (int) ($task['default_weight'] ?? 10);
+            }
+            if (Schema::hasColumn('admin_task_types', 'deadline_hours')) {
+                $payload['deadline_hours'] = (int) ($task['default_deadline_hours'] ?? 0);
+            }
+            if (Schema::hasColumn('admin_task_types', 'is_critical')) {
+                $payload['is_critical'] = (bool) ($task['default_is_critical'] ?? false);
+            }
+
+            DB::table('admin_task_types')->insert($payload);
+            $created++;
+        }
+
+        if ($created === 0) {
+            return redirect()->back()->with('success', 'Aucune nouvelle tâche à ajouter');
+        }
+
+        return redirect()->route('admin.payroll.settings.profile.tasks', ['profileId' => (int) $profileId])->with('success', $created . ' tâche(s) ajoutée(s)');
     }
 
     public function storeTaskType(Request $request, int $profileId)
@@ -248,6 +392,7 @@ class AdminPayrollSettingsController extends Controller
 
         $validated = $request->validate([
             'label' => 'required|string|max:255',
+            'recurrence' => 'nullable|string|in:daily,weekly,monthly',
             'expected_per_month' => 'nullable|integer|min:0|max:1000000',
             'weight' => 'nullable|integer|min:0|max:1000',
             'deadline_hours' => 'nullable|integer|min:0|max:100000',
@@ -269,6 +414,10 @@ class AdminPayrollSettingsController extends Controller
             'expected_per_month' => (int) ($validated['expected_per_month'] ?? 0),
             'updated_at' => now(),
         ];
+
+        if (Schema::hasColumn('admin_task_types', 'recurrence') && !empty($validated['recurrence'])) {
+            $payload['recurrence'] = (string) $validated['recurrence'];
+        }
 
         if (Schema::hasColumn('admin_task_types', 'weight')) {
             $payload['weight'] = (int) ($validated['weight'] ?? 10);
