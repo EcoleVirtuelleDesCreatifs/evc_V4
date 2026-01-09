@@ -326,6 +326,16 @@ class ProjectController extends Controller
                     $tpCount = DB::table('tp')->where('user_id', $student->user_id)->count();
                     $designCount = DB::table('design_projects')->where('user_id', $student->user_id)->count();
                     $student->projects_count = $tpCount + $designCount;
+
+                    $tpPendingCount = DB::table('tp')
+                        ->where('user_id', $student->user_id)
+                        ->where('status', 'pending')
+                        ->count();
+                    $designPendingCount = DB::table('design_projects')
+                        ->where('user_id', $student->user_id)
+                        ->where('status', 'pending')
+                        ->count();
+                    $student->pending_count = $tpPendingCount + $designPendingCount;
                     return $student;
                 });
 

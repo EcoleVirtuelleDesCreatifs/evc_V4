@@ -508,6 +508,23 @@
                                         @endif
                                         <div class="mt-2 d-flex align-items-center justify-content-between">
                                             <span class="badge bg-secondary">{{ (int)($profile->projects_count ?? 0) }} projet(s)</span>
+                                            @php
+                                                $pendingCount = (int)($profile->pending_count ?? 0);
+                                            @endphp
+                                            @if($pendingCount === 0)
+                                                <span class="badge bg-success" title="Tout est validé">
+                                                    <i class="fas fa-check"></i>
+                                                </span>
+                                            @else
+                                                <span class="position-relative" title="{{ $pendingCount }} à valider">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-clock"></i>
+                                                    </span>
+                                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                        {{ $pendingCount }}
+                                                    </span>
+                                                </span>
+                                            @endif
                                             <a href="{{ route('admin.projets.' . $type . '.all', ['user_id' => $profile->user_id]) }}" class="btn btn-sm btn-primary">
                                                 Voir ses projets
                                             </a>
