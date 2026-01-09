@@ -728,12 +728,13 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
     });
 
     // Routes protégées (nécessitent une authentification admin)
-    Route::middleware('admin.auth')->group(function () {
+     Route::middleware('admin.auth')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
 
         Route::get('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'index'])->name('assistant.tasks.index');
         Route::post('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'store'])->name('assistant.tasks.store');
+        Route::get('/payroll/task-history', [App\Http\Controllers\Admin\AdminTaskHistoryController::class, 'index'])->name('payroll.task-history.index');
         Route::post('/salaries/assistant/{adminId}/compliance', [App\Http\Controllers\Admin\AdminSalaryController::class, 'toggleAssistantMonthCompliance'])->name('salaries.assistant.compliance');
 
         Route::get('/payroll', [App\Http\Controllers\Admin\AdminPayrollController::class, 'index'])->name('payroll.index');

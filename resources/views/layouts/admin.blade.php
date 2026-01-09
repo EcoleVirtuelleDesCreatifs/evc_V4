@@ -187,6 +187,11 @@
                                 </li>
                                 @if(session('admin_role') === 'super_admin')
                                 <li>
+                                    <a href="{{ route('admin.payroll.task-history.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.payroll.task-history.index') ? 'active' : '' }}">
+                                        <i class="fas fa-history"></i>Historiques
+                                    </a>
+                                </li>
+                                <li>
                                     <a href="{{ route('admin.payroll.settings.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.payroll.settings.*') ? 'active' : '' }}">
                                         <i class="fas fa-sliders-h"></i>Paramètres
                                     </a>
