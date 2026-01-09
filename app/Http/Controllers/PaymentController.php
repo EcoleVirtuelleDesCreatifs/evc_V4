@@ -335,6 +335,7 @@ class PaymentController extends Controller
                             'cpm_site_id' => $cpmSiteId,
                             'cpm_custom' => $cpmCustom,
                             'account_creation_token' => $confirmationToken,
+                            'commercial_admin_id' => $payment->commercial_admin_id ?? ($candidate->commercial_admin_id ?? null),
                             'updated_at' => now(),
                         ]);
 
@@ -920,6 +921,17 @@ class PaymentController extends Controller
             $candidate = DB::table('pre_registrations')
                 ->where('id', $payment->pre_registration_id)
                 ->first();
+
+            // Propager commercial_admin_id (si la préinscription en a un)
+            if (!empty($candidate?->commercial_admin_id)) {
+                DB::table('payments')
+                    ->where('id', $payment->id)
+                    ->whereNull('commercial_admin_id')
+                    ->update([
+                        'commercial_admin_id' => $candidate->commercial_admin_id,
+                        'updated_at' => now(),
+                    ]);
+            }
 
             // Enregistrer dans la comptabilité
             $formationLabel = $candidate->choix_formation ?? 'Formation';

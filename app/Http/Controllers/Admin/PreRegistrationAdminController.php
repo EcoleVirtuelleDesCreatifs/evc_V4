@@ -66,13 +66,37 @@ class PreRegistrationAdminController extends Controller
     public function show($id)
     {
         $pre = PreRegistration::findOrFail($id);
-        return view('admin.preregistrations.show', compact('pre'));
+
+        $commercialAdmins = collect();
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $commercialAdmins = DB::table('admins')
+                    ->where('is_active', 1)
+                    ->orderBy('name')
+                    ->get(['id', 'name', 'email']);
+            }
+        } catch (\Throwable $e) {
+        }
+
+        return view('admin.preregistrations.show', compact('pre', 'commercialAdmins'));
     }
 
     public function edit($id)
     {
         $pre = PreRegistration::findOrFail($id);
-        return view('admin.preregistrations.edit', compact('pre'));
+
+        $commercialAdmins = collect();
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $commercialAdmins = DB::table('admins')
+                    ->where('is_active', 1)
+                    ->orderBy('name')
+                    ->get(['id', 'name', 'email']);
+            }
+        } catch (\Throwable $e) {
+        }
+
+        return view('admin.preregistrations.edit', compact('pre', 'commercialAdmins'));
     }
 
     public function update(Request $request, $id)
@@ -100,6 +124,7 @@ class PreRegistrationAdminController extends Controller
             'has_smartphone' => 'nullable|boolean',
             'disponibilite' => 'nullable|string|in:semaine_soir,weekend,flexible,Semaine (soir),Week-end,Weekend,Flexible',
             'motivation' => 'nullable|string',
+            'commercial_admin_id' => 'nullable|integer',
             'status' => 'required|string|in:pending,en cours,accepted,Validé,Actif,rejected,Rejeté,En attente,paid',
         ]);
 
@@ -157,6 +182,17 @@ class PreRegistrationAdminController extends Controller
     {
         $pre = PreRegistration::findOrFail($id);
 
+        $commercialAdmins = collect();
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('admins')) {
+                $commercialAdmins = DB::table('admins')
+                    ->where('is_active', 1)
+                    ->orderBy('name')
+                    ->get(['id', 'name', 'email']);
+            }
+        } catch (\Throwable $e) {
+        }
+
         $payments = collect();
         if (\Illuminate\Support\Facades\Schema::hasTable('payments')) {
             $payments = DB::table('payments')
@@ -174,7 +210,7 @@ class PreRegistrationAdminController extends Controller
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
         $remaining = max(0, $totalAmount - $amountPaid);
 
-        return view('admin.preregistrations.payment', compact('pre', 'payments', 'formationName', 'totalAmount', 'amountPaid', 'remaining'));
+        return view('admin.preregistrations.payment', compact('pre', 'payments', 'formationName', 'totalAmount', 'amountPaid', 'remaining', 'commercialAdmins'));
     }
 
     public function bulkStatus(Request $request)
@@ -305,6 +341,7 @@ class PreRegistrationAdminController extends Controller
 
                         $paymentId = DB::table('payments')->insertGetId([
                             'pre_registration_id' => $pre->id,
+                            'commercial_admin_id' => $pre->commercial_admin_id,
                             'amount' => $amount,
                             'currency' => 'XOF',
                             'payment_reference' => $completedRef,
@@ -325,6 +362,7 @@ class PreRegistrationAdminController extends Controller
                             ->where('id', $existingPending->id)
                             ->update([
                                 'amount' => max(0, $expected - $amount),
+                                'commercial_admin_id' => $existingPending->commercial_admin_id ?? $pre->commercial_admin_id,
                                 'updated_at' => now(),
                             ]);
 
@@ -337,6 +375,7 @@ class PreRegistrationAdminController extends Controller
                                 'status' => 'completed',
                                 'transaction_id' => $manualTransactionId,
                                 'paid_at' => $paidAt,
+                                'commercial_admin_id' => $existingPending->commercial_admin_id ?? $pre->commercial_admin_id,
                                 'updated_at' => now(),
                             ]);
                         $paymentId = $existingPending->id;
@@ -348,6 +387,7 @@ class PreRegistrationAdminController extends Controller
                             $extraRef = 'EVC-MANUAL-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
                             DB::table('payments')->insert([
                                 'pre_registration_id' => $pre->id,
+                                'commercial_admin_id' => $pre->commercial_admin_id,
                                 'amount' => $extraAmount,
                                 'currency' => 'XOF',
                                 'payment_reference' => $extraRef,
@@ -371,6 +411,7 @@ class PreRegistrationAdminController extends Controller
 
                 $paymentId = DB::table('payments')->insertGetId([
                     'pre_registration_id' => $pre->id,
+                    'commercial_admin_id' => $pre->commercial_admin_id,
                     'amount' => $amount,
                     'currency' => 'XOF',
                     'payment_reference' => $paymentReference,
@@ -800,6 +841,7 @@ class PreRegistrationAdminController extends Controller
 
                 $firstInstallmentId = DB::table('payments')->insertGetId([
                     'pre_registration_id' => $pre->id,
+                    'commercial_admin_id' => $pre->commercial_admin_id,
                     'amount' => $installment1Amount,
                     'currency' => 'XOF',
                     'payment_reference' => $firstInstallmentRef,
@@ -820,6 +862,7 @@ class PreRegistrationAdminController extends Controller
 
                 DB::table('payments')->insert([
                     'pre_registration_id' => $pre->id,
+                    'commercial_admin_id' => $pre->commercial_admin_id,
                     'amount' => $installment2Amount,
                     'currency' => 'XOF',
                     'payment_reference' => $secondInstallmentRef,
@@ -854,6 +897,7 @@ class PreRegistrationAdminController extends Controller
 
                 DB::table('payments')->insert([
                     'pre_registration_id' => $pre->id,
+                    'commercial_admin_id' => $pre->commercial_admin_id,
                     'amount' => $totalAmount,
                     'currency' => 'XOF',
                     'payment_reference' => $paymentReference,

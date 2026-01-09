@@ -234,6 +234,19 @@
                         @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 
+                    <div class="col-md-6">
+                        <label class="form-label">Commercial responsable</label>
+                        <select name="commercial_admin_id" class="form-select @error('commercial_admin_id') is-invalid @enderror">
+                            <option value="">-- Aucun --</option>
+                            @foreach(($commercialAdmins ?? collect()) as $admin)
+                                <option value="{{ $admin->id }}" @selected((string)old('commercial_admin_id', $pre->commercial_admin_id) === (string)$admin->id)>
+                                    {{ $admin->name }} ({{ $admin->email }})
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('commercial_admin_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+
                     <div class="col-md-12">
                         <label class="form-label">Compétences</label>
                         <textarea name="competences" rows="3" class="form-control @error('competences') is-invalid @enderror">{{ old('competences', $pre->competences) }}</textarea>

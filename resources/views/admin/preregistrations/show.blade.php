@@ -519,6 +519,23 @@
                         <span class="info-label">Comment nous a connu</span>
                         <span class="info-value">{{ $pre->how_known ?? $pre->origine ?? 'Non renseigné' }}</span>
                     </div>
+
+                    <div class="info-item">
+                        <span class="info-label">Commercial responsable</span>
+                        @php
+                            $commercial = null;
+                            if (!empty($pre->commercial_admin_id ?? null)) {
+                                $commercial = ($commercialAdmins ?? collect())->firstWhere('id', (int) $pre->commercial_admin_id);
+                            }
+                        @endphp
+                        <span class="info-value">
+                            @if($commercial)
+                                {{ $commercial->name }} ({{ $commercial->email }})
+                            @else
+                                {{ !empty($pre->commercial_admin_id ?? null) ? 'ID: ' . $pre->commercial_admin_id : 'Non attribué' }}
+                            @endif
+                        </span>
+                    </div>
                 </div>
             </div>
 
