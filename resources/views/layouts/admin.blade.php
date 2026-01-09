@@ -175,7 +175,7 @@
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.assistant.tasks.index') }}" class="admin-nav-link {{ request()->routeIs('admin.assistant.tasks.*') ? 'active' : '' }}">
                             <i class="fas fa-clipboard-check"></i>
-                            Tâches Assistant
+                            Gestion des Salaires
                         </a>
                     </li>
                     @endif

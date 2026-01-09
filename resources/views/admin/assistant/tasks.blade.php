@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Tâches Assistant')
+@section('title', 'Gestion des Salaires')
 
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Tâches Assistant</h1>
+        <h1 class="h3 mb-0">Gestion des Salaires</h1>
         <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">Retour Dashboard</a>
     </div>
 
