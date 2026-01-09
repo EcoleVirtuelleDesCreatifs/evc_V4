@@ -61,10 +61,7 @@
                     @if(!$canSee)
                         <div class="text-muted">Montant masqué (autorisation requise)</div>
                     @else
-                        @php
-                            $sumBase = (int) collect($profiles)->sum(function ($x) { return (int) ($x->base_monthly_amount ?? 0); });
-                        @endphp
-                        <div class="fs-3 fw-bold">{{ number_format($sumBase, 0, ',', ' ') }} FCFA</div>
+                        <div class="fs-3 fw-bold">{{ number_format((int)($baseTotal ?? 0), 0, ',', ' ') }} FCFA</div>
                         <div class="text-muted">Somme des forfaits mensuels attribués</div>
                     @endif
                 </div>
@@ -75,7 +72,59 @@
     <div class="card mt-4">
         <div class="card-body">
             <div class="text-muted mb-2">Performance (KPI)</div>
-            <div class="text-muted">En cours d’activation (tâches + pénalités progressives par profil).</div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div>
+                    <span class="text-muted">KPI moyen:</span>
+                    <span class="badge bg-info">{{ (int)($kpiAvg ?? 0) }}%</span>
+                </div>
+                <div>
+                    <span class="text-muted">Gagné (mois):</span>
+                    @if($canSee)
+                        <span class="fw-bold">{{ number_format((int)($earnedTotal ?? 0), 0, ',', ' ') }} FCFA</span>
+                    @else
+                        <span class="text-muted">Masqué</span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Profil</th>
+                            <th class="text-center">KPI</th>
+                            <th class="text-center">Pénalité</th>
+                            <th class="text-center">Score</th>
+                            <th class="text-end">Forfait</th>
+                            <th class="text-end">Gagné</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach((array)($breakdown ?? []) as $b)
+                            <tr>
+                                <td>{{ $b['label'] ?? '' }}</td>
+                                <td class="text-center"><span class="badge bg-info">{{ (int)($b['kpi'] ?? 0) }}%</span></td>
+                                <td class="text-center"><span class="badge bg-warning text-dark">-{{ (int)($b['penalty'] ?? 0) }}</span></td>
+                                <td class="text-center"><span class="badge bg-success">{{ (int)($b['final_score'] ?? 0) }}%</span></td>
+                                <td class="text-end">
+                                    @if($canSee)
+                                        {{ number_format((int)($b['base_monthly_amount'] ?? 0), 0, ',', ' ') }} FCFA
+                                    @else
+                                        <span class="text-muted">Masqué</span>
+                                    @endif
+                                </td>
+                                <td class="text-end fw-bold">
+                                    @if($canSee)
+                                        {{ number_format((int)($b['earned'] ?? 0), 0, ',', ' ') }} FCFA
+                                    @else
+                                        <span class="text-muted">Masqué</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

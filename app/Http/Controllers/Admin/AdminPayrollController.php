@@ -10,6 +10,95 @@ use Illuminate\View\View;
 
 class AdminPayrollController extends Controller
 {
+    private function resolveProfileTaskTypes(int $jobProfileId, string $jobProfileCode)
+    {
+        if (!Schema::hasTable('admin_task_types')) {
+            return collect();
+        }
+
+        $q = DB::table('admin_task_types')
+            ->where('is_active', 1);
+
+        if (Schema::hasColumn('admin_task_types', 'job_profile_id')) {
+            $q->where(function ($q2) use ($jobProfileId, $jobProfileCode) {
+                $q2->where('job_profile_id', $jobProfileId);
+                if ($jobProfileCode === 'assistant') {
+                    $q2->orWhere(function ($q3) {
+                        $q3->whereNull('job_profile_id')->where('role', 'assistant');
+                    });
+                }
+            });
+        } else {
+            if ($jobProfileCode === 'assistant') {
+                $q->where('role', 'assistant');
+            } else {
+                $q->whereRaw('1 = 0');
+            }
+        }
+
+        return $q->orderBy('id')->get([
+            'id',
+            'label',
+            'expected_per_month',
+            'role',
+            Schema::hasColumn('admin_task_types', 'weight') ? 'weight' : DB::raw('10 as weight'),
+            Schema::hasColumn('admin_task_types', 'is_critical') ? 'is_critical' : DB::raw('0 as is_critical'),
+        ]);
+    }
+
+    private function computeProfileKpiForAdmin(
+        int $adminId,
+        object $profile,
+        \Illuminate\Support\Collection $logsByType,
+        int $daysInMonth,
+        int $dayOfMonth
+    ): array {
+        $taskTypes = $this->resolveProfileTaskTypes((int) $profile->id, (string) $profile->code);
+
+        $weightSum = 0;
+        $scoreSum = 0;
+        $penaltyPoints = 0.0;
+
+        foreach ($taskTypes as $t) {
+            $expected = (int) ($t->expected_per_month ?? 0);
+            $weight = (int) ($t->weight ?? 10);
+            $done = (int) ($logsByType[$t->id] ?? 0);
+
+            if ($expected <= 0) {
+                continue;
+            }
+
+            $weightSum += $weight;
+
+            $ratio = min($done / $expected, 1);
+            $scoreSum += $ratio * $weight;
+
+            $expectedToDate = ($expected * $dayOfMonth) / max($daysInMonth, 1);
+            $lateUnits = max(0, $expectedToDate - $done);
+            $lateRatio = $expected > 0 ? ($lateUnits / $expected) : 0;
+            $severity = (bool) ($t->is_critical ?? false) ? 20 : 8;
+            $penaltyPoints += $lateRatio * $severity;
+        }
+
+        $kpi = $weightSum > 0 ? ($scoreSum / $weightSum) * 100 : 0;
+        $penalty = min(40, (int) round($penaltyPoints));
+        $finalScore = (int) max(0, min(100, round($kpi - $penalty)));
+
+        $base = (int) ($profile->base_monthly_amount ?? 0);
+        $earned = (int) round($base * ($finalScore / 100));
+
+        return [
+            'job_profile_id' => (int) $profile->id,
+            'code' => (string) $profile->code,
+            'label' => (string) $profile->label,
+            'base_monthly_amount' => $base,
+            'kpi' => (int) round($kpi),
+            'penalty' => $penalty,
+            'final_score' => $finalScore,
+            'earned' => $earned,
+        ];
+    }
+
     public function index(): View
     {
         if (session('admin_role') !== 'super_admin') {
@@ -60,6 +149,23 @@ class AdminPayrollController extends Controller
             return $rows->pluck('job_profile_id')->unique()->values();
         });
 
+        $daysInMonth = (int) $monthEnd->day;
+        $dayOfMonth = (int) now()->day;
+
+        $logsByAdminByType = collect();
+        if (!empty($adminIds) && Schema::hasTable('admin_task_logs')) {
+            $logs = DB::table('admin_task_logs')
+                ->select('admin_id', 'task_type_id', DB::raw('SUM(quantity) as qty'))
+                ->whereIn('admin_id', $adminIds)
+                ->whereBetween('performed_at', [$monthStart, $monthEnd])
+                ->groupBy('admin_id', 'task_type_id')
+                ->get();
+
+            $logsByAdminByType = $logs->groupBy('admin_id')->map(function ($rows) {
+                return collect($rows)->pluck('qty', 'task_type_id');
+            });
+        }
+
         $commercialSalesByAdmin = collect();
         if (!empty($adminIds) && Schema::hasTable('payments') && Schema::hasColumn('payments', 'commercial_admin_id')) {
             $commercialSalesByAdmin = DB::table('payments')
@@ -75,11 +181,30 @@ class AdminPayrollController extends Controller
                 ->pluck('total_amount', 'commercial_admin_id');
         }
 
-        $rows = $admins->map(function ($a) use ($profilesByAdmin, $profilesById, $commercialSalesByAdmin, $commercialRateBp) {
+        $rows = $admins->map(function ($a) use (
+            $profilesByAdmin,
+            $profilesById,
+            $commercialSalesByAdmin,
+            $commercialRateBp,
+            $logsByAdminByType,
+            $daysInMonth,
+            $dayOfMonth
+        ) {
             $assigned = $profilesByAdmin[$a->id] ?? collect();
-            $assignedLabels = $assigned->map(function ($pid) use ($profilesById) {
-                return $profilesById[$pid]->label ?? null;
+            $assignedProfiles = $assigned->map(function ($pid) use ($profilesById) {
+                return $profilesById[$pid] ?? null;
             })->filter()->values();
+
+            $assignedLabels = $assignedProfiles->pluck('label')->values();
+
+            $logsByType = $logsByAdminByType[$a->id] ?? collect();
+            $breakdown = $assignedProfiles->map(function ($p) use ($a, $logsByType, $daysInMonth, $dayOfMonth) {
+                return $this->computeProfileKpiForAdmin((int) $a->id, $p, $logsByType, $daysInMonth, $dayOfMonth);
+            })->values();
+
+            $baseTotal = (int) $breakdown->sum('base_monthly_amount');
+            $earnedTotal = (int) $breakdown->sum('earned');
+            $kpiAvg = $breakdown->count() > 0 ? (int) round($breakdown->avg('final_score')) : 0;
 
             $commercialSales = (float) ($commercialSalesByAdmin[$a->id] ?? 0);
             $commission = 0;
@@ -95,6 +220,10 @@ class AdminPayrollController extends Controller
                 'can_view_salary_amount' => (bool) ($a->can_view_salary_amount ?? false),
                 'profile_ids' => $assigned,
                 'profile_labels' => $assignedLabels,
+                'kpi_avg' => $kpiAvg,
+                'base_total' => $baseTotal,
+                'earned_total' => $earnedTotal,
+                'breakdown' => $breakdown,
                 'commercial_sales_month' => (int) round($commercialSales),
                 'commercial_commission_month' => $commission,
             ];
@@ -213,6 +342,27 @@ class AdminPayrollController extends Controller
                 ]);
         }
 
+        $daysInMonth = (int) $monthEnd->day;
+        $dayOfMonth = (int) now()->day;
+
+        $logsByType = collect();
+        if (Schema::hasTable('admin_task_logs')) {
+            $logsByType = DB::table('admin_task_logs')
+                ->select('task_type_id', DB::raw('SUM(quantity) as qty'))
+                ->where('admin_id', $adminId)
+                ->whereBetween('performed_at', [$monthStart, $monthEnd])
+                ->groupBy('task_type_id')
+                ->pluck('qty', 'task_type_id');
+        }
+
+        $breakdown = $profiles->map(function ($p) use ($adminId, $logsByType, $daysInMonth, $dayOfMonth) {
+            return $this->computeProfileKpiForAdmin($adminId, $p, $logsByType, $daysInMonth, $dayOfMonth);
+        })->values();
+
+        $baseTotal = (int) $breakdown->sum('base_monthly_amount');
+        $earnedTotal = (int) $breakdown->sum('earned');
+        $kpiAvg = $breakdown->count() > 0 ? (int) round($breakdown->avg('final_score')) : 0;
+
         $commercial = $profiles->firstWhere('code', 'commercial');
         $commercialSales = 0;
         $commercialCommission = 0;
@@ -239,6 +389,10 @@ class AdminPayrollController extends Controller
             'month' => $month,
             'commercialSalesMonth' => (int) round($commercialSales),
             'commercialCommissionMonth' => $commercialCommission,
+            'kpiAvg' => $kpiAvg,
+            'baseTotal' => $baseTotal,
+            'earnedTotal' => $earnedTotal,
+            'breakdown' => $breakdown,
         ]);
     }
 }
