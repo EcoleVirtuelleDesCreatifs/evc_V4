@@ -10,6 +10,11 @@
             <div class="text-white-50">Gestion des forfaits, commissions et conditions KPI</div>
         </div>
         <div class="d-flex flex-wrap gap-2">
+            @if(!empty($moduleAvailable))
+                <a href="{{ route('admin.payroll.settings.profile.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Nouveau profil
+                </a>
+            @endif
             <a href="{{ route('admin.payroll.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>Retour salaires
             </a>
@@ -39,7 +44,10 @@
             @elseif(collect($profiles ?? [])->count() === 0)
                 <div class="alert alert-info mb-0" style="background-color: #1e40af; border-color: #1e40af; color: white;">
                     <div class="fw-bold mb-1">Aucun profil configuré</div>
-                    <div>Crée/active au moins un profil salaire pour que les paramètres s’affichent.</div>
+                    <div>
+                        Crée/active au moins un profil salaire pour que les paramètres s’affichent.
+                        <a class="text-white text-decoration-underline ms-1" href="{{ route('admin.payroll.settings.profile.create') }}">Créer un profil</a>
+                    </div>
                 </div>
             @else
                 <div class="table-responsive">

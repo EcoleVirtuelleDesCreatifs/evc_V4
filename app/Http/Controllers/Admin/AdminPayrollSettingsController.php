@@ -40,6 +40,57 @@ class AdminPayrollSettingsController extends Controller
         ]);
     }
 
+    public function createProfile(): View
+    {
+        if (session('admin_role') !== 'super_admin') {
+            abort(403);
+        }
+
+        if (!Schema::hasTable('admin_job_profiles')) {
+            abort(404);
+        }
+
+        return view('admin.payroll_settings.profile_create');
+    }
+
+    public function storeProfile(Request $request)
+    {
+        if (session('admin_role') !== 'super_admin') {
+            abort(403);
+        }
+
+        if (!Schema::hasTable('admin_job_profiles')) {
+            return redirect()->route('admin.payroll.settings.index')->with('error', 'Module profils indisponible');
+        }
+
+        $validated = $request->validate([
+            'code' => 'required|string|max:255|regex:/^[a-z0-9_]+$/',
+            'label' => 'required|string|max:255',
+            'base_monthly_amount' => 'required|integer|min:0|max:999999999',
+            'commission_rate_bp' => 'nullable|integer|min:0|max:10000',
+            'is_active' => 'required|boolean',
+        ]);
+
+        $exists = DB::table('admin_job_profiles')->where('code', $validated['code'])->exists();
+        if ($exists) {
+            return redirect()->back()->withInput()->withErrors([
+                'code' => 'Ce code existe déjà. Utilise un code unique (ex: assistant, commercial).',
+            ]);
+        }
+
+        DB::table('admin_job_profiles')->insert([
+            'code' => $validated['code'],
+            'label' => $validated['label'],
+            'base_monthly_amount' => (int) $validated['base_monthly_amount'],
+            'commission_rate_bp' => (int) ($validated['commission_rate_bp'] ?? 0),
+            'is_active' => (bool) $validated['is_active'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('admin.payroll.settings.index')->with('success', 'Profil créé');
+    }
+
     public function editProfile(int $profileId): View
     {
         if (session('admin_role') !== 'super_admin') {
