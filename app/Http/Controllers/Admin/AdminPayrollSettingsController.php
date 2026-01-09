@@ -16,8 +16,10 @@ class AdminPayrollSettingsController extends Controller
             abort(403);
         }
 
+        $moduleAvailable = Schema::hasTable('admin_job_profiles');
+
         $profiles = collect();
-        if (Schema::hasTable('admin_job_profiles')) {
+        if ($moduleAvailable) {
             $profiles = DB::table('admin_job_profiles')
                 ->orderBy('label')
                 ->get(['id', 'code', 'label', 'base_monthly_amount', 'commission_rate_bp', 'is_active']);
@@ -32,6 +34,7 @@ class AdminPayrollSettingsController extends Controller
         }
 
         return view('admin.payroll_settings.index', [
+            'moduleAvailable' => $moduleAvailable,
             'profiles' => $profiles,
             'taskCountsByProfile' => $taskCountsByProfile,
         ]);
