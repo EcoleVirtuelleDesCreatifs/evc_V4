@@ -565,17 +565,24 @@ class StudentAdminController extends Controller
      */
     public function profile(int $id)
     {
-        // Essayer d'abord comme student_id
-        $student = DB::table('students')->where('id', $id)->first();
-
-        if ($student) {
-            // Récupérer l'utilisateur via user_id
-            $user = DB::table('users')->where('id', $student->user_id)->first();
-        } else {
-            // Sinon essayer comme user_id
+        // Certains écrans admin passent un user_id (ex: depuis un projet).
+        // Dans ce cas, forcer la résolution par users.id pour éviter les collisions avec students.id.
+        if (request()->get('source') === 'user') {
             $user = DB::table('users')->where('id', $id)->first();
-            if ($user) {
-                $student = DB::table('students')->where('user_id', $user->id)->first();
+            $student = $user ? DB::table('students')->where('user_id', $user->id)->first() : null;
+        } else {
+            // Essayer d'abord comme student_id
+            $student = DB::table('students')->where('id', $id)->first();
+
+            if ($student) {
+                // Récupérer l'utilisateur via user_id
+                $user = DB::table('users')->where('id', $student->user_id)->first();
+            } else {
+                // Sinon essayer comme user_id
+                $user = DB::table('users')->where('id', $id)->first();
+                if ($user) {
+                    $student = DB::table('students')->where('user_id', $user->id)->first();
+                }
             }
         }
 

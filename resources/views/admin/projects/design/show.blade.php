@@ -348,7 +348,7 @@
                     </div>
 
                     <div class="d-grid mt-3">
-                        <a href="{{ route('admin.students.profile', $project->user->id) }}" class="btn btn-outline-info">
+                        <a href="{{ route('admin.students.profile', ['id' => $project->user->id, 'source' => 'user']) }}" class="btn btn-outline-info">
                             <i class="fas fa-user-graduate me-2"></i>Voir le Profil Étudiant
                         </a>
                     </div>
