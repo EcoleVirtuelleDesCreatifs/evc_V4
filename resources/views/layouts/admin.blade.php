@@ -202,15 +202,15 @@
                     </li>
                     @endif
 
-                    <!-- Séparateur : Travaux & Projets -->
+                    <!-- Séparateur : Gestion des Projets -->
                     <li class="nav-section-title">
-                        <i class="fas fa-tasks me-2"></i>Travaux & Projets
+                        <i class="fas fa-tasks me-2"></i>GESTION DES PROJETS
                     </li>
 
                     <li class="admin-nav-item">
-                        <a href="{{ route('admin.projets.design-graphique.to-send') }}" class="admin-nav-link {{ request()->routeIs('admin.projets.design-graphique.to-send') ? 'active' : '' }}">
+                        <a href="{{ route('admin.projets.to-send') }}" class="admin-nav-link {{ request()->routeIs('admin.projets.to-send') ? 'active' : '' }}">
                             <i class="fas fa-paper-plane"></i>
-                            ENVOYER UN PROJET
+                            Envoyer un projet
                         </a>
                     </li>
 
@@ -218,6 +218,13 @@
                         <a href="{{ route('admin.projets.design-graphique.assigned') }}" class="admin-nav-link {{ request()->routeIs('admin.projets.design-graphique.assigned') ? 'active' : '' }}">
                             <i class="fas fa-tasks"></i>
                             Projets attribués
+                        </a>
+                    </li>
+
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.projets.all') }}" class="admin-nav-link {{ request()->routeIs('admin.projets.all') ? 'active' : '' }}">
+                            <i class="fas fa-history"></i>
+                            Historique projet
                         </a>
                     </li>
 
