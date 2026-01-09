@@ -3,11 +3,11 @@
 @section('title', 'Paramètres Salaires')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <div>
-            <h1 class="h3 mb-1">Paramètres Salaires</h1>
-            <div class="text-muted">Gestion des forfaits, commissions et conditions KPI</div>
+            <h1 class="h3 mb-1 text-white">Paramètres Salaires</h1>
+            <div class="text-white-50">Gestion des forfaits, commissions et conditions KPI</div>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <a href="{{ route('admin.payroll.index') }}" class="btn btn-outline-secondary">
@@ -23,7 +23,10 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden;">
+    <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; overflow: hidden;">
+        <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+            <div class="fw-bold text-white"><i class="fas fa-sliders-h me-2"></i>Profils & règles</div>
+        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table align-middle">
@@ -83,3 +86,11 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    body { background-color: #0f172a; }
+    .table { color: #e2e8f0; }
+    .table thead th { color: #e2e8f0; }
+</style>
+@endpush

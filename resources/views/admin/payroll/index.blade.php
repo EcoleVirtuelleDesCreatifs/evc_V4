@@ -3,21 +3,19 @@
 @section('title', 'Gestion des Salaires')
 
 @section('content')
-<div class="container-fluid">
-    <div class="payroll-hero mb-4">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <div class="payroll-hero-title">Gestion des Salaires</div>
-                <div class="payroll-hero-subtitle">{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}/{{ $year }} — Commission Commercial: {{ number_format(((int)($commercial_rate_bp ?? 0)) / 100, 2, ',', ' ') }}%</div>
-            </div>
-            <div class="d-flex flex-wrap gap-2">
-                <a href="{{ route('admin.payroll.settings.index') }}" class="btn btn-outline-light">
-                    <i class="fas fa-sliders-h me-2"></i>Paramètres
-                </a>
-                <a href="{{ route('admin.dashboard') }}" class="btn btn-light">
-                    <i class="fas fa-arrow-left me-2"></i>Dashboard
-                </a>
-            </div>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-white">Gestion des Salaires</h1>
+            <div class="text-white-50">{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}/{{ $year }} — Commission Commercial: {{ number_format(((int)($commercial_rate_bp ?? 0)) / 100, 2, ',', ' ') }}%</div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('admin.payroll.settings.index') }}" class="btn btn-outline-light">
+                <i class="fas fa-sliders-h me-2"></i>Paramètres
+            </a>
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Dashboard
+            </a>
         </div>
     </div>
 
@@ -28,40 +26,40 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <div class="row g-3 mb-4">
-        <div class="col-md-3">
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
             <div class="stat-card">
-                <div class="stat-card-icon bg-primary"><i class="fas fa-users"></i></div>
-                <div>
-                    <div class="stat-card-label">Admins suivis</div>
-                    <div class="stat-card-value">{{ (int)($totalAdmins ?? 0) }}</div>
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ (int)($totalAdmins ?? 0) }}</h3>
+                    <p class="stat-label">Admins suivis</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-card-icon bg-info"><i class="fas fa-chart-line"></i></div>
-                <div>
-                    <div class="stat-card-label">KPI moyen</div>
-                    <div class="stat-card-value">{{ (int)($avgKpi ?? 0) }}%</div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-cyan">
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ (int)($avgKpi ?? 0) }}%</h3>
+                    <p class="stat-label">KPI moyen</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-card-icon bg-success"><i class="fas fa-wallet"></i></div>
-                <div>
-                    <div class="stat-card-label">Gagné (mois)</div>
-                    <div class="stat-card-value">{{ number_format((int)($totalEarned ?? 0), 0, ',', ' ') }} FCFA</div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-success">
+                <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ number_format((int)($totalEarned ?? 0), 0, ',', ' ') }}</h3>
+                    <p class="stat-label">Gagné (mois) FCFA</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-card-icon bg-warning text-dark"><i class="fas fa-hand-holding-usd"></i></div>
-                <div>
-                    <div class="stat-card-label">Commission (mois)</div>
-                    <div class="stat-card-value">{{ number_format((int)($totalCommercialCommission ?? 0), 0, ',', ' ') }} FCFA</div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-warning">
+                <div class="stat-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ number_format((int)($totalCommercialCommission ?? 0), 0, ',', ' ') }}</h3>
+                    <p class="stat-label">Commission (mois) FCFA</p>
                 </div>
             </div>
         </div>
@@ -69,12 +67,14 @@
 
     <div class="row g-3 mb-4">
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0" style="border-radius: 16px;">
-                <div class="card-body">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px;">
+                <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="fw-bold">Top KPI</div>
-                        <div class="text-muted" style="font-size: 0.9rem;">Top 5</div>
+                        <div class="fw-bold text-white">Top KPI</div>
+                        <div class="text-white-50" style="font-size: 0.9rem;">Top 5</div>
                     </div>
+                </div>
+                <div class="card-body">
                     @foreach(($topKpi ?? []) as $t)
                         <a class="top-row" href="{{ route('admin.payroll.admin.show', ['adminId' => (int)($t['id'] ?? 0)]) }}">
                             <div class="top-row-name">{{ $t['name'] ?? '' }}</div>
@@ -85,32 +85,36 @@
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0" style="border-radius: 16px;">
-                <div class="card-body">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px;">
+                <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="fw-bold">Top Gagné</div>
-                        <div class="text-muted" style="font-size: 0.9rem;">Top 5</div>
+                        <div class="fw-bold text-white">Top Gagné</div>
+                        <div class="text-white-50" style="font-size: 0.9rem;">Top 5</div>
                     </div>
+                </div>
+                <div class="card-body">
                     @foreach(($topEarned ?? []) as $t)
                         <a class="top-row" href="{{ route('admin.payroll.admin.show', ['adminId' => (int)($t['id'] ?? 0)]) }}">
                             <div class="top-row-name">{{ $t['name'] ?? '' }}</div>
-                            <div class="fw-bold">{{ number_format((int)($t['earned_total'] ?? 0), 0, ',', ' ') }}</div>
+                            <div class="fw-bold text-white">{{ number_format((int)($t['earned_total'] ?? 0), 0, ',', ' ') }}</div>
                         </a>
                     @endforeach
                 </div>
             </div>
         </div>
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0" style="border-radius: 16px;">
-                <div class="card-body">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px;">
+                <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
                     <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="fw-bold">Top Commission</div>
-                        <div class="text-muted" style="font-size: 0.9rem;">Top 5</div>
+                        <div class="fw-bold text-white">Top Commission</div>
+                        <div class="text-white-50" style="font-size: 0.9rem;">Top 5</div>
                     </div>
+                </div>
+                <div class="card-body">
                     @foreach(($topCommission ?? []) as $t)
                         <a class="top-row" href="{{ route('admin.payroll.admin.show', ['adminId' => (int)($t['id'] ?? 0)]) }}">
                             <div class="top-row-name">{{ $t['name'] ?? '' }}</div>
-                            <div class="fw-bold">{{ number_format((int)($t['commercial_commission_month'] ?? 0), 0, ',', ' ') }}</div>
+                            <div class="fw-bold text-white">{{ number_format((int)($t['commercial_commission_month'] ?? 0), 0, ',', ' ') }}</div>
                         </a>
                     @endforeach
                 </div>
@@ -118,12 +122,14 @@
         </div>
     </div>
 
-    <div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden;">
-        <div class="card-body">
+    <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px;">
+        <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                <div class="fw-bold">Salariés & performances</div>
-                <div class="text-muted" style="font-size: 0.9rem;">Forfait total: {{ number_format((int)($totalBase ?? 0), 0, ',', ' ') }} FCFA — Ventes (mois): {{ number_format((int)($totalCommercialSales ?? 0), 0, ',', ' ') }} FCFA</div>
+                <div class="fw-bold text-white">Salariés & performances</div>
+                <div class="text-white-50" style="font-size: 0.9rem;">Forfait total: {{ number_format((int)($totalBase ?? 0), 0, ',', ' ') }} FCFA — Ventes (mois): {{ number_format((int)($totalCommercialSales ?? 0), 0, ',', ' ') }} FCFA</div>
             </div>
+        </div>
+        <div class="card-body">
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
@@ -204,50 +210,47 @@
 
 @push('styles')
 <style>
-    .payroll-hero {
-        background: linear-gradient(135deg, #0b5ed7 0%, #6f42c1 50%, #d63384 100%);
-        border-radius: 18px;
-        padding: 22px 22px;
-        color: #fff;
-        box-shadow: 0 18px 45px rgba(13, 110, 253, 0.18);
-    }
-    .payroll-hero-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-    }
-    .payroll-hero-subtitle {
-        opacity: 0.9;
-        font-size: 0.95rem;
+    body {
+        background-color: #0f172a;
     }
     .stat-card {
-        background: #fff;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
         border-radius: 16px;
-        padding: 16px;
+        padding: 1.5rem;
+        color: white;
         display: flex;
-        gap: 12px;
         align-items: center;
-        border: 1px solid rgba(0,0,0,0.06);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        gap: 1rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .stat-card-icon {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
+    }
+    .stat-card-primary { background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); }
+    .stat-card-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .stat-card-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .stat-card-cyan { background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%); }
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #fff;
-        flex: 0 0 auto;
+        font-size: 1.8rem;
     }
-    .stat-card-label {
-        font-size: 0.9rem;
-        color: rgba(0,0,0,0.55);
-    }
-    .stat-card-value {
+    .stat-content { flex: 1; }
+    .stat-number {
+        font-size: 2.5rem;
         font-weight: 700;
-        font-size: 1.1rem;
-        color: rgba(0,0,0,0.85);
+        margin: 0;
+    }
+    .stat-label {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
     }
     .top-row {
         display: flex;
@@ -257,7 +260,7 @@
         border-radius: 12px;
         text-decoration: none;
         color: inherit;
-        border: 1px solid rgba(0,0,0,0.06);
+        border: 1px solid rgba(255,255,255,0.10);
         margin-top: 10px;
         transition: transform .15s ease, box-shadow .15s ease;
     }
@@ -267,7 +270,7 @@
     }
     .top-row-name {
         font-weight: 600;
-        color: rgba(0,0,0,0.82);
+        color: #fff;
     }
     .avatar-circle {
         width: 40px;
@@ -277,9 +280,11 @@
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        color: #0b5ed7;
-        background: rgba(13, 110, 253, 0.10);
-        border: 1px solid rgba(13, 110, 253, 0.18);
+        color: #fff;
+        background: rgba(255, 255, 255, 0.20);
+        border: 1px solid rgba(255, 255, 255, 0.18);
     }
+    .table { color: #e2e8f0; }
+    .table thead th { color: #e2e8f0; }
 </style>
 @endpush

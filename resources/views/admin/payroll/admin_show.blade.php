@@ -3,11 +3,11 @@
 @section('title', 'Détail Salaire')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <div>
-            <h1 class="h3 mb-1">{{ $row['name'] ?? '' }}</h1>
-            <div class="text-muted">{{ $row['email'] ?? '' }} — {{ str_pad($month, 2, '0', STR_PAD_LEFT) }}/{{ $year }}</div>
+            <h1 class="h3 mb-1 text-white">{{ $row['name'] ?? '' }}</h1>
+            <div class="text-white-50">{{ $row['email'] ?? '' }} — {{ str_pad($month, 2, '0', STR_PAD_LEFT) }}/{{ $year }}</div>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <a href="{{ route('admin.payroll.index') }}" class="btn btn-outline-secondary">
@@ -21,43 +21,45 @@
 
     <div class="row g-3 mb-4">
         <div class="col-md-3">
-            <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px;">
                 <div class="card-body">
-                    <div class="text-muted">KPI moyen</div>
-                    <div class="fs-3 fw-bold">{{ (int)($row['kpi_avg'] ?? 0) }}%</div>
+                    <div class="text-white-50">KPI moyen</div>
+                    <div class="fs-3 fw-bold text-white">{{ (int)($row['kpi_avg'] ?? 0) }}%</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px;">
                 <div class="card-body">
-                    <div class="text-muted">Forfait total</div>
-                    <div class="fs-3 fw-bold">{{ number_format((int)($row['base_total'] ?? 0), 0, ',', ' ') }} FCFA</div>
+                    <div class="text-white-50">Forfait total</div>
+                    <div class="fs-3 fw-bold text-white">{{ number_format((int)($row['base_total'] ?? 0), 0, ',', ' ') }} FCFA</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px;">
                 <div class="card-body">
-                    <div class="text-muted">Gagné (mois)</div>
-                    <div class="fs-3 fw-bold">{{ number_format((int)($row['earned_total'] ?? 0), 0, ',', ' ') }} FCFA</div>
+                    <div class="text-white-50">Gagné (mois)</div>
+                    <div class="fs-3 fw-bold text-white">{{ number_format((int)($row['earned_total'] ?? 0), 0, ',', ' ') }} FCFA</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm border-0" style="border-radius: 16px;">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px;">
                 <div class="card-body">
-                    <div class="text-muted">Commission (mois)</div>
-                    <div class="fs-3 fw-bold">{{ number_format((int)($row['commercial_commission_month'] ?? 0), 0, ',', ' ') }} FCFA</div>
-                    <div class="text-muted" style="font-size: 0.9rem;">Ventes: {{ number_format((int)($row['commercial_sales_month'] ?? 0), 0, ',', ' ') }} FCFA — Taux: {{ number_format(((int)($commercial_rate_bp ?? 0)) / 100, 2, ',', ' ') }}%</div>
+                    <div class="text-white-50">Commission (mois)</div>
+                    <div class="fs-3 fw-bold text-white">{{ number_format((int)($row['commercial_commission_month'] ?? 0), 0, ',', ' ') }} FCFA</div>
+                    <div class="text-white-50" style="font-size: 0.9rem;">Ventes: {{ number_format((int)($row['commercial_sales_month'] ?? 0), 0, ',', ' ') }} FCFA — Taux: {{ number_format(((int)($commercial_rate_bp ?? 0)) / 100, 2, ',', ' ') }}%</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0" style="border-radius: 16px; overflow: hidden;">
+    <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; overflow: hidden;">
+        <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+            <div class="fw-bold text-white">Détail KPI par profil</div>
+        </div>
         <div class="card-body">
-            <div class="fw-bold mb-3">Détail KPI par profil</div>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
@@ -88,3 +90,11 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    body { background-color: #0f172a; }
+    .table { color: #e2e8f0; }
+    .table thead th { color: #e2e8f0; }
+</style>
+@endpush

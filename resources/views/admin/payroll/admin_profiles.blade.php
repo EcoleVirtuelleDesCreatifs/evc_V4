@@ -3,7 +3,7 @@
 @section('title', 'Attribuer des profils')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <div>
             <h1 class="h3 mb-1">Attribuer des profils</h1>
@@ -46,27 +46,43 @@
 
                     <form method="POST" action="{{ route('admin.payroll.admin.profiles', ['adminId' => (int)($admin->id ?? 0)]) }}">
                         @csrf
-                        <div class="row g-2">
-                            @foreach(($profiles ?? []) as $p)
-                                @php
-                                    $isChecked = in_array((int)($p->id ?? 0), (array)($assigned ?? []));
-                                @endphp
-                                <div class="col-md-6">
-                                    <label class="profile-tile">
-                                        <input type="checkbox" class="form-check-input me-2" name="job_profile_ids[]" value="{{ (int)($p->id ?? 0) }}" {{ $isChecked ? 'checked' : '' }}>
-                                        <div class="w-100">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div class="fw-bold">{{ $p->label ?? '' }}</div>
-                                                <div class="text-muted" style="font-size: 0.9rem;">{{ number_format((int)($p->base_monthly_amount ?? 0), 0, ',', ' ') }} FCFA</div>
-                                            </div>
-                                            @if(($p->code ?? '') === 'commercial')
-                                                <div class="text-muted" style="font-size: 0.9rem;">Commission: {{ number_format(((int)($p->commission_rate_bp ?? 0)) / 100, 2, ',', ' ') }}%</div>
-                                            @endif
-                                        </div>
-                                    </label>
+                        @if(collect($profiles ?? [])->count() === 0)
+                            <div class="alert alert-warning mb-0">
+                                <div class="fw-bold mb-1">Aucun profil disponible</div>
+                                <div>
+                                    Tu dois d'abord créer/activer des profils dans
+                                    <a href="{{ route('admin.payroll.settings.index') }}">Paramètres Salaires</a>.
                                 </div>
-                            @endforeach
-                        </div>
+                            </div>
+                        @else
+                            <div class="row g-2">
+                                @foreach(($profiles ?? []) as $p)
+                                    @php
+                                        $isChecked = in_array((int)($p->id ?? 0), (array)($assigned ?? []));
+                                        $isActive = !property_exists($p, 'is_active') || ((int)($p->is_active ?? 1) === 1);
+                                    @endphp
+                                    <div class="col-md-6">
+                                        <label class="profile-tile {{ $isActive ? '' : 'profile-tile-disabled' }}">
+                                            <input type="checkbox" class="form-check-input me-2" name="job_profile_ids[]" value="{{ (int)($p->id ?? 0) }}" {{ $isChecked ? 'checked' : '' }} {{ $isActive ? '' : 'disabled' }}>
+                                            <div class="w-100">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="fw-bold">
+                                                        {{ $p->label ?? '' }}
+                                                        @if(!$isActive)
+                                                            <span class="badge bg-secondary ms-2">Inactif</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="text-muted" style="font-size: 0.9rem;">{{ number_format((int)($p->base_monthly_amount ?? 0), 0, ',', ' ') }} FCFA</div>
+                                                </div>
+                                                @if(($p->code ?? '') === 'commercial')
+                                                    <div class="text-muted" style="font-size: 0.9rem;">Commission: {{ number_format(((int)($p->commission_rate_bp ?? 0)) / 100, 2, ',', ' ') }}%</div>
+                                                @endif
+                                            </div>
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
 
                         <div class="d-flex justify-content-end mt-4">
                             <button class="btn btn-primary">
@@ -120,6 +136,9 @@
 
 @push('styles')
 <style>
+    body {
+        background-color: #0f172a;
+    }
     .profile-tile {
         display: flex;
         gap: 10px;
@@ -139,6 +158,10 @@
     }
     .profile-tile input {
         margin-top: 3px;
+    }
+    .profile-tile-disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
     }
 </style>
 @endpush

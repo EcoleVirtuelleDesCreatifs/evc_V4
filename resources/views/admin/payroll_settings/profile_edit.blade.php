@@ -3,11 +3,11 @@
 @section('title', 'Modifier profil salaire')
 
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
         <div>
-            <h1 class="h3 mb-1">Modifier profil</h1>
-            <div class="text-muted">{{ $profile->label ?? '' }} — Code: {{ $profile->code ?? '' }}</div>
+            <h1 class="h3 mb-1 text-white">Modifier profil</h1>
+            <div class="text-white-50">{{ $profile->label ?? '' }} — Code: {{ $profile->code ?? '' }}</div>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <a href="{{ route('admin.payroll.settings.index') }}" class="btn btn-outline-secondary">
@@ -30,8 +30,11 @@
         </div>
     @endif
 
-    <div class="card shadow-sm border-0" style="border-radius: 16px;">
-        <div class="card-body">
+    <div class="card" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 16px; overflow: hidden;">
+        <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+            <div class="fw-bold text-white"><i class="fas fa-pen me-2"></i>Forfait & commission</div>
+        </div>
+        <div class="card-body text-white">
             <form method="POST" action="{{ route('admin.payroll.settings.profile.update', ['profileId' => (int)($profile->id ?? 0)]) }}">
                 @csrf
 
@@ -70,3 +73,10 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    body { background-color: #0f172a; }
+    .form-label, .form-text { color: #e2e8f0; }
+</style>
+@endpush

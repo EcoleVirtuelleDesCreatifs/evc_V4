@@ -195,10 +195,12 @@ class AdminPayrollController extends Controller
 
         $profiles = collect();
         if (Schema::hasTable('admin_job_profiles')) {
-            $profiles = DB::table('admin_job_profiles')
-                ->where('is_active', 1)
-                ->orderBy('label')
-                ->get(['id', 'code', 'label', 'base_monthly_amount', 'commission_rate_bp']);
+            $q = DB::table('admin_job_profiles')->orderBy('label');
+            if (Schema::hasColumn('admin_job_profiles', 'is_active')) {
+                $profiles = $q->get(['id', 'code', 'label', 'base_monthly_amount', 'commission_rate_bp', 'is_active']);
+            } else {
+                $profiles = $q->get(['id', 'code', 'label', 'base_monthly_amount', 'commission_rate_bp']);
+            }
         }
 
         $profilesById = $profiles->keyBy('id');
