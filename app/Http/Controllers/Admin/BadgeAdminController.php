@@ -6,6 +6,7 @@ use App\Helpers\ProfilePhotoHelper;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use setasign\Fpdf\Fpdf;
 
 class BadgeAdminController extends Controller
@@ -38,9 +39,35 @@ class BadgeAdminController extends Controller
 
     public function inactive(Request $request)
     {
+        $hasRegistrationDate = Schema::hasColumn('students', 'registration_date');
+        $registrationDateExpr = $hasRegistrationDate
+            ? 'students.registration_date'
+            : 'NULL';
+
+        // Date de base (inscription) : registration_date > students.created_at > users.created_at
+        $baseDateExpr = "COALESCE($registrationDateExpr, students.created_at, users.created_at)";
+
+        // Durée par défaut selon le programme (mois)
+        $durationMonthsExpr = "CASE
+            WHEN students.program IN ('Design Graphique','design_graphique','design-graphique') THEN 4
+            WHEN students.program IN ('Community Management','community_management','community-manager','community-management') THEN 4
+            WHEN students.program IN ('Design Graphique & Community Management','Design Graphique & Community Manager','design_graphique_community_management','design_graphique_community_manager','design-graphique-community-manager') THEN 7
+            WHEN students.program IN ('Intelligence Artificielle','intelligence_artificielle','intelligence-artificielle') THEN 4
+            WHEN students.program IN ('Gestion Informatique','gestion_informatique','gestion-informatique') THEN 4
+            ELSE 4
+        END";
+
+        // Expiration calculée : base + durée
+        $computedExpirationExpr = "DATE_ADD($baseDateExpr, INTERVAL ($durationMonthsExpr) MONTH)";
+
+        // Expiration finale : max(expiration_date, computedExpiration)
+        // (si expiration_date est null => computedExpiration)
+        $finalExpirationExpr = "GREATEST(COALESCE(students.expiration_date, $computedExpirationExpr), $computedExpirationExpr)";
+
         $students = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->where('students.status', 'inactive')
+            ->whereRaw("$finalExpirationExpr < NOW()")
             ->select(
                 'students.id',
                 'students.user_id',
@@ -49,14 +76,16 @@ class BadgeAdminController extends Controller
                 'students.country',
                 'students.program',
                 'students.profile_photo',
-                'users.email'
+                'students.expiration_date',
+                'users.email',
+                DB::raw("$finalExpirationExpr as computed_expiration_date")
             )
             ->orderBy('students.updated_at', 'desc')
             ->paginate(24)
             ->withQueryString();
 
         return view('admin.badges.students', [
-            'title' => 'Étudiants Inactifs',
+            'title' => 'Comptes expirés',
             'status' => 'inactive',
             'students' => $students,
         ]);

@@ -420,9 +420,40 @@ class AdminDashboardController extends Controller
         ]);
     }
 
-    public function viewProject($id)
+    public function viewProject(Request $request, $id)
     {
         $project = Project::with(['user', 'user.student', 'images'])->findOrFail($id);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            $images = $project->images->map(function ($img) {
+                return [
+                    'id' => $img->id,
+                    'original_name' => $img->original_name,
+                    'mime_type' => $img->mime_type,
+                    'file_size' => $img->file_size,
+                    'url' => \App\Models\MediaUrl::fromPath($img->file_path),
+                ];
+            })->values();
+
+            return response()->json([
+                'success' => true,
+                'project' => [
+                    'id' => $project->id,
+                    'title' => $project->title,
+                    'description' => $project->description,
+                    'category' => $project->category,
+                    'status' => $project->status,
+                    'created_at' => optional($project->created_at)->format('d/m/Y H:i'),
+                    'software_used' => $project->software_used,
+                    'user' => [
+                        'id' => $project->user?->id,
+                        'name' => $project->user?->name,
+                        'email' => $project->user?->email,
+                    ],
+                    'images' => $images,
+                ],
+            ]);
+        }
 
         return view('admin.projects.view', [
             'project' => $project,

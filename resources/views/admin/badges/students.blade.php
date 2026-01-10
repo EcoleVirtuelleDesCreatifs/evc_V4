@@ -130,6 +130,12 @@
                             <p class="student-name">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</p>
                             <p class="student-sub">{{ $student->email ?? '' }}</p>
                         </div>
+
+                        @if($status === 'inactive')
+                            <div class="ms-auto">
+                                <span class="badge bg-danger">Expiré</span>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="student-card-body">
@@ -143,6 +149,22 @@
                                 <div>{{ $student->program ?? 'N/A' }}</div>
                             </div>
                         </div>
+
+                        @if($status === 'inactive')
+                            @php
+                                $expiresAt = $student->expiration_date ?? ($student->computed_expiration_date ?? null);
+                            @endphp
+                            <div class="meta-pill mb-3">
+                                <strong>Date d'expiration</strong>
+                                <div>
+                                    @if(!empty($expiresAt))
+                                        {{ \Carbon\Carbon::parse($expiresAt)->format('d/m/Y') }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
 
                         <div class="actions-row">
                             <a href="{{ route('admin.students.profile', $student->id) }}" class="btn btn-sm btn-info">Voir</a>

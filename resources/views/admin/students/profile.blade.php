@@ -99,7 +99,7 @@
                         </div>
                         <div class="info-item">
                             <i class="fas fa-toggle-{{ ($data['student']['status'] ?? 'active') === 'active' ? 'on text-success' : 'off text-danger' }} me-2"></i>
-                            <strong>Statut:</strong> 
+                            <strong>Statut:</strong>
                             <span class="badge bg-{{ ($data['student']['status'] ?? 'active') === 'active' ? 'success' : 'danger' }}">
                                 {{ ($data['student']['status'] ?? 'active') === 'active' ? 'Actif' : 'Désactivé' }}
                             </span>
@@ -305,20 +305,20 @@
                                     <td>
                                         <!-- ACTIONS SIMPLES - UN SEUL CLIC -->
                                         <div class="d-flex gap-1">
-                                            <button class="btn btn-sm btn-primary" 
-                                                    onclick="showProjectDetails({{ $project['id'] ?? 0 }})" 
+                                            <button class="btn btn-sm btn-primary"
+                                                    onclick="showProjectDetails({{ $project['id'] ?? 0 }})"
                                                     title="Voir détails">
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                             @if(($project['status'] ?? 'en_cours') === 'en_cours')
-                                            <button class="btn btn-sm btn-success" 
-                                                    onclick="if(confirm('Valider ce projet ?')) validateProject({{ $project['id'] ?? 0 }})" 
+                                            <button class="btn btn-sm btn-success"
+                                                    onclick="if(confirm('Valider ce projet ?')) validateProject({{ $project['id'] ?? 0 }})"
                                                     title="Valider">
                                                 <i class="fas fa-check"></i>
                                             </button>
                                             @endif
-                                            <button class="btn btn-sm btn-outline-secondary" 
-                                                    onclick="downloadProject({{ $project['id'] ?? 0 }})" 
+                                            <button class="btn btn-sm btn-outline-secondary"
+                                                    onclick="downloadProject({{ $project['id'] ?? 0 }})"
                                                     title="Télécharger">
                                                 <i class="fas fa-download"></i>
                                             </button>
@@ -375,25 +375,25 @@
                                     </div>
                                     <!-- Boutons d'action -->
                                     <div class="d-flex gap-1 mt-3">
-                                        <button class="btn btn-sm btn-primary" 
-                                                onclick="showProjectDetails({{ $project['id'] ?? 0 }})" 
+                                        <button class="btn btn-sm btn-primary"
+                                                onclick="showProjectDetails({{ $project['id'] ?? 0 }})"
                                                 title="Voir détails">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                         @if(($project['status'] ?? 'en_cours') === 'en_cours')
-                                        <button class="btn btn-sm btn-success" 
-                                                onclick="if(confirm('Valider ce projet ?')) validateProject({{ $project['id'] ?? 0 }})" 
+                                        <button class="btn btn-sm btn-success"
+                                                onclick="if(confirm('Valider ce projet ?')) validateProject({{ $project['id'] ?? 0 }})"
                                                 title="Valider">
                                             <i class="fas fa-check"></i>
                                         </button>
                                         @endif
-                                        <button class="btn btn-sm btn-danger" 
-                                                onclick="deleteProjectFromProfile({{ $project['id'] ?? 0 }})" 
+                                        <button class="btn btn-sm btn-danger"
+                                                onclick="deleteProjectFromProfile({{ $project['id'] ?? 0 }})"
                                                 title="Supprimer">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-secondary" 
-                                                onclick="downloadProject({{ $project['id'] ?? 0 }})" 
+                                        <button class="btn btn-sm btn-secondary"
+                                                onclick="downloadProject({{ $project['id'] ?? 0 }})"
                                                 title="Télécharger">
                                             <i class="fas fa-download"></i>
                                         </button>
@@ -657,16 +657,16 @@ function showProjectDetails(projectId) {
         alert('ID de projet invalide');
         return;
     }
-    
+
     // Création de la modal simple
     const modalId = 'projectDetailsModal';
-    
+
     // Supprimer l'ancienne modal si elle existe
     const existingModal = document.getElementById(modalId);
     if (existingModal) {
         existingModal.remove();
     }
-    
+
     // HTML de la modal
     const modalHTML = `
         <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
@@ -694,14 +694,14 @@ function showProjectDetails(projectId) {
             </div>
         </div>
     `;
-    
+
     // Ajouter la modal au DOM
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    
+
     // Afficher la modal
     const modal = new bootstrap.Modal(document.getElementById(modalId));
     modal.show();
-    
+
     // Appel AJAX pour récupérer les données
     loadProjectData(projectId);
 }
@@ -712,7 +712,7 @@ function showProjectDetails(projectId) {
  */
 function loadProjectData(projectId) {
     const url = `/evc/app/admin/projects/view/${projectId}`;
-    
+
     fetch(url, {
         method: 'GET',
         headers: {
@@ -754,26 +754,38 @@ function displayProjectData(project) {
             softwareList = project.software_used;
         }
     }
-    
-    // Traitement des fichiers
-    let filesHTML = '<p class="text-muted">Aucun fichier</p>';
-    if (project.images && project.images.length > 0) {
-        filesHTML = `
-            <div class="row">
-                ${project.images.map(file => `
-                    <div class="col-md-6 mb-2">
-                        <div class="card bg-secondary border-0">
-                            <div class="card-body p-2">
-                                <h6 class="card-title text-truncate mb-1">${file.original_name}</h6>
-                                <small class="text-muted">${file.file_size || 'Taille inconnue'}</small>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
+
+    // Galerie d'images
+    let galleryHTML = '<p class="text-muted">Aucun fichier</p>';
+    const images = Array.isArray(project.images) ? project.images : [];
+    const imageItems = images.filter(i => i && i.url);
+
+    if (imageItems.length > 0) {
+        galleryHTML = `
+            <div class="project-gallery" data-gallery>
+                <div class="project-gallery-main">
+                    <button type="button" class="gallery-nav-btn prev" data-gallery-prev title="Précédent">‹</button>
+                    <a href="#" data-gallery-open style="display:block;">
+                        <img src="${imageItems[0].url}" alt="${(imageItems[0].original_name || 'Image')}" data-gallery-main-img />
+                    </a>
+                    <button type="button" class="gallery-nav-btn next" data-gallery-next title="Suivant">›</button>
+                </div>
+
+                <div class="project-gallery-thumbs" data-gallery-thumbs>
+                    ${imageItems.map((img, idx) => `
+                        <button type="button" class="gallery-thumb ${idx === 0 ? 'active' : ''}" data-gallery-thumb data-index="${idx}" title="${img.original_name || ''}">
+                            <img src="${img.url}" alt="${img.original_name || 'Image'}" />
+                        </button>
+                    `).join('')}
+                </div>
+
+                <div class="project-gallery-meta text-white-50 mt-2" data-gallery-meta>
+                    <span data-gallery-count>${imageItems.length}</span> fichier(s)
+                </div>
             </div>
         `;
     }
-    
+
     // HTML du contenu
     const contentHTML = `
         <div class="row">
@@ -782,7 +794,7 @@ function displayProjectData(project) {
                     <h4 class="text-primary mb-3">${project.title}</h4>
                     <p class="mb-3">${project.description || 'Aucune description disponible'}</p>
                 </div>
-                
+
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <h6 class="text-primary">Informations</h6>
@@ -797,16 +809,143 @@ function displayProjectData(project) {
                         <p><strong>Fichiers:</strong> ${project.images ? project.images.length : 0}</p>
                     </div>
                 </div>
-                
+
                 <div>
                     <h6 class="text-primary mb-3">Fichiers associés</h6>
-                    ${filesHTML}
+                    ${galleryHTML}
                 </div>
             </div>
         </div>
     `;
-    
+
     document.getElementById('projectDetailsContent').innerHTML = contentHTML;
+
+    // Initialiser les events de la galerie
+    if (imageItems.length > 0) {
+        initProjectGallery(imageItems);
+    }
+}
+
+function initProjectGallery(images) {
+    const root = document.querySelector('[data-gallery]');
+    if (!root) return;
+
+    let currentIndex = 0;
+    const mainImg = root.querySelector('[data-gallery-main-img]');
+    const thumbs = root.querySelectorAll('[data-gallery-thumb]');
+    const btnPrev = root.querySelector('[data-gallery-prev]');
+    const btnNext = root.querySelector('[data-gallery-next]');
+    const btnOpen = root.querySelector('[data-gallery-open]');
+
+    const setIndex = (idx) => {
+        if (!mainImg) return;
+        if (idx < 0) idx = images.length - 1;
+        if (idx >= images.length) idx = 0;
+
+        currentIndex = idx;
+        const img = images[currentIndex];
+        mainImg.src = img.url;
+        mainImg.alt = img.original_name || 'Image';
+
+        thumbs.forEach(t => t.classList.remove('active'));
+        const active = root.querySelector(`[data-gallery-thumb][data-index="${currentIndex}"]`);
+        if (active) active.classList.add('active');
+    };
+
+    thumbs.forEach((t) => {
+        t.addEventListener('click', () => {
+            const idx = parseInt(t.getAttribute('data-index') || '0', 10);
+            setIndex(idx);
+        });
+    });
+
+    if (btnPrev) btnPrev.addEventListener('click', () => setIndex(currentIndex - 1));
+    if (btnNext) btnNext.addEventListener('click', () => setIndex(currentIndex + 1));
+
+    // Lightbox simple
+    if (btnOpen) {
+        btnOpen.addEventListener('click', (e) => {
+            e.preventDefault();
+            openGalleryLightbox(images, currentIndex, setIndex);
+        });
+    }
+
+    // Navigation clavier quand la modal est ouverte
+    document.addEventListener('keydown', function onKey(e) {
+        const modalEl = document.getElementById('projectDetailsModal');
+        if (!modalEl || !modalEl.classList.contains('show')) return;
+        if (e.key === 'ArrowLeft') setIndex(currentIndex - 1);
+        if (e.key === 'ArrowRight') setIndex(currentIndex + 1);
+    });
+}
+
+function openGalleryLightbox(images, startIndex, onChangeIndex) {
+    const existing = document.getElementById('galleryLightbox');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'galleryLightbox';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.background = 'rgba(0,0,0,0.85)';
+    overlay.style.zIndex = '999999';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.innerHTML = `
+        <div style="position: relative; width: min(1100px, 92vw);">
+            <button type="button" id="galleryLbClose" style="position:absolute; top:-44px; right:0; background:transparent; border:0; color:#fff; font-size:32px;">×</button>
+            <button type="button" id="galleryLbPrev" style="position:absolute; left:-10px; top:50%; transform:translate(-100%,-50%); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:#fff; width:44px; height:44px; border-radius:999px;">‹</button>
+            <button type="button" id="galleryLbNext" style="position:absolute; right:-10px; top:50%; transform:translate(100%,-50%); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:#fff; width:44px; height:44px; border-radius:999px;">›</button>
+            <img id="galleryLbImg" src="" alt="" style="width:100%; max-height:80vh; object-fit:contain; border-radius:12px; background:#111;" />
+            <div id="galleryLbCaption" style="color:rgba(255,255,255,0.8); margin-top:10px; font-size:14px;"></div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    let idx = startIndex || 0;
+    const imgEl = overlay.querySelector('#galleryLbImg');
+    const captionEl = overlay.querySelector('#galleryLbCaption');
+
+    const render = () => {
+        if (!images[idx]) return;
+        imgEl.src = images[idx].url;
+        imgEl.alt = images[idx].original_name || 'Image';
+        captionEl.textContent = images[idx].original_name || '';
+        if (typeof onChangeIndex === 'function') onChangeIndex(idx);
+    };
+
+    const close = () => overlay.remove();
+    overlay.querySelector('#galleryLbClose').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) close();
+    });
+
+    overlay.querySelector('#galleryLbPrev').addEventListener('click', () => {
+        idx = (idx - 1 + images.length) % images.length;
+        render();
+    });
+    overlay.querySelector('#galleryLbNext').addEventListener('click', () => {
+        idx = (idx + 1) % images.length;
+        render();
+    });
+
+    document.addEventListener('keydown', function onKey(e) {
+        const lb = document.getElementById('galleryLightbox');
+        if (!lb) return;
+        if (e.key === 'Escape') close();
+        if (e.key === 'ArrowLeft') {
+            idx = (idx - 1 + images.length) % images.length;
+            render();
+        }
+        if (e.key === 'ArrowRight') {
+            idx = (idx + 1) % images.length;
+            render();
+        }
+    });
+
+    render();
 }
 
 /**
@@ -852,7 +991,7 @@ function deleteTpFromProfile(tpId) {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce TP ? Cette action est irréversible.')) {
         return;
     }
-    
+
     // Afficher un loader
     const loadingModal = document.createElement('div');
     loadingModal.className = 'modal fade show';
@@ -871,26 +1010,26 @@ function deleteTpFromProfile(tpId) {
         </div>
     `;
     document.body.appendChild(loadingModal);
-    
+
     // Créer et soumettre le formulaire de suppression
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = `/evc/app/admin/tp/delete/${tpId}`;
-    
+
     // Token CSRF
     const csrfInput = document.createElement('input');
     csrfInput.type = 'hidden';
     csrfInput.name = '_token';
     csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     form.appendChild(csrfInput);
-    
+
     // Méthode DELETE
     const methodInput = document.createElement('input');
     methodInput.type = 'hidden';
     methodInput.name = '_method';
     methodInput.value = 'DELETE';
     form.appendChild(methodInput);
-    
+
     document.body.appendChild(form);
     form.submit();
 }
@@ -943,6 +1082,86 @@ function deleteTpFromProfile(tpId) {
 
 .card-header.bg-primary {
     border-radius: 0.375rem 0.375rem 0 0 !important;
+}
+
+.project-gallery {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 12px;
+}
+
+.project-gallery-main {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0b1220;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.project-gallery-main img {
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    display: block;
+}
+
+.gallery-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(0, 0, 0, 0.35);
+    color: #fff;
+    font-size: 26px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.gallery-nav-btn.prev {
+    left: 10px;
+}
+
+.gallery-nav-btn.next {
+    right: 10px;
+}
+
+.project-gallery-thumbs {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.gallery-thumb {
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 0;
+    width: 88px;
+    height: 64px;
+    overflow: hidden;
+    flex: 0 0 auto;
+    cursor: pointer;
+}
+
+.gallery-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.gallery-thumb.active {
+    border-color: #4fc3f7;
 }
 </style>
 @endpush
