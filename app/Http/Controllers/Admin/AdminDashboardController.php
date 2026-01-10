@@ -5273,7 +5273,7 @@ class AdminDashboardController extends Controller
     /**
      * Page pour voir tous les projets
      */
-    public function projetsAll()
+    public function projetsAll(Request $request)
     {
         $dayStart = now()->startOfDay();
         $weekStart = now()->startOfWeek();
@@ -5281,8 +5281,35 @@ class AdminDashboardController extends Controller
 
         $baseProjectsQuery = DB::table('projects');
 
+        $q = trim((string) $request->query('q', ''));
+        $status = trim((string) $request->query('status', ''));
+        $period = trim((string) $request->query('period', ''));
+
+        $applyFilters = function ($query) use ($q, $status, $period, $dayStart, $weekStart, $monthStart) {
+            if ($q !== '') {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('users.email', 'like', '%' . $q . '%')
+                        ->orWhere('students.first_name', 'like', '%' . $q . '%')
+                        ->orWhere('students.last_name', 'like', '%' . $q . '%')
+                        ->orWhereRaw("CONCAT(COALESCE(students.first_name,''),' ',COALESCE(students.last_name,'')) LIKE ?", ['%' . $q . '%']);
+                });
+            }
+
+            if ($status !== '') {
+                $query->where('projects.status', $status);
+            }
+
+            if ($period === 'today') {
+                $query->where('projects.created_at', '>=', $dayStart);
+            } elseif ($period === 'week') {
+                $query->where('projects.created_at', '>=', $weekStart);
+            } elseif ($period === 'month') {
+                $query->where('projects.created_at', '>=', $monthStart);
+            }
+        };
+
         // Récupérer tous les projets avec les informations des étudiants
-        $projects = DB::table('projects')
+        $projectsQuery = DB::table('projects')
             ->leftJoin('users', 'projects.user_id', '=', 'users.id')
             ->leftJoin('students', 'users.id', '=', 'students.user_id')
             ->select(
@@ -5297,7 +5324,11 @@ class AdminDashboardController extends Controller
                 $query->from('project_images')
                     ->selectRaw('COUNT(*)')
                     ->whereColumn('project_images.project_id', 'projects.id');
-            }, 'images_count')
+            }, 'images_count');
+
+        $applyFilters($projectsQuery);
+
+        $projects = $projectsQuery
             ->orderBy('projects.created_at', 'desc')
             ->paginate(25)
             ->withQueryString();

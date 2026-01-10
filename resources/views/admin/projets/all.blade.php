@@ -198,6 +198,51 @@
             <span class="badge bg-primary">{{ method_exists($projects, 'total') ? $projects->total() : $projects->count() }} projet(s)</span>
         </div>
         <div class="card-body">
+            <form method="GET" action="{{ url()->current() }}" class="mb-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-lg-5 col-md-12">
+                        <label class="form-label text-white-50">Rechercher un étudiant</label>
+                        <input
+                            type="text"
+                            name="q"
+                            class="form-control"
+                            placeholder="Nom, prénom, email..."
+                            value="{{ request('q') }}"
+                        />
+                    </div>
+
+                    <div class="col-lg-3 col-md-6">
+                        <label class="form-label text-white-50">Statut</label>
+                        <select name="status" class="form-select">
+                            <option value="">Tous</option>
+                            <option value="en_cours" @selected(request('status') === 'en_cours')>En cours</option>
+                            <option value="termine" @selected(request('status') === 'termine')>Terminé</option>
+                            <option value="valide" @selected(request('status') === 'valide')>Validé</option>
+                            <option value="rejete" @selected(request('status') === 'rejete')>Rejeté</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 col-md-6">
+                        <label class="form-label text-white-50">Période</label>
+                        <select name="period" class="form-select">
+                            <option value="">Toutes</option>
+                            <option value="today" @selected(request('period') === 'today')>Aujourd'hui</option>
+                            <option value="week" @selected(request('period') === 'week')>Semaine</option>
+                            <option value="month" @selected(request('period') === 'month')>Mois</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2 col-md-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-1"></i>Filtrer
+                        </button>
+                        <a href="{{ url()->current() }}" class="btn btn-outline-light w-100">
+                            <i class="fas fa-redo me-1"></i>Reset
+                        </a>
+                    </div>
+                </div>
+            </form>
+
             @if($projects->count() === 0)
                 <div class="text-center py-4 text-white-50">
                     <i class="fas fa-folder-open fa-3x mb-3"></i>
