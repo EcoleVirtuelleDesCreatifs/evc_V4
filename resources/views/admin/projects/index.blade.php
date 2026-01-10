@@ -544,7 +544,18 @@
                         @forelse($projects as $project)
                             @php
                                 // Gérer les deux cas: relations Eloquent OU colonnes plates (tp_assignments)
-                                $isDesignProject = $project instanceof \App\Models\DesignProject;
+                                $sourceTable = $project->source_table ?? null;
+                                $isDesignProject = ($project instanceof \App\Models\DesignProject) || ($sourceTable === 'design_projects');
+
+                                $viewUrl = null;
+                                if ($isDesignProject) {
+                                    $viewUrl = route('admin.design-projects.view', $project->id);
+                                } elseif ($sourceTable === 'tp') {
+                                    $viewUrl = route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']);
+                                } else {
+                                    // tp_assignments (par défaut) : le controller viewTp cherche d'abord dans tp_assignments
+                                    $viewUrl = route('admin.tp.view', ['id' => $project->id]);
+                                }
 
                                 // Si colonnes plates (tp_assignments, design_projects via DB::table)
                                 if (isset($project->prenom) || isset($project->nom)) {
@@ -599,7 +610,7 @@
 
                                     <!-- Titre du projet -->
                                     <div class="project-title">
-                                        <a href="{{ $isDesignProject ? route('admin.design-projects.view', $project->id) : route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']) }}">
+                                        <a href="{{ $viewUrl }}">
                                             {{ $project->title }}
                                         </a>
                                     </div>
@@ -633,7 +644,7 @@
 
                                     <!-- Boutons d'action -->
                                     <div class="action-buttons">
-                                        <a href="{{ $isDesignProject ? route('admin.design-projects.view', $project->id) : route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']) }}" class="btn btn-action btn-view" title="Voir">
+                                        <a href="{{ $viewUrl }}" class="btn btn-action btn-view" title="Voir">
                                             <i class="fas fa-eye"></i>
                                         </a>
 
