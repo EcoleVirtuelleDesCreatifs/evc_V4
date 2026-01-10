@@ -5211,8 +5211,32 @@ class AdminDashboardController extends Controller
     /**
      * Page pour envoyer/assigner des projets aux étudiants
      */
-    public function projetsToSend()
+    public function projetsToSend(Request $request)
     {
+        $defaultFormation = $request->query('formation');
+        if (!empty($defaultFormation)) {
+            $formationKey = strtolower(str_replace([' ', '_', '-'], '', (string) $defaultFormation));
+            $containsDesign = str_contains($formationKey, 'design');
+            $containsCommunity = str_contains($formationKey, 'community');
+
+            if ($containsDesign && $containsCommunity) {
+                $defaultFormation = 'Design Graphique & Community Management';
+            } else {
+                $defaultFormation = match ($formationKey) {
+                    'designgraphique' => 'Design Graphique',
+                    'communitymanagement' => 'Community Management',
+                    'gestioninformatique' => 'Gestion Informatique',
+                    'intelligenceartificielle' => 'Intelligence Artificielle',
+                    default => $defaultFormation,
+                };
+            }
+        }
+        $defaultStudentIds = [];
+        $defaultStudentId = $request->query('student_id');
+        if (!empty($defaultStudentId)) {
+            $defaultStudentIds = [(int) $defaultStudentId];
+        }
+
         // Récupérer tous les étudiants actifs avec leurs informations
         $students = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
@@ -5266,7 +5290,9 @@ class AdminDashboardController extends Controller
         return view('admin.projets.to-send', [
             'students' => $students,
             'all_students' => $all_students,
-            'stats' => $stats
+            'stats' => $stats,
+            'defaultFormation' => $defaultFormation,
+            'defaultStudentIds' => $defaultStudentIds,
         ]);
     }
 
@@ -5361,6 +5387,7 @@ class AdminDashboardController extends Controller
                     ->whereColumn('projects.user_id', 'students.user_id');
             })
             ->select(
+                'students.id as student_id',
                 'students.user_id',
                 'students.first_name',
                 'students.last_name',
@@ -5389,6 +5416,7 @@ class AdminDashboardController extends Controller
                     ->where('projects.status', 'en_cours');
             })
             ->select(
+                'students.id as student_id',
                 'students.user_id',
                 'students.first_name',
                 'students.last_name',

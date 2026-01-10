@@ -221,6 +221,7 @@
                                     <tr>
                                         <th>Étudiant</th>
                                         <th>Formation</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -244,6 +245,14 @@
                                             </td>
                                             <td>
                                                 <span class="badge bg-info">{{ $student->formation ?? 'N/A' }}</span>
+                                            </td>
+                                            <td>
+                                                <a
+                                                    href="{{ route('admin.projets.to-send', ['formation' => $student->formation, 'student_id' => $student->student_id]) }}"
+                                                    class="btn btn-sm btn-primary"
+                                                >
+                                                    Créer un projet
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -272,6 +281,7 @@
                                         <th>Étudiant</th>
                                         <th>Formation</th>
                                         <th>Dernier projet</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -302,6 +312,14 @@
                                                 @else
                                                     N/A
                                                 @endif
+                                            </td>
+                                            <td>
+                                                <a
+                                                    href="{{ route('admin.projets.to-send', ['formation' => $student->formation, 'student_id' => $student->student_id]) }}"
+                                                    class="btn btn-sm btn-primary"
+                                                >
+                                                    Créer un projet
+                                                </a>
                                             </td>
                                         </tr>
                                     @endforeach

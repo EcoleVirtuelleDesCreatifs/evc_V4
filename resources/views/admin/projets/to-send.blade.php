@@ -340,15 +340,24 @@
                             <!-- Sélection étudiants spécifiques -->
                             <div class="form-group" id="studentsSelectContainer" style="display: none;">
                                 <label for="students">
-                                    Étudiants spécifiques
+                                    Sélectionner les étudiants spécifiques (optionnel)
                                 </label>
                                 <select class="form-select"
                                         id="students"
                                         name="students[]"
                                         multiple
                                         size="10">
+                                    @php
+                                        $oldStudents = old('students');
+                                        if (!is_array($oldStudents)) {
+                                            $oldStudents = $oldStudents ? [$oldStudents] : [];
+                                        }
+                                        if (empty($oldStudents) && !empty($defaultStudentIds) && is_array($defaultStudentIds)) {
+                                            $oldStudents = $defaultStudentIds;
+                                        }
+                                    @endphp
                                     @foreach($students as $student)
-                                        <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}">
+                                        <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}" {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
                                             {{ $student->first_name }} {{ $student->last_name }}
                                             @if($student->email)
                                                 ({{ $student->email }})

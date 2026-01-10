@@ -592,9 +592,30 @@
                 </div>
 
                 <div class="text-center mb-4">
-                    <div class="student-avatar mx-auto mb-3">
-                        {{ substr($tp->first_name, 0, 1) }}{{ substr($tp->last_name, 0, 1) }}
-                    </div>
+                    @php
+                        $profilePhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($tp->profile_photo ?? null);
+                        $avatarUrl = null;
+
+                        if (!empty($tp->profile_photo) && !empty($profilePhotoUrl)) {
+                            $avatarUrl = $profilePhotoUrl;
+                        } elseif (!empty($submittedFiles) && $submittedFiles->count() > 0) {
+                            $firstFile = $submittedFiles->first();
+                            $mime = strtolower((string) ($firstFile->mime_type ?? ''));
+                            if (str_starts_with($mime, 'image/')) {
+                                $avatarUrl = \App\Models\MediaUrl::fromPath($firstFile->file_path ?? null);
+                            }
+                        }
+
+                        $initials = substr($tp->first_name ?? 'U', 0, 1) . substr($tp->last_name ?? 'U', 0, 1);
+                    @endphp
+
+                    @if(!empty($avatarUrl))
+                        <img src="{{ $avatarUrl }}" alt="{{ $tp->first_name ?? 'Étudiant' }}" class="rounded-circle mx-auto mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+                    @else
+                        <div class="student-avatar mx-auto mb-3">
+                            {{ $initials }}
+                        </div>
+                    @endif
                     <h4 style="color: var(--admin-blue-dark);">{{ $tp->first_name }} {{ $tp->last_name }}</h4>
                     <p class="text-muted mb-0">{{ $tp->formation }}</p>
                 </div>
