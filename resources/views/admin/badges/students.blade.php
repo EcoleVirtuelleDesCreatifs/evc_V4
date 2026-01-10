@@ -200,20 +200,22 @@
         z-index: 2;
         background: rgba(15,23,42,0.55);
         border-bottom: 1px solid rgba(255,255,255,0.10);
-        padding: 1.2rem 1.1rem 1rem;
-        display: grid;
-        grid-template-columns: 92px 1fr;
-        gap: 1rem;
+        padding: 1.35rem 1.1rem 1.1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: .85rem;
         backdrop-filter: blur(10px);
     }
 
     .evc-title-block {
-        grid-column: 1 / -1;
+        width: 100%;
         display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: .75rem;
-        margin-bottom: .5rem;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: .6rem;
     }
 
     .evc-formation-pill {
@@ -225,7 +227,8 @@
         font-weight: 900;
         box-shadow: 0 18px 55px rgba(0,0,0,0.35);
         font-size: .95rem;
-        white-space: nowrap;
+        max-width: 100%;
+        white-space: normal;
     }
 
     /* Thèmes formation */
@@ -264,7 +267,7 @@
 
     .student-meta {
         min-width: 0;
-        flex: 1;
+        width: 100%;
     }
 
     .student-name {
@@ -327,6 +330,14 @@
         backdrop-filter: blur(10px);
     }
 
+    .student-card-body .meta-row {
+        justify-content: center;
+    }
+
+    .student-card-body .meta-pill {
+        text-align: center;
+    }
+
     .meta-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -374,6 +385,7 @@
         display: flex;
         gap: .5rem;
         flex-wrap: wrap;
+        justify-content: center;
     }
 
     .export-btn {
