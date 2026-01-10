@@ -14,9 +14,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="{{ asset('assets/css/loading.css') }}" rel="stylesheet">
     <style>
         :root{--evc-blue:#003366;--evc-sky:#3399ff;--evc-orange:#ff6633;--evc-dark:#0b1220;}
+        html, body{height:auto !important;overflow-y:auto !important;}
         body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0a0a0a;min-height:100vh;color:#f1f5f9;}
 
         .legal-page{min-height:100vh;background:#0a0a0a;color:#f1f5f9;padding:120px 20px 80px;}
