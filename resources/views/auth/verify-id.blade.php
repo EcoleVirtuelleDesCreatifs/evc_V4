@@ -14,6 +14,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="{{ asset('assets/css/loading.css') }}" rel="stylesheet">
     <style>
         :root{--evc-blue:#003366;--evc-sky:#3399ff;--evc-orange:#ff6633;--evc-dark:#0b1220;}
         body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(135deg,var(--evc-blue) 0%,var(--evc-sky) 50%,var(--evc-orange) 100%);min-height:100vh;}
@@ -56,6 +57,26 @@
             radial-gradient(circle closest-side, rgba(255,255,255,0.95) 92%, transparent) 100% 50%/10px 10px no-repeat;
             filter: drop-shadow(0 6px 16px rgba(255,255,255,0.18));animation: evcDots 1.05s infinite ease-in-out;}
         @keyframes evcDots{0%,100%{transform:translateY(0);opacity:.55;background-position:0% 55%,50% 50%,100% 45%;}50%{transform:translateY(-1px);opacity:1;background-position:0% 45%,50% 55%,100% 50%;}}
+
+        .verify-overlay{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;background:linear-gradient(135deg,#063E77 0%,#2071C3 50%,#3399ff 100%);}
+        .verify-overlay.show{display:flex;}
+        .verify-overlay .particles{position:absolute;inset:0;opacity:.45;pointer-events:none;}
+        .verify-overlay .particle{position:absolute;width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,.20);filter:blur(.2px);animation: verifyFloat 10s infinite ease-in-out;}
+        .verify-overlay .particle:nth-child(1){top:12%;left:10%;animation-duration:12s;}
+        .verify-overlay .particle:nth-child(2){top:22%;left:75%;animation-duration:16s;}
+        .verify-overlay .particle:nth-child(3){top:68%;left:18%;animation-duration:14s;}
+        .verify-overlay .particle:nth-child(4){top:78%;left:82%;animation-duration:18s;}
+        .verify-overlay .particle:nth-child(5){top:40%;left:50%;animation-duration:20s;}
+        @keyframes verifyFloat{0%,100%{transform:translateY(0) translateX(0) scale(1);}50%{transform:translateY(-20px) translateX(10px) scale(1.2);}}
+        .verify-overlay .panel{position:relative;z-index:2;width:min(680px,92vw);background:rgba(0,0,0,.20);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.16);border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.38);padding:28px 22px;color:#fff;text-align:center;}
+        .verify-overlay .panel h2{font-weight:900;letter-spacing:-.02em;margin:0;}
+        .verify-overlay .panel p{margin:10px 0 0;opacity:.9;}
+        .verify-overlay .badge{display:inline-flex;align-items:center;gap:.5rem;border-radius:999px;padding:.55rem .9rem;background:rgba(0,0,0,.20);border:1px solid rgba(255,255,255,.18);font-weight:700;}
+        .verify-overlay .spinner{width:62px;height:62px;border-radius:999px;border:4px solid rgba(255,255,255,.22);border-top-color:#fff;animation: verifySpin .9s linear infinite;margin:18px auto 10px;}
+        @keyframes verifySpin{to{transform:rotate(360deg);}}
+        .verify-overlay .progress{height:10px;background:rgba(0,0,0,.18);border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.16);}
+        .verify-overlay .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#ff6633 0%,#FF9900 40%,#ffffff 100%);transition:width .25s linear;}
+        .verify-overlay .progress-text{margin-top:10px;font-weight:800;opacity:.95;}
     </style>
 </head>
 <body>
@@ -264,11 +285,38 @@
         </div>
     </div>
 
+    <div class="verify-overlay" id="verifyOverlay" aria-hidden="true">
+        <div class="particles" aria-hidden="true">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        <div class="panel">
+            <div style="font-weight:900;letter-spacing:.18em;opacity:.92;font-size:.8rem;">VÉRIFICATION EVC</div>
+            <h2 class="mt-2">Vérification en cours…</h2>
+            <p id="verifyOverlayDesc">Nous contrôlons l'ID et récupérons les informations officielles.</p>
+            <div class="mt-3 d-flex justify-content-center">
+                <span class="badge"><i class="fas fa-id-card"></i><span id="verifyOverlayId">—</span></span>
+            </div>
+            <div class="spinner" aria-hidden="true"></div>
+            <div class="progress mt-3" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="progress-bar" id="verifyOverlayBar"></div>
+            </div>
+            <div class="progress-text" id="verifyOverlayPct">0%</div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const verifyIdBtn = document.getElementById('verifyIdBtn');
         const verifyIdText = document.getElementById('verifyIdText');
         const verifyIdSpinner = document.getElementById('verifyIdSpinner');
+        const verifyOverlay = document.getElementById('verifyOverlay');
+        const verifyOverlayId = document.getElementById('verifyOverlayId');
+        const verifyOverlayBar = document.getElementById('verifyOverlayBar');
+        const verifyOverlayPct = document.getElementById('verifyOverlayPct');
         if (verifyIdBtn) {
             const form = verifyIdBtn.closest('form');
             if (form) {
@@ -277,6 +325,32 @@
                     verifyIdBtn.disabled = true;
                     if (verifyIdText) verifyIdText.style.display = 'none';
                     if (verifyIdSpinner) verifyIdSpinner.style.display = 'inline-block';
+
+                    const input = form.querySelector('input[name="student_id"]');
+                    const enteredId = input ? (input.value || '').trim() : '';
+                    if (verifyOverlay) {
+                        verifyOverlay.classList.add('show');
+                        verifyOverlay.setAttribute('aria-hidden', 'false');
+                    }
+                    if (verifyOverlayId) {
+                        verifyOverlayId.textContent = enteredId !== '' ? enteredId : '—';
+                    }
+
+                    const durationMs = 10000;
+                    const start = Date.now();
+                    if (verifyOverlayBar) verifyOverlayBar.style.width = '0%';
+                    if (verifyOverlayPct) verifyOverlayPct.textContent = '0%';
+
+                    const timer = window.setInterval(function() {
+                        const elapsed = Date.now() - start;
+                        const pct = Math.max(0, Math.min(100, Math.round((elapsed / durationMs) * 100)));
+                        if (verifyOverlayBar) verifyOverlayBar.style.width = pct + '%';
+                        if (verifyOverlayPct) verifyOverlayPct.textContent = pct + '%';
+                        if (elapsed >= durationMs) {
+                            window.clearInterval(timer);
+                        }
+                    }, 120);
+
                     window.setTimeout(function() {
                         form.submit();
                     }, 10000);
