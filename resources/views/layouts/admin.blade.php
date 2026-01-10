@@ -228,6 +228,25 @@
                         </a>
                     </li>
 
+                    <!-- Séparateur : Gestion des Badges -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-id-badge me-2"></i>GESTION DES BADGE
+                    </li>
+
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.badges.students.active') }}" class="admin-nav-link {{ request()->routeIs('admin.badges.students.active') ? 'active' : '' }}">
+                            <i class="fas fa-user-check"></i>
+                            Étudiants Actifs
+                        </a>
+                    </li>
+
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.badges.students.inactive') }}" class="admin-nav-link {{ request()->routeIs('admin.badges.students.inactive') ? 'active' : '' }}">
+                            <i class="fas fa-user-slash"></i>
+                            Étudiants Inactifs
+                        </a>
+                    </li>
+
                     <!-- Projets Design Graphique -->
                     @php
                         $isDesignGraphiqueMenuActive = request()->routeIs('admin.projets.design-graphique.*')

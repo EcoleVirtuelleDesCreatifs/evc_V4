@@ -1062,6 +1062,11 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/projets/send', [AdminDashboardController::class, 'sendProjects'])->name('projets.send');
         Route::get('/projets/all', [AdminDashboardController::class, 'projetsAll'])->name('projets.all');
 
+        // Gestion des Badges
+        Route::get('/badges/students/active', [\App\Http\Controllers\Admin\BadgeAdminController::class, 'active'])->name('badges.students.active');
+        Route::get('/badges/students/inactive', [\App\Http\Controllers\Admin\BadgeAdminController::class, 'inactive'])->name('badges.students.inactive');
+        Route::get('/badges/students/{id}/generate', [\App\Http\Controllers\Admin\BadgeAdminController::class, 'generate'])->whereNumber('id')->name('badges.generate');
+
         // Gestion des Articles - Événements
         Route::get('/articles/evenements', [App\Http\Controllers\Admin\EvenementController::class, 'index'])->name('articles.evenements');
         Route::get('/articles/evenements/create', [App\Http\Controllers\Admin\EvenementController::class, 'create'])->name('articles.evenements.create');
