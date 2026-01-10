@@ -34,6 +34,7 @@ class BadgeAdminController extends Controller
                 'students.last_name',
                 'students.country',
                 'students.program',
+                'students.specialization',
                 'students.profile_photo',
                 'students.created_at',
                 'users.email',
@@ -130,6 +131,7 @@ class BadgeAdminController extends Controller
                     'students.first_name',
                     'students.last_name',
                     'students.program',
+                    'students.specialization',
                     DB::raw('COALESCE(p.projects_validated, 0) as projects_validated'),
                     DB::raw('COALESCE(t.tp_validated, 0) as tp_validated'),
                     DB::raw('(COALESCE(p.projects_validated, 0) + COALESCE(t.tp_validated, 0)) as total_score')

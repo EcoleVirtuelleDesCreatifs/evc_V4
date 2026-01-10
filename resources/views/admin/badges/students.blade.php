@@ -522,8 +522,13 @@
                                                     </div>
                                                     <div class="text-white-50" style="font-size:.85rem;">
                                                         {{ $p->student_id ?? '—' }}
-                                                        @if(!empty($p->program))
-                                                            • {{ $p->program }}
+                                                        @php
+                                                            $pProgram = (string) ($p->program ?? '');
+                                                            $pSpecialization = (string) ($p->specialization ?? '');
+                                                            $pFormationLabel = trim($pProgram) !== '' ? $pProgram : (trim($pSpecialization) !== '' ? $pSpecialization : 'Formation EVC');
+                                                        @endphp
+                                                        @if(!empty($pFormationLabel))
+                                                            • {{ $pFormationLabel }}
                                                         @endif
                                                     </div>
                                                 </div>
@@ -617,6 +622,8 @@
                 $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
                 $initials = substr($student->first_name ?? 'U', 0, 1) . substr($student->last_name ?? 'U', 0, 1);
                 $progRaw = (string) ($student->program ?? '');
+                $specRaw = (string) ($student->specialization ?? '');
+                $formationLabel = trim($progRaw) !== '' ? $progRaw : (trim($specRaw) !== '' ? $specRaw : 'Formation EVC');
                 $prog = strtolower($progRaw);
                 $hasDesign = strpos($prog, 'design') !== false;
                 $hasCommunity = (strpos($prog, 'community') !== false) || (strpos($prog, 'manager') !== false) || (strpos($prog, 'management') !== false);
@@ -632,7 +639,7 @@
                                 ÉTUDIANT(E) EVC
                                 <small>CARTE DIGITALE OFFICIELLE</small>
                             </div>
-                            <div class="evc-formation-pill">{{ $student->program ?? 'Formation' }}</div>
+                            <div class="evc-formation-pill">{{ $formationLabel }}</div>
                         </div>
 
                         @if(!empty($student->profile_photo) && !empty($photoUrl))
@@ -664,7 +671,7 @@
                             </div>
                             <div class="meta-pill">
                                 <strong>Formation</strong>
-                                <div>{{ $student->program ?? 'N/A' }}</div>
+                                <div>{{ $formationLabel }}</div>
                             </div>
                         </div>
 
