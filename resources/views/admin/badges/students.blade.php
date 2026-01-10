@@ -34,6 +34,23 @@
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
 
+    /* Palettes demandées */
+    .stat-card-actifs {
+        background: linear-gradient(135deg, #1b3a7a 0%, #2a4f9c 100%);
+    }
+
+    .stat-card-dg {
+        background: linear-gradient(135deg, var(--evc-dg) 0%, var(--evc-dg-2) 100%);
+    }
+
+    .stat-card-dgcm {
+        background: linear-gradient(135deg, var(--evc-dgcm) 0%, var(--evc-dgcm-2) 100%);
+    }
+
+    .stat-card-cm {
+        background: linear-gradient(135deg, var(--evc-cm-1) 0%, var(--evc-cm-2) 35%, var(--evc-cm-3) 70%, var(--evc-cm-4) 100%);
+    }
+
     .stat-icon {
         width: 60px;
         height: 60px;
@@ -100,43 +117,108 @@
         color: rgba(255,255,255,0.55);
     }
 
+    :root {
+        --evc-dg: #41c7ff;
+        --evc-dg-2: #1ea7ff;
+        --evc-dgcm: #f59e0b;
+        --evc-dgcm-2: #d97706;
+        --evc-cm-1: #833AB4;
+        --evc-cm-2: #C13584;
+        --evc-cm-3: #E1306C;
+        --evc-cm-4: #F56040;
+    }
+
     .student-card {
-        background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
-        border: 1px solid rgba(255,255,255,0.10);
-        border-radius: 18px;
+        position: relative;
+        border-radius: 22px;
         overflow: hidden;
         height: 100%;
-        box-shadow: 0 10px 26px rgba(0,0,0,0.28);
+        border: 1px solid rgba(255,255,255,0.12);
+        box-shadow:
+            0 18px 50px rgba(0,0,0,0.35),
+            inset 0 1px 0 rgba(255,255,255,0.06);
+        background: linear-gradient(135deg, rgba(15,23,42,0.75) 0%, rgba(30,41,59,0.65) 50%, rgba(15,23,42,0.85) 100%);
+        transform: translateZ(0);
     }
 
     .student-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 40px rgba(0,0,0,0.35);
-        border-color: rgba(79,195,247,0.55);
-        transition: all .18s ease;
+        transform: translateY(-8px);
+        border-color: rgba(255,255,255,0.22);
+        box-shadow:
+            0 26px 80px rgba(0,0,0,0.45),
+            inset 0 1px 0 rgba(255,255,255,0.10);
+        transition: all .22s ease;
+    }
+
+    .student-card::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        background: var(--theme-bg, linear-gradient(135deg, var(--evc-dg) 0%, var(--evc-dg-2) 100%));
+        opacity: 0.22;
+        filter: blur(0px);
+        z-index: 0;
+    }
+
+    .student-card::after {
+        content: 'ÉTUDIANT(E) EVC';
+        position: absolute;
+        left: 14px;
+        top: 10px;
+        font-weight: 950;
+        font-size: 1.15rem;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.86);
+        z-index: 2;
+        pointer-events: none;
+        text-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+
+    .student-card-watermark {
+        position: absolute;
+        right: -30px;
+        bottom: 10px;
+        font-weight: 950;
+        font-size: 3.3rem;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.06);
+        transform: rotate(-8deg);
+        z-index: 1;
+        pointer-events: none;
+        user-select: none;
+        white-space: nowrap;
     }
 
     .student-card-header {
-        background: rgba(15,23,42,0.9);
+        position: relative;
+        z-index: 2;
+        background: rgba(15,23,42,0.55);
         border-bottom: 1px solid rgba(255,255,255,0.10);
-        padding: 1rem;
+        padding: 3rem 1rem 1rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 1rem;
+        backdrop-filter: blur(10px);
     }
 
     /* Thèmes formation */
-    .theme-dg .student-card-header {
-        background: linear-gradient(135deg, rgba(79,195,247,0.30) 0%, rgba(30,60,114,0.42) 60%, rgba(15,23,42,1) 100%);
-    }
+    .theme-dg { --theme-bg: linear-gradient(135deg, var(--evc-dg) 0%, var(--evc-dg-2) 100%); }
+    .theme-dgcm { --theme-bg: linear-gradient(135deg, var(--evc-dgcm) 0%, var(--evc-dgcm-2) 100%); }
+    .theme-cm { --theme-bg: linear-gradient(135deg, var(--evc-cm-1) 0%, var(--evc-cm-2) 35%, var(--evc-cm-3) 70%, var(--evc-cm-4) 100%); }
 
+    .theme-dg .student-card-header,
+    .theme-dgcm .student-card-header,
     .theme-cm .student-card-header {
-        background: linear-gradient(135deg, rgba(131,58,180,0.42) 0%, rgba(193,53,132,0.42) 38%, rgba(225,48,108,0.32) 70%, rgba(245,96,64,0.24) 100%);
+        background: rgba(15,23,42,0.45);
     }
 
-    .theme-dgcm .student-card-header {
-        background: linear-gradient(135deg, rgba(79,195,247,0.30) 0%, rgba(30,60,114,0.42) 55%, rgba(245,158,11,0.26) 100%);
+    .theme-dg .student-avatar,
+    .theme-dgcm .student-avatar,
+    .theme-cm .student-avatar {
+        box-shadow: 0 16px 45px rgba(0,0,0,0.35);
     }
 
     .student-avatar {
@@ -199,7 +281,11 @@
     }
 
     .student-card-body {
+        position: relative;
+        z-index: 2;
         padding: 1rem;
+        background: rgba(15,23,42,0.35);
+        backdrop-filter: blur(10px);
     }
 
     .meta-row {
@@ -211,7 +297,7 @@
 
     .meta-pill {
         background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.10);
         border-radius: 12px;
         padding: .75rem;
         color: rgba(255,255,255,0.85);
@@ -221,10 +307,28 @@
     .meta-pill strong {
         display: block;
         font-size: .75rem;
-        color: rgba(255,255,255,0.6);
+        color: rgba(255,255,255,0.72);
         text-transform: uppercase;
         letter-spacing: .06em;
         margin-bottom: .25rem;
+    }
+
+    .evc-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .35rem .6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.16);
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.92);
+        font-weight: 800;
+        font-size: .78rem;
+    }
+
+    .evc-chip.theme {
+        background: var(--theme-bg);
+        border-color: rgba(255,255,255,0.22);
     }
 
     .actions-row {
@@ -257,7 +361,7 @@
     @if($status === 'active')
         <div class="row mb-4">
             <div class="col-md-3 mb-3">
-                <div class="stat-card">
+                <div class="stat-card stat-card-actifs">
                     <div class="stat-icon"><i class="fas fa-users"></i></div>
                     <div class="stat-content">
                         <h3 class="stat-number">{{ $stats['total'] ?? 0 }}</h3>
@@ -266,7 +370,7 @@
                 </div>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="stat-card stat-card-primary">
+                <div class="stat-card stat-card-dg">
                     <div class="stat-icon"><i class="fas fa-palette"></i></div>
                     <div class="stat-content">
                         <h3 class="stat-number">{{ $stats['design_graphique'] ?? 0 }}</h3>
@@ -275,7 +379,7 @@
                 </div>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="stat-card stat-card-success">
+                <div class="stat-card stat-card-cm">
                     <div class="stat-icon"><i class="fas fa-users"></i></div>
                     <div class="stat-content">
                         <h3 class="stat-number">{{ $stats['community_management'] ?? 0 }}</h3>
@@ -284,7 +388,7 @@
                 </div>
             </div>
             <div class="col-md-3 mb-3">
-                <div class="stat-card stat-card-warning">
+                <div class="stat-card stat-card-dgcm">
                     <div class="stat-icon"><i class="fas fa-object-group"></i></div>
                     <div class="stat-content">
                         <h3 class="stat-number">{{ $stats['design_graphique_cm'] ?? 0 }}</h3>
@@ -296,7 +400,7 @@
 
         <div class="row mb-4">
             <div class="col-md-4 mb-3">
-                <div class="stat-card stat-card-primary">
+                <div class="stat-card stat-card-actifs">
                     <div class="stat-icon"><i class="fas fa-bolt"></i></div>
                     <div class="stat-content">
                         <h3 class="stat-number">{{ $stats['new_today'] ?? 0 }}</h3>
@@ -305,7 +409,7 @@
                 </div>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="stat-card stat-card-success">
+                <div class="stat-card stat-card-cm">
                     <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
                     <div class="stat-content">
                         <h3 class="stat-number">{{ $stats['new_since_saturday'] ?? 0 }}</h3>
@@ -314,7 +418,7 @@
                 </div>
             </div>
             <div class="col-md-4 mb-3">
-                <div class="stat-card stat-card-warning">
+                <div class="stat-card stat-card-dgcm">
                     <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
                     <div class="stat-content">
                         <h3 class="stat-number">{{ $stats['new_month'] ?? 0 }}</h3>
@@ -468,6 +572,7 @@
             @endphp
             <div class="col-xl-4 col-lg-4 col-md-6">
                 <div class="student-card {{ $theme }}" data-student-card data-filter="{{ $filterKey }}" data-search="{{ strtolower(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->student_id ?? '') . ' ' . ($student->country ?? '') . ' ' . $progRaw) }}">
+                    <div class="student-card-watermark">EVC</div>
                     <div class="student-card-header">
                         @if(!empty($student->profile_photo) && !empty($photoUrl))
                             <img src="{{ $photoUrl }}" alt="{{ $student->first_name ?? 'Étudiant' }}" class="student-avatar" />
@@ -478,6 +583,11 @@
                         <div class="student-meta">
                             <p class="student-name">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</p>
                             <p class="student-sub">ID Étudiant: {{ $student->student_id ?? '—' }}</p>
+                            @if(!empty($student->program))
+                                <div class="mt-2">
+                                    <span class="evc-chip theme">{{ $student->program }}</span>
+                                </div>
+                            @endif
                         </div>
 
                         @if($status === 'inactive')
