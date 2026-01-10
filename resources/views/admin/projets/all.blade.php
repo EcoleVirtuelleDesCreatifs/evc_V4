@@ -40,6 +40,10 @@
         background: linear-gradient(135deg, #e74a3b 0%, #be2617 100%);
     }
 
+    .stat-card-cyan {
+        background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%);
+    }
+
     .stat-icon {
         width: 60px;
         height: 60px;
@@ -154,9 +158,17 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-md-2 mb-3">
-            <div class="stat-card">
+    <div class="row mb-4">
+        <div class="col-12 mb-2">
+            <div class="text-white-50" style="font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; font-size: 0.8rem;">
+                Créations
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="stat-card stat-card-cyan">
                 <div class="stat-icon">
                     <i class="fas fa-calendar-day"></i>
                 </div>
@@ -167,8 +179,8 @@
             </div>
         </div>
 
-        <div class="col-md-2 mb-3">
-            <div class="stat-card">
+        <div class="col-md-4 mb-3">
+            <div class="stat-card stat-card-primary">
                 <div class="stat-icon">
                     <i class="fas fa-calendar-week"></i>
                 </div>
@@ -179,8 +191,8 @@
             </div>
         </div>
 
-        <div class="col-md-2 mb-3">
-            <div class="stat-card">
+        <div class="col-md-4 mb-3">
+            <div class="stat-card stat-card-success">
                 <div class="stat-icon">
                     <i class="fas fa-calendar-alt"></i>
                 </div>
