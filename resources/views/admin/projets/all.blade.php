@@ -195,10 +195,10 @@
     <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
         <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
             <h5 class="mb-0 text-white"><i class="fas fa-list me-2"></i>Liste Complète des Projets</h5>
-            <span class="badge bg-primary">{{ $projects->count() }} projet(s)</span>
+            <span class="badge bg-primary">{{ method_exists($projects, 'total') ? $projects->total() : $projects->count() }} projet(s)</span>
         </div>
         <div class="card-body">
-            @if($projects->isEmpty())
+            @if($projects->count() === 0)
                 <div class="text-center py-4 text-white-50">
                     <i class="fas fa-folder-open fa-3x mb-3"></i>
                     <div>Aucun projet pour le moment.</div>
@@ -211,7 +211,6 @@
                                 <th>Étudiant</th>
                                 <th>Titre du Projet</th>
                                 <th>Formation</th>
-                                <th>Catégorie</th>
                                 <th>Statut</th>
                                 <th>Images</th>
                                 <th>Date</th>
@@ -223,23 +222,29 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px; font-weight: 700;">
-                                                {{ substr($project->first_name ?? 'U', 0, 1) }}{{ substr($project->last_name ?? 'U', 0, 1) }}
-                                            </div>
+                                            @php
+                                                $studentPhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($project->profile_photo ?? null);
+                                                $studentInitials = substr($project->first_name ?? 'U', 0, 1) . substr($project->last_name ?? 'U', 0, 1);
+                                            @endphp
+
+                                            @if(!empty($project->profile_photo) && !empty($studentPhotoUrl))
+                                                <img src="{{ $studentPhotoUrl }}" alt="{{ $project->first_name ?? 'Étudiant' }}" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                            @else
+                                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px; font-weight: 700;">
+                                                    {{ $studentInitials }}
+                                                </div>
+                                            @endif
                                             <div>
                                                 <div class="fw-medium">{{ $project->first_name ?? 'Inconnu' }} {{ $project->last_name ?? '' }}</div>
-                                                <small class="text-muted">{{ $project->student_email ?? 'N/A' }}</small>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="fw-medium">{{ $project->title }}</div>
-                                        <small class="text-muted">{{ Str::limit(strip_tags($project->description ?? ''), 50) }}</small>
                                     </td>
                                     <td>
                                         <span class="badge bg-info">{{ $project->formation ?? 'N/A' }}</span>
                                     </td>
-                                    <td>{{ $project->category ?? 'N/A' }}</td>
                                     <td>
                                         <span class="status-badge {{ $project->status }}">{{ $project->status }}</span>
                                     </td>
@@ -256,6 +261,10 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                <div class="d-flex justify-content-center mt-4">
+                    {{ $projects->links('pagination::bootstrap-5') }}
                 </div>
             @endif
         </div>

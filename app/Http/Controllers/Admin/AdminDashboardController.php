@@ -5279,6 +5279,8 @@ class AdminDashboardController extends Controller
         $weekStart = now()->startOfWeek();
         $monthStart = now()->startOfMonth();
 
+        $baseProjectsQuery = DB::table('projects');
+
         // Récupérer tous les projets avec les informations des étudiants
         $projects = DB::table('projects')
             ->leftJoin('users', 'projects.user_id', '=', 'users.id')
@@ -5291,31 +5293,29 @@ class AdminDashboardController extends Controller
                 'students.program as formation',
                 'students.profile_photo'
             )
+            ->selectSub(function ($query) {
+                $query->from('project_images')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('project_images.project_id', 'projects.id');
+            }, 'images_count')
             ->orderBy('projects.created_at', 'desc')
-            ->get();
-
-        // Pour chaque projet, récupérer le nombre d'images
-        $projects = $projects->map(function ($project) {
-            $project->images_count = DB::table('project_images')
-                ->where('project_id', $project->id)
-                ->count();
-            return $project;
-        });
+            ->paginate(25)
+            ->withQueryString();
 
         // Calculer les statistiques
         $stats = [
-            'total' => $projects->count(),
-            'en_cours' => $projects->where('status', 'en_cours')->count(),
-            'termine' => $projects->where('status', 'termine')->count(),
-            'valide' => $projects->where('status', 'valide')->count(),
-            'rejete' => $projects->where('status', 'rejete')->count(),
-            'created_today' => DB::table('projects')
+            'total' => (clone $baseProjectsQuery)->count(),
+            'en_cours' => (clone $baseProjectsQuery)->where('status', 'en_cours')->count(),
+            'termine' => (clone $baseProjectsQuery)->where('status', 'termine')->count(),
+            'valide' => (clone $baseProjectsQuery)->where('status', 'valide')->count(),
+            'rejete' => (clone $baseProjectsQuery)->where('status', 'rejete')->count(),
+            'created_today' => (clone $baseProjectsQuery)
                 ->where('created_at', '>=', $dayStart)
                 ->count(),
-            'created_week' => DB::table('projects')
+            'created_week' => (clone $baseProjectsQuery)
                 ->where('created_at', '>=', $weekStart)
                 ->count(),
-            'created_month' => DB::table('projects')
+            'created_month' => (clone $baseProjectsQuery)
                 ->where('created_at', '>=', $monthStart)
                 ->count(),
         ];
