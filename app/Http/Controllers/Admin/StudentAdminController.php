@@ -617,6 +617,22 @@ class StudentAdminController extends Controller
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
+
+            // Charger les fichiers TP (si dispo) pour galerie images
+            if ($tps->isNotEmpty() && Schema::hasTable('tp_files')) {
+                $tpIds = $tps->pluck('id')->map(fn ($v) => (int) $v)->filter()->values()->all();
+                if (!empty($tpIds)) {
+                    $filesByTp = DB::table('tp_files')
+                        ->whereIn('tp_id', $tpIds)
+                        ->orderBy('created_at', 'desc')
+                        ->get()
+                        ->groupBy('tp_id');
+
+                    foreach ($tps as $tp) {
+                        $tp->tp_files = $filesByTp[$tp->id] ?? collect();
+                    }
+                }
+            }
         }
 
         // Statistiques des TPs
@@ -653,8 +669,12 @@ class StudentAdminController extends Controller
         // Total formation par défaut (système par tranche): 50 000 (1ère tranche) + 27 000 (2ème tranche)
         $totalFactures = 77000;
         // Cas spécial: Design Graphique & Community Management = 165 000 FCFA
-        $formationKey = $student->program ?? ($student->specialization ?? null);
-        if ($formationKey === 'design_graphique_community_management') {
+        // Supporte différentes variantes (program, specialization, slug)
+        $formationKey = (string) ($student->program ?? ($student->specialization ?? ''));
+        $formationNormalized = strtolower(str_replace([' ', '_', '-', '&'], '', $formationKey));
+        $containsDesign = str_contains($formationNormalized, 'design');
+        $containsCommunity = str_contains($formationNormalized, 'community');
+        if (($containsDesign && $containsCommunity) || $formationNormalized === 'designgraphiquecommunitymanagement') {
             $totalFactures = 165000;
         }
         $soldeRestant = 0;

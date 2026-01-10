@@ -160,19 +160,23 @@
         z-index: 0;
     }
 
-    .student-card::after {
-        content: 'ÉTUDIANT(E) EVC';
-        position: absolute;
-        left: 14px;
-        top: 10px;
+    .evc-card-title {
         font-weight: 950;
-        font-size: 1.15rem;
+        font-size: 1.85rem;
         letter-spacing: .14em;
         text-transform: uppercase;
-        color: rgba(255,255,255,0.86);
-        z-index: 2;
-        pointer-events: none;
-        text-shadow: 0 8px 24px rgba(0,0,0,0.35);
+        color: rgba(255,255,255,0.96);
+        text-shadow: 0 14px 40px rgba(0,0,0,0.45);
+        line-height: 1;
+    }
+
+    .evc-card-title small {
+        display: block;
+        font-size: .72rem;
+        letter-spacing: .22em;
+        margin-top: .55rem;
+        color: rgba(255,255,255,0.75);
+        font-weight: 800;
     }
 
     .student-card-watermark {
@@ -196,12 +200,32 @@
         z-index: 2;
         background: rgba(15,23,42,0.55);
         border-bottom: 1px solid rgba(255,255,255,0.10);
-        padding: 3rem 1rem 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        padding: 1.2rem 1.1rem 1rem;
+        display: grid;
+        grid-template-columns: 92px 1fr;
         gap: 1rem;
         backdrop-filter: blur(10px);
+    }
+
+    .evc-title-block {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: .75rem;
+        margin-bottom: .5rem;
+    }
+
+    .evc-formation-pill {
+        padding: .55rem 1rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: var(--theme-bg);
+        color: #fff;
+        font-weight: 900;
+        box-shadow: 0 18px 55px rgba(0,0,0,0.35);
+        font-size: .95rem;
+        white-space: nowrap;
     }
 
     /* Thèmes formation */
@@ -222,8 +246,8 @@
     }
 
     .student-avatar {
-        width: 62px;
-        height: 62px;
+        width: 92px;
+        height: 92px;
         border-radius: 999px;
         object-fit: cover;
         background: rgba(79,195,247,0.18);
@@ -234,7 +258,8 @@
         font-weight: 900;
         flex-shrink: 0;
         overflow: hidden;
-        border: 2px solid rgba(255,255,255,0.16);
+        border: 4px solid rgba(255,255,255,0.18);
+        box-shadow: 0 18px 65px rgba(0,0,0,0.50);
     }
 
     .student-meta {
@@ -246,17 +271,31 @@
         color: #fff;
         font-weight: 800;
         margin: 0;
-        font-size: 1.05rem;
+        font-size: 1.35rem;
         white-space: normal;
         overflow: visible;
     }
 
     .student-sub {
         color: rgba(255,255,255,0.65);
-        font-size: 0.9rem;
+        font-size: 1.02rem;
         margin: 0;
         white-space: normal;
         overflow: visible;
+    }
+
+    .evc-id {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        padding: .35rem .7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: rgba(255,255,255,0.08);
+        color: rgba(255,255,255,0.92);
+        font-weight: 800;
+        margin-top: .45rem;
+        font-size: .92rem;
     }
 
     .top-performer-card {
@@ -574,6 +613,14 @@
                 <div class="student-card {{ $theme }}" data-student-card data-filter="{{ $filterKey }}" data-search="{{ strtolower(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->student_id ?? '') . ' ' . ($student->country ?? '') . ' ' . $progRaw) }}">
                     <div class="student-card-watermark">EVC</div>
                     <div class="student-card-header">
+                        <div class="evc-title-block">
+                            <div class="evc-card-title">
+                                ÉTUDIANT(E) EVC
+                                <small>CARTE DIGITALE OFFICIELLE</small>
+                            </div>
+                            <div class="evc-formation-pill">{{ $student->program ?? 'Formation' }}</div>
+                        </div>
+
                         @if(!empty($student->profile_photo) && !empty($photoUrl))
                             <img src="{{ $photoUrl }}" alt="{{ $student->first_name ?? 'Étudiant' }}" class="student-avatar" />
                         @else
@@ -582,12 +629,10 @@
 
                         <div class="student-meta">
                             <p class="student-name">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</p>
-                            <p class="student-sub">ID Étudiant: {{ $student->student_id ?? '—' }}</p>
-                            @if(!empty($student->program))
-                                <div class="mt-2">
-                                    <span class="evc-chip theme">{{ $student->program }}</span>
-                                </div>
-                            @endif
+                            <div class="evc-id">
+                                <i class="fas fa-id-card"></i>
+                                ID Étudiant: {{ $student->student_id ?? '—' }}
+                            </div>
                         </div>
 
                         @if($status === 'inactive')
@@ -766,18 +811,28 @@
                     : 'linear-gradient(135deg, rgba(79,195,247,0.75) 0%, rgba(30,60,114,0.80) 80%)');
 
             wrap.innerHTML = `
-                <div style="padding:70px 70px 52px; height:100%; display:flex; flex-direction:column;">
-                    <div style="background:${themeBg}; border-radius:30px; padding:42px; display:flex; align-items:center; gap:34px; border:1px solid rgba(255,255,255,0.18); box-shadow:0 22px 60px rgba(0,0,0,0.35);">
-                        <div style="width:180px; height:180px; border-radius:999px; overflow:hidden; border:4px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:54px;">
+                <div style="padding:64px 64px 50px; height:100%; display:flex; flex-direction:column;">
+                    <div style="display:flex; align-items:baseline; justify-content:space-between; gap:18px;">
+                        <div style="color:#fff; font-weight:950; letter-spacing:.18em; text-transform:uppercase; font-size:56px; line-height:1;">ÉTUDIANT(E) EVC</div>
+                        <div style="background:${themeBg}; padding:14px 22px; border-radius:999px; border:1px solid rgba(255,255,255,0.22); color:#fff; font-weight:900; font-size:24px; white-space:nowrap;">${data.program || ''}</div>
+                    </div>
+                    <div style="margin-top:16px; height:2px; background:rgba(255,255,255,0.14);"></div>
+
+                    <div style="margin-top:34px; display:flex; gap:34px; align-items:center;">
+                        <div style="width:220px; height:220px; border-radius:999px; overflow:hidden; border:6px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:950; font-size:64px; box-shadow:0 26px 80px rgba(0,0,0,0.45);">
                             ${data.photo ? `<img src="${data.photo}" style="width:100%; height:100%; object-fit:cover;" />` : `${(data.full_name || 'ET').split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase()}`}
                         </div>
                         <div style="min-width:0;">
-                            <div style="color:#fff; font-weight:900; font-size:56px; line-height:1.05;">${data.full_name || ''}</div>
-                            <div style="color:rgba(255,255,255,0.9); font-size:26px; margin-top:10px; word-break:break-word;">ID Étudiant: ${data.student_id || ''}</div>
+                            <div style="color:#fff; font-weight:950; font-size:60px; line-height:1.05;">${data.full_name || ''}</div>
+                            <div style="margin-top:16px; display:inline-flex; align-items:center; gap:10px; padding:12px 18px; border-radius:999px; border:1px solid rgba(255,255,255,0.18); background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.92); font-weight:900; font-size:28px;">
+                                <span style="opacity:.9;">ID Étudiant</span>
+                                <span style="opacity:.65;">•</span>
+                                <span>${data.student_id || ''}</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div style="height:26px;"></div>
+                    <div style="height:34px;"></div>
 
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
                         <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10); border-radius:26px; padding:28px;">

@@ -835,7 +835,7 @@
                                     <i class="fas {{ $data['stats']['solde_restant'] > 0 ? 'fa-exclamation-circle' : 'fa-check-circle' }} me-1"></i>Reste à Payer
                                 </small>
                                 <h4 class="mb-0 fw-bold {{ $data['stats']['solde_restant'] > 0 ? 'text-danger' : 'text-success' }}">
-                                    {{ number_format($data['stats']['solde_restant'], 0, ',', ' ') }}
+                                    {{ number_format($soldeRestantSafe, 0, ',', ' ') }}
                                 </h4>
                                 <small class="{{ $data['stats']['solde_restant'] > 0 ? 'text-danger' : 'text-success' }}">FCFA</small>
                             </div>
@@ -844,7 +844,15 @@
 
                     <!-- Barre de progression du paiement -->
                     @php
-                        $pourcentagePaye = $data['stats']['total_factures'] > 0 ? round(($data['stats']['total_paye'] / $data['stats']['total_factures']) * 100) : 0;
+                        $totalFacturesSafe = (float) ($data['stats']['total_factures'] ?? 0);
+                        $totalPayeSafe = (float) ($data['stats']['total_paye'] ?? 0);
+                        $soldeRestantSafe = (float) ($data['stats']['solde_restant'] ?? 0);
+                        if ($soldeRestantSafe < 0) {
+                            $soldeRestantSafe = 0;
+                        }
+                        $pourcentagePaye = $totalFacturesSafe > 0 ? round(($totalPayeSafe / $totalFacturesSafe) * 100) : 0;
+                        if ($pourcentagePaye < 0) $pourcentagePaye = 0;
+                        if ($pourcentagePaye > 100) $pourcentagePaye = 100;
                     @endphp
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -1000,9 +1008,31 @@
                                         </td>
                                         <td><small>{{ $tp->created_at ? date('d/m/Y', strtotime($tp->created_at)) : '-' }}</small></td>
                                         <td>
-                                            <a href="{{ route('admin.tp.view', $tp->id) }}" class="btn btn-sm btn-modern btn-primary-modern">
+                                            @php
+                                                $tpFiles = $tp->tp_files ?? collect();
+                                                $tpImages = collect($tpFiles)->map(function ($file) {
+                                                    $path = $file->file_path ?? '';
+                                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                                    if (!in_array($ext, ['jpg','jpeg','png','gif','webp'], true)) {
+                                                        return null;
+                                                    }
+                                                    $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
+                                                    if (!$url) return null;
+                                                    return [
+                                                        'url' => $url,
+                                                        'original_name' => $file->original_name ?? basename($path),
+                                                    ];
+                                                })->filter()->values();
+                                            @endphp
+                                            <button type="button"
+                                                    class="btn btn-sm btn-modern btn-primary-modern"
+                                                    data-tp-open
+                                                    data-tp-title="{{ e($tp->title ?? 'TP') }}"
+                                                    data-tp-status="{{ e($tp->status ?? '') }}"
+                                                    data-tp-created="{{ e($tp->created_at ? date('d/m/Y H:i', strtotime($tp->created_at)) : '') }}"
+                                                    data-tp-images='@json($tpImages)'>
                                                 <i class="fas fa-eye"></i>
-                                            </a>
+                                            </button>
                                         </td>
                                     </tr>
                                     @endforeach
@@ -1293,6 +1323,10 @@
                                     $projectFiles = isset($project->project_files) ? $project->project_files : [];
                                     $galleryItems = collect($projectFiles)->map(function ($file) {
                                         $path = $file->file_path ?? '';
+                                        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                        if (!in_array($ext, ['jpg','jpeg','png','gif','webp'], true)) {
+                                            return null;
+                                        }
                                         $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
                                         if (!$url) {
                                             return null;
@@ -1424,6 +1458,79 @@ document.addEventListener('click', function(e) {
                     </div>
                     <div class="modal-body">
                         <div class="mb-3 text-white-50">${description || ''}</div>
+                        <div class="d-flex gap-2 flex-wrap mb-3">
+                            ${status ? `<span class="badge bg-info">${status}</span>` : ''}
+                            ${createdAt ? `<span class="badge bg-secondary">${createdAt}</span>` : ''}
+                        </div>
+                        ${galleryHTML}
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const modal = new bootstrap.Modal(document.getElementById(modalId));
+    modal.show();
+
+    if (images.length > 0) {
+        initProjectGalleryModal(images, modalId);
+    }
+});
+
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('[data-tp-open]');
+    if (!btn) return;
+
+    const images = (() => {
+        try {
+            const raw = btn.getAttribute('data-tp-images') || '[]';
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed.filter(i => i && i.url) : [];
+        } catch (err) {
+            return [];
+        }
+    })();
+
+    const title = btn.getAttribute('data-tp-title') || 'TP';
+    const status = btn.getAttribute('data-tp-status') || '';
+    const createdAt = btn.getAttribute('data-tp-created') || '';
+
+    const modalId = 'tpGalleryModal';
+    const existingModal = document.getElementById(modalId);
+    if (existingModal) existingModal.remove();
+
+    const galleryHTML = images.length > 0 ? `
+        <div class="project-gallery" data-gallery>
+            <div class="project-gallery-main">
+                <button type="button" class="gallery-nav-btn prev" data-gallery-prev>‹</button>
+                <a href="#" data-gallery-open style="display:block;">
+                    <img src="${images[0].url}" alt="${(images[0].original_name || 'Image')}" data-gallery-main-img />
+                </a>
+                <button type="button" class="gallery-nav-btn next" data-gallery-next>›</button>
+            </div>
+            <div class="project-gallery-thumbs" data-gallery-thumbs>
+                ${images.map((img, idx) => `
+                    <button type="button" class="gallery-thumb ${idx === 0 ? 'active' : ''}" data-gallery-thumb data-index="${idx}">
+                        <img src="${img.url}" alt="${img.original_name || 'Image'}" />
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    ` : `<p class="text-white-50 mb-0">Aucune image disponible pour ce TP.</p>`;
+
+    const modalHTML = `
+        <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content bg-dark text-white">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title">${title}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
                         <div class="d-flex gap-2 flex-wrap mb-3">
                             ${status ? `<span class="badge bg-info">${status}</span>` : ''}
                             ${createdAt ? `<span class="badge bg-secondary">${createdAt}</span>` : ''}
