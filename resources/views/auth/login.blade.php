@@ -551,7 +551,7 @@
                         @csrf
                         <div>
                             <label class="form-label fw-semibold">ID Étudiant</label>
-                            <input type="text" name="student_id" class="form-control" placeholder="Ex: EVC-2026-050101" required>
+                            <input type="text" name="student_id" class="form-control" placeholder="Ex: EVC-2026-****01" required>
                             <small class="text-muted">Vous serez redirigé vers la page de vérification officielle.</small>
                         </div>
                         <button type="submit" class="btn btn-login" style="padding: .9rem 1.25rem;" id="verifyStudentIdSubmit">
@@ -595,7 +595,12 @@
 
         const verifyForm = document.getElementById('verifyStudentIdForm');
         if (verifyForm) {
-            verifyForm.addEventListener('submit', function() {
+            verifyForm.addEventListener('submit', function(e) {
+                if (verifyForm.dataset.submitting === '1') {
+                    return;
+                }
+                verifyForm.dataset.submitting = '1';
+                e.preventDefault();
                 const submitBtn = document.getElementById('verifyStudentIdSubmit');
                 const submitText = document.getElementById('verifyStudentIdSubmitText');
                 const spinner = document.getElementById('verifyStudentIdSpinner');
@@ -603,6 +608,10 @@
                 if (submitBtn) submitBtn.disabled = true;
                 if (submitText) submitText.style.display = 'none';
                 if (spinner) spinner.style.display = 'inline-block';
+
+                window.setTimeout(function () {
+                    verifyForm.submit();
+                }, 600);
             });
         }
 
