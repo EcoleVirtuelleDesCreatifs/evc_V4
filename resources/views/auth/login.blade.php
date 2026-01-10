@@ -329,16 +329,27 @@
 
         .loading-spinner {
             display: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
+            width: 46px;
+            height: 10px;
+            background:
+                radial-gradient(circle closest-side, rgba(255,255,255,0.95) 92%, transparent) 0% 50%/10px 10px no-repeat,
+                radial-gradient(circle closest-side, rgba(255,255,255,0.95) 92%, transparent) 50% 50%/10px 10px no-repeat,
+                radial-gradient(circle closest-side, rgba(255,255,255,0.95) 92%, transparent) 100% 50%/10px 10px no-repeat;
+            filter: drop-shadow(0 6px 16px rgba(255,255,255,0.18));
+            animation: evcDots 1.05s infinite ease-in-out;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes evcDots {
+            0%, 100% {
+                transform: translateY(0);
+                opacity: 0.55;
+                background-position: 0% 55%, 50% 50%, 100% 45%;
+            }
+            50% {
+                transform: translateY(-1px);
+                opacity: 1;
+                background-position: 0% 45%, 50% 55%, 100% 50%;
+            }
         }
 
         /* Demo credentials box */

@@ -36,6 +36,12 @@
         .btn-primary:hover{filter:brightness(1.05);}
         .soft-anim{transition:transform .25s ease, box-shadow .25s ease;}
         .soft-anim:hover{transform:translateY(-1px);box-shadow:0 12px 40px rgba(0,0,0,.20);}
+        .evc-dots{display:inline-block;width:46px;height:10px;background:
+            radial-gradient(circle closest-side, rgba(255,255,255,0.95) 92%, transparent) 0% 50%/10px 10px no-repeat,
+            radial-gradient(circle closest-side, rgba(255,255,255,0.95) 92%, transparent) 50% 50%/10px 10px no-repeat,
+            radial-gradient(circle closest-side, rgba(255,255,255,0.95) 92%, transparent) 100% 50%/10px 10px no-repeat;
+            filter: drop-shadow(0 6px 16px rgba(255,255,255,0.18));animation: evcDots 1.05s infinite ease-in-out;}
+        @keyframes evcDots{0%,100%{transform:translateY(0);opacity:.55;background-position:0% 55%,50% 50%,100% 45%;}50%{transform:translateY(-1px);opacity:1;background-position:0% 45%,50% 55%,100% 50%;}}
     </style>
 </head>
 <body>
@@ -59,7 +65,7 @@
                     <div class="col-12 col-md-4 d-grid">
                         <button type="submit" class="btn btn-primary" id="verifyIdBtn">
                             <span id="verifyIdText"><i class="fas fa-shield-alt me-2"></i>Vérifier</span>
-                            <span id="verifyIdSpinner" class="spinner-border spinner-border-sm" role="status" style="display:none;"></span>
+                            <span id="verifyIdSpinner" class="evc-dots" style="display:none;"></span>
                         </button>
                     </div>
                 </form>
