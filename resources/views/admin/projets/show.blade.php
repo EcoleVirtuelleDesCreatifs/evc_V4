@@ -497,6 +497,25 @@
                     <h3>Fichiers Soumis par l'Étudiant</h3>
                 </div>
 
+                <div class="info-item mb-3">
+                    <div class="info-label">
+                        <i class="fas fa-file-alt"></i>
+                        Projet soumis
+                    </div>
+                    <div class="info-value">{{ $tp->title ?? 'N/A' }}</div>
+                    @if(!empty($tp->category))
+                        <div class="mt-2">
+                            <span class="badge bg-info">{{ $tp->category }}</span>
+                        </div>
+                    @endif
+                </div>
+
+                @if(!empty($tp->description))
+                    <div class="description-box mb-3">
+                        {!! $tp->description !!}
+                    </div>
+                @endif
+
                 @if($submittedFiles && $submittedFiles->count() > 0)
                     <div class="file-list">
                         @foreach($submittedFiles as $file)
