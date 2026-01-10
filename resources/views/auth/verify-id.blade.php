@@ -17,10 +17,24 @@
     <link href="{{ asset('assets/css/loading.css') }}" rel="stylesheet">
     <style>
         :root{--evc-blue:#003366;--evc-sky:#3399ff;--evc-orange:#ff6633;--evc-dark:#0b1220;}
-        body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(135deg,var(--evc-blue) 0%,var(--evc-sky) 50%,var(--evc-orange) 100%);min-height:100vh;}
-        .hero{position:relative;background:linear-gradient(135deg,var(--evc-blue) 0%,var(--evc-sky) 45%,var(--evc-orange) 100%);}
-        .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(900px 300px at 20% 10%, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 60%),radial-gradient(800px 280px at 80% 30%, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 60%);opacity:.85;pointer-events:none;}
-        .shell{position:relative;z-index:1;background:rgba(255,255,255,.92);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(16px);}
+        body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0a0a0a;min-height:100vh;color:#f1f5f9;}
+
+        .legal-page{min-height:100vh;background:#0a0a0a;color:#f1f5f9;padding:120px 20px 80px;}
+        .legal-container{max-width:980px;margin:0 auto;}
+        .legal-header{text-align:center;margin-bottom:34px;}
+        .legal-header h1{font-size:44px;font-weight:800;margin-bottom:12px;background:linear-gradient(135deg,#FF9900 0%,#F97316 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .legal-header p{color:#94a3b8;font-size:16px;max-width:760px;margin:0 auto;}
+        .legal-content{background:#1e293b;border-radius:20px;padding:26px;box-shadow:0 4px 20px rgba(0,0,0,.35);border:1px solid rgba(148,163,184,.12);}
+
+        .legal-info-box{background:rgba(255,153,0,.08);border-left:4px solid #FF9900;padding:16px;border-radius:12px;}
+        .legal-info-box p{margin:0;color:#e2e8f0;}
+
+        .form-label{color:#e2e8f0;}
+        .form-control{background:#0f172a;border:2px solid #334155;color:#e2e8f0;border-radius:12px;padding:14px 16px;}
+        .form-control::placeholder{color:rgba(148,163,184,.75);}
+        .form-control:focus{background:#0b1220;border-color:#FF9900;box-shadow:0 0 0 .2rem rgba(255,153,0,.18);color:#fff;}
+        .btn-primary{background:linear-gradient(135deg,#FF9900 0%,#F97316 100%);border:none;border-radius:12px;padding:12px 14px;font-weight:800;}
+        .btn-primary:hover{filter:brightness(1.02);}
         .page-title{font-weight:900;letter-spacing:-.02em;}
         .subtitle{color:rgba(0,0,0,.6);}
         .verify-header{background:linear-gradient(135deg,var(--evc-orange), #FF9900);color:#fff;text-align:center;padding:28px 18px;border-radius:18px;position:relative;overflow:hidden;}
@@ -46,7 +60,7 @@
         .status-banner .desc{color:rgba(255,255,255,.78);}
         .info-line{display:flex;align-items:flex-start;gap:.65rem;color:rgba(255,255,255,.90);}
         .info-line i{opacity:.9;margin-top:.1rem;}
-        .notfound{border-radius:18px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(135deg, rgba(255,102,51,.14) 0%, rgba(0,51,102,.10) 55%, rgba(51,153,255,.12) 100%);}
+        .notfound{border-radius:18px;border:1px solid rgba(148,163,184,.18);background:linear-gradient(135deg, rgba(255,153,0,.10) 0%, rgba(30,41,59,.92) 55%, rgba(15,23,42,.92) 100%);}
         .btn-primary{background:linear-gradient(135deg,var(--evc-blue) 0%,var(--evc-sky) 100%);border:none;}
         .btn-primary:hover{filter:brightness(1.05);}
         .soft-anim{transition:transform .25s ease, box-shadow .25s ease;}
@@ -80,53 +94,39 @@
     </style>
 </head>
 <body>
-    <div class="hero py-4">
-        <div class="container">
-            <div class="shell p-3 p-md-4 mx-auto" style="max-width:980px;">
-                <div class="verify-header">
-                    <div style="font-weight:900;letter-spacing:.18em;font-size:.8rem;opacity:.95;">VÉRIFICATION PUBLIQUE</div>
-                    <div class="mt-2" style="font-size:2.2rem;line-height:1;">
-                        <i class="fas fa-shield-halved"></i>
-                    </div>
-                    <div class="verify-title mt-2">Vérifier un ID Étudiant</div>
-                    <div class="verify-subtitle">Confirmez un statut officiel EVC, la formation, et l'éligibilité à la certification. Simple, rapide, fiable.</div>
+    <div class="legal-page">
+        <div class="legal-container">
+            <div class="legal-header">
+                <h1>Vérifier un ID Étudiant</h1>
+                <p>Confirmez un statut officiel EVC, la formation (en cours/terminée) et l'éligibilité à la certification.</p>
+            </div>
+
+            <div class="legal-content">
+                <div class="legal-info-box" style="margin: 0 0 18px;">
+                    <p><strong>Info :</strong> Entrez l'ID étudiant pour afficher les informations officielles et la progression (TP & projets).</p>
                 </div>
 
-                <div class="verify-body">
-                    <div class="info-box mb-3">
-                        <div class="d-flex align-items-start gap-3">
-                            <div class="flex-shrink-0" style="width:44px;height:44px;border-radius:14px;background:rgba(51,153,255,.16);border:1px solid rgba(51,153,255,.25);display:flex;align-items:center;justify-content:center;color:var(--evc-sky);">
-                                <i class="fas fa-circle-info"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <div class="fw-bold" style="color:var(--evc-blue);">À quoi sert cette vérification ?</div>
-                                <div class="mt-1" style="color:rgba(0,0,0,.62);line-height:1.5;">Entrez l'ID pour vérifier qu'il appartient bien à un(e) étudiant(e) EVC et voir l'état de la formation (en cours/terminée) ainsi que la progression (TP & projets).</div>
-                            </div>
-                        </div>
+                <form method="POST" action="{{ route('auth.verify-id.check') }}" class="row g-2 align-items-end">
+                    @csrf
+                    <div class="col-12 col-md-8">
+                        <label class="form-label fw-semibold"><i class="fas fa-id-card me-1"></i>ID Étudiant</label>
+                        <input type="text" name="student_id" value="{{ old('student_id', $searchedId) }}" class="form-control @error('student_id') is-invalid @enderror" placeholder="Ex: EVC-2026-050101" required>
+                        @error('student_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-
-                    <form method="POST" action="{{ route('auth.verify-id.check') }}" class="row g-2 align-items-end">
-                        @csrf
-                        <div class="col-12 col-md-8">
-                            <label class="form-label fw-semibold"><i class="fas fa-id-card me-1"></i>ID Étudiant</label>
-                            <input type="text" name="student_id" value="{{ old('student_id', $searchedId) }}" class="form-control @error('student_id') is-invalid @enderror" placeholder="Ex: EVC-2026-050101" required>
-                            @error('student_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="col-12 col-md-4 d-grid">
-                            <button type="submit" class="btn btn-primary" id="verifyIdBtn">
-                                <span id="verifyIdText"><i class="fas fa-shield-alt me-2"></i>Vérifier</span>
-                                <span id="verifyIdSpinner" class="evc-dots" style="display:none;"></span>
-                            </button>
-                        </div>
-                    </form>
-
-                    <div class="mt-3 text-center">
-                        <a href="{{ route('login') }}" class="text-decoration-none text-muted">
-                            <small><i class="fas fa-arrow-left me-1"></i>Retour connexion</small>
-                        </a>
+                    <div class="col-12 col-md-4 d-grid">
+                        <button type="submit" class="btn btn-primary" id="verifyIdBtn">
+                            <span id="verifyIdText"><i class="fas fa-shield-alt me-2"></i>Vérifier</span>
+                            <span id="verifyIdSpinner" class="evc-dots" style="display:none;"></span>
+                        </button>
                     </div>
+                </form>
+
+                <div class="mt-3 text-center">
+                    <a href="{{ route('login') }}" class="text-decoration-none" style="color:#94a3b8;">
+                        <small><i class="fas fa-arrow-left me-1"></i>Retour connexion</small>
+                    </a>
                 </div>
 
                 @if($notFound)
