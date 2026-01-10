@@ -4,6 +4,66 @@
 
 @push('styles')
 <style>
+    /* Reprendre le design des stats de /admin/formations */
+    .stat-card {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
+    }
+
+    .stat-card-primary {
+        background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
+    }
+
+    .stat-card-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .stat-card-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        flex-shrink: 0;
+    }
+
+    .stat-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stat-label {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
     .chip {
         display: inline-flex;
         align-items: center;
@@ -151,6 +211,12 @@
         gap: .5rem;
         flex-wrap: wrap;
     }
+
+    .export-btn {
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #fff;
+    }
 </style>
 @endpush
 
@@ -168,76 +234,115 @@
     </div>
 
     @if($status === 'active')
-        <div class="stats-grid">
-            <div class="stat-card">
-                <p class="stat-title">Étudiants actifs</p>
-                <p class="stat-value">{{ $stats['total'] ?? 0 }}</p>
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ $stats['total'] ?? 0 }}</h3>
+                        <p class="stat-label">Étudiants actifs</p>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card">
-                <p class="stat-title">Design Graphique</p>
-                <p class="stat-value">{{ $stats['design_graphique'] ?? 0 }}</p>
+            <div class="col-md-3 mb-3">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-icon"><i class="fas fa-palette"></i></div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ $stats['design_graphique'] ?? 0 }}</h3>
+                        <p class="stat-label">Design Graphique</p>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card">
-                <p class="stat-title">Community Management</p>
-                <p class="stat-value">{{ $stats['community_management'] ?? 0 }}</p>
+            <div class="col-md-3 mb-3">
+                <div class="stat-card stat-card-success">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ $stats['community_management'] ?? 0 }}</h3>
+                        <p class="stat-label">Community Management</p>
+                    </div>
+                </div>
             </div>
-            <div class="stat-card">
-                <p class="stat-title">Design + CM</p>
-                <p class="stat-value">{{ $stats['design_graphique_cm'] ?? 0 }}</p>
+            <div class="col-md-3 mb-3">
+                <div class="stat-card stat-card-warning">
+                    <div class="stat-icon"><i class="fas fa-object-group"></i></div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ $stats['design_graphique_cm'] ?? 0 }}</h3>
+                        <p class="stat-label">Design + CM</p>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="row g-2 align-items-end mb-3">
-            <div class="col-lg-5">
-                <label class="form-label text-white-50">Rechercher</label>
-                <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, email, pays, formation..." />
+        <div class="card mb-4" style="background-color: #1e293b; border: 1px solid #334155;">
+            <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                <h5 class="mb-0 text-white"><i class="fas fa-filter me-2"></i>Filtres & Tri</h5>
             </div>
-            <div class="col-lg-4">
-                <label class="form-label text-white-50">Trier</label>
-                <div class="d-flex gap-2">
-                    @php
-                        $sortValue = $sort ?? request('sort', 'date');
-                        $dirValue = $dir ?? request('dir', 'desc');
-                    @endphp
-                    <select id="sortSelect" class="form-select search-input">
-                        <option value="date" {{ $sortValue === 'date' ? 'selected' : '' }}>Date d'inscription</option>
-                        <option value="projects" {{ $sortValue === 'projects' ? 'selected' : '' }}>Nombre de projets</option>
-                    </select>
-                    <select id="dirSelect" class="form-select search-input" style="max-width:160px;">
-                        <option value="desc" {{ $dirValue === 'desc' ? 'selected' : '' }}>Décroissant</option>
-                        <option value="asc" {{ $dirValue === 'asc' ? 'selected' : '' }}>Croissant</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-lg-3">
-                <label class="form-label text-white-50">Filtrer par formation</label>
-                <div class="d-flex flex-wrap gap-2">
-                    <span class="chip active" data-filter="all">Tous</span>
-                    <span class="chip" data-filter="dg">DG</span>
-                    <span class="chip" data-filter="cm">CM</span>
-                    <span class="chip" data-filter="dgcm">DG+CM</span>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-5">
+                        <label class="form-label text-white-50">Rechercher</label>
+                        <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, email, pays, formation..." />
+                    </div>
+                    <div class="col-lg-4">
+                        <label class="form-label text-white-50">Trier</label>
+                        <div class="d-flex gap-2">
+                            @php
+                                $sortValue = $sort ?? request('sort', 'date');
+                                $dirValue = $dir ?? request('dir', 'desc');
+                            @endphp
+                            <select id="sortSelect" class="form-select search-input">
+                                <option value="date" {{ $sortValue === 'date' ? 'selected' : '' }}>Date d'inscription</option>
+                                <option value="projects" {{ $sortValue === 'projects' ? 'selected' : '' }}>Nombre de projets</option>
+                            </select>
+                            <select id="dirSelect" class="form-select search-input" style="max-width:160px;">
+                                <option value="desc" {{ $dirValue === 'desc' ? 'selected' : '' }}>Décroissant</option>
+                                <option value="asc" {{ $dirValue === 'asc' ? 'selected' : '' }}>Croissant</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <label class="form-label text-white-50">Filtrer par formation</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="chip active" data-filter="all">Tous</span>
+                            <span class="chip" data-filter="dg">DG</span>
+                            <span class="chip" data-filter="cm">CM</span>
+                            <span class="chip" data-filter="dgcm">DG+CM</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     @else
-        <div class="row g-2 align-items-end mb-3">
-            <div class="col-lg-5">
-                <label class="form-label text-white-50">Rechercher</label>
-                <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, email, pays, formation..." />
+        <div class="card mb-4" style="background-color: #1e293b; border: 1px solid #334155;">
+            <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                <h5 class="mb-0 text-white"><i class="fas fa-search me-2"></i>Recherche</h5>
             </div>
-            <div class="col-lg-7">
-                <label class="form-label text-white-50">Filtrer par formation</label>
-                <div class="d-flex flex-wrap gap-2">
-                    <span class="chip active" data-filter="all">Tous</span>
-                    <span class="chip" data-filter="dg">Design Graphique</span>
-                    <span class="chip" data-filter="cm">Community Management</span>
-                    <span class="chip" data-filter="dgcm">Design + CM</span>
+            <div class="card-body">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-5">
+                        <label class="form-label text-white-50">Rechercher</label>
+                        <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, email, pays, formation..." />
+                    </div>
+                    <div class="col-lg-7">
+                        <label class="form-label text-white-50">Filtrer par formation</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="chip active" data-filter="all">Tous</span>
+                            <span class="chip" data-filter="dg">Design Graphique</span>
+                            <span class="chip" data-filter="cm">Community Management</span>
+                            <span class="chip" data-filter="dgcm">Design + CM</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     @endif
 
-    <div class="row g-3">
+    <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+        <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+            <h5 class="mb-0 text-white"><i class="fas fa-id-badge me-2"></i>Liste des Étudiants</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
         @forelse($students as $student)
             @php
                 $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
@@ -352,6 +457,8 @@
                 </div>
             </div>
         @endforelse
+            </div>
+        </div>
     </div>
 
     <div class="d-flex justify-content-center mt-4">
