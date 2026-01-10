@@ -99,6 +99,15 @@
         .verify-overlay .progress{height:10px;background:rgba(0,0,0,.18);border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.16);}
         .verify-overlay .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#ff6633 0%,#FF9900 40%,#ffffff 100%);transition:width .25s linear;}
         .verify-overlay .progress-text{margin-top:10px;font-weight:800;opacity:.95;}
+
+        @media print{
+            .verify-overlay{display:none !important;}
+            .legal-page{padding:24px 0 0 !important;}
+            .legal-content{box-shadow:none !important;}
+            form,.legal-info-box,.text-center a{display:none !important;}
+            body{background:#ffffff !important;color:#111827 !important;}
+            .card-dark,.status-banner,.stat-box{box-shadow:none !important;}
+        }
     </style>
 </head>
 <body>
@@ -289,6 +298,14 @@
                         </div>
                     </div>
                 @endif
+
+                <div class="mt-4 pt-3" style="border-top:1px solid rgba(148,163,184,.16);">
+                    <div class="d-flex justify-content-center">
+                        <button type="button" class="btn btn-outline-light" onclick="window.print()" style="border-radius:12px;font-weight:800;">
+                            <i class="fas fa-print me-2"></i>Imprimer
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
