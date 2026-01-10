@@ -219,14 +219,15 @@
     }
 
     .evc-formation-pill {
-        padding: .55rem 1rem;
+        padding: .45rem .85rem;
         border-radius: 999px;
         border: 1px solid rgba(255,255,255,0.22);
         background: var(--theme-bg);
         color: #fff;
         font-weight: 900;
-        box-shadow: 0 18px 55px rgba(0,0,0,0.35);
-        font-size: .95rem;
+        box-shadow: 0 14px 45px rgba(0,0,0,0.30);
+        font-size: .88rem;
+        line-height: 1.15;
         max-width: 100%;
         white-space: normal;
     }
