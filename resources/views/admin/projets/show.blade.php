@@ -470,6 +470,9 @@
                 </h4>
                 <div class="file-list">
                     @foreach($assignmentFiles as $file)
+                        @php
+                            $fileUrl = \App\Models\MediaUrl::fromPath($file->file_path ?? null);
+                        @endphp
                         <div class="file-item">
                             <div class="file-icon">
                                 <i class="fas fa-file"></i>
@@ -478,7 +481,7 @@
                                 <div class="file-name" title="{{ $file->file_name }}">{{ $file->file_name }}</div>
                                 <div class="file-size">{{ $file->file_size ? number_format($file->file_size / 1024, 2) . ' KB' : 'N/A' }}</div>
                             </div>
-                            <a href="/storage/{{ $file->file_path }}" target="_blank" class="btn-download">
+                            <a href="{{ $fileUrl }}" target="_blank" class="btn-download">
                                 <i class="fas fa-download"></i>
                             </a>
                         </div>
@@ -497,6 +500,12 @@
                 @if($submittedFiles && $submittedFiles->count() > 0)
                     <div class="file-list">
                         @foreach($submittedFiles as $file)
+                            @php
+                                $fileUrl = \App\Models\MediaUrl::fromPath($file->file_path ?? null);
+                                $mime = strtolower((string) ($file->mime_type ?? ''));
+                                $isImage = str_starts_with($mime, 'image/');
+                                $isPdf = $mime === 'application/pdf';
+                            @endphp
                             <div class="file-item">
                                 <div class="file-icon">
                                     <i class="fas fa-file-upload"></i>
@@ -505,11 +514,30 @@
                                     <div class="file-name" title="{{ $file->file_name }}">{{ $file->file_name }}</div>
                                     <div class="file-size">{{ number_format($file->file_size / 1024, 2) }} KB</div>
                                 </div>
-                                <a href="/storage/{{ $file->file_path }}" target="_blank" class="btn-download">
-                                    <i class="fas fa-download"></i>
-                                    Télécharger
-                                </a>
+                                <div class="d-flex gap-2 align-items-center">
+                                    @if($isImage)
+                                        <a href="{{ $fileUrl }}" target="_blank" class="btn-download">Voir</a>
+                                    @elseif($isPdf)
+                                        <a href="{{ $fileUrl }}" target="_blank" class="btn-download">Ouvrir</a>
+                                    @endif
+                                    <a href="{{ $fileUrl }}" target="_blank" class="btn-download">
+                                        <i class="fas fa-download"></i>
+                                        Télécharger
+                                    </a>
+                                </div>
                             </div>
+
+                            @if($isImage)
+                                <div class="mt-3" style="border-radius: 12px; overflow: hidden; border: 1px solid #e9ecef;">
+                                    <a href="{{ $fileUrl }}" target="_blank" style="display: block;">
+                                        <img src="{{ $fileUrl }}" alt="{{ $file->file_name }}" style="width: 100%; max-height: 320px; object-fit: cover; display: block;" />
+                                    </a>
+                                </div>
+                            @elseif($isPdf)
+                                <div class="mt-3" style="border-radius: 12px; overflow: hidden; border: 1px solid #e9ecef;">
+                                    <iframe src="{{ $fileUrl }}" style="width: 100%; height: 420px; border: 0;"></iframe>
+                                </div>
+                            @endif
                         @endforeach
                     </div>
                 @else

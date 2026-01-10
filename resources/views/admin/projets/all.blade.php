@@ -204,6 +204,116 @@
         </div>
     </div>
 
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-3">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                    <h5 class="mb-0 text-white"><i class="fas fa-user-plus me-2"></i>Nouveaux étudiants (0 projet)</h5>
+                    <span class="badge bg-primary">{{ $studentsWithoutProjects->count() }}</span>
+                </div>
+                <div class="card-body">
+                    @if($studentsWithoutProjects->count() === 0)
+                        <div class="text-center py-3 text-white-50">Aucun étudiant.</div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Étudiant</th>
+                                        <th>Formation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($studentsWithoutProjects as $student)
+                                        @php
+                                            $studentPhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
+                                            $studentInitials = substr($student->first_name ?? 'U', 0, 1) . substr($student->last_name ?? 'U', 0, 1);
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @if(!empty($student->profile_photo) && !empty($studentPhotoUrl))
+                                                        <img src="{{ $studentPhotoUrl }}" alt="{{ $student->first_name ?? 'Étudiant' }}" class="rounded-circle me-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                    @else
+                                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; font-weight: 700;">
+                                                            {{ $studentInitials }}
+                                                        </div>
+                                                    @endif
+                                                    <div class="fw-medium">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ $student->formation ?? 'N/A' }}</span>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                    <h5 class="mb-0 text-white"><i class="fas fa-hourglass me-2"></i>En attente d'un nouveau projet</h5>
+                    <span class="badge bg-primary">{{ $waitingForNewProjectStudents->count() }}</span>
+                </div>
+                <div class="card-body">
+                    @if($waitingForNewProjectStudents->count() === 0)
+                        <div class="text-center py-3 text-white-50">Aucun étudiant.</div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Étudiant</th>
+                                        <th>Formation</th>
+                                        <th>Dernier projet</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($waitingForNewProjectStudents as $student)
+                                        @php
+                                            $studentPhotoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
+                                            $studentInitials = substr($student->first_name ?? 'U', 0, 1) . substr($student->last_name ?? 'U', 0, 1);
+                                        @endphp
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    @if(!empty($student->profile_photo) && !empty($studentPhotoUrl))
+                                                        <img src="{{ $studentPhotoUrl }}" alt="{{ $student->first_name ?? 'Étudiant' }}" class="rounded-circle me-2" style="width: 36px; height: 36px; object-fit: cover;">
+                                                    @else
+                                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 36px; height: 36px; font-weight: 700;">
+                                                            {{ $studentInitials }}
+                                                        </div>
+                                                    @endif
+                                                    <div class="fw-medium">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">{{ $student->formation ?? 'N/A' }}</span>
+                                            </td>
+                                            <td>
+                                                @if(!empty($student->last_project_at))
+                                                    {{ \Carbon\Carbon::parse($student->last_project_at)->format('d/m/Y') }}
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
         <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
             <h5 class="mb-0 text-white"><i class="fas fa-list me-2"></i>Liste Complète des Projets</h5>

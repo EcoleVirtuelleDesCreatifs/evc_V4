@@ -5351,9 +5351,65 @@ class AdminDashboardController extends Controller
                 ->count(),
         ];
 
+        // Étudiants actifs qui n'ont jamais reçu de projet
+        $studentsWithoutProjects = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
+            ->whereNotExists(function ($sub) {
+                $sub->selectRaw('1')
+                    ->from('projects')
+                    ->whereColumn('projects.user_id', 'students.user_id');
+            })
+            ->select(
+                'students.user_id',
+                'students.first_name',
+                'students.last_name',
+                'students.program as formation',
+                'students.profile_photo',
+                'users.email'
+            )
+            ->orderBy('students.created_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        // Étudiants actifs qui ont terminé/validé un projet et sont en attente d'un nouveau (aucun projet en cours)
+        $waitingForNewProjectStudents = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
+            ->whereExists(function ($sub) {
+                $sub->selectRaw('1')
+                    ->from('projects')
+                    ->whereColumn('projects.user_id', 'students.user_id')
+                    ->whereIn('projects.status', ['termine', 'valide']);
+            })
+            ->whereNotExists(function ($sub) {
+                $sub->selectRaw('1')
+                    ->from('projects')
+                    ->whereColumn('projects.user_id', 'students.user_id')
+                    ->where('projects.status', 'en_cours');
+            })
+            ->select(
+                'students.user_id',
+                'students.first_name',
+                'students.last_name',
+                'students.program as formation',
+                'students.profile_photo',
+                'users.email'
+            )
+            ->selectSub(function ($sub) {
+                $sub->from('projects')
+                    ->selectRaw('MAX(projects.updated_at)')
+                    ->whereColumn('projects.user_id', 'students.user_id');
+            }, 'last_project_at')
+            ->orderByDesc('last_project_at')
+            ->limit(20)
+            ->get();
+
         return view('admin.projets.all', [
             'projects' => $projects,
-            'stats' => $stats
+            'stats' => $stats,
+            'studentsWithoutProjects' => $studentsWithoutProjects,
+            'waitingForNewProjectStudents' => $waitingForNewProjectStudents,
         ]);
     }
 
@@ -5390,6 +5446,7 @@ class AdminDashboardController extends Controller
             ->select(
                 'id',
                 'file_path',
+                'mime_type',
                 'original_name as file_name',
                 'file_size'
             )
