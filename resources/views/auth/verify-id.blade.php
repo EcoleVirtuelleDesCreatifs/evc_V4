@@ -13,14 +13,20 @@
     <title>Vérifier votre ID - EVC</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root{--evc-blue:#003366;--evc-sky:#3399ff;--evc-orange:#ff6633;--evc-dark:#0b1220;}
-        body{background:var(--evc-dark);}
+        body{font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(135deg,var(--evc-blue) 0%,var(--evc-sky) 50%,var(--evc-orange) 100%);min-height:100vh;}
         .hero{position:relative;background:linear-gradient(135deg,var(--evc-blue) 0%,var(--evc-sky) 45%,var(--evc-orange) 100%);}
         .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(900px 300px at 20% 10%, rgba(255,255,255,.18) 0%, rgba(255,255,255,0) 60%),radial-gradient(800px 280px at 80% 30%, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 60%);opacity:.85;pointer-events:none;}
         .shell{position:relative;z-index:1;background:rgba(255,255,255,.92);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(16px);}
         .page-title{font-weight:900;letter-spacing:-.02em;}
         .subtitle{color:rgba(0,0,0,.6);}
+        .verify-header{background:linear-gradient(135deg,var(--evc-orange), #FF9900);color:#fff;text-align:center;padding:28px 18px;border-radius:18px;position:relative;overflow:hidden;}
+        .verify-title{font-size:1.85rem;font-weight:900;letter-spacing:-.02em;text-shadow:2px 2px 10px rgba(0,0,0,.28);}
+        .verify-subtitle{opacity:.92;font-weight:400;max-width:760px;margin-left:auto;margin-right:auto;line-height:1.55;}
+        .verify-body{padding:22px 20px;}
+        .info-box{background:linear-gradient(135deg, rgba(51,153,255,.10), rgba(0,51,102,.10));border:1px solid rgba(51,153,255,.22);border-radius:14px;padding:16px;}
         .card-dark{background:rgba(10,16,30,.92);border:1px solid rgba(255,255,255,.12);border-radius:22px;overflow:hidden;}
         .card-dark .top{background:radial-gradient(900px 260px at 50% 0%, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 55%);}
         .avatar{width:128px;height:128px;border-radius:999px;object-fit:cover;border:6px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);box-shadow:0 18px 65px rgba(0,0,0,.55);}
@@ -56,32 +62,50 @@
     <div class="hero py-4">
         <div class="container">
             <div class="shell p-3 p-md-4 mx-auto" style="max-width:980px;">
-                <div class="text-center mb-3">
-                    <h1 class="h4 page-title mb-1">Vérifier votre ID Étudiant</h1>
-                    <div class="subtitle">Vérifiez un statut officiel EVC + certification.</div>
+                <div class="verify-header">
+                    <div style="font-weight:900;letter-spacing:.18em;font-size:.8rem;opacity:.95;">VÉRIFICATION PUBLIQUE</div>
+                    <div class="mt-2" style="font-size:2.2rem;line-height:1;">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div class="verify-title mt-2">Vérifier un ID Étudiant</div>
+                    <div class="verify-subtitle">Confirmez un statut officiel EVC, la formation, et l'éligibilité à la certification. Simple, rapide, fiable.</div>
                 </div>
 
-                <form method="POST" action="{{ route('auth.verify-id.check') }}" class="row g-2 align-items-end">
-                    @csrf
-                    <div class="col-12 col-md-8">
-                        <label class="form-label fw-semibold">ID Étudiant</label>
-                        <input type="text" name="student_id" value="{{ old('student_id', $searchedId) }}" class="form-control @error('student_id') is-invalid @enderror" placeholder="Ex: EVC-2026-050101" required>
-                        @error('student_id')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                <div class="verify-body">
+                    <div class="info-box mb-3">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="flex-shrink-0" style="width:44px;height:44px;border-radius:14px;background:rgba(51,153,255,.16);border:1px solid rgba(51,153,255,.25);display:flex;align-items:center;justify-content:center;color:var(--evc-sky);">
+                                <i class="fas fa-circle-info"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold" style="color:var(--evc-blue);">À quoi sert cette vérification ?</div>
+                                <div class="mt-1" style="color:rgba(0,0,0,.62);line-height:1.5;">Entrez l'ID pour vérifier qu'il appartient bien à un(e) étudiant(e) EVC et voir l'état de la formation (en cours/terminée) ainsi que la progression (TP & projets).</div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-12 col-md-4 d-grid">
-                        <button type="submit" class="btn btn-primary" id="verifyIdBtn">
-                            <span id="verifyIdText"><i class="fas fa-shield-alt me-2"></i>Vérifier</span>
-                            <span id="verifyIdSpinner" class="evc-dots" style="display:none;"></span>
-                        </button>
-                    </div>
-                </form>
 
-                <div class="mt-3 text-center">
-                    <a href="{{ route('login') }}" class="text-decoration-none text-muted">
-                        <small><i class="fas fa-arrow-left me-1"></i>Retour connexion</small>
-                    </a>
+                    <form method="POST" action="{{ route('auth.verify-id.check') }}" class="row g-2 align-items-end">
+                        @csrf
+                        <div class="col-12 col-md-8">
+                            <label class="form-label fw-semibold"><i class="fas fa-id-card me-1"></i>ID Étudiant</label>
+                            <input type="text" name="student_id" value="{{ old('student_id', $searchedId) }}" class="form-control @error('student_id') is-invalid @enderror" placeholder="Ex: EVC-2026-050101" required>
+                            @error('student_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-12 col-md-4 d-grid">
+                            <button type="submit" class="btn btn-primary" id="verifyIdBtn">
+                                <span id="verifyIdText"><i class="fas fa-shield-alt me-2"></i>Vérifier</span>
+                                <span id="verifyIdSpinner" class="evc-dots" style="display:none;"></span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="mt-3 text-center">
+                        <a href="{{ route('login') }}" class="text-decoration-none text-muted">
+                            <small><i class="fas fa-arrow-left me-1"></i>Retour connexion</small>
+                        </a>
+                    </div>
                 </div>
 
                 @if($notFound)
