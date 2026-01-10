@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\ProjectApiController;
 use App\Http\Controllers\AdminStatisticsDetailController;
 use App\Http\Controllers\StudentConfirmationController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\StudentIdVerificationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -142,6 +143,11 @@ Route::get('/auth/evc/login', [AuthController::class, 'showLoginForm'])->name('l
 Route::post('/auth/evc/login', [AuthController::class, 'login']);
 Route::get('/auth/evc/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/auth/evc/register', [AuthController::class, 'register']);
+
+// Vérification publique d'ID étudiant
+Route::get('/auth/evc/verify-id', [StudentIdVerificationController::class, 'show'])->name('auth.verify-id');
+Route::post('/auth/evc/verify-id', [StudentIdVerificationController::class, 'check'])->name('auth.verify-id.check');
+Route::get('/auth/evc/verify-id/certificate/preview', [StudentIdVerificationController::class, 'certificatePreview'])->name('auth.verify-id.certificate.preview');
 
 // Route d'inscription sans CSRF (solution de contournement)
 Route::post('/auth/evc/register-no-csrf', [AuthController::class, 'registerNoCsrf']);

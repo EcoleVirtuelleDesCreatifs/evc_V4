@@ -498,6 +498,11 @@
                     </span>
                     <div class="loading-spinner" id="loadingSpinner"></div>
                 </button>
+
+                <button type="button" class="btn btn-outline-secondary w-100 mt-3" data-bs-toggle="modal" data-bs-target="#verifyStudentIdModal">
+                    <i class="fas fa-id-card me-2"></i>
+                    Vérifier mon ID
+                </button>
             </form>
         </div>
 
@@ -518,6 +523,35 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Modal: Vérification ID Étudiant -->
+    <div class="modal fade" id="verifyStudentIdModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header" style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: white;">
+                    <h5 class="modal-title" style="font-weight: 700;">
+                        <i class="fas fa-shield-alt me-2"></i>
+                        Vérifier votre ID
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding: 1.25rem;">
+                    <form method="POST" action="{{ route('auth.verify-id.check') }}" class="d-grid gap-3">
+                        @csrf
+                        <div>
+                            <label class="form-label fw-semibold">ID Étudiant</label>
+                            <input type="text" name="student_id" class="form-control" placeholder="Ex: EVC-2026-050101" required>
+                            <small class="text-muted">Vous serez redirigé vers la page de vérification officielle.</small>
+                        </div>
+                        <button type="submit" class="btn btn-login" style="padding: .9rem 1.25rem;">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Confirmer votre ID
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Toggle password visibility
