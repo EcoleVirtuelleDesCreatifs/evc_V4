@@ -3,6 +3,27 @@
     $stats = $stats ?? null;
     $notFound = $notFound ?? false;
     $searchedId = $searchedId ?? null;
+
+    $maskStudentId = function (?string $id): string {
+        $id = is_string($id) ? trim($id) : '';
+        if ($id === '') {
+            return '—';
+        }
+        if (preg_match('/^([A-Za-z]+-\d{4}-)(\d+)$/', $id, $m)) {
+            $prefix = $m[1];
+            $digits = $m[2];
+            if (strlen($digits) <= 2) {
+                return $prefix . str_repeat('*', strlen($digits));
+            }
+            return $prefix . str_repeat('*', strlen($digits) - 2) . substr($digits, -2);
+        }
+        if (strlen($id) <= 6) {
+            return str_repeat('*', strlen($id));
+        }
+        return substr($id, 0, 4) . str_repeat('*', max(0, strlen($id) - 6)) . substr($id, -2);
+    };
+
+    $searchedIdMasked = $maskStudentId($searchedId);
 @endphp
 
 <!doctype html>
@@ -154,9 +175,9 @@
                             </div>
                             <div class="flex-grow-1">
                                 <div class="fw-bold" style="font-size:1.05rem;">ID introuvable</div>
-                                <div class="mt-1" style="opacity:.92;">Nous n'avons trouvé aucun(e) étudiant(e) correspondant à <span class="fw-bold">{{ $searchedId }}</span>.</div>
+                                <div class="mt-1" style="opacity:.92;">Nous n'avons trouvé aucun(e) étudiant(e) correspondant à <span class="fw-bold">{{ $searchedIdMasked }}</span>.</div>
                                 <div class="mt-2" style="opacity:.86;">
-                                    <div class="info-line"><i class="fas fa-check"></i><span>Vérifie les tirets et les chiffres (ex: <span class="fw-bold">EVC-2026-050101</span>).</span></div>
+                                    <div class="info-line"><i class="fas fa-check"></i><span>Vérifie les tirets et les chiffres (ex: <span class="fw-bold">EVC-2026-****01</span>).</span></div>
                                     <div class="info-line mt-1"><i class="fas fa-check"></i><span>Assure-toi de copier/coller l'ID depuis ton espace étudiant.</span></div>
                                     <div class="info-line mt-1"><i class="fas fa-check"></i><span>Si le problème persiste, contacte l'administration EVC pour vérification.</span></div>
                                 </div>
@@ -180,7 +201,7 @@
                                 <div class="mt-3 fw-bold" style="font-size:1.35rem;">{{ trim(($student->first_name ?? '').' '.($student->last_name ?? '')) }}</div>
 
                                 <div class="mt-2 d-flex flex-wrap justify-content-center gap-2">
-                                    <span class="pill"><i class="fas fa-id-card"></i>ID: {{ $student->student_id ?? '—' }}</span>
+                                    <span class="pill"><i class="fas fa-id-card"></i>ID: {{ $maskStudentId($student->student_id ?? null) }}</span>
                                     <span class="pill"><i class="fas fa-graduation-cap"></i>{{ $student->program ?? 'Formation' }}</span>
                                 </div>
 
@@ -342,6 +363,20 @@
         const verifyOverlayId = document.getElementById('verifyOverlayId');
         const verifyOverlayBar = document.getElementById('verifyOverlayBar');
         const verifyOverlayPct = document.getElementById('verifyOverlayPct');
+
+        const maskStudentIdClient = function(id) {
+            const v = (id || '').toString().trim();
+            if (!v) return '—';
+            const m = v.match(/^([A-Za-z]+-\d{4}-)(\d+)$/);
+            if (m) {
+                const prefix = m[1];
+                const digits = m[2];
+                if (digits.length <= 2) return prefix + '*'.repeat(digits.length);
+                return prefix + '*'.repeat(digits.length - 2) + digits.slice(-2);
+            }
+            if (v.length <= 6) return '*'.repeat(v.length);
+            return v.slice(0, 4) + '*'.repeat(Math.max(0, v.length - 6)) + v.slice(-2);
+        };
         if (verifyIdBtn) {
             const form = verifyIdBtn.closest('form');
             if (form) {
@@ -358,7 +393,7 @@
                         verifyOverlay.setAttribute('aria-hidden', 'false');
                     }
                     if (verifyOverlayId) {
-                        verifyOverlayId.textContent = enteredId !== '' ? enteredId : '—';
+                        verifyOverlayId.textContent = enteredId !== '' ? maskStudentIdClient(enteredId) : '—';
                     }
 
                     const durationMs = 10000;
