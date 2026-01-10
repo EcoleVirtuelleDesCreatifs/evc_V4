@@ -32,6 +32,14 @@
         .badge-evc{border-radius:999px;padding:.45rem .8rem;font-weight:900;}
         .badge-evc.ok{background:rgba(40,167,69,.18);color:#b6f7c7;border:1px solid rgba(40,167,69,.35);}
         .badge-evc.warn{background:rgba(255,153,0,.18);color:#ffe0b0;border:1px solid rgba(255,153,0,.35);}
+        .badge-evc.danger{background:rgba(220,53,69,.16);color:#ffd0d6;border:1px solid rgba(220,53,69,.34);}
+        .status-banner{border-radius:18px;border:1px solid rgba(255,255,255,.14);padding:14px 14px;background:linear-gradient(135deg, rgba(51,153,255,.16) 0%, rgba(0,51,102,.10) 35%, rgba(255,102,51,.14) 100%);box-shadow:0 22px 70px rgba(0,0,0,.42);}
+        .status-banner .kicker{letter-spacing:.18em;font-weight:900;opacity:.9;font-size:.75rem;}
+        .status-banner .headline{font-weight:950;letter-spacing:-.02em;line-height:1.15;}
+        .status-banner .desc{color:rgba(255,255,255,.78);}
+        .info-line{display:flex;align-items:flex-start;gap:.65rem;color:rgba(255,255,255,.90);}
+        .info-line i{opacity:.9;margin-top:.1rem;}
+        .notfound{border-radius:18px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(135deg, rgba(255,102,51,.14) 0%, rgba(0,51,102,.10) 55%, rgba(51,153,255,.12) 100%);}
         .btn-primary{background:linear-gradient(135deg,var(--evc-blue) 0%,var(--evc-sky) 100%);border:none;}
         .btn-primary:hover{filter:brightness(1.05);}
         .soft-anim{transition:transform .25s ease, box-shadow .25s ease;}
@@ -77,8 +85,21 @@
                 </div>
 
                 @if($notFound)
-                    <div class="alert alert-warning mt-4 mb-0">
-                        <strong>ID introuvable.</strong> Vérifiez l'orthographe et réessayez.
+                    <div class="notfound text-white mt-4 p-3 p-md-4">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="flex-shrink-0" style="width:44px;height:44px;border-radius:14px;background:rgba(255,102,51,.22);border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-triangle-exclamation"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold" style="font-size:1.05rem;">ID introuvable</div>
+                                <div class="mt-1" style="opacity:.92;">Nous n'avons trouvé aucun(e) étudiant(e) correspondant à <span class="fw-bold">{{ $searchedId }}</span>.</div>
+                                <div class="mt-2" style="opacity:.86;">
+                                    <div class="info-line"><i class="fas fa-check"></i><span>Vérifie les tirets et les chiffres (ex: <span class="fw-bold">EVC-2026-050101</span>).</span></div>
+                                    <div class="info-line mt-1"><i class="fas fa-check"></i><span>Assure-toi de copier/coller l'ID depuis ton espace étudiant.</span></div>
+                                    <div class="info-line mt-1"><i class="fas fa-check"></i><span>Si le problème persiste, contacte l'administration EVC pour vérification.</span></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 @endif
 
@@ -102,31 +123,79 @@
                                 </div>
 
                                 <div class="mt-3">
-                                    <span class="badge-evc ok"><i class="fas fa-badge-check me-1"></i>Vous êtes officiellement étudiant(e) à EVC</span>
+                                    @if(!empty($stats['is_active']))
+                                        <span class="badge-evc ok"><i class="fas fa-badge-check me-1"></i>Vous êtes officiellement étudiant(e) à EVC</span>
+                                    @else
+                                        <span class="badge-evc danger"><i class="fas fa-flag-checkered me-1"></i>Vous avez été étudiant(e) à EVC</span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <div class="mt-3 status-banner">
+                                <div class="kicker">STATUT DE FORMATION</div>
+                                @if(!empty($stats['is_active']))
+                                    <div class="headline mt-1">Votre formation est en cours.</div>
+                                    <div class="desc mt-2">Vous êtes officiellement étudiant(e) à EVC, et votre formation n'est pas encore terminée. Continuez votre progression : TP, projets, et dossier de fin de formation.</div>
+                                @else
+                                    <div class="headline mt-1">Votre formation est terminée.</div>
+                                    <div class="desc mt-2">Vous avez été étudiant(e) à EVC, mais actuellement votre formation est terminée. Si vous souhaitez renouveler votre accès ou reprendre une formation, l'administration peut vous accompagner.</div>
+                                @endif
+
+                                <div class="row g-2 mt-3">
+                                    <div class="col-12 col-lg-4">
+                                        <div class="p-3 stat-box">
+                                            <div class="stat-label">Date d'inscription</div>
+                                            <div class="stat-value">
+                                                @if(!empty($stats['registration_date']))
+                                                    {{ \Carbon\Carbon::parse($stats['registration_date'])->format('d/m/Y') }}
+                                                @else
+                                                    —
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <div class="p-3 stat-box">
+                                            <div class="stat-label">Fin estimée / Expiration</div>
+                                            <div class="stat-value">
+                                                @if(!empty($stats['expiration_date']))
+                                                    {{ \Carbon\Carbon::parse($stats['expiration_date'])->format('d/m/Y') }}
+                                                @else
+                                                    —
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-lg-4">
+                                        <div class="p-3 stat-box">
+                                            <div class="stat-label">Jours restants</div>
+                                            <div class="stat-value">
+                                                @if(isset($stats['days_remaining']) && $stats['days_remaining'] !== null)
+                                                    {{ (int) $stats['days_remaining'] }}
+                                                @else
+                                                    —
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="row g-2 mt-3">
                                 <div class="col-12 col-md-6">
                                     <div class="p-3 stat-box">
-                                        <div class="stat-label">Date d'inscription</div>
-                                        <div class="stat-value">
-                                            @if(!empty($stats['registration_date']))
-                                                {{ \Carbon\Carbon::parse($stats['registration_date'])->format('d/m/Y') }}
-                                            @else
-                                                —
-                                            @endif
-                                        </div>
+                                        <div class="stat-label">Statut</div>
+                                        <div class="stat-value">{{ !empty($stats['is_active']) ? 'Étudiant officiel (actif)' : 'Ancien étudiant (formation terminée)' }}</div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="p-3 stat-box">
-                                        <div class="stat-label">Statut</div>
+                                        <div class="stat-label">Certification</div>
                                         <div class="stat-value">
                                             @if(!empty($stats['certified']))
                                                 Certifié
                                             @else
-                                                Étudiant officiel
+                                                Non certifié
                                             @endif
                                         </div>
                                     </div>

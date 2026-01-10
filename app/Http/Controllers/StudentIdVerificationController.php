@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\AccountExpirationHelper;
 use App\Helpers\ProfilePhotoHelper;
 use App\Services\CertificateGenerator;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -45,6 +47,11 @@ class StudentIdVerificationController extends Controller
         $userId = (int) ($student->user_id ?? 0);
         $studentPk = (int) ($student->id ?? 0);
 
+        $userRow = null;
+        if ($userId > 0 && Schema::hasTable('users')) {
+            $userRow = DB::table('users')->select(['id', 'email', 'created_at'])->where('id', $userId)->first();
+        }
+
         $registrationDate = null;
         if (!empty($student->created_at)) {
             $registrationDate = $student->created_at;
@@ -52,6 +59,27 @@ class StudentIdVerificationController extends Controller
             $u = DB::table('users')->select('created_at')->where('id', $userId)->first();
             $registrationDate = $u->created_at ?? null;
         }
+
+        $expirationDate = null;
+        $daysRemaining = null;
+        $isExpired = false;
+        try {
+            $userForExpiration = (object) [
+                'id' => $userId,
+                'email' => $userRow->email ?? ($student->email ?? null),
+                'created_at' => $userRow->created_at ?? ($registrationDate ?? null),
+            ];
+            $expirationDate = AccountExpirationHelper::getExpirationDate($userForExpiration);
+            $isExpired = AccountExpirationHelper::isAccountExpired($userForExpiration);
+            $daysRemaining = AccountExpirationHelper::getDaysRemaining($userForExpiration);
+        } catch (\Exception $e) {
+            $expirationDate = null;
+            $isExpired = false;
+            $daysRemaining = null;
+        }
+
+        $studentStatus = strtolower((string) ($student->status ?? ''));
+        $isActive = ($studentStatus === '' || $studentStatus === 'active') && !$isExpired;
 
         $designProjectsTotal = Schema::hasTable('design_projects')
             ? (int) DB::table('design_projects')->where('user_id', $userId)->count()
@@ -135,6 +163,11 @@ class StudentIdVerificationController extends Controller
             'student' => $student,
             'stats' => [
                 'registration_date' => $registrationDate,
+                'student_status' => $student->status ?? null,
+                'is_active' => $isActive,
+                'is_expired' => $isExpired,
+                'expiration_date' => $expirationDate instanceof Carbon ? $expirationDate->toDateTimeString() : null,
+                'days_remaining' => $daysRemaining,
                 'design_projects_total' => $designProjectsTotal,
                 'design_projects_validated' => $designProjectsValidated,
                 'tp_total' => $tpTotal,
