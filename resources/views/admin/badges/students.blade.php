@@ -292,14 +292,15 @@
         display: inline-flex;
         align-items: center;
         gap: .5rem;
-        padding: .35rem .7rem;
+        padding: .2rem .4rem;
         border-radius: 999px;
-        border: 1px solid rgba(255,255,255,0.18);
         background: rgba(255,255,255,0.08);
-        color: rgba(255,255,255,0.92);
+        border: 1px solid rgba(255,255,255,0.14);
         font-weight: 800;
-        margin-top: .45rem;
-        font-size: .92rem;
+        color: rgba(255,255,255,0.92);
+        font-size: .78rem;
+        line-height: 1.1;
+        margin-top: .2rem;
     }
 
     .top-performer-card {
