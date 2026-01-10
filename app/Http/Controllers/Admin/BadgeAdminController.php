@@ -13,7 +13,16 @@ class BadgeAdminController extends Controller
 {
     public function active(Request $request)
     {
-        $students = DB::table('students')
+        $sort = (string) $request->query('sort', 'date');
+        $dir = strtolower((string) $request->query('dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        $hasRegistrationDate = Schema::hasColumn('students', 'registration_date');
+        $registrationDateExpr = $hasRegistrationDate
+            ? 'students.registration_date'
+            : 'NULL';
+        $orderDateExpr = "COALESCE($registrationDateExpr, students.created_at)";
+
+        $studentsQuery = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->where('students.status', 'active')
             ->select(
@@ -24,16 +33,58 @@ class BadgeAdminController extends Controller
                 'students.country',
                 'students.program',
                 'students.profile_photo',
-                'users.email'
+                'students.created_at',
+                'users.email',
+                DB::raw("$orderDateExpr as registration_sort_date")
             )
-            ->orderBy('students.created_at', 'desc')
+            ->selectSub(function ($q) {
+                $q->from('projects')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('projects.user_id', 'students.user_id');
+            }, 'projects_count');
+
+        if ($sort === 'projects') {
+            $studentsQuery->orderBy('projects_count', $dir);
+            $studentsQuery->orderByRaw("$orderDateExpr desc");
+        } else {
+            $studentsQuery->orderByRaw("$orderDateExpr $dir");
+        }
+
+        $students = $studentsQuery
             ->paginate(24)
             ->withQueryString();
+
+        // Stats globales (tous les étudiants actifs)
+        $stats = [
+            'total' => (int) DB::table('students')->where('status', 'active')->count(),
+            'design_graphique' => (int) DB::table('students')
+                ->where('status', 'active')
+                ->whereRaw("LOWER(COALESCE(program,'')) LIKE ?", ['%design%'])
+                ->whereRaw("LOWER(COALESCE(program,'')) NOT LIKE ?", ['%community%'])
+                ->count(),
+            'community_management' => (int) DB::table('students')
+                ->where('status', 'active')
+                ->whereRaw("LOWER(COALESCE(program,'')) LIKE ?", ['%community%'])
+                ->whereRaw("LOWER(COALESCE(program,'')) NOT LIKE ?", ['%design%'])
+                ->count(),
+            'design_graphique_cm' => (int) DB::table('students')
+                ->where('status', 'active')
+                ->whereRaw("LOWER(COALESCE(program,'')) LIKE ?", ['%design%'])
+                ->whereRaw("LOWER(COALESCE(program,'')) LIKE ?", ['%community%'])
+                ->count(),
+            'total_projects' => (int) DB::table('projects')
+                ->join('students', 'students.user_id', '=', 'projects.user_id')
+                ->where('students.status', 'active')
+                ->count(),
+        ];
 
         return view('admin.badges.students', [
             'title' => 'Étudiants Actifs',
             'status' => 'active',
             'students' => $students,
+            'stats' => $stats,
+            'sort' => $sort,
+            'dir' => $dir,
         ]);
     }
 

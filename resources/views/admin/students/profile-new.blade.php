@@ -230,6 +230,7 @@
         overflow: hidden;
         transition: all 0.3s ease;
         height: 100%;
+        cursor: pointer;
     }
 
     .project-card:hover {
@@ -254,6 +255,79 @@
         justify-content: center;
         color: white;
     }
+
+    .project-gallery {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 14px;
+        padding: 12px;
+    }
+
+    .project-gallery-main {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #0b1220;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .project-gallery-main img {
+        width: 100%;
+        max-height: 460px;
+        object-fit: contain;
+        display: block;
+    }
+
+    .gallery-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 42px;
+        height: 42px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        font-size: 26px;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .gallery-nav-btn.prev { left: 10px; }
+    .gallery-nav-btn.next { right: 10px; }
+
+    .project-gallery-thumbs {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+    }
+
+    .gallery-thumb {
+        border: 2px solid transparent;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 10px;
+        padding: 0;
+        width: 88px;
+        height: 64px;
+        overflow: hidden;
+        flex: 0 0 auto;
+        cursor: pointer;
+    }
+
+    .gallery-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .gallery-thumb.active { border-color: #4fc3f7; }
 
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(20px); }
@@ -1215,9 +1289,25 @@
                         <div class="row">
                             @foreach($data['projects'] as $project)
                             <div class="col-md-4 mb-3">
-                                <div class="project-card">
+                                @php
+                                    $projectFiles = isset($project->project_files) ? $project->project_files : [];
+                                    $galleryItems = collect($projectFiles)->map(function ($file) {
+                                        $path = $file->file_path ?? '';
+                                        $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
+                                        if (!$url) {
+                                            return null;
+                                        }
+
+                                        $name = $file->original_name ?? ($file->filename ?? basename($path));
+                                        return [
+                                            'url' => $url,
+                                            'original_name' => $name,
+                                        ];
+                                    })->filter()->values();
+                                @endphp
+
+                                <div class="project-card" data-project-open data-project-title="{{ e($project->title ?? 'Projet') }}" data-project-description="{{ e($project->description ?? '') }}" data-project-status="{{ e($project->status ?? '') }}" data-project-created="{{ e(!empty($project->created_at) ? date('d/m/Y H:i', strtotime($project->created_at)) : '') }}" data-project-images='@json($galleryItems)'>
                                     @php
-                                        $projectFiles = isset($project->project_files) ? $project->project_files : [];
                                         $hasImages = $projectFiles->filter(function($file) {
                                             $ext = strtolower(pathinfo($file->file_path ?? '', PATHINFO_EXTENSION));
                                             return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
@@ -1281,5 +1371,185 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 });
+
+document.addEventListener('click', function(e) {
+    const card = e.target.closest('[data-project-open]');
+    if (!card) return;
+
+    const images = (() => {
+        try {
+            const raw = card.getAttribute('data-project-images') || '[]';
+            const parsed = JSON.parse(raw);
+            return Array.isArray(parsed) ? parsed.filter(i => i && i.url) : [];
+        } catch (err) {
+            return [];
+        }
+    })();
+
+    const title = card.getAttribute('data-project-title') || 'Projet';
+    const description = card.getAttribute('data-project-description') || '';
+    const status = card.getAttribute('data-project-status') || '';
+    const createdAt = card.getAttribute('data-project-created') || '';
+
+    const modalId = 'projectGalleryModal';
+    const existingModal = document.getElementById(modalId);
+    if (existingModal) existingModal.remove();
+
+    const galleryHTML = images.length > 0 ? `
+        <div class="project-gallery" data-gallery>
+            <div class="project-gallery-main">
+                <button type="button" class="gallery-nav-btn prev" data-gallery-prev>‹</button>
+                <a href="#" data-gallery-open style="display:block;">
+                    <img src="${images[0].url}" alt="${(images[0].original_name || 'Image')}" data-gallery-main-img />
+                </a>
+                <button type="button" class="gallery-nav-btn next" data-gallery-next>›</button>
+            </div>
+            <div class="project-gallery-thumbs" data-gallery-thumbs>
+                ${images.map((img, idx) => `
+                    <button type="button" class="gallery-thumb ${idx === 0 ? 'active' : ''}" data-gallery-thumb data-index="${idx}">
+                        <img src="${img.url}" alt="${img.original_name || 'Image'}" />
+                    </button>
+                `).join('')}
+            </div>
+        </div>
+    ` : `<p class="text-white-50 mb-0">Aucune image disponible pour ce projet.</p>`;
+
+    const modalHTML = `
+        <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content bg-dark text-white">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title">${title}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3 text-white-50">${description || ''}</div>
+                        <div class="d-flex gap-2 flex-wrap mb-3">
+                            ${status ? `<span class="badge bg-info">${status}</span>` : ''}
+                            ${createdAt ? `<span class="badge bg-secondary">${createdAt}</span>` : ''}
+                        </div>
+                        ${galleryHTML}
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    const modal = new bootstrap.Modal(document.getElementById(modalId));
+    modal.show();
+
+    if (images.length > 0) {
+        initProjectGalleryModal(images, modalId);
+    }
+});
+
+function initProjectGalleryModal(images, modalId) {
+    const root = document.querySelector(`#${modalId} [data-gallery]`);
+    if (!root) return;
+
+    let currentIndex = 0;
+    const mainImg = root.querySelector('[data-gallery-main-img]');
+    const thumbs = root.querySelectorAll('[data-gallery-thumb]');
+    const btnPrev = root.querySelector('[data-gallery-prev]');
+    const btnNext = root.querySelector('[data-gallery-next]');
+    const btnOpen = root.querySelector('[data-gallery-open]');
+
+    const setIndex = (idx) => {
+        if (!mainImg) return;
+        if (idx < 0) idx = images.length - 1;
+        if (idx >= images.length) idx = 0;
+
+        currentIndex = idx;
+        const img = images[currentIndex];
+        mainImg.src = img.url;
+        mainImg.alt = img.original_name || 'Image';
+
+        thumbs.forEach(t => t.classList.remove('active'));
+        const active = root.querySelector(`[data-gallery-thumb][data-index="${currentIndex}"]`);
+        if (active) active.classList.add('active');
+    };
+
+    thumbs.forEach((t) => {
+        t.addEventListener('click', () => {
+            const idx = parseInt(t.getAttribute('data-index') || '0', 10);
+            setIndex(idx);
+        });
+    });
+
+    if (btnPrev) btnPrev.addEventListener('click', () => setIndex(currentIndex - 1));
+    if (btnNext) btnNext.addEventListener('click', () => setIndex(currentIndex + 1));
+
+    if (btnOpen) {
+        btnOpen.addEventListener('click', (e) => {
+            e.preventDefault();
+            openGalleryLightboxModal(images, currentIndex);
+        });
+    }
+
+    document.addEventListener('keydown', function onKey(e) {
+        const modalEl = document.getElementById(modalId);
+        if (!modalEl || !modalEl.classList.contains('show')) return;
+        if (e.key === 'ArrowLeft') setIndex(currentIndex - 1);
+        if (e.key === 'ArrowRight') setIndex(currentIndex + 1);
+    });
+}
+
+function openGalleryLightboxModal(images, startIndex) {
+    const existing = document.getElementById('galleryLightbox');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'galleryLightbox';
+    overlay.style.position = 'fixed';
+    overlay.style.inset = '0';
+    overlay.style.background = 'rgba(0,0,0,0.85)';
+    overlay.style.zIndex = '999999';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.innerHTML = `
+        <div style="position: relative; width: min(1100px, 92vw);">
+            <button type="button" id="galleryLbClose" style="position:absolute; top:-44px; right:0; background:transparent; border:0; color:#fff; font-size:32px;">×</button>
+            <button type="button" id="galleryLbPrev" style="position:absolute; left:-10px; top:50%; transform:translate(-100%,-50%); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:#fff; width:44px; height:44px; border-radius:999px;">‹</button>
+            <button type="button" id="galleryLbNext" style="position:absolute; right:-10px; top:50%; transform:translate(100%,-50%); background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:#fff; width:44px; height:44px; border-radius:999px;">›</button>
+            <img id="galleryLbImg" src="" alt="" style="width:100%; max-height:80vh; object-fit:contain; border-radius:12px; background:#111;" />
+            <div id="galleryLbCaption" style="color:rgba(255,255,255,0.8); margin-top:10px; font-size:14px;"></div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    let idx = startIndex || 0;
+    const imgEl = overlay.querySelector('#galleryLbImg');
+    const captionEl = overlay.querySelector('#galleryLbCaption');
+
+    const render = () => {
+        if (!images[idx]) return;
+        imgEl.src = images[idx].url;
+        imgEl.alt = images[idx].original_name || 'Image';
+        captionEl.textContent = images[idx].original_name || '';
+    };
+
+    const close = () => overlay.remove();
+    overlay.querySelector('#galleryLbClose').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+    overlay.querySelector('#galleryLbPrev').addEventListener('click', () => { idx = (idx - 1 + images.length) % images.length; render(); });
+    overlay.querySelector('#galleryLbNext').addEventListener('click', () => { idx = (idx + 1) % images.length; render(); });
+
+    document.addEventListener('keydown', function onKey(e) {
+        const lb = document.getElementById('galleryLightbox');
+        if (!lb) return;
+        if (e.key === 'Escape') close();
+        if (e.key === 'ArrowLeft') { idx = (idx - 1 + images.length) % images.length; render(); }
+        if (e.key === 'ArrowRight') { idx = (idx + 1) % images.length; render(); }
+    });
+
+    render();
+}
 </script>
 @endpush

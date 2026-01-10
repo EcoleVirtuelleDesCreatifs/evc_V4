@@ -41,11 +41,12 @@
     }
 
     .student-card {
-        background: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 16px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 100%);
+        border: 1px solid rgba(255,255,255,0.10);
+        border-radius: 18px;
         overflow: hidden;
         height: 100%;
+        box-shadow: 0 10px 26px rgba(0,0,0,0.28);
     }
 
     .student-card:hover {
@@ -56,8 +57,8 @@
     }
 
     .student-card-header {
-        background: #0f172a;
-        border-bottom: 1px solid #334155;
+        background: rgba(15,23,42,0.9);
+        border-bottom: 1px solid rgba(255,255,255,0.10);
         padding: 1rem;
         display: flex;
         align-items: center;
@@ -79,18 +80,19 @@
     }
 
     .student-avatar {
-        width: 56px;
-        height: 56px;
+        width: 62px;
+        height: 62px;
         border-radius: 999px;
         object-fit: cover;
-        background: #1d4ed8;
+        background: rgba(79,195,247,0.18);
         display: flex;
         align-items: center;
         justify-content: center;
         color: #fff;
-        font-weight: 800;
+        font-weight: 900;
         flex-shrink: 0;
         overflow: hidden;
+        border: 2px solid rgba(255,255,255,0.16);
     }
 
     .student-meta {
@@ -100,21 +102,19 @@
 
     .student-name {
         color: #fff;
-        font-weight: 700;
+        font-weight: 800;
         margin: 0;
         font-size: 1.05rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        overflow: visible;
     }
 
     .student-sub {
         color: rgba(255,255,255,0.65);
         font-size: 0.9rem;
         margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        overflow: visible;
     }
 
     .student-card-body {
@@ -167,21 +167,75 @@
         </div>
     </div>
 
-    <div class="row g-2 align-items-end mb-3">
-        <div class="col-lg-5">
-            <label class="form-label text-white-50">Rechercher</label>
-            <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, email, pays, formation..." />
-        </div>
-        <div class="col-lg-7">
-            <label class="form-label text-white-50">Filtrer par formation</label>
-            <div class="d-flex flex-wrap gap-2">
-                <span class="chip active" data-filter="all">Tous</span>
-                <span class="chip" data-filter="dg">Design Graphique</span>
-                <span class="chip" data-filter="cm">Community Management</span>
-                <span class="chip" data-filter="dgcm">Design + CM</span>
+    @if($status === 'active')
+        <div class="stats-grid">
+            <div class="stat-card">
+                <p class="stat-title">Étudiants actifs</p>
+                <p class="stat-value">{{ $stats['total'] ?? 0 }}</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-title">Design Graphique</p>
+                <p class="stat-value">{{ $stats['design_graphique'] ?? 0 }}</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-title">Community Management</p>
+                <p class="stat-value">{{ $stats['community_management'] ?? 0 }}</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-title">Design + CM</p>
+                <p class="stat-value">{{ $stats['design_graphique_cm'] ?? 0 }}</p>
             </div>
         </div>
-    </div>
+
+        <div class="row g-2 align-items-end mb-3">
+            <div class="col-lg-5">
+                <label class="form-label text-white-50">Rechercher</label>
+                <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, email, pays, formation..." />
+            </div>
+            <div class="col-lg-4">
+                <label class="form-label text-white-50">Trier</label>
+                <div class="d-flex gap-2">
+                    @php
+                        $sortValue = $sort ?? request('sort', 'date');
+                        $dirValue = $dir ?? request('dir', 'desc');
+                    @endphp
+                    <select id="sortSelect" class="form-select search-input">
+                        <option value="date" {{ $sortValue === 'date' ? 'selected' : '' }}>Date d'inscription</option>
+                        <option value="projects" {{ $sortValue === 'projects' ? 'selected' : '' }}>Nombre de projets</option>
+                    </select>
+                    <select id="dirSelect" class="form-select search-input" style="max-width:160px;">
+                        <option value="desc" {{ $dirValue === 'desc' ? 'selected' : '' }}>Décroissant</option>
+                        <option value="asc" {{ $dirValue === 'asc' ? 'selected' : '' }}>Croissant</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label class="form-label text-white-50">Filtrer par formation</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="chip active" data-filter="all">Tous</span>
+                    <span class="chip" data-filter="dg">DG</span>
+                    <span class="chip" data-filter="cm">CM</span>
+                    <span class="chip" data-filter="dgcm">DG+CM</span>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="row g-2 align-items-end mb-3">
+            <div class="col-lg-5">
+                <label class="form-label text-white-50">Rechercher</label>
+                <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, email, pays, formation..." />
+            </div>
+            <div class="col-lg-7">
+                <label class="form-label text-white-50">Filtrer par formation</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="chip active" data-filter="all">Tous</span>
+                    <span class="chip" data-filter="dg">Design Graphique</span>
+                    <span class="chip" data-filter="cm">Community Management</span>
+                    <span class="chip" data-filter="dgcm">Design + CM</span>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="row g-3">
         @forelse($students as $student)
@@ -195,7 +249,7 @@
                 $theme = $hasDesign && $hasCommunity ? 'theme-dgcm' : ($hasCommunity ? 'theme-cm' : ($hasDesign ? 'theme-dg' : ''));
                 $filterKey = $hasDesign && $hasCommunity ? 'dgcm' : ($hasCommunity ? 'cm' : ($hasDesign ? 'dg' : 'other'));
             @endphp
-            <div class="col-xl-3 col-lg-4 col-md-6">
+            <div class="col-xl-4 col-lg-4 col-md-6">
                 <div class="student-card {{ $theme }}" data-student-card data-filter="{{ $filterKey }}" data-search="{{ strtolower(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->email ?? '') . ' ' . ($student->country ?? '') . ' ' . $progRaw) }}">
                     <div class="student-card-header">
                         @if(!empty($student->profile_photo) && !empty($photoUrl))
@@ -228,6 +282,27 @@
                             </div>
                         </div>
 
+                        @if($status === 'active')
+                            <div class="meta-row">
+                                <div class="meta-pill">
+                                    <strong>Inscription</strong>
+                                    <div>
+                                        @if(!empty($student->registration_sort_date))
+                                            {{ \Carbon\Carbon::parse($student->registration_sort_date)->format('d/m/Y') }}
+                                        @elseif(!empty($student->created_at))
+                                            {{ \Carbon\Carbon::parse($student->created_at)->format('d/m/Y') }}
+                                        @else
+                                            -
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="meta-pill">
+                                    <strong>Projets réalisés</strong>
+                                    <div>{{ (int) ($student->projects_count ?? 0) }}</div>
+                                </div>
+                            </div>
+                        @endif
+
                         @if($status === 'inactive')
                             @php
                                 $expiresAt = $student->expiration_date ?? ($student->computed_expiration_date ?? null);
@@ -247,6 +322,23 @@
                         <div class="actions-row">
                             <a href="{{ route('admin.students.profile', $student->id) }}" class="btn btn-sm btn-info">Voir</a>
                             <a href="{{ route('admin.badges.generate', $student->id) }}" class="btn btn-sm btn-primary">Générer un badge</a>
+                            @if($status === 'active')
+                                @php
+                                    $exportPhoto = (!empty($student->profile_photo) && !empty($photoUrl)) ? $photoUrl : null;
+                                    $exportPayload = [
+                                        'id' => (int) ($student->id ?? 0),
+                                        'full_name' => trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')),
+                                        'email' => (string) ($student->email ?? ''),
+                                        'country' => (string) ($student->country ?? ''),
+                                        'program' => (string) ($student->program ?? ''),
+                                        'photo' => $exportPhoto,
+                                        'projects_count' => (int) ($student->projects_count ?? 0),
+                                        'registered_at' => (string) ($student->registration_sort_date ?? $student->created_at ?? ''),
+                                        'theme' => $filterKey,
+                                    ];
+                                @endphp
+                                <button type="button" class="btn btn-sm export-btn" data-export-card data-export='@json($exportPayload)'>Télécharger la carte</button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -269,6 +361,7 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
     (function () {
         const searchInput = document.getElementById('studentSearch');
@@ -304,7 +397,138 @@
             searchInput.addEventListener('input', applyFilters);
         }
 
+        const sortSelect = document.getElementById('sortSelect');
+        const dirSelect = document.getElementById('dirSelect');
+        const applySort = () => {
+            if (!sortSelect || !dirSelect) return;
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', sortSelect.value);
+            url.searchParams.set('dir', dirSelect.value);
+            window.location.href = url.toString();
+        };
+        if (sortSelect && dirSelect) {
+            sortSelect.addEventListener('change', applySort);
+            dirSelect.addEventListener('change', applySort);
+        }
+
         applyFilters();
+    })();
+
+    (function () {
+        const buttons = document.querySelectorAll('[data-export-card]');
+        if (!buttons || buttons.length === 0) return;
+
+        const renderCard1080x1350 = (data) => {
+            const wrap = document.createElement('div');
+            wrap.style.width = '1080px';
+            wrap.style.height = '1350px';
+            wrap.style.position = 'fixed';
+            wrap.style.left = '-99999px';
+            wrap.style.top = '0';
+            wrap.style.background = 'linear-gradient(135deg, #0b1220 0%, #111c34 50%, #0b1220 100%)';
+            wrap.style.borderRadius = '38px';
+            wrap.style.overflow = 'hidden';
+            wrap.style.border = '2px solid rgba(255,255,255,0.12)';
+
+            const theme = data.theme || 'dg';
+            const themeBg = theme === 'cm'
+                ? 'linear-gradient(135deg, rgba(131,58,180,0.75) 0%, rgba(193,53,132,0.75) 40%, rgba(225,48,108,0.55) 70%, rgba(245,96,64,0.45) 100%)'
+                : (theme === 'dgcm'
+                    ? 'linear-gradient(135deg, rgba(79,195,247,0.70) 0%, rgba(30,60,114,0.75) 60%, rgba(245,158,11,0.55) 100%)'
+                    : 'linear-gradient(135deg, rgba(79,195,247,0.75) 0%, rgba(30,60,114,0.80) 80%)');
+
+            wrap.innerHTML = `
+                <div style="padding:70px 70px 52px; height:100%; display:flex; flex-direction:column;">
+                    <div style="background:${themeBg}; border-radius:30px; padding:42px; display:flex; align-items:center; gap:34px; border:1px solid rgba(255,255,255,0.18); box-shadow:0 22px 60px rgba(0,0,0,0.35);">
+                        <div style="width:180px; height:180px; border-radius:999px; overflow:hidden; border:4px solid rgba(255,255,255,0.22); background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:54px;">
+                            ${data.photo ? `<img src="${data.photo}" style="width:100%; height:100%; object-fit:cover;" />` : `${(data.full_name || 'ET').split(' ').map(p => p[0]).slice(0,2).join('').toUpperCase()}`}
+                        </div>
+                        <div style="min-width:0;">
+                            <div style="color:#fff; font-weight:900; font-size:56px; line-height:1.05;">${data.full_name || ''}</div>
+                            <div style="color:rgba(255,255,255,0.9); font-size:26px; margin-top:10px; word-break:break-word;">${data.email || ''}</div>
+                        </div>
+                    </div>
+
+                    <div style="height:26px;"></div>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+                        <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10); border-radius:26px; padding:28px;">
+                            <div style="color:rgba(255,255,255,0.7); font-size:22px; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Pays</div>
+                            <div style="color:#fff; font-size:32px; font-weight:900; margin-top:10px;">${data.country || ''}</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10); border-radius:26px; padding:28px;">
+                            <div style="color:rgba(255,255,255,0.7); font-size:22px; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Formation</div>
+                            <div style="color:#fff; font-size:30px; font-weight:900; margin-top:10px; line-height:1.1;">${data.program || ''}</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10); border-radius:26px; padding:28px;">
+                            <div style="color:rgba(255,255,255,0.7); font-size:22px; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Projets réalisés</div>
+                            <div style="color:#fff; font-size:54px; font-weight:900; margin-top:6px;">${data.projects_count ?? 0}</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10); border-radius:26px; padding:28px;">
+                            <div style="color:rgba(255,255,255,0.7); font-size:22px; text-transform:uppercase; letter-spacing:.08em; font-weight:800;">Inscription</div>
+                            <div style="color:#fff; font-size:32px; font-weight:900; margin-top:10px;">${data.registered_at ? (new Date(data.registered_at).toLocaleDateString('fr-FR')) : ''}</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:auto; display:flex; justify-content:space-between; align-items:center; padding-top:40px;">
+                        <div style="color:rgba(255,255,255,0.7); font-size:22px; font-weight:800;">Ecole Virtuelle Des Creatifs</div>
+                        <div style="color:rgba(255,255,255,0.6); font-size:20px;">Badge étudiant</div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(wrap);
+            return wrap;
+        };
+
+        const downloadBlobUrl = (blobUrl, filename) => {
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        };
+
+        buttons.forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                if (!window.html2canvas) {
+                    alert('html2canvas non chargé');
+                    return;
+                }
+
+                let data = {};
+                try {
+                    data = JSON.parse(btn.getAttribute('data-export') || '{}');
+                } catch (e) {
+                    data = {};
+                }
+
+                const card = renderCard1080x1350(data);
+                try {
+                    const canvas = await window.html2canvas(card, {
+                        backgroundColor: null,
+                        scale: 1,
+                        width: 1080,
+                        height: 1350,
+                        useCORS: true,
+                    });
+
+                    canvas.toBlob((blob) => {
+                        if (!blob) return;
+                        const url = URL.createObjectURL(blob);
+                        const safeName = (data.full_name || 'etudiant').toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                        downloadBlobUrl(url, `badge_${safeName}_1080x1350.png`);
+                        setTimeout(() => URL.revokeObjectURL(url), 8000);
+                    }, 'image/png');
+                } catch (err) {
+                    console.error(err);
+                    alert('Impossible de générer l\'image.');
+                } finally {
+                    card.remove();
+                }
+            });
+        });
     })();
 </script>
 @endpush
