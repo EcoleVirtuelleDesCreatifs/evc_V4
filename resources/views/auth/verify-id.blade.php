@@ -27,19 +27,19 @@
         .verify-subtitle{opacity:.92;font-weight:400;max-width:760px;margin-left:auto;margin-right:auto;line-height:1.55;}
         .verify-body{padding:22px 20px;}
         .info-box{background:linear-gradient(135deg, rgba(51,153,255,.10), rgba(0,51,102,.10));border:1px solid rgba(51,153,255,.22);border-radius:14px;padding:16px;}
-        .card-dark{background:rgba(10,16,30,.92);border:1px solid rgba(255,255,255,.12);border-radius:22px;overflow:hidden;}
-        .card-dark .top{background:radial-gradient(900px 260px at 50% 0%, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 55%);}
-        .avatar{width:128px;height:128px;border-radius:999px;object-fit:cover;border:6px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);box-shadow:0 18px 65px rgba(0,0,0,.55);}
-        .pill{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .85rem;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);font-weight:800;font-size:.9rem;line-height:1.1;color:rgba(255,255,255,.92);}
+        .card-dark{background:linear-gradient(135deg, rgba(6,62,119,.78) 0%, rgba(32,113,195,.62) 55%, rgba(51,153,255,.48) 100%);border:1px solid rgba(255,255,255,.14);border-radius:22px;overflow:hidden;backdrop-filter:blur(18px);box-shadow:0 26px 70px rgba(0,0,0,.35);}
+        .card-dark .top{background:radial-gradient(900px 260px at 50% 0%, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 55%);}
+        .avatar{width:128px;height:128px;border-radius:999px;object-fit:cover;border:6px solid rgba(255,255,255,.22);background:rgba(255,255,255,.10);box-shadow:0 18px 55px rgba(0,0,0,.40);}
+        .pill{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .85rem;border-radius:999px;background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.16);font-weight:800;font-size:.9rem;line-height:1.1;color:rgba(255,255,255,.95);backdrop-filter:blur(10px);}
         .pill i{opacity:.9;}
-        .stat-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:14px;}
-        .stat-label{color:rgba(255,255,255,.72);font-size:.78rem;}
+        .stat-box{background:rgba(0,0,0,.14);border:1px solid rgba(255,255,255,.14);border-radius:14px;backdrop-filter:blur(10px);}
+        .stat-label{color:rgba(255,255,255,.78);font-size:.78rem;}
         .stat-value{font-weight:900;}
         .badge-evc{border-radius:999px;padding:.45rem .8rem;font-weight:900;}
         .badge-evc.ok{background:rgba(40,167,69,.18);color:#b6f7c7;border:1px solid rgba(40,167,69,.35);}
         .badge-evc.warn{background:rgba(255,153,0,.18);color:#ffe0b0;border:1px solid rgba(255,153,0,.35);}
         .badge-evc.danger{background:rgba(220,53,69,.16);color:#ffd0d6;border:1px solid rgba(220,53,69,.34);}
-        .status-banner{border-radius:18px;border:1px solid rgba(255,255,255,.14);padding:14px 14px;background:linear-gradient(135deg, rgba(51,153,255,.16) 0%, rgba(0,51,102,.10) 35%, rgba(255,102,51,.14) 100%);box-shadow:0 22px 70px rgba(0,0,0,.42);}
+        .status-banner{border-radius:18px;border:1px solid rgba(255,255,255,.16);padding:14px 14px;background:linear-gradient(135deg, rgba(0,0,0,.14) 0%, rgba(51,153,255,.16) 55%, rgba(255,102,51,.12) 100%);box-shadow:0 22px 70px rgba(0,0,0,.28);}
         .status-banner .kicker{letter-spacing:.18em;font-weight:900;opacity:.9;font-size:.75rem;}
         .status-banner .headline{font-weight:950;letter-spacing:-.02em;line-height:1.15;}
         .status-banner .desc{color:rgba(255,255,255,.78);}
