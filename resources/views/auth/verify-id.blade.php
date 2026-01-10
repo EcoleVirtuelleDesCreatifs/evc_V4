@@ -41,8 +41,9 @@
                         @enderror
                     </div>
                     <div class="col-12 col-md-4 d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-shield-alt me-2"></i>Vérifier
+                        <button type="submit" class="btn btn-primary" id="verifyIdBtn">
+                            <span id="verifyIdText"><i class="fas fa-shield-alt me-2"></i>Vérifier</span>
+                            <span id="verifyIdSpinner" class="spinner-border spinner-border-sm" role="status" style="display:none;"></span>
                         </button>
                     </div>
                 </form>
@@ -142,5 +143,20 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const verifyIdBtn = document.getElementById('verifyIdBtn');
+        const verifyIdText = document.getElementById('verifyIdText');
+        const verifyIdSpinner = document.getElementById('verifyIdSpinner');
+        if (verifyIdBtn) {
+            const form = verifyIdBtn.closest('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    verifyIdBtn.disabled = true;
+                    if (verifyIdText) verifyIdText.style.display = 'none';
+                    if (verifyIdSpinner) verifyIdSpinner.style.display = 'inline-block';
+                });
+            }
+        }
+    </script>
 </body>
 </html>

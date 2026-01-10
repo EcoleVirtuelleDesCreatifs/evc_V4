@@ -536,16 +536,16 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="padding: 1.25rem;">
-                    <form method="POST" action="{{ route('auth.verify-id.check') }}" class="d-grid gap-3">
+                    <form method="POST" action="{{ route('auth.verify-id.check') }}" class="d-grid gap-3" id="verifyStudentIdForm">
                         @csrf
                         <div>
                             <label class="form-label fw-semibold">ID Étudiant</label>
                             <input type="text" name="student_id" class="form-control" placeholder="Ex: EVC-2026-050101" required>
                             <small class="text-muted">Vous serez redirigé vers la page de vérification officielle.</small>
                         </div>
-                        <button type="submit" class="btn btn-login" style="padding: .9rem 1.25rem;">
-                            <i class="fas fa-check-circle me-2"></i>
-                            Confirmer votre ID
+                        <button type="submit" class="btn btn-login" style="padding: .9rem 1.25rem;" id="verifyStudentIdSubmit">
+                            <span id="verifyStudentIdSubmitText"><i class="fas fa-check-circle me-2"></i>Confirmer votre ID</span>
+                            <span id="verifyStudentIdSpinner" class="loading-spinner" style="display:none;"></span>
                         </button>
                     </form>
                 </div>
@@ -581,6 +581,19 @@
             loadingSpinner.style.display = 'inline-block';
             loginBtn.disabled = true;
         });
+
+        const verifyForm = document.getElementById('verifyStudentIdForm');
+        if (verifyForm) {
+            verifyForm.addEventListener('submit', function() {
+                const submitBtn = document.getElementById('verifyStudentIdSubmit');
+                const submitText = document.getElementById('verifyStudentIdSubmitText');
+                const spinner = document.getElementById('verifyStudentIdSpinner');
+
+                if (submitBtn) submitBtn.disabled = true;
+                if (submitText) submitText.style.display = 'none';
+                if (spinner) spinner.style.display = 'inline-block';
+            });
+        }
 
         // Input animations
         document.querySelectorAll('.form-control').forEach(input => {
