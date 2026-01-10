@@ -487,59 +487,79 @@
                 <small class="text-white-50">Classement basé sur le volume validé sur la période</small>
             </div>
             <div class="card-body">
+                @php
+                    $formationSections = [
+                        'dg' => ['label' => 'Top 5 Design Graphique', 'icon' => 'fa-palette'],
+                        'cm' => ['label' => 'Top 5 Community Management', 'icon' => 'fa-users'],
+                        'dgcm' => ['label' => 'Top 5 Design + CM', 'icon' => 'fa-object-group'],
+                    ];
+                    $periodLabels = [
+                        'week' => 'Semaine',
+                        'month' => 'Mois',
+                        'quarter' => 'Trimestre',
+                        'year' => 'Année',
+                    ];
+                @endphp
+
                 <div class="row g-3">
-                    @php
-                        $periodLabels = [
-                            'week' => 'Semaine',
-                            'month' => 'Mois',
-                            'quarter' => 'Trimestre',
-                            'year' => 'Année',
-                        ];
-                    @endphp
-
-                    @foreach($periodLabels as $key => $label)
-                        <div class="col-md-6 col-lg-3">
-                            <div class="top-performer-card">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <strong class="text-white">{{ $label }}</strong>
-                                    <span class="badge bg-info">Top 5</span>
+                    @foreach($formationSections as $formationKey => $formationMeta)
+                        @php
+                            $byPeriod = $topPerformersByFormation[$formationKey] ?? [];
+                        @endphp
+                        <div class="col-12">
+                            <div class="mb-2 d-flex align-items-center justify-content-between">
+                                <div class="text-white fw-bold" style="font-size:1.05rem;">
+                                    <i class="fas {{ $formationMeta['icon'] }} me-2"></i>{{ $formationMeta['label'] }}
                                 </div>
+                                <span class="badge bg-info">Top 5</span>
+                            </div>
 
-                                @php
-                                    $list = $topPerformers[$key] ?? collect();
-                                @endphp
+                            <div class="row g-3">
+                                @foreach($periodLabels as $periodKey => $periodLabel)
+                                    @php
+                                        $list = $byPeriod[$periodKey] ?? collect();
+                                    @endphp
+                                    <div class="col-12 col-lg-6">
+                                        <div class="top-performer-card">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <strong class="text-white">{{ $periodLabel }}</strong>
+                                                <span class="badge bg-secondary">{{ $periodLabel }}</span>
+                                            </div>
 
-                                @if($list->isEmpty())
-                                    <div class="text-white-50">Aucune donnée</div>
-                                @else
-                                    <div class="d-flex flex-column gap-2">
-                                        @foreach($list as $idx => $p)
-                                            <div class="d-flex align-items-center gap-2">
-                                                <span class="rank-badge">{{ $idx + 1 }}</span>
-                                                <div class="flex-grow-1" style="min-width:0;">
-                                                    <div class="text-white fw-semibold" style="line-height:1.15;">
-                                                        {{ trim(($p->first_name ?? '').' '.($p->last_name ?? '')) }}
-                                                    </div>
-                                                    <div class="text-white-50" style="font-size:.85rem;">
-                                                        {{ $p->student_id ?? '—' }}
+                                            @if($list->isEmpty())
+                                                <div class="text-white-50">Aucune donnée</div>
+                                            @else
+                                                <div class="d-flex flex-column gap-2">
+                                                    @foreach($list as $idx => $p)
                                                         @php
                                                             $pProgram = (string) ($p->program ?? '');
                                                             $pSpecialization = (string) ($p->specialization ?? '');
                                                             $pFormationLabel = trim($pProgram) !== '' ? $pProgram : (trim($pSpecialization) !== '' ? $pSpecialization : 'Formation EVC');
                                                         @endphp
-                                                        @if(!empty($pFormationLabel))
-                                                            • {{ $pFormationLabel }}
-                                                        @endif
-                                                    </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="rank-badge">{{ $idx + 1 }}</span>
+                                                            <div class="flex-grow-1" style="min-width:0;">
+                                                                <div class="text-white fw-semibold" style="line-height:1.15;">
+                                                                    {{ trim(($p->first_name ?? '').' '.($p->last_name ?? '')) }}
+                                                                </div>
+                                                                <div class="text-white-50" style="font-size:.85rem;">
+                                                                    {{ $p->student_id ?? '—' }}
+                                                                    @if(!empty($pFormationLabel))
+                                                                        • {{ $pFormationLabel }}
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                            <div class="text-end" style="min-width:70px;">
+                                                                <div class="text-white fw-bold">{{ (int) ($p->total_score ?? 0) }}</div>
+                                                                <div class="text-white-50" style="font-size:.75rem;">P:{{ (int) ($p->projects_validated ?? 0) }} TP:{{ (int) ($p->tp_validated ?? 0) }}</div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
                                                 </div>
-                                                <div class="text-end" style="min-width:70px;">
-                                                    <div class="text-white fw-bold">{{ (int) ($p->total_score ?? 0) }}</div>
-                                                    <div class="text-white-50" style="font-size:.75rem;">P:{{ (int) ($p->projects_validated ?? 0) }} TP:{{ (int) ($p->tp_validated ?? 0) }}</div>
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                            @endif
+                                        </div>
                                     </div>
-                                @endif
+                                @endforeach
                             </div>
                         </div>
                     @endforeach

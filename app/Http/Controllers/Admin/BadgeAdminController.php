@@ -142,11 +142,86 @@ class BadgeAdminController extends Controller
                 ->get();
         };
 
+        $buildTopPerformersByFormation = function (Carbon $from, string $formationKey) {
+            $projectsSub = DB::table('projects')
+                ->select('user_id', DB::raw('COUNT(*) as projects_validated'))
+                ->where('created_at', '>=', $from)
+                ->whereIn('status', ['valide', 'validated'])
+                ->groupBy('user_id');
+
+            $tpSub = DB::table('tp_assignments')
+                ->select('user_id', DB::raw('COUNT(*) as tp_validated'))
+                ->where('validated_at', '>=', $from)
+                ->where('status', 'validated')
+                ->groupBy('user_id');
+
+            $formationExpr = "LOWER(CONCAT(COALESCE(students.program,''), ' ', COALESCE(students.specialization,'')))";
+
+            $q = DB::table('students')
+                ->where('students.status', 'active')
+                ->leftJoinSub($projectsSub, 'p', function ($join) {
+                    $join->on('p.user_id', '=', 'students.user_id');
+                })
+                ->leftJoinSub($tpSub, 't', function ($join) {
+                    $join->on('t.user_id', '=', 'students.user_id');
+                })
+                ->select(
+                    'students.id',
+                    'students.user_id',
+                    'students.student_id',
+                    'students.first_name',
+                    'students.last_name',
+                    'students.program',
+                    'students.specialization',
+                    DB::raw('COALESCE(p.projects_validated, 0) as projects_validated'),
+                    DB::raw('COALESCE(t.tp_validated, 0) as tp_validated'),
+                    DB::raw('(COALESCE(p.projects_validated, 0) + COALESCE(t.tp_validated, 0)) as total_score')
+                );
+
+            if ($formationKey === 'dg') {
+                $q->whereRaw("$formationExpr LIKE ?", ['%design%'])
+                    ->whereRaw("$formationExpr NOT LIKE ?", ['%community%']);
+            } elseif ($formationKey === 'cm') {
+                $q->whereRaw("$formationExpr LIKE ?", ['%community%'])
+                    ->whereRaw("$formationExpr NOT LIKE ?", ['%design%']);
+            } elseif ($formationKey === 'dgcm') {
+                $q->whereRaw("$formationExpr LIKE ?", ['%design%'])
+                    ->whereRaw("$formationExpr LIKE ?", ['%community%']);
+            }
+
+            return $q
+                ->orderByDesc('total_score')
+                ->orderByDesc('projects_validated')
+                ->limit(5)
+                ->get();
+        };
+
         $topPerformers = [
             'week' => $buildTopPerformers(Carbon::now()->startOfWeek()),
             'month' => $buildTopPerformers(Carbon::now()->startOfMonth()),
             'quarter' => $buildTopPerformers(Carbon::now()->firstOfQuarter()),
             'year' => $buildTopPerformers(Carbon::now()->startOfYear()),
+        ];
+
+        $topPerformersByFormation = [
+            'dg' => [
+                'week' => $buildTopPerformersByFormation(Carbon::now()->startOfWeek(), 'dg'),
+                'month' => $buildTopPerformersByFormation(Carbon::now()->startOfMonth(), 'dg'),
+                'quarter' => $buildTopPerformersByFormation(Carbon::now()->firstOfQuarter(), 'dg'),
+                'year' => $buildTopPerformersByFormation(Carbon::now()->startOfYear(), 'dg'),
+            ],
+            'cm' => [
+                'week' => $buildTopPerformersByFormation(Carbon::now()->startOfWeek(), 'cm'),
+                'month' => $buildTopPerformersByFormation(Carbon::now()->startOfMonth(), 'cm'),
+                'quarter' => $buildTopPerformersByFormation(Carbon::now()->firstOfQuarter(), 'cm'),
+                'year' => $buildTopPerformersByFormation(Carbon::now()->startOfYear(), 'cm'),
+            ],
+            'dgcm' => [
+                'week' => $buildTopPerformersByFormation(Carbon::now()->startOfWeek(), 'dgcm'),
+                'month' => $buildTopPerformersByFormation(Carbon::now()->startOfMonth(), 'dgcm'),
+                'quarter' => $buildTopPerformersByFormation(Carbon::now()->firstOfQuarter(), 'dgcm'),
+                'year' => $buildTopPerformersByFormation(Carbon::now()->startOfYear(), 'dgcm'),
+            ],
         ];
 
         return view('admin.badges.students', [
@@ -155,6 +230,7 @@ class BadgeAdminController extends Controller
             'students' => $students,
             'stats' => $stats,
             'topPerformers' => $topPerformers,
+            'topPerformersByFormation' => $topPerformersByFormation,
             'sort' => $sort,
             'dir' => $dir,
         ]);
