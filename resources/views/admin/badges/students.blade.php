@@ -177,6 +177,27 @@
         overflow: visible;
     }
 
+    .top-performer-card {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 14px;
+        padding: 12px;
+    }
+
+    .rank-badge {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        color: #fff;
+        background: rgba(79,195,247,0.25);
+        border: 1px solid rgba(79,195,247,0.35);
+        flex-shrink: 0;
+    }
+
     .student-card-body {
         padding: 1rem;
     }
@@ -273,6 +294,97 @@
             </div>
         </div>
 
+        <div class="row mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ $stats['new_today'] ?? 0 }}</h3>
+                        <p class="stat-label">Nouveaux inscrits (aujourd'hui)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-card stat-card-success">
+                    <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ $stats['new_since_saturday'] ?? 0 }}</h3>
+                        <p class="stat-label">Nouveaux inscrits (depuis samedi)</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-card stat-card-warning">
+                    <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ $stats['new_month'] ?? 0 }}</h3>
+                        <p class="stat-label">Nouveaux inscrits (ce mois)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4" style="background-color: #1e293b; border: 1px solid #334155;">
+            <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                <h5 class="mb-0 text-white"><i class="fas fa-trophy me-2"></i>Top 5 performers (Projets + TP validés)</h5>
+                <small class="text-white-50">Classement basé sur le volume validé sur la période</small>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    @php
+                        $periodLabels = [
+                            'week' => 'Semaine',
+                            'month' => 'Mois',
+                            'quarter' => 'Trimestre',
+                            'year' => 'Année',
+                        ];
+                    @endphp
+
+                    @foreach($periodLabels as $key => $label)
+                        <div class="col-md-6 col-lg-3">
+                            <div class="top-performer-card">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong class="text-white">{{ $label }}</strong>
+                                    <span class="badge bg-info">Top 5</span>
+                                </div>
+
+                                @php
+                                    $list = $topPerformers[$key] ?? collect();
+                                @endphp
+
+                                @if($list->isEmpty())
+                                    <div class="text-white-50">Aucune donnée</div>
+                                @else
+                                    <div class="d-flex flex-column gap-2">
+                                        @foreach($list as $idx => $p)
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="rank-badge">{{ $idx + 1 }}</span>
+                                                <div class="flex-grow-1" style="min-width:0;">
+                                                    <div class="text-white fw-semibold" style="line-height:1.15;">
+                                                        {{ trim(($p->first_name ?? '').' '.($p->last_name ?? '')) }}
+                                                    </div>
+                                                    <div class="text-white-50" style="font-size:.85rem;">
+                                                        {{ $p->student_id ?? '—' }}
+                                                        @if(!empty($p->program))
+                                                            • {{ $p->program }}
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="text-end" style="min-width:70px;">
+                                                    <div class="text-white fw-bold">{{ (int) ($p->total_score ?? 0) }}</div>
+                                                    <div class="text-white-50" style="font-size:.75rem;">P:{{ (int) ($p->projects_validated ?? 0) }} TP:{{ (int) ($p->tp_validated ?? 0) }}</div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
         <div class="card mb-4" style="background-color: #1e293b; border: 1px solid #334155;">
             <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
                 <h5 class="mb-0 text-white"><i class="fas fa-filter me-2"></i>Filtres & Tri</h5>
@@ -281,7 +393,7 @@
                 <div class="row g-3 align-items-end">
                     <div class="col-lg-5">
                         <label class="form-label text-white-50">Rechercher</label>
-                        <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, email, pays, formation..." />
+                        <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, ID, pays, formation..." />
                     </div>
                     <div class="col-lg-4">
                         <label class="form-label text-white-50">Trier</label>
@@ -321,7 +433,7 @@
                 <div class="row g-3 align-items-end">
                     <div class="col-lg-5">
                         <label class="form-label text-white-50">Rechercher</label>
-                        <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, email, pays, formation..." />
+                        <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, ID, pays, formation..." />
                     </div>
                     <div class="col-lg-7">
                         <label class="form-label text-white-50">Filtrer par formation</label>
@@ -355,7 +467,7 @@
                 $filterKey = $hasDesign && $hasCommunity ? 'dgcm' : ($hasCommunity ? 'cm' : ($hasDesign ? 'dg' : 'other'));
             @endphp
             <div class="col-xl-4 col-lg-4 col-md-6">
-                <div class="student-card {{ $theme }}" data-student-card data-filter="{{ $filterKey }}" data-search="{{ strtolower(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->email ?? '') . ' ' . ($student->country ?? '') . ' ' . $progRaw) }}">
+                <div class="student-card {{ $theme }}" data-student-card data-filter="{{ $filterKey }}" data-search="{{ strtolower(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->student_id ?? '') . ' ' . ($student->country ?? '') . ' ' . $progRaw) }}">
                     <div class="student-card-header">
                         @if(!empty($student->profile_photo) && !empty($photoUrl))
                             <img src="{{ $photoUrl }}" alt="{{ $student->first_name ?? 'Étudiant' }}" class="student-avatar" />
@@ -365,7 +477,7 @@
 
                         <div class="student-meta">
                             <p class="student-name">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</p>
-                            <p class="student-sub">{{ $student->email ?? '' }}</p>
+                            <p class="student-sub">ID Étudiant: {{ $student->student_id ?? '—' }}</p>
                         </div>
 
                         @if($status === 'inactive')
@@ -426,14 +538,13 @@
 
                         <div class="actions-row">
                             <a href="{{ route('admin.students.profile', $student->id) }}" class="btn btn-sm btn-info">Voir</a>
-                            <a href="{{ route('admin.badges.generate', $student->id) }}" class="btn btn-sm btn-primary">Générer un badge</a>
                             @if($status === 'active')
                                 @php
                                     $exportPhoto = (!empty($student->profile_photo) && !empty($photoUrl)) ? $photoUrl : null;
                                     $exportPayload = [
                                         'id' => (int) ($student->id ?? 0),
                                         'full_name' => trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')),
-                                        'email' => (string) ($student->email ?? ''),
+                                        'student_id' => (string) ($student->student_id ?? ''),
                                         'country' => (string) ($student->country ?? ''),
                                         'program' => (string) ($student->program ?? ''),
                                         'photo' => $exportPhoto,
@@ -552,7 +663,7 @@
                         </div>
                         <div style="min-width:0;">
                             <div style="color:#fff; font-weight:900; font-size:56px; line-height:1.05;">${data.full_name || ''}</div>
-                            <div style="color:rgba(255,255,255,0.9); font-size:26px; margin-top:10px; word-break:break-word;">${data.email || ''}</div>
+                            <div style="color:rgba(255,255,255,0.9); font-size:26px; margin-top:10px; word-break:break-word;">ID Étudiant: ${data.student_id || ''}</div>
                         </div>
                     </div>
 

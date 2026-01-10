@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 use setasign\Fpdf\Fpdf;
 
 class BadgeAdminController extends Controller
@@ -28,6 +29,7 @@ class BadgeAdminController extends Controller
             ->select(
                 'students.id',
                 'students.user_id',
+                'students.student_id',
                 'students.first_name',
                 'students.last_name',
                 'students.country',
@@ -78,11 +80,79 @@ class BadgeAdminController extends Controller
                 ->count(),
         ];
 
+        // Nouveaux inscrits
+        $hasRegistrationDateForStats = Schema::hasColumn('students', 'registration_date');
+        $registrationDateField = $hasRegistrationDateForStats ? 'registration_date' : 'created_at';
+        $todayStart = Carbon::now()->startOfDay();
+        $monthStart = Carbon::now()->startOfMonth();
+        $sinceSaturday = Carbon::now()->startOfWeek(Carbon::SATURDAY);
+
+        $stats['new_today'] = (int) DB::table('students')
+            ->where('status', 'active')
+            ->where($registrationDateField, '>=', $todayStart)
+            ->count();
+
+        $stats['new_since_saturday'] = (int) DB::table('students')
+            ->where('status', 'active')
+            ->where($registrationDateField, '>=', $sinceSaturday)
+            ->count();
+
+        $stats['new_month'] = (int) DB::table('students')
+            ->where('status', 'active')
+            ->where($registrationDateField, '>=', $monthStart)
+            ->count();
+
+        $buildTopPerformers = function (Carbon $from) {
+            $projectsSub = DB::table('projects')
+                ->select('user_id', DB::raw('COUNT(*) as projects_validated'))
+                ->where('created_at', '>=', $from)
+                ->whereIn('status', ['valide', 'validated'])
+                ->groupBy('user_id');
+
+            $tpSub = DB::table('tp_assignments')
+                ->select('user_id', DB::raw('COUNT(*) as tp_validated'))
+                ->where('validated_at', '>=', $from)
+                ->where('status', 'validated')
+                ->groupBy('user_id');
+
+            return DB::table('students')
+                ->where('students.status', 'active')
+                ->leftJoinSub($projectsSub, 'p', function ($join) {
+                    $join->on('p.user_id', '=', 'students.user_id');
+                })
+                ->leftJoinSub($tpSub, 't', function ($join) {
+                    $join->on('t.user_id', '=', 'students.user_id');
+                })
+                ->select(
+                    'students.id',
+                    'students.user_id',
+                    'students.student_id',
+                    'students.first_name',
+                    'students.last_name',
+                    'students.program',
+                    DB::raw('COALESCE(p.projects_validated, 0) as projects_validated'),
+                    DB::raw('COALESCE(t.tp_validated, 0) as tp_validated'),
+                    DB::raw('(COALESCE(p.projects_validated, 0) + COALESCE(t.tp_validated, 0)) as total_score')
+                )
+                ->orderByDesc('total_score')
+                ->orderByDesc('projects_validated')
+                ->limit(5)
+                ->get();
+        };
+
+        $topPerformers = [
+            'week' => $buildTopPerformers(Carbon::now()->startOfWeek()),
+            'month' => $buildTopPerformers(Carbon::now()->startOfMonth()),
+            'quarter' => $buildTopPerformers(Carbon::now()->firstOfQuarter()),
+            'year' => $buildTopPerformers(Carbon::now()->startOfYear()),
+        ];
+
         return view('admin.badges.students', [
             'title' => 'Étudiants Actifs',
             'status' => 'active',
             'students' => $students,
             'stats' => $stats,
+            'topPerformers' => $topPerformers,
             'sort' => $sort,
             'dir' => $dir,
         ]);
