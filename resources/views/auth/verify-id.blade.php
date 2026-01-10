@@ -44,6 +44,8 @@
         .info-box{background:linear-gradient(135deg, rgba(51,153,255,.10), rgba(0,51,102,.10));border:1px solid rgba(51,153,255,.22);border-radius:14px;padding:16px;}
         .card-dark{background:linear-gradient(135deg, rgba(6,62,119,.78) 0%, rgba(32,113,195,.62) 55%, rgba(51,153,255,.48) 100%);border:1px solid rgba(255,255,255,.14);border-radius:22px;overflow:hidden;backdrop-filter:blur(18px);box-shadow:0 26px 70px rgba(0,0,0,.35);}
         .card-dark .top{background:radial-gradient(900px 260px at 50% 0%, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 55%);}
+        .student-kicker{font-weight:950;letter-spacing:.28em;font-size:1.05rem;text-transform:uppercase;display:inline-block;padding:.55rem 1.05rem;border-radius:999px;background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.18);box-shadow:0 18px 55px rgba(0,0,0,.22);}
+        .student-kicker span{background:linear-gradient(135deg,#ffffff 0%, rgba(255,255,255,.82) 40%, rgba(255,153,0,.95) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
         .avatar{width:128px;height:128px;border-radius:999px;object-fit:cover;border:6px solid rgba(255,255,255,.22);background:rgba(255,255,255,.10);box-shadow:0 18px 55px rgba(0,0,0,.40);}
         .pill{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .85rem;border-radius:999px;background:rgba(0,0,0,.16);border:1px solid rgba(255,255,255,.16);font-weight:800;font-size:.9rem;line-height:1.1;color:rgba(255,255,255,.95);backdrop-filter:blur(10px);}
         .pill i{opacity:.9;}
@@ -55,9 +57,15 @@
         .badge-evc.warn{background:rgba(255,153,0,.18);color:#ffe0b0;border:1px solid rgba(255,153,0,.35);}
         .badge-evc.danger{background:rgba(220,53,69,.16);color:#ffd0d6;border:1px solid rgba(220,53,69,.34);}
         .status-banner{border-radius:18px;border:1px solid rgba(255,255,255,.16);padding:14px 14px;background:linear-gradient(135deg, rgba(0,0,0,.14) 0%, rgba(51,153,255,.16) 55%, rgba(255,102,51,.12) 100%);box-shadow:0 22px 70px rgba(0,0,0,.28);}
-        .status-banner .kicker{letter-spacing:.18em;font-weight:900;opacity:.9;font-size:.75rem;}
+        .status-chip{display:inline-flex;align-items:center;gap:.55rem;padding:.45rem .85rem;border-radius:999px;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.16);font-weight:900;letter-spacing:.16em;text-transform:uppercase;font-size:.72rem;opacity:.98;}
+        .status-chip i{color:#FF9900;}
         .status-banner .headline{font-weight:950;letter-spacing:-.02em;line-height:1.15;}
         .status-banner .desc{color:rgba(255,255,255,.78);}
+        .status-state{display:inline-block;position:relative;}
+        .status-state.is-active{background:linear-gradient(90deg,#ffffff 0%, #FF9900 30%, #ffffff 60%, #3399ff 100%);background-size:220% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation: evcShimmer 2.6s ease-in-out infinite;}
+        .status-state.is-inactive{color:rgba(255,255,255,.95);}
+        .status-state.is-inactive::after{content:'';display:block;height:2px;margin-top:6px;border-radius:999px;background:linear-gradient(90deg, rgba(255,255,255,.15), rgba(255,153,0,.65), rgba(255,255,255,.15));opacity:.85;}
+        @keyframes evcShimmer{0%{background-position:0% 50%;opacity:.82;}50%{background-position:100% 50%;opacity:1;}100%{background-position:0% 50%;opacity:.86;}}
         .info-line{display:flex;align-items:flex-start;gap:.65rem;color:rgba(255,255,255,.90);}
         .info-line i{opacity:.9;margin-top:.1rem;}
         .notfound{border-radius:18px;border:1px solid rgba(148,163,184,.18);background:linear-gradient(135deg, rgba(255,153,0,.10) 0%, rgba(30,41,59,.92) 55%, rgba(15,23,42,.92) 100%);}
@@ -152,7 +160,7 @@
                     <div class="card-dark text-white mt-4 soft-anim">
                         <div class="top p-3 p-md-4">
                             <div class="text-center">
-                                <div class="fw-black" style="letter-spacing:.18em;font-weight:900;opacity:.95;font-size:.85rem;">ÉTUDIANT(E) EVC</div>
+                                <div class="student-kicker"><span>ÉTUDIANT(E) EVC</span></div>
                                 <div class="mt-2">
                                     @if(!empty($stats['photo_url']))
                                         <img src="{{ $stats['photo_url'] }}" alt="Photo" class="avatar">
@@ -177,12 +185,12 @@
                             </div>
 
                             <div class="mt-3 status-banner">
-                                <div class="kicker">STATUT DE FORMATION</div>
+                                <div class="status-chip"><i class="fas fa-layer-group"></i><span>STATUT DE FORMATION</span></div>
                                 @if(!empty($stats['is_active']))
-                                    <div class="headline mt-1">Votre formation est en cours.</div>
+                                    <div class="headline mt-2"><span class="status-state is-active">Votre formation est en cours.</span></div>
                                     <div class="desc mt-2">Vous êtes officiellement étudiant(e) à EVC, et votre formation n'est pas encore terminée. Continuez votre progression : TP, projets, et dossier de fin de formation.</div>
                                 @else
-                                    <div class="headline mt-1">Votre formation est terminée.</div>
+                                    <div class="headline mt-2"><span class="status-state is-inactive">Votre formation est terminée.</span></div>
                                     <div class="desc mt-2">Vous avez été étudiant(e) à EVC, mais actuellement votre formation est terminée. Si vous souhaitez renouveler votre accès ou reprendre une formation, l'administration peut vous accompagner.</div>
                                 @endif
 
