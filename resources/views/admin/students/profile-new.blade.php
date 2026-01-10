@@ -815,6 +815,18 @@
                             </div>
                         </div>
 
+                        @php
+                        $totalFacturesSafe = (float) ($data['stats']['total_factures'] ?? 0);
+                        $totalPayeSafe = (float) ($data['stats']['total_paye'] ?? 0);
+                        $soldeRestantSafe = (float) ($data['stats']['solde_restant'] ?? 0);
+                        if ($soldeRestantSafe < 0) {
+                            $soldeRestantSafe = 0;
+                        }
+                        $pourcentagePaye = $totalFacturesSafe > 0 ? round(($totalPayeSafe / $totalFacturesSafe) * 100) : 0;
+                        if ($pourcentagePaye < 0) $pourcentagePaye = 0;
+                        if ($pourcentagePaye > 100) $pourcentagePaye = 100;
+                    @endphp
+
                         <!-- Total Payé -->
                         <div class="col-6">
                             <div class="p-3 rounded text-center" style="background: rgba(34, 197, 94, 0.15); border: 2px solid #22c55e;">
@@ -843,17 +855,6 @@
                     </div>
 
                     <!-- Barre de progression du paiement -->
-                    @php
-                        $totalFacturesSafe = (float) ($data['stats']['total_factures'] ?? 0);
-                        $totalPayeSafe = (float) ($data['stats']['total_paye'] ?? 0);
-                        $soldeRestantSafe = (float) ($data['stats']['solde_restant'] ?? 0);
-                        if ($soldeRestantSafe < 0) {
-                            $soldeRestantSafe = 0;
-                        }
-                        $pourcentagePaye = $totalFacturesSafe > 0 ? round(($totalPayeSafe / $totalFacturesSafe) * 100) : 0;
-                        if ($pourcentagePaye < 0) $pourcentagePaye = 0;
-                        if ($pourcentagePaye > 100) $pourcentagePaye = 100;
-                    @endphp
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <small class="text-white-50">Progression Paiement</small>

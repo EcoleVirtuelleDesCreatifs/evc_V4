@@ -138,7 +138,7 @@ class StudentIdVerificationController extends Controller
             : ($isDesign ? 'design-graphique' : ($isCommunity ? 'community-management' : 'community-management'));
 
         $minTPRequired = match (true) {
-            $currentModule === 'design-graphique-cm' => 50,
+            $currentModule === 'design-graphique-cm' => 18,
             $currentModule === 'design-graphique' => 35,
             in_array($currentModule, ['community-management', 'community-manager'], true) => 15,
             default => 15,
@@ -248,7 +248,7 @@ class StudentIdVerificationController extends Controller
             : ($isDesign ? 'design-graphique' : ($isCommunity ? 'community-management' : 'community-management'));
 
         $minTPRequired = match (true) {
-            $currentModule === 'design-graphique-cm' => 50,
+            $currentModule === 'design-graphique-cm' => 18,
             $currentModule === 'design-graphique' => 35,
             in_array($currentModule, ['community-management', 'community-manager'], true) => 15,
             default => 15,

@@ -211,8 +211,8 @@
                                 </div>
                                 <div class="col-12 col-md-4">
                                     <div class="p-3 stat-box">
-                                        <div class="stat-label">TP (validés)</div>
-                                        <div class="stat-value">{{ (int) ($stats['tp_validated'] ?? 0) }}</div>
+                                        <div class="stat-label">TP (validés / requis)</div>
+                                        <div class="stat-value">{{ (int) ($stats['tp_validated'] ?? 0) }} / {{ (int) ($stats['min_tp_required'] ?? 0) }}</div>
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-4">
@@ -248,10 +248,14 @@
         if (verifyIdBtn) {
             const form = verifyIdBtn.closest('form');
             if (form) {
-                form.addEventListener('submit', function() {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
                     verifyIdBtn.disabled = true;
                     if (verifyIdText) verifyIdText.style.display = 'none';
                     if (verifyIdSpinner) verifyIdSpinner.style.display = 'inline-block';
+                    window.setTimeout(function() {
+                        form.submit();
+                    }, 10000);
                 });
             }
         }
