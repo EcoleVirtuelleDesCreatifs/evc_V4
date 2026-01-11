@@ -1201,17 +1201,159 @@ class AdminDashboardController extends Controller
                         $uploadedFiles[] = $originalName;
                     }
                 }
+            }
 
+            // Envoyer un email aux étudiants ciblés + à l'admin (ne doit pas bloquer la création)
+            $emailsSent = 0;
+            $emailsFailures = [];
+            $adminEmailSent = false;
+            $adminEmailFailure = false;
+
+            try {
+                $modulesToUse = array_values(array_unique(array_filter($validatedData['modules'] ?? [], function ($m) {
+                    return is_string($m) && trim($m) !== '';
+                })));
+
+                $moduleMapping = [
+                    'design_graphique' => ['Design Graphique', 'design_graphique'],
+                    'community_management' => ['Community Management', 'community_management'],
+                    'intelligence_artificielle' => ['Intelligence Artificielle', 'intelligence_artificielle'],
+                    'gestion_informatique' => ['Gestion Informatique', 'gestion_informatique'],
+                    'design_graphique_community_manager' => ['Design Graphique & Community Manager', 'design_graphique_community_manager'],
+                ];
+
+                $allVariants = [];
+                foreach ($modulesToUse as $m) {
+                    $moduleNormalized = str_replace('-', '_', $m);
+                    $variants = $moduleMapping[$moduleNormalized] ?? [$moduleNormalized];
+                    $allVariants = array_merge($allVariants, $variants);
+                }
+
+                $allVariants = array_values(array_unique(array_filter($allVariants, function ($v) {
+                    return is_string($v) && trim($v) !== '';
+                })));
+
+                $studentsQuery = DB::table('students')
+                    ->join('users', 'students.user_id', '=', 'users.id')
+                    ->where(function ($query) use ($allVariants) {
+                        foreach ($allVariants as $variant) {
+                            $query->orWhere('students.program', $variant)
+                                ->orWhere('students.specialization', $variant);
+                        }
+                    })
+                    ->select(
+                        'users.id as user_id',
+                        'users.email as email',
+                        'students.first_name as first_name',
+                        'students.last_name as last_name',
+                        'students.program as program'
+                    );
+
+                if (($validatedData['destinataire'] ?? null) === 'etudiants-actifs') {
+                    $studentsQuery->where('students.status', 'active');
+                } elseif (($validatedData['destinataire'] ?? null) === 'etudiants-specifiques') {
+                    $selectedUserIds = array_values(array_unique(array_filter($validatedData['student_ids'] ?? [], function ($id) {
+                        return !empty($id) && is_numeric($id);
+                    })));
+                    if (!empty($selectedUserIds)) {
+                        $studentsQuery->whereIn('users.id', $selectedUserIds);
+                    } else {
+                        $studentsQuery->whereRaw('1 = 0');
+                    }
+                }
+
+                $studentsToNotify = $studentsQuery->get();
+
+                $formationSlug = $this->getFormationSlug($studentsToNotify->first()->program ?? ($allVariants[0] ?? ''));
+                $formationsUrl = url('/evc/compte/' . $formationSlug . '/formations/index');
+                $categoryName = null;
+                try {
+                    $categoryName = Category::where('id', $formation->category_id)->value('name');
+                } catch (\Throwable $e) {
+                    $categoryName = null;
+                }
+
+                foreach ($studentsToNotify as $student) {
+                    if (empty($student->email) || !filter_var($student->email, FILTER_VALIDATE_EMAIL)) {
+                        continue;
+                    }
+
+                    $recipientName = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
+                    $recipientName = $recipientName !== '' ? $recipientName : 'Cher(e) étudiant(e)';
+
+                    try {
+                        Mail::send('emails.formation_available', [
+                            'recipientName' => $recipientName,
+                            'formationName' => $formation->name,
+                            'categoryName' => $categoryName,
+                            'formationsUrl' => $formationsUrl,
+                        ], function ($message) use ($student, $formation) {
+                            $message->to($student->email)
+                                ->subject('Nouvelle formation disponible : ' . $formation->name);
+                        });
+                        $emailsSent++;
+                    } catch (\Throwable $e) {
+                        $emailsFailures[] = $student->email;
+                        Log::warning('Email formation non envoyé à un étudiant', [
+                            'email' => $student->email,
+                            'formation_id' => $formation->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+
+                $adminEmail = env('MAIL_ADMIN_ADDRESS') ?: env('MAIL_FROM_ADDRESS');
+                if (!empty($adminEmail) && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+                    try {
+                        Mail::send('emails.formation_available', [
+                            'recipientName' => 'Admin',
+                            'formationName' => $formation->name,
+                            'categoryName' => $categoryName,
+                            'formationsUrl' => $formationsUrl,
+                        ], function ($message) use ($adminEmail, $formation) {
+                            $message->to($adminEmail)
+                                ->subject('[ADMIN] Nouvelle formation créée : ' . $formation->name);
+                        });
+                        $adminEmailSent = true;
+                    } catch (\Throwable $e) {
+                        $adminEmailFailure = true;
+                        Log::warning('Email formation non envoyé à l\'admin', [
+                            'email' => $adminEmail,
+                            'formation_id' => $formation->id,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Erreur préparation/envoi emails formation', [
+                    'formation_id' => $formation->id ?? null,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            // Message de succès final (inclut PDFs + statut emails)
+            $successMessage = 'Formation créée avec succès';
+            $fileCount = 0;
+            if (isset($uploadedFiles) && is_array($uploadedFiles)) {
                 $fileCount = count($uploadedFiles);
-                $successMessage = 'Formation créée avec succès';
                 if ($fileCount > 0) {
                     $successMessage .= ' avec ' . $fileCount . ' fichier(s) PDF joint(s).';
                 }
-
-                return redirect()->route('admin.formations.index')->with('success', $successMessage);
             }
 
-            return redirect()->route('admin.formations.index')->with('success', 'Formation créée avec succès.');
+            if ($emailsSent > 0) {
+                $successMessage .= ' ' . $emailsSent . ' email(s) envoyé(s) aux étudiants.';
+            }
+            if (!empty($emailsFailures)) {
+                $successMessage .= ' Attention : ' . count($emailsFailures) . ' email(s) étudiant(s) non envoyé(s).';
+            }
+            if ($adminEmailSent) {
+                $successMessage .= ' Email admin envoyé.';
+            } elseif ($adminEmailFailure) {
+                $successMessage .= ' Attention : email admin non envoyé.';
+            }
+
+            return redirect()->route('admin.formations.index')->with('success', $successMessage);
         } catch (\Exception $e) {
             Log::error('Erreur lors de la création de la formation: ' . $e->getMessage());
             return back()->with('error', 'Une erreur est survenue lors de la création de la formation: ' . $e->getMessage())->withInput();
@@ -5848,6 +5990,7 @@ class AdminDashboardController extends Controller
             'community-management' => 'community-management',
 
             'Design Graphique & Community Management' => 'design-graphique-cm',
+            'Design Graphique & Community Manager' => 'design-graphique-cm',
             'design_graphique_community_management' => 'design-graphique-cm',
             'design-graphique-cm' => 'design-graphique-cm',
 
