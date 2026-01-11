@@ -11,6 +11,8 @@ use PDOException;
 use Exception;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -227,6 +229,37 @@ class AuthController extends Controller
             session([
                 'user_formation_display' => $this->getFormationDisplayName($formationNormalized)
             ]);
+
+            // Email de rappel ID étudiant (ne doit pas bloquer la connexion)
+            try {
+                if ($student && !empty($user->email) && filter_var($user->email, FILTER_VALIDATE_EMAIL)) {
+                    $studentId = $student->student_id ?? null;
+                    if (!empty($studentId)) {
+                        $studentName = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
+                        if ($studentName === '') {
+                            $studentName = trim((string) ($user->name ?? ''));
+                        }
+                        $studentName = $studentName !== '' ? $studentName : 'Cher(e) étudiant(e)';
+
+                        $verifyUrl = url('/auth/evc/verify-id');
+
+                        Mail::send('emails.student_id_login_reminder', [
+                            'studentName' => $studentName,
+                            'studentId' => $studentId,
+                            'verifyUrl' => $verifyUrl,
+                        ], function ($message) use ($user) {
+                            $message->to($user->email)
+                                ->subject('Votre ID Étudiant - Vérification');
+                        });
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Email rappel ID étudiant non envoyé', [
+                    'user_id' => $user->id ?? null,
+                    'email' => $user->email ?? null,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             // Rediriger vers la page de chargement
             return redirect()->route('auth.loading')->with('success', 'Connexion réussie ! Bienvenue dans votre espace ' . $this->getFormationDisplayName($formationNormalized) . ', ' . ($user->first_name ?? 'Étudiant') . ' 👋');

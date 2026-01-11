@@ -1243,6 +1243,7 @@ class AdminDashboardController extends Controller
                     })
                     ->select(
                         'users.id as user_id',
+                        'users.name as user_name',
                         'users.email as email',
                         'students.first_name as first_name',
                         'students.last_name as last_name',
@@ -1264,7 +1265,8 @@ class AdminDashboardController extends Controller
 
                 $studentsToNotify = $studentsQuery->get();
 
-                $formationSlug = $this->getFormationSlug($studentsToNotify->first()->program ?? ($allVariants[0] ?? ''));
+                $firstStudent = $studentsToNotify->first();
+                $formationSlug = $this->getFormationSlug(($firstStudent->program ?? null) ?: ($allVariants[0] ?? ''));
                 $formationsUrl = url('/evc/compte/' . $formationSlug . '/formations/index');
                 $categoryName = null;
                 try {
@@ -1279,6 +1281,9 @@ class AdminDashboardController extends Controller
                     }
 
                     $recipientName = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
+                    if ($recipientName === '') {
+                        $recipientName = trim((string) ($student->user_name ?? ''));
+                    }
                     $recipientName = $recipientName !== '' ? $recipientName : 'Cher(e) étudiant(e)';
 
                     try {
