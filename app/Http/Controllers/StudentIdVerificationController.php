@@ -13,8 +13,24 @@ use Illuminate\View\View;
 
 class StudentIdVerificationController extends Controller
 {
-    public function show(): View
+    public function show(Request $request): View
     {
+        $searchedId = trim((string) $request->query('student_id', ''));
+
+        if ($searchedId === '' && auth()->check()) {
+            $userId = (int) auth()->id();
+            if ($userId > 0) {
+                $studentRow = DB::table('students')->where('user_id', $userId)->first();
+                if ($studentRow && !empty($studentRow->student_id)) {
+                    $searchedId = (string) $studentRow->student_id;
+                }
+            }
+        }
+
+        if ($searchedId !== '') {
+            return $this->buildVerificationView($searchedId);
+        }
+
         return view('auth.verify-id', [
             'searchedId' => null,
             'notFound' => false,
@@ -30,6 +46,13 @@ class StudentIdVerificationController extends Controller
         ]);
 
         $searchedId = trim((string) $validated['student_id']);
+
+        return $this->buildVerificationView($searchedId);
+    }
+
+    private function buildVerificationView(string $searchedId): View
+    {
+        $searchedId = trim($searchedId);
 
         $student = DB::table('students')
             ->where('student_id', $searchedId)

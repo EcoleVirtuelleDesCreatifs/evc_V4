@@ -241,7 +241,7 @@ class AuthController extends Controller
                         }
                         $studentName = $studentName !== '' ? $studentName : 'Cher(e) étudiant(e)';
 
-                        $verifyUrl = url('/auth/evc/verify-id');
+                        $verifyUrl = url('/auth/evc/verify-id') . '?student_id=' . urlencode((string) $studentId);
 
                         Mail::send('emails.student_id_login_reminder', [
                             'studentName' => $studentName,

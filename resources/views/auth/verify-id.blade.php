@@ -396,7 +396,7 @@
                         verifyOverlayId.textContent = enteredId !== '' ? maskStudentIdClient(enteredId) : '—';
                     }
 
-                    const durationMs = 10000;
+                    const durationMs = 1500;
                     const start = Date.now();
                     if (verifyOverlayBar) verifyOverlayBar.style.width = '0%';
                     if (verifyOverlayPct) verifyOverlayPct.textContent = '0%';
@@ -413,7 +413,7 @@
 
                     window.setTimeout(function() {
                         form.submit();
-                    }, 10000);
+                    }, 1200);
                 });
             }
         }
