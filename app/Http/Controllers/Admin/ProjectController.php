@@ -520,8 +520,10 @@ class ProjectController extends Controller
             ->join('users', 'projects.user_id', '=', 'users.id')
             ->leftJoin('students', 'users.id', '=', 'students.user_id')
             ->where(function ($q) {
-                $q->where('students.program', 'like', '%community_management%')
-                    ->orWhere('students.program', 'like', '%Community Management%');
+                // Inclure Community Management uniquement
+                $q->whereRaw('LOWER(students.program) LIKE ?', ['%community%'])
+                    // Exclure le double cursus Design & Community
+                    ->whereRaw('LOWER(students.program) NOT LIKE ?', ['%design%']);
             });
 
         $stats = [
