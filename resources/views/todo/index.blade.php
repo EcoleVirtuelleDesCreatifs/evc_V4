@@ -731,7 +731,8 @@
 
 @push('scripts')
 <script>
-const tpData = @json($tpAssignments);
+const tpDataRaw = @json($tpAssignments->values());
+const tpData = Array.isArray(tpDataRaw) ? tpDataRaw : Object.values(tpDataRaw || {});
 const formationPrefix = '{{ $formationPrefix ?? "community-management" }}';
 
 // Gestion de l'upload de fichiers
@@ -883,7 +884,7 @@ document.getElementById('submitTpForm').addEventListener('submit', function(e) {
 
 function showDetails(tpId) {
     // Trouver le TP dans les données
-    const tp = tpData.find(t => t.id === tpId);
+    const tp = tpData.find(t => String(t.id) === String(tpId));
 
     if (!tp) {
         alert('❌ TP non trouvé');
@@ -1058,16 +1059,17 @@ function showDetails(tpId) {
     }
 
     // Ajouter les fichiers joints si présents
-    if (tp.files && tp.files.length > 0) {
+    const files = Array.isArray(tp.files) ? tp.files : Object.values(tp.files || {});
+    if (files.length > 0) {
         content += `
             <div style="margin-bottom: 1.5rem;">
                 <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
-                    <i class="fas fa-paperclip me-2"></i>Fichiers joints (${tp.files.length})
+                    <i class="fas fa-paperclip me-2"></i>Fichiers joints (${files.length})
                 </h4>
                 <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
         `;
 
-        tp.files.forEach(file => {
+        files.forEach(file => {
             content += `
                 <a href="${file.file_path}" target="_blank" style="background: linear-gradient(135deg, var(--blue-900), var(--blue-500)); color: white; padding: 0.75rem 1.25rem; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                     <i class="fas fa-download"></i>
