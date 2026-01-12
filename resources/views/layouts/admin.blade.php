@@ -445,13 +445,25 @@
                         </a>
                         <div class="collapse {{ request()->routeIs('admin.candidatures.*') || request()->routeIs('admin.demandes.partenariat.*') ? 'show' : '' }}" id="rejoignezNousMenu">
                             <ul class="admin-nav-submenu">
-                                <li><a href="{{ route('admin.candidatures.collaborateurs.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.candidatures.collaborateurs.*') ? 'active' : '' }}">
+                                @php
+                                    $collaborateursUrl = \Illuminate\Support\Facades\Route::has('admin.candidatures.collaborateurs.index')
+                                        ? route('admin.candidatures.collaborateurs.index')
+                                        : url('/evc/app/admin/candidatures/collaborateurs');
+                                    $partenairesUrl = \Illuminate\Support\Facades\Route::has('admin.demandes.partenariat.index')
+                                        ? route('admin.demandes.partenariat.index')
+                                        : url('/evc/app/admin/demandes/partenariat');
+                                    $formateursUrl = \Illuminate\Support\Facades\Route::has('admin.candidatures.formateurs.index')
+                                        ? route('admin.candidatures.formateurs.index')
+                                        : url('/evc/app/admin/candidatures/formateurs');
+                                @endphp
+
+                                <li><a href="{{ $collaborateursUrl }}" class="admin-nav-sublink {{ request()->routeIs('admin.candidatures.collaborateurs.*') ? 'active' : '' }}">
                                     <i class="fas fa-user-tie"></i>Collaborateurs
                                 </a></li>
-                                <li><a href="{{ route('admin.demandes.partenariat.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.demandes.partenariat.*') ? 'active' : '' }}">
+                                <li><a href="{{ $partenairesUrl }}" class="admin-nav-sublink {{ request()->routeIs('admin.demandes.partenariat.*') ? 'active' : '' }}">
                                     <i class="fas fa-handshake"></i>Partenaires
                                 </a></li>
-                                <li><a href="{{ route('admin.candidatures.formateurs.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.candidatures.formateurs.*') ? 'active' : '' }}">
+                                <li><a href="{{ $formateursUrl }}" class="admin-nav-sublink {{ request()->routeIs('admin.candidatures.formateurs.*') ? 'active' : '' }}">
                                     <i class="fas fa-chalkboard-teacher"></i>Formateurs
                                 </a></li>
                             </ul>
