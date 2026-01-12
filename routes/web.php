@@ -1126,6 +1126,19 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/candidatures/collaborateurs/{id}/download-cv', [App\Http\Controllers\Admin\CandidatureCollaborateurController::class, 'downloadCV'])->name('candidatures.collaborateurs.download-cv');
         Route::delete('/candidatures/collaborateurs/{id}', [App\Http\Controllers\Admin\CandidatureCollaborateurController::class, 'destroy'])->name('candidatures.collaborateurs.destroy');
 
+        // Gestion des Candidatures Formateurs
+        Route::get('/candidatures/formateurs', [App\Http\Controllers\Admin\CandidatureFormateurController::class, 'index'])->name('candidatures.formateurs.index');
+        Route::get('/candidatures/formateurs/{id}', [App\Http\Controllers\Admin\CandidatureFormateurController::class, 'show'])->name('candidatures.formateurs.show');
+        Route::post('/candidatures/formateurs/{id}/statut', [App\Http\Controllers\Admin\CandidatureFormateurController::class, 'updateStatut'])->name('candidatures.formateurs.update-statut');
+        Route::get('/candidatures/formateurs/{id}/download-cv', [App\Http\Controllers\Admin\CandidatureFormateurController::class, 'downloadCV'])->name('candidatures.formateurs.download-cv');
+        Route::delete('/candidatures/formateurs/{id}', [App\Http\Controllers\Admin\CandidatureFormateurController::class, 'destroy'])->name('candidatures.formateurs.destroy');
+
+        // Gestion des Demandes Partenaires
+        Route::get('/demandes/partenariat', [App\Http\Controllers\Admin\DemandePartenariatController::class, 'index'])->name('demandes.partenariat.index');
+        Route::get('/demandes/partenariat/{id}', [App\Http\Controllers\Admin\DemandePartenariatController::class, 'show'])->name('demandes.partenariat.show');
+        Route::post('/demandes/partenariat/{id}/statut', [App\Http\Controllers\Admin\DemandePartenariatController::class, 'updateStatut'])->name('demandes.partenariat.update-statut');
+        Route::delete('/demandes/partenariat/{id}', [App\Http\Controllers\Admin\DemandePartenariatController::class, 'destroy'])->name('demandes.partenariat.destroy');
+
         // Gestion des Rapports
         Route::get('/rapports', [AdminDashboardController::class, 'rapports'])->name('rapports');
         Route::get('/rapports/index', [AdminDashboardController::class, 'rapports'])->name('reports.index');

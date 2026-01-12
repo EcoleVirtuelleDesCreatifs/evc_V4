@@ -431,6 +431,34 @@
                     </li>
                     @endif
 
+                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
+                    <!-- Séparateur : Rejoignez-nous -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-handshake me-2"></i>Rejoignez-nous
+                    </li>
+
+                    <li class="admin-nav-item dropdown">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.candidatures.*') || request()->routeIs('admin.demandes.partenariat.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#rejoignezNousMenu">
+                            <i class="fas fa-users"></i>
+                            Candidatures & Partenaires
+                            <i class="fas fa-chevron-right ms-auto"></i>
+                        </a>
+                        <div class="collapse {{ request()->routeIs('admin.candidatures.*') || request()->routeIs('admin.demandes.partenariat.*') ? 'show' : '' }}" id="rejoignezNousMenu">
+                            <ul class="admin-nav-submenu">
+                                <li><a href="{{ route('admin.candidatures.collaborateurs.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.candidatures.collaborateurs.*') ? 'active' : '' }}">
+                                    <i class="fas fa-user-tie"></i>Collaborateurs
+                                </a></li>
+                                <li><a href="{{ route('admin.demandes.partenariat.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.demandes.partenariat.*') ? 'active' : '' }}">
+                                    <i class="fas fa-handshake"></i>Partenaires
+                                </a></li>
+                                <li><a href="{{ route('admin.candidatures.formateurs.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.candidatures.formateurs.*') ? 'active' : '' }}">
+                                    <i class="fas fa-chalkboard-teacher"></i>Formateurs
+                                </a></li>
+                            </ul>
+                        </div>
+                    </li>
+                    @endif
+
                     @if(session('admin_role') === 'super_admin')
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.donations.index') }}" class="admin-nav-link {{ request()->routeIs('admin.donations.*') ? 'active' : '' }}">
