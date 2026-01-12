@@ -546,11 +546,12 @@
                                 // Gérer les deux cas: relations Eloquent OU colonnes plates (tp_assignments)
                                 $sourceTable = $project->source_table ?? null;
                                 $isDesignProject = ($project instanceof \App\Models\DesignProject) || ($sourceTable === 'design_projects');
+                                $isTpReport = ($project instanceof \App\Models\TP) || ($sourceTable === 'tp');
 
                                 $viewUrl = null;
                                 if ($isDesignProject) {
                                     $viewUrl = route('admin.design-projects.view', $project->id);
-                                } elseif ($sourceTable === 'tp') {
+                                } elseif ($isTpReport) {
                                     $viewUrl = route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']);
                                 } else {
                                     // tp_assignments (par défaut) : le controller viewTp cherche d'abord dans tp_assignments
@@ -667,12 +668,15 @@
                                             @else
                                                 <form action="{{ route('admin.tp.validate', $project->id) }}" method="POST" style="flex: 1;">
                                                     @csrf
+                                                    @if($isTpReport)
+                                                        <input type="hidden" name="source" value="tp_report">
+                                                    @endif
                                                     <button type="submit" class="btn btn-action btn-validate w-100" title="Valider">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
                                                 @if($project->status === 'pending' || $project->status === 'submitted')
-                                                    <button type="button" class="btn btn-action btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal" data-id="{{ $project->id }}" data-type="{{ $type }}" title="Rejeter">
+                                                    <button type="button" class="btn btn-action btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal" data-id="{{ $project->id }}" data-type="{{ $type }}" data-source="{{ $isTpReport ? 'tp_report' : '' }}" title="Rejeter">
                                                         <i class="fas fa-times"></i>
                                                     </button>
                                                 @endif
@@ -714,6 +718,7 @@
         <div class="modal-content">
             <form id="rejectForm" method="POST">
                 @csrf
+                <input type="hidden" name="source" id="rejectSource" value="">
                 <div class="modal-header">
                     <h5 class="modal-title" id="rejectModalLabel">Rejeter le projet</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
@@ -745,10 +750,11 @@ document.addEventListener('DOMContentLoaded', function() {
     rejectModal.addEventListener('show.bs.modal', function (event) {
         const button = event.relatedTarget;
         const projectId = button.getAttribute('data-id');
-        const projectType = button.getAttribute('data-type');
+        const projectSource = button.getAttribute('data-source') || '';
 
         const actionUrl = `/evc/app/admin/tp/reject/${projectId}`;
         rejectForm.action = actionUrl;
+        document.getElementById('rejectSource').value = projectSource;
     });
 
     // Réinitialiser le formulaire quand le modal est fermé
