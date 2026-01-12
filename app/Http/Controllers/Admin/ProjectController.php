@@ -402,8 +402,14 @@ class ProjectController extends Controller
             ->join('users', 'projects.user_id', '=', 'users.id')
             ->join('students', 'users.id', '=', 'students.user_id')
             ->where(function ($query) {
-                $query->whereRaw('LOWER(students.program) LIKE ?', ['%community%'])
-                    ->whereRaw('LOWER(students.program) NOT LIKE ?', ['%design%']);
+                $normalizedProgramSql = "REPLACE(REPLACE(REPLACE(LOWER(COALESCE(students.program, '')), ' ', ''), '-', ''), '_', '')";
+
+                $query->where(function ($q) use ($normalizedProgramSql) {
+                    $q->whereRaw($normalizedProgramSql . " LIKE ?", ['%community%'])
+                        ->orWhereRaw($normalizedProgramSql . " LIKE ?", ['%cmsmm%'])
+                        ->orWhereRaw($normalizedProgramSql . " = ?", ['cm'])
+                        ->orWhereRaw($normalizedProgramSql . " = ?", ['smm']);
+                })->whereRaw($normalizedProgramSql . " NOT LIKE ?", ['%design%']);
             });
 
         // Mapping des statuts: en_cours=assigned, termine=submitted, valide=validated, rejete=rejected
