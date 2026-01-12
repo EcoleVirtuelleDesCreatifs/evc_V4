@@ -544,19 +544,22 @@
                         @forelse($projects as $project)
                             @php
                                 // Gérer les deux cas: relations Eloquent OU colonnes plates (tp_assignments)
-                                $sourceTable = $project->source_table ?? null;
-                                $isDesignProject = ($project instanceof \App\Models\DesignProject) || ($sourceTable === 'design_projects');
-                                $isTpReport = ($project instanceof \App\Models\TP) || ($sourceTable === 'tp');
+                                 $sourceTable = $project->source_table ?? null;
+                                 $isDesignProject = ($project instanceof \App\Models\DesignProject) || ($sourceTable === 'design_projects');
+                                 $isTpReport = ($project instanceof \App\Models\TP) || ($sourceTable === 'tp');
+                                 $isCmProject = ($type === 'cm-smm') && !$isDesignProject && !$isTpReport && (isset($project->category) || isset($project->formation));
 
-                                $viewUrl = null;
-                                if ($isDesignProject) {
-                                    $viewUrl = route('admin.design-projects.view', $project->id);
-                                } elseif ($isTpReport) {
-                                    $viewUrl = route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']);
-                                } else {
-                                    // tp_assignments (par défaut) : le controller viewTp cherche d'abord dans tp_assignments
-                                    $viewUrl = route('admin.tp.view', ['id' => $project->id]);
-                                }
+                                 $viewUrl = null;
+                                 if ($isDesignProject) {
+                                     $viewUrl = route('admin.design-projects.view', $project->id);
+                                 } elseif ($isTpReport) {
+                                     $viewUrl = route('admin.tp.view', ['id' => $project->id, 'source' => 'tp_report']);
+                                 } elseif ($isCmProject) {
+                                     $viewUrl = route('admin.projets.pending.show', ['id' => $project->id]);
+                                 } else {
+                                     // tp_assignments (par défaut) : le controller viewTp cherche d'abord dans tp_assignments
+                                     $viewUrl = route('admin.tp.view', ['id' => $project->id]);
+                                 }
 
                                 // Si colonnes plates (tp_assignments, design_projects via DB::table)
                                 if (isset($project->prenom) || isset($project->nom)) {
@@ -666,29 +669,32 @@
                                                     </form>
                                                 @endif
                                             @else
-                                                <form action="{{ route('admin.tp.validate', $project->id) }}" method="POST" style="flex: 1;">
-                                                    @csrf
-                                                    @if($isTpReport)
-                                                        <input type="hidden" name="source" value="tp_report">
-                                                    @endif
-                                                    <button type="submit" class="btn btn-action btn-validate w-100" title="Valider">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </form>
-                                                @if($project->status === 'pending' || $project->status === 'submitted')
-                                                    <button type="button" class="btn btn-action btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal" data-id="{{ $project->id }}" data-type="{{ $type }}" data-source="{{ $isTpReport ? 'tp_report' : '' }}" title="Rejeter">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                @endif
-                                                <form action="{{ route('admin.tp.delete', $project->id) }}" method="POST" style="flex: 1;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-action btn-delete w-100" title="Supprimer">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        @endif
+                                                 <form action="{{ $isCmProject ? route('admin.projets.pending.validate', $project->id) : route('admin.tp.validate', $project->id) }}" method="POST" style="flex: 1;">
+                                                     @csrf
+                                                     @if($isCmProject)
+                                                         <input type="hidden" name="source" value="cm_project">
+                                                     @endif
+                                                     @if($isTpReport)
+                                                         <input type="hidden" name="source" value="tp_report">
+                                                     @endif
+                                                     <button type="submit" class="btn btn-action btn-validate w-100" title="Valider">
+                                                         <i class="fas fa-check"></i>
+                                                     </button>
+                                                 </form>
+                                                 @if($project->status === 'pending' || $project->status === 'submitted')
+                                                     <button type="button" class="btn btn-action btn-reject" data-bs-toggle="modal" data-bs-target="#rejectModal" data-id="{{ $project->id }}" data-type="{{ $type }}" data-source="{{ $isCmProject ? 'cm_project' : ($isTpReport ? 'tp_report' : '') }}" title="Rejeter">
+                                                         <i class="fas fa-times"></i>
+                                                     </button>
+                                                 @endif
+                                                 <form action="{{ route('admin.tp.delete', $project->id) }}" method="POST" style="flex: 1;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce projet ?');">
+                                                     @csrf
+                                                     @method('DELETE')
+                                                     <button type="submit" class="btn btn-action btn-delete w-100" title="Supprimer">
+                                                         <i class="fas fa-trash"></i>
+                                                     </button>
+                                                 </form>
+                                             @endif
+                                         @endif
                                     </div>
                                 </div>
                             </div>

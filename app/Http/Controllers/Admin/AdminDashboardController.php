@@ -3146,6 +3146,51 @@ class AdminDashboardController extends Controller
     public function validateTp(Request $request, int $id)
     {
         try {
+            // Si la demande vient de la page projets CM/SMM (table `projects`),
+            // éviter toute collision d'ID avec `tp_assignments`.
+            if ($request->input('source') === 'cm_project') {
+                $project = DB::table('projects')
+                    ->join('users', 'projects.user_id', '=', 'users.id')
+                    ->leftJoin('students', 'users.id', '=', 'students.user_id')
+                    ->where('projects.id', $id)
+                    ->select(
+                        'projects.*',
+                        'students.first_name as student_first_name',
+                        'students.last_name as student_last_name',
+                        'users.email as student_email'
+                    )
+                    ->first();
+
+                if (!$project) {
+                    return redirect()->back()->with('error', 'Projet introuvable');
+                }
+
+                DB::table('projects')->where('id', $id)->update([
+                    'status' => 'valide',
+                    'updated_at' => now(),
+                ]);
+
+                try {
+                    $student = (object)[
+                        'first_name' => $project->student_first_name,
+                        'last_name' => $project->student_last_name,
+                        'email' => $project->student_email,
+                    ];
+
+                    Mail::send('emails.tp_validated', [
+                        'student' => $student,
+                        'tp' => $project,
+                    ], function ($message) use ($student, $project) {
+                        $message->to($student->email)
+                            ->subject('✅ Votre projet "' . $project->title . '" a été validé !');
+                    });
+                } catch (\Exception $e) {
+                    Log::error('Erreur envoi email validation projet CM (source cm_project): ' . $e->getMessage());
+                }
+
+                return redirect()->back()->with('success', '✅ Projet validé avec succès !');
+            }
+
             if ($request->input('source') === 'tp_report') {
                 $tpReport = DB::table('tp')->where('id', $id)->first();
 
@@ -3336,6 +3381,52 @@ class AdminDashboardController extends Controller
             ]);
 
             $reason = $request->input('reason');
+
+            // Si la demande vient de la page projets CM/SMM (table `projects`),
+            // éviter toute collision d'ID avec `tp_assignments`.
+            if ($request->input('source') === 'cm_project') {
+                $project = DB::table('projects')
+                    ->join('users', 'projects.user_id', '=', 'users.id')
+                    ->leftJoin('students', 'users.id', '=', 'students.user_id')
+                    ->where('projects.id', $id)
+                    ->select(
+                        'projects.*',
+                        'students.first_name as student_first_name',
+                        'students.last_name as student_last_name',
+                        'users.email as student_email'
+                    )
+                    ->first();
+
+                if (!$project) {
+                    return redirect()->back()->with('error', 'Projet introuvable');
+                }
+
+                DB::table('projects')->where('id', $id)->update([
+                    'status' => 'rejete',
+                    'updated_at' => now(),
+                ]);
+
+                try {
+                    $student = (object)[
+                        'first_name' => $project->student_first_name,
+                        'last_name' => $project->student_last_name,
+                        'email' => $project->student_email,
+                    ];
+
+                    Mail::send('emails.tp_rejected', [
+                        'student' => $student,
+                        'tp' => $project,
+                        'rejectionReason' => $reason,
+                    ], function ($message) use ($student, $project) {
+                        $message->to($student->email)
+                            ->subject('📝 Votre projet "' . $project->title . '" nécessite des corrections');
+                    });
+                } catch (\Exception $e) {
+                    Log::error('Erreur envoi email rejet projet CM (source cm_project): ' . $e->getMessage());
+                }
+
+                return redirect()->back()->with('success', '✅ Projet rejeté avec succès !');
+            }
 
             if ($request->input('source') === 'tp_report') {
                 $tpReport = DB::table('tp')->where('id', $id)->first();
