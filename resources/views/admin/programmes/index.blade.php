@@ -475,8 +475,22 @@
             </a>
         </div>
     @else
-        <div class="row g-4" id="programmesContainer">
-            @foreach($programmes as $programme)
+        @php
+            $programmesByFormation = $programmes
+                ->groupBy(fn($p) => (string) ($p->formation ?? ''));
+        @endphp
+
+        <div id="programmesContainer">
+            @foreach($programmesByFormation as $formationGroup => $formationProgrammes)
+                <div class="mb-4" data-formation-section data-formation="{{ $formationGroup }}">
+                    <div class="d-flex align-items-center justify-content-between mb-2" style="padding: 0 .25rem;">
+                        <div class="text-white" style="font-weight: 900; font-size: 1.05rem;">
+                            <i class="fas fa-graduation-cap me-2"></i>{{ $formationGroup !== '' ? $formationGroup : 'Formation' }}
+                        </div>
+                        <span class="badge bg-secondary">{{ $formationProgrammes->count() }}</span>
+                    </div>
+                    <div class="row g-4">
+                        @foreach($formationProgrammes as $programme)
                 @php
                     $formation = $programme->formation ?? '';
                     $monthStart = $programme->month_start ?? '';
@@ -610,6 +624,9 @@
                         </div>
                     </div>
                 </div>
+                        @endforeach
+                    </div>
+                </div>
             @endforeach
         </div>
     @endif
@@ -645,6 +662,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const matchMonth = !month || elMonth === normalize(month);
 
             el.style.display = (matchSearch && matchFormation && matchMonth) ? '' : 'none';
+        });
+
+        document.querySelectorAll('[data-formation-section]').forEach(section => {
+            const anyVisible = Array.from(section.querySelectorAll('.programme-wrapper'))
+                .some(p => p.style.display !== 'none');
+            section.style.display = anyVisible ? '' : 'none';
         });
     }
 
