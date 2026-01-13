@@ -31,6 +31,8 @@ use Illuminate\Support\Facades\Storage;
 // Page d'accueil et pré-inscription
 Route::get('/', [HomepageController::class, 'index'])->name('homepage');
 
+Route::get('/domicile', [HomepageController::class, 'index'])->name('domicile');
+
 $servePublicStorage = function (string $path) {
     $path = ltrim($path, '/');
     if (str_contains($path, '..')) {
