@@ -1854,9 +1854,49 @@ class AdminDashboardController extends Controller
 
     public function programmes()
     {
+        $itemsCountSub = DB::table('programme_items')
+            ->select('programme_id', DB::raw('COUNT(*) as items_count'))
+            ->groupBy('programme_id');
+
         $programmes = DB::table('programmes')
-            ->orderBy('created_at', 'desc')
+            ->leftJoinSub($itemsCountSub, 'pi', function ($join) {
+                $join->on('programmes.id', '=', 'pi.programme_id');
+            })
+            ->select('programmes.*', DB::raw('COALESCE(pi.items_count, 0) as items_count'))
+            ->orderBy('programmes.created_at', 'desc')
             ->get();
+
+        $programmeIds = $programmes->pluck('id')->filter()->values();
+
+        $itemsByProgramme = collect();
+        if ($programmeIds->isNotEmpty() && Schema::hasTable('programme_items')) {
+            $items = DB::table('programme_items')
+                ->whereIn('programme_id', $programmeIds)
+                ->orderBy('session_date', 'asc')
+                ->orderBy('session_time', 'asc')
+                ->get();
+
+            $itemsByProgramme = $items->groupBy('programme_id');
+        }
+
+        $programmes = $programmes->map(function ($programme) use ($itemsByProgramme) {
+            $items = $itemsByProgramme->get($programme->id, collect());
+            $programme->items = $items;
+
+            // Prochaine séance (si une date/heure est future)
+            $now = now();
+            $next = $items->first(function ($it) use ($now) {
+                try {
+                    $dt = \Carbon\Carbon::parse($it->session_date . ' ' . $it->session_time);
+                    return $dt->greaterThanOrEqualTo($now);
+                } catch (\Exception $e) {
+                    return false;
+                }
+            });
+            $programme->next_item = $next;
+
+            return $programme;
+        });
 
         // Calculer les statistiques
         $stats = [
@@ -1895,38 +1935,73 @@ class AdminDashboardController extends Controller
     {
         $validatedData = $request->validate([
             'titre' => 'required|string|max:255',
+            'month_start' => 'required|date_format:Y-m',
             'recipients_mode' => 'required|in:formation,students',
             'formation' => 'required_if:recipients_mode,formation|array|min:1',
             'formation.*' => 'string',
             'description' => 'nullable|string',
-            'fichier_pdf' => 'required|file|mimes:pdf|max:51200', // Max 50MB
             'students' => 'required_if:recipients_mode,students|array|min:1',
             'students.*' => 'integer|exists:students,id',
+
+            'items' => 'required|array|min:1',
+            'items.*.thematique' => 'required|string|max:255',
+            'items.*.session_date' => 'required|date',
+            'items.*.session_time' => 'required|date_format:H:i',
+            'items.*.type_formation' => 'required|in:en_ligne,presentielle',
+            'items.*.lieu' => 'required_if:items.*.type_formation,presentielle|nullable|string|max:255',
+            'items.*.description' => 'nullable|string',
+            'items.*.piece_jointe' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx,ppt,pptx,xls,xlsx|max:51200', // Max 50MB
         ]);
 
-        // Upload du fichier PDF
-        $pdfFile = $request->file('fichier_pdf');
-        $pdfPath = $pdfFile->store('programmes/pdfs', 'public');
+        $monthStart = \Carbon\Carbon::createFromFormat('Y-m', $validatedData['month_start'])->startOfMonth()->toDateString();
 
         $programmesCreated = 0;
         $emailsSent = 0;
         $emailsFailures = [];
 
+        $items = array_values($validatedData['items'] ?? []);
+
         if (($validatedData['recipients_mode'] ?? 'formation') === 'students') {
             // Mode: étudiants spécifiques -> 1 programme ciblé
             $studentIds = array_values($validatedData['students'] ?? []);
 
-            DB::table('programmes')->insert([
+            $programmeId = DB::table('programmes')->insertGetId([
                 'titre' => $validatedData['titre'],
+                'month_start' => $monthStart,
                 'formation' => 'Ciblage',
                 'description' => $validatedData['description'] ?? null,
-                'fichier_pdf' => $pdfPath,
+                'fichier_pdf' => null,
+                'piece_jointe' => null,
                 'student_ids' => json_encode($studentIds),
                 'created_by' => session('admin_id'),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
             $programmesCreated++;
+
+            foreach ($items as $index => $item) {
+                $filePath = null;
+                $fileMime = null;
+                if ($request->hasFile("items.$index.piece_jointe")) {
+                    $file = $request->file("items.$index.piece_jointe");
+                    $filePath = $file->store('programmes/items', 'public');
+                    $fileMime = $file->getMimeType();
+                }
+
+                DB::table('programme_items')->insert([
+                    'programme_id' => $programmeId,
+                    'thematique' => $item['thematique'],
+                    'session_date' => $item['session_date'],
+                    'session_time' => $item['session_time'],
+                    'type_formation' => $item['type_formation'],
+                    'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
+                    'description' => $item['description'] ?? null,
+                    'piece_jointe' => $filePath,
+                    'piece_jointe_mime' => $fileMime,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
 
             $students = DB::table('students')
                 ->leftJoin('users', 'students.user_id', '=', 'users.id')
@@ -1955,7 +2030,7 @@ class AdminDashboardController extends Controller
 
                     $programmeUrl = url("/evc/compte/{$formationSlug}/programme/index");
 
-                    \Mail::send('emails.programme_published', [
+                    Mail::send('emails.programme_published', [
                         'student' => $student,
                         'programme' => [
                             'titre' => $validatedData['titre'],
@@ -1971,7 +2046,7 @@ class AdminDashboardController extends Controller
                     $emailsSent++;
                 } catch (\Exception $e) {
                     $emailsFailures[] = $student->email;
-                    \Log::error('Erreur envoi email programme à ' . $student->email . ': ' . $e->getMessage());
+                    Log::error('Erreur envoi email programme à ' . $student->email . ': ' . $e->getMessage());
                 }
             }
         } else {
@@ -1982,17 +2057,43 @@ class AdminDashboardController extends Controller
             }
 
             foreach ($formations as $formation) {
-                DB::table('programmes')->insert([
+                $programmeId = DB::table('programmes')->insertGetId([
                     'titre' => $validatedData['titre'],
+                    'month_start' => $monthStart,
                     'formation' => $formation,
                     'description' => $validatedData['description'] ?? null,
-                    'fichier_pdf' => $pdfPath,
+                    'fichier_pdf' => null,
+                    'piece_jointe' => null,
                     'student_ids' => null,
                     'created_by' => session('admin_id'),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
                 $programmesCreated++;
+
+                foreach ($items as $index => $item) {
+                    $filePath = null;
+                    $fileMime = null;
+                    if ($request->hasFile("items.$index.piece_jointe")) {
+                        $file = $request->file("items.$index.piece_jointe");
+                        $filePath = $file->store('programmes/items', 'public');
+                        $fileMime = $file->getMimeType();
+                    }
+
+                    DB::table('programme_items')->insert([
+                        'programme_id' => $programmeId,
+                        'thematique' => $item['thematique'],
+                        'session_date' => $item['session_date'],
+                        'session_time' => $item['session_time'],
+                        'type_formation' => $item['type_formation'],
+                        'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
+                        'description' => $item['description'] ?? null,
+                        'piece_jointe' => $filePath,
+                        'piece_jointe_mime' => $fileMime,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
 
                 // Récupérer les étudiants concernés par cette formation
                 $studentsQuery = DB::table('students')
@@ -2074,7 +2175,7 @@ class AdminDashboardController extends Controller
 
                         $programmeUrl = url("/evc/compte/{$formationSlug}/programme/index");
 
-                        \Mail::send('emails.programme_published', [
+                        Mail::send('emails.programme_published', [
                             'student' => $student,
                             'programme' => [
                                 'titre' => $validatedData['titre'],
@@ -2090,7 +2191,7 @@ class AdminDashboardController extends Controller
                         $emailsSent++;
                     } catch (\Exception $e) {
                         $emailsFailures[] = $student->email;
-                        \Log::error('Erreur envoi email programme à ' . $student->email . ': ' . $e->getMessage());
+                        Log::error('Erreur envoi email programme à ' . $student->email . ': ' . $e->getMessage());
                     }
                 }
             }
@@ -2113,9 +2214,23 @@ class AdminDashboardController extends Controller
         $programme = DB::table('programmes')->where('id', $id)->first();
 
         if ($programme) {
-            // Supprimer le fichier PDF
-            if (Storage::disk('public')->exists($programme->fichier_pdf)) {
+            // Supprimer les fichiers des séances (programme_items)
+            $items = DB::table('programme_items')
+                ->where('programme_id', $id)
+                ->get();
+
+            foreach ($items as $item) {
+                if (!empty($item->piece_jointe) && Storage::disk('public')->exists($item->piece_jointe)) {
+                    Storage::disk('public')->delete($item->piece_jointe);
+                }
+            }
+
+            // Supprimer les fichiers
+            if (!empty($programme->fichier_pdf) && Storage::disk('public')->exists($programme->fichier_pdf)) {
                 Storage::disk('public')->delete($programme->fichier_pdf);
+            }
+            if (!empty($programme->piece_jointe) && Storage::disk('public')->exists($programme->piece_jointe)) {
+                Storage::disk('public')->delete($programme->piece_jointe);
             }
 
             // Supprimer le programme de la base de données
@@ -2125,6 +2240,195 @@ class AdminDashboardController extends Controller
         }
 
         return redirect()->route('admin.programmes')->with('error', 'Programme introuvable.');
+    }
+
+    public function editProgramme($id)
+    {
+        $programme = DB::table('programmes')->where('id', (int) $id)->first();
+        if (!$programme) {
+            return redirect()->route('admin.programmes')->with('error', 'Programme introuvable.');
+        }
+
+        $items = collect();
+        if (Schema::hasTable('programme_items')) {
+            $items = DB::table('programme_items')
+                ->where('programme_id', $programme->id)
+                ->orderBy('session_date', 'asc')
+                ->orderBy('session_time', 'asc')
+                ->get();
+        }
+
+        // Liste des étudiants actifs (pour affichage en cas de ciblage spécifique)
+        $students = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
+            ->select('students.*', 'users.email')
+            ->orderBy('students.first_name')
+            ->orderBy('students.last_name')
+            ->get();
+
+        return view('admin.programmes.edit', [
+            'programme' => $programme,
+            'items' => $items,
+            'students' => $students,
+        ]);
+    }
+
+    public function updateProgramme(Request $request, $id)
+    {
+        $programme = DB::table('programmes')->where('id', (int) $id)->first();
+        if (!$programme) {
+            return redirect()->route('admin.programmes')->with('error', 'Programme introuvable.');
+        }
+
+        $validatedData = $request->validate([
+            'titre' => 'required|string|max:255',
+            'month_start' => 'required|date_format:Y-m',
+            'fichier_pdf' => 'nullable|file|mimes:pdf|max:51200',
+            'recipients_mode' => 'required|in:formation,students',
+            'formation' => 'required_if:recipients_mode,formation|array|min:1',
+            'formation.*' => 'string',
+            'description' => 'nullable|string',
+            'students' => 'required_if:recipients_mode,students|array|min:1',
+            'students.*' => 'integer|exists:students,id',
+
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'nullable|integer',
+            'items.*.thematique' => 'required|string|max:255',
+            'items.*.session_date' => 'required|date',
+            'items.*.session_time' => 'required|date_format:H:i',
+            'items.*.type_formation' => 'required|in:en_ligne,presentielle',
+            'items.*.lieu' => 'required_if:items.*.type_formation,presentielle|nullable|string|max:255',
+            'items.*.description' => 'nullable|string',
+            'items.*.piece_jointe' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx,ppt,pptx,xls,xlsx|max:51200',
+        ]);
+
+        $monthStart = \Carbon\Carbon::createFromFormat('Y-m', $validatedData['month_start'])->startOfMonth()->toDateString();
+
+        $programmePdfPath = $programme->fichier_pdf ?? null;
+        if ($request->hasFile('fichier_pdf')) {
+            $file = $request->file('fichier_pdf');
+            $newPath = $file->store('programmes/pdfs', 'public');
+
+            if (!empty($programmePdfPath) && Storage::disk('public')->exists($programmePdfPath)) {
+                Storage::disk('public')->delete($programmePdfPath);
+            }
+
+            $programmePdfPath = $newPath;
+        }
+
+        $formationValue = 'Ciblage';
+        $studentIdsJson = null;
+
+        if (($validatedData['recipients_mode'] ?? 'formation') === 'students') {
+            $formationValue = 'Ciblage';
+            $studentIdsJson = json_encode(array_values($validatedData['students'] ?? []));
+        } else {
+            $formations = array_values($validatedData['formation'] ?? []);
+            if (in_array('Toutes', $formations, true)) {
+                $formations = ['Toutes'];
+            }
+
+            // Un programme admin = une formation (si plusieurs formations, il faut créer plusieurs programmes)
+            // Ici, en édition, on limite à UNE cible (la première) pour éviter de dupliquer silencieusement.
+            // L'admin peut dupliquer via création si besoin.
+            $formationValue = $formations[0] ?? 'Toutes';
+        }
+
+        DB::table('programmes')->where('id', $programme->id)->update([
+            'titre' => $validatedData['titre'],
+            'month_start' => $monthStart,
+            'formation' => $formationValue,
+            'description' => $validatedData['description'] ?? null,
+            'fichier_pdf' => $programmePdfPath,
+            'student_ids' => $studentIdsJson,
+            'updated_at' => now(),
+        ]);
+
+        // Mettre à jour les séances
+        if (!Schema::hasTable('programme_items')) {
+            return redirect()->route('admin.programmes')->with('error', 'Table programme_items introuvable.');
+        }
+
+        $existingItemIds = DB::table('programme_items')
+            ->where('programme_id', $programme->id)
+            ->pluck('id')
+            ->map(fn($v) => (int) $v)
+            ->values()
+            ->all();
+
+        $submittedItems = array_values($validatedData['items'] ?? []);
+        $submittedIds = [];
+
+        foreach ($submittedItems as $index => $item) {
+            $itemId = !empty($item['id']) ? (int) $item['id'] : null;
+
+            $filePath = null;
+            $fileMime = null;
+            $hasNewFile = $request->hasFile("items.$index.piece_jointe");
+            if ($hasNewFile) {
+                $file = $request->file("items.$index.piece_jointe");
+                $filePath = $file->store('programmes/items', 'public');
+                $fileMime = $file->getMimeType();
+            }
+
+            if ($itemId && in_array($itemId, $existingItemIds, true)) {
+                $submittedIds[] = $itemId;
+
+                // Si nouvelle pièce jointe: supprimer l'ancienne
+                if ($hasNewFile) {
+                    $existing = DB::table('programme_items')->where('id', $itemId)->first();
+                    if ($existing && !empty($existing->piece_jointe) && Storage::disk('public')->exists($existing->piece_jointe)) {
+                        Storage::disk('public')->delete($existing->piece_jointe);
+                    }
+                }
+
+                $updateData = [
+                    'thematique' => $item['thematique'],
+                    'session_date' => $item['session_date'],
+                    'session_time' => $item['session_time'],
+                    'type_formation' => $item['type_formation'],
+                    'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
+                    'description' => $item['description'] ?? null,
+                    'updated_at' => now(),
+                ];
+                if ($hasNewFile) {
+                    $updateData['piece_jointe'] = $filePath;
+                    $updateData['piece_jointe_mime'] = $fileMime;
+                }
+
+                DB::table('programme_items')->where('id', $itemId)->update($updateData);
+            } else {
+                $newId = DB::table('programme_items')->insertGetId([
+                    'programme_id' => $programme->id,
+                    'thematique' => $item['thematique'],
+                    'session_date' => $item['session_date'],
+                    'session_time' => $item['session_time'],
+                    'type_formation' => $item['type_formation'],
+                    'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
+                    'description' => $item['description'] ?? null,
+                    'piece_jointe' => $filePath,
+                    'piece_jointe_mime' => $fileMime,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $submittedIds[] = (int) $newId;
+            }
+        }
+
+        // Supprimer les séances retirées du formulaire
+        $toDelete = array_values(array_diff($existingItemIds, $submittedIds));
+        if (!empty($toDelete)) {
+            $itemsToDelete = DB::table('programme_items')->whereIn('id', $toDelete)->get();
+            foreach ($itemsToDelete as $it) {
+                if (!empty($it->piece_jointe) && Storage::disk('public')->exists($it->piece_jointe)) {
+                    Storage::disk('public')->delete($it->piece_jointe);
+                }
+            }
+            DB::table('programme_items')->whereIn('id', $toDelete)->delete();
+        }
+
+        return redirect()->route('admin.programmes')->with('success', 'Programme mis à jour avec succès.');
     }
 
     public function createBibliothequeItem()
@@ -2526,7 +2830,7 @@ class AdminDashboardController extends Controller
 
                 // Envoi de l'email de notification
                 try {
-                    \Mail::send('emails.tp_assigned', [
+                    Mail::send('emails.tp_assigned', [
                         'student' => $student,
                         'assignment' => $assignment
                     ], function ($message) use ($student, $assignment) {
@@ -2536,7 +2840,7 @@ class AdminDashboardController extends Controller
                     $emailsSent++;
                 } catch (\Exception $e) {
                     $emailsFailures[] = $student->email;
-                    \Log::error('Erreur envoi email TP à ' . $student->email . ': ' . $e->getMessage());
+                    Log::error('Erreur envoi email TP à ' . $student->email . ': ' . $e->getMessage());
                 }
             }
         }
@@ -4019,8 +4323,8 @@ class AdminDashboardController extends Controller
             // Télécharger le certificat
             return $certificateGenerator->download($certificatePath, $filename);
         } catch (\Exception $e) {
-            \Log::error('Erreur génération certificat admin: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            Log::error('Erreur génération certificat admin: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->back()->with('error', 'Une erreur est survenue lors de la génération du certificat: ' . $e->getMessage());
         }
     }
@@ -4072,8 +4376,8 @@ class AdminDashboardController extends Controller
                 'Content-Disposition' => 'inline; filename="Certificat_Preview.pdf"'
             ])->deleteFileAfterSend(true);
         } catch (\Exception $e) {
-            \Log::error('Erreur prévisualisation certificat admin: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            Log::error('Erreur prévisualisation certificat admin: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
             return redirect()->back()->with('error', 'Une erreur est survenue lors de la prévisualisation du certificat: ' . $e->getMessage());
         }
     }

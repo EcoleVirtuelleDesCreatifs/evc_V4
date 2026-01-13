@@ -176,6 +176,124 @@
     .empty-state p {
         color: #94a3b8;
     }
+
+    .tools-card {
+        background: #1e293b;
+        border: 2px solid #334155;
+        border-radius: 16px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tools-input {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(51, 65, 85, 0.7);
+        color: #e2e8f0;
+        border-radius: 12px;
+    }
+
+    .tools-input::placeholder {
+        color: #94a3b8;
+    }
+
+    .tools-input:focus {
+        background: rgba(15, 23, 42, 0.95);
+        border-color: #4fc3f7;
+        box-shadow: 0 0 0 0.25rem rgba(79, 195, 247, 0.15);
+        color: #e2e8f0;
+    }
+
+    .programme-accordion {
+        background: #1e293b;
+        border: 2px solid #334155;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .programme-accordion-header {
+        padding: 1rem 1.25rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #334155;
+    }
+
+    .programme-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.35rem;
+        color: #94a3b8;
+        font-size: 0.875rem;
+    }
+
+    .programme-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(51, 65, 85, 0.7);
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+    }
+
+    .programme-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .btn-toggle {
+        background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+        border: none;
+        color: white;
+        padding: 0.5rem 0.9rem;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-toggle:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
+        color: white;
+    }
+
+    .items-table {
+        width: 100%;
+        color: #e2e8f0;
+        border-collapse: collapse;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 0.75rem 0.9rem;
+        border-bottom: 1px solid rgba(51, 65, 85, 0.7);
+        vertical-align: top;
+    }
+
+    .items-table th {
+        color: #94a3b8;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: rgba(15, 23, 42, 0.55);
+    }
+
+    .item-title {
+        font-weight: 700;
+        color: #e2e8f0;
+    }
+
+    .item-sub {
+        color: #94a3b8;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
 </style>
 @endpush
 
@@ -306,6 +424,45 @@
         </div>
     @endif
 
+    @php
+        $months = $programmes
+            ->map(fn($p) => $p->month_start ?? null)
+            ->filter()
+            ->unique()
+            ->sortDesc()
+            ->values();
+    @endphp
+
+    @if(!$programmes->isEmpty())
+        <div class="tools-card">
+            <div class="row g-3 align-items-center">
+                <div class="col-lg-6">
+                    <input type="text" id="programmeSearch" class="form-control tools-input" placeholder="Rechercher un programme, une séance, un lieu...">
+                </div>
+                <div class="col-lg-3">
+                    <select id="programmeFormationFilter" class="form-select tools-input">
+                        <option value="">Toutes les formations</option>
+                        <option value="Design Graphique">Design Graphique</option>
+                        <option value="Community Management">Community Management</option>
+                        <option value="Design Graphique & Community Manager">Design Graphique & Community Manager</option>
+                        <option value="Gestion Informatique">Gestion Informatique</option>
+                        <option value="Intelligence Artificielle">Intelligence Artificielle</option>
+                        <option value="Toutes">Toutes</option>
+                        <option value="Ciblage">Ciblage</option>
+                    </select>
+                </div>
+                <div class="col-lg-3">
+                    <select id="programmeMonthFilter" class="form-select tools-input">
+                        <option value="">Tous les mois</option>
+                        @foreach($months as $m)
+                            <option value="{{ $m }}">{{ \Carbon\Carbon::parse($m)->translatedFormat('F Y') }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Liste des programmes -->
     @if($programmes->isEmpty())
         <div class="empty-state">
@@ -318,57 +475,137 @@
             </a>
         </div>
     @else
-        <div class="row g-4">
+        <div class="row g-4" id="programmesContainer">
             @foreach($programmes as $programme)
-                <div class="col-md-6 col-lg-4">
-                    <div class="programme-card">
-                        <div class="d-flex gap-3 mb-3">
-                            <div class="pdf-icon">
-                                <i class="fas fa-file-pdf"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <h4 style="color: #e2e8f0; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem;">
+                @php
+                    $formation = $programme->formation ?? '';
+                    $monthStart = $programme->month_start ?? '';
+                    $items = $programme->items ?? collect();
+                    $searchText = strtolower(
+                        ($programme->titre ?? '') . ' ' .
+                        ($programme->description ?? '') . ' ' .
+                        ($formation ?? '') . ' ' .
+                        $items->pluck('thematique')->implode(' ') . ' ' .
+                        $items->pluck('lieu')->implode(' ') . ' ' .
+                        $items->pluck('description')->implode(' ')
+                    );
+                @endphp
+
+                <div class="col-12 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
+                    <div class="programme-accordion">
+                        <div class="programme-accordion-header">
+                            <div style="min-width: 260px;">
+                                <div style="color:#e2e8f0; font-weight:800; font-size:1.05rem;">
                                     {{ $programme->titre }}
-                                </h4>
-                                @php
-                                    $badgeClass = match($programme->formation) {
-                                        'Design Graphique' => 'badge-design',
-                                        'Community Management' => 'badge-cm',
-                                        'Gestion Informatique' => 'badge-gi',
-                                        'Intelligence Artificielle' => 'badge-ia',
-                                        'Toutes' => 'badge-tous',
-                                        default => 'badge-tous'
-                                    };
-                                @endphp
-                                <span class="formation-badge {{ $badgeClass }}">
-                                    {{ $programme->formation }}
-                                </span>
+                                </div>
+                                <div class="programme-meta">
+                                    <span>
+                                        <i class="fas fa-graduation-cap"></i>
+                                        {{ $formation }}
+                                    </span>
+                                    @if(!empty($monthStart))
+                                        <span>
+                                            <i class="fas fa-calendar"></i>
+                                            {{ \Carbon\Carbon::parse($monthStart)->translatedFormat('F Y') }}
+                                        </span>
+                                    @endif
+                                    <span>
+                                        <i class="fas fa-list"></i>
+                                        {{ (int) ($programme->items_count ?? 0) }} séance(s)
+                                    </span>
+                                    @if(!empty($programme->next_item))
+                                        <span>
+                                            <i class="fas fa-bolt"></i>
+                                            Prochaine: {{ \Carbon\Carbon::parse($programme->next_item->session_date)->format('d/m') }} {{ \Carbon\Carbon::parse($programme->next_item->session_time)->format('H:i') }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
 
-                        @if($programme->description)
-                            <p style="color: #94a3b8; font-size: 0.875rem; margin-bottom: 1rem;">
-                                {{ Str::limit($programme->description, 100) }}
-                            </p>
-                        @endif
-
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #334155;">
-                            <small style="color: #94a3b8;">
-                                <i class="fas fa-calendar me-1"></i>
-                                {{ \Carbon\Carbon::parse($programme->created_at)->format('d/m/Y') }}
-                            </small>
-                            <div class="d-flex gap-2">
-                                <a href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}" target="_blank" class="btn-download btn-sm">
-                                    <i class="fas fa-download me-1"></i>
-                                    Télécharger
+                            <div class="programme-actions">
+                                <button class="btn-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#prog_{{ $programme->id }}" aria-expanded="false">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Détails
+                                </button>
+                                <a href="{{ route('admin.programmes.edit', $programme->id) }}" class="btn-toggle" style="border-radius:10px; font-weight:600; text-decoration:none;">
+                                    <i class="fas fa-edit me-1"></i>
+                                    Modifier
                                 </a>
                                 <form action="{{ route('admin.programmes.destroy', $programme->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce programme ?')">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">
+                                    <button type="submit" class="btn btn-danger" style="border-radius:10px; font-weight:600;">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
+                            </div>
+                        </div>
+
+                        <div id="prog_{{ $programme->id }}" class="collapse">
+                            <div style="padding: 1rem 1.25rem;">
+                                @if($programme->description)
+                                    <div style="color:#94a3b8; margin-bottom: 1rem;">
+                                        {{ $programme->description }}
+                                    </div>
+                                @endif
+
+                                @if($items->isEmpty())
+                                    <div class="empty-state" style="padding: 1.5rem 1rem;">
+                                        <i class="fas fa-inbox"></i>
+                                        <h3>Aucune séance</h3>
+                                        <p>Ce programme ne contient pas encore de séances.</p>
+                                    </div>
+                                @else
+                                    <div style="overflow:auto; border-radius: 12px; border: 1px solid rgba(51, 65, 85, 0.7);">
+                                        <table class="items-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Séance</th>
+                                                    <th>Date</th>
+                                                    <th>Type</th>
+                                                    <th>Fichier</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($items as $it)
+                                                    @php
+                                                        $filePath = $it->piece_jointe ?? null;
+                                                    @endphp
+                                                    <tr>
+                                                        <td>
+                                                            <div class="item-title">{{ $it->thematique }}</div>
+                                                            @if(!empty($it->description))
+                                                                <div class="item-sub">{{ Str::limit($it->description, 120) }}</div>
+                                                            @endif
+                                                        </td>
+                                                        <td style="white-space:nowrap;">
+                                                            {{ \Carbon\Carbon::parse($it->session_date)->format('d/m/Y') }}
+                                                            <div class="item-sub">{{ \Carbon\Carbon::parse($it->session_time)->format('H:i') }}</div>
+                                                        </td>
+                                                        <td>
+                                                            <div style="white-space:nowrap;">
+                                                                {{ ($it->type_formation ?? '') === 'presentielle' ? 'Présentielle' : 'En ligne' }}
+                                                            </div>
+                                                            @if(($it->type_formation ?? '') === 'presentielle' && !empty($it->lieu))
+                                                                <div class="item-sub">{{ $it->lieu }}</div>
+                                                            @endif
+                                                        </td>
+                                                        <td style="white-space:nowrap;">
+                                                            @if(!empty($filePath))
+                                                                <a href="{{ \App\Models\MediaUrl::fromPath($filePath) }}" target="_blank" class="btn-download btn-sm">
+                                                                    <i class="fas fa-download me-1"></i>
+                                                                    Télécharger
+                                                                </a>
+                                                            @else
+                                                                <span class="item-sub">Aucun</span>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -381,3 +618,41 @@
 
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('programmeSearch');
+    const formationFilter = document.getElementById('programmeFormationFilter');
+    const monthFilter = document.getElementById('programmeMonthFilter');
+
+    function normalize(v) {
+        return (v || '').toString().toLowerCase().trim();
+    }
+
+    function applyFilters() {
+        const search = normalize(searchInput ? searchInput.value : '');
+        const formation = normalize(formationFilter ? formationFilter.value : '');
+        const month = normalize(monthFilter ? monthFilter.value : '');
+
+        document.querySelectorAll('.programme-wrapper').forEach(el => {
+            const elSearch = normalize(el.getAttribute('data-search'));
+            const elFormation = normalize(el.getAttribute('data-formation'));
+            const elMonth = normalize(el.getAttribute('data-month'));
+
+            const matchSearch = !search || elSearch.includes(search);
+            const matchFormation = !formation || elFormation === normalize(formation);
+            const matchMonth = !month || elMonth === normalize(month);
+
+            el.style.display = (matchSearch && matchFormation && matchMonth) ? '' : 'none';
+        });
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+    if (formationFilter) formationFilter.addEventListener('change', applyFilters);
+    if (monthFilter) monthFilter.addEventListener('change', applyFilters);
+
+    applyFilters();
+});
+</script>
+@endpush

@@ -1057,6 +1057,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/programmes', [AdminDashboardController::class, 'programmes'])->name('programmes');
         Route::get('/programmes/create', [AdminDashboardController::class, 'createProgramme'])->name('programmes.create');
         Route::post('/programmes', [AdminDashboardController::class, 'storeProgramme'])->name('programmes.store');
+        Route::get('/programmes/{id}/edit', [AdminDashboardController::class, 'editProgramme'])->whereNumber('id')->name('programmes.edit');
+        Route::put('/programmes/{id}', [AdminDashboardController::class, 'updateProgramme'])->whereNumber('id')->name('programmes.update');
         Route::delete('/programmes/{id}', [AdminDashboardController::class, 'destroyProgramme'])->name('programmes.destroy');
 
         // Gestion des Projets

@@ -3868,8 +3868,28 @@ class DashboardController extends Controller
                     $query->orWhereJsonContains('student_ids', (int) $student->id);
                 }
             })
+            ->orderBy('month_start', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $programmeIds = $programmes->pluck('id')->filter()->values();
+
+        $itemsByProgramme = collect();
+        if ($programmeIds->isNotEmpty() && Schema::hasTable('programme_items')) {
+            $items = DB::table('programme_items')
+                ->whereIn('programme_id', $programmeIds)
+                ->orderBy('session_date', 'asc')
+                ->orderBy('session_time', 'asc')
+                ->get();
+
+            $itemsByProgramme = $items->groupBy('programme_id');
+        }
+
+        $programmes = $programmes->map(function ($programme) use ($itemsByProgramme) {
+            $programme->items = $itemsByProgramme->get($programme->id, collect());
+            $programme->items_count = $programme->items->count();
+            return $programme;
+        });
 
         return view('programme.index', [
             'user' => $user,
