@@ -420,7 +420,7 @@
     --instagram-yellow: #FCAF45;
     --instagram-blue: #405DE6;
     --instagram-bg: #0b1220;
-    --instagram-card: rgba(255, 255, 255, 0.92);
+    --instagram-card: rgba(255, 255, 255, 0.86);
     --instagram-glass: rgba(255, 255, 255, 0.12);
 }
 
@@ -529,7 +529,11 @@
 
 /* Carte de programme avec style Instagram */
 .programme-card {
-    background: var(--instagram-card);
+    background: linear-gradient(135deg,
+        rgba(64, 93, 230, 0.10),
+        rgba(225, 48, 108, 0.10),
+        rgba(252, 175, 69, 0.08)
+    ), var(--instagram-card);
     border-radius: 20px;
     padding: 2rem;
     border: 2px solid transparent;
@@ -679,10 +683,15 @@
 
 /* État vide */
 .empty-state {
-    background: rgba(255,255,255,0.92);
+    background: linear-gradient(135deg,
+        rgba(64, 93, 230, 0.10),
+        rgba(225, 48, 108, 0.10),
+        rgba(252, 175, 69, 0.08)
+    ), rgba(255,255,255,0.88);
     border-radius: 20px;
     padding: 4rem 2rem;
     box-shadow: 0 18px 55px rgba(0, 0, 0, 0.20);
+    border: 1px solid rgba(255,255,255,0.35);
 }
 
 /* Sessions */
@@ -692,7 +701,11 @@
 }
 
 .session-row {
-    background: rgba(255, 255, 255, 0.88);
+    background: linear-gradient(135deg,
+        rgba(64, 93, 230, 0.09),
+        rgba(225, 48, 108, 0.08),
+        rgba(252, 175, 69, 0.06)
+    ), rgba(255, 255, 255, 0.88);
     border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 16px;
     padding: 0.9rem 1rem;
@@ -741,7 +754,11 @@
 }
 
 .session-row-focus {
-    background: rgba(255, 255, 255, 0.96);
+    background: linear-gradient(135deg,
+        rgba(225, 48, 108, 0.16),
+        rgba(252, 175, 69, 0.12),
+        rgba(64, 93, 230, 0.12)
+    ), rgba(255, 255, 255, 0.93);
     border: 2px solid rgba(225, 48, 108, 0.75);
     box-shadow: 0 22px 70px rgba(225, 48, 108, 0.20);
 }
