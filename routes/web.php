@@ -51,7 +51,11 @@ Route::get('/storage/app/public/{path}', $servePublicStorage)->where('path', '.*
 Route::get('/evc/storage/app/public/{path}', $servePublicStorage)->where('path', '.*');
 
 Route::get('/preinscription', function () {
-    return view('preinscription.index');
+    return response()
+        ->view('preinscription.index')
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
 })->name('preinscription.start');
 Route::post('/pre-registration', [HomepageController::class, 'store'])->name('pre-registration.store');
 Route::post('/candidature', [HomepageController::class, 'candidatureStore'])->name('candidature.store');
@@ -736,7 +740,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
     });
 
     // Routes protégées (nécessitent une authentification admin)
-     Route::middleware('admin.auth')->group(function () {
+    Route::middleware('admin.auth')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
 

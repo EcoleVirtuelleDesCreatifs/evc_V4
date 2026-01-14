@@ -570,55 +570,86 @@
                                         <p>Ce programme ne contient pas encore de séances.</p>
                                     </div>
                                 @else
-                                    <div style="overflow:auto; border-radius: 12px; border: 1px solid rgba(51, 65, 85, 0.7);">
-                                        <table class="items-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Séance</th>
-                                                    <th>Date</th>
-                                                    <th>Type</th>
-                                                    <th>Fichier</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach($items as $it)
-                                                    @php
-                                                        $filePath = $it->piece_jointe ?? null;
-                                                    @endphp
-                                                    <tr>
-                                                        <td>
-                                                            <div class="item-title">{{ $it->thematique }}</div>
-                                                            @if(!empty($it->description))
-                                                                <div class="item-sub">{{ Str::limit($it->description, 120) }}</div>
-                                                            @endif
-                                                        </td>
-                                                        <td style="white-space:nowrap;">
-                                                            {{ \Carbon\Carbon::parse($it->session_date)->format('d/m/Y') }}
-                                                            <div class="item-sub">{{ \Carbon\Carbon::parse($it->session_time)->format('H:i') }}</div>
-                                                        </td>
-                                                        <td>
-                                                            <div style="white-space:nowrap;">
-                                                                {{ ($it->type_formation ?? '') === 'presentielle' ? 'Présentielle' : 'En ligne' }}
-                                                            </div>
-                                                            @if(($it->type_formation ?? '') === 'presentielle' && !empty($it->lieu))
-                                                                <div class="item-sub">{{ $it->lieu }}</div>
-                                                            @endif
-                                                        </td>
-                                                        <td style="white-space:nowrap;">
-                                                            @if(!empty($filePath))
-                                                                <a href="{{ \App\Models\MediaUrl::fromPath($filePath) }}" target="_blank" class="btn-download btn-sm">
-                                                                    <i class="fas fa-download me-1"></i>
-                                                                    Télécharger
-                                                                </a>
-                                                            @else
-                                                                <span class="item-sub">Aucun</span>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
+                                    @php
+                                        $now = now();
+                                        $seancesEnCours = $items->filter(function ($it) use ($now) {
+                                            try {
+                                                $dt = \Carbon\Carbon::parse(($it->session_date ?? '') . ' ' . ($it->session_time ?? '00:00:00'));
+                                                return $dt->greaterThanOrEqualTo($now);
+                                            } catch (\Exception $e) {
+                                                return true;
+                                            }
+                                        })->values();
+                                        $seancesTerminees = $items->filter(function ($it) use ($now) {
+                                            try {
+                                                $dt = \Carbon\Carbon::parse(($it->session_date ?? '') . ' ' . ($it->session_time ?? '00:00:00'));
+                                                return $dt->lessThan($now);
+                                            } catch (\Exception $e) {
+                                                return false;
+                                            }
+                                        })->values();
+
+                                        $renderItemsTable = function ($list) {
+                                            ob_start();
+                                            echo '<div style="overflow:auto; border-radius: 12px; border: 1px solid rgba(51, 65, 85, 0.7);">';
+                                            echo '<table class="items-table">';
+                                            echo '<thead><tr><th>Séance</th><th>Date</th><th>Type</th><th>Fichier</th></tr></thead>';
+                                            echo '<tbody>';
+                                            foreach ($list as $it) {
+                                                $filePath = $it->piece_jointe ?? null;
+                                                echo '<tr>';
+                                                echo '<td>';
+                                                echo '<div class="item-title">' . e($it->thematique ?? '') . '</div>';
+                                                if (!empty($it->description)) {
+                                                    echo '<div class="item-sub">' . e(\Illuminate\Support\Str::limit($it->description, 120)) . '</div>';
+                                                }
+                                                echo '</td>';
+                                                echo '<td style="white-space:nowrap;">';
+                                                echo e(\Carbon\Carbon::parse($it->session_date)->format('d/m/Y'));
+                                                echo '<div class="item-sub">' . e(\Carbon\Carbon::parse($it->session_time)->format('H:i')) . '</div>';
+                                                echo '</td>';
+                                                echo '<td>';
+                                                echo '<div style="white-space:nowrap;">' . e((($it->type_formation ?? '') === 'presentielle') ? 'Présentielle' : 'En ligne') . '</div>';
+                                                if ((($it->type_formation ?? '') === 'presentielle') && !empty($it->lieu)) {
+                                                    echo '<div class="item-sub">' . e($it->lieu) . '</div>';
+                                                }
+                                                echo '</td>';
+                                                echo '<td style="white-space:nowrap;">';
+                                                if (!empty($filePath)) {
+                                                    $url = \App\Models\MediaUrl::fromPath($filePath);
+                                                    echo '<a href="' . e($url) . '" target="_blank" class="btn-download btn-sm"><i class="fas fa-download me-1"></i>Télécharger</a>';
+                                                } else {
+                                                    echo '<span class="item-sub">Aucun</span>';
+                                                }
+                                                echo '</td>';
+                                                echo '</tr>';
+                                            }
+                                            echo '</tbody></table></div>';
+                                            return ob_get_clean();
+                                        };
+                                    @endphp
+
+                                    <div class="d-flex align-items-center justify-content-between" style="margin-bottom:.75rem;">
+                                        <div style="color:#e2e8f0; font-weight:800;">
+                                            <i class="fas fa-hourglass-half me-2"></i>Séances en cours / à venir
+                                        </div>
+                                        <span class="badge bg-success">{{ $seancesEnCours->count() }}</span>
                                     </div>
+                                    {!! $renderItemsTable($seancesEnCours) !!}
+
+                                    <div class="d-flex align-items-center justify-content-between" style="margin:1.1rem 0 .75rem;">
+                                        <div style="color:#e2e8f0; font-weight:800;">
+                                            <i class="fas fa-check-circle me-2"></i>Séances terminées
+                                        </div>
+                                        <span class="badge bg-secondary">{{ $seancesTerminees->count() }}</span>
+                                    </div>
+                                    @if($seacesTerminees = $seancesTerminees; $seacesTerminees->isEmpty())
+                                        <div class="text-white-50" style="padding:.75rem 1rem; border: 1px dashed rgba(255,255,255,0.14); border-radius: 12px;">
+                                            Aucune séance terminée pour le moment.
+                                        </div>
+                                    @else
+                                        {!! $renderItemsTable($seacesTerminees) !!}
+                                    @endif
                                 @endif
                             </div>
                         </div>

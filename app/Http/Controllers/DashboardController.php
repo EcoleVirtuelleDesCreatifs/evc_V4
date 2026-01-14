@@ -3888,6 +3888,28 @@ class DashboardController extends Controller
         $programmes = $programmes->map(function ($programme) use ($itemsByProgramme) {
             $programme->items = $itemsByProgramme->get($programme->id, collect());
             $programme->items_count = $programme->items->count();
+            $formation = $programme->formation ?? null;
+            $canonical = $formation;
+
+            if (is_string($formation)) {
+                $f = trim($formation);
+                $canonicalMap = [
+                    'Design Graphique & Community Management' => $formationMapping['Design Graphique & Community Management'] ?? [],
+                    'Design Graphique' => $formationMapping['Design Graphique'] ?? [],
+                    'Community Management' => $formationMapping['Community Management'] ?? [],
+                    'Gestion Informatique' => $formationMapping['Gestion Informatique'] ?? [],
+                    'Intelligence Artificielle' => $formationMapping['Intelligence Artificielle'] ?? [],
+                ];
+
+                foreach ($canonicalMap as $label => $variants) {
+                    if (in_array($f, $variants, true)) {
+                        $canonical = $label;
+                        break;
+                    }
+                }
+            }
+
+            $programme->canonical_formation = $canonical ?: 'Toutes';
             return $programme;
         });
 
