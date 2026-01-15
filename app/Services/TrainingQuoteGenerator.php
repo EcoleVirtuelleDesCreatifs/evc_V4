@@ -71,7 +71,7 @@ class TrainingQuoteGenerator
             $pdf->AddPage();
         }
 
-        $offsetY = 19.8;
+        $offsetY = 26.5;
 
         // Overlay text (positions par défaut - à ajuster selon le template)
         $pdf->SetTextColor(0, 0, 0);
