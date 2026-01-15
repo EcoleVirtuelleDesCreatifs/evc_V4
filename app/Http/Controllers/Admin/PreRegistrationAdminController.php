@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\AdmissionApprovedRegistrationLink;
 use App\Models\User;
 use App\Models\AccountingTransaction;
+use App\Services\TrainingQuoteGenerator;
 
 class PreRegistrationAdminController extends Controller
 {
@@ -61,6 +62,70 @@ class PreRegistrationAdminController extends Controller
 
         $pres = $query->paginate(20)->withQueryString();
         return view('admin.preregistrations.index', compact('pres', 'stats'));
+    }
+
+    public function devis($id)
+    {
+        $pre = PreRegistration::findOrFail($id);
+
+        $formationName = $this->getFormationLabel($pre->choix_formation);
+        $totalAmount = (int) round((float) \App\Services\CinetPayService::getFormationPrice($formationName));
+
+        $installment1Amount = 50000;
+        $installment2Amount = max(0, $totalAmount - $installment1Amount);
+
+        if ($formationName === 'Design Graphique') {
+            $installment1Amount = 53500;
+            $installment2Amount = 27000;
+        } elseif ($formationName === 'Community Management') {
+            $installment1Amount = 53500;
+            $installment2Amount = 53500;
+        } elseif ($formationName === 'Design Graphique & Community Management' || $formationName === 'Design Graphique & Community Manager') {
+            $installment1Amount = 100000;
+            $installment2Amount = 65000;
+        } else {
+            $installment2Amount = max(0, $totalAmount - $installment1Amount);
+        }
+
+        $quoteNumber = 'EVC-DEVIS-' . now()->format('Ymd') . '-' . strtoupper(substr(md5($pre->id . '|' . $pre->email . '|' . now()->timestamp), 0, 8));
+        $issuedAt = now()->format('d/m/Y');
+        $validUntil = now()->addDays(30)->format('d/m/Y');
+
+        $duration = null;
+        if ($formationName === 'Design Graphique & Community Management' || $formationName === 'Design Graphique & Community Manager') {
+            $duration = '7 mois';
+        }
+
+        $items = [
+            [
+                'label' => 'Tranche 1',
+                'detail' => '1ère tranche (inscription)',
+                'amount' => $installment1Amount,
+            ],
+            [
+                'label' => 'Tranche 2',
+                'detail' => '2ème tranche',
+                'amount' => $installment2Amount,
+            ],
+        ];
+
+        $generator = new TrainingQuoteGenerator();
+        $result = $generator->generate([
+            'quote_number' => $quoteNumber,
+            'issued_at' => $issuedAt,
+            'valid_until' => $validUntil,
+            'candidate_name' => trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? '')),
+            'candidate_email' => $pre->email ?? '',
+            'candidate_phone' => $pre->whatsapp ?? '',
+            'formation' => $formationName,
+            'level' => $pre->niveau_dans_formation ?? null,
+            'duration' => $duration,
+            'total_amount' => $totalAmount,
+            'items' => $items,
+            'filename' => 'Devis_' . preg_replace('/\s+/', '_', trim(($pre->prenom ?? '') . '_' . ($pre->nom ?? ''))) . '_' . now()->format('Ymd') . '.pdf',
+        ]);
+
+        return response()->download($result['path'], $result['filename'])->deleteFileAfterSend(true);
     }
 
     public function show($id)

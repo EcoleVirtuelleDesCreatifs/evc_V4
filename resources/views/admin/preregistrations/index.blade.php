@@ -156,6 +156,13 @@
                                        aria-label="Paiement">
                                         <i class="fas fa-coins"></i>
                                     </a>
+
+                                    <a href="{{ route('admin.preinscriptions.devis', $pre->id) }}"
+                                       class="btn btn-sm btn-outline-primary btn-icon"
+                                       title="Télécharger le devis"
+                                       aria-label="Devis">
+                                        <i class="fas fa-file-invoice"></i>
+                                    </a>
                                     @if(!in_array($pre->status, ['accepted','Validé','Actif']))
                                         {{-- Bouton Accepter --}}
                                         <form action="{{ route('admin.preinscriptions.accept', $pre->id) }}" method="POST" class="d-inline" onsubmit="return confirm('✅ Accepter cette candidature ?\n\nLe candidat recevra un email avec le lien de paiement (50 000 FCFA).');">
