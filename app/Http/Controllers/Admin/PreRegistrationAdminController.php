@@ -92,6 +92,15 @@ class PreRegistrationAdminController extends Controller
         $validUntil = now()->addDays(30)->format('d/m/Y');
 
         $duration = '3 Mois';
+        if ($formationName === 'Design Graphique') {
+            $duration = '4 Mois';
+        } elseif ($formationName === 'Community Management') {
+            $duration = '3 Mois';
+        } elseif ($formationName === 'Design Graphique & Community Management' || $formationName === 'Design Graphique & Community Manager') {
+            $duration = '7 Mois';
+        } elseif ($formationName === 'Gestion Informatique') {
+            $duration = '2 Mois';
+        }
 
         $items = [
             [
