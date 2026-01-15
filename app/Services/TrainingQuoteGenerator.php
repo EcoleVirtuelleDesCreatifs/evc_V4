@@ -6,6 +6,26 @@ use setasign\Fpdi\Fpdi;
 
 class TrainingQuoteGenerator
 {
+    private function resolveTemplatePath(string $relativePath): ?string
+    {
+        $relativePath = ltrim($relativePath, '/');
+
+        $candidates = [
+            public_path($relativePath),
+            public_path('assets/' . $relativePath),
+            base_path('public/' . $relativePath),
+            base_path('public/assets/' . $relativePath),
+        ];
+
+        foreach ($candidates as $path) {
+            if (is_string($path) && $path !== '' && file_exists($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
     private function toLatin(string $text): string
     {
         $converted = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
@@ -23,90 +43,104 @@ class TrainingQuoteGenerator
      */
     public function generate(array $data): array
     {
+        $templatePath = null;
+        if (!empty($data['template_path'])) {
+            $templatePath = $this->resolveTemplatePath((string) $data['template_path']);
+        }
+        if (!$templatePath) {
+            $templatePath = $this->resolveTemplatePath('assets/devis/template_devis.pdf');
+        }
+        if (!$templatePath) {
+            $templatePath = $this->resolveTemplatePath('assets/facture/Template_Facture.pdf');
+        }
+
         $pdf = new Fpdi('P', 'mm', 'A4');
         $pdf->SetAutoPageBreak(true, 18);
-        $pdf->AddPage();
 
-        $pdf->SetFont('Helvetica', 'B', 16);
-        $pdf->Cell(0, 8, $this->toLatin('EVC - École Virtuelle des Créatifs'), 0, 1, 'L');
+        if ($templatePath) {
+            $pageCount = $pdf->setSourceFile($templatePath);
+            $templateId = $pdf->importPage(1);
+            $size = $pdf->getTemplateSize($templateId);
+            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+            $pdf->useTemplate($templateId);
+        } else {
+            $pdf->AddPage();
+        }
 
-        $pdf->SetFont('Helvetica', '', 11);
-        $pdf->SetTextColor(80, 80, 80);
-        $pdf->Cell(0, 6, $this->toLatin('Devis de formation'), 0, 1, 'L');
+        // Overlay text (positions par défaut - à ajuster selon le template)
         $pdf->SetTextColor(0, 0, 0);
 
-        $pdf->Ln(2);
+        $pdf->SetFont('Helvetica', 'B', 12);
+        $pdf->SetXY(15, 25);
+        $pdf->Cell(0, 6, $this->toLatin('DEVIS DE FORMATION'), 0, 1, 'L');
 
         $pdf->SetFont('Helvetica', '', 10);
+        $pdf->SetXY(15, 35);
         $pdf->Cell(0, 5, $this->toLatin('N° Devis : ') . $this->toLatin($data['quote_number'] ?? ''), 0, 1, 'L');
+        $pdf->SetXY(15, 41);
         $pdf->Cell(0, 5, $this->toLatin('Date : ') . $this->toLatin($data['issued_at'] ?? ''), 0, 1, 'L');
-
         if (!empty($data['valid_until'])) {
+            $pdf->SetXY(15, 47);
             $pdf->Cell(0, 5, $this->toLatin('Validité : ') . $this->toLatin($data['valid_until']), 0, 1, 'L');
         }
 
-        $pdf->Ln(4);
+        $pdf->SetFont('Helvetica', 'B', 10);
+        $pdf->SetXY(15, 60);
+        $pdf->Cell(0, 5, $this->toLatin('CANDIDAT'), 0, 1, 'L');
 
-        $pdf->SetFont('Helvetica', 'B', 11);
-        $pdf->Cell(0, 6, $this->toLatin('Informations candidat'), 0, 1, 'L');
         $pdf->SetFont('Helvetica', '', 10);
-
-        $pdf->Cell(0, 5, $this->toLatin('Nom : ') . $this->toLatin($data['candidate_name'] ?? ''), 0, 1, 'L');
-        $pdf->Cell(0, 5, $this->toLatin('Email : ') . $this->toLatin($data['candidate_email'] ?? ''), 0, 1, 'L');
-
+        $pdf->SetXY(15, 66);
+        $pdf->Cell(0, 5, $this->toLatin($data['candidate_name'] ?? ''), 0, 1, 'L');
+        $pdf->SetXY(15, 72);
+        $pdf->Cell(0, 5, $this->toLatin($data['candidate_email'] ?? ''), 0, 1, 'L');
         if (!empty($data['candidate_phone'])) {
-            $pdf->Cell(0, 5, $this->toLatin('Téléphone / WhatsApp : ') . $this->toLatin($data['candidate_phone']), 0, 1, 'L');
+            $pdf->SetXY(15, 78);
+            $pdf->Cell(0, 5, $this->toLatin($data['candidate_phone']), 0, 1, 'L');
         }
 
-        $pdf->Ln(4);
+        $pdf->SetFont('Helvetica', 'B', 10);
+        $pdf->SetXY(15, 92);
+        $pdf->Cell(0, 5, $this->toLatin('FORMATION'), 0, 1, 'L');
 
-        $pdf->SetFont('Helvetica', 'B', 11);
-        $pdf->Cell(0, 6, $this->toLatin('Formation demandée'), 0, 1, 'L');
         $pdf->SetFont('Helvetica', '', 10);
-
-        $pdf->Cell(0, 5, $this->toLatin('Formation : ') . $this->toLatin($data['formation'] ?? ''), 0, 1, 'L');
-
+        $pdf->SetXY(15, 98);
+        $pdf->Cell(0, 5, $this->toLatin($data['formation'] ?? ''), 0, 1, 'L');
         if (!empty($data['level'])) {
+            $pdf->SetXY(15, 104);
             $pdf->Cell(0, 5, $this->toLatin('Niveau : ') . $this->toLatin($data['level']), 0, 1, 'L');
         }
-
         if (!empty($data['duration'])) {
+            $pdf->SetXY(15, 110);
             $pdf->Cell(0, 5, $this->toLatin('Durée : ') . $this->toLatin($data['duration']), 0, 1, 'L');
         }
 
-        $pdf->Ln(6);
-
-        $pdf->SetFont('Helvetica', 'B', 11);
-        $pdf->Cell(0, 6, $this->toLatin('Récapitulatif'), 0, 1, 'L');
-
-        $pdf->SetFont('Helvetica', '', 10);
-        $pdf->Cell(0, 5, $this->toLatin('Montant total : ') . $this->toLatin($this->money($data['total_amount'] ?? 0)), 0, 1, 'L');
-
-        $pdf->Ln(4);
-
         $pdf->SetFont('Helvetica', 'B', 10);
-        $pdf->SetFillColor(240, 240, 240);
-        $pdf->Cell(40, 7, $this->toLatin('Modalité'), 1, 0, 'L', true);
-        $pdf->Cell(90, 7, $this->toLatin('Détail'), 1, 0, 'L', true);
-        $pdf->Cell(60, 7, $this->toLatin('Montant'), 1, 1, 'R', true);
+        $pdf->SetXY(15, 124);
+        $pdf->Cell(0, 5, $this->toLatin('MONTANT TOTAL : ') . $this->toLatin($this->money($data['total_amount'] ?? 0)), 0, 1, 'L');
+
+        // Tranches (2 lignes)
+        $startY = 140;
+        $rowHeight = 7;
+        $pdf->SetFont('Helvetica', 'B', 10);
+        $pdf->SetXY(15, $startY);
+        $pdf->Cell(60, $rowHeight, $this->toLatin('Modalité'), 1, 0, 'L');
+        $pdf->Cell(85, $rowHeight, $this->toLatin('Détail'), 1, 0, 'L');
+        $pdf->Cell(40, $rowHeight, $this->toLatin('Montant'), 1, 1, 'R');
 
         $pdf->SetFont('Helvetica', '', 10);
-
+        $y = $startY + $rowHeight;
         foreach (($data['items'] ?? []) as $item) {
-            $label = $item['label'] ?? '';
-            $detail = $item['detail'] ?? '';
-            $amount = $item['amount'] ?? 0;
-
-            $pdf->Cell(40, 7, $this->toLatin($label), 1, 0, 'L');
-            $pdf->Cell(90, 7, $this->toLatin($detail), 1, 0, 'L');
-            $pdf->Cell(60, 7, $this->toLatin($this->money($amount)), 1, 1, 'R');
+            $pdf->SetXY(15, $y);
+            $pdf->Cell(60, $rowHeight, $this->toLatin($item['label'] ?? ''), 1, 0, 'L');
+            $pdf->Cell(85, $rowHeight, $this->toLatin($item['detail'] ?? ''), 1, 0, 'L');
+            $pdf->Cell(40, $rowHeight, $this->toLatin($this->money($item['amount'] ?? 0)), 1, 1, 'R');
+            $y += $rowHeight;
         }
-
-        $pdf->Ln(6);
 
         $pdf->SetFont('Helvetica', '', 9);
         $pdf->SetTextColor(90, 90, 90);
-        $pdf->MultiCell(0, 5, $this->toLatin('Ce devis est fourni à titre indicatif pour faciliter la validation et la prise en charge en entreprise. Pour procéder au paiement, veuillez contacter EVC ou utiliser le lien de paiement transmis après validation de la candidature.'));
+        $pdf->SetXY(15, max($y + 8, 170));
+        $pdf->MultiCell(180, 5, $this->toLatin('Ce devis est fourni à titre indicatif pour faciliter la validation et la prise en charge en entreprise.'));
         $pdf->SetTextColor(0, 0, 0);
 
         $outputDir = storage_path('app/quotes');
