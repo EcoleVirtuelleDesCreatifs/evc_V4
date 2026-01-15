@@ -71,59 +71,61 @@ class TrainingQuoteGenerator
             $pdf->AddPage();
         }
 
+        $offsetY = 6.6;
+
         // Overlay text (positions par défaut - à ajuster selon le template)
         $pdf->SetTextColor(0, 0, 0);
 
         $pdf->SetFont('Helvetica', 'B', 12);
-        $pdf->SetXY(15, 25);
+        $pdf->SetXY(15, 25 + $offsetY);
         $pdf->Cell(0, 6, $this->toLatin('DEVIS DE FORMATION'), 0, 1, 'L');
 
         $pdf->SetFont('Helvetica', '', 10);
-        $pdf->SetXY(15, 35);
+        $pdf->SetXY(15, 35 + $offsetY);
         $pdf->Cell(0, 5, $this->toLatin('N° Devis : ') . $this->toLatin($data['quote_number'] ?? ''), 0, 1, 'L');
-        $pdf->SetXY(15, 41);
+        $pdf->SetXY(15, 41 + $offsetY);
         $pdf->Cell(0, 5, $this->toLatin('Date : ') . $this->toLatin($data['issued_at'] ?? ''), 0, 1, 'L');
         if (!empty($data['valid_until'])) {
-            $pdf->SetXY(15, 47);
+            $pdf->SetXY(15, 47 + $offsetY);
             $pdf->Cell(0, 5, $this->toLatin('Validité : ') . $this->toLatin($data['valid_until']), 0, 1, 'L');
         }
 
         $pdf->SetFont('Helvetica', 'B', 10);
-        $pdf->SetXY(15, 60);
+        $pdf->SetXY(15, 60 + $offsetY);
         $pdf->Cell(0, 5, $this->toLatin('CANDIDAT'), 0, 1, 'L');
 
         $pdf->SetFont('Helvetica', '', 10);
-        $pdf->SetXY(15, 66);
+        $pdf->SetXY(15, 66 + $offsetY);
         $pdf->Cell(0, 5, $this->toLatin($data['candidate_name'] ?? ''), 0, 1, 'L');
-        $pdf->SetXY(15, 72);
+        $pdf->SetXY(15, 72 + $offsetY);
         $pdf->Cell(0, 5, $this->toLatin($data['candidate_email'] ?? ''), 0, 1, 'L');
         if (!empty($data['candidate_phone'])) {
-            $pdf->SetXY(15, 78);
+            $pdf->SetXY(15, 78 + $offsetY);
             $pdf->Cell(0, 5, $this->toLatin($data['candidate_phone']), 0, 1, 'L');
         }
 
         $pdf->SetFont('Helvetica', 'B', 10);
-        $pdf->SetXY(15, 92);
+        $pdf->SetXY(15, 92 + $offsetY);
         $pdf->Cell(0, 5, $this->toLatin('FORMATION'), 0, 1, 'L');
 
         $pdf->SetFont('Helvetica', '', 10);
-        $pdf->SetXY(15, 98);
+        $pdf->SetXY(15, 98 + $offsetY);
         $pdf->Cell(0, 5, $this->toLatin($data['formation'] ?? ''), 0, 1, 'L');
         if (!empty($data['level'])) {
-            $pdf->SetXY(15, 104);
+            $pdf->SetXY(15, 104 + $offsetY);
             $pdf->Cell(0, 5, $this->toLatin('Niveau : ') . $this->toLatin($data['level']), 0, 1, 'L');
         }
         if (!empty($data['duration'])) {
-            $pdf->SetXY(15, 110);
+            $pdf->SetXY(15, 110 + $offsetY);
             $pdf->Cell(0, 5, $this->toLatin('Durée : ') . $this->toLatin($data['duration']), 0, 1, 'L');
         }
 
         $pdf->SetFont('Helvetica', 'B', 10);
-        $pdf->SetXY(15, 124);
+        $pdf->SetXY(15, 124 + $offsetY);
         $pdf->Cell(0, 5, $this->toLatin('MONTANT TOTAL : ') . $this->toLatin($this->money($data['total_amount'] ?? 0)), 0, 1, 'L');
 
         // Tranches (2 lignes)
-        $startY = 140;
+        $startY = 140 + $offsetY;
         $rowHeight = 7;
         $pdf->SetFont('Helvetica', 'B', 10);
         $pdf->SetXY(15, $startY);
@@ -143,7 +145,7 @@ class TrainingQuoteGenerator
 
         $pdf->SetFont('Helvetica', '', 9);
         $pdf->SetTextColor(90, 90, 90);
-        $pdf->SetXY(15, max($y + 8, 170));
+        $pdf->SetXY(15, max($y + 8, 170 + $offsetY));
         $pdf->MultiCell(180, 5, $this->toLatin('Ce devis est fourni à titre indicatif pour faciliter la validation et la prise en charge en entreprise.'));
         $pdf->SetTextColor(0, 0, 0);
 
