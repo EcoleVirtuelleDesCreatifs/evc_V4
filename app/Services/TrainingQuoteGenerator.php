@@ -71,7 +71,7 @@ class TrainingQuoteGenerator
             $pdf->AddPage();
         }
 
-        $offsetY = 52.8;
+        $offsetY = 13.2;
 
         // Overlay text (positions par défaut - à ajuster selon le template)
         $pdf->SetTextColor(0, 0, 0);
@@ -96,12 +96,12 @@ class TrainingQuoteGenerator
 
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(15, 66 + $offsetY);
-        $pdf->Cell(0, 5, $this->toLatin($data['candidate_name'] ?? ''), 0, 1, 'L');
+        $pdf->Cell(0, 5, $this->toLatin('Nom : ') . $this->toLatin($data['candidate_name'] ?? ''), 0, 1, 'L');
         $pdf->SetXY(15, 72 + $offsetY);
-        $pdf->Cell(0, 5, $this->toLatin($data['candidate_email'] ?? ''), 0, 1, 'L');
+        $pdf->Cell(0, 5, $this->toLatin('Email : ') . $this->toLatin($data['candidate_email'] ?? ''), 0, 1, 'L');
         if (!empty($data['candidate_phone'])) {
             $pdf->SetXY(15, 78 + $offsetY);
-            $pdf->Cell(0, 5, $this->toLatin($data['candidate_phone']), 0, 1, 'L');
+            $pdf->Cell(0, 5, $this->toLatin('Numéro : ') . $this->toLatin($data['candidate_phone']), 0, 1, 'L');
         }
 
         $pdf->SetFont('Helvetica', 'B', 10);
@@ -110,7 +110,7 @@ class TrainingQuoteGenerator
 
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(15, 98 + $offsetY);
-        $pdf->Cell(0, 5, $this->toLatin($data['formation'] ?? ''), 0, 1, 'L');
+        $pdf->Cell(0, 5, $this->toLatin('Formation choisie : ') . $this->toLatin($data['formation'] ?? ''), 0, 1, 'L');
         if (!empty($data['level'])) {
             $pdf->SetXY(15, 104 + $offsetY);
             $pdf->Cell(0, 5, $this->toLatin('Niveau : ') . $this->toLatin($data['level']), 0, 1, 'L');
