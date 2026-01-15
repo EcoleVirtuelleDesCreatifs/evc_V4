@@ -71,14 +71,14 @@ class TrainingQuoteGenerator
             $pdf->AddPage();
         }
 
-        $offsetY = 13.2;
+        $offsetY = 6.6;
 
         // Overlay text (positions par défaut - à ajuster selon le template)
         $pdf->SetTextColor(0, 0, 0);
 
-        $pdf->SetFont('Helvetica', 'B', 12);
+        $pdf->SetFont('Helvetica', 'B', 24);
         $pdf->SetXY(15, 25 + $offsetY);
-        $pdf->Cell(0, 6, $this->toLatin('DEVIS DE FORMATION'), 0, 1, 'L');
+        $pdf->Cell(0, 10, $this->toLatin('FACTURE PRO FORMAT'), 0, 1, 'L');
 
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(15, 35 + $offsetY);
