@@ -10,11 +10,15 @@ class TrainingQuoteGenerator
     {
         $relativePath = ltrim($relativePath, '/');
 
+        $assetsPrefixed = str_starts_with($relativePath, 'assets/')
+            ? $relativePath
+            : ('assets/' . $relativePath);
+
         $candidates = [
             public_path($relativePath),
-            public_path('assets/' . $relativePath),
+            public_path($assetsPrefixed),
             base_path('public/' . $relativePath),
-            base_path('public/assets/' . $relativePath),
+            base_path('public/' . $assetsPrefixed),
         ];
 
         foreach ($candidates as $path) {
