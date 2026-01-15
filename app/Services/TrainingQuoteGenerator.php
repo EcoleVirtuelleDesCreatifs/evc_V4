@@ -71,7 +71,7 @@ class TrainingQuoteGenerator
             $pdf->AddPage();
         }
 
-        $offsetY = 11.9;
+        $offsetY = 18.5;
 
         // Overlay text (positions par défaut - à ajuster selon le template)
         $pdf->SetTextColor(0, 0, 0);
@@ -115,17 +115,19 @@ class TrainingQuoteGenerator
             $pdf->SetXY(15, 104 + $offsetY);
             $pdf->Cell(0, 5, $this->toLatin('Niveau : ') . $this->toLatin($data['level']), 0, 1, 'L');
         }
-        if (!empty($data['duration'])) {
-            $pdf->SetXY(15, 110 + $offsetY);
-            $pdf->Cell(0, 5, $this->toLatin('Durée : ') . $this->toLatin($data['duration']), 0, 1, 'L');
-        }
+        $durationLabel = !empty($data['duration']) ? (string) $data['duration'] : '—';
+        $pdf->SetXY(15, 110 + $offsetY);
+        $pdf->Cell(0, 5, $this->toLatin('Durée de la formation : ') . $this->toLatin($durationLabel), 0, 1, 'L');
+
+        $pdf->SetXY(15, 116 + $offsetY);
+        $pdf->Cell(0, 5, $this->toLatin('Formation Principal : Bilé Bossombra (En savoir plus : www.bilebossombra.com)'), 0, 1, 'L');
 
         $pdf->SetFont('Helvetica', 'B', 10);
-        $pdf->SetXY(15, 124 + $offsetY);
+        $pdf->SetXY(15, 130 + $offsetY);
         $pdf->Cell(0, 5, $this->toLatin('MONTANT TOTAL : ') . $this->toLatin($this->money($data['total_amount'] ?? 0)), 0, 1, 'L');
 
         // Tranches (2 lignes)
-        $startY = 140 + $offsetY;
+        $startY = 146 + $offsetY;
         $rowHeight = 7;
         $pdf->SetFont('Helvetica', 'B', 10);
         $pdf->SetXY(15, $startY);
