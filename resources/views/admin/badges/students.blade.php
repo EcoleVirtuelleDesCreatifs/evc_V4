@@ -34,6 +34,18 @@
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
 
+    .stat-action {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+    }
+
+    .stat-action .btn {
+        border-radius: 999px;
+        font-weight: 800;
+        padding: .45rem 1rem;
+    }
+
     /* Palettes demandées */
     .stat-card-actifs {
         background: linear-gradient(135deg, #1b3a7a 0%, #2a4f9c 100%);
@@ -455,6 +467,33 @@
                     <div class="stat-content">
                         <h3 class="stat-number">{{ $stats['new_month'] ?? 0 }}</h3>
                         <p class="stat-label">Nouveaux inscrits (ce mois)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-3">
+                <div class="stat-card stat-card-success">
+                    <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                    <div class="stat-content">
+                        <h3 class="stat-number" style="font-size:1.6rem;">Top performers</h3>
+                        <p class="stat-label">Classement projets + TP validés</p>
+                    </div>
+                    <div class="stat-action">
+                        <a href="{{ route('admin.badges.students.top-performers') }}" class="btn btn-light btn-sm">Voir</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-3">
+                <div class="stat-card stat-card-primary">
+                    <div class="stat-icon"><i class="fas fa-list"></i></div>
+                    <div class="stat-content">
+                        <h3 class="stat-number" style="font-size:1.6rem;">Liste des étudiants</h3>
+                        <p class="stat-label">Accéder à la liste complète</p>
+                    </div>
+                    <div class="stat-action">
+                        <a href="{{ route('admin.badges.students.list') }}" class="btn btn-light btn-sm">Voir</a>
                     </div>
                 </div>
             </div>

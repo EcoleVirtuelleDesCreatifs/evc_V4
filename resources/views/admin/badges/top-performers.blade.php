@@ -156,22 +156,14 @@
                                         @foreach($list as $idx => $p)
                                             @php
                                                 $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($p->profile_photo ?? null);
-                                                $initials = strtoupper(substr($p->first_name ?? 'U', 0, 1) . substr($p->last_name ?? 'U', 0, 1));
                                                 $country = (string) ($p->country ?? '');
                                             @endphp
                                             <div class="d-flex align-items-center gap-2">
                                                 <span class="rank-pill">{{ $idx + 1 }}</span>
-                                                @if(!empty($p->profile_photo) && !empty($photoUrl))
-                                                    <img src="{{ $photoUrl }}" alt="{{ trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) }}" class="avatar" />
-                                                @else
-                                                    <span class="avatar">{{ $initials }}</span>
-                                                @endif
+                                                <img src="{{ $photoUrl }}" alt="{{ trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) }}" class="avatar" />
                                                 <div class="flex-grow-1" style="min-width:0;">
                                                     <div class="text-white fw-semibold" style="line-height:1.15;">
                                                         {{ trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) }}
-                                                    </div>
-                                                    <div class="text-white-50" style="font-size:.85rem;">
-                                                        {{ $p->student_id ?? '—' }}
                                                     </div>
                                                     @if($country !== '')
                                                         <div class="country-pill">
