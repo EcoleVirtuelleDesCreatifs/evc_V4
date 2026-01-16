@@ -133,80 +133,6 @@
 
     <div class="row mb-4">
         <div class="col-12">
-            <div class="month-sessions-card">
-                <div class="month-sessions-header">
-                    <div>
-                        <div class="month-sessions-title">Séances du mois</div>
-                        <div class="month-sessions-subtitle">{{ $now->translatedFormat('F Y') }}</div>
-                    </div>
-                    <div class="month-sessions-count">{{ (int) ($currentMonthSessions->count() ?? 0) }}</div>
-                </div>
-
-                @if(($currentMonthSessions ?? collect())->isEmpty())
-                    <div class="month-empty">Aucune séance planifiée pour ce mois.</div>
-                @else
-                    <div class="month-sessions-list">
-                        @foreach($currentMonthSessions as $item)
-                            @php
-                                $canonical = (string) ($item->canonical_formation ?? '');
-                                $canonicalLower = strtolower($canonical);
-                                $tag = str_contains($canonicalLower, 'community') ? 'CM' : (str_contains($canonicalLower, 'design') ? 'DG' : '');
-                                $typeFormation = $item->type_formation ?? null;
-                            @endphp
-                            <div class="month-session-row">
-                                <div class="month-session-left">
-                                    <div class="month-session-title">
-                                        {{ $item->thematique ?? 'Séance' }}
-                                        @if($tag !== '')
-                                            <span class="month-tag">{{ $tag }}</span>
-                                        @endif
-                                    </div>
-                                    <div class="month-session-meta">
-                                        <span>
-                                            <i class="fas fa-calendar me-1"></i>
-                                            {{ !empty($item->session_date) ? \Carbon\Carbon::parse($item->session_date)->format('d/m/Y') : 'Date à confirmer' }}
-                                        </span>
-                                        <span class="month-dot">•</span>
-                                        <span>
-                                            <i class="fas fa-clock me-1"></i>
-                                            {{ !empty($item->session_time) ? \Carbon\Carbon::parse($item->session_time)->format('H:i') : 'Heure à confirmer' }}
-                                        </span>
-                                        @if(($typeFormation ?? null) === 'presentielle' && !empty($item->lieu))
-                                            <span class="month-dot">•</span>
-                                            <span>
-                                                <i class="fas fa-map-marker-alt me-1"></i>
-                                                {{ $item->lieu }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="month-session-right">
-                                    @if($typeFormation)
-                                        <span class="month-type {{ $typeFormation === 'presentielle' ? 'type-presentielle' : 'type-enligne' }}">
-                                            {{ $typeFormation === 'presentielle' ? 'Présentielle' : 'En ligne' }}
-                                        </span>
-                                    @endif
-
-                                    @php
-                                        $downloadPath = $item->piece_jointe ?? null;
-                                    @endphp
-                                    @if(!empty($downloadPath))
-                                        <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($downloadPath) }}">
-                                            <i class="fas fa-download me-1"></i>
-                                            Télécharger
-                                        </a>
-                                    @endif
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
             <div class="all-programmes-card">
                 <div class="all-programmes-header">
                     <div>
@@ -313,6 +239,80 @@
                                             </div>
                                         @endif
                                     </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="month-sessions-card">
+                <div class="month-sessions-header">
+                    <div>
+                        <div class="month-sessions-title">Séances du mois</div>
+                        <div class="month-sessions-subtitle">{{ $now->translatedFormat('F Y') }}</div>
+                    </div>
+                    <div class="month-sessions-count">{{ (int) ($currentMonthSessions->count() ?? 0) }}</div>
+                </div>
+
+                @if(($currentMonthSessions ?? collect())->isEmpty())
+                    <div class="month-empty">Aucune séance planifiée pour ce mois.</div>
+                @else
+                    <div class="month-sessions-list">
+                        @foreach($currentMonthSessions as $item)
+                            @php
+                                $canonical = (string) ($item->canonical_formation ?? '');
+                                $canonicalLower = strtolower($canonical);
+                                $tag = str_contains($canonicalLower, 'community') ? 'CM' : (str_contains($canonicalLower, 'design') ? 'DG' : '');
+                                $typeFormation = $item->type_formation ?? null;
+                            @endphp
+                            <div class="month-session-row">
+                                <div class="month-session-left">
+                                    <div class="month-session-title">
+                                        {{ $item->thematique ?? 'Séance' }}
+                                        @if($tag !== '')
+                                            <span class="month-tag">{{ $tag }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="month-session-meta">
+                                        <span>
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ !empty($item->session_date) ? \Carbon\Carbon::parse($item->session_date)->format('d/m/Y') : 'Date à confirmer' }}
+                                        </span>
+                                        <span class="month-dot">•</span>
+                                        <span>
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ !empty($item->session_time) ? \Carbon\Carbon::parse($item->session_time)->format('H:i') : 'Heure à confirmer' }}
+                                        </span>
+                                        @if(($typeFormation ?? null) === 'presentielle' && !empty($item->lieu))
+                                            <span class="month-dot">•</span>
+                                            <span>
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                {{ $item->lieu }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="month-session-right">
+                                    @if($typeFormation)
+                                        <span class="month-type {{ $typeFormation === 'presentielle' ? 'type-presentielle' : 'type-enligne' }}">
+                                            {{ $typeFormation === 'presentielle' ? 'Présentielle' : 'En ligne' }}
+                                        </span>
+                                    @endif
+
+                                    @php
+                                        $downloadPath = $item->piece_jointe ?? null;
+                                    @endphp
+                                    @if(!empty($downloadPath))
+                                        <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($downloadPath) }}">
+                                            <i class="fas fa-download me-1"></i>
+                                            Télécharger
+                                        </a>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
