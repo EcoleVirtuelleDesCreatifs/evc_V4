@@ -3792,7 +3792,7 @@ class DashboardController extends Controller
         return view('communaute.index', [
             'user' => $user,
             'communityStats' => $communityStats,
-            'socialMediaStats' => $socialMediaStats
+            'socialMediaStats' => $socialMediaStats,
         ]);
     }
 
@@ -3805,6 +3805,7 @@ class DashboardController extends Controller
 
         // Récupérer les informations de l'étudiant
         $student = DB::table('students')->where('user_id', $user->id)->first();
+        $formationPrefix = $this->getFormationSlug($student);
 
         // Mapping des formations pour gérer les différentes variantes
         $formationMapping = [
@@ -3913,10 +3914,203 @@ class DashboardController extends Controller
             return $programme;
         });
 
+        $now = now();
+        $currentMonthSessions = collect();
+        foreach ($programmes as $programme) {
+            $items = $programme->items ?? collect();
+            if (!($items instanceof \Illuminate\Support\Collection)) {
+                $items = collect($items);
+            }
+
+            foreach ($items as $it) {
+                try {
+                    if (!empty($it->session_date) && \Carbon\Carbon::parse($it->session_date)->isSameMonth($now)) {
+                        $it->programme_title = $programme->titre ?? null;
+                        $it->programme_id = $programme->id ?? null;
+                        $it->canonical_formation = $programme->canonical_formation ?? ($programme->formation ?? null);
+                        $currentMonthSessions->push($it);
+                    }
+                } catch (\Throwable $e) {
+                }
+            }
+        }
+
+        $currentMonthSessions = $currentMonthSessions
+            ->sortBy(function ($it) {
+                try {
+                    return \Carbon\Carbon::parse(($it->session_date ?? '') . ' ' . ($it->session_time ?? '00:00'))->timestamp;
+                } catch (\Throwable $e) {
+                    return PHP_INT_MAX;
+                }
+            })
+            ->values();
+
         return view('programme.index', [
             'user' => $user,
             'programmes' => $programmes,
-            'student' => $student
+            'student' => $student,
+            'formationPrefix' => $formationPrefix,
+            'currentMonthSessions' => $currentMonthSessions,
+        ]);
+    }
+
+    public function programmeFormation(string $slug): View
+    {
+        $user = Auth::user();
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+        $formationPrefix = $this->getFormationSlug($student);
+
+        $formationMapping = [
+            'Design Graphique' => ['Design Graphique', 'Infographie', 'design-graphique', 'design_graphique', 'infographie', 'Design graphique'],
+            'Community Management' => ['Community Management', 'community-management', 'community_management', 'Community management', 'CM'],
+            'Gestion Informatique' => ['Gestion Informatique', 'gestion-informatique', 'gestion_informatique', 'Gestion informatique', 'GI'],
+            'Intelligence Artificielle' => ['Intelligence Artificielle', 'intelligence-artificielle', 'intelligence_artificielle', 'Intelligence artificielle', 'IA'],
+            'Design Graphique & Community Management' => [
+                'Design Graphique & Community Management',
+                'Design Graphique & Community Manager',
+                'design-graphique-community-manager',
+                'design_graphique_community_management',
+                'design-graphique-cm',
+                'design_cm',
+            ],
+        ];
+
+        $slugNormalized = strtolower(trim($slug));
+        $targetCanonical = null;
+        if (in_array($slugNormalized, ['design-graphique', 'design_graphique', 'design'], true)) {
+            $targetCanonical = 'Design Graphique';
+        }
+        if (in_array($slugNormalized, ['community-management', 'community_management', 'community', 'cm'], true)) {
+            $targetCanonical = 'Community Management';
+        }
+
+        if (!$targetCanonical) {
+            abort(404);
+        }
+
+        $studentFormation = $student->program ?? null;
+        $isCombinedStudent = false;
+        if ($studentFormation && isset($formationMapping['Design Graphique & Community Management'])) {
+            if (in_array($studentFormation, $formationMapping['Design Graphique & Community Management'], true)) {
+                $isCombinedStudent = true;
+            }
+        }
+
+        if (!$isCombinedStudent && $studentFormation) {
+            $allowedCanonical = null;
+            foreach (['Design Graphique', 'Community Management', 'Gestion Informatique', 'Intelligence Artificielle'] as $label) {
+                if (isset($formationMapping[$label]) && in_array($studentFormation, $formationMapping[$label], true)) {
+                    $allowedCanonical = $label;
+                    break;
+                }
+            }
+
+            if ($allowedCanonical && $allowedCanonical !== $targetCanonical) {
+                abort(403);
+            }
+        }
+
+        $allowedFormations = array_values(array_unique(array_merge(
+            ['Toutes'],
+            $formationMapping[$targetCanonical] ?? []
+        )));
+
+        $studentId = $student?->id;
+        $programmes = DB::table('programmes')
+            ->where(function ($query) use ($allowedFormations, $studentId) {
+                $query->whereIn('formation', $allowedFormations);
+
+                if (!empty($studentId) && Schema::hasColumn('programmes', 'student_ids')) {
+                    $query->orWhereJsonContains('student_ids', (int) $studentId);
+                }
+            })
+            ->orderBy('month_start', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $programmeIds = $programmes->pluck('id')->filter()->values();
+        $itemsByProgramme = collect();
+        if ($programmeIds->isNotEmpty() && Schema::hasTable('programme_items')) {
+            $items = DB::table('programme_items')
+                ->whereIn('programme_id', $programmeIds)
+                ->orderBy('session_date', 'asc')
+                ->orderBy('session_time', 'asc')
+                ->get();
+            $itemsByProgramme = $items->groupBy('programme_id');
+        }
+
+        $programmes = $programmes->map(function ($programme) use ($itemsByProgramme, $formationMapping) {
+            $programme->items = $itemsByProgramme->get($programme->id, collect());
+            $programme->items_count = $programme->items->count();
+
+            $formation = $programme->formation ?? null;
+            $canonical = $formation;
+
+            if (is_string($formation)) {
+                $f = trim($formation);
+                $canonicalMap = [
+                    'Design Graphique & Community Management' => $formationMapping['Design Graphique & Community Management'] ?? [],
+                    'Design Graphique' => $formationMapping['Design Graphique'] ?? [],
+                    'Community Management' => $formationMapping['Community Management'] ?? [],
+                    'Gestion Informatique' => $formationMapping['Gestion Informatique'] ?? [],
+                    'Intelligence Artificielle' => $formationMapping['Intelligence Artificielle'] ?? [],
+                ];
+
+                foreach ($canonicalMap as $label => $variants) {
+                    if (in_array($f, $variants, true)) {
+                        $canonical = $label;
+                        break;
+                    }
+                }
+            }
+
+            $programme->canonical_formation = $canonical ?: 'Toutes';
+            return $programme;
+        });
+
+        $now = now();
+        $sessions = collect();
+        foreach ($programmes as $programme) {
+            $items = $programme->items ?? collect();
+            if (!($items instanceof \Illuminate\Support\Collection)) {
+                $items = collect($items);
+            }
+
+            foreach ($items as $it) {
+                $it->programme_title = $programme->titre ?? null;
+                $it->programme_id = $programme->id ?? null;
+                $it->canonical_formation = $programme->canonical_formation ?? ($programme->formation ?? null);
+                $sessions->push($it);
+            }
+        }
+
+        $sessions = $sessions
+            ->sortBy(function ($it) {
+                try {
+                    return \Carbon\Carbon::parse(($it->session_date ?? '') . ' ' . ($it->session_time ?? '00:00'))->timestamp;
+                } catch (\Throwable $e) {
+                    return PHP_INT_MAX;
+                }
+            })
+            ->values();
+
+        $currentMonthSessions = $sessions->filter(function ($it) use ($now) {
+            try {
+                return !empty($it->session_date) && \Carbon\Carbon::parse($it->session_date)->isSameMonth($now);
+            } catch (\Throwable $e) {
+                return false;
+            }
+        })->values();
+
+        return view('programme.formation', [
+            'user' => $user,
+            'student' => $student,
+            'formationPrefix' => $formationPrefix,
+            'slug' => $slugNormalized,
+            'targetCanonical' => $targetCanonical,
+            'programmes' => $programmes,
+            'sessions' => $sessions,
+            'currentMonthSessions' => $currentMonthSessions,
         ]);
     }
 

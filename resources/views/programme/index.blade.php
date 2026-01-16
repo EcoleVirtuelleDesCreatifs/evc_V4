@@ -76,67 +76,114 @@
 
 @if($isDgCm)
     <div class="row g-3 mb-4" id="programmeFormationCards">
-        <div class="col-12 col-md-4">
-            <div class="programme-card instagram-card programme-formation-card programme-formation-card-dg" role="button" data-programme-filter="dg" style="cursor:pointer;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-white-50" style="font-weight:700;">Formation</div>
-                        <div style="font-weight:900; font-size:1.15rem; color:#fff;">Design Graphique</div>
+        <div class="col-12 col-md-6">
+            <a href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', 'design-graphique') }}" class="text-decoration-none">
+                <div class="formation-card formation-card-dg">
+                    <div class="formation-card-top">
+                        <div>
+                            <div class="formation-card-label">Formation</div>
+                            <div class="formation-card-title">Design Graphique</div>
+                        </div>
+                        <div class="formation-card-count">{{ $dgCount }}</div>
                     </div>
-                    <div class="badge" style="background: rgba(255,255,255,0.2); padding: 0.65rem 1rem; border-radius: 18px; font-weight:900;">
-                        {{ $dgCount }}
-                    </div>
+                    <div class="formation-card-cta">Voir le programme</div>
                 </div>
-                <div class="mt-3" style="text-align:right;">
-                    <button type="button" class="btn btn-light btn-sm" data-programme-filter="dg">Voir</button>
-                </div>
-            </div>
+            </a>
         </div>
 
-        <div class="col-12 col-md-4">
-            <div class="programme-card instagram-card programme-formation-card programme-formation-card-cm" role="button" data-programme-filter="cm" style="cursor:pointer;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-white-50" style="font-weight:700;">Formation</div>
-                        <div style="font-weight:900; font-size:1.15rem; color:#fff;">Community Management</div>
+        <div class="col-12 col-md-6">
+            <a href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', 'community-management') }}" class="text-decoration-none">
+                <div class="formation-card formation-card-cm">
+                    <div class="formation-card-top">
+                        <div>
+                            <div class="formation-card-label">Formation</div>
+                            <div class="formation-card-title">Community Management</div>
+                        </div>
+                        <div class="formation-card-count">{{ $cmCount }}</div>
                     </div>
-                    <div class="badge" style="background: rgba(255,255,255,0.2); padding: 0.65rem 1rem; border-radius: 18px; font-weight:900;">
-                        {{ $cmCount }}
-                    </div>
+                    <div class="formation-card-cta">Voir le programme</div>
                 </div>
-                <div class="mt-3" style="text-align:right;">
-                    <button type="button" class="btn btn-light btn-sm" data-programme-filter="cm">Voir</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-12 col-md-4">
-            <div class="programme-card instagram-card programme-formation-card programme-formation-card-current" role="button" data-programme-filter="current" style="cursor:pointer;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <div class="text-white-50" style="font-weight:700;">Formations en cours</div>
-                        <div style="font-weight:900; font-size:1.15rem; color:#fff;">{{ $now->translatedFormat('F Y') }}</div>
-                    </div>
-                    <div class="badge" style="background: rgba(255,255,255,0.2); padding: 0.65rem 1rem; border-radius: 18px; font-weight:900;">
-                        {{ $currentMonthCount }}
-                    </div>
-                </div>
-                <div class="mt-3" style="text-align:right;">
-                    <button type="button" class="btn btn-light btn-sm" data-programme-filter="current">Voir</button>
-                </div>
-            </div>
+            </a>
         </div>
     </div>
 
-    <div class="d-flex justify-content-end mb-4">
-        <button type="button" class="btn btn-light btn-sm" id="programmeFilterReset">
-            Tout afficher
-        </button>
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="month-sessions-card">
+                <div class="month-sessions-header">
+                    <div>
+                        <div class="month-sessions-title">Séances du mois</div>
+                        <div class="month-sessions-subtitle">{{ $now->translatedFormat('F Y') }}</div>
+                    </div>
+                    <div class="month-sessions-count">{{ (int) ($currentMonthSessions->count() ?? 0) }}</div>
+                </div>
+
+                @if(($currentMonthSessions ?? collect())->isEmpty())
+                    <div class="month-empty">Aucune séance planifiée pour ce mois.</div>
+                @else
+                    <div class="month-sessions-list">
+                        @foreach($currentMonthSessions as $item)
+                            @php
+                                $canonical = (string) ($item->canonical_formation ?? '');
+                                $canonicalLower = strtolower($canonical);
+                                $tag = str_contains($canonicalLower, 'community') ? 'CM' : (str_contains($canonicalLower, 'design') ? 'DG' : '');
+                                $typeFormation = $item->type_formation ?? null;
+                            @endphp
+                            <div class="month-session-row">
+                                <div class="month-session-left">
+                                    <div class="month-session-title">
+                                        {{ $item->thematique ?? 'Séance' }}
+                                        @if($tag !== '')
+                                            <span class="month-tag">{{ $tag }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="month-session-meta">
+                                        <span>
+                                            <i class="fas fa-calendar me-1"></i>
+                                            {{ !empty($item->session_date) ? \Carbon\Carbon::parse($item->session_date)->format('d/m/Y') : 'Date à confirmer' }}
+                                        </span>
+                                        <span class="month-dot">•</span>
+                                        <span>
+                                            <i class="fas fa-clock me-1"></i>
+                                            {{ !empty($item->session_time) ? \Carbon\Carbon::parse($item->session_time)->format('H:i') : 'Heure à confirmer' }}
+                                        </span>
+                                        @if(($typeFormation ?? null) === 'presentielle' && !empty($item->lieu))
+                                            <span class="month-dot">•</span>
+                                            <span>
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                {{ $item->lieu }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="month-session-right">
+                                    @if($typeFormation)
+                                        <span class="month-type {{ $typeFormation === 'presentielle' ? 'type-presentielle' : 'type-enligne' }}">
+                                            {{ $typeFormation === 'presentielle' ? 'Présentielle' : 'En ligne' }}
+                                        </span>
+                                    @endif
+
+                                    @php
+                                        $downloadPath = $item->piece_jointe ?? null;
+                                    @endphp
+                                    @if(!empty($downloadPath))
+                                        <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($downloadPath) }}">
+                                            <i class="fas fa-download me-1"></i>
+                                            Télécharger
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 @endif
 
 <!-- Outils (recherche + filtre) -->
-@if(!$programmes->isEmpty())
+@if(!$isDgCm && !$programmes->isEmpty())
     <div class="row mb-4">
         <div class="col-12">
             <div class="tools-card">
@@ -170,7 +217,9 @@
 <!-- Liste dynamique des programmes -->
 <div class="row">
     <div class="col-12">
-        @if($programmes->isEmpty())
+        @if($isDgCm)
+
+        @elseif($programmes->isEmpty())
             <!-- Message si aucun programme -->
             <div class="empty-state">
                 <div class="text-center py-5">
@@ -737,6 +786,196 @@
 .programme-formation-card-current {
     background: linear-gradient(135deg, rgba(37, 99, 235, 0.88), rgba(29, 78, 216, 0.82));
 }
+
+ .formation-card {
+     border-radius: 18px;
+     padding: 1.15rem 1.2rem;
+     border: 1px solid rgba(255, 255, 255, 0.16);
+     box-shadow: 0 18px 55px rgba(2, 6, 23, 0.35);
+     transition: transform 0.25s ease, box-shadow 0.25s ease;
+     position: relative;
+     overflow: hidden;
+ }
+
+ .formation-card::before {
+     content: '';
+     position: absolute;
+     inset: -2px;
+     background:
+         radial-gradient(600px 220px at 20% 20%, rgba(255,255,255,0.35), transparent 55%),
+         radial-gradient(480px 220px at 80% 0%, rgba(255,255,255,0.18), transparent 60%);
+     pointer-events: none;
+ }
+
+ .formation-card:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 24px 70px rgba(2, 6, 23, 0.48);
+ }
+
+ .formation-card-top {
+     display: flex;
+     align-items: flex-start;
+     justify-content: space-between;
+     gap: 1rem;
+ }
+
+ .formation-card-label {
+     color: rgba(255, 255, 255, 0.78);
+     font-weight: 900;
+     text-transform: uppercase;
+     letter-spacing: 0.08em;
+     font-size: 0.78rem;
+ }
+
+ .formation-card-title {
+     color: rgba(255, 255, 255, 0.98);
+     font-weight: 950;
+     font-size: 1.2rem;
+     line-height: 1.15;
+     margin-top: 0.2rem;
+ }
+
+ .formation-card-count {
+     background: rgba(255, 255, 255, 0.18);
+     border: 1px solid rgba(255, 255, 255, 0.20);
+     border-radius: 999px;
+     padding: 0.5rem 0.9rem;
+     font-weight: 950;
+     color: rgba(255, 255, 255, 0.98);
+ }
+
+ .formation-card-cta {
+     margin-top: 1rem;
+     display: inline-flex;
+     align-items: center;
+     gap: 0.5rem;
+     font-weight: 950;
+     color: rgba(255, 255, 255, 0.98);
+ }
+
+ .formation-card-dg {
+     background: linear-gradient(135deg, rgba(37, 99, 235, 0.92), rgba(249, 115, 22, 0.90));
+ }
+
+ .formation-card-cm {
+     background: linear-gradient(135deg, rgba(249, 115, 22, 0.92), rgba(37, 99, 235, 0.90));
+ }
+
+ .month-sessions-card {
+     background: rgba(15, 23, 42, 0.55);
+     border: 1px solid rgba(191, 219, 254, 0.18);
+     border-radius: 18px;
+     padding: 1rem;
+     backdrop-filter: blur(10px);
+ }
+
+ .month-sessions-header {
+     display: flex;
+     align-items: flex-end;
+     justify-content: space-between;
+     gap: 1rem;
+     flex-wrap: wrap;
+     margin-bottom: 0.75rem;
+ }
+
+ .month-sessions-title {
+     font-weight: 950;
+     color: rgba(255, 255, 255, 0.98);
+     font-size: 1.2rem;
+ }
+
+ .month-sessions-subtitle {
+     font-weight: 800;
+     color: rgba(219, 234, 254, 0.88);
+ }
+
+ .month-sessions-count {
+     background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(249, 115, 22, 0.9));
+     color: rgba(255, 255, 255, 0.98);
+     font-weight: 950;
+     border-radius: 999px;
+     padding: 0.45rem 0.9rem;
+     border: 1px solid rgba(255,255,255,0.18);
+ }
+
+ .month-empty {
+     padding: 1rem;
+     font-weight: 800;
+     color: rgba(219, 234, 254, 0.9);
+     border: 1px dashed rgba(191, 219, 254, 0.25);
+     border-radius: 12px;
+ }
+
+ .month-sessions-list {
+     display: flex;
+     flex-direction: column;
+     gap: 0.65rem;
+ }
+
+ .month-session-row {
+     display: flex;
+     align-items: flex-start;
+     justify-content: space-between;
+     gap: 1rem;
+     padding: 0.9rem;
+     border-radius: 14px;
+     background: rgba(2, 6, 23, 0.22);
+     border: 1px solid rgba(191, 219, 254, 0.16);
+ }
+
+ .month-session-title {
+     font-weight: 950;
+     color: rgba(255, 255, 255, 0.96);
+ }
+
+ .month-session-meta {
+     margin-top: 0.25rem;
+     display: flex;
+     gap: 0.6rem;
+     flex-wrap: wrap;
+     align-items: center;
+     font-weight: 800;
+     color: rgba(219, 234, 254, 0.88);
+ }
+
+ .month-dot {
+     opacity: 0.6;
+ }
+
+ .month-session-right {
+     display: flex;
+     gap: 0.6rem;
+     align-items: center;
+     flex-wrap: wrap;
+ }
+
+ .month-tag {
+     margin-left: 0.5rem;
+     padding: 0.2rem 0.55rem;
+     border-radius: 999px;
+     font-size: 0.75rem;
+     font-weight: 950;
+     background: rgba(255, 255, 255, 0.14);
+     border: 1px solid rgba(255, 255, 255, 0.16);
+ }
+
+ .month-type {
+     padding: 0.25rem 0.6rem;
+     border-radius: 999px;
+     font-size: 0.75rem;
+     font-weight: 950;
+     border: 1px solid rgba(255,255,255,0.18);
+ }
+
+ .type-presentielle {
+     background: rgba(249, 115, 22, 0.18);
+     color: rgba(255, 255, 255, 0.96);
+ }
+
+ .type-enligne {
+     background: rgba(37, 99, 235, 0.18);
+     color: rgba(255, 255, 255, 0.96);
+ }
 
 /* Bordure dégradée Instagram */
 .programme-card::after {
