@@ -10,23 +10,36 @@
     <div class="col-12">
         <div class="instagram-header">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center flex-wrap">
-                    <div class="d-flex align-items-center gap-3">
+                <div class="programme-hero">
+                    <div class="programme-hero-left">
                         <div class="icon-circle">
                             <i class="fas fa-book-open"></i>
                         </div>
                         <div>
-                            <h3 class="mb-1" style="font-weight: 700; font-size: 1.8rem;">
-                                Programmes de Formation
-                            </h3>
-                            <p class="mb-0 text-white-50">{{ $student->program ?? 'Votre formation' }}</p>
+                            <div class="programme-hero-title">Programmes de Formation</div>
+                            <div class="programme-hero-subtitle">{{ $student->program ?? 'Votre formation' }}</div>
                         </div>
                     </div>
-                    <div class="mt-3 mt-md-0">
-                        <span class="badge" style="background: rgba(255,255,255,0.2); padding: 0.75rem 1.5rem; font-size: 1rem; border-radius: 30px;">
-                            <i class="fas fa-layer-group me-2"></i>
-                            {{ $programmes->count() }} Programme(s) du mois
-                        </span>
+
+                    <div class="programme-hero-kpis">
+                        <div class="kpi-chip">
+                            <div class="kpi-label">Programmes</div>
+                            <div class="kpi-value">{{ $programmes->count() }}</div>
+                        </div>
+                        <div class="kpi-chip">
+                            <div class="kpi-label">Mois en cours</div>
+                            <div class="kpi-value">{{ $currentMonthCount }}</div>
+                        </div>
+                        @if($isDgCm)
+                            <div class="kpi-chip">
+                                <div class="kpi-label">DG</div>
+                                <div class="kpi-value">{{ $dgCount }}</div>
+                            </div>
+                            <div class="kpi-chip">
+                                <div class="kpi-label">CM</div>
+                                <div class="kpi-value">{{ $cmCount }}</div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -115,6 +128,12 @@
             </div>
         </div>
     </div>
+
+    <div class="d-flex justify-content-end mb-4">
+        <button type="button" class="btn btn-light btn-sm" id="programmeFilterReset">
+            Tout afficher
+        </button>
+    </div>
 @endif
 
 <!-- Outils (recherche + filtre) -->
@@ -159,8 +178,8 @@
                     <div class="icon-circle-large mb-4">
                         <i class="fas fa-inbox"></i>
                     </div>
-                    <h3 class="mb-3" style="color: #1f2937; font-weight: 600;">Aucun programme disponible</h3>
-                    <p class="text-muted mb-0">Les programmes de formation seront publiés prochainement par votre formateur.</p>
+                    <h3 class="mb-3 empty-title">Aucun programme disponible</h3>
+                    <p class="mb-0 empty-subtitle">Les programmes de formation seront publiés prochainement par votre formateur.</p>
                 </div>
             </div>
         @else
@@ -193,7 +212,7 @@
                         @endphp
 
                         <div class="programme-card instagram-card programme-card-item" data-canonical="{{ $canonicalKey }}" data-current-month="{{ $isCurrentMonth ? '1' : '0' }}">
-                            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+                            <div class="programme-card-header">
                                 <div>
                                     <h4 class="programme-title mb-1" style="text-align:left;">
                                         {{ $programme->titre }}
@@ -215,7 +234,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="text-muted small">
+                                <div class="programme-card-meta">
                                     <i class="fas fa-clock me-1"></i>
                                     Publié le {{ \Carbon\Carbon::parse($programme->created_at)->format('d/m/Y') }}
                                 </div>
@@ -242,7 +261,7 @@
 
                             @if($items->isEmpty())
                                 <div class="empty-state" style="padding: 1.5rem 1.25rem;">
-                                    <p class="text-muted mb-0">Aucune séance n'a été ajoutée pour ce programme.</p>
+                                    <p class="mb-0 empty-subtitle">Aucune séance n'a été ajoutée pour ce programme.</p>
                                 </div>
                             @else
                                 @php
@@ -286,6 +305,13 @@
                                 @endphp
 
                                 @if($upcomingItems->isNotEmpty())
+                                    <div class="sessions-subheader mt-3">
+                                        <div class="sessions-subtitle">
+                                            <i class="fas fa-bolt"></i>
+                                            Séances à venir
+                                        </div>
+                                    </div>
+
                                     <div class="sessions-focus mt-3">
                                         <div class="sessions-focus-header">
                                             <div class="sessions-focus-title">
@@ -390,6 +416,15 @@
                                                     </div>
                                                 </div>
                                             @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if($pastItems->isNotEmpty())
+                                    <div class="sessions-subheader mt-3">
+                                        <div class="sessions-subtitle">
+                                            <i class="fas fa-check-circle"></i>
+                                            Séances terminées
                                         </div>
                                     </div>
                                 @endif
@@ -527,8 +562,109 @@
     --evc-blue-500: #3b82f6;
     --evc-blue-200: #bfdbfe;
     --evc-blue-100: #dbeafe;
-    --evc-surface: rgba(11, 31, 68, 0.78);
-    --evc-surface-soft: rgba(11, 31, 68, 0.62);
+    --evc-surface: #0b1f44;
+    --evc-surface-soft: #0e2a5a;
+    --evc-border: rgba(191, 219, 254, 0.18);
+}
+
+.programme-hero {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.programme-hero-left {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.programme-hero-title {
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    font-size: 1.65rem;
+    line-height: 1.15;
+}
+
+.programme-hero-subtitle {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 700;
+}
+
+.programme-hero-kpis {
+    display: flex;
+    gap: .6rem;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+.kpi-chip {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 14px;
+    padding: .6rem .75rem;
+    min-width: 112px;
+}
+
+.kpi-label {
+    font-size: .78rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.78);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.kpi-value {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.98);
+    line-height: 1.15;
+}
+
+.programme-card-header {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+}
+
+.programme-card-meta {
+    color: rgba(219, 234, 254, 0.82);
+    font-weight: 700;
+    font-size: .9rem;
+}
+
+.sessions-subheader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sessions-subtitle {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.92);
+    letter-spacing: 0.01em;
+}
+
+.empty-title {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 900;
+}
+
+.empty-subtitle {
+    color: rgba(219, 234, 254, 0.82);
+    font-weight: 700;
+}
+
+.tools-input::placeholder {
+    color: rgba(219, 234, 254, 0.65);
 }
 
 /* Fond (isolé à cette page) */
@@ -537,10 +673,7 @@
     inset: 0;
     z-index: -1;
     background:
-        radial-gradient(1200px 800px at 15% 10%, rgba(37, 99, 235, 0.30), transparent 60%),
-        radial-gradient(900px 700px at 85% 0%, rgba(59, 130, 246, 0.20), transparent 60%),
-        linear-gradient(135deg, rgba(37, 99, 235, 0.10), rgba(59, 130, 246, 0.06)),
-        var(--evc-blue-950);
+        linear-gradient(180deg, #081126 0%, #0b1220 55%, #081126 100%);
 }
 
 /* IMPORTANT: le layout met un fond opaque sur .content-wrapper, on le rend transparent uniquement pour cette page */
@@ -585,6 +718,15 @@
     color: #fff;
 }
 
+.programme-formation-card[data-programme-filter] {
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.programme-formation-card[data-programme-filter].is-active {
+    border-color: rgba(255, 255, 255, 0.50);
+    box-shadow: 0 18px 45px rgba(2, 6, 23, 0.35);
+}
+
 .programme-formation-card-dg {
     background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(29, 78, 216, 0.90));
 }
@@ -604,12 +746,12 @@
     inset: 0;
     padding: 2px;
     border-radius: 20px;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.75), rgba(59, 130, 246, 0.45));
+    background: linear-gradient(135deg, rgba(191, 219, 254, 0.35), rgba(191, 219, 254, 0.16));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
-    opacity: 0.65;
+    opacity: 0.55;
 }
 
 .instagram-header::before {
@@ -654,8 +796,8 @@
     background: var(--evc-surface);
     border-radius: 20px;
     padding: 2rem;
-    border: 1px solid rgba(59, 130, 246, 0.28);
-    box-shadow: 0 14px 38px rgba(2, 6, 23, 0.35);
+    border: 1px solid var(--evc-border);
+    box-shadow: 0 18px 55px rgba(2, 6, 23, 0.45);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
     display: flex;
@@ -669,15 +811,14 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(720px 300px at 0% 0%, rgba(37, 99, 235, 0.12), transparent 55%),
-                radial-gradient(640px 260px at 100% 0%, rgba(59, 130, 246, 0.10), transparent 55%);
+    background: transparent;
     pointer-events: none;
 }
 
 .programme-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 18px 48px rgba(2, 6, 23, 0.22);
-    border-color: rgba(37, 99, 235, 0.45);
+    box-shadow: 0 22px 70px rgba(2, 6, 23, 0.55);
+    border-color: rgba(191, 219, 254, 0.30);
 }
 
 .programme-card:hover::after {
@@ -756,9 +897,9 @@
 }
 
 .badge-soft {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: #12336b;
+    color: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(191, 219, 254, 0.22);
     padding: 0.45rem 0.7rem;
     border-radius: 999px;
     font-weight: 600;
@@ -800,11 +941,11 @@
 
 /* État vide */
 .empty-state {
-    background: rgba(11, 31, 68, 0.62);
+    background: var(--evc-surface);
     border-radius: 20px;
     padding: 4rem 2rem;
-    box-shadow: 0 14px 38px rgba(2, 6, 23, 0.35);
-    border: 1px solid rgba(59, 130, 246, 0.22);
+    box-shadow: 0 18px 55px rgba(2, 6, 23, 0.45);
+    border: 1px solid var(--evc-border);
 }
 
 /* Sessions */
@@ -814,8 +955,8 @@
 }
 
 .session-row {
-    background: rgba(11, 31, 68, 0.55);
-    border: 1px solid rgba(59, 130, 246, 0.22);
+    background: var(--evc-surface-soft);
+    border: 1px solid var(--evc-border);
     border-radius: 16px;
     padding: 0.9rem 1rem;
     display: grid;
@@ -833,9 +974,9 @@
 .sessions-focus {
     border-radius: 20px;
     padding: 1rem;
-    background: rgba(37, 99, 235, 0.16);
-    border: 1px solid rgba(37, 99, 235, 0.20);
-    box-shadow: 0 18px 55px rgba(2, 6, 23, 0.28);
+    background: #0a2a5c;
+    border: 1px solid rgba(191, 219, 254, 0.18);
+    box-shadow: 0 22px 70px rgba(2, 6, 23, 0.55);
 }
 
 .sessions-focus-header {
@@ -970,8 +1111,8 @@
     margin-top: 0.55rem;
     padding: 0.75rem 0.9rem;
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.10);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #12336b;
+    border: 1px solid rgba(191, 219, 254, 0.18);
     color: rgba(255, 255, 255, 0.88);
     font-weight: 600;
     line-height: 1.6;
@@ -984,17 +1125,17 @@
     gap: 0.35rem;
     padding: 0.45rem 0.7rem;
     border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(191, 219, 254, 0.18);
     font-weight: 800;
     color: rgba(255, 255, 255, 0.92);
 }
 
 .session-when {
-    background: rgba(255, 255, 255, 0.10);
+    background: #12336b;
 }
 
 .session-where {
-    background: rgba(255, 255, 255, 0.10);
+    background: #12336b;
 }
 
 .session-dot {
@@ -1051,8 +1192,12 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .instagram-header h3 {
-        font-size: 1.5rem;
+    .programme-hero-title {
+        font-size: 1.35rem;
+    }
+
+    .programme-hero-subtitle {
+        font-size: 0.95rem;
     }
 
     .icon-circle {
@@ -1085,36 +1230,38 @@
 .programme-card:nth-child(6) { animation-delay: 0.6s; }
 
 .tools-card {
-    background: linear-gradient(135deg, rgba(64, 93, 230, 0.14), rgba(225, 48, 108, 0.12), rgba(252, 175, 69, 0.10)), rgba(255,255,255,0.86);
+    background: var(--evc-surface);
     border-radius: 20px;
     padding: 1rem;
-    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.20);
-    border: 1px solid rgba(255,255,255,0.35);
+    box-shadow: 0 18px 55px rgba(2, 6, 23, 0.45);
+    border: 1px solid var(--evc-border);
 }
 
 .tools-input {
     border-radius: 12px;
-    border: 1px solid rgba(15, 23, 42, 0.12);
-    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(191, 219, 254, 0.18);
+    background: #0e2a5a;
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .tools-input:focus {
-    border-color: rgba(240, 148, 51, 0.85);
-    box-shadow: 0 0 0 0.25rem rgba(240, 148, 51, 0.22);
+    border-color: rgba(59, 130, 246, 0.65);
+    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.20);
 }
 
 .tools-input-addon {
     border-radius: 12px;
-    background: linear-gradient(135deg, rgba(64, 93, 230, 0.14), rgba(225, 48, 108, 0.10));
-    border: 1px solid rgba(15, 23, 42, 0.10);
-    color: #1f2937;
+    background: #0e2a5a;
+    border: 1px solid rgba(191, 219, 254, 0.18);
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .tools-reset {
     border-radius: 12px;
     font-weight: 600;
     border: none;
-    background: linear-gradient(135deg, rgba(64, 93, 230, 0.20), rgba(225, 48, 108, 0.18), rgba(252, 175, 69, 0.16));
+    background: #12336b;
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .tools-reset:hover {
@@ -1130,6 +1277,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('programmeSearch');
     const typeFilter = document.getElementById('programmeTypeFilter');
     const resetBtn = document.getElementById('programmeReset');
+    const programmeFilterResetBtn = document.getElementById('programmeFilterReset');
+    const cardsWrap = document.getElementById('programmeFormationCards');
+    const programmeCards = Array.from(document.querySelectorAll('.programme-card-item'));
+
+    let activeProgrammeFilter = '';
+
+    function setProgrammeFilter(filter) {
+        activeProgrammeFilter = (filter || '').toString();
+        if (cardsWrap) {
+            Array.from(cardsWrap.querySelectorAll('[data-programme-filter]')).forEach(el => {
+                const isActive = (el.getAttribute('data-programme-filter') || '') === activeProgrammeFilter;
+                el.classList.toggle('is-active', !!activeProgrammeFilter && isActive);
+            });
+        }
+        applyFilters();
+    }
 
     function normalize(value) {
         return (value || '').toString().toLowerCase().trim();
@@ -1138,6 +1301,23 @@ document.addEventListener('DOMContentLoaded', function() {
     function applyFilters() {
         const search = normalize(searchInput ? searchInput.value : '');
         const type = normalize(typeFilter ? typeFilter.value : '');
+
+        // Filtre sur les PROGRAMMES (DG / CM / Mois en cours)
+        programmeCards.forEach(el => {
+            const canonical = el.getAttribute('data-canonical') || '';
+            const currentMonth = el.getAttribute('data-current-month') || '0';
+            let show = true;
+
+            if (activeProgrammeFilter === 'dg') {
+                show = canonical === 'dg';
+            } else if (activeProgrammeFilter === 'cm') {
+                show = canonical === 'cm';
+            } else if (activeProgrammeFilter === 'current') {
+                show = currentMonth === '1';
+            }
+
+            el.style.display = show ? '' : 'none';
+        });
 
         document.querySelectorAll('.programme-item').forEach(item => {
             const itemSearch = normalize(item.getAttribute('data-search'));
@@ -1160,7 +1340,26 @@ document.addEventListener('DOMContentLoaded', function() {
         resetBtn.addEventListener('click', function() {
             if (searchInput) searchInput.value = '';
             if (typeFilter) typeFilter.value = '';
+            setProgrammeFilter('');
             applyFilters();
+        });
+    }
+
+    if (programmeFilterResetBtn) {
+        programmeFilterResetBtn.addEventListener('click', function() {
+            setProgrammeFilter('');
+        });
+    }
+
+    if (cardsWrap) {
+        Array.from(cardsWrap.querySelectorAll('[data-programme-filter]')).forEach(el => {
+            el.addEventListener('click', function(e) {
+                const filter = this.getAttribute('data-programme-filter');
+                if (!filter) return;
+                e.preventDefault();
+                e.stopPropagation();
+                setProgrammeFilter(filter);
+            });
         });
     }
 
@@ -1181,43 +1380,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     applyFilters();
 });
-</script>
-
-<script>
-(function() {
-    const cardsWrap = document.getElementById('programmeFormationCards');
-    if (!cardsWrap) return;
-
-    const filters = Array.from(cardsWrap.querySelectorAll('[data-programme-filter]'));
-    const programmeCards = Array.from(document.querySelectorAll('.programme-card-item'));
-
-    function applyProgrammeFilter(filter) {
-        programmeCards.forEach(el => {
-            const canonical = el.getAttribute('data-canonical') || '';
-            const currentMonth = el.getAttribute('data-current-month') || '0';
-            let show = true;
-
-            if (filter === 'dg') {
-                show = canonical === 'dg';
-            } else if (filter === 'cm') {
-                show = canonical === 'cm';
-            } else if (filter === 'current') {
-                show = currentMonth === '1';
-            }
-
-            el.style.display = show ? '' : 'none';
-        });
-    }
-
-    filters.forEach(el => {
-        el.addEventListener('click', function(e) {
-            const filter = this.getAttribute('data-programme-filter');
-            if (!filter) return;
-            e.preventDefault();
-            e.stopPropagation();
-            applyProgrammeFilter(filter);
-        });
-    });
-})();
 </script>
 @endpush
