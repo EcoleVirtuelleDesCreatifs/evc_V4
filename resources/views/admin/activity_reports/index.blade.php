@@ -144,6 +144,7 @@
                                 <th>Titre</th>
                                 <th>Année</th>
                                 <th>Statut</th>
+                                <th>Téléchargements</th>
                                 <th>Fichier</th>
                                 <th class="text-end">Actions</th>
                             </tr>
@@ -160,6 +161,7 @@
                                             <span class="badge bg-secondary">Brouillon</span>
                                         @endif
                                     </td>
+                                    <td>{{ (int) ($report->download_count ?? 0) }}</td>
                                     <td>
                                         <a href="{{ route('admin.activity-reports.download', $report) }}" class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-download me-1"></i>PDF

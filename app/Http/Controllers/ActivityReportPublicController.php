@@ -36,6 +36,8 @@ class ActivityReportPublicController extends Controller
             abort(404);
         }
 
+        $activityReport->increment('download_count');
+
         return response()->download(
             Storage::disk('public')->path($path),
             $activityReport->original_filename

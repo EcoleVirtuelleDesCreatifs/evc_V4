@@ -15,6 +15,7 @@ class ActivityReport extends Model
         'file_path',
         'original_filename',
         'file_size',
+        'download_count',
         'is_published',
         'published_at',
     ];
@@ -24,5 +25,6 @@ class ActivityReport extends Model
         'published_at' => 'datetime',
         'year' => 'integer',
         'file_size' => 'integer',
+        'download_count' => 'integer',
     ];
 }
