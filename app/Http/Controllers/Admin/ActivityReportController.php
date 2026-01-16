@@ -125,12 +125,18 @@ class ActivityReportController extends Controller
 
     public function download(ActivityReport $activityReport)
     {
-        if (!$activityReport->file_path || !Storage::disk('public')->exists($activityReport->file_path)) {
+        $path = (string) ($activityReport->file_path ?? '');
+        $path = ltrim($path, '/');
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, strlen('storage/'));
+        }
+
+        if ($path === '' || !Storage::disk('public')->exists($path)) {
             abort(404);
         }
 
         return response()->download(
-            Storage::disk('public')->path($activityReport->file_path),
+            Storage::disk('public')->path($path),
             $activityReport->original_filename
         );
     }
