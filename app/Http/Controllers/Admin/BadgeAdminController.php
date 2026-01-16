@@ -106,8 +106,8 @@ class BadgeAdminController extends Controller
         $buildTopPerformers = function (Carbon $from) {
             $projectsSub = DB::table('projects')
                 ->select('user_id', DB::raw('COUNT(*) as projects_validated'))
-                ->where('created_at', '>=', $from)
-                ->whereIn('status', ['valide', 'validated'])
+                ->where('updated_at', '>=', $from)
+                ->where('status', 'valide')
                 ->groupBy('user_id');
 
             $tpSub = DB::table('tp_assignments')
@@ -147,8 +147,8 @@ class BadgeAdminController extends Controller
         $buildTopPerformersByFormation = function (Carbon $from, string $formationKey) {
             $projectsSub = DB::table('projects')
                 ->select('user_id', DB::raw('COUNT(*) as projects_validated'))
-                ->where('created_at', '>=', $from)
-                ->whereIn('status', ['valide', 'validated'])
+                ->where('updated_at', '>=', $from)
+                ->where('status', 'valide')
                 ->groupBy('user_id');
 
             $tpSub = DB::table('tp_assignments')
@@ -258,8 +258,8 @@ class BadgeAdminController extends Controller
         $buildTopPerformers = function (Carbon $from) {
             $projectsSub = DB::table('projects')
                 ->select('user_id', DB::raw('COUNT(*) as projects_validated'))
-                ->where('created_at', '>=', $from)
-                ->whereIn('status', ['valide', 'validated'])
+                ->where('updated_at', '>=', $from)
+                ->where('status', 'valide')
                 ->groupBy('user_id');
 
             $tpSub = DB::table('tp_assignments')
@@ -297,8 +297,8 @@ class BadgeAdminController extends Controller
         $buildTopPerformersByFormation = function (Carbon $from, string $formationKey) {
             $projectsSub = DB::table('projects')
                 ->select('user_id', DB::raw('COUNT(*) as projects_validated'))
-                ->where('created_at', '>=', $from)
-                ->whereIn('status', ['valide', 'validated'])
+                ->where('updated_at', '>=', $from)
+                ->where('status', 'valide')
                 ->groupBy('user_id');
 
             $tpSub = DB::table('tp_assignments')
@@ -355,6 +355,20 @@ class BadgeAdminController extends Controller
         ];
 
         $topGlobal = $buildTopPerformers($from);
+
+        foreach ($topGlobal as $p) {
+            $p->photo_url = !empty($p->profile_photo)
+                ? ProfilePhotoHelper::getUrl($p->profile_photo)
+                : null;
+        }
+
+        foreach ($topByFormation as $k => $list) {
+            foreach ($list as $p) {
+                $p->photo_url = !empty($p->profile_photo)
+                    ? ProfilePhotoHelper::getUrl($p->profile_photo)
+                    : null;
+            }
+        }
 
         return view('admin.badges.top-performers', [
             'title' => 'Top 5 performers',

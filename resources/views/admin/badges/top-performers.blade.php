@@ -155,12 +155,21 @@
                                     <div class="d-flex flex-column gap-3">
                                         @foreach($list as $idx => $p)
                                             @php
-                                                $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($p->profile_photo ?? null);
                                                 $country = (string) ($p->country ?? '');
+                                                $photoUrl = $p->photo_url ?? null;
+                                                $initials = strtoupper(substr($p->first_name ?? 'U', 0, 1) . substr($p->last_name ?? 'U', 0, 1));
                                             @endphp
                                             <div class="d-flex align-items-center gap-2">
                                                 <span class="rank-pill">{{ $idx + 1 }}</span>
-                                                <img src="{{ $photoUrl }}" alt="{{ trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) }}" class="avatar" />
+                                                @if(!empty($photoUrl))
+                                                    <img src="{{ $photoUrl }}"
+                                                         alt="{{ trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) }}"
+                                                         class="avatar"
+                                                         onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-flex';" />
+                                                    <span class="avatar" style="display:none;">{{ $initials }}</span>
+                                                @else
+                                                    <span class="avatar">{{ $initials }}</span>
+                                                @endif
                                                 <div class="flex-grow-1" style="min-width:0;">
                                                     <div class="text-white fw-semibold" style="line-height:1.15;">
                                                         {{ trim(($p->first_name ?? '') . ' ' . ($p->last_name ?? '')) }}
