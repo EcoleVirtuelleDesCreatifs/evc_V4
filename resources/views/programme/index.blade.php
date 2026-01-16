@@ -4,6 +4,33 @@
 @section('page-title', 'Programmes de Formation')
 
 @section('content')
+@php
+    $studentProgram = (string) ($student->program ?? '');
+    $studentProgramLower = strtolower($studentProgram);
+    $isDgCm = str_contains($studentProgramLower, 'design') && (str_contains($studentProgramLower, 'community') || str_contains($studentProgramLower, 'cm'));
+
+    $dgCount = $programmes->where('canonical_formation', 'Design Graphique')->count();
+    $cmCount = $programmes->where('canonical_formation', 'Community Management')->count();
+    $now = now();
+    $currentMonthCount = $programmes->filter(function ($p) use ($now) {
+        try {
+            if (!empty($p->month_start) && \Carbon\Carbon::parse($p->month_start)->isSameMonth($now)) {
+                return true;
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        $items = $p->items ?? collect();
+        return collect($items)->contains(function ($it) use ($now) {
+            try {
+                return !empty($it->session_date) && \Carbon\Carbon::parse($it->session_date)->isSameMonth($now);
+            } catch (\Throwable $e) {
+                return false;
+            }
+        });
+    })->count();
+@endphp
 <div class="programme-page-bg" aria-hidden="true"></div>
 <!-- Header avec palette Instagram -->
 <div class="row mb-4">
@@ -46,34 +73,6 @@
         </div>
     </div>
 </div>
-
-@php
-    $studentProgram = (string) ($student->program ?? '');
-    $studentProgramLower = strtolower($studentProgram);
-    $isDgCm = str_contains($studentProgramLower, 'design') && (str_contains($studentProgramLower, 'community') || str_contains($studentProgramLower, 'cm'));
-
-    $dgCount = $programmes->where('canonical_formation', 'Design Graphique')->count();
-    $cmCount = $programmes->where('canonical_formation', 'Community Management')->count();
-    $now = now();
-    $currentMonthCount = $programmes->filter(function ($p) use ($now) {
-        try {
-            if (!empty($p->month_start) && \Carbon\Carbon::parse($p->month_start)->isSameMonth($now)) {
-                return true;
-            }
-        } catch (\Throwable $e) {
-            // ignore
-        }
-
-        $items = $p->items ?? collect();
-        return collect($items)->contains(function ($it) use ($now) {
-            try {
-                return !empty($it->session_date) && \Carbon\Carbon::parse($it->session_date)->isSameMonth($now);
-            } catch (\Throwable $e) {
-                return false;
-            }
-        });
-    })->count();
-@endphp
 
 @if($isDgCm)
     <div class="row g-3 mb-4" id="programmeFormationCards">
