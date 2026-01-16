@@ -643,7 +643,10 @@
                                         </div>
                                         <span class="badge bg-secondary">{{ $seancesTerminees->count() }}</span>
                                     </div>
-                                    @if($seacesTerminees = $seancesTerminees; $seacesTerminees->isEmpty())
+                                    @php
+                                        $seacesTerminees = $seancesTerminees;
+                                    @endphp
+                                    @if($seacesTerminees->isEmpty())
                                         <div class="text-white-50" style="padding:.75rem 1rem; border: 1px dashed rgba(255,255,255,0.14); border-radius: 12px;">
                                             Aucune séance terminée pour le moment.
                                         </div>
