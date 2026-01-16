@@ -75,6 +75,9 @@
                         {{ $dgCount }}
                     </div>
                 </div>
+                <div class="mt-3" style="text-align:right;">
+                    <button type="button" class="btn btn-light btn-sm" data-programme-filter="dg">Voir</button>
+                </div>
             </div>
         </div>
 
@@ -89,6 +92,9 @@
                         {{ $cmCount }}
                     </div>
                 </div>
+                <div class="mt-3" style="text-align:right;">
+                    <button type="button" class="btn btn-light btn-sm" data-programme-filter="cm">Voir</button>
+                </div>
             </div>
         </div>
 
@@ -102,6 +108,9 @@
                     <div class="badge" style="background: rgba(255,255,255,0.2); padding: 0.65rem 1rem; border-radius: 18px; font-weight:900;">
                         {{ $currentMonthCount }}
                     </div>
+                </div>
+                <div class="mt-3" style="text-align:right;">
+                    <button type="button" class="btn btn-light btn-sm" data-programme-filter="current">Voir</button>
                 </div>
             </div>
         </div>
@@ -1181,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const cardsWrap = document.getElementById('programmeFormationCards');
     if (!cardsWrap) return;
 
-    const cards = Array.from(cardsWrap.querySelectorAll('[data-programme-filter]'));
+    const filters = Array.from(cardsWrap.querySelectorAll('[data-programme-filter]'));
     const programmeCards = Array.from(document.querySelectorAll('.programme-card-item'));
 
     function applyProgrammeFilter(filter) {
@@ -1202,9 +1211,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    cards.forEach(card => {
-        card.addEventListener('click', function() {
+    filters.forEach(el => {
+        el.addEventListener('click', function(e) {
             const filter = this.getAttribute('data-programme-filter');
+            if (!filter) return;
+            e.preventDefault();
+            e.stopPropagation();
             applyProgrammeFilter(filter);
         });
     });

@@ -353,6 +353,20 @@
         </div>
 
         <div class="col-md-3 mb-3">
+            <a href="#currentMonthProgrammes" style="text-decoration: none;">
+                <div class="stat-card stat-card-cyan">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number">{{ isset($programmesCurrentMonth) ? $programmesCurrentMonth->count() : 0 }}</h3>
+                        <p class="stat-label">Formations en cours ({{ now()->translatedFormat('F') }})</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-3 mb-3">
             <div class="stat-card stat-card-success">
                 <div class="stat-icon">
                     <i class="fas fa-calendar-plus"></i>
