@@ -164,6 +164,14 @@
                             </ul>
                         </div>
                     </li>
+
+                    <!-- Rapports d'activité (site public) -->
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.activity-reports.index') }}" class="admin-nav-link {{ request()->routeIs('admin.activity-reports.*') ? 'active' : '' }}">
+                            <i class="fas fa-file-alt"></i>
+                            Rapports d'activité
+                        </a>
+                    </li>
                     @endif
 
                     @if(in_array(session('admin_role'), ['super_admin', 'assistant']))

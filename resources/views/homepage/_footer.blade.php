@@ -126,6 +126,12 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{{ route('activity-reports.index') }}" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
+                            <i class="fas fa-chevron-right text-orange-500 text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
+                            Rapports d'activité
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('evenements.all') }}" class="group flex items-center text-sm text-gray-300 hover:text-orange-400 transition-colors">
                             <i class="fas fa-chevron-right text-orange-500 text-xs mr-2 group-hover:translate-x-1 transition-transform"></i>
                             Événements

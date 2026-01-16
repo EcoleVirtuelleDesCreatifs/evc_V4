@@ -20,6 +20,7 @@ use App\Http\Controllers\AdminStatisticsDetailController;
 use App\Http\Controllers\StudentConfirmationController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\StudentIdVerificationController;
+use App\Http\Controllers\ActivityReportPublicController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -81,6 +82,8 @@ Route::get('/formations', [HomepageController::class, 'formations'])->name('form
 Route::get('/travaux-etudiants', [HomepageController::class, 'travaux'])->name('travaux');
 Route::get('/laureats', [HomepageController::class, 'laureats'])->name('laureats');
 Route::get('/jury', [HomepageController::class, 'jury'])->name('jury');
+Route::get('/rapports-activite', [ActivityReportPublicController::class, 'index'])->name('activity-reports.index');
+Route::get('/rapports-activite/download/{activityReport}', [ActivityReportPublicController::class, 'download'])->name('activity-reports.download');
 Route::get('/evenements', [App\Http\Controllers\EvenementPublicController::class, 'allEvenements'])->name('evenements.all');
 Route::get('/evenement/{slug}', [HomepageController::class, 'showEvenement'])->name('evenement.show');
 Route::get('/actualites', [HomepageController::class, 'actualites'])->name('actualites');
@@ -1166,6 +1169,16 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/rapports/exports', [AdminDashboardController::class, 'exports'])->name('rapports.exports');
         Route::post('/rapports/generate', [AdminDashboardController::class, 'generateReport'])->name('rapports.generate');
         Route::get('/rapports/download/{type}', [AdminDashboardController::class, 'downloadReport'])->name('rapports.download');
+
+        // Rapports d'activité (public)
+        Route::get('/activity-reports', [App\Http\Controllers\Admin\ActivityReportController::class, 'index'])->name('activity-reports.index');
+        Route::get('/activity-reports/create', [App\Http\Controllers\Admin\ActivityReportController::class, 'create'])->name('activity-reports.create');
+        Route::post('/activity-reports', [App\Http\Controllers\Admin\ActivityReportController::class, 'store'])->name('activity-reports.store');
+        Route::get('/activity-reports/{activityReport}/edit', [App\Http\Controllers\Admin\ActivityReportController::class, 'edit'])->name('activity-reports.edit');
+        Route::put('/activity-reports/{activityReport}', [App\Http\Controllers\Admin\ActivityReportController::class, 'update'])->name('activity-reports.update');
+        Route::delete('/activity-reports/{activityReport}', [App\Http\Controllers\Admin\ActivityReportController::class, 'destroy'])->name('activity-reports.destroy');
+        Route::patch('/activity-reports/{activityReport}/toggle', [App\Http\Controllers\Admin\ActivityReportController::class, 'togglePublish'])->name('activity-reports.toggle');
+        Route::get('/activity-reports/{activityReport}/download', [App\Http\Controllers\Admin\ActivityReportController::class, 'download'])->name('activity-reports.download');
 
         // Gestion des Étudiants
         // Route::get('/students', [AdminDashboardController::class, 'students'])->name('students.index'); // COMMENTÉ - Route dupliquée, voir ligne 97 (utilise StudentAdminController::index)
