@@ -75,6 +75,24 @@
 </div>
 
 @if($isDgCm)
+    @php
+        $dgStatus = $formationStatuses['Design Graphique'] ?? null;
+        $cmStatus = $formationStatuses['Community Management'] ?? null;
+
+        $statusLabel = function ($s) {
+            if ($s === 'en_cours') return 'En cours';
+            if ($s === 'terminee') return 'Terminée';
+            if ($s === 'a_venir') return 'À venir';
+            return null;
+        };
+
+        $statusClass = function ($s) {
+            if ($s === 'en_cours') return 'is-running';
+            if ($s === 'terminee') return 'is-done';
+            if ($s === 'a_venir') return 'is-upcoming';
+            return '';
+        };
+    @endphp
     <div class="row g-3 mb-4" id="programmeFormationCards">
         <div class="col-12 col-md-6">
             <a href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', 'design-graphique') }}" class="text-decoration-none">
@@ -83,6 +101,9 @@
                         <div>
                             <div class="formation-card-label">Formation</div>
                             <div class="formation-card-title">Design Graphique</div>
+                            @if($statusLabel($dgStatus))
+                                <div class="formation-status-badge {{ $statusClass($dgStatus) }}">{{ $statusLabel($dgStatus) }}</div>
+                            @endif
                         </div>
                         <div class="formation-card-count">{{ $dgCount }}</div>
                     </div>
@@ -98,6 +119,9 @@
                         <div>
                             <div class="formation-card-label">Formation</div>
                             <div class="formation-card-title">Community Management</div>
+                            @if($statusLabel($cmStatus))
+                                <div class="formation-status-badge {{ $statusClass($cmStatus) }}">{{ $statusLabel($cmStatus) }}</div>
+                            @endif
                         </div>
                         <div class="formation-card-count">{{ $cmCount }}</div>
                     </div>
@@ -833,6 +857,34 @@
      font-size: 1.2rem;
      line-height: 1.15;
      margin-top: 0.2rem;
+ }
+
+ .formation-status-badge {
+     display: inline-flex;
+     align-items: center;
+     margin-top: 0.5rem;
+     padding: 0.22rem 0.55rem;
+     border-radius: 999px;
+     font-size: 0.75rem;
+     font-weight: 950;
+     border: 1px solid rgba(255, 255, 255, 0.18);
+     background: rgba(2, 6, 23, 0.22);
+     color: rgba(255, 255, 255, 0.98);
+ }
+
+ .formation-status-badge.is-running {
+     background: rgba(16, 185, 129, 0.22);
+     border-color: rgba(16, 185, 129, 0.35);
+ }
+
+ .formation-status-badge.is-done {
+     background: rgba(148, 163, 184, 0.22);
+     border-color: rgba(148, 163, 184, 0.35);
+ }
+
+ .formation-status-badge.is-upcoming {
+     background: rgba(249, 115, 22, 0.22);
+     border-color: rgba(249, 115, 22, 0.35);
  }
 
  .formation-card-count {

@@ -3917,6 +3917,42 @@ class DashboardController extends Controller
             return $programme;
         });
 
+        $today = now()->startOfDay();
+        $formationStatuses = collect(['Design Graphique', 'Community Management'])->mapWithKeys(function ($label) use ($programmes, $today) {
+            $dates = collect();
+
+            foreach ($programmes as $programme) {
+                if (($programme->canonical_formation ?? null) !== $label) {
+                    continue;
+                }
+
+                $items = $programme->items ?? collect();
+                if (!($items instanceof \Illuminate\Support\Collection)) {
+                    $items = collect($items);
+                }
+
+                foreach ($items as $it) {
+                    if (empty($it->session_date)) {
+                        continue;
+                    }
+                    try {
+                        $dates->push(\Carbon\Carbon::parse($it->session_date)->startOfDay());
+                    } catch (\Throwable $e) {
+                    }
+                }
+            }
+
+            if ($dates->isEmpty()) {
+                return [$label => 'a_venir'];
+            }
+
+            $hasFutureOrToday = $dates->contains(function ($d) use ($today) {
+                return $d->greaterThanOrEqualTo($today);
+            });
+
+            return [$label => $hasFutureOrToday ? 'en_cours' : 'terminee'];
+        })->all();
+
         $now = now();
         $currentMonthSessions = collect();
         foreach ($programmes as $programme) {
@@ -3954,6 +3990,7 @@ class DashboardController extends Controller
             'student' => $student,
             'formationPrefix' => $formationPrefix,
             'currentMonthSessions' => $currentMonthSessions,
+            'formationStatuses' => $formationStatuses,
         ]);
     }
 
@@ -4105,6 +4142,27 @@ class DashboardController extends Controller
             }
         })->values();
 
+        $today = now()->startOfDay();
+        $sessionDates = $sessions->map(function ($it) {
+            if (empty($it->session_date)) {
+                return null;
+            }
+            try {
+                return \Carbon\Carbon::parse($it->session_date)->startOfDay();
+            } catch (\Throwable $e) {
+                return null;
+            }
+        })->filter()->values();
+
+        if ($sessionDates->isEmpty()) {
+            $formationStatus = 'a_venir';
+        } else {
+            $hasFutureOrToday = $sessionDates->contains(function ($d) use ($today) {
+                return $d->greaterThanOrEqualTo($today);
+            });
+            $formationStatus = $hasFutureOrToday ? 'en_cours' : 'terminee';
+        }
+
         return view('programme.formation', [
             'user' => $user,
             'student' => $student,
@@ -4114,6 +4172,7 @@ class DashboardController extends Controller
             'programmes' => $programmes,
             'sessions' => $sessions,
             'currentMonthSessions' => $currentMonthSessions,
+            'formationStatus' => $formationStatus,
         ]);
     }
 

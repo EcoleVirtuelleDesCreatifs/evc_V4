@@ -8,6 +8,17 @@
     $now = now();
     $formationLabel = $targetCanonical ?? 'Formation';
     $formationSlug = $slug ?? '';
+
+    $statusLabel = null;
+    if (($formationStatus ?? null) === 'en_cours') {
+        $statusLabel = 'En cours';
+    }
+    if (($formationStatus ?? null) === 'terminee') {
+        $statusLabel = 'Terminée';
+    }
+    if (($formationStatus ?? null) === 'a_venir') {
+        $statusLabel = 'À venir';
+    }
 @endphp
 
 <div class="programme-page-bg" aria-hidden="true"></div>
@@ -22,7 +33,12 @@
                 </a>
                 <div>
                     <div class="formation-header-title">{{ $formationLabel }}</div>
-                    <div class="formation-header-subtitle">Programme & séances</div>
+                    <div class="formation-header-subtitle">
+                        Programme & séances
+                        @if(!empty($statusLabel))
+                            <span class="formation-status-badge {{ ($formationStatus ?? null) === 'en_cours' ? 'is-running' : ((($formationStatus ?? null) === 'terminee') ? 'is-done' : 'is-upcoming') }}">{{ $statusLabel }}</span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -220,6 +236,49 @@
 
 @push('styles')
 <style>
+ .programme-page-bg {
+     position: fixed;
+     inset: 0;
+     z-index: -1;
+     background: linear-gradient(180deg, #081126 0%, #0b1220 55%, #081126 100%);
+ }
+
+ .content-wrapper {
+     background: transparent !important;
+ }
+
+ .main-content {
+     background: transparent !important;
+ }
+
+ .formation-status-badge {
+     display: inline-flex;
+     align-items: center;
+     margin-left: 0.5rem;
+     padding: 0.18rem 0.55rem;
+     border-radius: 999px;
+     font-size: 0.75rem;
+     font-weight: 950;
+     border: 1px solid rgba(255, 255, 255, 0.18);
+     background: rgba(2, 6, 23, 0.22);
+     color: rgba(255, 255, 255, 0.98);
+ }
+
+ .formation-status-badge.is-running {
+     background: rgba(16, 185, 129, 0.24);
+     border-color: rgba(16, 185, 129, 0.35);
+ }
+
+ .formation-status-badge.is-done {
+     background: rgba(148, 163, 184, 0.24);
+     border-color: rgba(148, 163, 184, 0.35);
+ }
+
+ .formation-status-badge.is-upcoming {
+     background: rgba(249, 115, 22, 0.24);
+     border-color: rgba(249, 115, 22, 0.35);
+ }
+
 .formation-header {
     background: linear-gradient(135deg, rgba(37, 99, 235, 0.85), rgba(249, 115, 22, 0.85));
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -261,6 +320,111 @@
     gap: .5rem;
     flex-wrap: wrap;
 }
+
+ .month-sessions-card {
+     background: rgba(15, 23, 42, 0.62);
+     border: 1px solid rgba(191, 219, 254, 0.22);
+     border-radius: 18px;
+     padding: 1rem;
+     backdrop-filter: blur(10px);
+ }
+
+ .month-sessions-header {
+     display: flex;
+     align-items: flex-end;
+     justify-content: space-between;
+     gap: 1rem;
+     flex-wrap: wrap;
+     margin-bottom: 0.75rem;
+ }
+
+ .month-sessions-title {
+     font-weight: 950;
+     color: rgba(255, 255, 255, 0.98);
+     font-size: 1.2rem;
+ }
+
+ .month-sessions-subtitle {
+     font-weight: 850;
+     color: rgba(226, 232, 240, 0.92);
+ }
+
+ .month-sessions-count {
+     background: linear-gradient(135deg, rgba(37, 99, 235, 0.92), rgba(249, 115, 22, 0.92));
+     color: rgba(255, 255, 255, 0.98);
+     font-weight: 950;
+     border-radius: 999px;
+     padding: 0.45rem 0.9rem;
+     border: 1px solid rgba(255,255,255,0.18);
+ }
+
+ .month-empty {
+     padding: 1rem;
+     font-weight: 850;
+     color: rgba(226, 232, 240, 0.95);
+     border: 1px dashed rgba(191, 219, 254, 0.32);
+     border-radius: 12px;
+ }
+
+ .month-sessions-list {
+     display: flex;
+     flex-direction: column;
+     gap: 0.65rem;
+ }
+
+ .month-session-row {
+     display: flex;
+     align-items: flex-start;
+     justify-content: space-between;
+     gap: 1rem;
+     padding: 0.95rem;
+     border-radius: 14px;
+     background: rgba(2, 6, 23, 0.30);
+     border: 1px solid rgba(191, 219, 254, 0.20);
+ }
+
+ .month-session-title {
+     font-weight: 950;
+     color: rgba(255, 255, 255, 0.98);
+ }
+
+ .month-session-meta {
+     margin-top: 0.25rem;
+     display: flex;
+     gap: 0.6rem;
+     flex-wrap: wrap;
+     align-items: center;
+     font-weight: 850;
+     color: rgba(226, 232, 240, 0.92);
+ }
+
+ .month-dot {
+     opacity: 0.75;
+ }
+
+ .month-session-right {
+     display: flex;
+     gap: 0.6rem;
+     align-items: center;
+     flex-wrap: wrap;
+ }
+
+ .month-type {
+     padding: 0.25rem 0.6rem;
+     border-radius: 999px;
+     font-size: 0.75rem;
+     font-weight: 950;
+     border: 1px solid rgba(255,255,255,0.18);
+     color: rgba(255, 255, 255, 0.98);
+ }
+
+ .type-presentielle {
+     background: rgba(249, 115, 22, 0.24);
+ }
+
+ .type-enligne {
+     background: rgba(37, 99, 235, 0.24);
+ }
 
 .all-programmes-card {
     background: rgba(15, 23, 42, 0.55);
