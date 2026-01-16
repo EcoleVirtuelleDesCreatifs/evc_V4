@@ -16,7 +16,7 @@ use App\Services\TrainingQuoteGenerator;
 
 class PreRegistrationAdminController extends Controller
 {
-    public function index(Request $request)
+    private function syncAcceptedToActiveIfEmailVerified(): void
     {
         // Synchroniser les statuts: (accepted|Validé) -> Actif si l'utilisateur a confirmé son compte
         try {
@@ -33,7 +33,10 @@ class PreRegistrationAdminController extends Controller
         } catch (\Throwable $e) {
             Log::warning('Sync accepted->Actif failed', ['error' => $e->getMessage()]);
         }
+    }
 
+    private function baseQuery(Request $request)
+    {
         $query = PreRegistration::query()->latest();
 
         if ($search = $request->get('q')) {
@@ -49,19 +52,65 @@ class PreRegistrationAdminController extends Controller
             $query->where('choix_formation', $formation);
         }
 
-        if ($status = $request->get('status')) {
+        return $query;
+    }
+
+    private function computeStats(Request $request): array
+    {
+        $statsBase = $this->baseQuery($request);
+
+        return [
+            'total' => (clone $statsBase)->count(),
+            'pending' => (clone $statsBase)->whereIn('status', ['pending', 'en cours'])->count(),
+            'accepted' => (clone $statsBase)->whereIn('status', ['accepted', 'Validé', 'Actif'])->count(),
+            'rejected' => (clone $statsBase)->where('status', 'rejected')->count(),
+        ];
+    }
+
+    private function renderList(Request $request, ?string $statusFilter = null)
+    {
+        $this->syncAcceptedToActiveIfEmailVerified();
+
+        $query = $this->baseQuery($request);
+
+        if (!empty($statusFilter)) {
+            if ($statusFilter === 'pending') {
+                $query->whereIn('status', ['pending', 'en cours']);
+            } elseif ($statusFilter === 'accepted') {
+                $query->whereIn('status', ['accepted', 'Validé', 'Actif']);
+            } elseif ($statusFilter === 'rejected') {
+                $query->where('status', 'rejected');
+            } else {
+                $query->where('status', $statusFilter);
+            }
+        } elseif ($status = $request->get('status')) {
             $query->where('status', $status);
         }
 
-        $stats = [
-            'total' => (clone $query)->count(),
-            'pending' => (clone $query)->whereIn('status', ['pending', 'en cours'])->count(),
-            'accepted' => (clone $query)->whereIn('status', ['accepted', 'Validé', 'Actif'])->count(),
-            'rejected' => (clone $query)->where('status', 'rejected')->count(),
-        ];
-
+        $stats = $this->computeStats($request);
         $pres = $query->paginate(20)->withQueryString();
+
         return view('admin.preregistrations.index', compact('pres', 'stats'));
+    }
+
+    public function index(Request $request)
+    {
+        return $this->renderList($request);
+    }
+
+    public function pending(Request $request)
+    {
+        return $this->renderList($request, 'pending');
+    }
+
+    public function accepted(Request $request)
+    {
+        return $this->renderList($request, 'accepted');
+    }
+
+    public function rejected(Request $request)
+    {
+        return $this->renderList($request, 'rejected');
     }
 
     public function devis($id)

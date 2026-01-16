@@ -876,6 +876,9 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
 
         // Pré-inscriptions - Liste & Export
         Route::get('/preinscriptions', [PreRegistrationAdminController::class, 'index'])->name('preinscriptions.index');
+        Route::get('/preinscriptions/pending', [PreRegistrationAdminController::class, 'pending'])->name('preinscriptions.pending');
+        Route::get('/preinscriptions/accepted', [PreRegistrationAdminController::class, 'accepted'])->name('preinscriptions.accepted');
+        Route::get('/preinscriptions/rejected', [PreRegistrationAdminController::class, 'rejected'])->name('preinscriptions.rejected');
         Route::get('/preinscriptions/export', [PreRegistrationAdminController::class, 'export'])->name('preinscriptions.export');
         Route::get('/preinscriptions/{id}/devis', [PreRegistrationAdminController::class, 'devis'])->name('preinscriptions.devis');
         Route::get('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'show'])->name('preinscriptions.show');

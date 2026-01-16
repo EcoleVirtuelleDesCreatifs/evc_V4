@@ -2,13 +2,37 @@
 
 @section('content')
 <div class="container-fluid py-4">
+    @php
+        $pageStatus = null;
+        if (request()->routeIs('admin.preinscriptions.pending')) {
+            $pageStatus = 'pending';
+        } elseif (request()->routeIs('admin.preinscriptions.accepted')) {
+            $pageStatus = 'accepted';
+        } elseif (request()->routeIs('admin.preinscriptions.rejected')) {
+            $pageStatus = 'rejected';
+        }
+
+        $filterAction = $pageStatus === 'pending'
+            ? route('admin.preinscriptions.pending')
+            : ($pageStatus === 'accepted'
+                ? route('admin.preinscriptions.accepted')
+                : ($pageStatus === 'rejected'
+                    ? route('admin.preinscriptions.rejected')
+                    : route('admin.preinscriptions.index')));
+
+        $exportParams = request()->only(['q','formation','status']);
+        if (!empty($pageStatus)) {
+            $exportParams['status'] = $pageStatus;
+        }
+    @endphp
+
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
             <h3 class="mb-1" style="font-weight: 800; color: #0f172a;">Pré-inscriptions</h3>
             <div class="text-muted">Suivi et gestion des candidatures.</div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <form method="GET" action="{{ route('admin.preinscriptions.index') }}" class="row g-2 align-items-center">
+            <form method="GET" action="{{ $filterAction }}" class="row g-2 align-items-center">
                 <div class="col-auto">
                     <input type="text" name="q" value="{{ request('q') }}" placeholder="Recherche (nom, prénom, email, whatsapp)" class="form-control" />
                 </div>
@@ -22,19 +46,23 @@
                         <option value="intelligence_artificielle" @selected(request('formation')==='intelligence_artificielle')>Intelligence Artificielle</option>
                     </select>
                 </div>
-                <div class="col-auto">
-                    <select name="status" class="form-select">
-                        <option value="">Tous statuts</option>
-                        <option value="pending" @selected(request('status')==='pending')>En attente</option>
-                        <option value="accepted" @selected(request('status')==='accepted')>Accepté</option>
-                        <option value="rejected" @selected(request('status')==='rejected')>Rejeté</option>
-                    </select>
-                </div>
+                @if(empty($pageStatus))
+                    <div class="col-auto">
+                        <select name="status" class="form-select">
+                            <option value="">Tous statuts</option>
+                            <option value="pending" @selected(request('status')==='pending')>En attente</option>
+                            <option value="accepted" @selected(request('status')==='accepted')>Accepté</option>
+                            <option value="rejected" @selected(request('status')==='rejected')>Rejeté</option>
+                        </select>
+                    </div>
+                @else
+                    <input type="hidden" name="status" value="{{ $pageStatus }}" />
+                @endif
                 <div class="col-auto">
                     <button class="btn btn-primary" style="border-radius: 12px;"><i class="fas fa-filter me-2"></i>Filtrer</button>
                 </div>
             </form>
-            <a href="{{ route('admin.preinscriptions.export', request()->only(['q','formation','status'])) }}" class="btn btn-success" style="border-radius: 12px;"><i class="fas fa-file-export me-2"></i>Exporter CSV</a>
+            <a href="{{ route('admin.preinscriptions.export', $exportParams) }}" class="btn btn-success" style="border-radius: 12px;"><i class="fas fa-file-export me-2"></i>Exporter CSV</a>
         </div>
     </div>
 
@@ -80,6 +108,51 @@
                 <div class="stat-content">
                     <h3>{{ $stats['rejected'] ?? 0 }}</h3>
                     <p>Rejetées</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);">
+                <div class="stat-icon">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="font-size: 1.6rem;">Candidatures</h3>
+                    <p>En attente</p>
+                </div>
+                <div style="margin-left:auto;">
+                    <a href="{{ route('admin.preinscriptions.pending') }}" class="btn btn-light btn-sm" style="border-radius: 999px; font-weight: 800; padding: .45rem 1rem;">Voir</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="font-size: 1.6rem;">Candidatures</h3>
+                    <p>Acceptées</p>
+                </div>
+                <div style="margin-left:auto;">
+                    <a href="{{ route('admin.preinscriptions.accepted') }}" class="btn btn-light btn-sm" style="border-radius: 999px; font-weight: 800; padding: .45rem 1rem;">Voir</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">
+                <div class="stat-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 style="font-size: 1.6rem;">Candidatures</h3>
+                    <p>Rejetées</p>
+                </div>
+                <div style="margin-left:auto;">
+                    <a href="{{ route('admin.preinscriptions.rejected') }}" class="btn btn-light btn-sm" style="border-radius: 999px; font-weight: 800; padding: .45rem 1rem;">Voir</a>
                 </div>
             </div>
         </div>
