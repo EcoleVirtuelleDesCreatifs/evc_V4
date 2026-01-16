@@ -204,6 +204,123 @@
             </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="all-programmes-card">
+                <div class="all-programmes-header">
+                    <div>
+                        <div class="all-programmes-title">Tous les programmes</div>
+                        <div class="all-programmes-subtitle">Retrouve ici tous les programmes (tous les mois).</div>
+                    </div>
+                </div>
+
+                @if(($programmes ?? collect())->isEmpty())
+                    <div class="all-programmes-empty">Aucun programme disponible pour le moment.</div>
+                @else
+                    <div class="accordion" id="programmeAllAccordion">
+                        @foreach($programmes as $i => $programme)
+                            @php
+                                $items = $programme->items ?? collect();
+                                $itemsCount = (int) ($programme->items_count ?? (is_countable($items) ? count($items) : 0));
+                                $monthLabel = !empty($programme->month_start) ? \Carbon\Carbon::parse($programme->month_start)->translatedFormat('F Y') : null;
+
+                                $pStatus = $programme->status ?? null;
+                                $pStatusLabel = $pStatus === 'en_cours' ? 'En cours' : ($pStatus === 'terminee' ? 'Terminée' : 'À venir');
+                                $pStatusClass = $pStatus === 'en_cours' ? 'is-running' : ($pStatus === 'terminee' ? 'is-done' : 'is-upcoming');
+                            @endphp
+                            <div class="accordion-item programme-acc-item">
+                                <h2 class="accordion-header" id="allHeading{{ $i }}">
+                                    <button class="accordion-button {{ $i === 0 ? '' : 'collapsed' }} programme-acc-btn" type="button" data-bs-toggle="collapse" data-bs-target="#allCollapse{{ $i }}" aria-expanded="{{ $i === 0 ? 'true' : 'false' }}" aria-controls="allCollapse{{ $i }}">
+                                        <div class="programme-acc-title">
+                                            <div class="programme-acc-name">
+                                                {{ $programme->titre ?? 'Programme' }}
+                                                <span class="programme-status-badge {{ $pStatusClass }}">{{ $pStatusLabel }}</span>
+                                            </div>
+                                            <div class="programme-acc-meta">
+                                                @if(!empty($monthLabel))
+                                                    <span class="badge badge-soft"><i class="fas fa-calendar me-1"></i>{{ $monthLabel }}</span>
+                                                @endif
+                                                <span class="badge badge-soft"><i class="fas fa-list me-1"></i>{{ $itemsCount }} séance(s)</span>
+                                            </div>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="allCollapse{{ $i }}" class="accordion-collapse collapse {{ $i === 0 ? 'show' : '' }}" aria-labelledby="allHeading{{ $i }}" data-bs-parent="#programmeAllAccordion">
+                                    <div class="accordion-body programme-acc-body">
+                                        @if(!empty($programme->description))
+                                            <div class="programme-desc">{{ $programme->description }}</div>
+                                        @endif
+
+                                        @if(!empty($programme->fichier_pdf))
+                                            <div class="mb-3">
+                                                <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}">
+                                                    <i class="fas fa-file-pdf me-1"></i>
+                                                    Télécharger le programme (PDF)
+                                                </a>
+                                            </div>
+                                        @endif
+
+                                        @if(collect($items)->isEmpty())
+                                            <div class="programme-empty">Aucune séance n'a été ajoutée pour ce programme.</div>
+                                        @else
+                                            <div class="month-sessions-list">
+                                                @foreach(collect($items) as $item)
+                                                    @php
+                                                        $typeFormation = $item->type_formation ?? null;
+                                                        $downloadPath = $item->piece_jointe ?? null;
+                                                    @endphp
+                                                    <div class="month-session-row">
+                                                        <div class="month-session-left">
+                                                            <div class="month-session-title">{{ $item->thematique ?? 'Séance' }}</div>
+                                                            <div class="month-session-meta">
+                                                                <span>
+                                                                    <i class="fas fa-calendar me-1"></i>
+                                                                    {{ !empty($item->session_date) ? \Carbon\Carbon::parse($item->session_date)->format('d/m/Y') : 'Date à confirmer' }}
+                                                                </span>
+                                                                <span class="month-dot">•</span>
+                                                                <span>
+                                                                    <i class="fas fa-clock me-1"></i>
+                                                                    {{ !empty($item->session_time) ? \Carbon\Carbon::parse($item->session_time)->format('H:i') : 'Heure à confirmer' }}
+                                                                </span>
+                                                                @if(($typeFormation ?? null) === 'presentielle' && !empty($item->lieu))
+                                                                    <span class="month-dot">•</span>
+                                                                    <span>
+                                                                        <i class="fas fa-map-marker-alt me-1"></i>
+                                                                        {{ $item->lieu }}
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                            @if(!empty($item->description))
+                                                                <div class="programme-desc">{{ $item->description }}</div>
+                                                            @endif
+                                                        </div>
+                                                        <div class="month-session-right">
+                                                            @if($typeFormation)
+                                                                <span class="month-type {{ $typeFormation === 'presentielle' ? 'type-presentielle' : 'type-enligne' }}">
+                                                                    {{ $typeFormation === 'presentielle' ? 'Présentielle' : 'En ligne' }}
+                                                                </span>
+                                                            @endif
+                                                            @if(!empty($downloadPath))
+                                                                <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($downloadPath) }}">
+                                                                    <i class="fas fa-download me-1"></i>
+                                                                    Télécharger
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
 @endif
 
 <!-- Outils (recherche + filtre) -->
@@ -1027,6 +1144,131 @@
  .type-enligne {
      background: rgba(37, 99, 235, 0.18);
      color: rgba(255, 255, 255, 0.96);
+ }
+
+ .all-programmes-card {
+     margin-top: 0.25rem;
+     background: rgba(15, 23, 42, 0.55);
+     border: 1px solid rgba(191, 219, 254, 0.18);
+     border-radius: 18px;
+     padding: 1rem;
+     backdrop-filter: blur(10px);
+ }
+
+ .all-programmes-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: flex-end;
+     gap: 1rem;
+     flex-wrap: wrap;
+     margin-bottom: 0.75rem;
+ }
+
+ .all-programmes-title {
+     font-weight: 950;
+     color: rgba(255, 255, 255, 0.98);
+     font-size: 1.25rem;
+ }
+
+ .all-programmes-subtitle {
+     font-weight: 800;
+     color: rgba(219, 234, 254, 0.88);
+ }
+
+ .all-programmes-empty {
+     padding: 1rem;
+     color: rgba(219, 234, 254, 0.9);
+     font-weight: 800;
+ }
+
+ .programme-acc-item {
+     background: transparent;
+     border: 1px solid rgba(191, 219, 254, 0.18);
+     border-radius: 14px;
+     overflow: hidden;
+     margin-bottom: 0.85rem;
+ }
+
+ .programme-acc-btn {
+     background: rgba(2, 6, 23, 0.25);
+     color: rgba(255, 255, 255, 0.95);
+     font-weight: 900;
+ }
+
+ .programme-acc-btn:focus {
+     box-shadow: none;
+ }
+
+ .programme-acc-title {
+     display: flex;
+     flex-direction: column;
+     gap: 0.35rem;
+     width: 100%;
+ }
+
+ .programme-acc-name {
+     font-size: 1.05rem;
+     font-weight: 950;
+ }
+
+ .programme-acc-meta {
+     display: flex;
+     gap: 0.4rem;
+     flex-wrap: wrap;
+ }
+
+ .programme-acc-body {
+     background: rgba(2, 6, 23, 0.22);
+     color: rgba(255, 255, 255, 0.92);
+ }
+
+ .programme-desc {
+     color: rgba(219, 234, 254, 0.92);
+     font-weight: 700;
+     margin-bottom: 0.75rem;
+ }
+
+ .programme-empty {
+     padding: 0.75rem;
+     font-weight: 800;
+     color: rgba(219, 234, 254, 0.9);
+     border: 1px dashed rgba(191, 219, 254, 0.25);
+     border-radius: 12px;
+ }
+
+ .badge-soft {
+     background: rgba(255, 255, 255, 0.10);
+     border: 1px solid rgba(255, 255, 255, 0.12);
+     color: rgba(255, 255, 255, 0.92);
+     font-weight: 850;
+ }
+
+ .programme-status-badge {
+     display: inline-flex;
+     align-items: center;
+     margin-left: 0.6rem;
+     padding: 0.15rem 0.55rem;
+     border-radius: 999px;
+     font-size: 0.75rem;
+     font-weight: 950;
+     border: 1px solid rgba(255, 255, 255, 0.18);
+     background: rgba(2, 6, 23, 0.22);
+     color: rgba(255, 255, 255, 0.98);
+ }
+
+ .programme-status-badge.is-running {
+     background: rgba(16, 185, 129, 0.22);
+     border-color: rgba(16, 185, 129, 0.35);
+ }
+
+ .programme-status-badge.is-done {
+     background: rgba(148, 163, 184, 0.22);
+     border-color: rgba(148, 163, 184, 0.35);
+ }
+
+ .programme-status-badge.is-upcoming {
+     background: rgba(249, 115, 22, 0.22);
+     border-color: rgba(249, 115, 22, 0.35);
  }
 
 /* Bordure dégradée Instagram */

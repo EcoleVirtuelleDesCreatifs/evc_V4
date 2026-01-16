@@ -3828,6 +3828,7 @@ class DashboardController extends Controller
 
         $studentFormation = $student->program ?? null;
         $studentFormationVariants = $studentFormation ? [$studentFormation] : [];
+        $isCombinedStudent = false;
 
         if ($studentFormation) {
             // Vérifier si c'est la formation combinée
@@ -3839,6 +3840,7 @@ class DashboardController extends Controller
             }
 
             if ($isCombined) {
+                $isCombinedStudent = true;
                 // Si formation combinée, on inclut les programmes des deux formations + la combinée
                 $studentFormationVariants = array_merge(
                     $formationMapping['Design Graphique & Community Management'],
@@ -3889,7 +3891,8 @@ class DashboardController extends Controller
             $itemsByProgramme = $items->groupBy('programme_id');
         }
 
-        $programmes = $programmes->map(function ($programme) use ($itemsByProgramme) {
+        $today = now()->startOfDay();
+        $programmes = $programmes->map(function ($programme) use ($itemsByProgramme, $formationMapping, $today) {
             $programme->items = $itemsByProgramme->get($programme->id, collect());
             $programme->items_count = $programme->items->count();
             $formation = $programme->formation ?? null;
@@ -3914,10 +3917,56 @@ class DashboardController extends Controller
             }
 
             $programme->canonical_formation = $canonical ?: 'Toutes';
+
+            $items = $programme->items ?? collect();
+            if (!($items instanceof \Illuminate\Support\Collection)) {
+                $items = collect($items);
+            }
+
+            $dates = collect();
+            foreach ($items as $it) {
+                if (empty($it->session_date)) {
+                    continue;
+                }
+                try {
+                    $dates->push(\Carbon\Carbon::parse($it->session_date)->startOfDay());
+                } catch (\Throwable $e) {
+                }
+            }
+
+            if ($dates->isEmpty()) {
+                $programme->status = 'a_venir';
+            } else {
+                $hasPast = $dates->contains(function ($d) use ($today) {
+                    return $d->lessThan($today);
+                });
+                $hasTodayOrFuture = $dates->contains(function ($d) use ($today) {
+                    return $d->greaterThanOrEqualTo($today);
+                });
+
+                if ($hasTodayOrFuture && $hasPast) {
+                    $programme->status = 'en_cours';
+                } elseif ($hasTodayOrFuture) {
+                    $programme->status = 'a_venir';
+                } else {
+                    $programme->status = 'terminee';
+                }
+            }
+
+            $programme->status_rank = $programme->status === 'en_cours' ? 0 : ($programme->status === 'a_venir' ? 1 : 2);
             return $programme;
         });
 
-        $today = now()->startOfDay();
+        if ($isCombinedStudent) {
+            $programmes = $programmes
+                ->sortBy([
+                    ['status_rank', 'asc'],
+                    ['month_start', 'desc'],
+                    ['created_at', 'desc'],
+                ])
+                ->values();
+        }
+
         $formationStatuses = collect(['Design Graphique', 'Community Management'])->mapWithKeys(function ($label) use ($programmes, $today) {
             $dates = collect();
 
@@ -3991,6 +4040,7 @@ class DashboardController extends Controller
             'formationPrefix' => $formationPrefix,
             'currentMonthSessions' => $currentMonthSessions,
             'formationStatuses' => $formationStatuses,
+            'isCombinedStudent' => $isCombinedStudent,
         ]);
     }
 
