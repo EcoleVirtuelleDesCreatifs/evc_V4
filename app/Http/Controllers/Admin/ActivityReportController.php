@@ -18,7 +18,14 @@ class ActivityReportController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('admin.activity_reports.index', compact('reports'));
+        $stats = [
+            'total' => (int) ActivityReport::query()->count(),
+            'published' => (int) ActivityReport::query()->where('is_published', true)->count(),
+            'draft' => (int) ActivityReport::query()->where('is_published', false)->count(),
+            'ce_mois' => (int) ActivityReport::query()->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count(),
+        ];
+
+        return view('admin.activity_reports.index', compact('reports', 'stats'));
     }
 
     public function create(): View
