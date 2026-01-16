@@ -195,8 +195,16 @@
                                                     @php
                                                         $typeFormation = $item->type_formation ?? null;
                                                         $downloadPath = $item->piece_jointe ?? null;
+                                                        $sessionRowClass = '';
+                                                        try {
+                                                            if (!empty($item->session_date)) {
+                                                                $dt = \Carbon\Carbon::parse(($item->session_date ?? '') . ' ' . ($item->session_time ?? '00:00'));
+                                                                $sessionRowClass = $dt->isFuture() ? 'is-future' : 'is-past';
+                                                            }
+                                                        } catch (\Throwable $e) {
+                                                        }
                                                     @endphp
-                                                    <div class="month-session-row">
+                                                    <div class="month-session-row {{ $sessionRowClass }}">
                                                         <div class="month-session-left">
                                                             <div class="month-session-title">{{ $item->thematique ?? 'Séance' }}</div>
                                                             <div class="month-session-meta">
@@ -269,8 +277,16 @@
                                 $canonicalLower = strtolower($canonical);
                                 $tag = str_contains($canonicalLower, 'community') ? 'CM' : (str_contains($canonicalLower, 'design') ? 'DG' : '');
                                 $typeFormation = $item->type_formation ?? null;
+                                $sessionRowClass = '';
+                                try {
+                                    if (!empty($item->session_date)) {
+                                        $dt = \Carbon\Carbon::parse(($item->session_date ?? '') . ' ' . ($item->session_time ?? '00:00'));
+                                        $sessionRowClass = $dt->isFuture() ? 'is-future' : 'is-past';
+                                    }
+                                } catch (\Throwable $e) {
+                                }
                             @endphp
-                            <div class="month-session-row">
+                            <div class="month-session-row {{ $sessionRowClass }}">
                                 <div class="month-session-left">
                                     <div class="month-session-title">
                                         {{ $item->thematique ?? 'Séance' }}
@@ -1090,6 +1106,15 @@
      border-radius: 14px;
      background: rgba(2, 6, 23, 0.22);
      border: 1px solid rgba(191, 219, 254, 0.16);
+ }
+
+ .month-session-row.is-future {
+     background: rgba(16, 185, 129, 0.10);
+     border-color: rgba(16, 185, 129, 0.38);
+ }
+
+ .month-session-row.is-past {
+     opacity: 0.72;
  }
 
  .month-session-title {
