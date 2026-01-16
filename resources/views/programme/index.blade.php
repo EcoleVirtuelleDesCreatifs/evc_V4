@@ -527,8 +527,8 @@
     --evc-blue-500: #3b82f6;
     --evc-blue-200: #bfdbfe;
     --evc-blue-100: #dbeafe;
-    --evc-surface: rgba(255, 255, 255, 0.95);
-    --evc-surface-soft: rgba(255, 255, 255, 0.86);
+    --evc-surface: rgba(11, 31, 68, 0.78);
+    --evc-surface-soft: rgba(11, 31, 68, 0.62);
 }
 
 /* Fond (isolé à cette page) */
@@ -654,8 +654,8 @@
     background: var(--evc-surface);
     border-radius: 20px;
     padding: 2rem;
-    border: 1px solid rgba(37, 99, 235, 0.22);
-    box-shadow: 0 10px 26px rgba(2, 6, 23, 0.18);
+    border: 1px solid rgba(59, 130, 246, 0.28);
+    box-shadow: 0 14px 38px rgba(2, 6, 23, 0.35);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
     display: flex;
@@ -712,14 +712,14 @@
 .programme-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #1f2937;
+    color: rgba(255, 255, 255, 0.95);
     text-align: center;
     line-height: 1.4;
 }
 
 /* Description du programme */
 .programme-description {
-    color: #6b7280;
+    color: rgba(219, 234, 254, 0.90);
     font-size: 0.95rem;
     line-height: 1.6;
     text-align: center;
@@ -756,16 +756,16 @@
 }
 
 .badge-soft {
-    background: rgba(37, 99, 235, 0.10);
-    color: #0b1f44;
-    border: 1px solid rgba(37, 99, 235, 0.18);
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.16);
     padding: 0.45rem 0.7rem;
     border-radius: 999px;
     font-weight: 600;
 }
 
 .badge-soft i {
-    color: rgba(11, 31, 68, 0.75);
+    color: rgba(255, 255, 255, 0.85);
 }
 
 /* Bouton Instagram */
@@ -800,11 +800,11 @@
 
 /* État vide */
 .empty-state {
-    background: rgba(255,255,255,0.92);
+    background: rgba(11, 31, 68, 0.62);
     border-radius: 20px;
     padding: 4rem 2rem;
-    box-shadow: 0 10px 26px rgba(2, 6, 23, 0.16);
-    border: 1px solid rgba(37, 99, 235, 0.16);
+    box-shadow: 0 14px 38px rgba(2, 6, 23, 0.35);
+    border: 1px solid rgba(59, 130, 246, 0.22);
 }
 
 /* Sessions */
@@ -814,8 +814,8 @@
 }
 
 .session-row {
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(37, 99, 235, 0.14);
+    background: rgba(11, 31, 68, 0.55);
+    border: 1px solid rgba(59, 130, 246, 0.22);
     border-radius: 16px;
     padding: 0.9rem 1rem;
     display: grid;
@@ -896,7 +896,7 @@
 
 .session-title {
     font-weight: 800;
-    color: #0f172a;
+    color: rgba(255, 255, 255, 0.95);
 }
 
 .session-topline {
@@ -961,7 +961,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
-    color: rgba(15, 23, 42, 0.72);
+    color: rgba(219, 234, 254, 0.85);
     font-weight: 600;
     margin-top: 0.15rem;
 }
@@ -970,9 +970,9 @@
     margin-top: 0.55rem;
     padding: 0.75rem 0.9rem;
     border-radius: 14px;
-    background: rgba(15, 23, 42, 0.04);
-    border: 1px solid rgba(15, 23, 42, 0.06);
-    color: rgba(15, 23, 42, 0.85);
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.88);
     font-weight: 600;
     line-height: 1.6;
 }
@@ -984,17 +984,17 @@
     gap: 0.35rem;
     padding: 0.45rem 0.7rem;
     border-radius: 999px;
-    border: 1px solid rgba(15, 23, 42, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     font-weight: 800;
-    color: rgba(15, 23, 42, 0.92);
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .session-when {
-    background: rgba(37, 99, 235, 0.10);
+    background: rgba(255, 255, 255, 0.10);
 }
 
 .session-where {
-    background: rgba(37, 99, 235, 0.10);
+    background: rgba(255, 255, 255, 0.10);
 }
 
 .session-dot {
