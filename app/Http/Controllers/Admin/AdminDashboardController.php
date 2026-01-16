@@ -1898,6 +1898,30 @@ class AdminDashboardController extends Controller
             return $programme;
         });
 
+        $now = now();
+        $programmesCurrentMonth = $programmes->filter(function ($programme) use ($now) {
+            try {
+                if (!empty($programme->month_start)) {
+                    return \Carbon\Carbon::parse($programme->month_start)->isSameMonth($now);
+                }
+            } catch (\Throwable $e) {
+                // ignore
+            }
+
+            $items = $programme->items ?? collect();
+            if (!($items instanceof \Illuminate\Support\Collection)) {
+                $items = collect($items);
+            }
+
+            return $items->contains(function ($it) use ($now) {
+                try {
+                    return !empty($it->session_date) && \Carbon\Carbon::parse($it->session_date)->isSameMonth($now);
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            });
+        })->values();
+
         // Calculer les statistiques
         $stats = [
             'total' => $programmes->count(),
@@ -1909,7 +1933,7 @@ class AdminDashboardController extends Controller
             'ce_mois' => $programmes->where('created_at', '>=', now()->startOfMonth())->count(),
         ];
 
-        return view('admin.programmes.index', compact('programmes', 'stats'));
+        return view('admin.programmes.index', compact('programmes', 'programmesCurrentMonth', 'stats'));
     }
 
     public function createProgramme()

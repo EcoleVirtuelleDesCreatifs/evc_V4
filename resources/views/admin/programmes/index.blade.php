@@ -491,6 +491,200 @@
         </div>
     @endif
 
+    @if(isset($programmesCurrentMonth) && !$programmesCurrentMonth->isEmpty())
+        @php
+            $currentMonthByFormation = $programmesCurrentMonth
+                ->groupBy(fn($p) => (string) ($p->formation ?? ''));
+        @endphp
+
+        <div class="mb-4" id="currentMonthProgrammes">
+            <div class="d-flex align-items-center justify-content-between mb-2" style="padding: 0 .25rem;">
+                <div class="formation-chip all">
+                    <i class="fas fa-calendar-check"></i>
+                    Formations en cours ({{ now()->translatedFormat('F Y') }})
+                </div>
+                <span class="badge bg-secondary">{{ $programmesCurrentMonth->count() }}</span>
+            </div>
+
+            @foreach($currentMonthByFormation as $formationGroup => $formationProgrammes)
+                @php
+                    $fg = (string) ($formationGroup ?? '');
+                    $fgLower = strtolower($fg);
+                    $formationKey = 'all';
+                    if (str_contains($fgLower, 'design') && (str_contains($fgLower, 'community') || str_contains($fgLower, 'manager'))) {
+                        $formationKey = 'dgcm';
+                    } elseif (str_contains($fgLower, 'design')) {
+                        $formationKey = 'dg';
+                    } elseif (str_contains($fgLower, 'community')) {
+                        $formationKey = 'cm';
+                    } elseif (str_contains($fgLower, 'informatique')) {
+                        $formationKey = 'gi';
+                    } elseif (str_contains($fgLower, 'intelligence')) {
+                        $formationKey = 'ia';
+                    } elseif ($fgLower === 'toutes' || $fgLower === 'tous' || $fgLower === 'toutes les formations' || $fgLower === 'toute') {
+                        $formationKey = 'all';
+                    }
+
+                    $formationIcons = [
+                        'dg' => 'fa-palette',
+                        'cm' => 'fa-bullhorn',
+                        'dgcm' => 'fa-object-group',
+                        'gi' => 'fa-laptop-code',
+                        'ia' => 'fa-brain',
+                        'all' => 'fa-layer-group',
+                    ];
+                    $fgIcon = $formationIcons[$formationKey] ?? 'fa-graduation-cap';
+                    $sectionLabel = $fg !== '' ? $fg : 'Formation';
+                @endphp
+
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2" style="padding: 0 .25rem;">
+                        <div class="formation-chip {{ $formationKey }}">
+                            <i class="fas {{ $fgIcon }}"></i>
+                            {{ $sectionLabel }}
+                        </div>
+                        <span class="badge bg-secondary">{{ $formationProgrammes->count() }}</span>
+                    </div>
+
+                    <div class="row g-4">
+                        @foreach($formationProgrammes as $programme)
+                            @php
+                                $formation = $programme->formation ?? '';
+                                $monthStart = $programme->month_start ?? '';
+                                $items = $programme->items ?? collect();
+                                $formationClass = $formationKey === 'dg' ? 'theme-dg'
+                                    : ($formationKey === 'cm' ? 'theme-cm'
+                                        : ($formationKey === 'dgcm' ? 'theme-dgcm'
+                                            : ($formationKey === 'gi' ? 'theme-gi'
+                                                : ($formationKey === 'ia' ? 'theme-ia' : 'theme-all'))));
+                                $searchText = strtolower(
+                                    ($programme->titre ?? '') . ' ' .
+                                    ($programme->description ?? '') . ' ' .
+                                    ($formation ?? '') . ' ' .
+                                    $items->pluck('thematique')->implode(' ') . ' ' .
+                                    $items->pluck('lieu')->implode(' ') . ' ' .
+                                    $items->pluck('description')->implode(' ')
+                                );
+                            @endphp
+
+                            <div class="col-12 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
+                                <div class="programme-accordion {{ $formationClass }}">
+                                    <div class="programme-accordion-header">
+                                        <div style="min-width: 260px;">
+                                            <div style="color:#e2e8f0; font-weight:800; font-size:1.05rem;">
+                                                {{ $programme->titre }}
+                                            </div>
+                                            <div class="programme-meta">
+                                                <span>
+                                                    <i class="fas fa-graduation-cap"></i>
+                                                    {{ $formation }}
+                                                </span>
+                                                @if(!empty($monthStart))
+                                                    <span>
+                                                        <i class="fas fa-calendar"></i>
+                                                        {{ \Carbon\Carbon::parse($monthStart)->translatedFormat('F Y') }}
+                                                    </span>
+                                                @endif
+                                                <span>
+                                                    <i class="fas fa-list"></i>
+                                                    {{ (int) ($programme->items_count ?? 0) }} séance(s)
+                                                </span>
+                                                @if(!empty($programme->next_item))
+                                                    <span>
+                                                        <i class="fas fa-bolt"></i>
+                                                        Prochaine: {{ \Carbon\Carbon::parse($programme->next_item->session_date)->format('d/m') }} {{ \Carbon\Carbon::parse($programme->next_item->session_time)->format('H:i') }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <div class="programme-actions">
+                                            <button class="btn-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#current_prog_{{ $programme->id }}" aria-expanded="false">
+                                                <i class="fas fa-eye me-1"></i>
+                                                Détails
+                                            </button>
+                                            <a href="{{ route('admin.programmes.edit', $programme->id) }}" class="btn-toggle" style="border-radius:10px; font-weight:600; text-decoration:none;">
+                                                <i class="fas fa-edit me-1"></i>
+                                                Modifier
+                                            </a>
+                                            <form action="{{ route('admin.programmes.destroy', $programme->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce programme ?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger" style="border-radius:10px; font-weight:600;">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <div id="current_prog_{{ $programme->id }}" class="collapse">
+                                        <div style="padding: 1rem 1.25rem;">
+                                            @if($programme->description)
+                                                <div style="color:#94a3b8; margin-bottom: 1rem;">
+                                                    {{ $programme->description }}
+                                                </div>
+                                            @endif
+
+                                            @if($items->isEmpty())
+                                                <div class="empty-state" style="padding: 1.5rem 1rem;">
+                                                    <i class="fas fa-inbox"></i>
+                                                    <h3>Aucune séance</h3>
+                                                    <p>Ce programme ne contient pas encore de séances.</p>
+                                                </div>
+                                            @else
+                                                <table class="items-table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Thématique</th>
+                                                            <th>Date</th>
+                                                            <th>Heure</th>
+                                                            <th>Type</th>
+                                                            <th>Lieu</th>
+                                                            <th>Pièce jointe</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach($items as $it)
+                                                            <tr>
+                                                                <td>
+                                                                    <div class="item-title">{{ $it->thematique ?? '' }}</div>
+                                                                    @if(!empty($it->description))
+                                                                        <div class="item-sub">{{ $it->description }}</div>
+                                                                    @endif
+                                                                </td>
+                                                                <td>{{ !empty($it->session_date) ? \Carbon\Carbon::parse($it->session_date)->format('d/m/Y') : '' }}</td>
+                                                                <td>{{ !empty($it->session_time) ? \Carbon\Carbon::parse($it->session_time)->format('H:i') : '' }}</td>
+                                                                <td>{{ ($it->type_formation ?? '') === 'presentielle' ? 'Présentielle' : 'En ligne' }}</td>
+                                                                <td>{{ $it->lieu ?? '—' }}</td>
+                                                                <td>
+                                                                    @if(!empty($it->piece_jointe))
+                                                                        @php
+                                                                            $url = \App\Models\MediaUrl::fromPath($it->piece_jointe);
+                                                                        @endphp
+                                                                        <a href="{{ $url }}" target="_blank" class="btn-download" style="padding: 0.35rem 0.75rem;">
+                                                                            <i class="fas fa-paperclip me-1"></i>
+                                                                            Ouvrir
+                                                                        </a>
+                                                                    @else
+                                                                        —
+                                                                    @endif
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     <!-- Liste des programmes -->
     @if($programmes->isEmpty())
         <div class="empty-state">

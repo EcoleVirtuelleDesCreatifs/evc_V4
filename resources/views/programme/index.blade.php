@@ -34,6 +34,80 @@
     </div>
 </div>
 
+@php
+    $studentProgram = (string) ($student->program ?? '');
+    $studentProgramLower = strtolower($studentProgram);
+    $isDgCm = str_contains($studentProgramLower, 'design') && (str_contains($studentProgramLower, 'community') || str_contains($studentProgramLower, 'cm'));
+
+    $dgCount = $programmes->where('canonical_formation', 'Design Graphique')->count();
+    $cmCount = $programmes->where('canonical_formation', 'Community Management')->count();
+    $now = now();
+    $currentMonthCount = $programmes->filter(function ($p) use ($now) {
+        try {
+            if (!empty($p->month_start) && \Carbon\Carbon::parse($p->month_start)->isSameMonth($now)) {
+                return true;
+            }
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        $items = $p->items ?? collect();
+        return collect($items)->contains(function ($it) use ($now) {
+            try {
+                return !empty($it->session_date) && \Carbon\Carbon::parse($it->session_date)->isSameMonth($now);
+            } catch (\Throwable $e) {
+                return false;
+            }
+        });
+    })->count();
+@endphp
+
+@if($isDgCm)
+    <div class="row g-3 mb-4" id="programmeFormationCards">
+        <div class="col-12 col-md-4">
+            <div class="programme-card instagram-card" role="button" data-programme-filter="dg" style="cursor:pointer;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-white-50" style="font-weight:700;">Formation</div>
+                        <div style="font-weight:900; font-size:1.15rem; color:#fff;">Design Graphique</div>
+                    </div>
+                    <div class="badge" style="background: rgba(255,255,255,0.2); padding: 0.65rem 1rem; border-radius: 18px; font-weight:900;">
+                        {{ $dgCount }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="programme-card instagram-card" role="button" data-programme-filter="cm" style="cursor:pointer;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-white-50" style="font-weight:700;">Formation</div>
+                        <div style="font-weight:900; font-size:1.15rem; color:#fff;">Community Management</div>
+                    </div>
+                    <div class="badge" style="background: rgba(255,255,255,0.2); padding: 0.65rem 1rem; border-radius: 18px; font-weight:900;">
+                        {{ $cmCount }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="programme-card instagram-card" role="button" data-programme-filter="current" style="cursor:pointer;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-white-50" style="font-weight:700;">Formations en cours</div>
+                        <div style="font-weight:900; font-size:1.15rem; color:#fff;">{{ $now->translatedFormat('F Y') }}</div>
+                    </div>
+                    <div class="badge" style="background: rgba(255,255,255,0.2); padding: 0.65rem 1rem; border-radius: 18px; font-weight:900;">
+                        {{ $currentMonthCount }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endif
+
 <!-- Outils (recherche + filtre) -->
 @if(!$programmes->isEmpty())
     <div class="row mb-4">
@@ -85,7 +159,31 @@
             <div class="row g-4">
                 @foreach($programmes as $programme)
                     <div class="col-12">
-                        <div class="programme-card instagram-card">
+                        @php
+                            $canonical = (string) ($programme->canonical_formation ?? ($programme->formation ?? ''));
+                            $canonicalLower = strtolower($canonical);
+                            $canonicalKey = str_contains($canonicalLower, 'community') ? 'cm' : (str_contains($canonicalLower, 'design') ? 'dg' : 'other');
+                            $isCurrentMonth = false;
+                            try {
+                                if (!empty($programme->month_start) && \Carbon\Carbon::parse($programme->month_start)->isSameMonth($now)) {
+                                    $isCurrentMonth = true;
+                                }
+                            } catch (\Throwable $e) {
+                                $isCurrentMonth = false;
+                            }
+                            if (!$isCurrentMonth) {
+                                $tmpItems = $programme->items ?? collect();
+                                $isCurrentMonth = collect($tmpItems)->contains(function ($it) use ($now) {
+                                    try {
+                                        return !empty($it->session_date) && \Carbon\Carbon::parse($it->session_date)->isSameMonth($now);
+                                    } catch (\Throwable $e) {
+                                        return false;
+                                    }
+                                });
+                            }
+                        @endphp
+
+                        <div class="programme-card instagram-card programme-card-item" data-canonical="{{ $canonicalKey }}" data-current-month="{{ $isCurrentMonth ? '1' : '0' }}">
                             <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
                                 <div>
                                     <h4 class="programme-title mb-1" style="text-align:left;">
@@ -1076,5 +1174,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
     applyFilters();
 });
+</script>
+
+<script>
+(function() {
+    const cardsWrap = document.getElementById('programmeFormationCards');
+    if (!cardsWrap) return;
+
+    const cards = Array.from(cardsWrap.querySelectorAll('[data-programme-filter]'));
+    const programmeCards = Array.from(document.querySelectorAll('.programme-card-item'));
+
+    function applyProgrammeFilter(filter) {
+        programmeCards.forEach(el => {
+            const canonical = el.getAttribute('data-canonical') || '';
+            const currentMonth = el.getAttribute('data-current-month') || '0';
+            let show = true;
+
+            if (filter === 'dg') {
+                show = canonical === 'dg';
+            } else if (filter === 'cm') {
+                show = canonical === 'cm';
+            } else if (filter === 'current') {
+                show = currentMonth === '1';
+            }
+
+            el.style.display = show ? '' : 'none';
+        });
+    }
+
+    cards.forEach(card => {
+        card.addEventListener('click', function() {
+            const filter = this.getAttribute('data-programme-filter');
+            applyProgrammeFilter(filter);
+        });
+    });
+})();
 </script>
 @endpush
