@@ -1080,6 +1080,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         // Gestion des Badges
         Route::get('/badges/students/active', [\App\Http\Controllers\Admin\BadgeAdminController::class, 'active'])->name('badges.students.active');
         Route::get('/badges/students/inactive', [\App\Http\Controllers\Admin\BadgeAdminController::class, 'inactive'])->name('badges.students.inactive');
+        Route::get('/badges/students/top-performers', [\App\Http\Controllers\Admin\BadgeAdminController::class, 'topPerformers'])->name('badges.students.top-performers');
+        Route::get('/badges/students/list', [\App\Http\Controllers\Admin\BadgeAdminController::class, 'studentsList'])->name('badges.students.list');
         Route::get('/badges/students/{id}/generate', [\App\Http\Controllers\Admin\BadgeAdminController::class, 'generate'])->whereNumber('id')->name('badges.generate');
 
         // Gestion des Articles - Événements

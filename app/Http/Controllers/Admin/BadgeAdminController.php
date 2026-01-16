@@ -236,6 +236,141 @@ class BadgeAdminController extends Controller
         ]);
     }
 
+    public function topPerformers(Request $request)
+    {
+        $period = (string) $request->query('period', 'month');
+        $allowedPeriods = ['week', 'month', 'quarter', 'year'];
+        if (!in_array($period, $allowedPeriods, true)) {
+            $period = 'month';
+        }
+
+        $from = match ($period) {
+            'week' => Carbon::now()->startOfWeek(),
+            'quarter' => Carbon::now()->firstOfQuarter(),
+            'year' => Carbon::now()->startOfYear(),
+            default => Carbon::now()->startOfMonth(),
+        };
+
+        $buildTopPerformersByFormation = function (Carbon $from, string $formationKey) {
+            $projectsSub = DB::table('projects')
+                ->select('user_id', DB::raw('COUNT(*) as projects_validated'))
+                ->where('created_at', '>=', $from)
+                ->whereIn('status', ['valide', 'validated'])
+                ->groupBy('user_id');
+
+            $tpSub = DB::table('tp_assignments')
+                ->select('user_id', DB::raw('COUNT(*) as tp_validated'))
+                ->where('validated_at', '>=', $from)
+                ->where('status', 'validated')
+                ->groupBy('user_id');
+
+            $formationExpr = "LOWER(CONCAT(COALESCE(students.program,''), ' ', COALESCE(students.specialization,'')))";
+
+            $q = DB::table('students')
+                ->where('students.status', 'active')
+                ->leftJoinSub($projectsSub, 'p', function ($join) {
+                    $join->on('p.user_id', '=', 'students.user_id');
+                })
+                ->leftJoinSub($tpSub, 't', function ($join) {
+                    $join->on('t.user_id', '=', 'students.user_id');
+                })
+                ->select(
+                    'students.id',
+                    'students.user_id',
+                    'students.student_id',
+                    'students.first_name',
+                    'students.last_name',
+                    'students.program',
+                    'students.specialization',
+                    DB::raw('COALESCE(p.projects_validated, 0) as projects_validated'),
+                    DB::raw('COALESCE(t.tp_validated, 0) as tp_validated'),
+                    DB::raw('(COALESCE(p.projects_validated, 0) + COALESCE(t.tp_validated, 0)) as total_score')
+                );
+
+            if ($formationKey === 'dg') {
+                $q->whereRaw("$formationExpr LIKE ?", ['%design%'])
+                    ->whereRaw("$formationExpr NOT LIKE ?", ['%community%']);
+            } elseif ($formationKey === 'cm') {
+                $q->whereRaw("$formationExpr LIKE ?", ['%community%'])
+                    ->whereRaw("$formationExpr NOT LIKE ?", ['%design%']);
+            } elseif ($formationKey === 'dgcm') {
+                $q->whereRaw("$formationExpr LIKE ?", ['%design%'])
+                    ->whereRaw("$formationExpr LIKE ?", ['%community%']);
+            }
+
+            return $q
+                ->orderByDesc('total_score')
+                ->orderByDesc('projects_validated')
+                ->limit(5)
+                ->get();
+        };
+
+        $topByFormation = [
+            'dg' => $buildTopPerformersByFormation($from, 'dg'),
+            'cm' => $buildTopPerformersByFormation($from, 'cm'),
+            'dgcm' => $buildTopPerformersByFormation($from, 'dgcm'),
+        ];
+
+        return view('admin.badges.top-performers', [
+            'title' => 'Top 5 performers',
+            'period' => $period,
+            'topByFormation' => $topByFormation,
+        ]);
+    }
+
+    public function studentsList(Request $request)
+    {
+        $sort = (string) $request->query('sort', 'date');
+        $dir = strtolower((string) $request->query('dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+        $hasRegistrationDate = Schema::hasColumn('students', 'registration_date');
+        $registrationDateExpr = $hasRegistrationDate
+            ? 'students.registration_date'
+            : 'NULL';
+        $orderDateExpr = "COALESCE($registrationDateExpr, students.created_at)";
+
+        $studentsQuery = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
+            ->select(
+                'students.id',
+                'students.user_id',
+                'students.student_id',
+                'students.first_name',
+                'students.last_name',
+                'students.country',
+                'students.program',
+                'students.specialization',
+                'students.profile_photo',
+                'students.created_at',
+                'users.email',
+                DB::raw("$orderDateExpr as registration_sort_date")
+            )
+            ->selectSub(function ($q) {
+                $q->from('projects')
+                    ->selectRaw('COUNT(*)')
+                    ->whereColumn('projects.user_id', 'students.user_id');
+            }, 'projects_count');
+
+        if ($sort === 'projects') {
+            $studentsQuery->orderBy('projects_count', $dir);
+            $studentsQuery->orderByRaw("$orderDateExpr desc");
+        } else {
+            $studentsQuery->orderByRaw("$orderDateExpr $dir");
+        }
+
+        $students = $studentsQuery
+            ->paginate(24)
+            ->withQueryString();
+
+        return view('admin.badges.students-list', [
+            'title' => 'Liste des Étudiants',
+            'students' => $students,
+            'sort' => $sort,
+            'dir' => $dir,
+        ]);
+    }
+
     public function inactive(Request $request)
     {
         $hasRegistrationDate = Schema::hasColumn('students', 'registration_date');
