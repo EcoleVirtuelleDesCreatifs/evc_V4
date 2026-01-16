@@ -130,6 +130,8 @@ class BadgeAdminController extends Controller
                     'students.student_id',
                     'students.first_name',
                     'students.last_name',
+                    'students.country',
+                    'students.profile_photo',
                     'students.program',
                     'students.specialization',
                     DB::raw('COALESCE(p.projects_validated, 0) as projects_validated'),
@@ -171,6 +173,8 @@ class BadgeAdminController extends Controller
                     'students.student_id',
                     'students.first_name',
                     'students.last_name',
+                    'students.country',
+                    'students.profile_photo',
                     'students.program',
                     'students.specialization',
                     DB::raw('COALESCE(p.projects_validated, 0) as projects_validated'),
@@ -251,6 +255,45 @@ class BadgeAdminController extends Controller
             default => Carbon::now()->startOfMonth(),
         };
 
+        $buildTopPerformers = function (Carbon $from) {
+            $projectsSub = DB::table('projects')
+                ->select('user_id', DB::raw('COUNT(*) as projects_validated'))
+                ->where('created_at', '>=', $from)
+                ->whereIn('status', ['valide', 'validated'])
+                ->groupBy('user_id');
+
+            $tpSub = DB::table('tp_assignments')
+                ->select('user_id', DB::raw('COUNT(*) as tp_validated'))
+                ->where('validated_at', '>=', $from)
+                ->where('status', 'validated')
+                ->groupBy('user_id');
+
+            return DB::table('students')
+                ->where('students.status', 'active')
+                ->leftJoinSub($projectsSub, 'p', function ($join) {
+                    $join->on('p.user_id', '=', 'students.user_id');
+                })
+                ->leftJoinSub($tpSub, 't', function ($join) {
+                    $join->on('t.user_id', '=', 'students.user_id');
+                })
+                ->select(
+                    'students.id',
+                    'students.user_id',
+                    'students.student_id',
+                    'students.first_name',
+                    'students.last_name',
+                    'students.program',
+                    'students.specialization',
+                    DB::raw('COALESCE(p.projects_validated, 0) as projects_validated'),
+                    DB::raw('COALESCE(t.tp_validated, 0) as tp_validated'),
+                    DB::raw('(COALESCE(p.projects_validated, 0) + COALESCE(t.tp_validated, 0)) as total_score')
+                )
+                ->orderByDesc('total_score')
+                ->orderByDesc('projects_validated')
+                ->limit(5)
+                ->get();
+        };
+
         $buildTopPerformersByFormation = function (Carbon $from, string $formationKey) {
             $projectsSub = DB::table('projects')
                 ->select('user_id', DB::raw('COUNT(*) as projects_validated'))
@@ -311,9 +354,12 @@ class BadgeAdminController extends Controller
             'dgcm' => $buildTopPerformersByFormation($from, 'dgcm'),
         ];
 
+        $topGlobal = $buildTopPerformers($from);
+
         return view('admin.badges.top-performers', [
             'title' => 'Top 5 performers',
             'period' => $period,
+            'topGlobal' => $topGlobal,
             'topByFormation' => $topByFormation,
         ]);
     }

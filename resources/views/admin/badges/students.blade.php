@@ -34,18 +34,6 @@
         background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
 
-    .stat-action {
-        margin-left: auto;
-        display: flex;
-        align-items: center;
-    }
-
-    .stat-action .btn {
-        border-radius: 999px;
-        font-weight: 800;
-        padding: .45rem 1rem;
-    }
-
     /* Palettes demandées */
     .stat-card-actifs {
         background: linear-gradient(135deg, #1b3a7a 0%, #2a4f9c 100%);
@@ -315,27 +303,6 @@
         margin-top: .2rem;
     }
 
-    .top-performer-card {
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 14px;
-        padding: 12px;
-    }
-
-    .rank-badge {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        color: #fff;
-        background: rgba(79,195,247,0.25);
-        border: 1px solid rgba(79,195,247,0.35);
-        flex-shrink: 0;
-    }
-
     .student-card-body {
         position: relative;
         z-index: 2;
@@ -492,159 +459,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="row mb-4">
-            <div class="col-lg-6 mb-3">
-                <div class="stat-card stat-card-success">
-                    <div class="stat-icon"><i class="fas fa-trophy"></i></div>
-                    <div class="stat-content">
-                        <h3 class="stat-number" style="font-size:1.6rem;">Top 5 performers</h3>
-                        <p class="stat-label">Voir le classement des meilleurs étudiants</p>
-                    </div>
-                    <div class="stat-action">
-                        <a href="{{ route('admin.badges.students.top-performers') }}" class="btn btn-light btn-sm">Voir</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-6 mb-3">
-                <div class="stat-card stat-card-primary">
-                    <div class="stat-icon"><i class="fas fa-list"></i></div>
-                    <div class="stat-content">
-                        <h3 class="stat-number" style="font-size:1.6rem;">Liste des Étudiants</h3>
-                        <p class="stat-label">Accéder à la liste complète (vue dédiée)</p>
-                    </div>
-                    <div class="stat-action">
-                        <a href="{{ route('admin.badges.students.list') }}" class="btn btn-light btn-sm">Voir</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-4" style="background-color: #1e293b; border: 1px solid #334155;">
-            <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
-                <h5 class="mb-0 text-white"><i class="fas fa-trophy me-2"></i>Top 5 performers (Projets + TP validés)</h5>
-                <small class="text-white-50">Classement basé sur le volume validé sur la période</small>
-            </div>
-            <div class="card-body">
-                @php
-                    $formationSections = [
-                        'dg' => ['label' => 'Top 5 Design Graphique', 'icon' => 'fa-palette'],
-                        'cm' => ['label' => 'Top 5 Community Management', 'icon' => 'fa-users'],
-                        'dgcm' => ['label' => 'Top 5 Design + CM', 'icon' => 'fa-object-group'],
-                    ];
-                    $periodLabels = [
-                        'week' => 'Semaine',
-                        'month' => 'Mois',
-                        'quarter' => 'Trimestre',
-                        'year' => 'Année',
-                    ];
-                @endphp
-
-                <div class="row g-3">
-                    @foreach($formationSections as $formationKey => $formationMeta)
-                        @php
-                            $byPeriod = $topPerformersByFormation[$formationKey] ?? [];
-                        @endphp
-                        <div class="col-12">
-                            <div class="mb-2 d-flex align-items-center justify-content-between">
-                                <div class="text-white fw-bold" style="font-size:1.05rem;">
-                                    <i class="fas {{ $formationMeta['icon'] }} me-2"></i>{{ $formationMeta['label'] }}
-                                </div>
-                                <span class="badge bg-info">Top 5</span>
-                            </div>
-
-                            <div class="row g-3">
-                                @foreach($periodLabels as $periodKey => $periodLabel)
-                                    @php
-                                        $list = $byPeriod[$periodKey] ?? collect();
-                                    @endphp
-                                    <div class="col-12 col-lg-6">
-                                        <div class="top-performer-card">
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <strong class="text-white">{{ $periodLabel }}</strong>
-                                                <span class="badge bg-secondary">{{ $periodLabel }}</span>
-                                            </div>
-
-                                            @if($list->isEmpty())
-                                                <div class="text-white-50">Aucune donnée</div>
-                                            @else
-                                                <div class="d-flex flex-column gap-2">
-                                                    @foreach($list as $idx => $p)
-                                                        @php
-                                                            $pProgram = (string) ($p->program ?? '');
-                                                            $pSpecialization = (string) ($p->specialization ?? '');
-                                                            $pFormationLabel = trim($pProgram) !== '' ? $pProgram : (trim($pSpecialization) !== '' ? $pSpecialization : 'Formation EVC');
-                                                        @endphp
-                                                        <div class="d-flex align-items-center gap-2">
-                                                            <span class="rank-badge">{{ $idx + 1 }}</span>
-                                                            <div class="flex-grow-1" style="min-width:0;">
-                                                                <div class="text-white fw-semibold" style="line-height:1.15;">
-                                                                    {{ trim(($p->first_name ?? '').' '.($p->last_name ?? '')) }}
-                                                                </div>
-                                                                <div class="text-white-50" style="font-size:.85rem;">
-                                                                    {{ $p->student_id ?? '—' }}
-                                                                    @if(!empty($pFormationLabel))
-                                                                        • {{ $pFormationLabel }}
-                                                                    @endif
-                                                                </div>
-                                                            </div>
-                                                            <div class="text-end" style="min-width:70px;">
-                                                                <div class="text-white fw-bold">{{ (int) ($p->total_score ?? 0) }}</div>
-                                                                <div class="text-white-50" style="font-size:.75rem;">P:{{ (int) ($p->projects_validated ?? 0) }} TP:{{ (int) ($p->tp_validated ?? 0) }}</div>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        <div class="card mb-4" style="background-color: #1e293b; border: 1px solid #334155;">
-            <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
-                <h5 class="mb-0 text-white"><i class="fas fa-filter me-2"></i>Filtres & Tri</h5>
-            </div>
-            <div class="card-body">
-                <div class="row g-3 align-items-end">
-                    <div class="col-lg-5">
-                        <label class="form-label text-white-50">Rechercher</label>
-                        <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, ID, pays, formation..." />
-                    </div>
-                    <div class="col-lg-4">
-                        <label class="form-label text-white-50">Trier</label>
-                        <div class="d-flex gap-2">
-                            @php
-                                $sortValue = $sort ?? request('sort', 'date');
-                                $dirValue = $dir ?? request('dir', 'desc');
-                            @endphp
-                            <select id="sortSelect" class="form-select search-input">
-                                <option value="date" {{ $sortValue === 'date' ? 'selected' : '' }}>Date d'inscription</option>
-                                <option value="projects" {{ $sortValue === 'projects' ? 'selected' : '' }}>Nombre de projets</option>
-                            </select>
-                            <select id="dirSelect" class="form-select search-input" style="max-width:160px;">
-                                <option value="desc" {{ $dirValue === 'desc' ? 'selected' : '' }}>Décroissant</option>
-                                <option value="asc" {{ $dirValue === 'asc' ? 'selected' : '' }}>Croissant</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <label class="form-label text-white-50">Filtrer par formation</label>
-                        <div class="d-flex flex-wrap gap-2">
-                            <span class="chip active" data-filter="all">Tous</span>
-                            <span class="chip" data-filter="dg">DG</span>
-                            <span class="chip" data-filter="cm">CM</span>
-                            <span class="chip" data-filter="dgcm">DG+CM</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     @else
         <div class="card mb-4" style="background-color: #1e293b; border: 1px solid #334155;">
             <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
@@ -670,92 +484,69 @@
         </div>
     @endif
 
-    <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
-        <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
-            <h5 class="mb-0 text-white"><i class="fas fa-id-badge me-2"></i>Liste des Étudiants</h5>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-        @forelse($students as $student)
-            @php
-                $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
-                $initials = substr($student->first_name ?? 'U', 0, 1) . substr($student->last_name ?? 'U', 0, 1);
-                $progRaw = (string) ($student->program ?? '');
-                $specRaw = (string) ($student->specialization ?? '');
-                $formationLabel = trim($progRaw) !== '' ? $progRaw : (trim($specRaw) !== '' ? $specRaw : 'Formation EVC');
-                $prog = strtolower($progRaw);
-                $hasDesign = strpos($prog, 'design') !== false;
-                $hasCommunity = (strpos($prog, 'community') !== false) || (strpos($prog, 'manager') !== false) || (strpos($prog, 'management') !== false);
-                $theme = $hasDesign && $hasCommunity ? 'theme-dgcm' : ($hasCommunity ? 'theme-cm' : ($hasDesign ? 'theme-dg' : ''));
-                $filterKey = $hasDesign && $hasCommunity ? 'dgcm' : ($hasCommunity ? 'cm' : ($hasDesign ? 'dg' : 'other'));
-            @endphp
-            <div class="col-xl-4 col-lg-4 col-md-6">
-                <div class="student-card {{ $theme }}" data-student-card data-filter="{{ $filterKey }}" data-search="{{ strtolower(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->student_id ?? '') . ' ' . ($student->country ?? '') . ' ' . $progRaw) }}">
-                    <div class="student-card-watermark">EVC</div>
-                    <div class="student-card-header">
-                        <div class="evc-title-block">
-                            <div class="evc-card-title">
-                                ÉTUDIANT(E) EVC
-                                <small>CARTE DIGITALE OFFICIELLE</small>
+    @if($status === 'inactive')
+        <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+            <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                <h5 class="mb-0 text-white"><i class="fas fa-id-badge me-2"></i>Liste des Étudiants</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+            @forelse($students as $student)
+                @php
+                    $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
+                    $initials = substr($student->first_name ?? 'U', 0, 1) . substr($student->last_name ?? 'U', 0, 1);
+                    $progRaw = (string) ($student->program ?? '');
+                    $specRaw = (string) ($student->specialization ?? '');
+                    $formationLabel = trim($progRaw) !== '' ? $progRaw : (trim($specRaw) !== '' ? $specRaw : 'Formation EVC');
+                    $prog = strtolower($progRaw);
+                    $hasDesign = strpos($prog, 'design') !== false;
+                    $hasCommunity = (strpos($prog, 'community') !== false) || (strpos($prog, 'manager') !== false) || (strpos($prog, 'management') !== false);
+                    $theme = $hasDesign && $hasCommunity ? 'theme-dgcm' : ($hasCommunity ? 'theme-cm' : ($hasDesign ? 'theme-dg' : ''));
+                    $filterKey = $hasDesign && $hasCommunity ? 'dgcm' : ($hasCommunity ? 'cm' : ($hasDesign ? 'dg' : 'other'));
+                @endphp
+                <div class="col-xl-4 col-lg-4 col-md-6">
+                    <div class="student-card {{ $theme }}" data-student-card data-filter="{{ $filterKey }}" data-search="{{ strtolower(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->student_id ?? '') . ' ' . ($student->country ?? '') . ' ' . $progRaw) }}">
+                        <div class="student-card-watermark">EVC</div>
+                        <div class="student-card-header">
+                            <div class="evc-title-block">
+                                <div class="evc-card-title">
+                                    ÉTUDIANT(E) EVC
+                                    <small>CARTE DIGITALE OFFICIELLE</small>
+                                </div>
+                                <div class="evc-formation-pill">{{ $formationLabel }}</div>
                             </div>
-                            <div class="evc-formation-pill">{{ $formationLabel }}</div>
-                        </div>
 
-                        @if(!empty($student->profile_photo) && !empty($photoUrl))
-                            <img src="{{ $photoUrl }}" alt="{{ $student->first_name ?? 'Étudiant' }}" class="student-avatar" />
-                        @else
-                            <div class="student-avatar">{{ $initials }}</div>
-                        @endif
+                            @if(!empty($student->profile_photo) && !empty($photoUrl))
+                                <img src="{{ $photoUrl }}" alt="{{ $student->first_name ?? 'Étudiant' }}" class="student-avatar" />
+                            @else
+                                <div class="student-avatar">{{ $initials }}</div>
+                            @endif
 
-                        <div class="student-meta">
-                            <p class="student-name">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</p>
-                            <div class="evc-id">
-                                <i class="fas fa-id-card"></i>
-                                ID Étudiant: {{ $student->student_id ?? '—' }}
+                            <div class="student-meta">
+                                <p class="student-name">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</p>
+                                <div class="evc-id">
+                                    <i class="fas fa-id-card"></i>
+                                    ID Étudiant: {{ $student->student_id ?? '—' }}
+                                </div>
                             </div>
-                        </div>
 
-                        @if($status === 'inactive')
                             <div class="ms-auto">
                                 <span class="badge bg-danger">Expiré</span>
                             </div>
-                        @endif
-                    </div>
-
-                    <div class="student-card-body">
-                        <div class="meta-row">
-                            <div class="meta-pill">
-                                <strong>Pays</strong>
-                                <div>{{ $student->country ?? 'N/A' }}</div>
-                            </div>
-                            <div class="meta-pill">
-                                <strong>Formation</strong>
-                                <div>{{ $formationLabel }}</div>
-                            </div>
                         </div>
 
-                        @if($status === 'active')
+                        <div class="student-card-body">
                             <div class="meta-row">
                                 <div class="meta-pill">
-                                    <strong>Inscription</strong>
-                                    <div>
-                                        @if(!empty($student->registration_sort_date))
-                                            {{ \Carbon\Carbon::parse($student->registration_sort_date)->format('d/m/Y') }}
-                                        @elseif(!empty($student->created_at))
-                                            {{ \Carbon\Carbon::parse($student->created_at)->format('d/m/Y') }}
-                                        @else
-                                            -
-                                        @endif
-                                    </div>
+                                    <strong>Pays</strong>
+                                    <div>{{ $student->country ?? 'N/A' }}</div>
                                 </div>
                                 <div class="meta-pill">
-                                    <strong>Projets réalisés</strong>
-                                    <div>{{ (int) ($student->projects_count ?? 0) }}</div>
+                                    <strong>Formation</strong>
+                                    <div>{{ $formationLabel }}</div>
                                 </div>
                             </div>
-                        @endif
 
-                        @if($status === 'inactive')
                             @php
                                 $expiresAt = $student->expiration_date ?? ($student->computed_expiration_date ?? null);
                             @endphp
@@ -769,47 +560,30 @@
                                     @endif
                                 </div>
                             </div>
-                        @endif
 
-                        <div class="actions-row">
-                            <a href="{{ route('admin.students.profile', $student->id) }}" class="btn btn-sm btn-info">Voir</a>
-                            @if($status === 'active')
-                                @php
-                                    $exportPhoto = (!empty($student->profile_photo) && !empty($photoUrl)) ? $photoUrl : null;
-                                    $exportPayload = [
-                                        'id' => (int) ($student->id ?? 0),
-                                        'full_name' => trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')),
-                                        'student_id' => (string) ($student->student_id ?? ''),
-                                        'country' => (string) ($student->country ?? ''),
-                                        'program' => (string) ($student->program ?? ''),
-                                        'photo' => $exportPhoto,
-                                        'projects_count' => (int) ($student->projects_count ?? 0),
-                                        'registered_at' => (string) ($student->registration_sort_date ?? $student->created_at ?? ''),
-                                        'theme' => $filterKey,
-                                    ];
-                                @endphp
-                                <button type="button" class="btn btn-sm export-btn" data-export-card data-export='@json($exportPayload)'>Télécharger la carte</button>
-                            @endif
+                            <div class="actions-row">
+                                <a href="{{ route('admin.students.profile', $student->id) }}" class="btn btn-sm btn-info">Voir</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        @empty
-            <div class="col-12">
-                <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
-                    <div class="card-body text-center text-white-50 py-5">
-                        Aucun étudiant à afficher.
+            @empty
+                <div class="col-12">
+                    <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+                        <div class="card-body text-center text-white-50 py-5">
+                            Aucun étudiant à afficher.
+                        </div>
                     </div>
                 </div>
-            </div>
-        @endforelse
+            @endforelse
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="d-flex justify-content-center mt-4">
-        {{ $students->links('pagination::bootstrap-5') }}
-    </div>
+        <div class="d-flex justify-content-center mt-4">
+            {{ $students->links('pagination::bootstrap-5') }}
+        </div>
+    @endif
 </div>
 @endsection
 
@@ -848,20 +622,6 @@
 
         if (searchInput) {
             searchInput.addEventListener('input', applyFilters);
-        }
-
-        const sortSelect = document.getElementById('sortSelect');
-        const dirSelect = document.getElementById('dirSelect');
-        const applySort = () => {
-            if (!sortSelect || !dirSelect) return;
-            const url = new URL(window.location.href);
-            url.searchParams.set('sort', sortSelect.value);
-            url.searchParams.set('dir', dirSelect.value);
-            window.location.href = url.toString();
-        };
-        if (sortSelect && dirSelect) {
-            sortSelect.addEventListener('change', applySort);
-            dirSelect.addEventListener('change', applySort);
         }
 
         applyFilters();

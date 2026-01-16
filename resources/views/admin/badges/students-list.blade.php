@@ -15,6 +15,16 @@
         border-top-left-radius: 14px;
         border-top-right-radius: 14px;
     }
+
+    .search-input {
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #fff;
+    }
+
+    .search-input::placeholder {
+        color: rgba(255,255,255,0.55);
+    }
 </style>
 @endpush
 
@@ -40,6 +50,23 @@
             </div>
         </div>
         <div class="card-body">
+            <div class="row g-3 align-items-end mb-3">
+                <div class="col-lg-7">
+                    <label class="form-label text-white-50">Rechercher</label>
+                    <input id="studentSearch" type="text" class="form-control search-input" placeholder="Nom, ID, pays, formation..." />
+                </div>
+                <div class="col-lg-5">
+                    <label class="form-label text-white-50">Filtrer par formation</label>
+                    <select id="formationFilter" class="form-select search-input">
+                        <option value="all">Toutes</option>
+                        <option value="dg">Design Graphique</option>
+                        <option value="cm">Community Management</option>
+                        <option value="dgcm">Design + CM</option>
+                        <option value="other">Autres</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle mb-0">
                     <thead>
@@ -59,8 +86,23 @@
                                 $progRaw = (string) ($student->program ?? '');
                                 $specRaw = (string) ($student->specialization ?? '');
                                 $formationLabel = trim($progRaw) !== '' ? $progRaw : (trim($specRaw) !== '' ? $specRaw : 'Formation EVC');
+
+                                $prog = strtolower($progRaw);
+                                $hasDesign = strpos($prog, 'design') !== false;
+                                $hasCommunity = (strpos($prog, 'community') !== false) || (strpos($prog, 'manager') !== false) || (strpos($prog, 'management') !== false);
+                                $filterKey = $hasDesign && $hasCommunity ? 'dgcm' : ($hasCommunity ? 'cm' : ($hasDesign ? 'dg' : 'other'));
+
+                                $searchHaystack = strtolower(
+                                    trim(
+                                        ($student->first_name ?? '') . ' ' .
+                                        ($student->last_name ?? '') . ' ' .
+                                        ($student->student_id ?? '') . ' ' .
+                                        ($student->country ?? '') . ' ' .
+                                        $formationLabel
+                                    )
+                                );
                             @endphp
-                            <tr>
+                            <tr data-student-row data-filter="{{ $filterKey }}" data-search="{{ $searchHaystack }}">
                                 <td>{{ $students->firstItem() + $idx }}</td>
                                 <td class="fw-semibold">{{ $student->first_name ?? '' }} {{ $student->last_name ?? '' }}</td>
                                 <td>{{ $student->student_id ?? '—' }}</td>
@@ -93,3 +135,37 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const searchInput = document.getElementById('studentSearch');
+        const formationFilter = document.getElementById('formationFilter');
+        const rows = document.querySelectorAll('[data-student-row]');
+
+        if (!rows || rows.length === 0) return;
+
+        const applyFilters = () => {
+            const q = (searchInput && searchInput.value ? searchInput.value : '').toLowerCase().trim();
+            const f = (formationFilter && formationFilter.value) ? formationFilter.value : 'all';
+
+            rows.forEach((row) => {
+                const key = row.getAttribute('data-filter') || 'other';
+                const hay = row.getAttribute('data-search') || '';
+                const matchFilter = (f === 'all') || (key === f);
+                const matchText = !q || hay.indexOf(q) !== -1;
+                row.style.display = (matchFilter && matchText) ? '' : 'none';
+            });
+        };
+
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFilters);
+        }
+        if (formationFilter) {
+            formationFilter.addEventListener('change', applyFilters);
+        }
+
+        applyFilters();
+    })();
+</script>
+@endpush
