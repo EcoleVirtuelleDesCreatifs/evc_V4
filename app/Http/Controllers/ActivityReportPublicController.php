@@ -15,7 +15,7 @@ class ActivityReportPublicController extends Controller
             ->where('is_published', true)
             ->orderByDesc('year')
             ->orderByDesc('published_at')
-            ->get();
+            ->paginate(12);
 
         return view('activity_reports.index', compact('reports'));
     }
