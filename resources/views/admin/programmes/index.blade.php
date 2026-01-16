@@ -210,6 +210,34 @@
         overflow: hidden;
     }
 
+    .programme-accordion.theme-dg { border-left: 6px solid #4fc3f7; }
+    .programme-accordion.theme-cm { border-left: 6px solid #e1306c; }
+    .programme-accordion.theme-dgcm { border-left: 6px solid #f59e0b; }
+    .programme-accordion.theme-gi { border-left: 6px solid #ff9800; }
+    .programme-accordion.theme-ia { border-left: 6px solid #26c6da; }
+    .programme-accordion.theme-all { border-left: 6px solid #9c27b0; }
+
+    .formation-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        padding: .35rem .7rem;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: .85rem;
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.14);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        white-space: nowrap;
+    }
+
+    .formation-chip.dg { background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); }
+    .formation-chip.cm { background: linear-gradient(135deg, #833AB4 0%, #E1306C 60%, #F56040 100%); }
+    .formation-chip.dgcm { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .formation-chip.gi { background: linear-gradient(135deg, #ff9800 0%, #ff6f00 100%); }
+    .formation-chip.ia { background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%); }
+    .formation-chip.all { background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); }
+
     .programme-accordion-header {
         padding: 1rem 1.25rem;
         display: flex;
@@ -482,10 +510,41 @@
 
         <div id="programmesContainer">
             @foreach($programmesByFormation as $formationGroup => $formationProgrammes)
+                @php
+                    $fg = (string) ($formationGroup ?? '');
+                    $fgLower = strtolower($fg);
+                    $formationKey = 'all';
+                    if (str_contains($fgLower, 'design') && (str_contains($fgLower, 'community') || str_contains($fgLower, 'manager'))) {
+                        $formationKey = 'dgcm';
+                    } elseif (str_contains($fgLower, 'design')) {
+                        $formationKey = 'dg';
+                    } elseif (str_contains($fgLower, 'community')) {
+                        $formationKey = 'cm';
+                    } elseif (str_contains($fgLower, 'informatique')) {
+                        $formationKey = 'gi';
+                    } elseif (str_contains($fgLower, 'intelligence')) {
+                        $formationKey = 'ia';
+                    } elseif ($fgLower === 'toutes' || $fgLower === 'tous' || $fgLower === 'toutes les formations' || $fgLower === 'toute') {
+                        $formationKey = 'all';
+                    }
+
+                    $formationIcons = [
+                        'dg' => 'fa-palette',
+                        'cm' => 'fa-bullhorn',
+                        'dgcm' => 'fa-object-group',
+                        'gi' => 'fa-laptop-code',
+                        'ia' => 'fa-brain',
+                        'all' => 'fa-layer-group',
+                    ];
+                    $fgIcon = $formationIcons[$formationKey] ?? 'fa-graduation-cap';
+                    $sectionLabel = $fg !== '' ? $fg : 'Formation';
+                @endphp
+
                 <div class="mb-4" data-formation-section data-formation="{{ $formationGroup }}">
                     <div class="d-flex align-items-center justify-content-between mb-2" style="padding: 0 .25rem;">
-                        <div class="text-white" style="font-weight: 900; font-size: 1.05rem;">
-                            <i class="fas fa-graduation-cap me-2"></i>{{ $formationGroup !== '' ? $formationGroup : 'Formation' }}
+                        <div class="formation-chip {{ $formationKey }}">
+                            <i class="fas {{ $fgIcon }}"></i>
+                            {{ $sectionLabel }}
                         </div>
                         <span class="badge bg-secondary">{{ $formationProgrammes->count() }}</span>
                     </div>
@@ -495,6 +554,11 @@
                     $formation = $programme->formation ?? '';
                     $monthStart = $programme->month_start ?? '';
                     $items = $programme->items ?? collect();
+                    $formationClass = $formationKey === 'dg' ? 'theme-dg'
+                        : ($formationKey === 'cm' ? 'theme-cm'
+                            : ($formationKey === 'dgcm' ? 'theme-dgcm'
+                                : ($formationKey === 'gi' ? 'theme-gi'
+                                    : ($formationKey === 'ia' ? 'theme-ia' : 'theme-all'))));
                     $searchText = strtolower(
                         ($programme->titre ?? '') . ' ' .
                         ($programme->description ?? '') . ' ' .
@@ -506,7 +570,7 @@
                 @endphp
 
                 <div class="col-12 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
-                    <div class="programme-accordion">
+                    <div class="programme-accordion {{ $formationClass }}">
                         <div class="programme-accordion-header">
                             <div style="min-width: 260px;">
                                 <div style="color:#e2e8f0; font-weight:800; font-size:1.05rem;">
