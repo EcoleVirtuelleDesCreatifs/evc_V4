@@ -65,7 +65,7 @@
 @if($isDgCm)
     <div class="row g-3 mb-4" id="programmeFormationCards">
         <div class="col-12 col-md-4">
-            <div class="programme-card instagram-card" role="button" data-programme-filter="dg" style="cursor:pointer;">
+            <div class="programme-card instagram-card programme-formation-card programme-formation-card-dg" role="button" data-programme-filter="dg" style="cursor:pointer;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-white-50" style="font-weight:700;">Formation</div>
@@ -82,7 +82,7 @@
         </div>
 
         <div class="col-12 col-md-4">
-            <div class="programme-card instagram-card" role="button" data-programme-filter="cm" style="cursor:pointer;">
+            <div class="programme-card instagram-card programme-formation-card programme-formation-card-cm" role="button" data-programme-filter="cm" style="cursor:pointer;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-white-50" style="font-weight:700;">Formation</div>
@@ -99,7 +99,7 @@
         </div>
 
         <div class="col-12 col-md-4">
-            <div class="programme-card instagram-card" role="button" data-programme-filter="current" style="cursor:pointer;">
+            <div class="programme-card instagram-card programme-formation-card programme-formation-card-current" role="button" data-programme-filter="current" style="cursor:pointer;">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
                         <div class="text-white-50" style="font-weight:700;">Formations en cours</div>
@@ -518,17 +518,17 @@
 
 @push('styles')
 <style>
-/* Palette Instagram */
+/* Palette (blue) */
 :root {
-    --instagram-purple: #833AB4;
-    --instagram-pink: #FD1D1D;
-    --instagram-red: #E1306C;
-    --instagram-orange: #F77737;
-    --instagram-yellow: #FCAF45;
-    --instagram-blue: #405DE6;
-    --instagram-bg: #0b1220;
-    --instagram-card: rgba(255, 255, 255, 0.86);
-    --instagram-glass: rgba(255, 255, 255, 0.12);
+    --evc-blue-950: #0b1220;
+    --evc-blue-900: #0b1f44;
+    --evc-blue-700: #1d4ed8;
+    --evc-blue-600: #2563eb;
+    --evc-blue-500: #3b82f6;
+    --evc-blue-200: #bfdbfe;
+    --evc-blue-100: #dbeafe;
+    --evc-surface: rgba(255, 255, 255, 0.95);
+    --evc-surface-soft: rgba(255, 255, 255, 0.86);
 }
 
 /* Fond (isolé à cette page) */
@@ -537,11 +537,10 @@
     inset: 0;
     z-index: -1;
     background:
-        radial-gradient(1200px 800px at 15% 10%, rgba(64, 93, 230, 0.42), transparent 60%),
-        radial-gradient(900px 700px at 80% 0%, rgba(225, 48, 108, 0.36), transparent 55%),
-        radial-gradient(900px 700px at 90% 85%, rgba(252, 175, 69, 0.30), transparent 55%),
-        linear-gradient(135deg, rgba(64, 93, 230, 0.16), rgba(225, 48, 108, 0.14), rgba(252, 175, 69, 0.12)),
-        var(--instagram-bg);
+        radial-gradient(1200px 800px at 15% 10%, rgba(37, 99, 235, 0.30), transparent 60%),
+        radial-gradient(900px 700px at 85% 0%, rgba(59, 130, 246, 0.20), transparent 60%),
+        linear-gradient(135deg, rgba(37, 99, 235, 0.10), rgba(59, 130, 246, 0.06)),
+        var(--evc-blue-950);
 }
 
 /* IMPORTANT: le layout met un fond opaque sur .content-wrapper, on le rend transparent uniquement pour cette page */
@@ -572,14 +571,30 @@
 
 /* Header avec dégradé Instagram */
 .instagram-header {
-    background: linear-gradient(135deg, var(--instagram-blue), var(--instagram-purple), var(--instagram-red), var(--instagram-orange));
+    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
     border-radius: 20px;
     color: white;
-    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 14px 40px rgba(2, 6, 23, 0.45);
     animation: fadeInDown 0.6s ease;
     margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
+}
+
+.programme-formation-card {
+    color: #fff;
+}
+
+.programme-formation-card-dg {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(29, 78, 216, 0.90));
+}
+
+.programme-formation-card-cm {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.92), rgba(29, 78, 216, 0.86));
+}
+
+.programme-formation-card-current {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.88), rgba(29, 78, 216, 0.82));
 }
 
 /* Bordure dégradée Instagram */
@@ -589,12 +604,12 @@
     inset: 0;
     padding: 2px;
     border-radius: 20px;
-    background: linear-gradient(135deg, var(--instagram-blue), var(--instagram-purple), var(--instagram-red), var(--instagram-orange), var(--instagram-yellow));
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.75), rgba(59, 130, 246, 0.45));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
-    opacity: 0.55;
+    opacity: 0.65;
 }
 
 .instagram-header::before {
@@ -630,21 +645,17 @@
     align-items: center;
     justify-content: center;
     font-size: 3.5rem;
-    color: var(--instagram-pink);
+    color: var(--evc-blue-600);
     margin: 0 auto;
 }
 
 /* Carte de programme avec style Instagram */
 .programme-card {
-    background: linear-gradient(135deg,
-        rgba(64, 93, 230, 0.10),
-        rgba(225, 48, 108, 0.10),
-        rgba(252, 175, 69, 0.08)
-    ), var(--instagram-card);
+    background: var(--evc-surface);
     border-radius: 20px;
     padding: 2rem;
-    border: 2px solid transparent;
-    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(37, 99, 235, 0.22);
+    box-shadow: 0 10px 26px rgba(2, 6, 23, 0.18);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
     display: flex;
@@ -658,16 +669,15 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(700px 280px at 10% 0%, rgba(64, 93, 230, 0.12), transparent 55%),
-                radial-gradient(640px 260px at 100% 0%, rgba(225, 48, 108, 0.14), transparent 55%),
-                radial-gradient(640px 260px at 100% 100%, rgba(252, 175, 69, 0.10), transparent 55%);
+    background: radial-gradient(720px 300px at 0% 0%, rgba(37, 99, 235, 0.12), transparent 55%),
+                radial-gradient(640px 260px at 100% 0%, rgba(59, 130, 246, 0.10), transparent 55%);
     pointer-events: none;
 }
 
 .programme-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
-    border-color: rgba(225, 48, 108, 0.8);
+    box-shadow: 0 18px 48px rgba(2, 6, 23, 0.22);
+    border-color: rgba(37, 99, 235, 0.45);
 }
 
 .programme-card:hover::after {
@@ -683,14 +693,14 @@
 .pdf-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, var(--instagram-pink), var(--instagram-red));
+    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
     color: white;
-    box-shadow: 0 8px 24px rgba(42, 82, 152, 0.25);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
     transition: all 0.3s ease;
 }
 
@@ -746,21 +756,21 @@
 }
 
 .badge-soft {
-    background: linear-gradient(135deg, rgba(64, 93, 230, 0.12), rgba(225, 48, 108, 0.10), rgba(252, 175, 69, 0.10));
-    color: #0f172a;
-    border: 1px solid rgba(15, 23, 42, 0.10);
+    background: rgba(37, 99, 235, 0.10);
+    color: #0b1f44;
+    border: 1px solid rgba(37, 99, 235, 0.18);
     padding: 0.45rem 0.7rem;
     border-radius: 999px;
     font-weight: 600;
 }
 
 .badge-soft i {
-    color: rgba(15, 23, 42, 0.75);
+    color: rgba(11, 31, 68, 0.75);
 }
 
 /* Bouton Instagram */
 .instagram-btn {
-    background: linear-gradient(135deg, var(--instagram-blue), var(--instagram-red), var(--instagram-orange));
+    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
     color: white;
     border: none;
     border-radius: 30px;
@@ -782,7 +792,7 @@
 }
 
 .instagram-btn:hover {
-    background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-red), var(--instagram-yellow));
+    background: linear-gradient(135deg, var(--evc-blue-600), var(--evc-blue-500));
     transform: translateY(-2px);
     box-shadow: 0 20px 55px rgba(0, 0, 0, 0.35);
     color: white;
@@ -790,15 +800,11 @@
 
 /* État vide */
 .empty-state {
-    background: linear-gradient(135deg,
-        rgba(64, 93, 230, 0.10),
-        rgba(225, 48, 108, 0.10),
-        rgba(252, 175, 69, 0.08)
-    ), rgba(255,255,255,0.88);
+    background: rgba(255,255,255,0.92);
     border-radius: 20px;
     padding: 4rem 2rem;
-    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.20);
-    border: 1px solid rgba(255,255,255,0.35);
+    box-shadow: 0 10px 26px rgba(2, 6, 23, 0.16);
+    border: 1px solid rgba(37, 99, 235, 0.16);
 }
 
 /* Sessions */
@@ -808,12 +814,8 @@
 }
 
 .session-row {
-    background: linear-gradient(135deg,
-        rgba(64, 93, 230, 0.09),
-        rgba(225, 48, 108, 0.08),
-        rgba(252, 175, 69, 0.06)
-    ), rgba(255, 255, 255, 0.88);
-    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(37, 99, 235, 0.14);
     border-radius: 16px;
     padding: 0.9rem 1rem;
     display: grid;
@@ -824,16 +826,16 @@
 }
 
 .session-row[data-status="current"] {
-    border: 2px solid rgba(225, 48, 108, 0.55);
-    box-shadow: 0 18px 55px rgba(225, 48, 108, 0.18);
+    border: 2px solid rgba(37, 99, 235, 0.45);
+    box-shadow: 0 14px 35px rgba(37, 99, 235, 0.16);
 }
 
 .sessions-focus {
     border-radius: 20px;
     padding: 1rem;
-    background: linear-gradient(135deg, rgba(64, 93, 230, 0.16), rgba(225, 48, 108, 0.14), rgba(252, 175, 69, 0.12));
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
+    background: rgba(37, 99, 235, 0.16);
+    border: 1px solid rgba(37, 99, 235, 0.20);
+    box-shadow: 0 18px 55px rgba(2, 6, 23, 0.28);
 }
 
 .sessions-focus-header {
@@ -861,18 +863,14 @@
 }
 
 .session-row-focus {
-    background: linear-gradient(135deg,
-        rgba(225, 48, 108, 0.16),
-        rgba(252, 175, 69, 0.12),
-        rgba(64, 93, 230, 0.12)
-    ), rgba(255, 255, 255, 0.93);
-    border: 2px solid rgba(225, 48, 108, 0.75);
-    box-shadow: 0 22px 70px rgba(225, 48, 108, 0.20);
+    background: rgba(255, 255, 255, 0.96);
+    border: 2px solid rgba(37, 99, 235, 0.55);
+    box-shadow: 0 18px 55px rgba(37, 99, 235, 0.16);
 }
 
 .session-row[data-status="soon"] {
-    border: 2px solid rgba(64, 93, 230, 0.35);
-    box-shadow: 0 18px 55px rgba(64, 93, 230, 0.14);
+    border: 2px solid rgba(37, 99, 235, 0.28);
+    box-shadow: 0 14px 35px rgba(37, 99, 235, 0.12);
 }
 
 .session-row[data-status="past"] {
@@ -892,7 +890,7 @@
     align-items: center;
     justify-content: center;
     color: white;
-    background: linear-gradient(135deg, var(--instagram-blue), var(--instagram-red), var(--instagram-orange));
+    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
     box-shadow: 0 12px 30px rgba(0,0,0,0.18);
 }
 
@@ -925,14 +923,14 @@
 
 .session-status-current {
     color: #fff;
-    background: linear-gradient(135deg, var(--instagram-red), var(--instagram-orange));
-    box-shadow: 0 14px 35px rgba(225, 48, 108, 0.22);
+    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
+    box-shadow: 0 14px 35px rgba(37, 99, 235, 0.18);
 }
 
 .session-status-soon {
     color: #fff;
-    background: linear-gradient(135deg, var(--instagram-blue), var(--instagram-purple));
-    box-shadow: 0 14px 35px rgba(64, 93, 230, 0.20);
+    background: rgba(37, 99, 235, 0.85);
+    box-shadow: 0 14px 35px rgba(37, 99, 235, 0.16);
 }
 
 .session-status-past {
@@ -946,17 +944,17 @@
     padding: 0.45rem 0.7rem;
     font-weight: 900;
     letter-spacing: 0.02em;
-    border: 1px solid rgba(15, 23, 42, 0.10);
+    border: 1px solid rgba(37, 99, 235, 0.16);
 }
 
 .session-type-badge.type-enligne {
-    color: #0f172a;
-    background: linear-gradient(135deg, rgba(64, 93, 230, 0.16), rgba(225, 48, 108, 0.10));
+    color: #0b1f44;
+    background: rgba(37, 99, 235, 0.10);
 }
 
 .session-type-badge.type-presentielle {
-    color: #0f172a;
-    background: linear-gradient(135deg, rgba(252, 175, 69, 0.18), rgba(225, 48, 108, 0.10));
+    color: #0b1f44;
+    background: rgba(37, 99, 235, 0.10);
 }
 
 .session-meta {
@@ -992,11 +990,11 @@
 }
 
 .session-when {
-    background: linear-gradient(135deg, rgba(64, 93, 230, 0.14), rgba(225, 48, 108, 0.10));
+    background: rgba(37, 99, 235, 0.10);
 }
 
 .session-where {
-    background: linear-gradient(135deg, rgba(252, 175, 69, 0.16), rgba(225, 48, 108, 0.08));
+    background: rgba(37, 99, 235, 0.10);
 }
 
 .session-dot {
@@ -1010,7 +1008,7 @@
 }
 
 .session-actions .btn-primary {
-    background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-red), var(--instagram-orange));
+    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
     border: none;
     box-shadow: 0 14px 35px rgba(0,0,0,0.20);
 }
