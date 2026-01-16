@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ActivityReport;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -36,7 +37,13 @@ class ActivityReportPublicController extends Controller
             abort(404);
         }
 
-        $activityReport->increment('download_count');
+        try {
+            if (Schema::hasColumn('activity_reports', 'download_count')) {
+                $activityReport->increment('download_count');
+            }
+        } catch (\Throwable $e) {
+            // Ne pas bloquer le téléchargement si la colonne n'existe pas encore en production.
+        }
 
         return response()->download(
             Storage::disk('public')->path($path),
