@@ -156,7 +156,30 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => (function () {
+        $domain = env('SESSION_DOMAIN');
+        if (!empty($domain)) {
+            return $domain;
+        }
+
+        if (!app()->environment('production')) {
+            return null;
+        }
+
+        $appUrl = (string) env('APP_URL', '');
+        $host = parse_url($appUrl, PHP_URL_HOST);
+        if (!is_string($host) || $host === '') {
+            return null;
+        }
+
+        $host = preg_replace('/^www\./i', '', $host);
+
+        if ($host === 'localhost' || filter_var($host, FILTER_VALIDATE_IP)) {
+            return null;
+        }
+
+        return '.' . $host;
+    })(),
 
     /*
     |--------------------------------------------------------------------------
@@ -169,7 +192,20 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
+    'secure' => (function () {
+        $secure = env('SESSION_SECURE_COOKIE');
+        if ($secure !== null) {
+            return (bool) $secure;
+        }
+
+        if (app()->environment('production')) {
+            $appUrl = (string) env('APP_URL', '');
+            $scheme = parse_url($appUrl, PHP_URL_SCHEME);
+            return $scheme === 'https';
+        }
+
+        return false;
+    })(),
 
     /*
     |--------------------------------------------------------------------------
