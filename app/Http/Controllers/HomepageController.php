@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use App\Mail\PreRegistrationSubmitted;
 use App\Mail\AdminPreRegistrationNotification;
 use App\Http\Requests\StoreCandidatureRequest;
@@ -379,6 +381,43 @@ class HomepageController extends Controller
     public function formations()
     {
         return view('formations');
+    }
+
+    public function plaquettesFormations()
+    {
+        $relativeDir = 'assets/plaquettes';
+        $dir = public_path($relativeDir);
+
+        $plaquettes = [];
+        if (is_dir($dir)) {
+            $files = File::glob($dir . '/*.pdf') ?: [];
+            sort($files);
+
+            foreach ($files as $path) {
+                $base = basename($path);
+                $name = pathinfo($base, PATHINFO_FILENAME);
+
+                $sizeLabel = '';
+                try {
+                    $bytes = (int) File::size($path);
+                    if ($bytes > 0) {
+                        $sizeLabel = number_format($bytes / 1024 / 1024, 1, ',', ' ') . ' Mo';
+                    }
+                } catch (\Throwable $e) {
+                    $sizeLabel = '';
+                }
+
+                $plaquettes[] = [
+                    'title' => Str::of($name)->replace(['_', '-'], ' ')->title()->toString(),
+                    'url' => asset($relativeDir . '/' . $base),
+                    'size_label' => $sizeLabel,
+                ];
+            }
+        }
+
+        return view('plaquettes-formations', [
+            'plaquettes' => $plaquettes,
+        ]);
     }
 
     /**

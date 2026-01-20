@@ -79,6 +79,7 @@ Route::post('/webtv/unsubscribe', [App\Http\Controllers\WebtvSubscriptionControl
 
 Route::get('/presentation', [HomepageController::class, 'presentation'])->name('presentation');
 Route::get('/formations', [HomepageController::class, 'formations'])->name('formations');
+Route::get('/plaquettes-formations', [HomepageController::class, 'plaquettesFormations'])->name('plaquettes.formations');
 Route::get('/travaux-etudiants', [HomepageController::class, 'travaux'])->name('travaux');
 Route::get('/laureats', [HomepageController::class, 'laureats'])->name('laureats');
 Route::get('/jury', [HomepageController::class, 'jury'])->name('jury');
