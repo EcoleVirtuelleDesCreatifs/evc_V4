@@ -28,6 +28,8 @@ body {
     left: 0;
     height: 100vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     z-index: 1000;
     transition: transform 0.3s ease;
 }
@@ -359,6 +361,8 @@ body.sidebar-open {
     .admin-sidebar {
         transform: translateX(-100%);
         max-width: 85vw;
+        padding-top: calc(1.25rem + env(safe-area-inset-top));
+        padding-bottom: calc(1.25rem + env(safe-area-inset-bottom));
         will-change: transform;
     }
 
