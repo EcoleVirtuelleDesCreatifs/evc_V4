@@ -76,45 +76,132 @@ class PaymentReceiptGenerator
             $studentEmail = (string) ($data['student_email'] ?? '');
             $formation = (string) ($data['formation'] ?? '');
             $paymentReference = (string) ($data['payment_reference'] ?? '');
+            $studentId = (string) ($data['student_id'] ?? '');
+            $registrationDate = (string) ($data['registration_date'] ?? '');
 
             $totalAmount = $this->money($data['total_amount'] ?? 0);
             $amountPaid = $this->money($data['amount_paid'] ?? 0);
             $remaining = $this->money($data['remaining'] ?? 0);
 
-            $pdf->SetFont('Helvetica', 'B', 12);
-            $pdf->SetXY(140, 28);
+            $pageW = (float) ($size['width'] ?? 210);
+
+            // En-tête: N° reçu + date établissement
+            $pdf->SetFont('Helvetica', 'B', 11);
+            $pdf->SetXY($pageW - 70, 28);
             $pdf->Cell(60, 6, $this->toLatin($receiptNumber), 0, 0, 'R');
 
-            $pdf->SetFont('Helvetica', '', 10);
-            $pdf->SetXY(140, 35);
+            $pdf->SetFont('Helvetica', '', 9);
+            $pdf->SetXY($pageW - 70, 35);
             $pdf->Cell(60, 6, $this->toLatin($issuedAt), 0, 0, 'R');
 
-            $pdf->SetFont('Helvetica', 'B', 11);
-            $pdf->SetXY(18, 55);
-            $pdf->Cell(120, 6, $this->toLatin($studentName), 0, 1, 'L');
+            // Titre principal (≈35px)
+            $pdf->SetFont('Helvetica', 'B', 26);
+            $pdf->SetXY(0, 46);
+            $pdf->Cell($pageW, 12, $this->toLatin("RECU D'INSCRIPTION"), 0, 0, 'C');
 
+            // Sous-titre / promesse (persuasif)
             $pdf->SetFont('Helvetica', '', 10);
-            $pdf->SetX(18);
-            $pdf->Cell(120, 6, $this->toLatin($studentEmail), 0, 1, 'L');
-            $pdf->SetX(18);
-            $pdf->Cell(120, 6, $this->toLatin($formation), 0, 1, 'L');
+            $pdf->SetTextColor(80, 80, 80);
+            $pdf->SetXY(0, 58);
+            $pdf->Cell($pageW, 6, $this->toLatin("Merci pour votre confiance. Ce document confirme votre inscription."), 0, 0, 'C');
+            $pdf->SetTextColor(0, 0, 0);
 
-            if ($paymentReference !== '') {
-                $pdf->SetX(18);
-                $pdf->Cell(120, 6, $this->toLatin($paymentReference), 0, 1, 'L');
+            // Bloc informations (structure comptable)
+            $boxX = 15;
+            $boxY = 68;
+            $boxW = $pageW - 30;
+            $lineH = 6.2;
+
+            $pdf->SetDrawColor(200, 200, 200);
+            $pdf->SetLineWidth(0.2);
+            $pdf->SetFillColor(255, 255, 255);
+            $pdf->Rect($boxX, $boxY, $boxW, 44, 'D');
+
+            $leftX = $boxX + 4;
+            $rightX = $boxX + ($boxW / 2) + 2;
+            $y = $boxY + 4;
+
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($leftX, $y);
+            $pdf->Cell(45, $lineH, $this->toLatin('Nom'), 0, 0, 'L');
+            $pdf->SetFont('Helvetica', '', 10);
+            $pdf->SetXY($leftX + 24, $y);
+            $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($studentName), 0, 0, 'L');
+
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($rightX, $y);
+            $pdf->Cell(45, $lineH, $this->toLatin('Formation'), 0, 0, 'L');
+            $pdf->SetFont('Helvetica', '', 10);
+            $pdf->SetXY($rightX + 28, $y);
+            $pdf->Cell(($boxW / 2) - 32, $lineH, $this->toLatin($formation), 0, 0, 'L');
+
+            $y += $lineH;
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($leftX, $y);
+            $pdf->Cell(45, $lineH, $this->toLatin('ID étudiant'), 0, 0, 'L');
+            $pdf->SetFont('Helvetica', '', 10);
+            $pdf->SetXY($leftX + 24, $y);
+            $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($studentId !== '' ? $studentId : '—'), 0, 0, 'L');
+
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($rightX, $y);
+            $pdf->Cell(45, $lineH, $this->toLatin('Référence'), 0, 0, 'L');
+            $pdf->SetFont('Helvetica', '', 10);
+            $pdf->SetXY($rightX + 28, $y);
+            $pdf->Cell(($boxW / 2) - 32, $lineH, $this->toLatin($paymentReference !== '' ? $paymentReference : '—'), 0, 0, 'L');
+
+            $y += $lineH;
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($leftX, $y);
+            $pdf->Cell(45, $lineH, $this->toLatin("Date d'inscription"), 0, 0, 'L');
+            $pdf->SetFont('Helvetica', '', 10);
+            $pdf->SetXY($leftX + 24, $y);
+            $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($registrationDate !== '' ? $registrationDate : '—'), 0, 0, 'L');
+
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($rightX, $y);
+            $pdf->Cell(45, $lineH, $this->toLatin("Date d'établissement"), 0, 0, 'L');
+            $pdf->SetFont('Helvetica', '', 10);
+            $pdf->SetXY($rightX + 28, $y);
+            $pdf->Cell(($boxW / 2) - 32, $lineH, $this->toLatin($issuedAt), 0, 0, 'L');
+
+            $y += $lineH;
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($leftX, $y);
+            $pdf->Cell(45, $lineH, $this->toLatin('Coût formation'), 0, 0, 'L');
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($leftX + 24, $y);
+            $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($totalAmount), 0, 0, 'L');
+
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($rightX, $y);
+            $pdf->Cell(45, $lineH, $this->toLatin('Montant payé'), 0, 0, 'L');
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($rightX + 28, $y);
+            $pdf->Cell(($boxW / 2) - 32, $lineH, $this->toLatin($amountPaid), 0, 0, 'L');
+
+            $y += $lineH;
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($leftX, $y);
+            $pdf->Cell(45, $lineH, $this->toLatin('Reste à solder'), 0, 0, 'L');
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY($leftX + 24, $y);
+            $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($remaining), 0, 0, 'L');
+
+            // Optionnel: email (si on veut)
+            if ($studentEmail !== '') {
+                $pdf->SetFont('Helvetica', '', 9);
+                $pdf->SetTextColor(80, 80, 80);
+                $pdf->SetXY($rightX, $y);
+                $pdf->Cell(45, $lineH, $this->toLatin('Email'), 0, 0, 'L');
+                $pdf->SetXY($rightX + 28, $y);
+                $pdf->Cell(($boxW / 2) - 32, $lineH, $this->toLatin($studentEmail), 0, 0, 'L');
+                $pdf->SetTextColor(0, 0, 0);
             }
-
-            $pdf->SetFont('Helvetica', 'B', 11);
-            $pdf->SetXY(18, 86);
-            $pdf->Cell(60, 6, $this->toLatin($totalAmount), 0, 0, 'L');
-            $pdf->SetXY(80, 86);
-            $pdf->Cell(60, 6, $this->toLatin($amountPaid), 0, 0, 'L');
-            $pdf->SetXY(142, 86);
-            $pdf->Cell(60, 6, $this->toLatin($remaining), 0, 0, 'L');
 
             $payments = (array) ($data['payments'] ?? []);
             $tableX = 15;
-            $tableY = 112;
+            $tableY = 118;
             $rowH = 7;
             $maxRows = 10;
 
@@ -191,7 +278,7 @@ class PaymentReceiptGenerator
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->SetTextColor(90, 90, 90);
             $pdf->SetXY(15, min($totalsY + 26, 265));
-            $pdf->MultiCell(185, 4.5, $this->toLatin("Reçu généré automatiquement par l'EVC. Conservez ce document comme justificatif de paiement."));
+            $pdf->MultiCell(185, 4.5, $this->toLatin("Ce reçu est un document ORIGINAL. Pour toute vérification, veuillez contacter l'administration EVC avec la référence ci-dessus."));
             $pdf->SetTextColor(0, 0, 0);
         } else {
             $pdf->AddPage('P', 'A4');

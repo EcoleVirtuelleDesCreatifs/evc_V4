@@ -5096,6 +5096,29 @@ class AdminDashboardController extends Controller
             $studentName = trim((($student->first_name ?? null) ?: ($preReg->prenom ?? '')) . ' ' . (($student->last_name ?? null) ?: ($preReg->nom ?? '')));
             $studentEmail = ($student->user_email ?? null) ?: (($student->email ?? null) ?: $preReg->email);
 
+            $studentIdLabel = '';
+            if (!empty($student->student_id)) {
+                $studentIdLabel = (string) $student->student_id;
+            } elseif (!empty($student->id)) {
+                $studentIdLabel = (string) $student->id;
+            }
+
+            $registrationDate = '';
+            if (!empty($student->created_at)) {
+                try {
+                    $registrationDate = \Carbon\Carbon::parse($student->created_at)->format('d/m/Y');
+                } catch (\Throwable $e) {
+                    $registrationDate = '';
+                }
+            }
+            if ($registrationDate === '' && !empty($preReg->created_at)) {
+                try {
+                    $registrationDate = \Carbon\Carbon::parse($preReg->created_at)->format('d/m/Y');
+                } catch (\Throwable $e) {
+                    $registrationDate = '';
+                }
+            }
+
             $receiptNumber = 'EVC-RC-' . str_pad((string) $preRegistrationId, 6, '0', STR_PAD_LEFT) . '-' . now()->format('Ymd');
 
             $paymentsForPdf = $payments->map(function ($p) {
@@ -5146,6 +5169,8 @@ class AdminDashboardController extends Controller
                 'student_name' => $studentName,
                 'student_email' => $studentEmail,
                 'formation' => $formationLabel,
+                'student_id' => $studentIdLabel,
+                'registration_date' => $registrationDate,
                 'payment_reference' => $primaryRef,
                 'total_amount' => $totalAmount,
                 'amount_paid' => $amountPaid,
