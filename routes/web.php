@@ -753,6 +753,10 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
 
+        Route::get('/plaquettes', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'index'])->name('plaquettes.index');
+        Route::post('/plaquettes', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'store'])->name('plaquettes.store');
+        Route::delete('/plaquettes/{filename}', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'destroy'])->where('filename', '.*')->name('plaquettes.delete');
+
         Route::get('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'index'])->name('assistant.tasks.index');
         Route::post('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'store'])->name('assistant.tasks.store');
         Route::get('/payroll/task-history', [App\Http\Controllers\Admin\AdminTaskHistoryController::class, 'index'])->name('payroll.task-history.index');
