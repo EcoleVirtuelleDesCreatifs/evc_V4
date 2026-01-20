@@ -32,12 +32,9 @@ class PaymentReceiptGenerator
 
     private function templatePath(): ?string
     {
-        // Même logique que la facture proforma (préinscriptions):
-        // - Priorité au template devis si présent
-        // - Sinon fallback sur la facture
-        // - Sinon fallback sur le template reçu dédié
-        return $this->resolveTemplatePath('assets/devis/template_devis.pdf')
-            ?: $this->resolveTemplatePath('assets/facture/Template_Facture.pdf')
+        // Template voulu: celui de la facture (public/assets/facture/Template_Facture.pdf)
+        // Fallback: template reçu dédié si présent
+        return $this->resolveTemplatePath('assets/facture/Template_Facture.pdf')
             ?: $this->resolveTemplatePath('assets/recu/template_recu.pdf');
     }
 
