@@ -60,6 +60,7 @@ body.sidebar-open {
     border: 1px solid rgba(255, 255, 255, 0.12);
     background: rgba(255, 255, 255, 0.05);
     color: rgba(255, 255, 255, 0.9);
+    touch-action: manipulation;
 }
 
 .admin-mobile-menu-btn:hover {

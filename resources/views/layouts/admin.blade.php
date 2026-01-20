@@ -669,11 +669,15 @@
 
             window.__toggleAdminSidebar = toggleSidebar;
 
-            btn.addEventListener('click', toggleSidebar);
-            btn.addEventListener('touchstart', function (e) {
-                e.preventDefault();
+            btn.addEventListener('pointerup', function (e) {
+                if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+                    toggleSidebar();
+                }
+            });
+
+            btn.addEventListener('click', function () {
                 toggleSidebar();
-            }, { passive: false });
+            });
 
             overlay.addEventListener('click', function () {
                 closeSidebar();
