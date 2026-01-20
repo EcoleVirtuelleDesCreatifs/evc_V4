@@ -37,7 +37,7 @@
                 <p class="text-xl text-gray-300">Merci de renseigner le formulaire pour accéder au document.</p>
 
                 <div class="mt-8 inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
-                    <span class="text-white font-semibold">{{ $title }}</span>
+                    <span class="text-white font-semibold">{{ $formationLabel ?? $title }}</span>
                 </div>
             </div>
         </div>

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
+use App\Models\Plaquette;
 use App\Mail\PreRegistrationSubmitted;
 use App\Mail\AdminPreRegistrationNotification;
 use App\Http\Requests\StoreCandidatureRequest;
@@ -385,24 +386,27 @@ class HomepageController extends Controller
 
     public function plaquettesFormations()
     {
-        $relativeDir = 'assets/plaquettes';
-        $dir = public_path($relativeDir);
-
         $isEvcPrefixed = request()->is('evc/*');
-        $formRouteName = $isEvcPrefixed ? 'plaquettes.formations.form.evc' : 'plaquettes.formations.form';
+        $formRouteName = $isEvcPrefixed ? 'plaquettes.formations.form.id.evc' : 'plaquettes.formations.form.id';
 
-        $plaquettes = [];
-        if (is_dir($dir)) {
-            $files = File::glob($dir . '/*.pdf') ?: [];
-            sort($files);
-
-            foreach ($files as $path) {
-                $base = basename($path);
-                $name = pathinfo($base, PATHINFO_FILENAME);
-
+        $today = now()->toDateString();
+        $plaquettes = Plaquette::query()
+            ->with('formation')
+            ->where('is_active', true)
+            ->where('is_published', true)
+            ->where(function ($q) use ($today) {
+                $q->whereNull('start_date')->orWhere('start_date', '<=', $today);
+            })
+            ->where(function ($q) use ($today) {
+                $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
+            })
+            ->orderByDesc('published_at')
+            ->orderByDesc('id')
+            ->get()
+            ->map(function ($p) use ($formRouteName) {
                 $sizeLabel = '';
                 try {
-                    $bytes = (int) File::size($path);
+                    $bytes = (int) ($p->file_size ?? 0);
                     if ($bytes > 0) {
                         $sizeLabel = number_format($bytes / 1024 / 1024, 1, ',', ' ') . ' Mo';
                     }
@@ -410,18 +414,138 @@ class HomepageController extends Controller
                     $sizeLabel = '';
                 }
 
-                $plaquettes[] = [
-                    'title' => Str::of($name)->replace(['_', '-'], ' ')->title()->toString(),
-                    'url' => route($formRouteName, ['filename' => $base]),
+                return [
+                    'id' => $p->id,
+                    'title' => (string) ($p->title ?? ''),
+                    'formation_label' => (string) (($p->formation->name ?? null) ?: 'Plaquette'),
+                    'url' => route($formRouteName, ['plaquette' => $p->id]),
                     'size_label' => $sizeLabel,
-                    'filename' => $base,
+                    'download_count' => (int) ($p->download_count ?? 0),
                 ];
-            }
-        }
+            })
+            ->toArray();
 
         return view('plaquettes-formations', [
             'plaquettes' => $plaquettes,
         ]);
+    }
+
+    public function plaquetteFormById(Plaquette $plaquette)
+    {
+        if (!$plaquette->is_active || !$plaquette->is_published) {
+            abort(404);
+        }
+
+        $today = now()->toDateString();
+        if ($plaquette->start_date && $plaquette->start_date->toDateString() > $today) {
+            abort(404);
+        }
+        if ($plaquette->end_date && $plaquette->end_date->toDateString() < $today) {
+            abort(404);
+        }
+
+        $isEvcPrefixed = request()->is('evc/*');
+        $backUrl = $isEvcPrefixed ? route('plaquettes.formations.evc') : route('plaquettes.formations');
+        $actionUrl = $isEvcPrefixed
+            ? route('plaquettes.formations.download.id.evc', ['plaquette' => $plaquette->id])
+            : route('plaquettes.formations.download.id', ['plaquette' => $plaquette->id]);
+
+        $title = (string) ($plaquette->title ?? '');
+        $formationLabel = (string) (($plaquette->formation->name ?? null) ?: 'Plaquette');
+
+        return view('plaquettes-formations-request', [
+            'filename' => (string) ($plaquette->original_filename ?? 'plaquette.pdf'),
+            'title' => $title,
+            'backUrl' => $backUrl,
+            'actionUrl' => $actionUrl,
+            'formationLabel' => $formationLabel,
+        ]);
+    }
+
+    public function plaquetteDownloadById(Request $request, Plaquette $plaquette)
+    {
+        if (!$plaquette->is_active || !$plaquette->is_published) {
+            abort(404);
+        }
+
+        $today = now()->toDateString();
+        if ($plaquette->start_date && $plaquette->start_date->toDateString() > $today) {
+            abort(404);
+        }
+        if ($plaquette->end_date && $plaquette->end_date->toDateString() < $today) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'nom' => 'required|string|max:120',
+            'prenoms' => 'required|string|max:120',
+            'type_formation' => 'required|string|max:120',
+            'pays' => 'required|string|max:120',
+            'ville' => 'required|string|max:120',
+            'whatsapp' => 'required|string|max:40',
+            'email' => 'required|email|max:255',
+            'niveau_etude' => 'required|string|max:120',
+            'motivation' => 'required|string|max:5000',
+        ]);
+
+        $adminEmails = [];
+        try {
+            $adminEmails = DB::table('admins')
+                ->where('is_active', 1)
+                ->pluck('email')
+                ->filter(function ($e) {
+                    return is_string($e) && $e !== '' && filter_var($e, FILTER_VALIDATE_EMAIL);
+                })
+                ->values()
+                ->all();
+        } catch (\Throwable $e) {
+            $adminEmails = [];
+        }
+
+        $fallbackAdmin = config('mail.admin_address') ?? env('MAIL_ADMIN_ADDRESS') ?? config('mail.from.address');
+        if (empty($adminEmails) && is_string($fallbackAdmin) && filter_var($fallbackAdmin, FILTER_VALIDATE_EMAIL)) {
+            $adminEmails = [$fallbackAdmin];
+        }
+
+        $payload = array_merge($validated, [
+            'plaquette_title' => (string) ($plaquette->title ?? ''),
+            'plaquette_filename' => (string) ($plaquette->original_filename ?? ''),
+            'submitted_at' => now()->format('d/m/Y H:i'),
+        ]);
+
+        if (!empty($adminEmails)) {
+            try {
+                Mail::send('emails.plaquette_request', ['data' => $payload], function ($message) use ($adminEmails, $plaquette) {
+                    $message->to($adminEmails)
+                        ->subject('Demande plaquette - ' . (string) ($plaquette->title ?? 'Plaquette'));
+                });
+            } catch (\Throwable $e) {
+                Log::error('Erreur envoi mail demande plaquette', [
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        try {
+            $plaquette->increment('download_count');
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        $path = (string) ($plaquette->file_path ?? '');
+        $path = ltrim($path, '/');
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, strlen('storage/'));
+        }
+
+        if ($path === '' || !\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        return response()->download(
+            \Illuminate\Support\Facades\Storage::disk('public')->path($path),
+            (string) ($plaquette->original_filename ?? 'plaquette.pdf')
+        );
     }
 
     public function plaquetteForm(string $filename)

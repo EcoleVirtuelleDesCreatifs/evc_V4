@@ -78,7 +78,8 @@
 
                             <div class="max-w-xl">
                                 <div class="mt-8 flex items-center gap-x-4 text-xs">
-                                    <span class="relative z-10 rounded-full bg-orange-500/10 px-3 py-1.5 font-medium text-orange-400">Plaquette</span>
+                                    <span class="relative z-10 rounded-full bg-orange-500/10 px-3 py-1.5 font-medium text-orange-400">{{ $p['formation_label'] ?? 'Plaquette' }}</span>
+                                    <span class="relative z-10 rounded-full bg-white/10 px-3 py-1.5 font-medium text-gray-200">{{ (int) ($p['download_count'] ?? 0) }} téléchargements</span>
                                 </div>
                                 <div class="group relative">
                                     <h3 class="mt-3 text-lg font-semibold leading-6 text-white">
