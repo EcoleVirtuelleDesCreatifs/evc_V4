@@ -87,15 +87,6 @@ class PaymentReceiptGenerator
 
             $offsetY = 21.2;
 
-            // En-tête: N° reçu + date établissement
-            $pdf->SetFont('Helvetica', 'B', 11);
-            $pdf->SetXY($pageW - 70, 28 + $offsetY);
-            $pdf->Cell(60, 6, $this->toLatin($receiptNumber), 0, 0, 'R');
-
-            $pdf->SetFont('Helvetica', '', 9);
-            $pdf->SetXY($pageW - 70, 35 + $offsetY);
-            $pdf->Cell(60, 6, $this->toLatin($issuedAt), 0, 0, 'R');
-
             // Titre principal (≈35px)
             $pdf->SetFont('Helvetica', 'B', 26);
             $pdf->SetXY(0, 46 + $offsetY);
