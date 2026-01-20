@@ -6,7 +6,7 @@
 
     <!-- SEO Essentials -->
     <title>@yield('title', 'EVC - École Virtuelle des Créatifs | Formation Design & Marketing Digital Abidjan')</title>
-    <meta name="description" content="@yield('description', 'Première école virtuelle de Côte d&rsquo;Ivoire. Formations certifiantes en Design Graphique, Community Management, Intelligence Artificielle. Rejoignez +500 étudiants à Abidjan.')">
+    <meta name="description" content="@yield('description', 'Première école digitale en Afrique francophone. Formations certifiantes en Design Graphique, Community Management, Intelligence Artificielle. Rejoignez +1000 étudiants à travers le monde.')">
     <meta name="keywords" content="@yield('keywords', 'école virtuelle abidjan, formation design graphique côte d&rsquo;ivoire, formation marketing digital abidjan, community management formation, intelligence artificielle formation, école en ligne afrique, certification adobe abidjan, formation professionnelle ivoirienne')">
     <meta name="author" content="EVC - École Virtuelle des Créatifs">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
