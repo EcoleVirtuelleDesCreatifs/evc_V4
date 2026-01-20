@@ -4743,19 +4743,110 @@ class DashboardController extends Controller
         // Récupérer les informations de l'étudiant
         $student = DB::table('students')->where('user_id', $user->id)->first();
 
-        // Générer la facture PDF
-        $invoiceGenerator = new \App\Services\InvoiceGenerator();
-        $pdf = $invoiceGenerator->generateInvoice($payment, $student, $preReg);
+        // Générer un reçu PDF complet (même design que l'admin) en agrégeant les paiements liés
+        $payments = DB::table('payments')
+            ->where('pre_registration_id', (int) $payment->pre_registration_id)
+            ->orderByRaw("CASE WHEN paid_at IS NULL THEN 1 ELSE 0 END")
+            ->orderBy('paid_at', 'asc')
+            ->orderBy('created_at', 'asc')
+            ->get();
 
-        $filename = 'Facture_EVC_' . $payment->payment_reference . '.pdf';
+        $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
+        if ($totalAmount <= 0) {
+            $formationTotals = (array) config('chariow.formation_amounts', []);
+            $formationLabel = $preReg->choix_formation ?? (($student->program ?? null) ?: 'Formation');
+            $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+        }
 
-        $pdfContent = $pdf->Output('S');
+        $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
+        $remaining = max(0, $totalAmount - $amountPaid);
 
-        return response()->streamDownload(function () use ($pdfContent) {
-            echo $pdfContent;
-        }, $filename, [
-            'Content-Type' => 'application/pdf',
+        $studentName = trim((($student->first_name ?? null) ?: ($preReg->prenom ?? '')) . ' ' . (($student->last_name ?? null) ?: ($preReg->nom ?? '')));
+        $studentEmail = ($student->email ?? null) ?: ($preReg->email ?? '');
+        $formation = $preReg->choix_formation ?? (($student->program ?? null) ?: 'Formation');
+
+        $studentIdLabel = '';
+        if (!empty($student->student_id)) {
+            $studentIdLabel = (string) $student->student_id;
+        } elseif (!empty($student->id)) {
+            $studentIdLabel = (string) $student->id;
+        }
+
+        $registrationDate = '';
+        if (!empty($student->created_at)) {
+            try {
+                $registrationDate = \Carbon\Carbon::parse($student->created_at)->format('d/m/Y');
+            } catch (\Throwable $e) {
+                $registrationDate = '';
+            }
+        }
+        if ($registrationDate === '' && !empty($preReg->created_at)) {
+            try {
+                $registrationDate = \Carbon\Carbon::parse($preReg->created_at)->format('d/m/Y');
+            } catch (\Throwable $e) {
+                $registrationDate = '';
+            }
+        }
+
+        $receiptNumber = 'EVC-RC-' . str_pad((string) $preReg->id, 6, '0', STR_PAD_LEFT) . '-' . now()->format('Ymd');
+
+        $paymentsForPdf = $payments->map(function ($p) {
+            $installmentLabel = '';
+            if (($p->payment_type ?? null) === 'installment' && !empty($p->installment_number) && !empty($p->total_installments)) {
+                $installmentLabel = 'Tranche ' . $p->installment_number . '/' . $p->total_installments;
+            } elseif (($p->payment_type ?? null) === 'installment' && !empty($p->installment_number)) {
+                $installmentLabel = 'Tranche ' . $p->installment_number;
+            } else {
+                $installmentLabel = 'Paiement';
+            }
+
+            $statusLabel = match ($p->status) {
+                'completed' => 'Payé',
+                'pending' => 'En attente',
+                'failed' => 'Échoué',
+                'cancelled' => 'Annulé',
+                'refunded' => 'Remboursé',
+                default => (string) ($p->status ?? ''),
+            };
+
+            $paidAt = $p->paid_at ? \Carbon\Carbon::parse($p->paid_at)->format('d/m/Y') : '';
+            $createdAt = $p->created_at ? \Carbon\Carbon::parse($p->created_at)->format('d/m/Y') : '';
+
+            return [
+                'amount' => (float) ($p->amount ?? 0),
+                'status' => $p->status,
+                'status_label' => $statusLabel,
+                'payment_reference' => (string) ($p->payment_reference ?? ''),
+                'installment_label' => $installmentLabel,
+                'paid_at' => $paidAt,
+                'created_at' => $createdAt,
+            ];
+        })->toArray();
+
+        $primaryRef = '';
+        $primaryPayment = $payments->firstWhere('payment_reference', '!=', null);
+        if ($primaryPayment && !empty($primaryPayment->payment_reference)) {
+            $primaryRef = (string) $primaryPayment->payment_reference;
+        }
+
+        $generator = new \App\Services\PaymentReceiptGenerator();
+        $result = $generator->generate([
+            'receipt_number' => $receiptNumber,
+            'issued_at' => now()->format('d/m/Y H:i'),
+            'student_name' => $studentName,
+            'student_email' => $studentEmail,
+            'formation' => $formation,
+            'student_id' => $studentIdLabel,
+            'registration_date' => $registrationDate,
+            'payment_reference' => $primaryRef,
+            'total_amount' => $totalAmount,
+            'amount_paid' => $amountPaid,
+            'remaining' => $remaining,
+            'payments' => $paymentsForPdf,
         ]);
+
+        $filename = 'Recu_EVC_' . ($payment->payment_reference ?? $preReg->id) . '_' . now()->format('Ymd_His') . '.pdf';
+        return response()->download($result['path'], $filename)->deleteFileAfterSend(true);
     }
 
     /**

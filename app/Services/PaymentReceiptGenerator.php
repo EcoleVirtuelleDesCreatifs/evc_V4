@@ -157,14 +157,14 @@ class PaymentReceiptGenerator
             $pdf->SetXY($leftX, $y);
             $pdf->Cell(45, $lineH, $this->toLatin("Date d'inscription"), 0, 0, 'L');
             $pdf->SetFont('Helvetica', '', 10);
-            $pdf->SetXY($leftX + 24, $y);
+            $pdf->SetXY($leftX + 28, $y);
             $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($registrationDate !== '' ? $registrationDate : '—'), 0, 0, 'L');
 
             $pdf->SetFont('Helvetica', 'B', 10);
             $pdf->SetXY($rightX, $y);
             $pdf->Cell(45, $lineH, $this->toLatin("Date d'établissement"), 0, 0, 'L');
             $pdf->SetFont('Helvetica', '', 10);
-            $pdf->SetXY($rightX + 28, $y);
+            $pdf->SetXY($rightX + 32, $y);
             $pdf->Cell(($boxW / 2) - 32, $lineH, $this->toLatin($issuedAt), 0, 0, 'L');
 
             $y += $lineH;
@@ -172,7 +172,7 @@ class PaymentReceiptGenerator
             $pdf->SetXY($leftX, $y);
             $pdf->Cell(45, $lineH, $this->toLatin('Coût formation'), 0, 0, 'L');
             $pdf->SetFont('Helvetica', 'B', 10);
-            $pdf->SetXY($leftX + 24, $y);
+            $pdf->SetXY($leftX + 28, $y);
             $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($totalAmount), 0, 0, 'L');
 
             $pdf->SetFont('Helvetica', 'B', 10);
@@ -187,7 +187,7 @@ class PaymentReceiptGenerator
             $pdf->SetXY($leftX, $y);
             $pdf->Cell(45, $lineH, $this->toLatin('Reste à solder'), 0, 0, 'L');
             $pdf->SetFont('Helvetica', 'B', 10);
-            $pdf->SetXY($leftX + 24, $y);
+            $pdf->SetXY($leftX + 28, $y);
             $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($remaining), 0, 0, 'L');
 
             // Optionnel: email (si on veut)
