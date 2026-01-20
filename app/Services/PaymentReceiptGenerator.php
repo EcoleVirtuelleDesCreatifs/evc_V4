@@ -6,9 +6,33 @@ use setasign\Fpdi\Fpdi;
 
 class PaymentReceiptGenerator
 {
-    private function templatePath(): string
+    private function resolveTemplatePath(string $relativePath): ?string
     {
-        return public_path('assets/recu/template_recu.pdf');
+        $relativePath = ltrim($relativePath, '/');
+
+        $assetsPrefixed = str_starts_with($relativePath, 'assets/')
+            ? $relativePath
+            : ('assets/' . $relativePath);
+
+        $candidates = [
+            public_path($relativePath),
+            public_path($assetsPrefixed),
+            base_path('public/' . $relativePath),
+            base_path('public/' . $assetsPrefixed),
+        ];
+
+        foreach ($candidates as $path) {
+            if (is_string($path) && $path !== '' && is_file($path) && is_readable($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
+    private function templatePath(): ?string
+    {
+        return $this->resolveTemplatePath('assets/recu/template_recu.pdf');
     }
 
     private function toLatin(string $text): string
@@ -33,7 +57,7 @@ class PaymentReceiptGenerator
 
         $templatePath = $this->templatePath();
 
-        if (is_file($templatePath)) {
+        if (is_string($templatePath) && is_file($templatePath)) {
             $pageCount = $pdf->setSourceFile($templatePath);
             $tplId = $pdf->importPage(1);
             $size = $pdf->getTemplateSize($tplId);
