@@ -85,30 +85,32 @@ class PaymentReceiptGenerator
 
             $pageW = (float) ($size['width'] ?? 210);
 
+            $offsetY = 21.2;
+
             // En-tête: N° reçu + date établissement
             $pdf->SetFont('Helvetica', 'B', 11);
-            $pdf->SetXY($pageW - 70, 28);
+            $pdf->SetXY($pageW - 70, 28 + $offsetY);
             $pdf->Cell(60, 6, $this->toLatin($receiptNumber), 0, 0, 'R');
 
             $pdf->SetFont('Helvetica', '', 9);
-            $pdf->SetXY($pageW - 70, 35);
+            $pdf->SetXY($pageW - 70, 35 + $offsetY);
             $pdf->Cell(60, 6, $this->toLatin($issuedAt), 0, 0, 'R');
 
             // Titre principal (≈35px)
             $pdf->SetFont('Helvetica', 'B', 26);
-            $pdf->SetXY(0, 46);
+            $pdf->SetXY(0, 46 + $offsetY);
             $pdf->Cell($pageW, 12, $this->toLatin("RECU D'INSCRIPTION"), 0, 0, 'C');
 
             // Sous-titre / promesse (persuasif)
             $pdf->SetFont('Helvetica', '', 10);
             $pdf->SetTextColor(80, 80, 80);
-            $pdf->SetXY(0, 58);
+            $pdf->SetXY(0, 58 + $offsetY);
             $pdf->Cell($pageW, 6, $this->toLatin("Merci pour votre confiance. Ce document confirme votre inscription."), 0, 0, 'C');
             $pdf->SetTextColor(0, 0, 0);
 
             // Bloc informations (structure comptable)
             $boxX = 15;
-            $boxY = 68;
+            $boxY = 68 + $offsetY;
             $boxW = $pageW - 30;
             $lineH = 6.2;
 
@@ -201,7 +203,7 @@ class PaymentReceiptGenerator
 
             $payments = (array) ($data['payments'] ?? []);
             $tableX = 15;
-            $tableY = 118;
+            $tableY = 118 + $offsetY;
             $rowH = 7;
             $maxRows = 10;
 
@@ -277,7 +279,7 @@ class PaymentReceiptGenerator
 
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->SetTextColor(90, 90, 90);
-            $pdf->SetXY(15, min($totalsY + 26, 265));
+            $pdf->SetXY(15, min($totalsY + 26, 265 + $offsetY));
             $pdf->MultiCell(185, 4.5, $this->toLatin("Ce reçu est un document ORIGINAL. Pour toute vérification, veuillez contacter l'administration EVC avec la référence ci-dessus."));
             $pdf->SetTextColor(0, 0, 0);
         } else {
