@@ -669,13 +669,21 @@
 
             window.__toggleAdminSidebar = toggleSidebar;
 
+            let lastTouchToggleAt = 0;
+
             btn.addEventListener('pointerup', function (e) {
                 if (e.pointerType === 'touch' || e.pointerType === 'pen') {
+                    lastTouchToggleAt = Date.now();
+                    e.preventDefault();
+                    e.stopPropagation();
                     toggleSidebar();
                 }
             });
 
             btn.addEventListener('click', function () {
+                if (Date.now() - lastTouchToggleAt < 600) {
+                    return;
+                }
                 toggleSidebar();
             });
 
