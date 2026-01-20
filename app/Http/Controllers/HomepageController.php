@@ -388,6 +388,9 @@ class HomepageController extends Controller
         $relativeDir = 'assets/plaquettes';
         $dir = public_path($relativeDir);
 
+        $isEvcPrefixed = request()->is('evc/*');
+        $formRouteName = $isEvcPrefixed ? 'plaquettes.formations.form.evc' : 'plaquettes.formations.form';
+
         $plaquettes = [];
         if (is_dir($dir)) {
             $files = File::glob($dir . '/*.pdf') ?: [];
@@ -409,8 +412,9 @@ class HomepageController extends Controller
 
                 $plaquettes[] = [
                     'title' => Str::of($name)->replace(['_', '-'], ' ')->title()->toString(),
-                    'url' => asset($relativeDir . '/' . $base),
+                    'url' => route($formRouteName, ['filename' => $base]),
                     'size_label' => $sizeLabel,
+                    'filename' => $base,
                 ];
             }
         }
@@ -418,6 +422,109 @@ class HomepageController extends Controller
         return view('plaquettes-formations', [
             'plaquettes' => $plaquettes,
         ]);
+    }
+
+    public function plaquetteForm(string $filename)
+    {
+        $relativeDir = 'assets/plaquettes';
+        $dir = public_path($relativeDir);
+
+        $isEvcPrefixed = request()->is('evc/*');
+        $backUrl = $isEvcPrefixed ? route('plaquettes.formations.evc') : route('plaquettes.formations');
+        $actionUrl = $isEvcPrefixed
+            ? route('plaquettes.formations.download.evc', ['filename' => $filename])
+            : route('plaquettes.formations.download', ['filename' => $filename]);
+
+        $filename = basename($filename);
+        if (!str_ends_with(strtolower($filename), '.pdf')) {
+            abort(404);
+        }
+
+        $path = rtrim($dir, '/') . '/' . $filename;
+        if (!is_file($path)) {
+            abort(404);
+        }
+
+        $name = pathinfo($filename, PATHINFO_FILENAME);
+        $title = Str::of($name)->replace(['_', '-'], ' ')->title()->toString();
+
+        return view('plaquettes-formations-request', [
+            'filename' => $filename,
+            'title' => $title,
+            'backUrl' => $backUrl,
+            'actionUrl' => $actionUrl,
+        ]);
+    }
+
+    public function plaquetteDownload(Request $request, string $filename)
+    {
+        $relativeDir = 'assets/plaquettes';
+        $dir = public_path($relativeDir);
+
+        $filename = basename($filename);
+        if (!str_ends_with(strtolower($filename), '.pdf')) {
+            abort(404);
+        }
+
+        $path = rtrim($dir, '/') . '/' . $filename;
+        if (!is_file($path)) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'nom' => 'required|string|max:120',
+            'prenoms' => 'required|string|max:120',
+            'type_formation' => 'required|string|max:120',
+            'pays' => 'required|string|max:120',
+            'ville' => 'required|string|max:120',
+            'whatsapp' => 'required|string|max:40',
+            'email' => 'required|email|max:255',
+            'niveau_etude' => 'required|string|max:120',
+            'motivation' => 'required|string|max:5000',
+        ]);
+
+        $name = pathinfo($filename, PATHINFO_FILENAME);
+        $title = Str::of($name)->replace(['_', '-'], ' ')->title()->toString();
+
+        $adminEmails = [];
+        try {
+            $adminEmails = DB::table('admins')
+                ->where('is_active', 1)
+                ->pluck('email')
+                ->filter(function ($e) {
+                    return is_string($e) && $e !== '' && filter_var($e, FILTER_VALIDATE_EMAIL);
+                })
+                ->values()
+                ->all();
+        } catch (\Throwable $e) {
+            $adminEmails = [];
+        }
+
+        $fallbackAdmin = config('mail.admin_address') ?? env('MAIL_ADMIN_ADDRESS') ?? config('mail.from.address');
+        if (empty($adminEmails) && is_string($fallbackAdmin) && filter_var($fallbackAdmin, FILTER_VALIDATE_EMAIL)) {
+            $adminEmails = [$fallbackAdmin];
+        }
+
+        $payload = array_merge($validated, [
+            'plaquette_title' => $title,
+            'plaquette_filename' => $filename,
+            'submitted_at' => now()->format('d/m/Y H:i'),
+        ]);
+
+        if (!empty($adminEmails)) {
+            try {
+                Mail::send('emails.plaquette_request', ['data' => $payload], function ($message) use ($adminEmails, $title) {
+                    $message->to($adminEmails)
+                        ->subject("Demande plaquette - {$title}");
+                });
+            } catch (\Throwable $e) {
+                Log::error('Erreur envoi mail demande plaquette', [
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return response()->download($path, $filename);
     }
 
     /**

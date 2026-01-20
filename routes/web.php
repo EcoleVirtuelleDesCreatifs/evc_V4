@@ -81,6 +81,10 @@ Route::get('/presentation', [HomepageController::class, 'presentation'])->name('
 Route::get('/formations', [HomepageController::class, 'formations'])->name('formations');
 Route::get('/plaquettes-formations', [HomepageController::class, 'plaquettesFormations'])->name('plaquettes.formations');
 Route::get('/evc/plaquettes-formations', [HomepageController::class, 'plaquettesFormations'])->name('plaquettes.formations.evc');
+Route::get('/plaquettes-formations/{filename}', [HomepageController::class, 'plaquetteForm'])->where('filename', '.*')->name('plaquettes.formations.form');
+Route::post('/plaquettes-formations/{filename}', [HomepageController::class, 'plaquetteDownload'])->where('filename', '.*')->name('plaquettes.formations.download');
+Route::get('/evc/plaquettes-formations/{filename}', [HomepageController::class, 'plaquetteForm'])->where('filename', '.*')->name('plaquettes.formations.form.evc');
+Route::post('/evc/plaquettes-formations/{filename}', [HomepageController::class, 'plaquetteDownload'])->where('filename', '.*')->name('plaquettes.formations.download.evc');
 Route::get('/travaux-etudiants', [HomepageController::class, 'travaux'])->name('travaux');
 Route::get('/laureats', [HomepageController::class, 'laureats'])->name('laureats');
 Route::get('/jury', [HomepageController::class, 'jury'])->name('jury');

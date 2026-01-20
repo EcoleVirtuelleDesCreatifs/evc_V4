@@ -56,7 +56,7 @@
                     @foreach($plaquettes as $index => $p)
                         <article class="flex flex-col items-start justify-between rounded-2xl bg-gray-800/80 p-8 ring-1 ring-white/10 hover:ring-orange-500/50 transition duration-300" data-aos="fade-up" data-aos-delay="{{ min(($index % 12) * 50, 600) }}">
                             <div class="relative w-full">
-                                <a href="{{ $p['url'] }}" target="_blank" class="block">
+                                <a href="{{ $p['url'] }}" class="block">
                                     <div class="aspect-[16/9] w-full rounded-2xl bg-gradient-to-br from-orange-500/20 to-white/5 ring-1 ring-white/10 flex items-center justify-center">
                                         <div class="text-center">
                                             <div class="mx-auto h-14 w-14 rounded-full bg-orange-500/20 flex items-center justify-center">
@@ -82,7 +82,7 @@
                                 </div>
                                 <div class="group relative">
                                     <h3 class="mt-3 text-lg font-semibold leading-6 text-white">
-                                        <a href="{{ $p['url'] }}" target="_blank">
+                                        <a href="{{ $p['url'] }}">
                                             <span class="absolute inset-0"></span>
                                             {{ $p['title'] }}
                                         </a>
@@ -91,7 +91,7 @@
                                 </div>
 
                                 <div class="mt-6">
-                                    <a href="{{ $p['url'] }}" target="_blank" class="inline-flex items-center px-6 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition duration-300">
+                                    <a href="{{ $p['url'] }}" class="inline-flex items-center px-6 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition duration-300">
                                         Télécharger
                                     </a>
                                 </div>
