@@ -210,6 +210,10 @@
         overflow: hidden;
     }
 
+    .programme-wrapper .programme-accordion {
+        height: 100%;
+    }
+
     .programme-accordion.theme-dg { border-left: 6px solid #4fc3f7; }
     .programme-accordion.theme-cm { border-left: 6px solid #e1306c; }
     .programme-accordion.theme-dgcm { border-left: 6px solid #f59e0b; }
@@ -581,7 +585,7 @@
                                 );
                             @endphp
 
-                            <div class="col-12 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
+                            <div class="col-12 col-md-6 col-xl-4 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
                                 <div class="programme-accordion {{ $formationClass }}">
                                     <div class="programme-accordion-header">
                                         <div style="min-width: 260px;">
@@ -777,7 +781,7 @@
                     );
                 @endphp
 
-                <div class="col-12 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
+                <div class="col-12 col-md-6 col-xl-4 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
                     <div class="programme-accordion {{ $formationClass }}">
                         <div class="programme-accordion-header">
                             <div style="min-width: 260px;">
