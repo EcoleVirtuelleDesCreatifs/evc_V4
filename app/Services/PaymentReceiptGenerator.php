@@ -112,33 +112,87 @@ class PaymentReceiptGenerator
             $pdf->SetXY(142, 86);
             $pdf->Cell(60, 6, $this->toLatin($remaining), 0, 0, 'L');
 
-            $startY = 112;
+            $payments = (array) ($data['payments'] ?? []);
+            $tableX = 15;
+            $tableY = 112;
             $rowH = 7;
             $maxRows = 10;
-            $payments = (array) ($data['payments'] ?? []);
+
+            $wDate = 25;
+            $wLib = 55;
+            $wRef = 55;
+            $wAmount = 25;
+            $wStatus = 25;
+
+            $pdf->SetDrawColor(180, 180, 180);
+            $pdf->SetLineWidth(0.2);
+
+            $pdf->SetFont('Helvetica', 'B', 9);
+            $pdf->SetFillColor(240, 240, 240);
+            $pdf->SetXY($tableX, $tableY);
+            $pdf->Cell($wDate, $rowH, $this->toLatin('Date'), 1, 0, 'L', true);
+            $pdf->Cell($wLib, $rowH, $this->toLatin('Libellé'), 1, 0, 'L', true);
+            $pdf->Cell($wRef, $rowH, $this->toLatin('Référence'), 1, 0, 'L', true);
+            $pdf->Cell($wAmount, $rowH, $this->toLatin('Montant'), 1, 0, 'R', true);
+            $pdf->Cell($wStatus, $rowH, $this->toLatin('Statut'), 1, 1, 'L', true);
 
             $pdf->SetFont('Helvetica', '', 9);
+            $y = $tableY + $rowH;
             for ($i = 0; $i < min(count($payments), $maxRows); $i++) {
                 $p = $payments[$i];
+
                 $date = (string) (($p['paid_at'] ?? '') ?: ($p['created_at'] ?? ''));
-                $type = (string) ($p['installment_label'] ?? '');
-                $status = (string) ($p['status_label'] ?? ($p['status'] ?? ''));
+                $lib = (string) (($p['installment_label'] ?? '') ?: 'Paiement');
                 $ref = (string) ($p['payment_reference'] ?? '');
                 $amt = $this->money($p['amount'] ?? 0);
+                $status = (string) (($p['status_label'] ?? ($p['status'] ?? '')) ?: '');
 
-                $y = $startY + ($i * $rowH);
+                $fill = ($i % 2) === 1;
+                if ($fill) {
+                    $pdf->SetFillColor(250, 250, 250);
+                } else {
+                    $pdf->SetFillColor(255, 255, 255);
+                }
 
-                $pdf->SetXY(18, $y);
-                $pdf->Cell(28, $rowH, $this->toLatin($date), 0, 0, 'L');
-                $pdf->SetXY(47, $y);
-                $pdf->Cell(28, $rowH, $this->toLatin($type), 0, 0, 'L');
-                $pdf->SetXY(76, $y);
-                $pdf->Cell(28, $rowH, $this->toLatin($status), 0, 0, 'L');
-                $pdf->SetXY(105, $y);
-                $pdf->Cell(55, $rowH, $this->toLatin($ref), 0, 0, 'L');
-                $pdf->SetXY(162, $y);
-                $pdf->Cell(35, $rowH, $this->toLatin($amt), 0, 0, 'R');
+                $pdf->SetXY($tableX, $y);
+                $pdf->Cell($wDate, $rowH, $this->toLatin($date), 1, 0, 'L', $fill);
+                $pdf->Cell($wLib, $rowH, $this->toLatin($lib), 1, 0, 'L', $fill);
+                $pdf->Cell($wRef, $rowH, $this->toLatin($ref), 1, 0, 'L', $fill);
+                $pdf->Cell($wAmount, $rowH, $this->toLatin($amt), 1, 0, 'R', $fill);
+                $pdf->Cell($wStatus, $rowH, $this->toLatin($status), 1, 1, 'L', $fill);
+
+                $y += $rowH;
             }
+
+            $totalsY = $y + 8;
+            $totalsX = 120;
+            $totalsW = 80;
+            $lineH = 6;
+
+            $pdf->SetFillColor(255, 255, 255);
+            $pdf->SetXY($totalsX, $totalsY);
+            $pdf->SetFont('Helvetica', 'B', 9);
+            $pdf->Cell($totalsW, $lineH, $this->toLatin('Récapitulatif'), 1, 1, 'L', true);
+
+            $pdf->SetFont('Helvetica', '', 9);
+            $pdf->SetXY($totalsX, $totalsY + $lineH);
+            $pdf->Cell(45, $lineH, $this->toLatin('Total dû'), 1, 0, 'L');
+            $pdf->Cell($totalsW - 45, $lineH, $this->toLatin($totalAmount), 1, 1, 'R');
+
+            $pdf->SetX($totalsX);
+            $pdf->Cell(45, $lineH, $this->toLatin('Total payé'), 1, 0, 'L');
+            $pdf->Cell($totalsW - 45, $lineH, $this->toLatin($amountPaid), 1, 1, 'R');
+
+            $pdf->SetFont('Helvetica', 'B', 9);
+            $pdf->SetX($totalsX);
+            $pdf->Cell(45, $lineH, $this->toLatin('Solde'), 1, 0, 'L');
+            $pdf->Cell($totalsW - 45, $lineH, $this->toLatin($remaining), 1, 1, 'R');
+
+            $pdf->SetFont('Helvetica', '', 8);
+            $pdf->SetTextColor(90, 90, 90);
+            $pdf->SetXY(15, min($totalsY + 26, 265));
+            $pdf->MultiCell(185, 4.5, $this->toLatin("Reçu généré automatiquement par l'EVC. Conservez ce document comme justificatif de paiement."));
+            $pdf->SetTextColor(0, 0, 0);
         } else {
             $pdf->AddPage('P', 'A4');
 
