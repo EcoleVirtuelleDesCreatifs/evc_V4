@@ -36,7 +36,18 @@ class PlaquettesAdminController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        return view('admin.plaquettes.index', compact('plaquettes'));
+        $stats = [
+            'total' => $plaquettes->count(),
+            'published' => $plaquettes->where('is_published', true)->count(),
+            'active' => $plaquettes->where('is_active', true)->count(),
+            'ce_mois' => $plaquettes->filter(function ($p) {
+                return $p->created_at && $p->created_at->isCurrentMonth();
+            })->count(),
+            'online' => $plaquettes->where('format', 'online')->count(),
+            'offline' => $plaquettes->where('format', 'offline')->count(),
+        ];
+
+        return view('admin.plaquettes.index', compact('plaquettes', 'stats'));
     }
 
     public function create(): View
