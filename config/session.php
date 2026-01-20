@@ -162,7 +162,7 @@ return [
             return $domain;
         }
 
-        if (!app()->environment('production')) {
+        if (env('APP_ENV') !== 'production') {
             return null;
         }
 
@@ -198,7 +198,7 @@ return [
             return (bool) $secure;
         }
 
-        if (app()->environment('production')) {
+        if (env('APP_ENV') === 'production') {
             $appUrl = (string) env('APP_URL', '');
             $scheme = parse_url($appUrl, PHP_URL_SCHEME);
             return $scheme === 'https';
