@@ -411,6 +411,14 @@ body.modal-open .admin-sidebar-overlay {
     }
 }
 
+/* When a Bootstrap modal is open, the sidebar overlay must never capture clicks */
+body.modal-open .admin-sidebar-overlay,
+body.modal-open.sidebar-open .admin-sidebar-overlay,
+body.modal-open .admin-sidebar-overlay.show {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
 @media (max-width: 768px) {
     .admin-main {
         padding: 1rem;
