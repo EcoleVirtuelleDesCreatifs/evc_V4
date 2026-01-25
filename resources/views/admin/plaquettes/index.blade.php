@@ -136,7 +136,6 @@
                     <thead>
                         <tr>
                             <th style="min-width: 220px;">Titre</th>
-                            <th>Formation</th>
                             <th>Format</th>
                             <th class="text-nowrap">Date de début</th>
                             <th class="text-nowrap">Date de fin</th>
@@ -163,7 +162,6 @@
                                     <div class="fw-semibold">{{ $p->title }}</div>
                                     <div class="small text-muted">{{ $p->original_filename }}</div>
                                 </td>
-                                <td>{{ $p->formation?->name ?? '—' }}</td>
                                 <td>{{ $p->format === 'offline' ? 'Off line' : 'En ligne' }}</td>
                                 <td class="text-nowrap">{{ $p->start_date ? $p->start_date->format('d/m/Y') : '—' }}</td>
                                 <td class="text-nowrap">{{ $p->end_date ? $p->end_date->format('d/m/Y') : '—' }}</td>
@@ -198,7 +196,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4">Aucune plaquette trouvée.</td>
+                                <td colspan="7" class="text-center py-4">Aucune plaquette trouvée.</td>
                             </tr>
                         @endforelse
                     </tbody>
