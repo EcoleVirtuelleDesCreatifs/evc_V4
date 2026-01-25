@@ -74,7 +74,7 @@
                             <th>#</th>
                             <th>Plaquette</th>
                             <th>Demandeur</th>
-                            <th>Contact</th>
+                            <th>Pays</th>
                             <th>Statut</th>
                             <th>Date</th>
                             <th>Actions</th>
@@ -92,19 +92,84 @@
                                 <td>{{ $r->id }}</td>
                                 <td>
                                     <div class="fw-semibold">{{ $r->plaquette?->title ?? '—' }}</div>
-                                    <div class="small text-muted">{{ $r->plaquette?->original_filename ?? '' }}</div>
+                                    <div class="small text-warning">{{ $r->plaquette?->original_filename ?? '' }}</div>
                                 </td>
                                 <td>
                                     <div class="fw-semibold">{{ $r->prenoms }} {{ $r->nom }}</div>
-                                    <div class="small text-muted">{{ $r->type_formation }} • {{ $r->niveau_etude }}</div>
+                                    <div class="small text-warning">{{ $r->type_formation }} • {{ $r->niveau_etude }}</div>
                                 </td>
                                 <td>
-                                    <div>{{ $r->email }}</div>
-                                    <div class="small text-muted">{{ $r->whatsapp }}</div>
+                                    <div>{{ $r->pays }}</div>
+                                    <div class="small text-muted">{{ $r->ville }}</div>
                                 </td>
                                 <td><span class="badge bg-{{ $badge }}">{{ $label }}</span></td>
                                 <td class="text-nowrap">{{ $r->created_at ? $r->created_at->format('d/m/Y H:i') : '—' }}</td>
                                 <td>
+                                    <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#readModal{{ $r->id }}">
+                                        <i class="fas fa-eye"></i> Lire complet
+                                    </button>
+
+                                    <div class="modal fade" id="readModal{{ $r->id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content bg-dark text-white">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Demande de plaquette #{{ $r->id }}</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <div class="small text-muted">Plaquette</div>
+                                                            <div class="fw-semibold">{{ $r->plaquette?->title ?? '—' }}</div>
+                                                            <div class="text-warning">{{ $r->plaquette?->original_filename ?? '' }}</div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="small text-muted">Statut</div>
+                                                            <div><span class="badge bg-{{ $badge }}">{{ $label }}</span></div>
+                                                            <div class="small text-muted mt-2">Date</div>
+                                                            <div>{{ $r->created_at ? $r->created_at->format('d/m/Y H:i') : '—' }}</div>
+                                                        </div>
+
+                                                        <div class="col-md-6">
+                                                            <div class="small text-muted">Demandeur</div>
+                                                            <div class="fw-semibold">{{ $r->prenoms }} {{ $r->nom }}</div>
+                                                            <div class="text-warning">{{ $r->type_formation }} • {{ $r->niveau_etude }}</div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="small text-muted">Pays / Ville</div>
+                                                            <div class="fw-semibold">{{ $r->pays }}</div>
+                                                            <div class="text-muted">{{ $r->ville }}</div>
+                                                        </div>
+
+                                                        <div class="col-md-6">
+                                                            <div class="small text-muted">Email</div>
+                                                            <div class="fw-semibold">{{ $r->email }}</div>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <div class="small text-muted">WhatsApp</div>
+                                                            <div class="fw-semibold">{{ $r->whatsapp }}</div>
+                                                        </div>
+
+                                                        <div class="col-12">
+                                                            <div class="small text-muted">Motivation</div>
+                                                            <div class="mt-1" style="white-space: pre-wrap;">{{ $r->motivation }}</div>
+                                                        </div>
+
+                                                        @if(!empty($r->admin_comment))
+                                                            <div class="col-12">
+                                                                <div class="small text-muted">Commentaire admin</div>
+                                                                <div class="mt-1" style="white-space: pre-wrap;">{{ $r->admin_comment }}</div>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     @if($r->status === 'pending')
                                         <form method="POST" action="{{ route('admin.plaquettes.requests.approve', $r) }}" class="d-inline">
                                             @csrf
