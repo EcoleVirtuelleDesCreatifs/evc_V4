@@ -780,6 +780,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/plaquettes/{plaquette}/download', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'download'])->name('plaquettes.download');
 
         Route::get('/plaquettes/requests', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'requestsIndex'])->name('plaquettes.requests.index');
+        Route::get('/plaquettes/requests/{plaquetteRequest}', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'requestShow'])->name('plaquettes.requests.show');
         Route::post('/plaquettes/requests/{plaquetteRequest}/approve', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'approveRequest'])->name('plaquettes.requests.approve');
         Route::post('/plaquettes/requests/{plaquetteRequest}/reject', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'rejectRequest'])->name('plaquettes.requests.reject');
 

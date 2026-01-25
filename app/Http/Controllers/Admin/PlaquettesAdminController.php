@@ -226,6 +226,17 @@ class PlaquettesAdminController extends Controller
         return view('admin.plaquettes.requests', compact('requests', 'stats'));
     }
 
+    public function requestShow(PlaquetteRequest $plaquetteRequest): View
+    {
+        $this->ensureAllowed();
+
+        $plaquetteRequest->load('plaquette');
+
+        return view('admin.plaquettes.request-show', [
+            'request' => $plaquetteRequest,
+        ]);
+    }
+
     public function approveRequest(Request $request, PlaquetteRequest $plaquetteRequest): RedirectResponse
     {
         $this->ensureAllowed();
