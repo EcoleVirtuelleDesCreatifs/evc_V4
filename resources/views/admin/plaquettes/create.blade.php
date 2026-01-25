@@ -36,16 +36,6 @@
                             <input type="text" name="title" id="title" class="form-control" value="{{ old('title') }}" required>
                         </div>
 
-                        <div class="col-12 col-lg-6 form-group">
-                            <label for="formation_id">Formation</label>
-                            <select name="formation_id" id="formation_id" class="form-select" required>
-                                <option value="" disabled {{ old('formation_id') ? '' : 'selected' }}>Choisir une formation...</option>
-                                @foreach($formations as $f)
-                                    <option value="{{ $f->id }}" @selected(old('formation_id') == $f->id)>{{ $f->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
                         <div class="col-12 form-group">
                             <label for="description">Description</label>
                             <textarea name="description" id="description" class="form-control" rows="4" required>{{ old('description') }}</textarea>

@@ -53,9 +53,8 @@ class PlaquettesAdminController extends Controller
     public function create(): View
     {
         $this->ensureAllowed();
-        $formations = $this->formationsList();
 
-        return view('admin.plaquettes.create', compact('formations'));
+        return view('admin.plaquettes.create');
     }
 
     public function store(Request $request): RedirectResponse
@@ -65,7 +64,7 @@ class PlaquettesAdminController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:5000',
-            'formation_id' => 'required|integer|exists:formations,id',
+            'formation_id' => 'nullable|integer|exists:formations,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'format' => 'required|in:online,offline',
@@ -79,7 +78,7 @@ class PlaquettesAdminController extends Controller
         Plaquette::create([
             'title' => $validated['title'],
             'description' => $validated['description'],
-            'formation_id' => (int) $validated['formation_id'],
+            'formation_id' => isset($validated['formation_id']) ? (int) $validated['formation_id'] : null,
             'file_path' => $path,
             'original_filename' => $file->getClientOriginalName(),
             'file_size' => $file->getSize(),
