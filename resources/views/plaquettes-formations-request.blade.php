@@ -46,6 +46,12 @@
     <div class="bg-black py-16">
         <div class="mx-auto max-w-3xl px-6 lg:px-8">
             <div class="rounded-2xl bg-gray-800/80 p-8 ring-1 ring-white/10">
+                @if(session('success'))
+                    <div class="mb-6 rounded-xl bg-green-500/10 border border-green-500/30 p-4 text-green-200">
+                        <div class="font-semibold">{{ session('success') }}</div>
+                    </div>
+                @endif
+
                 <form method="POST" action="{{ $actionUrl }}" class="space-y-6">
                     @csrf
 
@@ -94,7 +100,7 @@
 
                     <div class="flex flex-col sm:flex-row gap-3">
                         <button type="submit" class="inline-flex items-center justify-center px-6 py-3 bg-orange-500 text-white font-semibold rounded-full hover:bg-orange-600 transition duration-300">
-                            Valider et télécharger
+                            Envoyer ma demande
                         </button>
                         <a href="{{ $backUrl }}" class="inline-flex items-center justify-center px-6 py-3 bg-white/10 text-white font-semibold rounded-full hover:bg-white/15 transition duration-300">
                             Retour

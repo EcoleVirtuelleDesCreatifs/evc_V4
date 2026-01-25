@@ -83,8 +83,16 @@ Route::get('/plaquettes-formations', [HomepageController::class, 'plaquettesForm
 Route::get('/evc/plaquettes-formations', [HomepageController::class, 'plaquettesFormations'])->name('plaquettes.formations.evc');
 Route::get('/plaquettes-formations/item/{plaquette}', [HomepageController::class, 'plaquetteFormById'])->whereNumber('plaquette')->name('plaquettes.formations.form.id');
 Route::post('/plaquettes-formations/item/{plaquette}', [HomepageController::class, 'plaquetteDownloadById'])->whereNumber('plaquette')->name('plaquettes.formations.download.id');
+Route::get('/plaquettes-formations/request/{plaquetteRequest}/download', [HomepageController::class, 'plaquetteFileByRequest'])
+    ->whereNumber('plaquetteRequest')
+    ->middleware('signed')
+    ->name('plaquettes.requests.file');
 Route::get('/evc/plaquettes-formations/item/{plaquette}', [HomepageController::class, 'plaquetteFormById'])->whereNumber('plaquette')->name('plaquettes.formations.form.id.evc');
 Route::post('/evc/plaquettes-formations/item/{plaquette}', [HomepageController::class, 'plaquetteDownloadById'])->whereNumber('plaquette')->name('plaquettes.formations.download.id.evc');
+Route::get('/evc/plaquettes-formations/request/{plaquetteRequest}/download', [HomepageController::class, 'plaquetteFileByRequest'])
+    ->whereNumber('plaquetteRequest')
+    ->middleware('signed')
+    ->name('plaquettes.requests.file.evc');
 Route::get('/plaquettes-formations/{filename}', [HomepageController::class, 'plaquetteForm'])->where('filename', '.*')->name('plaquettes.formations.form');
 Route::post('/plaquettes-formations/{filename}', [HomepageController::class, 'plaquetteDownload'])->where('filename', '.*')->name('plaquettes.formations.download');
 Route::get('/evc/plaquettes-formations/{filename}', [HomepageController::class, 'plaquetteForm'])->where('filename', '.*')->name('plaquettes.formations.form.evc');
@@ -770,6 +778,10 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/plaquettes/{plaquette}/toggle-publish', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'togglePublish'])->name('plaquettes.toggle-publish');
         Route::post('/plaquettes/{plaquette}/toggle-active', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'toggleActive'])->name('plaquettes.toggle-active');
         Route::get('/plaquettes/{plaquette}/download', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'download'])->name('plaquettes.download');
+
+        Route::get('/plaquettes/requests', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'requestsIndex'])->name('plaquettes.requests.index');
+        Route::post('/plaquettes/requests/{plaquetteRequest}/approve', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'approveRequest'])->name('plaquettes.requests.approve');
+        Route::post('/plaquettes/requests/{plaquetteRequest}/reject', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'rejectRequest'])->name('plaquettes.requests.reject');
 
         Route::get('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'index'])->name('assistant.tasks.index');
         Route::post('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'store'])->name('assistant.tasks.store');

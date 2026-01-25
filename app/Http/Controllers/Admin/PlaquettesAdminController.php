@@ -5,9 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Formation;
 use App\Models\Plaquette;
+use App\Models\PlaquetteRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 
 class PlaquettesAdminController extends Controller
@@ -200,5 +204,90 @@ class PlaquettesAdminController extends Controller
             Storage::disk('public')->path($path),
             $plaquette->original_filename
         );
+    }
+
+    public function requestsIndex(): View
+    {
+        $this->ensureAllowed();
+
+        $requests = PlaquetteRequest::query()
+            ->with('plaquette')
+            ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
+            ->orderByDesc('created_at')
+            ->get();
+
+        $stats = [
+            'total' => $requests->count(),
+            'pending' => $requests->where('status', 'pending')->count(),
+            'approved' => $requests->where('status', 'approved')->count(),
+            'rejected' => $requests->where('status', 'rejected')->count(),
+        ];
+
+        return view('admin.plaquettes.requests', compact('requests', 'stats'));
+    }
+
+    public function approveRequest(Request $request, PlaquetteRequest $plaquetteRequest): RedirectResponse
+    {
+        $this->ensureAllowed();
+
+        if ($plaquetteRequest->status !== 'pending') {
+            return redirect()->back()->with('error', 'Cette demande a déjà été traitée.');
+        }
+
+        $plaquetteRequest->update([
+            'status' => 'approved',
+            'approved_by_admin_id' => (int) session('admin_id'),
+            'approved_at' => now(),
+            'rejected_at' => null,
+        ]);
+
+        $signedUrl = URL::temporarySignedRoute(
+            'plaquettes.requests.file',
+            now()->addDays(7),
+            ['plaquetteRequest' => $plaquetteRequest->id]
+        );
+
+        try {
+            Mail::send('emails.plaquette_delivery', [
+                'request' => $plaquetteRequest,
+                'plaquette' => $plaquetteRequest->plaquette,
+                'downloadUrl' => $signedUrl,
+            ], function ($message) use ($plaquetteRequest) {
+                $message->to($plaquetteRequest->email)
+                    ->subject('Votre plaquette est disponible');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Erreur envoi email plaquette (delivery)', [
+                'request_id' => $plaquetteRequest->id,
+                'email' => $plaquetteRequest->email,
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('warning', 'Demande validée, mais l\'email n\'a pas pu être envoyé.');
+        }
+
+        return redirect()->back()->with('success', 'Demande validée et email envoyé.');
+    }
+
+    public function rejectRequest(Request $request, PlaquetteRequest $plaquetteRequest): RedirectResponse
+    {
+        $this->ensureAllowed();
+
+        if ($plaquetteRequest->status !== 'pending') {
+            return redirect()->back()->with('error', 'Cette demande a déjà été traitée.');
+        }
+
+        $validated = $request->validate([
+            'admin_comment' => 'nullable|string|max:2000',
+        ]);
+
+        $plaquetteRequest->update([
+            'status' => 'rejected',
+            'approved_by_admin_id' => (int) session('admin_id'),
+            'rejected_at' => now(),
+            'admin_comment' => $validated['admin_comment'] ?? null,
+        ]);
+
+        return redirect()->back()->with('success', 'Demande rejetée.');
     }
 }

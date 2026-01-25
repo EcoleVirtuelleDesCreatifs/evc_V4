@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\URL;
+use App\Models\PlaquetteRequest;
 use Illuminate\Support\Str;
 use App\Models\Plaquette;
 use App\Mail\PreRegistrationSubmitted;
@@ -526,10 +528,45 @@ class HomepageController extends Controller
             }
         }
 
-        try {
-            $plaquette->increment('download_count');
-        } catch (\Throwable $e) {
-            // ignore
+        $plaquetteRequest = PlaquetteRequest::create([
+            'plaquette_id' => $plaquette->id,
+            'nom' => $validated['nom'],
+            'prenoms' => $validated['prenoms'],
+            'type_formation' => $validated['type_formation'],
+            'pays' => $validated['pays'],
+            'ville' => $validated['ville'],
+            'whatsapp' => $validated['whatsapp'],
+            'email' => $validated['email'],
+            'niveau_etude' => $validated['niveau_etude'],
+            'motivation' => $validated['motivation'],
+            'status' => 'pending',
+        ]);
+
+        $isEvcPrefixed = request()->is('evc/*');
+        $formRouteName = $isEvcPrefixed ? 'plaquettes.formations.form.id.evc' : 'plaquettes.formations.form.id';
+
+        return redirect()
+            ->route($formRouteName, ['plaquette' => $plaquette->id])
+            ->with('success', 'Merci ! Votre demande a été envoyée. Un administrateur va la valider puis vous recevrez la plaquette par email.');
+    }
+
+    public function plaquetteFileByRequest(Request $request, PlaquetteRequest $plaquetteRequest)
+    {
+        if ($plaquetteRequest->status !== 'approved') {
+            abort(404);
+        }
+
+        $plaquette = $plaquetteRequest->plaquette;
+        if (!$plaquette || !$plaquette->is_active || !$plaquette->is_published) {
+            abort(404);
+        }
+
+        $today = now()->toDateString();
+        if ($plaquette->start_date && $plaquette->start_date->toDateString() > $today) {
+            abort(404);
+        }
+        if ($plaquette->end_date && $plaquette->end_date->toDateString() < $today) {
+            abort(404);
         }
 
         $path = (string) ($plaquette->file_path ?? '');
@@ -540,6 +577,12 @@ class HomepageController extends Controller
 
         if ($path === '' || !\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
             abort(404);
+        }
+
+        try {
+            $plaquette->increment('download_count');
+        } catch (\Throwable $e) {
+            // ignore
         }
 
         return response()->download(

@@ -217,6 +217,10 @@
                 <a href="{{ route('preinscription.start') }}" class="block w-full text-center bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 rounded-full hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
                     <i class="fas fa-rocket mr-2"></i>Choisir cette formation
                 </a>
+
+                <a href="{{ route('plaquettes.formations') }}" class="mt-3 block w-full text-center bg-white/10 text-white font-bold py-4 rounded-full hover:bg-white/15 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-file-pdf mr-2"></i>Demander la plaquette
+                </a>
             </div>
 
             <!-- Community Management -->
@@ -292,6 +296,10 @@
                 <a href="{{ route('preinscription.start') }}" class="block w-full text-center bg-gradient-to-r from-blue-500 to-blue-600 text-white font-bold py-4 rounded-full hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
                     <i class="fas fa-rocket mr-2"></i>Choisir cette formation
                 </a>
+
+                <a href="{{ route('plaquettes.formations') }}" class="mt-3 block w-full text-center bg-white/10 text-white font-bold py-4 rounded-full hover:bg-white/15 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-file-pdf mr-2"></i>Demander la plaquette
+                </a>
             </div>
 
             <!-- Bureautique et informatique -->
@@ -363,6 +371,10 @@
                 <a href="{{ route('preinscription.start') }}" class="block w-full text-center bg-gradient-to-r from-green-500 to-green-600 text-white font-bold py-4 rounded-full hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
                     <i class="fas fa-rocket mr-2"></i>Choisir cette formation
                 </a>
+
+                <a href="{{ route('plaquettes.formations') }}" class="mt-3 block w-full text-center bg-white/10 text-white font-bold py-4 rounded-full hover:bg-white/15 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-file-pdf mr-2"></i>Demander la plaquette
+                </a>
             </div>
 
             <!-- Intelligence Artificielle -->
@@ -433,6 +445,10 @@
 
                 <a href="{{ route('preinscription.start') }}" class="block w-full text-center bg-gradient-to-r from-purple-500 to-purple-600 text-white font-bold py-4 rounded-full hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
                     <i class="fas fa-rocket mr-2"></i>Choisir cette formation
+                </a>
+
+                <a href="{{ route('plaquettes.formations') }}" class="mt-3 block w-full text-center bg-white/10 text-white font-bold py-4 rounded-full hover:bg-white/15 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-file-pdf mr-2"></i>Demander la plaquette
                 </a>
             </div>
 
