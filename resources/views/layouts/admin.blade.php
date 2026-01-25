@@ -510,11 +510,26 @@
                     @endif
 
                     @if(session('admin_role') === 'super_admin')
-                    <li class="admin-nav-item">
-                        <a href="{{ route('admin.plaquettes.index') }}" class="admin-nav-link {{ request()->routeIs('admin.plaquettes.*') ? 'active' : '' }}">
+                    <li class="admin-nav-item dropdown">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.plaquettes.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#plaquettesMenu">
                             <i class="fas fa-file-pdf"></i>
                             Plaquettes de formation
+                            <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
+                        <div class="collapse {{ request()->routeIs('admin.plaquettes.*') ? 'show' : '' }}" id="plaquettesMenu">
+                            <ul class="admin-nav-submenu">
+                                <li>
+                                    <a href="{{ route('admin.plaquettes.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.plaquettes.index') ? 'active' : '' }}">
+                                        <i class="fas fa-list"></i>Plaquettes
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('admin.plaquettes.requests.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.plaquettes.requests.*') ? 'active' : '' }}">
+                                        <i class="fas fa-inbox"></i>Demandes
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
                     @endif
 
