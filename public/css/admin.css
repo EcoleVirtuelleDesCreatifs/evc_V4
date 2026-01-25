@@ -50,6 +50,20 @@ body.sidebar-open {
     transition: opacity 0.2s ease;
 }
 
+/* Bootstrap modals must stay fully interactive above any admin overlays */
+body.modal-open .admin-sidebar-overlay {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.modal {
+    z-index: 2000;
+}
+
+.modal-backdrop {
+    z-index: 1990;
+}
+
 .admin-mobile-menu-btn {
     display: none;
     align-items: center;
