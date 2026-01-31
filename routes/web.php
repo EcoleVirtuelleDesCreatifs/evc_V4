@@ -484,6 +484,7 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
     Route::get('/projets', [DashboardController::class, 'projets'])->name('projets.index');
     Route::post('/projets', [App\Http\Controllers\DesignProjectController::class, 'store'])->name('projets.store');
     Route::get('/projets/stats/json', [App\Http\Controllers\DesignProjectController::class, 'getStats'])->name('projets.stats');
+    Route::get('/projets/historique', [App\Http\Controllers\DesignProjectController::class, 'historique'])->name('projets.historique');
     Route::get('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'show'])->name('projets.show');
     Route::get('/projets/{id}/edit', [App\Http\Controllers\DesignProjectController::class, 'edit'])->name('projets.edit');
     Route::put('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'update'])->name('projets.update');
@@ -675,6 +676,7 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
     Route::get('/projets', [DashboardController::class, 'projets'])->name('projets.index');
     Route::post('/projets', [App\Http\Controllers\DesignProjectController::class, 'store'])->name('projets.store');
     Route::get('/projets/stats/json', [App\Http\Controllers\DesignProjectController::class, 'getStats'])->name('projets.stats');
+    Route::get('/projets/historique', [App\Http\Controllers\DesignProjectController::class, 'historique'])->name('projets.historique');
     Route::get('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'show'])->name('projets.show');
     Route::get('/projets/{id}/edit', [App\Http\Controllers\DesignProjectController::class, 'edit'])->name('projets.edit');
     Route::put('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'update'])->name('projets.update');

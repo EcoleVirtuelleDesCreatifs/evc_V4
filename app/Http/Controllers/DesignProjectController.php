@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Exception;
 
 /**
@@ -87,20 +89,55 @@ class DesignProjectController extends Controller
         $userFormation = session('user_formation', 'design-graphique');
 
         try {
-            $projects = $this->designProjectService->getUserProjects($userId, [
-                'limit' => 500,
-            ]);
+            $formationKey = strtolower((string) $userFormation);
+            $useCommunityProjectsTable = in_array($formationKey, ['community-management', 'community-manager', 'design-graphique-cm'], true);
 
-            $stats = $this->designProjectService->getUserStats($userId);
+            if ($useCommunityProjectsTable && Schema::hasTable('projects')) {
+                $rows = DB::table('projects')
+                    ->where('user_id', $userId)
+                    ->whereIn('status', ['termine', 'valide', 'rejete'])
+                    ->orderByDesc('created_at')
+                    ->limit(500)
+                    ->get();
 
-            $allowedStatuses = ['pending', 'validated', 'rejected'];
+                $statusMap = [
+                    'termine' => 'pending',
+                    'valide' => 'validated',
+                    'rejete' => 'rejected',
+                ];
 
-            $projects = collect($projects)
-                ->filter(function ($project) use ($allowedStatuses) {
-                    return in_array(($project['status'] ?? null), $allowedStatuses, true);
-                })
-                ->values()
-                ->all();
+                $projects = $rows->map(function ($p) use ($statusMap) {
+                    return [
+                        'id' => (int) ($p->id ?? 0),
+                        'title' => (string) ($p->title ?? ''),
+                        'description' => (string) ($p->description ?? ''),
+                        'category' => (string) (($p->category ?? '') ?: 'solo'),
+                        'project_type' => (string) (($p->category ?? '') ?: '-'),
+                        'status' => $statusMap[$p->status ?? 'termine'] ?? 'pending',
+                        'created_at' => $p->created_at ?? null,
+                        'files' => [],
+                    ];
+                })->values()->all();
+
+                $stats = [
+                    'total_projects' => count($projects),
+                ];
+            } else {
+                $projects = $this->designProjectService->getUserProjects($userId, [
+                    'limit' => 500,
+                ]);
+
+                $stats = $this->designProjectService->getUserStats($userId);
+
+                $allowedStatuses = ['pending', 'validated', 'rejected'];
+
+                $projects = collect($projects)
+                    ->filter(function ($project) use ($allowedStatuses) {
+                        return in_array(($project['status'] ?? null), $allowedStatuses, true);
+                    })
+                    ->values()
+                    ->all();
+            }
 
             return view('projets.historique', [
                 'projects' => $projects,

@@ -9,6 +9,12 @@
         $pendingCount = $projectsCollection->where('status', 'pending')->count();
         $validatedCount = $projectsCollection->where('status', 'validated')->count();
         $rejectedCount = $projectsCollection->where('status', 'rejected')->count();
+
+        $formationPrefix = (string) ($userFormation ?? 'design-graphique');
+        $projectsIndexRouteName = $formationPrefix . '.projets.index';
+        $projectsShowRouteName = $formationPrefix . '.projets.show';
+        $projectsEditRouteName = $formationPrefix . '.projets.edit';
+        $projectsDestroyRouteName = $formationPrefix . '.projets.destroy';
     @endphp
 
     <div class="row mb-4">
@@ -22,7 +28,7 @@
                     <p class="text-white-50 mb-0">Tous vos projets : en cours de validation, validés et rejetés</p>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
-                    <a href="{{ route('design-graphique.projets.index') }}" class="btn btn-outline-light" style="border-radius: 12px; font-weight: 800;">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($projectsIndexRouteName) ? route($projectsIndexRouteName) : route('design-graphique.projets.index') }}" class="btn btn-outline-light" style="border-radius: 12px; font-weight: 800;">
                         <i class="fas fa-arrow-left me-2"></i>
                         Retour
                     </a>
@@ -193,16 +199,16 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-1 flex-wrap">
-                                                    <a href="{{ route('design-graphique.projets.show', $project['id']) }}" class="btn btn-sm btn-success" title="Voir">
+                                                    <a href="{{ \Illuminate\Support\Facades\Route::has($projectsShowRouteName) ? route($projectsShowRouteName, $project['id']) : route('design-graphique.projets.show', $project['id']) }}" class="btn btn-sm btn-success" title="Voir">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
 
                                                     @if(($project['status'] ?? null) === 'pending')
-                                                        <a href="{{ route('design-graphique.projets.edit', $project['id']) }}" class="btn btn-sm btn-primary" title="Modifier">
+                                                        <a href="{{ \Illuminate\Support\Facades\Route::has($projectsEditRouteName) ? route($projectsEditRouteName, $project['id']) : route('design-graphique.projets.edit', $project['id']) }}" class="btn btn-sm btn-primary" title="Modifier">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
 
-                                                        <form action="{{ route('design-graphique.projets.destroy', $project['id']) }}" method="POST" class="d-inline" onsubmit="return confirmDeleteProject();">
+                                                        <form action="{{ \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName) ? route($projectsDestroyRouteName, $project['id']) : route('design-graphique.projets.destroy', $project['id']) }}" method="POST" class="d-inline" onsubmit="return confirmDeleteProject();">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
