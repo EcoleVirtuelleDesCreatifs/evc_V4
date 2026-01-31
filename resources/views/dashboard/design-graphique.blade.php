@@ -750,8 +750,8 @@
                     <div class="stat-label mb-3">Événements</div>
                     <div class="row g-0 text-center">
                         <div class="col-6">
-                            <div class="stat-number" id="dg_webinaires_en_cours" style="font-size: 2rem;">{{ $stats['webinaires_en_cours'] ?? 0 }}</div>
-                            <small style="opacity: 0.8;">Webinaires</small>
+                            <div class="stat-number" id="dg_webinaires_en_cours" style="font-size: 2rem;">{{ $stats['evenements_en_cours'] ?? ($stats['webinaires_en_cours'] ?? 0) }}</div>
+                            <small style="opacity: 0.8;">Événements (en cours)</small>
                         </div>
                         <div class="col-6" style="border-left: 1px solid rgba(255,255,255,0.3);">
                             <div class="stat-number" id="dg_actualites_en_cours" style="font-size: 2rem;">{{ $stats['actualites_en_cours'] ?? 0 }}</div>
@@ -1217,7 +1217,7 @@
                 setText(el.projetsTotal, projetsTotal);
                 setText(el.projetsRealisesHero, projetsRealises);
                 setText(el.projetsTotalHero, projetsTotal);
-                setText(el.webinaires, safeInt(stats.webinaires_en_cours));
+                setText(el.webinaires, safeInt((typeof stats.evenements_en_cours !== 'undefined') ? stats.evenements_en_cours : stats.webinaires_en_cours));
                 setText(el.actualites, safeInt(stats.actualites_en_cours));
 
                 if (typeof stats.montant_restant !== 'undefined') {

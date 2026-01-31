@@ -318,6 +318,7 @@ class DashboardController extends Controller
 
             // Événements/Webinaires en cours (dynamique depuis evenements)
             'webinaires_en_cours' => $webinairesEnCours,
+            'evenements_en_cours' => $webinairesEnCours,
 
             // Actualités en cours (dynamique depuis actualites)
             'actualites_en_cours' => $actualitesEnCours,
@@ -1007,6 +1008,7 @@ class DashboardController extends Controller
                 ->count(),
             'projets_total' => $projectsQuery->count(),
             'webinaires_en_cours' => $webinairesEnCours,
+            'evenements_en_cours' => $webinairesEnCours,
             'actualites_en_cours' => $actualitesEnCours,
             'montant_restant' => $montantRestant,
         ];
