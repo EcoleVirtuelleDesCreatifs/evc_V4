@@ -4,6 +4,13 @@
 
 @section('content')
 <div class="container-fluid">
+    @php
+        $projectsCollection = collect(is_array($projects ?? null) ? $projects : []);
+        $pendingCount = $projectsCollection->where('status', 'pending')->count();
+        $validatedCount = $projectsCollection->where('status', 'validated')->count();
+        $rejectedCount = $projectsCollection->where('status', 'rejected')->count();
+    @endphp
+
     <div class="row mb-4">
         <div class="col-12">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -19,6 +26,56 @@
                         <i class="fas fa-arrow-left me-2"></i>
                         Retour
                     </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card" style="background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%); color: white;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div style="font-weight: 900; font-size: 2rem; line-height: 1;">{{ $pendingCount }}</div>
+                            <div style="opacity: 0.95; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem;">En cours de validation</div>
+                        </div>
+                        <div style="font-size: 2.2rem; opacity: 0.35;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div style="font-weight: 900; font-size: 2rem; line-height: 1;">{{ $validatedCount }}</div>
+                            <div style="opacity: 0.95; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem;">Validés</div>
+                        </div>
+                        <div style="font-size: 2.2rem; opacity: 0.35;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div style="font-weight: 900; font-size: 2rem; line-height: 1;">{{ $rejectedCount }}</div>
+                            <div style="opacity: 0.95; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem;">Rejetés</div>
+                        </div>
+                        <div style="font-size: 2.2rem; opacity: 0.35;">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
