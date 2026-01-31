@@ -1219,7 +1219,7 @@
                         <i class="fas fa-tasks"></i>
                         Travaux Pratiques
                     </a>
-                    <a href="{{ route('design-graphique.projets.index') }}" class="submenu-item {{ request()->routeIs('design-graphique.projets.*') ? 'active' : '' }}">
+                    <a href="{{ route('design-graphique.projets.index') }}" class="submenu-item {{ (request()->routeIs('design-graphique.projets.*') && !request()->routeIs('design-graphique.projets.historique')) ? 'active' : '' }}">
                         <i class="fas fa-external-link-alt"></i>
                         Studio Creative
                     </a>
