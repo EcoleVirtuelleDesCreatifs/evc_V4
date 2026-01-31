@@ -85,12 +85,13 @@
                                                     if (is_string($mime) && stripos($mime, 'image/') === 0) {
                                                         $isImage = true;
                                                     } else {
-                                                        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                                        $nameForExt = $file['name'] ?? $path;
+                                                        $ext = strtolower(pathinfo($nameForExt, PATHINFO_EXTENSION));
                                                         $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'], true);
                                                     }
 
                                                     if ($isImage) {
-                                                        $thumbnailUrl = \Illuminate\Support\Facades\Storage::disk('public')->url(ltrim($path, '/'));
+                                                        $thumbnailUrl = \App\Models\MediaUrl::fromPath($path);
                                                         break;
                                                     }
                                                 }
