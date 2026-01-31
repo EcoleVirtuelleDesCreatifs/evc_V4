@@ -382,17 +382,13 @@ class DesignProjectService
 
         $hasFilesTable = Schema::hasTable('design_project_files');
 
-        $sql = "
-            SELECT dp.*";
+        $sql = "\n            SELECT\n                dp.*,\n                " . ($hasFilesTable ? "COALESCE(fc.files_count, 0)" : "0") . " as files_count\n            FROM design_projects dp\n        ";
 
         if ($hasFilesTable) {
-            $sql .= ",\n                   COUNT(DISTINCT dpf.id) as files_count\n            FROM design_projects dp\n            LEFT JOIN design_project_files dpf ON dp.id = dpf.project_id\n            WHERE dp.user_id = ?";
-        } else {
-            $sql .= ",\n                   0 as files_count\n            FROM design_projects dp\n            WHERE dp.user_id = ?";
+            $sql .= "\n            LEFT JOIN (\n                SELECT project_id, COUNT(*) as files_count\n                FROM design_project_files\n                GROUP BY project_id\n            ) fc ON fc.project_id = dp.id\n            ";
         }
 
-        $sql .= "
-        ";
+        $sql .= "\n            WHERE dp.user_id = ?\n        ";
 
         $params = [$userId];
 
@@ -412,7 +408,7 @@ class DesignProjectService
             $params[] = $filters['category'];
         }
 
-        $sql .= " GROUP BY dp.id ORDER BY dp.created_at DESC";
+        $sql .= " ORDER BY dp.created_at DESC";
 
         if (!empty($filters['limit'])) {
             $sql .= " LIMIT " . (int) $filters['limit'];
