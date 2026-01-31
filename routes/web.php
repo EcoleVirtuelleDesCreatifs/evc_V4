@@ -352,14 +352,13 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     Route::get('/projets', [DashboardController::class, 'projets'])->name('projets.index');
     Route::post('/projets', [App\Http\Controllers\DesignProjectController::class, 'store'])->name('projets.store');
     Route::get('/projets/stats/json', [App\Http\Controllers\DesignProjectController::class, 'getStats'])->name('projets.stats');
+    Route::get('/projets/historique', [App\Http\Controllers\DesignProjectController::class, 'historique'])->name('projets.historique');
     Route::get('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'show'])->name('projets.show');
     Route::get('/projets/{id}/edit', [App\Http\Controllers\DesignProjectController::class, 'edit'])->name('projets.edit');
     Route::put('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'update'])->name('projets.update');
     Route::delete('/projets/{projectId}/files/{fileId}', [App\Http\Controllers\DesignProjectController::class, 'removeFile'])->name('projets.removeFile');
     Route::patch('/projets/{id}/status', [App\Http\Controllers\DesignProjectController::class, 'updateStatus'])->name('projets.updateStatus');
     Route::delete('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'destroy'])->name('projets.destroy');
-
-    Route::get('/projets/historique', [App\Http\Controllers\DesignProjectController::class, 'historique'])->name('projets.historique');
 
     // Routes pour les listes de projets par catégorie
     Route::get('/projets/solo/liste', [App\Http\Controllers\DesignProjectController::class, 'soloProjects'])->name('projets.solo');
