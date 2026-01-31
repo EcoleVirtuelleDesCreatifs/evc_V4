@@ -32,43 +32,86 @@
     })->count();
 @endphp
 <div class="programme-page-bg" aria-hidden="true"></div>
-<!-- Header avec palette Instagram -->
+<div class="programme-hero-wrap mb-4">
+    <div class="container-fluid">
+        <div class="programme-hero-inner">
+            <div class="text-center">
+                <nav aria-label="breadcrumb" class="programme-breadcrumb">
+                    <ol class="breadcrumb justify-content-center mb-3">
+                        <li class="breadcrumb-item">
+                            <a href="{{ route($dashboardRoute) }}">Accueil</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">Programme</li>
+                    </ol>
+                </nav>
+
+                <h1 class="programme-hero-h1">Programmes de formation</h1>
+                <div class="programme-hero-lead">{{ $student->program ?? 'Votre formation' }}</div>
+
+                <div class="programme-count-chip mt-4">
+                    <i class="fas fa-book-open"></i>
+                    <span>{{ $programmes->count() }} programme{{ $programmes->count() > 1 ? 's' : '' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row mb-4">
     <div class="col-12">
-        <div class="instagram-header">
-            <div class="card-body">
-                <div class="programme-hero">
-                    <div class="programme-hero-left">
-                        <div class="icon-circle">
-                            <i class="fas fa-book-open"></i>
-                        </div>
-                        <div>
-                            <div class="programme-hero-title">Programmes de Formation</div>
-                            <div class="programme-hero-subtitle">{{ $student->program ?? 'Votre formation' }}</div>
-                        </div>
-                    </div>
+        <div class="programme-cards-grid">
+            <div class="row g-4">
+                @foreach($programmes as $index => $programme)
+                    @php
+                        $items = $programme->items ?? collect();
+                        $itemsCount = (int) ($programme->items_count ?? (is_countable($items) ? count($items) : 0));
+                        $monthLabel = null;
+                        try {
+                            $monthLabel = !empty($programme->month_start) ? \Carbon\Carbon::parse($programme->month_start)->translatedFormat('F Y') : null;
+                        } catch (\Throwable $e) {
+                            $monthLabel = null;
+                        }
 
-                    <div class="programme-hero-kpis">
-                        <div class="kpi-chip">
-                            <div class="kpi-label">Programmes</div>
-                            <div class="kpi-value">{{ $programmes->count() }}</div>
-                        </div>
-                        <div class="kpi-chip">
-                            <div class="kpi-label">Mois en cours</div>
-                            <div class="kpi-value">{{ $currentMonthCount }}</div>
-                        </div>
-                        @if($isDgCm)
-                            <div class="kpi-chip">
-                                <div class="kpi-label">DG</div>
-                                <div class="kpi-value">{{ $dgCount }}</div>
+                        $pStatus = $programme->status ?? null;
+                        $pStatusLabel = $pStatus === 'en_cours' ? 'En cours' : ($pStatus === 'terminee' ? 'Terminée' : 'À venir');
+                        $pStatusBadge = $pStatus === 'en_cours' ? 'badge-warning' : ($pStatus === 'terminee' ? 'badge-success' : 'badge-info');
+                    @endphp
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="programme-card-modern">
+                            <div class="programme-card-top">
+                                <div class="programme-card-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="programme-card-meta">
+                                    @if($monthLabel)
+                                        <span class="programme-chip">{{ $monthLabel }}</span>
+                                    @endif
+                                    <span class="programme-chip programme-chip-soft">{{ $itemsCount }} séance{{ $itemsCount > 1 ? 's' : '' }}</span>
+                                    <span class="programme-chip {{ $pStatusBadge }}">{{ $pStatusLabel }}</span>
+                                </div>
                             </div>
-                            <div class="kpi-chip">
-                                <div class="kpi-label">CM</div>
-                                <div class="kpi-value">{{ $cmCount }}</div>
+
+                            <div class="programme-card-body">
+                                <div class="programme-card-title">{{ $programme->titre ?? 'Programme' }}</div>
+                                @if(!empty($programme->description))
+                                    <div class="programme-card-desc">{{ \Illuminate\Support\Str::limit($programme->description, 130) }}</div>
+                                @else
+                                    <div class="programme-card-desc programme-card-desc-muted">Téléchargez le programme pour consulter le détail.</div>
+                                @endif
                             </div>
-                        @endif
+
+                            <div class="programme-card-actions">
+                                @if(!empty($programme->fichier_pdf))
+                                    <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}">
+                                        Télécharger
+                                    </a>
+                                @else
+                                    <span class="btn btn-sm btn-secondary disabled">PDF indisponible</span>
+                                @endif
+                            </div>
+                        </div>
                     </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
@@ -771,6 +814,176 @@
     --evc-surface-soft: #0e2a5a;
     --evc-border: rgba(191, 219, 254, 0.18);
 }
+
+ .programme-hero-wrap {
+     border-radius: 22px;
+     background: linear-gradient(180deg, rgba(0, 0, 51, 0.92) 0%, rgba(0, 0, 102, 0.92) 100%);
+     border: 1px solid rgba(255,255,255,0.10);
+     position: relative;
+     overflow: hidden;
+ }
+
+ .programme-hero-wrap::before {
+     content: '';
+     position: absolute;
+     inset: -2px;
+     background: radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.22), transparent 45%),
+                 radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.18), transparent 40%);
+     pointer-events: none;
+ }
+
+ .programme-hero-inner {
+     padding: 2.2rem 1.5rem;
+     position: relative;
+     z-index: 1;
+ }
+
+ .programme-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+     color: rgba(255,255,255,0.35);
+ }
+
+ .programme-breadcrumb a {
+     color: rgba(255,255,255,0.75);
+     font-weight: 700;
+     text-decoration: none;
+ }
+
+ .programme-breadcrumb a:hover {
+     color: #f97316;
+ }
+
+ .programme-hero-h1 {
+     color: #fff;
+     font-weight: 900;
+     letter-spacing: -0.02em;
+     margin-bottom: .4rem;
+     font-size: 2rem;
+ }
+
+ .programme-hero-lead {
+     color: rgba(255,255,255,0.82);
+     font-weight: 700;
+ }
+
+ .programme-count-chip {
+     display: inline-flex;
+     align-items: center;
+     gap: .55rem;
+     padding: .75rem 1.1rem;
+     border-radius: 999px;
+     background: rgba(255,255,255,0.10);
+     border: 1px solid rgba(255,255,255,0.18);
+     color: #fff;
+     font-weight: 800;
+     backdrop-filter: blur(10px);
+ }
+
+ .programme-cards-grid {
+     margin-bottom: 1rem;
+ }
+
+ .programme-card-modern {
+     border-radius: 18px;
+     background: rgba(15, 23, 42, 0.55);
+     border: 1px solid rgba(255,255,255,0.10);
+     box-shadow: 0 18px 45px rgba(0,0,0,0.20);
+     overflow: hidden;
+     height: 100%;
+     display: flex;
+     flex-direction: column;
+ }
+
+ .programme-card-top {
+     padding: 1rem 1rem 0.75rem;
+     display: flex;
+     gap: .85rem;
+     align-items: flex-start;
+ }
+
+ .programme-card-icon {
+     width: 46px;
+     height: 46px;
+     border-radius: 14px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     background: rgba(249, 115, 22, 0.18);
+     border: 1px solid rgba(249, 115, 22, 0.25);
+     color: #f97316;
+     flex: 0 0 auto;
+ }
+
+ .programme-card-meta {
+     display: flex;
+     gap: .4rem;
+     flex-wrap: wrap;
+ }
+
+ .programme-chip {
+     display: inline-flex;
+     align-items: center;
+     padding: .35rem .7rem;
+     border-radius: 999px;
+     font-size: .75rem;
+     font-weight: 800;
+     color: #fff;
+     background: rgba(255,255,255,0.10);
+     border: 1px solid rgba(255,255,255,0.14);
+ }
+
+ .programme-chip-soft {
+     color: rgba(255,255,255,0.85);
+ }
+
+ .programme-chip.badge-warning {
+     background: rgba(255,152,0,0.20);
+     border-color: rgba(255,152,0,0.30);
+ }
+
+ .programme-chip.badge-success {
+     background: rgba(16,185,129,0.18);
+     border-color: rgba(16,185,129,0.28);
+ }
+
+ .programme-chip.badge-info {
+     background: rgba(59,130,246,0.18);
+     border-color: rgba(59,130,246,0.28);
+ }
+
+ .programme-card-body {
+     padding: 0 1rem 1rem;
+     flex: 1 1 auto;
+ }
+
+ .programme-card-title {
+     color: #fff;
+     font-weight: 900;
+     letter-spacing: -0.01em;
+     margin-bottom: .5rem;
+ }
+
+ .programme-card-desc {
+     color: rgba(255,255,255,0.78);
+     font-weight: 600;
+     font-size: .92rem;
+ }
+
+ .programme-card-desc-muted {
+     color: rgba(255,255,255,0.55);
+ }
+
+ .programme-card-actions {
+     padding: 0 1rem 1rem;
+ }
+
+ @media (max-width: 768px) {
+     .programme-hero-inner {
+         padding: 1.6rem 1rem;
+     }
+     .programme-hero-h1 {
+         font-size: 1.6rem;
+     }
+ }
 
 .programme-hero {
     display: flex;
