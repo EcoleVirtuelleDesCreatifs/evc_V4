@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\DesignProjectService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -85,7 +86,7 @@ class DesignProjectController extends Controller
             return $this->redirectToLogin('Vous devez être connecté pour accéder à cette page.');
         }
 
-        $userId = (int) session('user_id');
+        $userId = (int) (Auth::id() ?? session('user_id'));
         $userFormation = session('user_formation', 'design-graphique');
 
         try {
@@ -103,7 +104,18 @@ class DesignProjectController extends Controller
 
                 $stats = $this->designProjectService->getUserStats($userId);
 
+                $designStatusMap = [
+                    'active' => 'pending',
+                    'validated' => 'validated',
+                    'cancelled' => 'rejected',
+                ];
+
                 $designProjects = collect($projects)
+                    ->map(function ($project) use ($designStatusMap) {
+                        $srcStatus = (string) ($project['status'] ?? '');
+                        $project['status'] = $designStatusMap[$srcStatus] ?? null;
+                        return $project;
+                    })
                     ->filter(function ($project) use ($allowedStatuses) {
                         return in_array(($project['status'] ?? null), $allowedStatuses, true);
                     })
