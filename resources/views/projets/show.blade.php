@@ -82,15 +82,19 @@
                                     $statusColors = [
                                         'draft' => 'bg-secondary',
                                         'active' => 'bg-warning',
+                                        'pending' => 'bg-warning',
                                         'completed' => 'bg-info',
                                         'validated' => 'bg-success',
+                                        'rejected' => 'bg-danger',
                                         'cancelled' => 'bg-danger'
                                     ];
                                     $statusLabels = [
                                         'draft' => 'Brouillon',
                                         'active' => 'En cours',
+                                        'pending' => 'En cours de validation',
                                         'completed' => 'Terminé',
                                         'validated' => 'Validé',
+                                        'rejected' => 'Rejeté',
                                         'cancelled' => 'Annulé'
                                     ];
                                 @endphp
