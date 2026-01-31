@@ -193,10 +193,11 @@
                                                 $fileId = $file['id'] ?? 0;
                                                 $extension = $filePath ? strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) : '';
                                                 $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+                                                $fileUrl = $filePath ? \App\Models\MediaUrl::fromPath($filePath) : '';
                                             @endphp
 
                                             @if($isImage && $filePath)
-                                                <img src="{{ asset($filePath) }}"
+                                                <img src="{{ $fileUrl }}"
                                                      class="card-img-top"
                                                      alt="{{ $fileName }}"
                                                      style="height: 200px; object-fit: cover;"
