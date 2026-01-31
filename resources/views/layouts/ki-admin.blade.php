@@ -192,7 +192,8 @@
         }
 
         .submenu.open {
-            max-height: 500px;
+            max-height: 1200px;
+            overflow-y: auto;
             padding: 0.5rem 0;
         }
 
@@ -1221,6 +1222,10 @@
                     <a href="{{ route('design-graphique.projets.index') }}" class="submenu-item {{ request()->routeIs('design-graphique.projets.*') ? 'active' : '' }}">
                         <i class="fas fa-external-link-alt"></i>
                         Studio Creative
+                    </a>
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.projets.historique') ? route($formationPrefix . '.projets.historique') : route('design-graphique.projets.historique') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.projets.historique') ? 'active' : '' }}">
+                        <i class="fas fa-history"></i>
+                        Historiques Projet
                     </a>
                     <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.todo.index') ? route($formationPrefix . '.todo.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.todo.*') ? 'active' : '' }}">
                         <i class="fas fa-list-check"></i>

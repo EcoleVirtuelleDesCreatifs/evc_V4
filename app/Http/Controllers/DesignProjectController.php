@@ -77,6 +77,44 @@ class DesignProjectController extends Controller
         }
     }
 
+    public function historique()
+    {
+        if (!$this->isAuthenticated()) {
+            return $this->redirectToLogin('Vous devez être connecté pour accéder à cette page.');
+        }
+
+        $userId = (int) session('user_id');
+        $userFormation = session('user_formation', 'design-graphique');
+
+        try {
+            $projects = $this->designProjectService->getUserProjects($userId, [
+                'limit' => 500,
+            ]);
+
+            $stats = $this->designProjectService->getUserStats($userId);
+
+            $allowedStatuses = ['pending', 'validated', 'rejected'];
+
+            $projects = collect($projects)
+                ->filter(function ($project) use ($allowedStatuses) {
+                    return in_array(($project['status'] ?? null), $allowedStatuses, true);
+                })
+                ->values()
+                ->all();
+
+            return view('projets.historique', [
+                'projects' => $projects,
+                'stats' => $stats,
+                'userFormation' => $userFormation,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erreur chargement historique projets: ' . $e->getMessage());
+
+            return redirect()->route($userFormation . '.projets.index')
+                ->with('error', 'Erreur lors du chargement de l\'historique des projets.');
+        }
+    }
+
     /**
      * Traite la création d'un nouveau projet
      *

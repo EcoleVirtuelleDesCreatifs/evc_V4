@@ -359,6 +359,8 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     Route::patch('/projets/{id}/status', [App\Http\Controllers\DesignProjectController::class, 'updateStatus'])->name('projets.updateStatus');
     Route::delete('/projets/{id}', [App\Http\Controllers\DesignProjectController::class, 'destroy'])->name('projets.destroy');
 
+    Route::get('/projets/historique', [App\Http\Controllers\DesignProjectController::class, 'historique'])->name('projets.historique');
+
     // Routes pour les listes de projets par catégorie
     Route::get('/projets/solo/liste', [App\Http\Controllers\DesignProjectController::class, 'soloProjects'])->name('projets.solo');
     Route::get('/projets/groupe/liste', [App\Http\Controllers\DesignProjectController::class, 'groupProjects'])->name('projets.groupe');
