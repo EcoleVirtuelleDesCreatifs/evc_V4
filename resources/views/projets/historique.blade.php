@@ -76,8 +76,21 @@
                                                 foreach ($files as $file) {
                                                     $mime = $file['mime_type'] ?? '';
                                                     $path = $file['path'] ?? null;
-                                                    if ($path && is_string($mime) && str_starts_with($mime, 'image/')) {
-                                                        $thumbnailUrl = asset('storage/' . ltrim($path, '/'));
+                                                    if (!$path) {
+                                                        continue;
+                                                    }
+
+                                                    $isImage = false;
+
+                                                    if (is_string($mime) && stripos($mime, 'image/') === 0) {
+                                                        $isImage = true;
+                                                    } else {
+                                                        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                                        $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'], true);
+                                                    }
+
+                                                    if ($isImage) {
+                                                        $thumbnailUrl = \Illuminate\Support\Facades\Storage::disk('public')->url(ltrim($path, '/'));
                                                         break;
                                                     }
                                                 }
