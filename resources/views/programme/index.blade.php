@@ -50,6 +50,11 @@
             }
         });
     })->count();
+
+    $formationProgrammeSlug = 'design-graphique';
+    if ($formationPrefix === 'community-management') {
+        $formationProgrammeSlug = 'community-management';
+    }
 @endphp
 <div class="programme-page-bg" aria-hidden="true"></div>
 <div class="programme-hero-wrap mb-4">
@@ -71,6 +76,28 @@
                 <div class="programme-count-chip mt-4">
                     <i class="fas fa-book-open"></i>
                     <span>{{ $programmes->count() }} programme{{ $programmes->count() > 1 ? 's' : '' }}</span>
+                </div>
+
+                <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
+                    @if($isDgCm)
+                        @if(\Illuminate\Support\Facades\Route::has(($formationPrefix ?? 'design-graphique') . '.programme.formation'))
+                            <a class="btn btn-sm btn-outline-light" href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', 'design-graphique') }}">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                Voir les séances (DG)
+                            </a>
+                            <a class="btn btn-sm btn-outline-light" href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', 'community-management') }}">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                Voir les séances (CM)
+                            </a>
+                        @endif
+                    @else
+                        @if(\Illuminate\Support\Facades\Route::has(($formationPrefix ?? 'design-graphique') . '.programme.formation'))
+                            <a class="btn btn-sm btn-outline-light" href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', $formationProgrammeSlug) }}">
+                                <i class="fas fa-calendar-alt me-1"></i>
+                                Voir les séances
+                            </a>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>
