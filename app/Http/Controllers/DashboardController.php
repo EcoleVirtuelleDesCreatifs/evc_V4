@@ -178,7 +178,10 @@ class DashboardController extends Controller
                     ->where(function ($query) {
                         $query->whereJsonContains('modules', 'design-graphique')
                             ->orWhereJsonContains('modules', 'Design Graphique')
-                            ->orWhereJsonContains('modules', 'design_graphique');
+                            ->orWhereJsonContains('modules', 'design_graphique')
+                            ->orWhere('modules', 'like', '%design-graphique%')
+                            ->orWhere('modules', 'like', '%Design Graphique%')
+                            ->orWhere('modules', 'like', '%design_graphique%');
                     });
 
                 if ($isExpiredNow) {
@@ -232,7 +235,10 @@ class DashboardController extends Controller
                             ->where(function ($subq) {
                                 $subq->whereJsonContains('formations', 'Design Graphique')
                                     ->orWhereJsonContains('formations', 'design_graphique')
-                                    ->orWhereJsonContains('formations', 'Toutes');
+                                    ->orWhereJsonContains('formations', 'Toutes')
+                                    ->orWhere('formations', 'like', '%Design Graphique%')
+                                    ->orWhere('formations', 'like', '%design_graphique%')
+                                    ->orWhere('formations', 'like', '%Toutes%');
                             });
                     });
             });
@@ -261,7 +267,12 @@ class DashboardController extends Controller
                                             ->orWhereJsonContains('formations', 'design_graphique')
                                             ->orWhereJsonContains('formations', 'design-graphique')
                                             ->orWhereJsonContains('formations', 'Design Graphique & Community Manager')
-                                            ->orWhereJsonContains('formations', 'Toutes');
+                                            ->orWhereJsonContains('formations', 'Toutes')
+                                            ->orWhere('formations', 'like', '%Design Graphique%')
+                                            ->orWhere('formations', 'like', '%design_graphique%')
+                                            ->orWhere('formations', 'like', '%design-graphique%')
+                                            ->orWhere('formations', 'like', '%Design Graphique & Community Manager%')
+                                            ->orWhere('formations', 'like', '%Toutes%');
                                     });
                             });
                     });
@@ -472,7 +483,10 @@ class DashboardController extends Controller
 
         if ($student && isset($student->id)) {
             $tpAssignmentsQuery = DB::table('tp_assignments')
-                ->where('student_id', $student->id);
+                ->where(function ($q) use ($student, $user) {
+                    $q->where('student_id', $student->id)
+                        ->orWhere('student_id', $user->id);
+                });
 
             if ($isExpiredNow) {
                 $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
@@ -692,7 +706,10 @@ class DashboardController extends Controller
 
         if ($student && isset($student->id)) {
             $tpAssignmentsQuery = DB::table('tp_assignments')
-                ->where('student_id', $student->id);
+                ->where(function ($q) use ($student, $user) {
+                    $q->where('student_id', $student->id)
+                        ->orWhere('student_id', $user->id);
+                });
 
             if ($isExpiredNow) {
                 $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
@@ -828,7 +845,7 @@ class DashboardController extends Controller
         $preReg = $service->loadPreRegistration($student, $user);
 
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
-        $expirationDate = $accountCreatedAt->copy()->addMonths(4);
+        $expirationDate = AccountExpirationHelper::getExpirationDate($user);
         $now = \Carbon\Carbon::now();
         $isExpiredNow = $now->greaterThan($expirationDate);
 
@@ -848,7 +865,10 @@ class DashboardController extends Controller
                     ->where(function ($query) {
                         $query->whereJsonContains('modules', 'design-graphique')
                             ->orWhereJsonContains('modules', 'Design Graphique')
-                            ->orWhereJsonContains('modules', 'design_graphique');
+                            ->orWhereJsonContains('modules', 'design_graphique')
+                            ->orWhere('modules', 'like', '%design-graphique%')
+                            ->orWhere('modules', 'like', '%Design Graphique%')
+                            ->orWhere('modules', 'like', '%design_graphique%');
                     });
 
                 if ($isExpiredNow) {
@@ -866,7 +886,10 @@ class DashboardController extends Controller
 
         if ($student && isset($student->id)) {
             $tpAssignmentsQuery = DB::table('tp_assignments')
-                ->where('student_id', $student->id);
+                ->where(function ($q) use ($student, $user) {
+                    $q->where('student_id', $student->id)
+                        ->orWhere('student_id', $user->id);
+                });
 
             if ($isExpiredNow) {
                 $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
@@ -896,7 +919,10 @@ class DashboardController extends Controller
                             ->where(function ($subq) {
                                 $subq->whereJsonContains('formations', 'Design Graphique')
                                     ->orWhereJsonContains('formations', 'design_graphique')
-                                    ->orWhereJsonContains('formations', 'Toutes');
+                                    ->orWhereJsonContains('formations', 'Toutes')
+                                    ->orWhere('formations', 'like', '%Design Graphique%')
+                                    ->orWhere('formations', 'like', '%design_graphique%')
+                                    ->orWhere('formations', 'like', '%Toutes%');
                             });
                     });
             });
@@ -922,7 +948,12 @@ class DashboardController extends Controller
                                             ->orWhereJsonContains('formations', 'design_graphique')
                                             ->orWhereJsonContains('formations', 'design-graphique')
                                             ->orWhereJsonContains('formations', 'Design Graphique & Community Manager')
-                                            ->orWhereJsonContains('formations', 'Toutes');
+                                            ->orWhereJsonContains('formations', 'Toutes')
+                                            ->orWhere('formations', 'like', '%Design Graphique%')
+                                            ->orWhere('formations', 'like', '%design_graphique%')
+                                            ->orWhere('formations', 'like', '%design-graphique%')
+                                            ->orWhere('formations', 'like', '%Design Graphique & Community Manager%')
+                                            ->orWhere('formations', 'like', '%Toutes%');
                                     });
                             });
                     });
