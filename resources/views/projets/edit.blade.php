@@ -43,13 +43,13 @@
                     <form method="POST" action="{{ route('design-graphique.projets.update', $project['id']) }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
-                        
+
                         <div class="row">
                             <!-- Titre du projet -->
                             <div class="col-md-6 mb-3">
                                 <label for="title" class="form-label">Titre du projet <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('title') is-invalid @enderror" 
-                                       id="title" name="title" 
+                                <input type="text" class="form-control @error('title') is-invalid @enderror"
+                                       id="title" name="title"
                                        value="{{ old('title', $project['title']) }}" required>
                                 @error('title')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -59,11 +59,11 @@
                             <!-- Type de projet -->
                             <div class="col-md-6 mb-3">
                                 <label for="project_type" class="form-label">Type de projet <span class="text-danger">*</span></label>
-                                <select class="form-select @error('project_type') is-invalid @enderror" 
+                                <select class="form-select @error('project_type') is-invalid @enderror"
                                         id="project_type" name="project_type" required>
                                     <option value="">Choisir un type</option>
                                     @foreach($formOptions['project_types'] as $type)
-                                        <option value="{{ $type }}" 
+                                        <option value="{{ $type }}"
                                                 {{ old('project_type', $project['project_type']) === $type ? 'selected' : '' }}>
                                             {{ ucfirst($type) }}
                                         </option>
@@ -77,11 +77,11 @@
                             <!-- Catégorie de projet -->
                             <div class="col-md-6 mb-3">
                                 <label for="category" class="form-label">Catégorie de projet <span class="text-danger">*</span></label>
-                                <select class="form-select @error('category') is-invalid @enderror" 
+                                <select class="form-select @error('category') is-invalid @enderror"
                                         id="category" name="category" required>
                                     <option value="">Choisir une catégorie</option>
                                     @foreach($formOptions['project_modes'] as $mode)
-                                        <option value="{{ $mode }}" 
+                                        <option value="{{ $mode }}"
                                                 {{ old('category', $project['category'] ?? '') === $mode ? 'selected' : '' }}>
                                             {{ $mode === 'solo' ? 'PROJET Solo' : 'PROJET Groupe' }}
                                         </option>
@@ -100,15 +100,19 @@
                                         $statusLabels = [
                                             'draft' => 'Brouillon',
                                             'active' => 'En cours',
+                                            'pending' => 'En cours de validation',
                                             'completed' => 'Terminé',
                                             'validated' => 'Validé',
+                                            'rejected' => 'Rejeté',
                                             'cancelled' => 'Annulé'
                                         ];
                                         $statusColors = [
                                             'draft' => 'bg-secondary',
                                             'active' => 'bg-warning',
+                                            'pending' => 'bg-warning',
                                             'completed' => 'bg-info',
                                             'validated' => 'bg-success',
+                                            'rejected' => 'bg-danger',
                                             'cancelled' => 'bg-danger'
                                         ];
                                     @endphp
@@ -122,8 +126,8 @@
                             <!-- Description -->
                             <div class="col-12 mb-3">
                                 <label for="description" class="form-label">Description du projet</label>
-                                <textarea class="form-control @error('description') is-invalid @enderror" 
-                                          id="description" name="description" rows="4" 
+                                <textarea class="form-control @error('description') is-invalid @enderror"
+                                          id="description" name="description" rows="4"
                                           placeholder="Décrivez votre projet...">{{ old('description', $project['description']) }}</textarea>
                                 @error('description')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -141,8 +145,8 @@
                                     @foreach($formOptions['software_options'] as $software)
                                         <div class="col-md-4 col-sm-6 mb-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" 
-                                                       name="software_used[]" value="{{ $software }}" 
+                                                <input class="form-check-input" type="checkbox"
+                                                       name="software_used[]" value="{{ $software }}"
                                                        id="software_{{ $software }}"
                                                        {{ in_array($software, $oldSoftware) ? 'checked' : '' }}>
                                                 <label class="form-check-label" for="software_{{ $software }}">
@@ -162,7 +166,7 @@
                             <!-- Nouveaux fichiers -->
                             <div class="col-12 mb-3">
                                 <label for="files" class="form-label">Ajouter de nouveaux fichiers</label>
-                                <input type="file" class="form-control @error('files.*') is-invalid @enderror" 
+                                <input type="file" class="form-control @error('files.*') is-invalid @enderror"
                                        id="files" name="files[]" multiple accept="image/*,.pdf,.doc,.docx">
                                 <div class="form-text">
                                     Formats acceptés: Images (JPG, PNG, GIF), PDF, DOC, DOCX. Taille max: 10MB par fichier.
@@ -190,20 +194,20 @@
                                                 $extension = $filePath ? strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) : '';
                                                 $isImage = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
                                             @endphp
-                                            
+
                                             @if($isImage && $filePath)
-                                                <img src="{{ asset($filePath) }}" 
-                                                     class="card-img-top" 
+                                                <img src="{{ asset($filePath) }}"
+                                                     class="card-img-top"
                                                      alt="{{ $fileName }}"
                                                      style="height: 200px; object-fit: cover;"
                                                      onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'200\' height=\'200\'%3E%3Crect fill=\'%23f0f0f0\' width=\'200\' height=\'200\'/%3E%3Ctext fill=\'%23999\' font-family=\'sans-serif\' font-size=\'14\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\'%3EImage non disponible%3C/text%3E%3C/svg%3E';">
                                             @else
-                                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                                                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
                                                      style="height: 200px;">
                                                     <i class="fas fa-file fa-4x text-muted"></i>
                                                 </div>
                                             @endif
-                                            
+
                                             <div class="card-body p-2">
                                                 <h6 class="card-title small mb-1 text-truncate" title="{{ $fileName }}">
                                                     {{ Str::limit($fileName, 25) }}
@@ -213,8 +217,8 @@
                                                         {{ $extension ? strtoupper($extension) : 'FILE' }}
                                                     </small>
                                                     @if($fileId)
-                                                    <button type="button" 
-                                                            class="btn btn-sm btn-outline-danger" 
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-danger"
                                                             onclick="removeFile({{ $fileId }}, '{{ addslashes($fileName) }}')">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
@@ -231,7 +235,7 @@
 
                         <!-- Actions -->
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('design-graphique.projets.show', $project['id']) }}" 
+                            <a href="{{ route('design-graphique.projets.show', $project['id']) }}"
                                class="btn btn-secondary">
                                 <i class="fas fa-times"></i> Annuler
                             </a>
@@ -268,7 +272,7 @@
                     if (fileElement) {
                         fileElement.remove();
                     }
-                    
+
                     // Afficher un message de succès
                     showAlert(data.message, 'success');
                 } else {
@@ -290,10 +294,10 @@
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
-        
+
         const container = document.querySelector('.container-fluid');
         container.insertBefore(alertDiv, container.firstChild);
-        
+
         // Auto-dismiss after 5 seconds
         setTimeout(() => {
             if (alertDiv.parentNode) {
@@ -306,7 +310,7 @@
     document.getElementById('files').addEventListener('change', function(e) {
         const files = e.target.files;
         const maxSize = 10 * 1024 * 1024; // 10MB
-        
+
         for (let file of files) {
             if (file.size > maxSize) {
                 alert(`Le fichier "${file.name}" est trop volumineux. Taille maximum: 10MB`);
