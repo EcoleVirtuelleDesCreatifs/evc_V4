@@ -121,9 +121,25 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <a href="{{ route('design-graphique.projets.show', $project['id']) }}" class="btn btn-sm btn-success" title="Voir">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
+                                                <div class="d-flex gap-1 flex-wrap">
+                                                    <a href="{{ route('design-graphique.projets.show', $project['id']) }}" class="btn btn-sm btn-success" title="Voir">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+
+                                                    @if(($project['status'] ?? null) === 'pending')
+                                                        <a href="{{ route('design-graphique.projets.edit', $project['id']) }}" class="btn btn-sm btn-primary" title="Modifier">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+
+                                                        <form action="{{ route('design-graphique.projets.destroy', $project['id']) }}" method="POST" class="d-inline" onsubmit="return confirmDeleteProject();">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -143,3 +159,11 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function confirmDeleteProject() {
+    return confirm('Êtes-vous sûr de vouloir supprimer ce projet ? Cette action est irréversible.');
+}
+</script>
+@endpush
