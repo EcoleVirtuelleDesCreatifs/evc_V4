@@ -9,6 +9,26 @@
     $studentProgramLower = strtolower($studentProgram);
     $isDgCm = str_contains($studentProgramLower, 'design') && (str_contains($studentProgramLower, 'community') || str_contains($studentProgramLower, 'cm'));
 
+    $routeName = request()->route() ? (request()->route()->getName() ?? '') : '';
+    $formationPrefix = $formationPrefix ?? (string) (session('user_formation') ?? 'design-graphique');
+    if (str_contains($routeName, 'design-graphique-cm')) {
+        $formationPrefix = 'design-graphique-cm';
+    } elseif (str_contains($routeName, 'community-management') || str_contains($routeName, 'community-manager')) {
+        $formationPrefix = 'community-management';
+    } elseif (str_contains($routeName, 'intelligence-artificielle')) {
+        $formationPrefix = 'intelligence-artificielle';
+    } elseif (str_contains($routeName, 'gestion-informatique')) {
+        $formationPrefix = 'gestion-informatique';
+    }
+
+    $dashboardRoute = match ($formationPrefix) {
+        'design-graphique-cm' => 'dashboard.design-graphique-cm',
+        'community-management' => 'dashboard.community-management',
+        'intelligence-artificielle' => 'dashboard.intelligence-artificielle',
+        'gestion-informatique' => 'dashboard.gestion-informatique',
+        default => 'dashboard.design-graphique',
+    };
+
     $dgCount = $programmes->where('canonical_formation', 'Design Graphique')->count();
     $cmCount = $programmes->where('canonical_formation', 'Community Management')->count();
     $now = now();
