@@ -148,6 +148,11 @@
                             </div>
 
                             <div class="programme-card-actions">
+                                @if(!empty($programme->id) && \Illuminate\Support\Facades\Route::has(($formationPrefix ?? 'design-graphique') . '.programme.show'))
+                                    <a class="btn btn-sm btn-outline-light" href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.show', (int) $programme->id) }}">
+                                        Voir les séances
+                                    </a>
+                                @endif
                                 @if(!empty($programme->fichier_pdf))
                                     <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}">
                                         Télécharger

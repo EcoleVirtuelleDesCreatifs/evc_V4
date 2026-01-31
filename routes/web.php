@@ -389,6 +389,7 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
 
     // Programme - Structure: /evc/compte/design-graphique/programme/{action}
     Route::get('/programme/index', [DashboardController::class, 'programmeIndex'])->name('programme.index');
+    Route::get('/programme/{id}', [DashboardController::class, 'programmeShow'])->whereNumber('id')->name('programme.show');
     Route::get('/programme/formation/{slug}', [DashboardController::class, 'programmeFormation'])->name('programme.formation');
 
     // Paiements - Structure: /evc/compte/design-graphique/paiements/{action}
@@ -502,6 +503,7 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
 
     // Programme
     Route::get('/programme/index', [DashboardController::class, 'programmeIndex'])->name('programme.index');
+    Route::get('/programme/{id}', [DashboardController::class, 'programmeShow'])->whereNumber('id')->name('programme.show');
     Route::get('/programme/formation/{slug}', [DashboardController::class, 'programmeFormation'])->name('programme.formation');
 
     // Paiements
@@ -604,6 +606,7 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
 
     // Programme
     Route::get('/programme/index', [DashboardController::class, 'programmeIndex'])->name('programme.index');
+    Route::get('/programme/{id}', [DashboardController::class, 'programmeShow'])->whereNumber('id')->name('programme.show');
     Route::get('/programme/formation/{slug}', [DashboardController::class, 'programmeFormation'])->name('programme.formation');
 
     // Paiements
@@ -702,6 +705,7 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
 
     // Programme - Structure: /evc/compte/community-management/programme/{action}
     Route::get('/programme/index', [DashboardController::class, 'programmeIndex'])->name('programme.index');
+    Route::get('/programme/{id}', [DashboardController::class, 'programmeShow'])->whereNumber('id')->name('programme.show');
     Route::get('/programme/formation/{slug}', [DashboardController::class, 'programmeFormation'])->name('programme.formation');
 
     // Bibliothèque - Structure: /evc/compte/community-management/bibliotheque/{action}

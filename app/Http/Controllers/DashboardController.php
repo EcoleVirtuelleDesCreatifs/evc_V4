@@ -4044,6 +4044,98 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function programmeShow(int $id): View
+    {
+        $user = Auth::user();
+
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+        $formationPrefix = $this->getFormationSlug($student);
+
+        $formationMapping = [
+            'Design Graphique' => ['Design Graphique', 'Infographie', 'design-graphique', 'design_graphique', 'infographie', 'Design graphique'],
+            'Community Management' => ['Community Management', 'community-management', 'community_management', 'Community management', 'CM'],
+            'Gestion Informatique' => ['Gestion Informatique', 'gestion-informatique', 'gestion_informatique', 'Gestion informatique', 'GI'],
+            'Intelligence Artificielle' => ['Intelligence Artificielle', 'intelligence-artificielle', 'intelligence_artificielle', 'Intelligence artificielle', 'IA'],
+            'Design Graphique & Community Management' => [
+                'Design Graphique & Community Management',
+                'Design Graphique & Community Manager',
+                'design-graphique-community-manager',
+                'design_graphique_community_management',
+                'design-graphique-cm',
+                'design_cm',
+            ],
+        ];
+
+        $studentFormation = $student->program ?? null;
+        $studentFormationVariants = $studentFormation ? [$studentFormation] : [];
+        $isCombinedStudent = false;
+
+        if ($studentFormation) {
+            $isCombined = false;
+            if (isset($formationMapping['Design Graphique & Community Management'])) {
+                if (in_array($studentFormation, $formationMapping['Design Graphique & Community Management'], true)) {
+                    $isCombined = true;
+                }
+            }
+
+            if ($isCombined) {
+                $isCombinedStudent = true;
+                $studentFormationVariants = array_merge(
+                    $formationMapping['Design Graphique & Community Management'],
+                    $formationMapping['Design Graphique'],
+                    $formationMapping['Community Management']
+                );
+            } else {
+                foreach ($formationMapping as $variants) {
+                    if (in_array($studentFormation, $variants, true)) {
+                        $studentFormationVariants = $variants;
+                        break;
+                    }
+                }
+            }
+        }
+
+        $allowedFormations = array_values(array_unique(array_merge(['Toutes'], $studentFormationVariants)));
+
+        $studentId = $student?->id;
+
+        $programme = DB::table('programmes')
+            ->where('id', $id)
+            ->where(function ($query) use ($allowedFormations, $studentId) {
+                $query->whereIn('formation', $allowedFormations);
+
+                if (!empty($studentId) && Schema::hasColumn('programmes', 'student_ids')) {
+                    $query->orWhereJsonContains('student_ids', (int) $studentId);
+                }
+            })
+            ->first();
+
+        if (!$programme) {
+            abort(404);
+        }
+
+        $items = collect();
+        if (Schema::hasTable('programme_items')) {
+            $items = DB::table('programme_items')
+                ->where('programme_id', $id)
+                ->orderBy('session_date', 'asc')
+                ->orderBy('session_time', 'asc')
+                ->get();
+        }
+
+        $programme->items = $items;
+        $programme->items_count = $items->count();
+
+        return view('programme.show', [
+            'user' => $user,
+            'student' => $student,
+            'formationPrefix' => $formationPrefix,
+            'programme' => $programme,
+            'items' => $items,
+            'isCombinedStudent' => $isCombinedStudent,
+        ]);
+    }
+
     public function programmeFormation(string $slug): View
     {
         $user = Auth::user();
