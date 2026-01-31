@@ -805,7 +805,7 @@
                         @endif
                     </div>
 
-                    <a href="{{ route('design-graphique-cm.projets.index') }}" class="btn btn-sm w-100" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); border: none; color: white; font-weight: 600; transition: all 0.3s;">
+                    <a href="{{ route('design-graphique-cm.todo.traiter', $projet->id) }}" class="btn btn-sm w-100" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); border: none; color: white; font-weight: 600; transition: all 0.3s;">
                         <i class="fas fa-arrow-right me-2"></i>Travailler sur ce projet
                     </a>
                 </div>
