@@ -1223,7 +1223,11 @@
                         <i class="fas fa-external-link-alt"></i>
                         Studio Creative
                     </a>
-                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.projets.historique') ? route($formationPrefix . '.projets.historique') : route('design-graphique.projets.historique') }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.projets.historique') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.projets.historique')
+                        ? route($formationPrefix . '.projets.historique')
+                        : (\Illuminate\Support\Facades\Route::has('design-graphique.projets.historique')
+                            ? route('design-graphique.projets.historique')
+                            : url('/evc/compte/design-graphique/projets/historique')) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.projets.historique') ? 'active' : '' }}">
                         <i class="fas fa-history"></i>
                         Historiques Projet
                     </a>
