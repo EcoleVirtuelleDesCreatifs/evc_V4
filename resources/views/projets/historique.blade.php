@@ -173,7 +173,7 @@
                                             <td>
                                                 <div style="font-weight: 900;">{{ $project['title'] ?? 'Sans titre' }}</div>
                                                 @if(!empty($project['description']))
-                                                    <div class="text-muted small">{{ \Illuminate\Support\Str::limit($project['description'], 80) }}</div>
+                                                    <div class="text-muted small">{{ \Illuminate\Support\Str::limit(strip_tags((string) $project['description']), 80) }}</div>
                                                 @endif
                                             </td>
                                             <td>
