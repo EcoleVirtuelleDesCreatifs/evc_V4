@@ -41,6 +41,7 @@
                             <table class="table table-hover align-middle">
                                 <thead>
                                     <tr>
+                                        <th style="width: 90px;">Image</th>
                                         <th style="min-width: 220px;">Titre</th>
                                         <th>Catégorie</th>
                                         <th>Type</th>
@@ -68,8 +69,30 @@
                                             $categoryCfg = $categoryMap[$category] ?? ['label' => $category ? ucfirst((string) $category) : '-', 'class' => 'bg-secondary', 'icon' => 'fa-tag'];
 
                                             $createdAt = $project['created_at'] ?? null;
+
+                                            $thumbnailUrl = null;
+                                            $files = $project['files'] ?? [];
+                                            if (is_array($files) && !empty($files)) {
+                                                foreach ($files as $file) {
+                                                    $mime = $file['mime_type'] ?? '';
+                                                    $path = $file['path'] ?? null;
+                                                    if ($path && is_string($mime) && str_starts_with($mime, 'image/')) {
+                                                        $thumbnailUrl = asset('storage/' . ltrim($path, '/'));
+                                                        break;
+                                                    }
+                                                }
+                                            }
                                         @endphp
                                         <tr>
+                                            <td>
+                                                @if($thumbnailUrl)
+                                                    <img src="{{ $thumbnailUrl }}" alt="Aperçu" style="width: 64px; height: 64px; object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,0.15);" loading="lazy" onerror="this.style.display='none'">
+                                                @else
+                                                    <div class="d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; border-radius: 10px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);">
+                                                        <i class="fas fa-image" style="opacity: 0.6;"></i>
+                                                    </div>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div style="font-weight: 900;">{{ $project['title'] ?? 'Sans titre' }}</div>
                                                 @if(!empty($project['description']))
