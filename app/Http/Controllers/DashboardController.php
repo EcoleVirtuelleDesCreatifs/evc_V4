@@ -169,31 +169,27 @@ class DashboardController extends Controller
             $projectsQuery->where('created_at', '<=', $expirationDate);
         }
 
-        // Compter les programmes disponibles (même logique que programme/index)
-        $programmesQuery = DB::table('programmes')
-            ->where(function ($query) use ($student) {
-                // Toujours inclure "Toutes"
-                $query->where('formation', 'Toutes');
-
-                // Ajouter les variantes de la formation de l'étudiant
-                if ($student && isset($student->program) && $student->program) {
-                    $query->orWhere(function ($q) use ($student) {
-                        // Variantes possibles de Design Graphique
-                        $q->where('formation', $student->program)
-                            ->orWhere('formation', 'Design Graphique')
-                            ->orWhere('formation', 'design-graphique')
-                            ->orWhere('formation', 'design_graphique')
-                            ->orWhere('formation', 'Design Graphique & Community Manager');
+        // Compter les formations disponibles (table formations, modules Design Graphique)
+        $formationsDisponibles = 0;
+        try {
+            if (Schema::hasTable('formations') && Schema::hasColumn('formations', 'modules')) {
+                $formationsQuery = DB::table('formations')
+                    ->where('status', 'active')
+                    ->where(function ($query) {
+                        $query->whereJsonContains('modules', 'design-graphique')
+                            ->orWhereJsonContains('modules', 'Design Graphique')
+                            ->orWhereJsonContains('modules', 'design_graphique');
                     });
+
+                if ($isExpiredNow) {
+                    $formationsQuery->where('created_at', '<=', $expirationDate);
                 }
-            });
 
-        // Si le compte est expiré, ne compter que les programmes créés avant l'expiration
-        if ($isExpiredNow) {
-            $programmesQuery->where('created_at', '<=', $expirationDate);
+                $formationsDisponibles = $formationsQuery->count();
+            }
+        } catch (\Exception $e) {
+            $formationsDisponibles = 0;
         }
-
-        $formationsDisponibles = $programmesQuery->count();
 
         // Compter les TP depuis tp_assignments (table principale)
         $tpRealises = 0;
@@ -318,6 +314,15 @@ class DashboardController extends Controller
             // Montant restant à solder (dynamique depuis payments)
             'montant_restant' => $montantRestant,
         ];
+
+        $globalProgress = 0;
+        if (($stats['tp_total'] ?? 0) > 0) {
+            $globalProgress += ($stats['tp_realises'] / $stats['tp_total']) * 50;
+        }
+        if (($stats['projets_total'] ?? 0) > 0) {
+            $globalProgress += ($stats['projets_realises'] / $stats['projets_total']) * 50;
+        }
+        $stats['global_progress'] = $globalProgress;
 
         // Si vous avez des informations de paiement dans preReg ou student
         if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
@@ -835,26 +840,26 @@ class DashboardController extends Controller
             $projectsQuery->where('created_at', '<=', $expirationDate);
         }
 
-        $programmesQuery = DB::table('programmes')
-            ->where(function ($query) use ($student) {
-                $query->where('formation', 'Toutes');
-
-                if ($student && isset($student->program) && $student->program) {
-                    $query->orWhere(function ($q) use ($student) {
-                        $q->where('formation', $student->program)
-                            ->orWhere('formation', 'Design Graphique')
-                            ->orWhere('formation', 'design-graphique')
-                            ->orWhere('formation', 'design_graphique')
-                            ->orWhere('formation', 'Design Graphique & Community Manager');
+        $formationsDisponibles = 0;
+        try {
+            if (Schema::hasTable('formations') && Schema::hasColumn('formations', 'modules')) {
+                $formationsQuery = DB::table('formations')
+                    ->where('status', 'active')
+                    ->where(function ($query) {
+                        $query->whereJsonContains('modules', 'design-graphique')
+                            ->orWhereJsonContains('modules', 'Design Graphique')
+                            ->orWhereJsonContains('modules', 'design_graphique');
                     });
+
+                if ($isExpiredNow) {
+                    $formationsQuery->where('created_at', '<=', $expirationDate);
                 }
-            });
 
-        if ($isExpiredNow) {
-            $programmesQuery->where('created_at', '<=', $expirationDate);
+                $formationsDisponibles = $formationsQuery->count();
+            }
+        } catch (\Exception $e) {
+            $formationsDisponibles = 0;
         }
-
-        $formationsDisponibles = $programmesQuery->count();
 
         $tpRealises = 0;
         $tpTotal = 0;
