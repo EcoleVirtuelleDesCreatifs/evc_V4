@@ -34,6 +34,7 @@ class StoreCandidatureRequest extends FormRequest
             'programme' => 'required|string|in:design-graphique,community-manager,design-graphique-community-manager,intelligence-artificielle,gestion-informatique',
             'niveau_formation' => 'required|string|in:Aucune notion,Certaines notions,Monter en compétence',
             'motivation' => 'required|string|max:5000',
+            'date_inscription_souhaitee' => 'required|date',
             'origine' => 'required|string|in:Réseaux sociaux,Ami,Publicité,Autre',
             // Équipements
             'ordinateur' => 'required|string|in:Oui,Non',
@@ -81,6 +82,7 @@ class StoreCandidatureRequest extends FormRequest
             'programme' => 'programme souhaité',
             'niveau_formation' => 'niveau pour la formation',
             'motivation' => 'motivation',
+            'date_inscription_souhaitee' => 'date à laquelle vous souhaitez procéder au paiement',
             'origine' => "comment vous avez connu l’EVC",
             'ordinateur' => 'ordinateur',
             'smartphone' => 'smartphone',

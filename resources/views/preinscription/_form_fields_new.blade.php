@@ -132,6 +132,13 @@
     <textarea name="motivation" class="form-control" placeholder="Parlez-nous de votre motivation..." required>{{ old('motivation') }}</textarea>
 </div>
 
+<div class="form-row">
+    <div class="form-group">
+        <label class="form-label">Date à laquelle vous souhaitez procéder au paiement <span class="required">*</span></label>
+        <input type="date" name="date_inscription_souhaitee" class="form-control" value="{{ old('date_inscription_souhaitee') }}" required>
+    </div>
+</div>
+
 <div class="form-group">
     <label class="form-label">Comment avez-vous connu l'EVC ? <span class="required">*</span></label>
     <select name="origine" class="form-select" required>

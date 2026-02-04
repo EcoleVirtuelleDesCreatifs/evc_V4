@@ -64,6 +64,10 @@
                         <td style="padding:12px 0;font-weight:600;color:#8B4513;font-size:14px;">WhatsApp :</td>
                         <td style="padding:12px 0;color:#4a5568;font-size:14px;">{{ $pre->whatsapp }}</td>
                     </tr>
+                    <tr style="border-bottom:1px solid #FFD4A8;">
+                        <td style="padding:12px 0;font-weight:600;color:#8B4513;font-size:14px;">Date souhaitée de paiement :</td>
+                        <td style="padding:12px 0;color:#4a5568;font-size:14px;">{{ $pre->date_inscription_souhaitee ? \Carbon\Carbon::parse($pre->date_inscription_souhaitee)->format('d/m/Y') : 'N/A' }}</td>
+                    </tr>
                     <tr>
                         <td style="padding:12px 0;font-weight:600;color:#8B4513;font-size:14px;">Localisation :</td>
                         <td style="padding:12px 0;color:#4a5568;font-size:14px;">{{ $pre->ville }}, {{ $pre->pays }}</td>

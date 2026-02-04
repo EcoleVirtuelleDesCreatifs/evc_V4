@@ -65,6 +65,7 @@ class PreRegistrationService
             'has_smartphone' => $input['smartphone'] === 'Oui',
             'disponibilite' => $input['disponibilite'],
             'motivation' => $input['motivation'],
+            'date_inscription_souhaitee' => $input['date_inscription_souhaitee'],
             'certify' => (bool) ($input['veracite'] ?? false),
             'consent' => (bool) ($input['consentement'] ?? false),
             'status' => 'en cours',
@@ -79,7 +80,7 @@ class PreRegistrationService
 
         // Envoi e-mails synchrone (méthode identique au formulaire formateur qui fonctionne)
         $warnings = [];
-        
+
         // Email au candidat
         try {
             Mail::send('emails.pre_registration_submitted', ['pre' => $pre], function ($message) use ($pre) {
@@ -95,7 +96,7 @@ class PreRegistrationService
         // Email à l'admin
         try {
             $adminEmail = env('MAIL_ADMIN_ADDRESS') ?: env('MAIL_FROM_ADDRESS', 'admin@evc.ci');
-            
+
             if ($adminEmail && filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
                 Mail::send('emails.admin_pre_registration_notification', ['pre' => $pre], function ($message) use ($adminEmail, $pre) {
                     $message->to($adminEmail)

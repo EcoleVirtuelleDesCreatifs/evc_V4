@@ -508,6 +508,10 @@
                         <span class="info-value">{{ $pre->choix_formation }}</span>
                     </div>
                     <div class="info-item">
+                        <span class="info-label">Date souhaitée de paiement</span>
+                        <span class="info-value">{{ !empty($pre->date_inscription_souhaitee) ? \Carbon\Carbon::parse($pre->date_inscription_souhaitee)->format('d/m/Y') : 'Non renseigné' }}</span>
+                    </div>
+                    <div class="info-item">
                         <span class="info-label">Niveau dans la formation</span>
                         <span class="info-value">{{ $pre->niveau_dans_formation }}</span>
                     </div>

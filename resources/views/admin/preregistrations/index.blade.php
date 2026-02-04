@@ -191,6 +191,7 @@
                                 <th>Pays</th>
                                 <th>Formation</th>
                                 <th>Niveau</th>
+                                <th>Date paiement souhaitée</th>
                                 <th>Statut</th>
                                 <th>Date</th>
                                 <th>Actions</th>
@@ -206,6 +207,13 @@
                             <td>{{ $pre->pays }}</td>
                             <td>{{ $pre->choix_formation }}</td>
                             <td>{{ $pre->niveau_dans_formation }}</td>
+                            <td>
+                                @if(!empty($pre->date_inscription_souhaitee))
+                                    {{ \Carbon\Carbon::parse($pre->date_inscription_souhaitee)->format('d/m/Y') }}
+                                @else
+                                    —
+                                @endif
+                            </td>
                             <td>
                                 @php
                                     $map = [

@@ -36,6 +36,7 @@ class PreRegistration extends Model
         'has_smartphone',
         'disponibilite',
         'motivation',
+        'date_inscription_souhaitee',
         'certify',
         'consent',
         'commercial_admin_id',

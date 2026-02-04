@@ -83,6 +83,10 @@
                         </td>
                     </tr>
                     <tr>
+                        <td style="padding:8px 0;font-weight:600;">Date souhaitée de paiement :</td>
+                        <td style="padding:8px 0;">{{ $pre->date_inscription_souhaitee ? \Carbon\Carbon::parse($pre->date_inscription_souhaitee)->format('d/m/Y') : 'N/A' }}</td>
+                    </tr>
+                    <tr>
                         <td style="padding:8px 0;font-weight:600;">Niveau actuel :</td>
                         <td style="padding:8px 0;">{{ ucfirst(str_replace('_', ' ', $pre->niveau_dans_formation ?? 'Non précisé')) }}</td>
                     </tr>

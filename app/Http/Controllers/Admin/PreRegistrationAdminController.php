@@ -868,6 +868,7 @@ class PreRegistrationAdminController extends Controller
             'niveau_etude',
             'choix_formation',
             'niveau_dans_formation',
+            'date_inscription_souhaitee',
             'has_computer',
             'has_smartphone',
             'disponibilite',
