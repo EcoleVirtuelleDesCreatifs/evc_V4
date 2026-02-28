@@ -119,16 +119,24 @@ class StudentIdVerificationController extends Controller
             ? (int) DB::table('tp')->where('user_id', $userId)->count()
             : 0;
 
+        $tpAssigned = 0;
         $tpValidated = 0;
         if (Schema::hasTable('tp_assignments') && $studentPk > 0) {
+            $tpAssigned = (int) DB::table('tp_assignments')
+                ->where('student_id', $studentPk)
+                ->count();
             $tpValidated = (int) DB::table('tp_assignments')
                 ->where('student_id', $studentPk)
                 ->where('status', 'validated')
                 ->count();
         }
 
+        $projectsAssigned = 0;
         $projectsCompleted = 0;
         if (Schema::hasTable('projects')) {
+            $projectsAssigned = (int) DB::table('projects')
+                ->where('user_id', $userId)
+                ->count();
             $projectsCompleted = (int) DB::table('projects')
                 ->where('user_id', $userId)
                 ->where('status', 'valide')
@@ -194,7 +202,9 @@ class StudentIdVerificationController extends Controller
                 'design_projects_total' => $designProjectsTotal,
                 'design_projects_validated' => $designProjectsValidated,
                 'tp_total' => $tpTotal,
+                'tp_assigned' => $tpAssigned,
                 'tp_validated' => $tpValidated,
+                'projects_assigned' => $projectsAssigned,
                 'projects_completed' => $projectsCompleted,
                 'report_uploaded' => $reportUploaded,
                 'min_tp_required' => $minTPRequired,

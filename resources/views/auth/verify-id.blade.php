@@ -319,6 +319,70 @@
                         </div>
                     </div>
 
+                    @php
+                        $tpValidated = (int) ($stats['tp_validated'] ?? 0);
+                        $tpTotal = (int) ($stats['tp_total'] ?? 0);
+                        $tpAssigned = (int) ($stats['tp_assigned'] ?? 0);
+                        $minTpRequired = max(1, (int) ($stats['min_tp_required'] ?? 0));
+
+                        $projectsAssigned = (int) ($stats['projects_assigned'] ?? 0);
+                        $projectsCompleted = (int) ($stats['projects_completed'] ?? 0);
+                        $designProjectsValidated = (int) ($stats['design_projects_validated'] ?? 0);
+                        $projectsValidated = $projectsCompleted + $designProjectsValidated;
+                        $minProjectsRequired = max(1, (int) ($stats['min_projects_required'] ?? 0));
+
+                        $reportUploaded = !empty($stats['report_uploaded']);
+                        $isCertified = !empty($stats['certified']);
+
+                        $tpProgress = min(1, $tpValidated / $minTpRequired);
+                        $projectsProgress = min(1, $projectsValidated / $minProjectsRequired);
+                        $reportProgress = $reportUploaded ? 1 : 0;
+
+                        $certProgress = $isCertified ? 1 : (($tpProgress + $projectsProgress + $reportProgress) / 3);
+                        $certProgressPct = (int) round($certProgress * 100);
+                    @endphp
+
+                    <div class="mt-6 rounded-3xl border border-white/10 bg-black/15 p-5 sm:p-6">
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="text-xs font-black tracking-[0.16em] text-white/80">
+                                <i class="fas fa-certificate text-orange-400 mr-2"></i>PROGRESSION CERTIFICATION
+                            </div>
+                            <div class="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/10 px-4 py-2 text-sm font-black text-white">
+                                <span>{{ $certProgressPct }}%</span>
+                                @if($isCertified)
+                                    <span class="text-emerald-300">Certifié</span>
+                                @else
+                                    <span class="text-white/70">en cours</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="mt-4 h-3 w-full rounded-full bg-white/10 overflow-hidden border border-white/10">
+                            <div class="h-full rounded-full bg-gradient-to-r from-orange-400 via-orange-500 to-blue-500" style="width: {{ $certProgressPct }}%;"></div>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+                                <div class="text-xs font-semibold text-white/70">TP</div>
+                                <div class="mt-1 text-base font-black text-white">{{ $tpValidated }} / {{ $minTpRequired }}</div>
+                                <div class="mt-1 text-xs text-white/60">TP assignés : {{ $tpAssigned }}</div>
+                                <div class="mt-1 text-xs text-white/60">Total TP : {{ $tpTotal }}</div>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+                                <div class="text-xs font-semibold text-white/70">Projets</div>
+                                <div class="mt-1 text-base font-black text-white">{{ $projectsValidated }} / {{ $minProjectsRequired }}</div>
+                                <div class="mt-1 text-xs text-white/60">Projets assignés : {{ $projectsAssigned }}</div>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
+                                <div class="text-xs font-semibold text-white/70">Rapport</div>
+                                <div class="mt-1 text-base font-black {{ $reportUploaded ? 'text-emerald-200' : 'text-orange-200' }}">
+                                    {{ $reportUploaded ? 'Uploadé' : 'Non uploadé' }}
+                                </div>
+                                <div class="mt-1 text-xs text-white/60">Condition obligatoire</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="mt-6 flex flex-wrap justify-center gap-3">
                         @if(!empty($stats['eligible']))
                             <span class="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/25 px-4 py-2 text-sm font-bold text-emerald-200">
