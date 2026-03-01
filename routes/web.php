@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\StudentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CVThequeController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -9,7 +8,6 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\LibraryCategoryController;
 use App\Http\Controllers\Admin\AdminStatisticsController;
-use App\Http\Controllers\Admin\SimpleProjectController;
 use App\Http\Controllers\Admin\PreRegistrationAdminController;
 use App\Http\Controllers\Admin\CVThequeAdminController;
 use App\Http\Controllers\Admin\DonationAdminController;
@@ -781,6 +779,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
 
         Route::get('/partnerships', [PartnershipsAdminController::class, 'index'])->name('partnerships.index');
+        Route::get('/partnerships/create', [PartnershipsAdminController::class, 'create'])->name('partnerships.create');
+        Route::post('/partnerships', [PartnershipsAdminController::class, 'store'])->name('partnerships.store');
         Route::get('/partnerships/{partnership}/edit', [PartnershipsAdminController::class, 'edit'])->name('partnerships.edit');
         Route::put('/partnerships/{partnership}', [PartnershipsAdminController::class, 'update'])->name('partnerships.update');
         Route::post('/partnerships/{partnership}/delete-document', [PartnershipsAdminController::class, 'deleteDocument'])->name('partnerships.document.delete');

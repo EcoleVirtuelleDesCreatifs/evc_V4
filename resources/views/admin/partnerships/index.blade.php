@@ -9,6 +9,11 @@
             <h1 class="h4 mb-1">Partenariats</h1>
             <div class="text-muted small">Gestion de la top bar et des courriers partenaires</div>
         </div>
+        <div>
+            <a href="{{ route('admin.partnerships.create') }}" class="btn btn-sm btn-primary">
+                Ajouter
+            </a>
+        </div>
     </div>
 
     @if(session('success'))

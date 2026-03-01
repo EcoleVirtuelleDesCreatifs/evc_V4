@@ -30,6 +30,53 @@ class PartnershipsAdminController extends Controller
         return view('admin.partnerships.index', compact('partnerships'));
     }
 
+    public function create(): View
+    {
+        $this->ensureAllowed();
+
+        return view('admin.partnerships.create');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $this->ensureAllowed();
+
+        $validated = $request->validate([
+            'slug' => 'required|string|max:255|alpha_dash|unique:partnerships,slug',
+            'prefix' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'subtitle' => 'nullable|string|max:255',
+            'is_active' => 'nullable|boolean',
+            'document' => 'nullable|file|mimes:pdf|max:20480',
+        ]);
+
+        $path = null;
+        if ($request->hasFile('document')) {
+            $path = $request->file('document')->store('partenariats', 'public');
+        }
+
+        $isActive = (bool) ($validated['is_active'] ?? false);
+
+        $partnership = Partnership::query()->create([
+            'slug' => $validated['slug'],
+            'prefix' => $validated['prefix'],
+            'name' => $validated['name'],
+            'subtitle' => $validated['subtitle'] ?? null,
+            'document_path' => $path,
+            'is_active' => $isActive,
+        ]);
+
+        if ($isActive) {
+            Partnership::query()
+                ->where('id', '!=', $partnership->id)
+                ->update(['is_active' => false]);
+        }
+
+        return redirect()
+            ->route('admin.partnerships.edit', $partnership)
+            ->with('success', 'Partenariat créé.');
+    }
+
     public function edit(Partnership $partnership): View
     {
         $this->ensureAllowed();
