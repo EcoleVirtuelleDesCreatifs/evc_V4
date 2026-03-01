@@ -234,6 +234,8 @@
                                 'url' => route('partnerships.show', $p->slug),
                             ];
                         })->values();
+
+                        $firstTopbarPartner = $topbarPartners->first();
                     @endphp
 
                     <div class="w-full flex items-center gap-2 sm:gap-3">
@@ -241,8 +243,8 @@
 
                         <div class="flex-1 overflow-hidden min-w-0" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
                             <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-                                <span id="topbar-partner-text" class="evc-topbar-partner-text flex-1 min-w-0"></span>
-                                <a id="topbar-partner-link" href="#" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-2 sm:px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30 whitespace-nowrap">En savoir plus</a>
+                                <span id="topbar-partner-text" class="evc-topbar-partner-text flex-1 min-w-0">{{ $firstTopbarPartner['text'] ?? '' }}</span>
+                                <a id="topbar-partner-link" href="{{ $firstTopbarPartner['url'] ?? '#' }}" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-2 sm:px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30 whitespace-nowrap">En savoir plus</a>
                             </div>
                         </div>
 
@@ -297,8 +299,10 @@
             let index = 0;
             const render = () => {
                 const item = items[index];
-                if (textEl) textEl.textContent = item?.text || '';
-                if (linkEl) linkEl.setAttribute('href', item?.url || '#');
+                const text = item && item.text ? item.text : '';
+                const url = item && item.url ? item.url : '#';
+                if (textEl) textEl.textContent = text;
+                if (linkEl) linkEl.setAttribute('href', url);
             };
 
             const prev = () => {
