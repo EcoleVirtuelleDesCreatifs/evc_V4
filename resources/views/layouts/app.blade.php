@@ -214,18 +214,24 @@
     <div class="fixed top-0 left-0 w-full z-[60] border-b border-white/20 bg-gradient-to-r from-[#ff6b00] via-[#ff9800] to-[#ff6b00]">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
             <div class="h-[40px] flex items-center justify-center gap-3 text-xs sm:text-sm font-extrabold tracking-wide text-white">
-                @if(!empty($activePartnership))
+                @if(!empty($activePartnerships) && $activePartnerships->count() > 0)
                     <div class="flex-1 overflow-hidden">
                         <div class="evc-topbar-marquee">
+                            @php
+                                $partnershipText = $activePartnerships->map(function ($p) {
+                                    $subtitle = !empty($p->subtitle) ? ' ' . $p->subtitle : '';
+                                    return $p->prefix . ' ' . $p->name . $subtitle;
+                                })->implode(' | ');
+                            @endphp
                             <span class="pr-10">
-                                {{ $activePartnership->prefix }}&nbsp;<span class="text-white">{{ $activePartnership->name }}</span>{{ !empty($activePartnership->subtitle) ? ' ' . $activePartnership->subtitle : '' }}
+                                {{ $partnershipText }}
                             </span>
                             <span class="pr-10" aria-hidden="true">
-                                {{ $activePartnership->prefix }}&nbsp;<span class="text-white">{{ $activePartnership->name }}</span>{{ !empty($activePartnership->subtitle) ? ' ' . $activePartnership->subtitle : '' }}
+                                {{ $partnershipText }}
                             </span>
                         </div>
                     </div>
-                    <a href="{{ route('partnerships.show', $activePartnership->slug) }}" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30">
+                    <a href="{{ route('partnerships.show', $activePartnerships->first()->slug) }}" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30">
                         En savoir plus
                     </a>
                 @else

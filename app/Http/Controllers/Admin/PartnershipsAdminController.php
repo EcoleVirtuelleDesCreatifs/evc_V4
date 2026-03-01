@@ -66,12 +66,6 @@ class PartnershipsAdminController extends Controller
             'is_active' => $isActive,
         ]);
 
-        if ($isActive) {
-            Partnership::query()
-                ->where('id', '!=', $partnership->id)
-                ->update(['is_active' => false]);
-        }
-
         return redirect()
             ->route('admin.partnerships.edit', $partnership)
             ->with('success', 'Partenariat créé.');
@@ -108,12 +102,6 @@ class PartnershipsAdminController extends Controller
         $isActive = (bool) ($validated['is_active'] ?? false);
         $partnership->is_active = $isActive;
         $partnership->save();
-
-        if ($isActive) {
-            Partnership::query()
-                ->where('id', '!=', $partnership->id)
-                ->update(['is_active' => false]);
-        }
 
         return redirect()
             ->route('admin.partnerships.index')

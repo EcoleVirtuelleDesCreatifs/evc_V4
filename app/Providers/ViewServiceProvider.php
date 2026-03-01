@@ -27,15 +27,23 @@ class ViewServiceProvider extends ServiceProvider
         // Partager les variables d'expiration avec toutes les vues
         View::composer('*', function ($view) {
             $activePartnership = null;
+            $activePartnerships = collect();
             try {
                 if (Schema::hasTable('partnerships')) {
-                    $activePartnership = Partnership::query()->where('is_active', true)->first();
+                    $activePartnerships = Partnership::query()
+                        ->where('is_active', true)
+                        ->orderBy('name')
+                        ->get();
+
+                    $activePartnership = $activePartnerships->first();
                 }
             } catch (\Throwable $e) {
                 $activePartnership = null;
+                $activePartnerships = collect();
             }
 
             $view->with('activePartnership', $activePartnership);
+            $view->with('activePartnerships', $activePartnerships);
 
             if (Auth::check()) {
                 $user = Auth::user();
