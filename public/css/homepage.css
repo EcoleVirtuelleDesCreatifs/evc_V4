@@ -228,6 +228,67 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
+.travaux-prev,
+.travaux-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 40;
+    transition: var(--transition-fast);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.travaux-prev:hover,
+.travaux-next:hover {
+    background: rgba(255, 153, 0, 0.22);
+    border-color: rgba(255, 153, 0, 0.55);
+    box-shadow: 0 12px 28px rgba(255, 153, 0, 0.18);
+}
+
+.travaux-prev {
+    left: 10px;
+}
+
+.travaux-next {
+    right: 10px;
+}
+
+.travaux-prev::after,
+.travaux-next::after {
+    font-size: 16px;
+    font-weight: 900;
+}
+
+@media (max-width: 640px) {
+    .travaux-prev,
+    .travaux-next {
+        width: 40px;
+        height: 40px;
+    }
+    .travaux-prev {
+        left: 6px;
+    }
+    .travaux-next {
+        right: 6px;
+    }
+    .travaux-prev::after,
+    .travaux-next::after {
+        font-size: 14px;
+    }
+}
+
 /* CSS for Homepage Sections */
 
 /* Revolutionary Pre-inscription Form */
