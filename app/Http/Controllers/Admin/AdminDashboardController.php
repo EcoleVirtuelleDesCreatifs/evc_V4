@@ -6376,12 +6376,12 @@ class AdminDashboardController extends Controller
     {
         // Calculer les statistiques sur toutes les activités
         $allActivities = DB::table('tp_assignments')
-            ->whereIn('status', ['submitted', 'pending', 'validated', 'rejected'])
+            ->whereIn('status', ['assigned', 'submitted', 'pending', 'validated', 'rejected'])
             ->get();
 
         $stats = [
             'total' => $allActivities->count(),
-            'en_attente' => $allActivities->where('status', 'pending')->count() + $allActivities->where('status', 'submitted')->count(),
+            'en_attente' => $allActivities->where('status', 'assigned')->count() + $allActivities->where('status', 'pending')->count() + $allActivities->where('status', 'submitted')->count(),
             'valides' => $allActivities->where('status', 'validated')->count(),
             'rejetes' => $allActivities->where('status', 'rejected')->count(),
         ];
@@ -6391,7 +6391,7 @@ class AdminDashboardController extends Controller
             ->join('users', 'students.user_id', '=', 'users.id')
             ->join('tp_assignments', function($join) {
                 $join->on('students.id', '=', 'tp_assignments.student_id')
-                     ->whereIn('tp_assignments.status', ['submitted', 'pending', 'validated', 'rejected']);
+                     ->whereIn('tp_assignments.status', ['assigned', 'submitted', 'pending', 'validated', 'rejected']);
             })
             ->select(
                 'students.id as student_id',
@@ -6403,7 +6403,7 @@ class AdminDashboardController extends Controller
                 DB::raw('MAX(tp_assignments.updated_at) as last_activity'),
                 DB::raw('COUNT(tp_assignments.id) as total_activities'),
                 DB::raw('SUM(CASE WHEN tp_assignments.status = "validated" THEN 1 ELSE 0 END) as validated_count'),
-                DB::raw('SUM(CASE WHEN tp_assignments.status IN ("pending", "submitted") THEN 1 ELSE 0 END) as pending_count'),
+                DB::raw('SUM(CASE WHEN tp_assignments.status IN ("assigned", "pending", "submitted") THEN 1 ELSE 0 END) as pending_count'),
                 DB::raw('SUM(CASE WHEN tp_assignments.status = "rejected" THEN 1 ELSE 0 END) as rejected_count')
             )
             ->groupBy('students.id', 'students.first_name', 'students.last_name', 'students.profile_photo', 'students.program', 'users.email')
@@ -6415,7 +6415,7 @@ class AdminDashboardController extends Controller
             $student->recent_activities = DB::table('tp_assignments')
                 ->select('id', 'title', 'status', 'submitted_at', 'updated_at')
                 ->where('student_id', $student->student_id)
-                ->whereIn('status', ['submitted', 'pending', 'validated', 'rejected'])
+                ->whereIn('status', ['assigned', 'submitted', 'pending', 'validated', 'rejected'])
                 ->orderBy('updated_at', 'desc')
                 ->limit(3)
                 ->get();

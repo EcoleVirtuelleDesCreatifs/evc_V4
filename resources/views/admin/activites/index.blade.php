@@ -149,7 +149,7 @@
                                             </div>
                                         </div>
                                         <div class="activity-status">
-                                            @if($activity->status === 'pending' || $activity->status === 'submitted')
+                                            @if($activity->status === 'assigned' || $activity->status === 'pending' || $activity->status === 'submitted')
                                                 <span class="badge-status badge-pending">En attente</span>
                                             @elseif($activity->status === 'validated')
                                                 <span class="badge-status badge-validated">Validé</span>
