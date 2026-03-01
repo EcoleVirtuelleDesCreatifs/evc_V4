@@ -235,9 +235,9 @@
                     <button type="button" id="topbar-partner-prev" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire précédent">‹</button>
 
                     <div class="flex-1 overflow-hidden" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
-                        <div class="flex items-center justify-center gap-3">
-                            <span id="topbar-partner-text" class="evc-topbar-partner-text"></span>
-                            <a id="topbar-partner-link" href="#" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30">En savoir plus</a>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <span id="topbar-partner-text" class="evc-topbar-partner-text flex-1 min-w-0"></span>
+                            <a id="topbar-partner-link" href="#" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30 whitespace-nowrap">En savoir plus</a>
                         </div>
                     </div>
 
