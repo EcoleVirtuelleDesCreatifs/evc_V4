@@ -314,8 +314,8 @@
                             <div class="mt-1 text-lg font-black text-white">{{ (int) ($stats['tp_validated'] ?? 0) }} / {{ (int) ($stats['min_tp_required'] ?? 0) }}</div>
                         </div>
                         <div class="rounded-2xl border border-white/10 bg-black/20 p-4">
-                            <div class="text-xs font-semibold text-white/70">Projets (validés)</div>
-                            <div class="mt-1 text-lg font-black text-white">{{ (int) (($stats['projects_completed'] ?? 0) + ($stats['design_projects_validated'] ?? 0)) }}</div>
+                            <div class="text-xs font-semibold text-white/70">Projets (réalisés)</div>
+                            <div class="mt-1 text-lg font-black text-white">{{ (int) (($stats['projects_completed'] ?? 0) + ($stats['design_projects_total'] ?? 0)) }}</div>
                         </div>
                     </div>
 
@@ -327,8 +327,9 @@
 
                         $projectsAssigned = (int) ($stats['projects_assigned'] ?? 0);
                         $projectsCompleted = (int) ($stats['projects_completed'] ?? 0);
-                        $designProjectsValidated = (int) ($stats['design_projects_validated'] ?? 0);
-                        $projectsValidated = $projectsCompleted + $designProjectsValidated;
+                        $designProjectsTotal = (int) ($stats['design_projects_total'] ?? 0);
+
+                        $projectsValidated = $projectsCompleted + $designProjectsTotal;
                         $minProjectsRequired = max(1, (int) ($stats['min_projects_required'] ?? 0));
 
                         $reportUploaded = !empty($stats['report_uploaded']);

@@ -111,7 +111,7 @@ class StudentIdVerificationController extends Controller
         $designProjectsValidated = Schema::hasTable('design_projects')
             ? (int) DB::table('design_projects')
                 ->where('user_id', $userId)
-                ->whereIn('status', ['valide', 'validated', 'termine'])
+                ->whereIn('status', ['completed', 'validated'])
                 ->count()
             : 0;
 
@@ -119,15 +119,18 @@ class StudentIdVerificationController extends Controller
             ? (int) DB::table('tp')->where('user_id', $userId)->count()
             : 0;
 
-        $tpAssigned = 0;
         $tpValidated = 0;
+        if (Schema::hasTable('tp') && $userId > 0) {
+            $tpValidated = (int) DB::table('tp')
+                ->where('user_id', $userId)
+                ->where('status', 'validated')
+                ->count();
+        }
+
+        $tpAssigned = 0;
         if (Schema::hasTable('tp_assignments') && $studentPk > 0) {
             $tpAssigned = (int) DB::table('tp_assignments')
                 ->where('student_id', $studentPk)
-                ->count();
-            $tpValidated = (int) DB::table('tp_assignments')
-                ->where('student_id', $studentPk)
-                ->where('status', 'validated')
                 ->count();
         }
 
@@ -178,7 +181,7 @@ class StudentIdVerificationController extends Controller
         $minProjectsRequired = 4;
 
         $tpEligible = $tpValidated >= $minTPRequired;
-        $projectsEligible = ($projectsCompleted + $designProjectsValidated) >= $minProjectsRequired;
+        $projectsEligible = ($projectsCompleted + $designProjectsTotal) >= $minProjectsRequired;
         $isEligible = $tpEligible && $projectsEligible && $reportUploaded;
 
         $isCertified = false;
@@ -234,17 +237,16 @@ class StudentIdVerificationController extends Controller
 
         // Recalcule une éligibilité minimale (mêmes règles que la page)
         $tpValidated = 0;
-        if (Schema::hasTable('tp_assignments') && $studentPk > 0) {
-            $tpValidated = (int) DB::table('tp_assignments')
-                ->where('student_id', $studentPk)
+        if (Schema::hasTable('tp') && $userId > 0) {
+            $tpValidated = (int) DB::table('tp')
+                ->where('user_id', $userId)
                 ->where('status', 'validated')
                 ->count();
         }
 
-        $designProjectsValidated = Schema::hasTable('design_projects')
+        $designProjectsTotal = Schema::hasTable('design_projects')
             ? (int) DB::table('design_projects')
                 ->where('user_id', $userId)
-                ->whereIn('status', ['valide', 'validated', 'termine'])
                 ->count()
             : 0;
 
@@ -290,7 +292,7 @@ class StudentIdVerificationController extends Controller
         $minProjectsRequired = 4;
 
         $isEligible = ($tpValidated >= $minTPRequired)
-            && (($projectsCompleted + $designProjectsValidated) >= $minProjectsRequired)
+            && (($projectsCompleted + $designProjectsTotal) >= $minProjectsRequired)
             && $reportUploaded;
 
         if (!$isEligible) {
