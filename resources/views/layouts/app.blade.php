@@ -202,7 +202,7 @@
         .evc-topbar-marquee {
             display: inline-flex;
             white-space: nowrap;
-            animation: evcTopbarMarquee 18s linear infinite;
+            animation: evcTopbarMarquee 180s linear infinite;
         }
     </style>
 </head>
@@ -215,25 +215,28 @@
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
             <div class="h-[40px] flex items-center justify-center gap-3 text-xs sm:text-sm font-extrabold tracking-wide text-white">
                 @if(!empty($activePartnerships) && $activePartnerships->count() > 0)
+                    <span class="shrink-0 whitespace-nowrap">Nos partenaires officiels :</span>
                     <div class="flex-1 overflow-hidden">
                         <div class="evc-topbar-marquee">
                             @php
-                                $partnershipText = $activePartnerships->map(function ($p) {
-                                    $subtitle = !empty($p->subtitle) ? ' ' . $p->subtitle : '';
-                                    return $p->prefix . ' ' . $p->name . $subtitle;
-                                })->implode(' | ');
+                                $renderItems = function () use ($activePartnerships) {
+                                    foreach ($activePartnerships as $index => $p) {
+                                        $subtitle = !empty($p->subtitle) ? ' ' . $p->subtitle : '';
+                                        echo '<span class="inline-flex items-center gap-3 pr-10 whitespace-nowrap">';
+                                        echo e($p->prefix . ' ' . $p->name . $subtitle);
+                                        echo ' <a href="' . e(route('partnerships.show', $p->slug)) . '" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30">En savoir plus</a>';
+                                        echo '</span>';
+
+                                        if ($index < $activePartnerships->count() - 1) {
+                                            echo '<span class="pr-10" aria-hidden="true">|</span>';
+                                        }
+                                    }
+                                };
                             @endphp
-                            <span class="pr-10">
-                                {{ $partnershipText }}
-                            </span>
-                            <span class="pr-10" aria-hidden="true">
-                                {{ $partnershipText }}
-                            </span>
+                            <span class="pr-10">@php $renderItems(); @endphp</span>
+                            <span class="pr-10" aria-hidden="true">@php $renderItems(); @endphp</span>
                         </div>
                     </div>
-                    <a href="{{ route('partnerships.show', $activePartnerships->first()->slug) }}" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30">
-                        En savoir plus
-                    </a>
                 @else
                     <div class="flex-1 text-center">Partenaire</div>
                 @endif
