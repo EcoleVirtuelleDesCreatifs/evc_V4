@@ -21,6 +21,8 @@ use App\Http\Controllers\StudentConfirmationController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\StudentIdVerificationController;
 use App\Http\Controllers\ActivityReportPublicController;
+use App\Http\Controllers\PartnershipController;
+use App\Http\Controllers\Admin\PartnershipsAdminController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
@@ -109,6 +111,8 @@ Route::get('/actualite/{slug}', function ($slug) {
     return redirect()->route('actualite.show', ['slug' => $slug], 301);
 })->name('actualite.redirect');
 Route::get('/actualites/{slug}', [HomepageController::class, 'showActualite'])->name('actualite.show');
+
+Route::get('/partenariat/{slug}', [PartnershipController::class, 'show'])->name('partnerships.show');
 
 // Pages légales
 Route::get('/mentions-legales', function () {
@@ -775,6 +779,11 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
     Route::middleware('admin.auth')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/partnerships', [PartnershipsAdminController::class, 'index'])->name('partnerships.index');
+        Route::get('/partnerships/{partnership}/edit', [PartnershipsAdminController::class, 'edit'])->name('partnerships.edit');
+        Route::put('/partnerships/{partnership}', [PartnershipsAdminController::class, 'update'])->name('partnerships.update');
+        Route::post('/partnerships/{partnership}/delete-document', [PartnershipsAdminController::class, 'deleteDocument'])->name('partnerships.document.delete');
 
         Route::get('/plaquettes', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'index'])->name('plaquettes.index');
         Route::get('/plaquettes/create', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'create'])->name('plaquettes.create');

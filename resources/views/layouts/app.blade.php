@@ -189,11 +189,51 @@
     <link rel="stylesheet" href="{{ asset('css/homepage.css') }}">
 
     @stack('styles')
+
+    <style>
+        :root { --evc-topbar-height: 40px; }
+        #main-header { top: var(--evc-topbar-height) !important; }
+
+        @keyframes evcTopbarMarquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .evc-topbar-marquee {
+            display: inline-flex;
+            white-space: nowrap;
+            animation: evcTopbarMarquee 18s linear infinite;
+        }
+    </style>
 </head>
 <body class="bg-black font-sans antialiased">
     <div id="particles-js"></div>
 
     @include('homepage._preloader')
+
+    <div class="fixed top-0 left-0 w-full z-[60] border-b border-white/20 bg-gradient-to-r from-[#ff6b00] via-[#ff9800] to-[#ff6b00]">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="h-[40px] flex items-center justify-center gap-3 text-xs sm:text-sm font-extrabold tracking-wide text-white">
+                @if(!empty($activePartnership))
+                    <div class="flex-1 overflow-hidden">
+                        <div class="evc-topbar-marquee">
+                            <span class="pr-10">
+                                {{ $activePartnership->prefix }}&nbsp;<span class="text-white">{{ $activePartnership->name }}</span>{{ !empty($activePartnership->subtitle) ? ' ' . $activePartnership->subtitle : '' }}
+                            </span>
+                            <span class="pr-10" aria-hidden="true">
+                                {{ $activePartnership->prefix }}&nbsp;<span class="text-white">{{ $activePartnership->name }}</span>{{ !empty($activePartnership->subtitle) ? ' ' . $activePartnership->subtitle : '' }}
+                            </span>
+                        </div>
+                    </div>
+                    <a href="{{ route('partnerships.show', $activePartnership->slug) }}" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30">
+                        En savoir plus
+                    </a>
+                @else
+                    <div class="flex-1 text-center">Partenaire</div>
+                @endif
+            </div>
+        </div>
+    </div>
 
     @include('homepage._header')
 

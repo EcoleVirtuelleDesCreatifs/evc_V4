@@ -81,18 +81,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Header Scroll Effect ---
     try {
         const header = document.getElementById('main-header');
-        const logo = header.querySelector('img');
+        if (!header) return;
+
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
-                header.classList.add('py-2', 'bg-gray-900/90', 'backdrop-blur-lg');
-                header.classList.remove('py-4');
-                logo.classList.remove('h-20', 'lg:h-24');
-                logo.classList.add('h-16', 'lg:h-20');
+                header.classList.add('bg-gray-900/90', 'backdrop-blur-lg');
             } else {
-                header.classList.add('py-4');
-                header.classList.remove('py-2', 'bg-gray-900/90', 'backdrop-blur-lg');
-                logo.classList.remove('h-16', 'lg:h-20');
-                logo.classList.add('h-20', 'lg:h-24');
+                header.classList.remove('bg-gray-900/90', 'backdrop-blur-lg');
             }
         });
     } catch (e) {

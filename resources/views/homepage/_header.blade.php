@@ -100,10 +100,10 @@
 
 <!-- Header -->
 <header id="main-header" class="bg-gradient-to-b fixed top-0 left-0 w-full z-50 transition-all duration-300">
-    <nav class="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between p-3 lg:px-8">
         <div class="flex lg:flex-1">
             <a href="{{ url('/') }}">
-                <img class="h-20 lg:h-24 w-auto transition-all duration-300" src="{{ asset('assets/img/logo.png') }}" alt="EVC Logo" decoding="async" fetchpriority="high">
+                <img class="h-16 lg:h-20 w-auto transition-all duration-300" src="{{ asset('assets/img/logo.png') }}" alt="EVC Logo" decoding="async" fetchpriority="high">
             </a>
         </div>
         <div class="flex lg:hidden">

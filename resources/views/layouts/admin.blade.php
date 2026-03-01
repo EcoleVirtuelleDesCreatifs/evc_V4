@@ -534,6 +534,15 @@
                     @endif
 
                     @if(session('admin_role') === 'super_admin')
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.partnerships.index') }}" class="admin-nav-link {{ request()->routeIs('admin.partnerships.*') ? 'active' : '' }}">
+                            <i class="fas fa-handshake"></i>
+                            Partenariats
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(session('admin_role') === 'super_admin')
                     <!-- Gestion des Rapports -->
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.rapports') }}" class="admin-nav-link">

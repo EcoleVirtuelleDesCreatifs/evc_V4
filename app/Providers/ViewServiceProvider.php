@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use App\Helpers\AccountExpirationHelper;
+use Illuminate\Support\Facades\Schema;
+use App\Models\Partnership;
 
 class ViewServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,17 @@ class ViewServiceProvider extends ServiceProvider
     {
         // Partager les variables d'expiration avec toutes les vues
         View::composer('*', function ($view) {
+            $activePartnership = null;
+            try {
+                if (Schema::hasTable('partnerships')) {
+                    $activePartnership = Partnership::query()->where('is_active', true)->first();
+                }
+            } catch (\Throwable $e) {
+                $activePartnership = null;
+            }
+
+            $view->with('activePartnership', $activePartnership);
+
             if (Auth::check()) {
                 $user = Auth::user();
 

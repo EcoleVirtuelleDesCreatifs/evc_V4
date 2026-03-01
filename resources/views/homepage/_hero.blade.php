@@ -1,5 +1,5 @@
 <!-- Hero Section -->
-<main id="hero-section" class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-24 sm:pt-32 pb-12 sm:pb-16 z-40">
+<main id="hero-section" class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-[111px] sm:pt-[143px] pb-12 sm:pb-16 z-40">
     @php
         $basePath = rtrim(request()->getBasePath(), '/');
     @endphp
