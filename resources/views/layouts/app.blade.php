@@ -204,6 +204,12 @@
             white-space: nowrap;
             animation: evcTopbarMarquee 120s linear infinite;
         }
+
+        .evc-topbar-partner-text {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body class="bg-black font-sans antialiased">
@@ -216,27 +222,26 @@
             <div class="h-[40px] flex items-center justify-center gap-3 text-xs sm:text-sm font-extrabold tracking-wide text-white">
                 @if(!empty($activePartnerships) && $activePartnerships->count() > 0)
                     <span class="shrink-0 whitespace-nowrap">Nos partenaires officiels :</span>
-                    <div class="flex-1 overflow-hidden">
-                        <div class="evc-topbar-marquee">
-                            @php
-                                $renderItems = function () use ($activePartnerships) {
-                                    foreach ($activePartnerships as $index => $p) {
-                                        $subtitle = !empty($p->subtitle) ? ' ' . $p->subtitle : '';
-                                        echo '<span class="inline-flex items-center gap-3 pr-10 whitespace-nowrap">';
-                                        echo e($p->prefix . ' ' . $p->name . $subtitle);
-                                        echo ' <a href="' . e(route('partnerships.show', $p->slug)) . '" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30">En savoir plus</a>';
-                                        echo '</span>';
+                    @php
+                        $topbarPartners = $activePartnerships->map(function ($p) {
+                            $subtitle = !empty($p->subtitle) ? ' ' . $p->subtitle : '';
+                            return [
+                                'text' => $p->prefix . ' ' . $p->name . $subtitle,
+                                'url' => route('partnerships.show', $p->slug),
+                            ];
+                        })->values();
+                    @endphp
 
-                                        if ($index < $activePartnerships->count() - 1) {
-                                            echo '<span class="pr-10" aria-hidden="true">|</span>';
-                                        }
-                                    }
-                                };
-                            @endphp
-                            <span class="pr-10">@php $renderItems(); @endphp</span>
-                            <span class="pr-10" aria-hidden="true">@php $renderItems(); @endphp</span>
+                    <button type="button" id="topbar-partner-prev" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire précédent">‹</button>
+
+                    <div class="flex-1 overflow-hidden" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
+                        <div class="flex items-center justify-center gap-3">
+                            <span id="topbar-partner-text" class="evc-topbar-partner-text"></span>
+                            <a id="topbar-partner-link" href="#" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30">En savoir plus</a>
                         </div>
                     </div>
+
+                    <button type="button" id="topbar-partner-next" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire suivant">›</button>
                 @else
                     <div class="flex-1 text-center">Partenaire</div>
                 @endif
@@ -265,5 +270,46 @@
     <script defer src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
     <script defer src="{{ asset('js/homepage.js') }}"></script>
     @stack('scripts')
+    <script>
+        (function () {
+            const container = document.getElementById('topbar-partners');
+            if (!container) return;
+
+            let items = [];
+            try {
+                items = JSON.parse(container.getAttribute('data-topbar-partners') || '[]');
+            } catch (e) {
+                items = [];
+            }
+            if (!Array.isArray(items) || items.length === 0) return;
+
+            const textEl = document.getElementById('topbar-partner-text');
+            const linkEl = document.getElementById('topbar-partner-link');
+            const prevBtn = document.getElementById('topbar-partner-prev');
+            const nextBtn = document.getElementById('topbar-partner-next');
+
+            let index = 0;
+            const render = () => {
+                const item = items[index];
+                if (textEl) textEl.textContent = item?.text || '';
+                if (linkEl) linkEl.setAttribute('href', item?.url || '#');
+            };
+
+            const prev = () => {
+                index = (index - 1 + items.length) % items.length;
+                render();
+            };
+
+            const next = () => {
+                index = (index + 1) % items.length;
+                render();
+            };
+
+            if (prevBtn) prevBtn.addEventListener('click', prev);
+            if (nextBtn) nextBtn.addEventListener('click', next);
+
+            render();
+        })();
+    </script>
 </body>
 </html>
