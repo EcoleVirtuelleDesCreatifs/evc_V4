@@ -224,7 +224,7 @@
         }
 
         .evc-topbar-flash {
-            transition: opacity 280ms ease-in-out;
+            transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
             opacity: 1;
         }
 
@@ -314,16 +314,38 @@
             const nextBtn = document.getElementById('topbar-partner-next');
 
             let index = 0;
-            const flashRender = () => {
+            let isAnimating = false;
+
+            const swap = () => {
                 const item = items[index];
                 const text = item && item.text ? item.text : '';
                 const url = item && item.url ? item.url : '#';
+                if (textEl) textEl.textContent = text;
+                if (linkEl) linkEl.setAttribute('href', url);
+            };
+
+            const flashRender = () => {
+                if (isAnimating) return;
+                isAnimating = true;
+
+                const onFadeOutEnd = (e) => {
+                    if (e && e.propertyName && e.propertyName !== 'opacity') return;
+                    container.removeEventListener('transitionend', onFadeOutEnd);
+                    swap();
+                    container.classList.remove('is-fading');
+                    window.setTimeout(() => {
+                        isAnimating = false;
+                    }, 0);
+                };
+
+                container.addEventListener('transitionend', onFadeOutEnd);
                 container.classList.add('is-fading');
                 window.setTimeout(() => {
-                    if (textEl) textEl.textContent = text;
-                    if (linkEl) linkEl.setAttribute('href', url);
+                    container.removeEventListener('transitionend', onFadeOutEnd);
+                    swap();
                     container.classList.remove('is-fading');
-                }, 140);
+                    isAnimating = false;
+                }, 600);
             };
 
             const prev = () => {
