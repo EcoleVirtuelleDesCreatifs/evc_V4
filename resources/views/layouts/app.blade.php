@@ -194,6 +194,10 @@
         :root { --evc-topbar-height: 40px; }
         #main-header { top: var(--evc-topbar-height) !important; }
 
+        @media (max-width: 640px) {
+            :root { --evc-topbar-height: 64px; }
+        }
+
         @keyframes evcTopbarMarquee {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
@@ -219,9 +223,9 @@
 
     <div class="fixed top-0 left-0 w-full z-[60] border-b border-white/20 bg-gradient-to-r from-[#ff6b00] via-[#ff9800] to-[#ff6b00]">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
-            <div class="h-[40px] flex items-center justify-center gap-3 text-xs sm:text-sm font-extrabold tracking-wide text-white">
+            <div class="min-h-[40px] sm:h-[40px] py-1 sm:py-0 flex flex-col sm:flex-row sm:items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-extrabold tracking-wide text-white">
                 @if(!empty($activePartnerships) && $activePartnerships->count() > 0)
-                    <span class="shrink-0 whitespace-nowrap">Nos partenaires officiels :</span>
+                    <span class="w-full sm:w-auto text-center sm:text-left shrink-0 whitespace-nowrap">Nos partenaires officiels :</span>
                     @php
                         $topbarPartners = $activePartnerships->map(function ($p) {
                             $subtitle = !empty($p->subtitle) ? ' ' . $p->subtitle : '';
@@ -232,16 +236,18 @@
                         })->values();
                     @endphp
 
-                    <button type="button" id="topbar-partner-prev" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire précédent">‹</button>
+                    <div class="w-full flex items-center gap-2 sm:gap-3">
+                        <button type="button" id="topbar-partner-prev" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire précédent">‹</button>
 
-                    <div class="flex-1 overflow-hidden" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
-                        <div class="flex items-center gap-3 min-w-0">
-                            <span id="topbar-partner-text" class="evc-topbar-partner-text flex-1 min-w-0"></span>
-                            <a id="topbar-partner-link" href="#" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30 whitespace-nowrap">En savoir plus</a>
+                        <div class="flex-1 overflow-hidden min-w-0" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
+                            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                                <span id="topbar-partner-text" class="evc-topbar-partner-text flex-1 min-w-0"></span>
+                                <a id="topbar-partner-link" href="#" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-2 sm:px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30 whitespace-nowrap">En savoir plus</a>
+                            </div>
                         </div>
-                    </div>
 
-                    <button type="button" id="topbar-partner-next" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire suivant">›</button>
+                        <button type="button" id="topbar-partner-next" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire suivant">›</button>
+                    </div>
                 @else
                     <div class="flex-1 text-center">Partenaire</div>
                 @endif
