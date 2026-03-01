@@ -195,7 +195,7 @@
         #main-header { top: var(--evc-topbar-height) !important; }
 
         @media (max-width: 640px) {
-            :root { --evc-topbar-height: 64px; }
+            :root { --evc-topbar-height: 92px; }
         }
 
         @keyframes evcTopbarMarquee {
@@ -213,6 +213,14 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        @media (max-width: 640px) {
+            .evc-topbar-partner-text {
+                white-space: normal;
+                overflow: visible;
+                text-overflow: clip;
+            }
         }
 
         .evc-topbar-flash {
@@ -250,10 +258,10 @@
                     <div class="w-full flex items-center gap-2 sm:gap-3">
                         <button type="button" id="topbar-partner-prev" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire précédent">‹</button>
 
-                        <div class="flex-1 overflow-hidden min-w-0 evc-topbar-flash" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
-                            <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <div class="flex-1 overflow-visible sm:overflow-hidden min-w-0 evc-topbar-flash" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0 items-center sm:items-stretch">
                                 <span id="topbar-partner-text" class="evc-topbar-partner-text flex-1 min-w-0">{{ $firstTopbarPartner['text'] ?? '' }}</span>
-                                <a id="topbar-partner-link" href="{{ $firstTopbarPartner['url'] ?? '#' }}" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-2 sm:px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30 whitespace-nowrap">En savoir plus</a>
+                                <a id="topbar-partner-link" href="{{ $firstTopbarPartner['url'] ?? '#' }}" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30 whitespace-nowrap">En savoir plus</a>
                             </div>
                         </div>
 
