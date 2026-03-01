@@ -7,6 +7,7 @@ use App\Models\Partnership;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class PartnershipsAdminController extends Controller
@@ -42,13 +43,25 @@ class PartnershipsAdminController extends Controller
         $this->ensureAllowed();
 
         $validated = $request->validate([
-            'slug' => 'required|string|max:255|alpha_dash|unique:partnerships,slug',
+            'slug' => 'nullable|string|max:255|alpha_dash|unique:partnerships,slug',
             'prefix' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'subtitle' => 'nullable|string|max:255',
             'is_active' => 'nullable|boolean',
             'document' => 'nullable|file|mimes:pdf|max:20480',
         ]);
+
+        $slug = !empty($validated['slug']) ? $validated['slug'] : Str::slug($validated['name']);
+        if (empty($slug)) {
+            $slug = 'partenaire';
+        }
+
+        $baseSlug = $slug;
+        $i = 2;
+        while (Partnership::query()->where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $i;
+            $i++;
+        }
 
         $path = null;
         if ($request->hasFile('document')) {
@@ -58,7 +71,7 @@ class PartnershipsAdminController extends Controller
         $isActive = (bool) ($validated['is_active'] ?? false);
 
         $partnership = Partnership::query()->create([
-            'slug' => $validated['slug'],
+            'slug' => $slug,
             'prefix' => $validated['prefix'],
             'name' => $validated['name'],
             'subtitle' => $validated['subtitle'] ?? null,

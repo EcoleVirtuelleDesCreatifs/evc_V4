@@ -33,7 +33,7 @@
                 <div class="row g-3">
                     <div class="col-12 col-md-4">
                         <label class="form-label">Slug</label>
-                        <input type="text" name="slug" class="form-control" value="{{ old('slug') }}" placeholder="ex: onp" required>
+                        <input type="text" id="partnership-slug" name="slug" class="form-control" value="{{ old('slug') }}" placeholder="ex: onp">
                         <div class="form-text">Lettres/chiffres/tirets uniquement (utilisé dans l’URL).</div>
                     </div>
                     <div class="col-12 col-md-4">
@@ -42,7 +42,7 @@
                     </div>
                     <div class="col-12 col-md-4">
                         <label class="form-label">Nom</label>
-                        <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+                        <input type="text" id="partnership-name" name="name" class="form-control" value="{{ old('name') }}" required>
                     </div>
 
                     <div class="col-12">
@@ -71,3 +71,39 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    (function () {
+        const nameInput = document.getElementById('partnership-name');
+        const slugInput = document.getElementById('partnership-slug');
+        if (!nameInput || !slugInput) return;
+
+        const initialSlug = (slugInput.value || '').trim();
+        let slugTouched = initialSlug.length > 0;
+
+        const slugify = (value) => {
+            return (value || '')
+                .toString()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        };
+
+        slugInput.addEventListener('input', () => {
+            slugTouched = true;
+        });
+
+        const sync = () => {
+            if (slugTouched) return;
+            const v = slugify(nameInput.value);
+            if (v) slugInput.value = v;
+        };
+
+        nameInput.addEventListener('input', sync);
+        sync();
+    })();
+</script>
+@endpush
