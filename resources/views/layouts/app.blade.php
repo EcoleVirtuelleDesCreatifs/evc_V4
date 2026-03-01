@@ -202,7 +202,7 @@
         .evc-topbar-marquee {
             display: inline-flex;
             white-space: nowrap;
-            animation: evcTopbarMarquee 180s linear infinite;
+            animation: evcTopbarMarquee 120s linear infinite;
         }
     </style>
 </head>
