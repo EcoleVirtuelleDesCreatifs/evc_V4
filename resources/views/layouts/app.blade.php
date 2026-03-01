@@ -242,7 +242,7 @@
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
             <div class="min-h-[40px] sm:h-[40px] py-1 sm:py-0 flex flex-col sm:flex-row sm:items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-extrabold tracking-wide text-white">
                 @if(!empty($activePartnerships) && $activePartnerships->count() > 0)
-                    <span class="w-full sm:w-auto text-center sm:text-left shrink-0 whitespace-nowrap">Nos partenaires officiels :</span>
+                    <span class="w-full sm:w-auto text-center sm:text-left shrink-0 whitespace-nowrap">NOS PARTENAIRES OFFICIELS :</span>
                     @php
                         $topbarPartners = $activePartnerships->map(function ($p) {
                             $subtitle = !empty($p->subtitle) ? ' ' . $p->subtitle : '';
