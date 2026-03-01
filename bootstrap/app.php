@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(prepend: [
+            \App\Http\Middleware\CanonicalHost::class,
             \App\Http\Middleware\ForceSessionDomain::class,
         ]);
 
