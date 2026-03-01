@@ -214,6 +214,15 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        .evc-topbar-flash {
+            transition: opacity 280ms ease-in-out;
+            opacity: 1;
+        }
+
+        .evc-topbar-flash.is-fading {
+            opacity: 0;
+        }
     </style>
 </head>
 <body class="bg-black font-sans antialiased">
@@ -241,7 +250,7 @@
                     <div class="w-full flex items-center gap-2 sm:gap-3">
                         <button type="button" id="topbar-partner-prev" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire précédent">‹</button>
 
-                        <div class="flex-1 overflow-hidden min-w-0" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
+                        <div class="flex-1 overflow-hidden min-w-0 evc-topbar-flash" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
                             <div class="flex items-center gap-2 sm:gap-3 min-w-0">
                                 <span id="topbar-partner-text" class="evc-topbar-partner-text flex-1 min-w-0">{{ $firstTopbarPartner['text'] ?? '' }}</span>
                                 <a id="topbar-partner-link" href="{{ $firstTopbarPartner['url'] ?? '#' }}" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-2 sm:px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30 whitespace-nowrap">En savoir plus</a>
@@ -297,28 +306,64 @@
             const nextBtn = document.getElementById('topbar-partner-next');
 
             let index = 0;
-            const render = () => {
+            const flashRender = () => {
                 const item = items[index];
                 const text = item && item.text ? item.text : '';
                 const url = item && item.url ? item.url : '#';
-                if (textEl) textEl.textContent = text;
-                if (linkEl) linkEl.setAttribute('href', url);
+                container.classList.add('is-fading');
+                window.setTimeout(() => {
+                    if (textEl) textEl.textContent = text;
+                    if (linkEl) linkEl.setAttribute('href', url);
+                    container.classList.remove('is-fading');
+                }, 140);
             };
 
             const prev = () => {
                 index = (index - 1 + items.length) % items.length;
-                render();
+                flashRender();
             };
 
             const next = () => {
                 index = (index + 1) % items.length;
-                render();
+                flashRender();
             };
 
             if (prevBtn) prevBtn.addEventListener('click', prev);
             if (nextBtn) nextBtn.addEventListener('click', next);
 
-            render();
+            flashRender();
+
+            if (items.length > 1) {
+                let timer = window.setInterval(next, 4000);
+
+                container.addEventListener('mouseenter', () => {
+                    if (timer) {
+                        window.clearInterval(timer);
+                        timer = null;
+                    }
+                });
+
+                container.addEventListener('mouseleave', () => {
+                    if (!timer) timer = window.setInterval(next, 4000);
+                });
+
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', () => {
+                        if (timer) {
+                            window.clearInterval(timer);
+                            timer = window.setInterval(next, 4000);
+                        }
+                    });
+                }
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', () => {
+                        if (timer) {
+                            window.clearInterval(timer);
+                            timer = window.setInterval(next, 4000);
+                        }
+                    });
+                }
+            }
         })();
     </script>
 </body>
