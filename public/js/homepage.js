@@ -142,6 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             observer: true,
             observeParents: true,
+            navigation: {
+                nextEl: '.hero-nav-next',
+                prevEl: '.hero-nav-prev'
+            },
             controller: {
                 control: [heroBgSlider, heroBgSliderMobile]
             }
@@ -166,24 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         // Hero Navigation Buttons
-        try {
-            document.querySelectorAll('.hero-nav-prev').forEach((btn) => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    heroTextSwiper.slidePrev();
-                });
-            });
-            document.querySelectorAll('.hero-nav-next').forEach((btn) => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    heroTextSwiper.slideNext();
-                });
-            });
-        } catch (e) {
-            console.error('Hero Nav Error:', e);
-        }
+        // (navigation gérée par Swiper via l'option navigation)
 
         // Travaux Carousel
         new Swiper('.travaux-carousel', { loop: true, slidesPerView: 1, spaceBetween: 30, grabCursor: true, pagination: { el: '.travaux-pagination', clickable: true }, navigation: { nextEl: '.travaux-next', prevEl: '.travaux-prev' }, breakpoints: { 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } } });

@@ -35,10 +35,9 @@
                     @endforeach
                 </div>
             </div>
-                <!-- Navigation Buttons will be positioned by CSS -->
-                <div class="swiper-button-prev travaux-prev"></div>
-                <div class="swiper-button-next travaux-next"></div>
-            </div>
+            <!-- Navigation Buttons will be positioned by CSS -->
+            <div class="swiper-button-prev travaux-prev"></div>
+            <div class="swiper-button-next travaux-next"></div>
             <!-- Pagination -->
             <div class="swiper-pagination travaux-pagination mt-8 relative"></div>
         </div>
