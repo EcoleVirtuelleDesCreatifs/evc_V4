@@ -18,20 +18,20 @@
         ];
     @endphp
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
         <div>
-            <h1 class="text-white mb-0">
+            <h1 class="text-white mb-1" style="font-weight: 900; letter-spacing: -0.2px;">
                 <i class="fas fa-user-check me-2"></i>Pré-inscriptions - Éligibles
             </h1>
-            <div style="color: rgba(255,255,255,0.75);">Candidatures avec une date de paiement choisie.</div>
+            <div style="color: rgba(255,255,255,0.75); font-size: 13px;">Candidatures avec une date de paiement choisie.</div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <form method="GET" action="{{ $filterAction }}" class="row g-2 align-items-center">
+            <form method="GET" action="{{ $filterAction }}" class="row g-2 align-items-center" style="margin:0;">
                 <div class="col-auto">
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Recherche (nom, prénom, email, whatsapp)" class="form-control" />
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Recherche (nom, prénom, email, whatsapp)" class="form-control" style="border-radius: 12px; height: 42px;" />
                 </div>
                 <div class="col-auto">
-                    <select name="formation" class="form-select">
+                    <select name="formation" class="form-select" style="border-radius: 12px; height: 42px;">
                         <option value="">Toutes formations</option>
                         <option value="design_graphique" @selected(request('formation')==='design_graphique')>Design Graphique</option>
                         <option value="community_management" @selected(request('formation')==='community_management')>Community Management</option>
@@ -42,7 +42,7 @@
                 </div>
                 @if($hasEligibilityNotifiedAt)
                     <div class="col-auto">
-                        <select name="notified" class="form-select">
+                        <select name="notified" class="form-select" style="border-radius: 12px; height: 42px;">
                             <option value="">Tous (mail)</option>
                             <option value="0" @selected(request('notified')==='0')>Non notifiés</option>
                             <option value="1" @selected(request('notified')==='1')>Déjà notifiés</option>
@@ -50,7 +50,7 @@
                     </div>
                 @endif
                 <div class="col-auto">
-                    <button class="btn btn-primary" style="border-radius: 12px;"><i class="fas fa-filter me-2"></i>Filtrer</button>
+                    <button class="btn btn-primary" style="border-radius: 12px; height: 42px; font-weight: 800;"><i class="fas fa-filter me-2"></i>Filtrer</button>
                 </div>
             </form>
         </div>
@@ -129,7 +129,17 @@
                                     <div class="text-muted" style="font-size: 13px;">{{ $pre->email }}{{ !empty($pre->whatsapp) ? ' • ' . $pre->whatsapp : '' }}</div>
                                 </td>
                                 <td>
-                                    <span class="badge bg-secondary">{{ $formationLabels[$pre->choix_formation] ?? ($pre->choix_formation ?? 'N/A') }}</span>
+                                    @php
+                                        $formationBadgeClass = match ($pre->choix_formation) {
+                                            'design_graphique' => 'bg-primary',
+                                            'community_management' => 'bg-success',
+                                            'gestion_informatique' => 'bg-info text-dark',
+                                            'intelligence_artificielle' => 'bg-danger',
+                                            'design_cm', 'design_graphique_community_management', 'design_graphique_community_manager' => 'bg-warning text-dark',
+                                            default => 'bg-secondary',
+                                        };
+                                    @endphp
+                                    <span class="badge {{ $formationBadgeClass }}">{{ $formationLabels[$pre->choix_formation] ?? ($pre->choix_formation ?? 'N/A') }}</span>
                                 </td>
                                 <td>
                                     @if(!empty($pre->date_inscription_souhaitee))
@@ -145,12 +155,22 @@
                                     @if($hasEligibilityNotifiedAt)
                                         @if(!empty($pre->eligibility_notified_at))
                                             <span class="badge bg-success">Oui</span>
-                                            <div class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($pre->eligibility_notified_at)->format('d/m/Y H:i') }}</div>
+                                            @php
+                                                $notifiedLabel = null;
+                                                try {
+                                                    $notifiedLabel = \Carbon\Carbon::parse($pre->eligibility_notified_at)->format('d/m/Y H:i');
+                                                } catch (\Throwable $e) {
+                                                    $notifiedLabel = null;
+                                                }
+                                            @endphp
+                                            @if(!empty($notifiedLabel))
+                                                <div class="text-muted" style="font-size: 12px;">{{ $notifiedLabel }}</div>
+                                            @endif
                                         @else
                                             <span class="badge bg-warning text-dark">Non</span>
                                         @endif
                                     @else
-                                        <span class="text-muted">-</span>
+                                        <span class="badge bg-secondary">N/A</span>
                                     @endif
                                 </td>
                                 <td class="text-end">
