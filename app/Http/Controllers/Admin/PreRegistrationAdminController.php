@@ -132,7 +132,7 @@ class PreRegistrationAdminController extends Controller
             $query->where('choix_formation', $formation);
         }
 
-        $query->whereIn('status', ['en cours', 'EN COURS']);
+        $query->whereIn('status', ['en cours', 'EN COURS', 'En cours', 'pending']);
 
         $query->whereNotNull('date_inscription_souhaitee');
 
