@@ -197,71 +197,75 @@ class PreRegistrationAdminController extends Controller
         $plaquetteUrl = null;
         $plaquetteTitle = null;
         try {
-            $formationId = null;
-            if (Schema::hasTable('formations')) {
-                $fnLower = strtolower((string) $formationName);
-                $formationId = DB::table('formations')->whereRaw('LOWER(name) = ?', [$fnLower])->value('id');
-                if (empty($formationId)) {
-                    $formationId = DB::table('formations')->whereRaw('LOWER(name) LIKE ?', ['%' . $fnLower . '%'])->value('id');
-                }
-            }
-
-            Log::info('Plaquette lookup debug', [
-                'pre_id' => $pre->id,
-                'choix_formation' => $pre->choix_formation,
-                'formationName' => $formationName,
-                'formationId' => $formationId,
-                'formations_table_exists' => Schema::hasTable('formations'),
-                'plaquettes_table_exists' => Schema::hasTable('plaquettes'),
-                'all_formations' => Schema::hasTable('formations') ? DB::table('formations')->select('id', 'name')->get()->toArray() : [],
-                'all_plaquettes' => Schema::hasTable('plaquettes') ? DB::table('plaquettes')->select('id', 'title', 'formation_id', 'is_active', 'is_published', 'file_path')->get()->toArray() : [],
-            ]);
-
             if (Schema::hasTable('plaquettes')) {
-                $today = now()->toDateString();
-                $basePlaquetteQuery = function () use ($today) {
-                    return DB::table('plaquettes')
-                        ->where('is_active', 1)
-                        ->where('is_published', 1)
-                        ->where(function ($q) use ($today) {
-                            $q->whereNull('start_date')->orWhere('start_date', '<=', $today);
-                        })
-                        ->where(function ($q) use ($today) {
-                            $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
-                        });
-                };
+                $formationId = null;
+                if (Schema::hasTable('formations')) {
+                    $fnLower = strtolower((string) $formationName);
+                    $formationId = DB::table('formations')->whereRaw('LOWER(name) = ?', [$fnLower])->value('id');
+                    if (empty($formationId)) {
+                        $formationId = DB::table('formations')->whereRaw('LOWER(name) LIKE ?', ['%' . $fnLower . '%'])->value('id');
+                    }
+                    if (empty($formationId)) {
+                        $keywords = array_filter(explode(' ', $fnLower), fn($w) => mb_strlen($w) > 3);
+                        foreach ($keywords as $kw) {
+                            $formationId = DB::table('formations')->whereRaw('LOWER(name) LIKE ?', ['%' . $kw . '%'])->value('id');
+                            if (!empty($formationId)) break;
+                        }
+                    }
+                }
 
                 $p = null;
+                $fnLower = strtolower((string) $formationName);
 
                 if (!empty($formationId)) {
-                    $p = $basePlaquetteQuery()
+                    $p = DB::table('plaquettes')
                         ->where('formation_id', $formationId)
-                        ->orderByDesc('published_at')
-                        ->orderByDesc('id')
-                        ->first();
+                        ->where('is_active', 1)->where('is_published', 1)
+                        ->whereNotNull('file_path')->where('file_path', '!=', '')
+                        ->orderByDesc('id')->first();
                 }
 
                 if (!$p) {
-                    $fnLower = strtolower((string) $formationName);
-                    $p = $basePlaquetteQuery()
+                    $p = DB::table('plaquettes')
                         ->whereRaw('LOWER(title) LIKE ?', ['%' . $fnLower . '%'])
-                        ->orderByDesc('published_at')
-                        ->orderByDesc('id')
-                        ->first();
+                        ->where('is_active', 1)->where('is_published', 1)
+                        ->whereNotNull('file_path')->where('file_path', '!=', '')
+                        ->orderByDesc('id')->first();
                 }
 
                 if (!$p) {
-                    $p = $basePlaquetteQuery()
-                        ->orderByDesc('published_at')
-                        ->orderByDesc('id')
-                        ->first();
+                    $keywords = array_filter(explode(' ', $fnLower), fn($w) => mb_strlen($w) > 3);
+                    foreach ($keywords as $kw) {
+                        $p = DB::table('plaquettes')
+                            ->whereRaw('LOWER(title) LIKE ?', ['%' . $kw . '%'])
+                            ->where('is_active', 1)->where('is_published', 1)
+                            ->whereNotNull('file_path')->where('file_path', '!=', '')
+                            ->orderByDesc('id')->first();
+                        if ($p) break;
+                    }
                 }
 
-                Log::info('Plaquette result', [
+                if (!$p && !empty($formationId)) {
+                    $p = DB::table('plaquettes')
+                        ->where('formation_id', $formationId)
+                        ->whereNotNull('file_path')->where('file_path', '!=', '')
+                        ->orderByDesc('id')->first();
+                }
+
+                if (!$p) {
+                    $p = DB::table('plaquettes')
+                        ->whereNotNull('file_path')->where('file_path', '!=', '')
+                        ->orderByDesc('id')->first();
+                }
+
+                Log::info('Plaquette lookup', [
+                    'pre_id' => $pre->id,
+                    'choix_formation' => $pre->choix_formation,
+                    'formationName' => $formationName,
+                    'formationId' => $formationId,
                     'found' => !is_null($p),
                     'plaquette_id' => $p->id ?? null,
                     'plaquette_title' => $p->title ?? null,
-                    'plaquette_file_path' => $p->file_path ?? null,
                 ]);
 
                 if ($p && !empty($p->file_path)) {
@@ -272,7 +276,7 @@ class PreRegistrationAdminController extends Controller
                 }
             }
         } catch (\Throwable $e) {
-            Log::error('Plaquette lookup error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            Log::error('Plaquette lookup error', ['error' => $e->getMessage()]);
             $plaquetteUrl = null;
             $plaquetteTitle = null;
         }
