@@ -138,6 +138,17 @@ class PreRegistrationAdminController extends Controller
 
         $hasEligibilityNotifiedAt = Schema::hasColumn('pre_registrations', 'eligibility_notified_at');
 
+        if (!$hasEligibilityNotifiedAt) {
+            try {
+                Schema::table('pre_registrations', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->timestamp('eligibility_notified_at')->nullable()->after('date_inscription_souhaitee');
+                });
+                $hasEligibilityNotifiedAt = true;
+            } catch (\Throwable $e) {
+                // ignore
+            }
+        }
+
         if ($hasEligibilityNotifiedAt) {
             if ($request->get('notified') === '0') {
                 $query->whereNull('eligibility_notified_at');
@@ -168,6 +179,18 @@ class PreRegistrationAdminController extends Controller
         }
 
         $hasEligibilityNotifiedAt = Schema::hasColumn('pre_registrations', 'eligibility_notified_at');
+
+        if (!$hasEligibilityNotifiedAt) {
+            try {
+                Schema::table('pre_registrations', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->timestamp('eligibility_notified_at')->nullable()->after('date_inscription_souhaitee');
+                });
+                $hasEligibilityNotifiedAt = true;
+            } catch (\Throwable $e) {
+                // ignore if cannot alter table
+            }
+        }
+
         $isRelance = $hasEligibilityNotifiedAt && !empty($pre->eligibility_notified_at);
 
         $formationName = $this->getFormationLabel($pre->choix_formation);
