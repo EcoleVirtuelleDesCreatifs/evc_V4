@@ -58,35 +58,35 @@
 
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
-                <div class="stat-icon">
+            <div class="stat-card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 16px; padding: 18px; display:flex; align-items:center; gap: 14px;">
+                <div class="stat-icon" style="width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center;">
                     <i class="fas fa-list"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ $stats['total'] ?? 0 }}</h3>
-                    <p>Total</p>
+                    <h3 style="margin:0; font-size: 28px; font-weight: 900; line-height: 1;">{{ $stats['total'] ?? 0 }}</h3>
+                    <p style="margin:6px 0 0; opacity: .95; letter-spacing: .4px; font-weight: 800; font-size: 12px; text-transform: uppercase;">Total</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
-                <div class="stat-icon">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); border-radius: 16px; padding: 18px; display:flex; align-items:center; gap: 14px;">
+                <div class="stat-icon" style="width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center;">
                     <i class="fas fa-paper-plane"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ $stats['notified'] ?? 0 }}</h3>
-                    <p>Notifiés</p>
+                    <h3 style="margin:0; font-size: 28px; font-weight: 900; line-height: 1;">{{ $stats['notified'] ?? 0 }}</h3>
+                    <p style="margin:6px 0 0; opacity: .95; letter-spacing: .4px; font-weight: 800; font-size: 12px; text-transform: uppercase;">Notifiés</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);">
-                <div class="stat-icon">
+            <div class="stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%); border-radius: 16px; padding: 18px; display:flex; align-items:center; gap: 14px;">
+                <div class="stat-icon" style="width: 44px; height: 44px; border-radius: 14px; background: rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center;">
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="stat-content">
-                    <h3>{{ $stats['not_notified'] ?? 0 }}</h3>
-                    <p>Non notifiés</p>
+                    <h3 style="margin:0; font-size: 28px; font-weight: 900; line-height: 1;">{{ $stats['not_notified'] ?? 0 }}</h3>
+                    <p style="margin:6px 0 0; opacity: .95; letter-spacing: .4px; font-weight: 800; font-size: 12px; text-transform: uppercase;">Non notifiés</p>
                 </div>
             </div>
         </div>
