@@ -167,9 +167,8 @@ class PreRegistrationAdminController extends Controller
             return redirect()->back()->with('error', 'Email du candidat introuvable.');
         }
 
-        if (!empty($pre->eligibility_notified_at)) {
-            return redirect()->back()->with('warning', 'Ce candidat a déjà été notifié.');
-        }
+        $hasEligibilityNotifiedAt = Schema::hasColumn('pre_registrations', 'eligibility_notified_at');
+        $isRelance = $hasEligibilityNotifiedAt && !empty($pre->eligibility_notified_at);
 
         $formationName = $this->getFormationLabel($pre->choix_formation);
         $candidateName = trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? ''));
@@ -203,7 +202,7 @@ class PreRegistrationAdminController extends Controller
 
         // Mise à jour de la date de notification (ne doit pas faire échouer l'envoi du mail)
         try {
-            if (Schema::hasColumn('pre_registrations', 'eligibility_notified_at')) {
+            if ($hasEligibilityNotifiedAt) {
                 DB::table('pre_registrations')
                     ->where('id', $pre->id)
                     ->update(['eligibility_notified_at' => now()]);
@@ -216,7 +215,7 @@ class PreRegistrationAdminController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Email d\'éligibilité envoyé.');
+        return redirect()->back()->with('success', $isRelance ? 'Relance envoyée.' : 'Email d\'éligibilité envoyé.');
     }
 
     public function devis($id)

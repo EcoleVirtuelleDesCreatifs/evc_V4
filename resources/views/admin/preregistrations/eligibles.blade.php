@@ -99,6 +99,7 @@
                     <thead>
                         <tr>
                             <th>#</th>
+                            <th style="width: 70px;">Photo</th>
                             <th>Candidat</th>
                             <th>Formation</th>
                             <th>Date paiement</th>
@@ -111,6 +112,18 @@
                         @forelse($pres as $pre)
                             <tr>
                                 <td>{{ $pre->id }}</td>
+                                <td>
+                                    @php
+                                        $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrl($pre->photo ?? null);
+                                    @endphp
+                                    @if($photoUrl)
+                                        <img src="{{ $photoUrl }}" alt="Photo" class="img-thumbnail" style="width: 44px; height: 44px; object-fit: cover; border-radius: 10px;">
+                                    @else
+                                        <div class="bg-secondary d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; border-radius: 10px;">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                    @endif
+                                </td>
                                 <td>
                                     <div style="font-weight: 800;">{{ $pre->prenom }} {{ $pre->nom }}</div>
                                     <div class="text-muted" style="font-size: 13px;">{{ $pre->email }}{{ !empty($pre->whatsapp) ? ' • ' . $pre->whatsapp : '' }}</div>
@@ -129,31 +142,32 @@
                                     <span class="badge bg-light text-dark">{{ $pre->status }}</span>
                                 </td>
                                 <td>
-                                    @if(!empty($pre->eligibility_notified_at))
-                                        <span class="badge bg-success">Envoyé</span>
-                                        <div class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($pre->eligibility_notified_at)->format('d/m/Y H:i') }}</div>
+                                    @if($hasEligibilityNotifiedAt)
+                                        @if(!empty($pre->eligibility_notified_at))
+                                            <span class="badge bg-success">Oui</span>
+                                            <div class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($pre->eligibility_notified_at)->format('d/m/Y H:i') }}</div>
+                                        @else
+                                            <span class="badge bg-warning text-dark">Non</span>
+                                        @endif
                                     @else
-                                        <span class="badge bg-warning text-dark">Non</span>
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                                 <td class="text-end">
-                                    @if(empty($pre->eligibility_notified_at))
-                                        <form method="POST" action="{{ route('admin.preinscriptions.notify-eligible', $pre->id) }}">
-                                            @csrf
-                                            <button type="submit" class="btn btn-sm btn-success" style="border-radius: 10px; font-weight: 800;">
-                                                <i class="fas fa-paper-plane me-1"></i>Envoyer mail
-                                            </button>
-                                        </form>
-                                    @else
-                                        <button type="button" class="btn btn-sm btn-outline-secondary" style="border-radius: 10px;" disabled>
-                                            <i class="fas fa-check me-1"></i>Déjà envoyé
+                                    <form method="POST" action="{{ route('admin.preinscriptions.notify-eligible', $pre->id) }}">
+                                        @csrf
+                                        @php
+                                            $isRelance = $hasEligibilityNotifiedAt && !empty($pre->eligibility_notified_at);
+                                        @endphp
+                                        <button type="submit" class="btn btn-sm {{ $isRelance ? 'btn-outline-warning' : 'btn-success' }}" style="border-radius: 10px; font-weight: 800;">
+                                            <i class="fas {{ $isRelance ? 'fa-rotate' : 'fa-paper-plane' }} me-1"></i>{{ $isRelance ? 'Relance' : 'Envoyer mail' }}
                                         </button>
-                                    @endif
+                                    </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center text-muted py-4">Aucune candidature éligible trouvée.</td>
+                                <td colspan="8" class="text-center text-muted py-4">Aucune candidature éligible trouvée.</td>
                             </tr>
                         @endforelse
                     </tbody>
