@@ -935,6 +935,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/preinscriptions/pending', [PreRegistrationAdminController::class, 'pending'])->name('preinscriptions.pending');
         Route::get('/preinscriptions/accepted', [PreRegistrationAdminController::class, 'accepted'])->name('preinscriptions.accepted');
         Route::get('/preinscriptions/rejected', [PreRegistrationAdminController::class, 'rejected'])->name('preinscriptions.rejected');
+        Route::get('/preinscriptions/eligibles', [PreRegistrationAdminController::class, 'eligibles'])->name('preinscriptions.eligibles');
         Route::get('/preinscriptions/export', [PreRegistrationAdminController::class, 'export'])->name('preinscriptions.export');
         Route::get('/preinscriptions/{id}/devis', [PreRegistrationAdminController::class, 'devis'])->name('preinscriptions.devis');
         Route::get('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'show'])->name('preinscriptions.show');
@@ -946,6 +947,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/preinscriptions/{id}/validate', [PreRegistrationAdminController::class, 'validateOne'])->name('preinscriptions.validate');
         Route::post('/preinscriptions/{id}/accept', [PreRegistrationAdminController::class, 'acceptCandidate'])->name('preinscriptions.accept');
         Route::post('/preinscriptions/{id}/reject', [PreRegistrationAdminController::class, 'rejectCandidate'])->name('preinscriptions.reject');
+        Route::post('/preinscriptions/{id}/notify-eligible', [PreRegistrationAdminController::class, 'notifyEligible'])->name('preinscriptions.notify-eligible');
         Route::post('/preinscriptions/{id}/manual-payment', [PreRegistrationAdminController::class, 'manualPayment'])->name('preinscriptions.manual-payment');
         Route::delete('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'destroy'])->name('preinscriptions.destroy');
 

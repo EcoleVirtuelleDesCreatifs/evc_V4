@@ -57,11 +57,22 @@
                     </li>
 
                     <!-- Pré-inscriptions -->
-                    <li class="admin-nav-item">
-                        <a href="{{ route('admin.preinscriptions.index') }}" class="admin-nav-link {{ request()->routeIs('admin.preinscriptions.*') ? 'active' : '' }}">
+                    <li class="admin-nav-item dropdown">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.preinscriptions.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#preinscriptionsMenu">
                             <i class="fas fa-user-plus"></i>
                             Pré-inscriptions
+                            <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
+                        <div class="collapse {{ request()->routeIs('admin.preinscriptions.*') ? 'show' : '' }}" id="preinscriptionsMenu">
+                            <ul class="admin-nav-submenu">
+                                <li><a href="{{ route('admin.preinscriptions.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.preinscriptions.index') ? 'active' : '' }}">
+                                    <i class="fas fa-list"></i>Candidatures
+                                </a></li>
+                                <li><a href="{{ route('admin.preinscriptions.eligibles') }}" class="admin-nav-sublink {{ request()->routeIs('admin.preinscriptions.eligibles') ? 'active' : '' }}">
+                                    <i class="fas fa-user-check"></i>Éligibles
+                                </a></li>
+                            </ul>
+                        </div>
                     </li>
 
                     <!-- Gestion des Étudiants -->

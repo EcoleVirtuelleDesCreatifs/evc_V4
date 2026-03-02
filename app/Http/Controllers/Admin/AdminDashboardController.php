@@ -2739,6 +2739,27 @@ class AdminDashboardController extends Controller
             return $student;
         });
 
+        $userIds = $students
+            ->pluck('user_id')
+            ->filter(fn ($id) => !empty($id))
+            ->unique()
+            ->values();
+
+        $userIdsWithProjects = DB::table('projects')
+            ->whereIn('user_id', $userIds)
+            ->distinct()
+            ->pluck('user_id');
+
+        $userIdsWithProjects = $userIdsWithProjects
+            ->map(fn ($id) => (int) $id)
+            ->flip();
+
+        $students = $students->map(function ($student) use ($userIdsWithProjects) {
+            $userId = (int) ($student->user_id ?? 0);
+            $student->has_projects = $userId > 0 && $userIdsWithProjects->has($userId);
+            return $student;
+        });
+
         // Calculer les statistiques avec formations normalisées
         $stats = [
             'total_formations' => $formations->count(),
@@ -5909,9 +5930,19 @@ class AdminDashboardController extends Controller
         // Récupérer tous les étudiants pour la liste
         $all_students = $students;
 
+        $studentsWithoutProjects = $students
+            ->filter(fn ($s) => empty($s->has_projects))
+            ->values();
+
+        $studentsWithProjects = $students
+            ->filter(fn ($s) => !empty($s->has_projects))
+            ->values();
+
         return view('admin.projets.to-send', [
             'students' => $students,
             'all_students' => $all_students,
+            'studentsWithoutProjects' => $studentsWithoutProjects,
+            'studentsWithProjects' => $studentsWithProjects,
             'stats' => $stats,
             'defaultFormation' => $defaultFormation,
             'defaultStudentIds' => $defaultStudentIds,

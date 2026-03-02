@@ -1,0 +1,128 @@
+@extends('layouts.admin')
+
+@section('content')
+<div class="container-fluid py-4">
+    @php
+        $filterAction = route('admin.preinscriptions.eligibles');
+        $formationLabels = [
+            'design_graphique' => 'Design Graphique',
+            'community_management' => 'Community Management',
+            'design_graphique_community_manager' => 'Design Graphique & Community Manager',
+            'gestion_informatique' => 'Gestion Informatique',
+            'intelligence_artificielle' => 'Intelligence Artificielle',
+            'design_cm' => 'Design Graphique & Community Management',
+            'design_graphique_community_management' => 'Design Graphique & Community Management',
+        ];
+    @endphp
+
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h3 class="mb-1" style="font-weight: 800; color: #0f172a;">Pré-inscriptions - Éligibles</h3>
+            <div class="text-muted">Candidatures avec une date de paiement choisie.</div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <form method="GET" action="{{ $filterAction }}" class="row g-2 align-items-center">
+                <div class="col-auto">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Recherche (nom, prénom, email, whatsapp)" class="form-control" />
+                </div>
+                <div class="col-auto">
+                    <select name="formation" class="form-select">
+                        <option value="">Toutes formations</option>
+                        <option value="design_graphique" @selected(request('formation')==='design_graphique')>Design Graphique</option>
+                        <option value="community_management" @selected(request('formation')==='community_management')>Community Management</option>
+                        <option value="design_graphique_community_manager" @selected(request('formation')==='design_graphique_community_manager')>Design Graphique & Community Manager</option>
+                        <option value="gestion_informatique" @selected(request('formation')==='gestion_informatique')>Gestion Informatique</option>
+                        <option value="intelligence_artificielle" @selected(request('formation')==='intelligence_artificielle')>Intelligence Artificielle</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <select name="notified" class="form-select">
+                        <option value="">Tous (mail)</option>
+                        <option value="0" @selected(request('notified')==='0')>Non notifiés</option>
+                        <option value="1" @selected(request('notified')==='1')>Déjà notifiés</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary" style="border-radius: 12px;"><i class="fas fa-filter me-2"></i>Filtrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Candidat</th>
+                            <th>Formation</th>
+                            <th>Date paiement</th>
+                            <th>Statut</th>
+                            <th>Notification</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($pres as $pre)
+                            <tr>
+                                <td>{{ $pre->id }}</td>
+                                <td>
+                                    <div style="font-weight: 800;">{{ $pre->prenom }} {{ $pre->nom }}</div>
+                                    <div class="text-muted" style="font-size: 13px;">{{ $pre->email }}{{ !empty($pre->whatsapp) ? ' • ' . $pre->whatsapp : '' }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ $formationLabels[$pre->choix_formation] ?? ($pre->choix_formation ?? 'N/A') }}</span>
+                                </td>
+                                <td>
+                                    @if(!empty($pre->date_inscription_souhaitee))
+                                        {{ \Carbon\Carbon::parse($pre->date_inscription_souhaitee)->format('d/m/Y') }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark">{{ $pre->status }}</span>
+                                </td>
+                                <td>
+                                    @if(!empty($pre->eligibility_notified_at))
+                                        <span class="badge bg-success">Envoyé</span>
+                                        <div class="text-muted" style="font-size: 12px;">{{ \Carbon\Carbon::parse($pre->eligibility_notified_at)->format('d/m/Y H:i') }}</div>
+                                    @else
+                                        <span class="badge bg-warning text-dark">Non</span>
+                                    @endif
+                                </td>
+                                <td class="text-end">
+                                    @if(empty($pre->eligibility_notified_at))
+                                        <form method="POST" action="{{ route('admin.preinscriptions.notify-eligible', $pre->id) }}">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-success" style="border-radius: 10px; font-weight: 800;">
+                                                <i class="fas fa-paper-plane me-1"></i>Envoyer mail
+                                            </button>
+                                        </form>
+                                    @else
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" style="border-radius: 10px;" disabled>
+                                            <i class="fas fa-check me-1"></i>Déjà envoyé
+                                        </button>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">Aucune candidature éligible trouvée.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if($pres->hasPages())
+                <div class="d-flex justify-content-end">
+                    {{ $pres->links('pagination::bootstrap-4') }}
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+@endsection

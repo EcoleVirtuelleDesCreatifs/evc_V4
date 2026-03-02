@@ -37,6 +37,7 @@ class PreRegistration extends Model
         'disponibilite',
         'motivation',
         'date_inscription_souhaitee',
+        'eligibility_notified_at',
         'certify',
         'consent',
         'commercial_admin_id',

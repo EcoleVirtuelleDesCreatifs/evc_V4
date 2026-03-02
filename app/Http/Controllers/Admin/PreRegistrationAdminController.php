@@ -13,6 +13,7 @@ use App\Mail\AdmissionApprovedRegistrationLink;
 use App\Models\User;
 use App\Models\AccountingTransaction;
 use App\Services\TrainingQuoteGenerator;
+use Carbon\Carbon;
 
 class PreRegistrationAdminController extends Controller
 {
@@ -111,6 +112,84 @@ class PreRegistrationAdminController extends Controller
     public function rejected(Request $request)
     {
         return $this->renderList($request, 'rejected');
+    }
+
+    public function eligibles(Request $request)
+    {
+        $query = PreRegistration::query()->latest();
+
+        if ($search = $request->get('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nom', 'like', "%{$search}%")
+                    ->orWhere('prenom', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('whatsapp', 'like', "%{$search}%");
+            });
+        }
+
+        if ($formation = $request->get('formation')) {
+            $query->where('choix_formation', $formation);
+        }
+
+        $query->whereNotNull('date_inscription_souhaitee');
+
+        if ($request->get('notified') === '0') {
+            $query->whereNull('eligibility_notified_at');
+        } elseif ($request->get('notified') === '1') {
+            $query->whereNotNull('eligibility_notified_at');
+        }
+
+        $pres = $query->paginate(20)->withQueryString();
+
+        return view('admin.preregistrations.eligibles', compact('pres'));
+    }
+
+    public function notifyEligible(Request $request, $id)
+    {
+        $pre = PreRegistration::findOrFail($id);
+
+        if (empty($pre->email)) {
+            return redirect()->back()->with('error', 'Email du candidat introuvable.');
+        }
+
+        if (!empty($pre->eligibility_notified_at)) {
+            return redirect()->back()->with('warning', 'Ce candidat a déjà été notifié.');
+        }
+
+        $formationName = $this->getFormationLabel($pre->choix_formation);
+        $candidateName = trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? ''));
+        $paymentDate = null;
+        if (!empty($pre->date_inscription_souhaitee)) {
+            try {
+                $paymentDate = Carbon::parse($pre->date_inscription_souhaitee)->format('d/m/Y');
+            } catch (\Throwable $e) {
+                $paymentDate = (string) $pre->date_inscription_souhaitee;
+            }
+        }
+
+        try {
+            Mail::send('emails.preinscription_eligible_notification', [
+                'candidateName' => $candidateName,
+                'formationName' => $formationName,
+                'paymentDate' => $paymentDate,
+            ], function ($message) use ($pre) {
+                $message->to($pre->email)
+                    ->subject('✅ Votre candidature est éligible - EVC');
+            });
+
+            $pre->eligibility_notified_at = now();
+            $pre->save();
+        } catch (\Throwable $e) {
+            Log::error('Erreur envoi mail éligibilité', [
+                'pre_registration_id' => $pre->id,
+                'email' => $pre->email,
+                'error' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', "Erreur lors de l'envoi de l'email.");
+        }
+
+        return redirect()->back()->with('success', 'Email d\'éligibilité envoyé.');
     }
 
     public function devis($id)

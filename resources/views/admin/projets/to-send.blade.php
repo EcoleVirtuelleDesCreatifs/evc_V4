@@ -356,15 +356,43 @@
                                             $oldStudents = $defaultStudentIds;
                                         }
                                     @endphp
-                                    @foreach($students as $student)
-                                        <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}" {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
-                                            {{ $student->first_name }} {{ $student->last_name }}
-                                            @if($student->email)
-                                                ({{ $student->email }})
-                                            @endif
-                                            - {{ $student->program_normalized }}
-                                        </option>
-                                    @endforeach
+                                    @php
+                                        $groupWithout = isset($studentsWithoutProjects) ? $studentsWithoutProjects : collect();
+                                        $groupWith = isset($studentsWithProjects) ? $studentsWithProjects : collect();
+
+                                        if ($groupWithout->count() === 0 && $groupWith->count() === 0) {
+                                            $groupWithout = $students;
+                                            $groupWith = collect();
+                                        }
+                                    @endphp
+
+                                    @if($groupWithout->count() > 0)
+                                        <optgroup label="Nouveaux inscrits (0 projet)">
+                                            @foreach($groupWithout as $student)
+                                                <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}" {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
+                                                    {{ $student->first_name }} {{ $student->last_name }}
+                                                    @if($student->email)
+                                                        ({{ $student->email }})
+                                                    @endif
+                                                    - {{ $student->program_normalized }}
+                                                </option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+
+                                    @if($groupWith->count() > 0)
+                                        <optgroup label="Déjà avec projets">
+                                            @foreach($groupWith as $student)
+                                                <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}" {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
+                                                    {{ $student->first_name }} {{ $student->last_name }}
+                                                    @if($student->email)
+                                                        ({{ $student->email }})
+                                                    @endif
+                                                    - {{ $student->program_normalized }}
+                                                </option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
                                 </select>
                                 <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
                                     <i class="fas fa-info-circle me-1"></i>
