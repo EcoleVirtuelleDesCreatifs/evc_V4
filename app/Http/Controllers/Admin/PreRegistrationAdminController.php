@@ -174,11 +174,10 @@ class PreRegistrationAdminController extends Controller
         $plaquetteUrl = null;
         $plaquetteTitle = null;
         try {
-            $formationId = Schema::hasTable('formations') ? DB::table('formations')->where('name', $formationName)->value('id') : null;
-            if (!empty($formationId) && Schema::hasTable('plaquettes')) {
+            $formationId = Schema::hasTable('formations') ? DB::table('formations')->whereRaw('LOWER(name) = ?', [strtolower((string) $formationName)])->value('id') : null;
+            if (Schema::hasTable('plaquettes')) {
                 $today = now()->toDateString();
-                $p = DB::table('plaquettes')
-                    ->where('formation_id', $formationId)
+                $plaquetteQuery = DB::table('plaquettes')
                     ->where('is_active', 1)
                     ->where('is_published', 1)
                     ->where(function ($q) use ($today) {
@@ -186,7 +185,13 @@ class PreRegistrationAdminController extends Controller
                     })
                     ->where(function ($q) use ($today) {
                         $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
-                    })
+                    });
+
+                if (!empty($formationId)) {
+                    $plaquetteQuery->where('formation_id', $formationId);
+                }
+
+                $p = $plaquetteQuery
                     ->orderByDesc('published_at')
                     ->orderByDesc('id')
                     ->first();
