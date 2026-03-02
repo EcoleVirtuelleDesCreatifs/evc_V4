@@ -171,6 +171,38 @@ class PreRegistrationAdminController extends Controller
         $isRelance = $hasEligibilityNotifiedAt && !empty($pre->eligibility_notified_at);
 
         $formationName = $this->getFormationLabel($pre->choix_formation);
+        $plaquetteUrl = null;
+        $plaquetteTitle = null;
+        try {
+            $formationId = Schema::hasTable('formations') ? DB::table('formations')->where('name', $formationName)->value('id') : null;
+            if (!empty($formationId) && Schema::hasTable('plaquettes')) {
+                $today = now()->toDateString();
+                $p = DB::table('plaquettes')
+                    ->where('formation_id', $formationId)
+                    ->where('is_active', 1)
+                    ->where('is_published', 1)
+                    ->where(function ($q) use ($today) {
+                        $q->whereNull('start_date')->orWhere('start_date', '<=', $today);
+                    })
+                    ->where(function ($q) use ($today) {
+                        $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
+                    })
+                    ->orderByDesc('published_at')
+                    ->orderByDesc('id')
+                    ->first();
+                if ($p && !empty($p->file_path)) {
+                    $path = ltrim((string) $p->file_path, '/');
+                    if (str_starts_with($path, 'storage/')) {
+                        $path = substr($path, strlen('storage/'));
+                    }
+                    $plaquetteUrl = asset('storage/' . $path);
+                    $plaquetteTitle = !empty($p->title) ? (string) $p->title : null;
+                }
+            }
+        } catch (\Throwable $e) {
+            $plaquetteUrl = null;
+            $plaquetteTitle = null;
+        }
         $candidateName = trim(($pre->prenom ?? '') . ' ' . ($pre->nom ?? ''));
         $paymentDate = null;
         if (!empty($pre->date_inscription_souhaitee)) {
@@ -186,6 +218,8 @@ class PreRegistrationAdminController extends Controller
                 'candidateName' => $candidateName,
                 'formationName' => $formationName,
                 'paymentDate' => $paymentDate,
+                'plaquetteUrl' => $plaquetteUrl,
+                'plaquetteTitle' => $plaquetteTitle,
             ], function ($message) use ($pre) {
                 $message->to($pre->email)
                     ->subject('✅ Votre candidature est éligible - EVC');

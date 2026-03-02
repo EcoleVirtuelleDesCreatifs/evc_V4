@@ -60,6 +60,14 @@
                 Pour toute information complémentaire ou pour recevoir les modalités de paiement, contactez-nous via WhatsApp : <strong style="color:#0b3a6e;">+225 07 47 25 95 07</strong>.
             </div>
 
+            @if(!empty($plaquetteUrl))
+                <div style="margin-top: 14px;">
+                    <a href="{{ $plaquetteUrl }}" target="_blank" style="display:inline-block; background:#0b3a6e; color:#ffffff; text-decoration:none; padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 800;">
+                        Télécharger la plaquette{{ !empty($plaquetteTitle) ? ' : ' . $plaquetteTitle : '' }}
+                    </a>
+                </div>
+            @endif
+
             <div style="margin-top: 14px;">
                 <a href="https://wa.me/2250747259507" target="_blank" style="display:inline-block; background:#f97316; color:#ffffff; text-decoration:none; padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 800;">
                     Contacter sur WhatsApp
