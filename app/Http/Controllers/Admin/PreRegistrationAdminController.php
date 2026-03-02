@@ -136,17 +136,22 @@ class PreRegistrationAdminController extends Controller
 
         $query->whereNotNull('date_inscription_souhaitee');
 
-        if ($request->get('notified') === '0') {
-            $query->whereNull('eligibility_notified_at');
-        } elseif ($request->get('notified') === '1') {
-            $query->whereNotNull('eligibility_notified_at');
+        $hasEligibilityNotifiedAt = Schema::hasColumn('pre_registrations', 'eligibility_notified_at');
+
+        if ($hasEligibilityNotifiedAt) {
+            if ($request->get('notified') === '0') {
+                $query->whereNull('eligibility_notified_at');
+            } elseif ($request->get('notified') === '1') {
+                $query->whereNotNull('eligibility_notified_at');
+            }
         }
 
         $statsQuery = clone $query;
+        $statsTotal = (int) $statsQuery->count();
         $stats = [
-            'total' => (int) $statsQuery->count(),
-            'notified' => (int) (clone $statsQuery)->whereNotNull('eligibility_notified_at')->count(),
-            'not_notified' => (int) (clone $statsQuery)->whereNull('eligibility_notified_at')->count(),
+            'total' => $statsTotal,
+            'notified' => $hasEligibilityNotifiedAt ? (int) (clone $statsQuery)->whereNotNull('eligibility_notified_at')->count() : 0,
+            'not_notified' => $hasEligibilityNotifiedAt ? (int) (clone $statsQuery)->whereNull('eligibility_notified_at')->count() : $statsTotal,
         ];
 
         $pres = $query->paginate(20)->withQueryString();

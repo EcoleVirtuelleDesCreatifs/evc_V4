@@ -6,6 +6,7 @@
 <div class="container-fluid py-4">
     @php
         $filterAction = route('admin.preinscriptions.eligibles');
+        $hasEligibilityNotifiedAt = \Illuminate\Support\Facades\Schema::hasColumn('pre_registrations', 'eligibility_notified_at');
         $formationLabels = [
             'design_graphique' => 'Design Graphique',
             'community_management' => 'Community Management',
@@ -39,13 +40,15 @@
                         <option value="intelligence_artificielle" @selected(request('formation')==='intelligence_artificielle')>Intelligence Artificielle</option>
                     </select>
                 </div>
-                <div class="col-auto">
-                    <select name="notified" class="form-select">
-                        <option value="">Tous (mail)</option>
-                        <option value="0" @selected(request('notified')==='0')>Non notifiés</option>
-                        <option value="1" @selected(request('notified')==='1')>Déjà notifiés</option>
-                    </select>
-                </div>
+                @if($hasEligibilityNotifiedAt)
+                    <div class="col-auto">
+                        <select name="notified" class="form-select">
+                            <option value="">Tous (mail)</option>
+                            <option value="0" @selected(request('notified')==='0')>Non notifiés</option>
+                            <option value="1" @selected(request('notified')==='1')>Déjà notifiés</option>
+                        </select>
+                    </div>
+                @endif
                 <div class="col-auto">
                     <button class="btn btn-primary" style="border-radius: 12px;"><i class="fas fa-filter me-2"></i>Filtrer</button>
                 </div>
