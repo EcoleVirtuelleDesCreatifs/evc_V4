@@ -131,6 +131,8 @@ class PreRegistrationAdminController extends Controller
             $query->where('choix_formation', $formation);
         }
 
+        $query->whereIn('status', ['en cours', 'EN COURS']);
+
         $query->whereNotNull('date_inscription_souhaitee');
 
         if ($request->get('notified') === '0') {
