@@ -58,35 +58,35 @@
 
     <div class="row mb-4">
         <div class="col-md-4 mb-3">
-            <div class="stat-card stat-card-primary">
+            <div class="stat-card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
                 <div class="stat-icon">
                     <i class="fas fa-list"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">{{ $stats['total'] ?? 0 }}</h3>
-                    <p class="stat-label">Total</p>
+                    <h3>{{ $stats['total'] ?? 0 }}</h3>
+                    <p>Total</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="stat-card stat-card-success">
+            <div class="stat-card" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);">
                 <div class="stat-icon">
                     <i class="fas fa-paper-plane"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">{{ $stats['notified'] ?? 0 }}</h3>
-                    <p class="stat-label">Notifiés</p>
+                    <h3>{{ $stats['notified'] ?? 0 }}</h3>
+                    <p>Notifiés</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4 mb-3">
-            <div class="stat-card stat-card-warning">
+            <div class="stat-card" style="background: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);">
                 <div class="stat-icon">
                     <i class="fas fa-clock"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">{{ $stats['not_notified'] ?? 0 }}</h3>
-                    <p class="stat-label">Non notifiés</p>
+                    <h3>{{ $stats['not_notified'] ?? 0 }}</h3>
+                    <p>Non notifiés</p>
                 </div>
             </div>
         </div>
