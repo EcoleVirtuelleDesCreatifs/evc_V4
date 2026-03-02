@@ -157,11 +157,13 @@ class AdminDashboardController extends Controller
         }
 
         $assistantSalarySummary = null;
-        if (session('admin_role') === 'super_admin'
+        if (
+            session('admin_role') === 'super_admin'
             && Schema::hasTable('admins')
             && Schema::hasTable('admin_task_types')
             && Schema::hasTable('admin_task_logs')
-            && Schema::hasTable('admin_salary_months')) {
+            && Schema::hasTable('admin_salary_months')
+        ) {
 
             $year = (int) now()->year;
             $month = (int) now()->month;
@@ -509,7 +511,7 @@ class AdminDashboardController extends Controller
                             $q2->whereNull('ends_at')->orWhere('ends_at', '>=', now()->toDateString());
                         })
                         ->pluck('job_profile_id')
-                        ->map(fn ($v) => (int) $v)
+                        ->map(fn($v) => (int) $v)
                         ->unique()
                         ->values()
                         ->all();
@@ -935,7 +937,7 @@ class AdminDashboardController extends Controller
 
         $userIds = $students
             ->pluck('id')
-            ->filter(fn ($id) => !empty($id))
+            ->filter(fn($id) => !empty($id))
             ->unique()
             ->values();
 
@@ -945,7 +947,7 @@ class AdminDashboardController extends Controller
             ->pluck('user_id');
 
         $userIdsWithProjects = $userIdsWithProjects
-            ->map(fn ($id) => (int) $id)
+            ->map(fn($id) => (int) $id)
             ->flip();
 
         $students->transform(function ($student) use ($userIdsWithProjects) {
@@ -1004,10 +1006,10 @@ class AdminDashboardController extends Controller
             // Récupérer les étudiants du module depuis la table students
             $students = DB::table('students')
                 ->join('users', 'students.user_id', '=', 'users.id')
-                ->where(function($query) use ($allVariants) {
+                ->where(function ($query) use ($allVariants) {
                     foreach ($allVariants as $variant) {
                         $query->orWhere('students.program', $variant)
-                              ->orWhere('students.specialization', $variant);
+                            ->orWhere('students.specialization', $variant);
                     }
                 })
                 ->select(
@@ -1023,7 +1025,7 @@ class AdminDashboardController extends Controller
 
             $userIds = $students
                 ->pluck('id')
-                ->filter(fn ($id) => !empty($id))
+                ->filter(fn($id) => !empty($id))
                 ->unique()
                 ->values();
 
@@ -1033,7 +1035,7 @@ class AdminDashboardController extends Controller
                 ->pluck('user_id');
 
             $userIdsWithProjects = $userIdsWithProjects
-                ->map(fn ($id) => (int) $id)
+                ->map(fn($id) => (int) $id)
                 ->flip();
 
             $students = $students->map(function ($student) use ($userIdsWithProjects) {
@@ -1043,11 +1045,11 @@ class AdminDashboardController extends Controller
             });
 
             $studentsWithoutProjects = $students
-                ->filter(fn ($s) => empty($s->has_projects))
+                ->filter(fn($s) => empty($s->has_projects))
                 ->values();
 
             $studentsWithProjects = $students
-                ->filter(fn ($s) => !empty($s->has_projects))
+                ->filter(fn($s) => !empty($s->has_projects))
                 ->values();
 
             return response()->json([
@@ -1450,7 +1452,7 @@ class AdminDashboardController extends Controller
             ->orderBy('students.last_name')
             ->orderBy('students.first_name')
             ->get()
-            ->map(function($student) {
+            ->map(function ($student) {
                 // Créer un nom complet formaté
                 $student->name = $student->first_name . ' ' . $student->last_name;
                 return $student;
@@ -1657,7 +1659,6 @@ class AdminDashboardController extends Controller
             }
 
             return view('admin.formations.categories', compact('categories', 'stats', 'statsByModule'));
-
         } catch (\Exception $e) {
             Log::error('Erreur dans categoriesIndex: ' . $e->getMessage());
             return $this->categoriesIndexFallback();
@@ -2181,7 +2182,7 @@ class AdminDashboardController extends Controller
                     ->select('students.*', 'users.email');
 
                 if ($formation !== 'Toutes') {
-                    $studentsQuery->where(function($query) use ($formation) {
+                    $studentsQuery->where(function ($query) use ($formation) {
                         // Accepter les variantes de la formation sélectionnée
                         $query->where('students.program', $formation);
 
@@ -2796,7 +2797,7 @@ class AdminDashboardController extends Controller
 
         $userIds = $students
             ->pluck('user_id')
-            ->filter(fn ($id) => !empty($id))
+            ->filter(fn($id) => !empty($id))
             ->unique()
             ->values();
 
@@ -2806,7 +2807,7 @@ class AdminDashboardController extends Controller
             ->pluck('user_id');
 
         $userIdsWithProjects = $userIdsWithProjects
-            ->map(fn ($id) => (int) $id)
+            ->map(fn($id) => (int) $id)
             ->flip();
 
         $students = $students->map(function ($student) use ($userIdsWithProjects) {
@@ -5330,11 +5331,11 @@ class AdminDashboardController extends Controller
             $reminderCounts = empty($studentIds)
                 ? collect()
                 : DB::table('payment_reminders')
-                    ->select('student_id', DB::raw('COUNT(*) as reminders_count'))
-                    ->whereIn('student_id', $studentIds)
-                    ->groupBy('student_id')
-                    ->get()
-                    ->keyBy('student_id');
+                ->select('student_id', DB::raw('COUNT(*) as reminders_count'))
+                ->whereIn('student_id', $studentIds)
+                ->groupBy('student_id')
+                ->get()
+                ->keyBy('student_id');
 
             $students = $students->map(function ($s) use ($reminderCounts) {
                 $s->reminders_count = (int) (($reminderCounts[$s->id]->reminders_count ?? 0) ?: 0);
@@ -5551,7 +5552,6 @@ class AdminDashboardController extends Controller
                 'reminders_count' => $remindersCount,
                 'persisted' => $persisted,
             ]);
-
         } catch (\Exception $e) {
             Log::error('Erreur lors de l\'envoi de l\'email de relance: ' . $e->getMessage(), [
                 'student_id' => $id,
@@ -5986,11 +5986,11 @@ class AdminDashboardController extends Controller
         $all_students = $students;
 
         $studentsWithoutProjects = $students
-            ->filter(fn ($s) => empty($s->has_projects))
+            ->filter(fn($s) => empty($s->has_projects))
             ->values();
 
         $studentsWithProjects = $students
-            ->filter(fn ($s) => !empty($s->has_projects))
+            ->filter(fn($s) => !empty($s->has_projects))
             ->values();
 
         return view('admin.projets.to-send', [
@@ -6287,7 +6287,7 @@ class AdminDashboardController extends Controller
 
             $wantsSansFormation = in_array('Sans formation', $selectedSpecificFormations, true);
             $normalizedSearches = collect($selectedSpecificFormations)
-                ->reject(fn ($f) => $f === 'Sans formation')
+                ->reject(fn($f) => $f === 'Sans formation')
                 ->map(function ($formation) {
                     return strtolower(str_replace([' ', '_', '-', '&'], '', $formation));
                 })
@@ -6402,30 +6402,30 @@ class AdminDashboardController extends Controller
                     if (empty($student->email)) {
                         $emailsFailures[] = "student_id={$studentId}: email manquant";
                     } else {
-                    // Déterminer l'URL étudiant (module selon formation)
-                    $formationSlug = 'design-graphique';
-                    if (!empty($student->program)) {
-                        $prog = strtolower((string) $student->program);
-                        if (str_contains($prog, 'community')) {
-                            $formationSlug = 'community-management';
-                        } elseif (str_contains($prog, 'informatique')) {
-                            $formationSlug = 'gestion-informatique';
-                        } elseif (str_contains($prog, 'intelligence')) {
-                            $formationSlug = 'intelligence-artificielle';
+                        // Déterminer l'URL étudiant (module selon formation)
+                        $formationSlug = 'design-graphique';
+                        if (!empty($student->program)) {
+                            $prog = strtolower((string) $student->program);
+                            if (str_contains($prog, 'community')) {
+                                $formationSlug = 'community-management';
+                            } elseif (str_contains($prog, 'informatique')) {
+                                $formationSlug = 'gestion-informatique';
+                            } elseif (str_contains($prog, 'intelligence')) {
+                                $formationSlug = 'intelligence-artificielle';
+                            }
                         }
-                    }
 
-                    $studentUrl = url("/evc/compte/{$formationSlug}/projets");
+                        $studentUrl = url("/evc/compte/{$formationSlug}/projets");
 
-                    Mail::send('emails.project_assigned', [
-                        'student' => $student,
-                        'project' => (object) $projectData,
-                        'studentUrl' => $studentUrl,
-                    ], function ($message) use ($student, $projectData) {
-                        $message->to($student->email)
-                            ->subject('📌 Nouveau projet disponible : ' . $projectData['title']);
-                    });
-                    $emailsSent++;
+                        Mail::send('emails.project_assigned', [
+                            'student' => $student,
+                            'project' => (object) $projectData,
+                            'studentUrl' => $studentUrl,
+                        ], function ($message) use ($student, $projectData) {
+                            $message->to($student->email)
+                                ->subject('📌 Nouveau projet disponible : ' . $projectData['title']);
+                        });
+                        $emailsSent++;
                     }
                 } catch (\Exception $e) {
                     Log::error('Erreur envoi email projet: ' . $e->getMessage());
@@ -6475,9 +6475,9 @@ class AdminDashboardController extends Controller
         // Récupérer uniquement les étudiants qui ont des activités
         $studentsWithActivities = DB::table('students')
             ->join('users', 'students.user_id', '=', 'users.id')
-            ->join('tp_assignments', function($join) {
+            ->join('tp_assignments', function ($join) {
                 $join->on('students.id', '=', 'tp_assignments.student_id')
-                     ->whereIn('tp_assignments.status', ['assigned', 'submitted', 'pending', 'validated', 'rejected']);
+                    ->whereIn('tp_assignments.status', ['assigned', 'submitted', 'pending', 'validated', 'rejected']);
             })
             ->select(
                 'students.id as student_id',

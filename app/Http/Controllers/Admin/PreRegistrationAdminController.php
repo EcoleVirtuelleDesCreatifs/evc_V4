@@ -508,7 +508,20 @@ class PreRegistrationAdminController extends Controller
             $validated['status'] = $statusLegacyMap[$validated['status']];
         }
 
-        $pre->update($validated);
+        try {
+            $pre->update($validated);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if (str_contains($e->getMessage(), 'Data truncated') && str_contains($e->getMessage(), 'choix_formation')) {
+                try {
+                    DB::statement("ALTER TABLE pre_registrations MODIFY COLUMN choix_formation ENUM('design_graphique', 'community_management', 'gestion_informatique', 'intelligence_artificielle', 'design_graphique_community_management', 'design_graphique_community_manager', 'design_cm') NOT NULL");
+                    $pre->update($validated);
+                } catch (\Throwable $e2) {
+                    return redirect()->back()->with('error', 'Erreur mise à jour formation: ' . $e2->getMessage());
+                }
+            } else {
+                throw $e;
+            }
+        }
 
         return redirect()->route('admin.preinscriptions.show', $pre->id)
             ->with('success', '✅ Candidature mise à jour avec succès.');
@@ -1305,6 +1318,7 @@ class PreRegistrationAdminController extends Controller
             'community_management' => 'Community Management',
             'design_cm' => 'Design Graphique & Community Management',
             'design_graphique_community_management' => 'Design Graphique & Community Management',
+            'design_graphique_community_manager' => 'Design Graphique & Community Management',
             'gestion_informatique' => 'Gestion Informatique',
             'intelligence_artificielle' => 'Intelligence Artificielle'
         ];
