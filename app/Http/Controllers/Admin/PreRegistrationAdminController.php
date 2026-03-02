@@ -205,6 +205,18 @@ class PreRegistrationAdminController extends Controller
                     $formationId = DB::table('formations')->whereRaw('LOWER(name) LIKE ?', ['%' . $fnLower . '%'])->value('id');
                 }
             }
+
+            Log::info('Plaquette lookup debug', [
+                'pre_id' => $pre->id,
+                'choix_formation' => $pre->choix_formation,
+                'formationName' => $formationName,
+                'formationId' => $formationId,
+                'formations_table_exists' => Schema::hasTable('formations'),
+                'plaquettes_table_exists' => Schema::hasTable('plaquettes'),
+                'all_formations' => Schema::hasTable('formations') ? DB::table('formations')->select('id', 'name')->get()->toArray() : [],
+                'all_plaquettes' => Schema::hasTable('plaquettes') ? DB::table('plaquettes')->select('id', 'title', 'formation_id', 'is_active', 'is_published', 'file_path')->get()->toArray() : [],
+            ]);
+
             if (Schema::hasTable('plaquettes')) {
                 $today = now()->toDateString();
                 $basePlaquetteQuery = function () use ($today) {
@@ -238,6 +250,20 @@ class PreRegistrationAdminController extends Controller
                         ->first();
                 }
 
+                if (!$p) {
+                    $p = $basePlaquetteQuery()
+                        ->orderByDesc('published_at')
+                        ->orderByDesc('id')
+                        ->first();
+                }
+
+                Log::info('Plaquette result', [
+                    'found' => !is_null($p),
+                    'plaquette_id' => $p->id ?? null,
+                    'plaquette_title' => $p->title ?? null,
+                    'plaquette_file_path' => $p->file_path ?? null,
+                ]);
+
                 if ($p && !empty($p->file_path)) {
                     $isEvcPrefixed = request()->is('evc/*');
                     $downloadRoute = $isEvcPrefixed ? 'plaquettes.formations.download.direct.id.evc' : 'plaquettes.formations.download.direct.id';
@@ -246,6 +272,7 @@ class PreRegistrationAdminController extends Controller
                 }
             }
         } catch (\Throwable $e) {
+            Log::error('Plaquette lookup error', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             $plaquetteUrl = null;
             $plaquetteTitle = null;
         }
