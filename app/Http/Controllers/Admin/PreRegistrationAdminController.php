@@ -196,11 +196,9 @@ class PreRegistrationAdminController extends Controller
                     ->orderByDesc('id')
                     ->first();
                 if ($p && !empty($p->file_path)) {
-                    $path = ltrim((string) $p->file_path, '/');
-                    if (str_starts_with($path, 'storage/')) {
-                        $path = substr($path, strlen('storage/'));
-                    }
-                    $plaquetteUrl = asset('storage/' . $path);
+                    $isEvcPrefixed = request()->is('evc/*');
+                    $downloadRoute = $isEvcPrefixed ? 'plaquettes.formations.download.direct.id.evc' : 'plaquettes.formations.download.direct.id';
+                    $plaquetteUrl = route($downloadRoute, ['plaquette' => $p->id]);
                     $plaquetteTitle = !empty($p->title) ? (string) $p->title : null;
                 }
             }

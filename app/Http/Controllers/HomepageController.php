@@ -591,6 +591,37 @@ class HomepageController extends Controller
         );
     }
 
+    public function plaquetteDirectDownloadById(Plaquette $plaquette)
+    {
+        if (!$plaquette->is_active || !$plaquette->is_published) {
+            abort(404);
+        }
+
+        $today = now()->toDateString();
+        if ($plaquette->start_date && $plaquette->start_date->toDateString() > $today) {
+            abort(404);
+        }
+        if ($plaquette->end_date && $plaquette->end_date->toDateString() < $today) {
+            abort(404);
+        }
+
+        $path = ltrim((string) ($plaquette->file_path ?? ''), '/');
+        if (str_starts_with($path, 'storage/')) {
+            $path = substr($path, 8);
+        }
+        if ($path === '' || !\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        try {
+            $plaquette->increment('download_count');
+        } catch (\Throwable $e) {
+            // ignore
+        }
+
+        return response()->download(\Illuminate\Support\Facades\Storage::disk('public')->path($path), (string) ($plaquette->original_filename ?? 'plaquette.pdf'));
+    }
+
     public function plaquetteForm(string $filename)
     {
         $relativeDir = 'assets/plaquettes';

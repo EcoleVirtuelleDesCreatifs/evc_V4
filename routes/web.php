@@ -83,12 +83,14 @@ Route::get('/plaquettes-formations', [HomepageController::class, 'plaquettesForm
 Route::get('/evc/plaquettes-formations', [HomepageController::class, 'plaquettesFormations'])->name('plaquettes.formations.evc');
 Route::get('/plaquettes-formations/item/{plaquette}', [HomepageController::class, 'plaquetteFormById'])->whereNumber('plaquette')->name('plaquettes.formations.form.id');
 Route::post('/plaquettes-formations/item/{plaquette}', [HomepageController::class, 'plaquetteDownloadById'])->whereNumber('plaquette')->name('plaquettes.formations.download.id');
+Route::get('/plaquettes-formations/item/{plaquette}/download-direct', [HomepageController::class, 'plaquetteDirectDownloadById'])->whereNumber('plaquette')->name('plaquettes.formations.download.direct.id');
 Route::get('/plaquettes-formations/request/{plaquetteRequest}/download', [HomepageController::class, 'plaquetteFileByRequest'])
     ->whereNumber('plaquetteRequest')
     ->middleware('signed')
     ->name('plaquettes.requests.file');
 Route::get('/evc/plaquettes-formations/item/{plaquette}', [HomepageController::class, 'plaquetteFormById'])->whereNumber('plaquette')->name('plaquettes.formations.form.id.evc');
 Route::post('/evc/plaquettes-formations/item/{plaquette}', [HomepageController::class, 'plaquetteDownloadById'])->whereNumber('plaquette')->name('plaquettes.formations.download.id.evc');
+Route::get('/evc/plaquettes-formations/item/{plaquette}/download-direct', [HomepageController::class, 'plaquetteDirectDownloadById'])->whereNumber('plaquette')->name('plaquettes.formations.download.direct.id.evc');
 Route::get('/evc/plaquettes-formations/request/{plaquetteRequest}/download', [HomepageController::class, 'plaquetteFileByRequest'])
     ->whereNumber('plaquetteRequest')
     ->middleware('signed')
