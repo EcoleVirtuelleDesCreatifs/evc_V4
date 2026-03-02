@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\AccountingTransaction;
 use App\Services\TrainingQuoteGenerator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Schema;
 
 class PreRegistrationAdminController extends Controller
 {
@@ -185,9 +186,6 @@ class PreRegistrationAdminController extends Controller
                 $message->to($pre->email)
                     ->subject('✅ Votre candidature est éligible - EVC');
             });
-
-            $pre->eligibility_notified_at = now();
-            $pre->save();
         } catch (\Throwable $e) {
             Log::error('Erreur envoi mail éligibilité', [
                 'pre_registration_id' => $pre->id,
@@ -196,6 +194,21 @@ class PreRegistrationAdminController extends Controller
             ]);
 
             return redirect()->back()->with('error', "Erreur lors de l'envoi de l'email.");
+        }
+
+        // Mise à jour de la date de notification (ne doit pas faire échouer l'envoi du mail)
+        try {
+            if (Schema::hasColumn('pre_registrations', 'eligibility_notified_at')) {
+                DB::table('pre_registrations')
+                    ->where('id', $pre->id)
+                    ->update(['eligibility_notified_at' => now()]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Email éligibilité envoyé mais mise à jour eligibility_notified_at échouée', [
+                'pre_registration_id' => $pre->id,
+                'email' => $pre->email,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         return redirect()->back()->with('success', 'Email d\'éligibilité envoyé.');
