@@ -139,9 +139,16 @@ class PreRegistrationAdminController extends Controller
             $query->whereNotNull('eligibility_notified_at');
         }
 
+        $statsQuery = clone $query;
+        $stats = [
+            'total' => (int) $statsQuery->count(),
+            'notified' => (int) (clone $statsQuery)->whereNotNull('eligibility_notified_at')->count(),
+            'not_notified' => (int) (clone $statsQuery)->whereNull('eligibility_notified_at')->count(),
+        ];
+
         $pres = $query->paginate(20)->withQueryString();
 
-        return view('admin.preregistrations.eligibles', compact('pres'));
+        return view('admin.preregistrations.eligibles', compact('pres', 'stats'));
     }
 
     public function notifyEligible(Request $request, $id)

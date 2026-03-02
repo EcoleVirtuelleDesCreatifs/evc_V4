@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Pré-inscriptions - Éligibles')
+
 @section('content')
 <div class="container-fluid py-4">
     @php
@@ -17,8 +19,10 @@
 
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
-            <h3 class="mb-1" style="font-weight: 800; color: #0f172a;">Pré-inscriptions - Éligibles</h3>
-            <div class="text-muted">Candidatures avec une date de paiement choisie.</div>
+            <h1 class="text-white mb-0">
+                <i class="fas fa-user-check me-2"></i>Pré-inscriptions - Éligibles
+            </h1>
+            <div style="color: rgba(255,255,255,0.75);">Candidatures avec une date de paiement choisie.</div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <form method="GET" action="{{ $filterAction }}" class="row g-2 align-items-center">
@@ -49,10 +53,46 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm" style="border-radius: 16px;">
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="stat-card stat-card-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['total'] ?? 0 }}</h3>
+                    <p class="stat-label">Total</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card stat-card-success">
+                <div class="stat-icon">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['notified'] ?? 0 }}</h3>
+                    <p class="stat-label">Notifiés</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stat-card stat-card-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['not_notified'] ?? 0 }}</h3>
+                    <p class="stat-label">Non notifiés</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-dark table-hover align-middle">
                     <thead>
                         <tr>
                             <th>#</th>
