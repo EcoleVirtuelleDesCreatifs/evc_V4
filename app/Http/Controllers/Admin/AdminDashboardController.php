@@ -932,6 +932,28 @@ class AdminDashboardController extends Controller
     {
         $categories = Category::orderBy('name')->get();
         $students = User::orderBy('name')->get();
+
+        $userIds = $students
+            ->pluck('id')
+            ->filter(fn ($id) => !empty($id))
+            ->unique()
+            ->values();
+
+        $userIdsWithProjects = DB::table('projects')
+            ->whereIn('user_id', $userIds)
+            ->distinct()
+            ->pluck('user_id');
+
+        $userIdsWithProjects = $userIdsWithProjects
+            ->map(fn ($id) => (int) $id)
+            ->flip();
+
+        $students->transform(function ($student) use ($userIdsWithProjects) {
+            $studentId = (int) ($student->id ?? 0);
+            $student->has_projects = $studentId > 0 && $userIdsWithProjects->has($studentId);
+            return $student;
+        });
+
         return view('admin.formations.create', compact('categories', 'students'));
     }
 
@@ -999,10 +1021,43 @@ class AdminDashboardController extends Controller
                 ->orderBy('students.first_name')
                 ->get();
 
+            $userIds = $students
+                ->pluck('id')
+                ->filter(fn ($id) => !empty($id))
+                ->unique()
+                ->values();
+
+            $userIdsWithProjects = DB::table('projects')
+                ->whereIn('user_id', $userIds)
+                ->distinct()
+                ->pluck('user_id');
+
+            $userIdsWithProjects = $userIdsWithProjects
+                ->map(fn ($id) => (int) $id)
+                ->flip();
+
+            $students = $students->map(function ($student) use ($userIdsWithProjects) {
+                $uid = (int) ($student->id ?? 0);
+                $student->has_projects = $uid > 0 && $userIdsWithProjects->has($uid);
+                return $student;
+            });
+
+            $studentsWithoutProjects = $students
+                ->filter(fn ($s) => empty($s->has_projects))
+                ->values();
+
+            $studentsWithProjects = $students
+                ->filter(fn ($s) => !empty($s->has_projects))
+                ->values();
+
             return response()->json([
                 'success' => true,
                 'students' => $students,
-                'count' => $students->count()
+                'students_without_projects' => $studentsWithoutProjects,
+                'students_with_projects' => $studentsWithProjects,
+                'count' => $students->count(),
+                'count_without_projects' => $studentsWithoutProjects->count(),
+                'count_with_projects' => $studentsWithProjects->count(),
             ]);
         } catch (\Exception $e) {
             Log::error('Erreur lors de la récupération des étudiants: ' . $e->getMessage());

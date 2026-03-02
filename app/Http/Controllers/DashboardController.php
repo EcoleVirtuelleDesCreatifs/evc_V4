@@ -24,6 +24,23 @@ use App\Helpers\AccountExpirationHelper;
 
 class DashboardController extends Controller
 {
+    private function userHasAnyProject(?int $userId): bool
+    {
+        if (empty($userId)) {
+            return false;
+        }
+
+        try {
+            if (Schema::hasTable('projects')) {
+                return DB::table('projects')->where('user_id', $userId)->exists();
+            }
+        } catch (\Throwable $e) {
+            Log::warning('userHasAnyProject check failed', ['user_id' => $userId, 'error' => $e->getMessage()]);
+        }
+
+        return false;
+    }
+
     private function normalizePublicDiskPath(?string $path): string
     {
         $path = ltrim((string) ($path ?? ''), '/');
@@ -2475,6 +2492,19 @@ class DashboardController extends Controller
      */
     public function formationsIndex(): View
     {
+        $user = Auth::user();
+        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+            return view('formations.index', [
+                'title' => 'Formations',
+                'formations' => [],
+                'modules_principaux' => [],
+                'formations_publiees' => collect(),
+                'categoriesStats' => collect(),
+                'groupedCategories' => [],
+                'module_slug' => 'design-graphique',
+            ]);
+        }
+
         // Détecter le module actuel depuis l'URL
         $currentPath = request()->path();
         $moduleSlug = 'design-graphique'; // Par défaut
@@ -2660,6 +2690,21 @@ class DashboardController extends Controller
      */
     public function formationsCategory(string $category): View
     {
+        $user = Auth::user();
+        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+            return view('formations.category', [
+                'category' => $category,
+                'categoryModel' => null,
+                'formations' => collect(),
+                'stats' => [
+                    'total' => 0,
+                    'duration' => 0,
+                    'completion_rate' => 0,
+                    'new_this_week' => 0,
+                ],
+            ]);
+        }
+
         // Essayer de charger la catégorie depuis la base de données par son slug
         $categoryModel = \Illuminate\Support\Facades\DB::table('categories')
             ->where('slug', $category)
@@ -2732,6 +2777,11 @@ class DashboardController extends Controller
      */
     public function formationsShow(int $id): View
     {
+        $user = Auth::user();
+        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+            abort(403);
+        }
+
         // Chargement tolérant au schéma depuis une table plausible
         $formationsTable = null;
         foreach (['formations', 'courses', 'programmes', 'formation_courses'] as $t) {
@@ -2826,6 +2876,11 @@ class DashboardController extends Controller
      */
     public function formationsDownload(int $id)
     {
+        $user = Auth::user();
+        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+            abort(403);
+        }
+
         // Récupérer la formation
         $formation = \Illuminate\Support\Facades\DB::table('formations')->where('id', $id)->first();
 
@@ -2877,6 +2932,11 @@ class DashboardController extends Controller
      */
     public function formationsDownloadAll(int $id)
     {
+        $user = Auth::user();
+        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+            abort(403);
+        }
+
         try {
             // Récupérer la formation
             $formation = \Illuminate\Support\Facades\DB::table('formations')->where('id', $id)->first();

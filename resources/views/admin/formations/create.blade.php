@@ -198,9 +198,27 @@
                     <div class="col-12 form-group">
                         <label for="student_ids">Sélectionner les étudiants <span class="text-danger">*</span></label>
                         <select class="form-select" id="student_ids" name="student_ids[]" multiple="multiple">
-                            @foreach($students as $student)
-                                <option value="{{ $student->id }}" {{ in_array($student->id, old('student_ids', [])) ? 'selected' : '' }}>{{ $student->name }}</option>
-                            @endforeach
+                            @php
+                                $studentsCollection = collect($students ?? []);
+                                $studentsWithoutProjects = $studentsCollection->filter(fn ($s) => empty($s->has_projects))->values();
+                                $studentsWithProjects = $studentsCollection->filter(fn ($s) => !empty($s->has_projects))->values();
+                            @endphp
+
+                            @if($studentsWithoutProjects->count() > 0)
+                                <optgroup label="Nouveaux inscrits (0 projet)">
+                                    @foreach($studentsWithoutProjects as $student)
+                                        <option value="{{ $student->id }}" {{ in_array($student->id, old('student_ids', [])) ? 'selected' : '' }}>{{ $student->name }}</option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
+
+                            @if($studentsWithProjects->count() > 0)
+                                <optgroup label="Déjà avec projets">
+                                    @foreach($studentsWithProjects as $student)
+                                        <option value="{{ $student->id }}" {{ in_array($student->id, old('student_ids', [])) ? 'selected' : '' }}>{{ $student->name }}</option>
+                                    @endforeach
+                                </optgroup>
+                            @endif
                         </select>
                         <small class="text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs étudiants</small>
                     </div>
@@ -377,9 +395,29 @@ $(document).ready(function() {
                     // Vider le select
                     $('#student_ids').empty();
 
-                    // Ajouter les étudiants du module
-                    if (response.students.length > 0) {
-                        response.students.forEach(function(student) {
+                    const studentsWithout = Array.isArray(response.students_without_projects) ? response.students_without_projects : [];
+                    const studentsWith = Array.isArray(response.students_with_projects) ? response.students_with_projects : [];
+                    const allStudents = Array.isArray(response.students) ? response.students : [];
+
+                    const renderOptGroup = function(label, items) {
+                        if (!items || items.length === 0) {
+                            return;
+                        }
+                        const $group = $('<optgroup></optgroup>').attr('label', label);
+                        items.forEach(function(student) {
+                            $group.append(
+                                $('<option></option>').attr('value', student.id).text(student.name)
+                            );
+                        });
+                        $('#student_ids').append($group);
+                    };
+
+                    if (studentsWithout.length > 0 || studentsWith.length > 0) {
+                        renderOptGroup('Nouveaux inscrits (0 projet)', studentsWithout);
+                        renderOptGroup('Déjà avec projets', studentsWith);
+                    } else if (allStudents.length > 0) {
+                        // Fallback si l'API n'envoie pas les groupes
+                        allStudents.forEach(function(student) {
                             $('#student_ids').append(
                                 $('<option></option>').attr('value', student.id).text(student.name)
                             );
