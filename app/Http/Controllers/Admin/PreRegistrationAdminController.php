@@ -197,27 +197,47 @@ class PreRegistrationAdminController extends Controller
         $plaquetteUrl = null;
         $plaquetteTitle = null;
         try {
-            $formationId = Schema::hasTable('formations') ? DB::table('formations')->whereRaw('LOWER(name) = ?', [strtolower((string) $formationName)])->value('id') : null;
+            $formationId = null;
+            if (Schema::hasTable('formations')) {
+                $fnLower = strtolower((string) $formationName);
+                $formationId = DB::table('formations')->whereRaw('LOWER(name) = ?', [$fnLower])->value('id');
+                if (empty($formationId)) {
+                    $formationId = DB::table('formations')->whereRaw('LOWER(name) LIKE ?', ['%' . $fnLower . '%'])->value('id');
+                }
+            }
             if (Schema::hasTable('plaquettes')) {
                 $today = now()->toDateString();
-                $plaquetteQuery = DB::table('plaquettes')
-                    ->where('is_active', 1)
-                    ->where('is_published', 1)
-                    ->where(function ($q) use ($today) {
-                        $q->whereNull('start_date')->orWhere('start_date', '<=', $today);
-                    })
-                    ->where(function ($q) use ($today) {
-                        $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
-                    });
+                $basePlaquetteQuery = function () use ($today) {
+                    return DB::table('plaquettes')
+                        ->where('is_active', 1)
+                        ->where('is_published', 1)
+                        ->where(function ($q) use ($today) {
+                            $q->whereNull('start_date')->orWhere('start_date', '<=', $today);
+                        })
+                        ->where(function ($q) use ($today) {
+                            $q->whereNull('end_date')->orWhere('end_date', '>=', $today);
+                        });
+                };
+
+                $p = null;
 
                 if (!empty($formationId)) {
-                    $plaquetteQuery->where('formation_id', $formationId);
+                    $p = $basePlaquetteQuery()
+                        ->where('formation_id', $formationId)
+                        ->orderByDesc('published_at')
+                        ->orderByDesc('id')
+                        ->first();
                 }
 
-                $p = $plaquetteQuery
-                    ->orderByDesc('published_at')
-                    ->orderByDesc('id')
-                    ->first();
+                if (!$p) {
+                    $fnLower = strtolower((string) $formationName);
+                    $p = $basePlaquetteQuery()
+                        ->whereRaw('LOWER(title) LIKE ?', ['%' . $fnLower . '%'])
+                        ->orderByDesc('published_at')
+                        ->orderByDesc('id')
+                        ->first();
+                }
+
                 if ($p && !empty($p->file_path)) {
                     $isEvcPrefixed = request()->is('evc/*');
                     $downloadRoute = $isEvcPrefixed ? 'plaquettes.formations.download.direct.id.evc' : 'plaquettes.formations.download.direct.id';
