@@ -318,6 +318,15 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::get('/evc/compte/community-management/espace-etudiant/stats', [DashboardController::class, 'communityManagementStats'])->name('dashboard.community-management.stats');
     Route::get('/evc/compte/intelligence-artificielle/espace-etudiant', [DashboardController::class, 'intelligenceArtificielle'])->name('dashboard.intelligence-artificielle');
     Route::get('/evc/compte/gestion-informatique/espace-etudiant', [DashboardController::class, 'gestionInformatique'])->name('dashboard.gestion-informatique');
+
+    // Routes Certifications (Étudiant)
+    Route::get('/evc/compte/certifications', [App\Http\Controllers\CertificationController::class, 'index'])->name('certification.index');
+    Route::get('/evc/compte/certifications/{id}/start', [App\Http\Controllers\CertificationController::class, 'start'])->name('certification.start');
+    Route::post('/evc/compte/certifications/{id}/confirm', [App\Http\Controllers\CertificationController::class, 'confirmStart'])->name('certification.confirm');
+    Route::get('/evc/compte/certifications/{id}/take', [App\Http\Controllers\CertificationController::class, 'take'])->name('certification.take');
+    Route::post('/evc/compte/certifications/{id}/save-answer', [App\Http\Controllers\CertificationController::class, 'saveAnswer'])->name('certification.save-answer');
+    Route::post('/evc/compte/certifications/{id}/submit', [App\Http\Controllers\CertificationController::class, 'submit'])->name('certification.submit');
+    Route::get('/evc/compte/certifications/{id}/result', [App\Http\Controllers\CertificationController::class, 'result'])->name('certification.result');
 });
 
 // Groupe de routes pour Design Graphique avec préfixe commun (PROTÉGÉ PAR AUTH + VÉRIFICATION COMPTE ACTIF + ACCÈS FORMATION)
@@ -860,6 +869,21 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/admins/{id}/edit', [App\Http\Controllers\Admin\AdminManagementController::class, 'edit'])->name('admins.edit');
         Route::put('/admins/{id}', [App\Http\Controllers\Admin\AdminManagementController::class, 'update'])->name('admins.update');
         Route::delete('/admins/{id}', [App\Http\Controllers\Admin\AdminManagementController::class, 'destroy'])->name('admins.destroy');
+
+        // Routes Certifications (Admin)
+        Route::get('/certifications', [App\Http\Controllers\Admin\CertificationAdminController::class, 'index'])->name('certifications.index');
+        Route::get('/certifications/create', [App\Http\Controllers\Admin\CertificationAdminController::class, 'create'])->name('certifications.create');
+        Route::post('/certifications', [App\Http\Controllers\Admin\CertificationAdminController::class, 'store'])->name('certifications.store');
+        Route::get('/certifications/{id}/edit', [App\Http\Controllers\Admin\CertificationAdminController::class, 'edit'])->name('certifications.edit');
+        Route::put('/certifications/{id}', [App\Http\Controllers\Admin\CertificationAdminController::class, 'update'])->name('certifications.update');
+        Route::post('/certifications/{id}/toggle', [App\Http\Controllers\Admin\CertificationAdminController::class, 'toggleActive'])->name('certifications.toggle');
+        Route::delete('/certifications/{id}', [App\Http\Controllers\Admin\CertificationAdminController::class, 'destroy'])->name('certifications.destroy');
+        Route::post('/certifications/{id}/questions', [App\Http\Controllers\Admin\CertificationAdminController::class, 'storeQuestion'])->name('certifications.questions.store');
+        Route::put('/certifications/questions/{id}', [App\Http\Controllers\Admin\CertificationAdminController::class, 'updateQuestion'])->name('certifications.questions.update');
+        Route::delete('/certifications/questions/{id}', [App\Http\Controllers\Admin\CertificationAdminController::class, 'destroyQuestion'])->name('certifications.questions.destroy');
+        Route::get('/certifications/attempts/{id}', [App\Http\Controllers\Admin\CertificationAdminController::class, 'showAttempt'])->name('certifications.attempts.show');
+        Route::post('/certifications/answers/{id}/grade', [App\Http\Controllers\Admin\CertificationAdminController::class, 'gradeAnswer'])->name('certifications.answers.grade');
+        Route::post('/certifications/attempts/{id}/finalize', [App\Http\Controllers\Admin\CertificationAdminController::class, 'finalizeGrading'])->name('certifications.attempts.finalize');
 
         // Pages de détails des statistiques (route générique en dernier)
         Route::get('/statistiques/{statType}', [AdminStatisticsDetailController::class, 'show'])->name('statistics.detail');
