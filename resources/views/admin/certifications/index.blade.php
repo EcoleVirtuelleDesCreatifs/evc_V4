@@ -108,7 +108,7 @@
                     @if($cert->description)
                         <p class="text-white-50 mb-2">{{ Str::limit($cert->description, 120) }}</p>
                     @endif
-                    <div class="d-flex gap-3 text-muted" style="font-size: 0.85rem;">
+                    <div class="d-flex gap-3" style="font-size: 0.85rem; color: #94a3b8;">
                         <span><i class="fas fa-clock me-1"></i>{{ $cert->duration_minutes }} min</span>
                         <span><i class="fas fa-question-circle me-1"></i>{{ $cert->questions_count }} questions</span>
                         <span><i class="fas fa-star me-1"></i>{{ $cert->total_points }} pts</span>
