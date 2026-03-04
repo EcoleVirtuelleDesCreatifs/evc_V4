@@ -14,6 +14,22 @@ use Illuminate\Validation\Rule;
 class AdminManagementController extends Controller
 {
     /**
+     * S'assurer que l'ENUM role inclut 'manager'
+     */
+    private function ensureManagerRoleExists(): void
+    {
+        try {
+            $columnType = DB::selectOne("SHOW COLUMNS FROM admins WHERE Field = 'role'");
+            if ($columnType && !str_contains($columnType->Type, 'manager')) {
+                DB::statement("ALTER TABLE `admins` MODIFY COLUMN `role` ENUM('super_admin','manager','assistant','comptable') DEFAULT 'assistant'");
+                Log::info('ENUM role mis à jour: ajout de manager');
+            }
+        } catch (\Exception $e) {
+            Log::warning('Impossible de vérifier/mettre à jour l\'ENUM role: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Afficher le formulaire de création d'un administrateur
      */
     public function create()
@@ -31,6 +47,7 @@ class AdminManagementController extends Controller
     public function store(Request $request)
     {
         $this->checkSuperAdminPermission();
+        $this->ensureManagerRoleExists();
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -131,6 +148,7 @@ class AdminManagementController extends Controller
     public function update(Request $request, $id)
     {
         $this->checkSuperAdminPermission();
+        $this->ensureManagerRoleExists();
 
         $admin = DB::table('admins')->where('id', $id)->first();
 
