@@ -5938,7 +5938,11 @@ class AdminDashboardController extends Controller
         // Récupérer tous les étudiants actifs avec leurs informations
         $students = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->where('students.status', 'active')
+            ->where(function ($q) {
+                $q->where('students.status', 'active')
+                  ->orWhereNull('students.status')
+                  ->orWhere('students.status', '');
+            })
             ->select(
                 'students.*',
                 'users.email'
