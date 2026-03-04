@@ -52,13 +52,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show"><i class="fas fa-check-circle me-2"></i>{{ session('success') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show"><i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
-    @endif
-
     <!-- Tabs -->
     <ul class="nav nav-tabs mb-4" role="tablist">
         <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#tab-settings"><i class="fas fa-cog me-1"></i>Paramètres</a></li>
