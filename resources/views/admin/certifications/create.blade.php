@@ -51,12 +51,6 @@
         </div>
     </div>
 
-    @if($errors->any())
-        <div class="alert alert-danger">
-            <ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
-        </div>
-    @endif
-
     <form action="{{ route('admin.certifications.store') }}" method="POST" id="certForm">
         @csrf
         <input type="hidden" name="status" id="statusField" value="draft">
