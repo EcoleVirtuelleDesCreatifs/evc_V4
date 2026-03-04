@@ -345,7 +345,7 @@ class CertificationAdminController extends Controller
             'points' => 'required|numeric|min:0.5',
             'media' => 'nullable|file|mimes:jpg,jpeg,png,gif,pdf|max:5120',
             'options' => 'required_if:type,qcm|array|min:2',
-            'options.*.text' => 'required_if:type,qcm|string',
+            'options.*.text' => 'required_if:type,qcm|nullable|string',
             'options.*.is_correct' => 'nullable',
             'correct_option' => 'required_if:type,qcm|integer',
         ]);
