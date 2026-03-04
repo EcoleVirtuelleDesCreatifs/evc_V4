@@ -5976,14 +5976,14 @@ class AdminDashboardController extends Controller
 
         // Compter les TP soumis/validés par student_id (travail réellement effectué)
         $tpCountsByStudentId = DB::table('tp_assignments')
-            ->whereIn('status', ['submitted', 'validated'])
+            ->whereIn('status', ['submitted', 'pending', 'validated'])
             ->selectRaw('student_id, COUNT(*) as tp_count')
             ->groupBy('student_id')
             ->pluck('tp_count', 'student_id');
 
-        // Compter les projets soumis/validés par user_id (travail réellement effectué)
+        // Compter les projets traités par user_id (tout statut sauf jamais assigné)
         $projectCountsByUserId = DB::table('projects')
-            ->where('status', 'valide')
+            ->whereIn('status', ['en_cours', 'termine', 'valide', 'soumis'])
             ->selectRaw('user_id, COUNT(*) as project_count')
             ->groupBy('user_id')
             ->pluck('project_count', 'user_id');
