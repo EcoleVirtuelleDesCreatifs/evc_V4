@@ -5993,16 +5993,16 @@ class AdminDashboardController extends Controller
             $studentId = (int) ($student->id ?? 0);
             $student->tp_count = $studentId > 0 ? (int) ($tpCountsByStudentId[$studentId] ?? 0) : 0;
             $student->project_count = $userId > 0 ? (int) ($projectCountsByUserId[$userId] ?? 0) : 0;
-            $student->has_completed_work = ($student->tp_count + $student->project_count) > 0;
+            $student->has_projects = $student->project_count > 0;
             return $student;
         });
 
         $studentsWithoutProjects = $students
-            ->filter(fn($s) => empty($s->has_completed_work))
+            ->filter(fn($s) => empty($s->has_projects))
             ->values();
 
         $studentsWithProjects = $students
-            ->filter(fn($s) => !empty($s->has_completed_work))
+            ->filter(fn($s) => !empty($s->has_projects))
             ->values();
 
         // Calculer les statistiques par formation — uniquement les étudiants ayant réalisé au moins 1 TP/Projet
