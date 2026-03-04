@@ -19,6 +19,8 @@ return new class extends Migration
             $table->boolean('is_active')->default(false);
             $table->boolean('shuffle_questions')->default(false);
             $table->text('instructions')->nullable(); // consignes avant le test
+            $table->enum('status', ['draft', 'published', 'scheduled'])->default('draft');
+            $table->timestamp('scheduled_at')->nullable();
             $table->timestamps();
         });
 
@@ -75,10 +77,22 @@ return new class extends Migration
             $table->foreign('selected_option_id')->references('id')->on('certification_options')->onDelete('set null');
             $table->unique(['attempt_id', 'question_id']);
         });
+
+        Schema::create('certification_student', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('certification_id')->constrained('certifications')->onDelete('cascade');
+            $table->unsignedBigInteger('student_id');
+            $table->timestamp('notified_at')->nullable();
+            $table->timestamps();
+
+            $table->unique(['certification_id', 'student_id']);
+            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('certification_student');
         Schema::dropIfExists('certification_answers');
         Schema::dropIfExists('certification_attempts');
         Schema::dropIfExists('certification_options');

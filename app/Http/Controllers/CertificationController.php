@@ -15,10 +15,41 @@ class CertificationController extends Controller
         $student = DB::table('students')->where('user_id', $userId)->first();
         if (!$student) return redirect()->back()->with('error', 'Profil introuvable.');
 
-        $certifications = DB::table('certifications')->where('is_active', true)
-            ->where(function ($q) use ($student) {
-                $q->where('formation', $student->program)->orWhereNull('formation')->orWhere('formation', '');
-            })->orderBy('created_at', 'desc')->get()->map(function ($cert) use ($student) {
+        // Récupérer uniquement les certifications assignées à cet étudiant
+        $assignedCertIds = DB::table('certification_student')
+            ->where('student_id', $student->id)
+            ->pluck('certification_id')
+            ->toArray();
+
+        $certifications = DB::table('certifications')
+            ->where(function ($q) use ($assignedCertIds, $student) {
+                // Certifications assignées directement
+                $q->whereIn('id', $assignedCertIds);
+                // OU certifications actives sans assignation spécifique (accès libre par formation)
+                $q->orWhere(function ($q2) use ($student) {
+                    $q2->where('is_active', true)
+                        ->where('status', 'published')
+                        ->whereNotIn('id', function ($sub) {
+                            $sub->select('certification_id')->from('certification_student');
+                        })
+                        ->where(function ($q3) use ($student) {
+                            $q3->where('formation', $student->program)
+                               ->orWhereNull('formation')
+                               ->orWhere('formation', '');
+                        });
+                });
+            })
+            ->where(function ($q) {
+                // Certification publiée ou programmée dont la date est passée
+                $q->where('status', 'published')
+                  ->orWhere(function ($q2) {
+                      $q2->where('status', 'scheduled')
+                         ->where('scheduled_at', '<=', now());
+                  });
+            })
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($cert) use ($student) {
                 $attempt = DB::table('certification_attempts')->where('certification_id', $cert->id)->where('student_id', $student->id)->first();
                 $cert->attempt = $attempt;
                 $cert->questions_count = DB::table('certification_questions')->where('certification_id', $cert->id)->count();

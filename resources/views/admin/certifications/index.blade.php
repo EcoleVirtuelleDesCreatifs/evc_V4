@@ -25,6 +25,8 @@
     }
     .badge-active { background: rgba(16,185,129,0.2); color: #10b981; }
     .badge-inactive { background: rgba(239,68,68,0.2); color: #ef4444; }
+    .badge-draft { background: rgba(148,163,184,0.2); color: #94a3b8; }
+    .badge-scheduled { background: rgba(245,158,11,0.2); color: #f59e0b; }
     .badge-formation { background: rgba(99,102,241,0.2); color: #818cf8; }
     .stat-mini {
         text-align: center;
@@ -88,11 +90,19 @@
                 <div class="flex-grow-1">
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <h4 class="text-white mb-0">{{ $cert->title }}</h4>
-                        <span class="cert-badge {{ $cert->is_active ? 'badge-active' : 'badge-inactive' }}">
-                            {{ $cert->is_active ? 'Active' : 'Inactive' }}
-                        </span>
+                        @php
+                            $statusBadge = match($cert->status ?? 'draft') {
+                                'published' => ['badge-active', 'Publiée'],
+                                'scheduled' => ['badge-scheduled', 'Programmée'],
+                                default => ['badge-draft', 'Brouillon'],
+                            };
+                        @endphp
+                        <span class="cert-badge {{ $statusBadge[0] }}">{{ $statusBadge[1] }}</span>
                         @if($cert->formation)
                             <span class="cert-badge badge-formation">{{ $cert->formation }}</span>
+                        @endif
+                        @if($cert->status === 'scheduled' && $cert->scheduled_at)
+                            <span class="text-muted" style="font-size:0.8rem;"><i class="fas fa-calendar me-1"></i>{{ \Carbon\Carbon::parse($cert->scheduled_at)->format('d/m/Y H:i') }}</span>
                         @endif
                     </div>
                     @if($cert->description)

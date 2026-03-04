@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class CertificationAdminController extends Controller
@@ -56,7 +57,10 @@ class CertificationAdminController extends Controller
             'Intelligence Artificielle',
         ];
 
-        return view('admin.certifications.create', compact('formations'));
+        // Étudiants actifs avec au moins 2 TP/projets
+        $eligibleStudents = $this->getEligibleStudents();
+
+        return view('admin.certifications.create', compact('formations', 'eligibleStudents'));
     }
 
     /**
@@ -72,7 +76,23 @@ class CertificationAdminController extends Controller
             'passing_score' => 'required|numeric|min:0|max:100',
             'instructions' => 'nullable|string',
             'shuffle_questions' => 'boolean',
+            'status' => 'required|in:draft,published,scheduled',
+            'scheduled_at' => 'nullable|date|after:now',
+            'student_ids' => 'nullable|array',
+            'student_ids.*' => 'integer|exists:students,id',
         ]);
+
+        $status = $validated['status'] ?? 'draft';
+        $isActive = $status === 'published';
+        $scheduledAt = null;
+
+        if ($status === 'scheduled') {
+            if (empty($validated['scheduled_at'])) {
+                return back()->withErrors(['scheduled_at' => 'La date de programmation est requise.'])->withInput();
+            }
+            $scheduledAt = $validated['scheduled_at'];
+            $isActive = false;
+        }
 
         $certId = DB::table('certifications')->insertGetId([
             'title' => $validated['title'],
@@ -82,14 +102,50 @@ class CertificationAdminController extends Controller
             'passing_score' => $validated['passing_score'],
             'instructions' => $validated['instructions'] ?? null,
             'shuffle_questions' => $request->boolean('shuffle_questions'),
-            'is_active' => false,
+            'is_active' => $isActive,
+            'status' => $status,
+            'scheduled_at' => $scheduledAt,
             'total_points' => 0,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
+        // Assigner les étudiants sélectionnés
+        $studentIds = $validated['student_ids'] ?? [];
+        $notifiedCount = 0;
+
+        if (!empty($studentIds)) {
+            $certification = DB::table('certifications')->where('id', $certId)->first();
+
+            foreach ($studentIds as $studentId) {
+                DB::table('certification_student')->insert([
+                    'certification_id' => $certId,
+                    'student_id' => $studentId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                // Envoyer email de notification si publié
+                if ($status === 'published' || $status === 'scheduled') {
+                    $sent = $this->notifyStudent($studentId, $certification);
+                    if ($sent) {
+                        DB::table('certification_student')
+                            ->where('certification_id', $certId)
+                            ->where('student_id', $studentId)
+                            ->update(['notified_at' => now()]);
+                        $notifiedCount++;
+                    }
+                }
+            }
+        }
+
+        $msg = 'Certification créée. Ajoutez maintenant les questions.';
+        if ($notifiedCount > 0) {
+            $msg .= " {$notifiedCount} étudiant(s) notifié(s) par email.";
+        }
+
         return redirect()->route('admin.certifications.edit', $certId)
-            ->with('success', 'Certification créée. Ajoutez maintenant les questions.');
+            ->with('success', $msg);
     }
 
     /**
@@ -140,7 +196,17 @@ class CertificationAdminController extends Controller
             ->orderBy('certification_attempts.created_at', 'desc')
             ->get();
 
-        return view('admin.certifications.edit', compact('certification', 'formations', 'questions', 'attempts'));
+        // Étudiants éligibles et déjà assignés
+        $eligibleStudents = $this->getEligibleStudents();
+        $assignedStudentIds = DB::table('certification_student')
+            ->where('certification_id', $id)
+            ->pluck('student_id')
+            ->toArray();
+
+        return view('admin.certifications.edit', compact(
+            'certification', 'formations', 'questions', 'attempts',
+            'eligibleStudents', 'assignedStudentIds'
+        ));
     }
 
     /**
@@ -157,7 +223,21 @@ class CertificationAdminController extends Controller
             'instructions' => 'nullable|string',
             'shuffle_questions' => 'boolean',
             'is_active' => 'boolean',
+            'status' => 'nullable|in:draft,published,scheduled',
+            'scheduled_at' => 'nullable|date',
+            'student_ids' => 'nullable|array',
+            'student_ids.*' => 'integer|exists:students,id',
         ]);
+
+        $status = $validated['status'] ?? 'draft';
+        $isActive = $request->boolean('is_active');
+        $scheduledAt = $validated['scheduled_at'] ?? null;
+
+        if ($status === 'published') {
+            $isActive = true;
+        } elseif ($status === 'draft') {
+            $isActive = false;
+        }
 
         DB::table('certifications')->where('id', $id)->update([
             'title' => $validated['title'],
@@ -167,11 +247,60 @@ class CertificationAdminController extends Controller
             'passing_score' => $validated['passing_score'],
             'instructions' => $validated['instructions'] ?? null,
             'shuffle_questions' => $request->boolean('shuffle_questions'),
-            'is_active' => $request->boolean('is_active'),
+            'is_active' => $isActive,
+            'status' => $status,
+            'scheduled_at' => $scheduledAt,
             'updated_at' => now(),
         ]);
 
-        return back()->with('success', 'Certification mise à jour.');
+        // Mise à jour des étudiants assignés
+        $studentIds = $validated['student_ids'] ?? [];
+        $existingIds = DB::table('certification_student')
+            ->where('certification_id', $id)
+            ->pluck('student_id')
+            ->toArray();
+
+        $newIds = array_diff($studentIds, $existingIds);
+        $removedIds = array_diff($existingIds, $studentIds);
+
+        // Supprimer les étudiants retirés (seulement si pas de tentative en cours)
+        if (!empty($removedIds)) {
+            DB::table('certification_student')
+                ->where('certification_id', $id)
+                ->whereIn('student_id', $removedIds)
+                ->delete();
+        }
+
+        // Ajouter les nouveaux étudiants et notifier
+        $certification = DB::table('certifications')->where('id', $id)->first();
+        $notifiedCount = 0;
+
+        foreach ($newIds as $studentId) {
+            DB::table('certification_student')->insert([
+                'certification_id' => $id,
+                'student_id' => $studentId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            if ($status === 'published' || $status === 'scheduled') {
+                $sent = $this->notifyStudent($studentId, $certification);
+                if ($sent) {
+                    DB::table('certification_student')
+                        ->where('certification_id', $id)
+                        ->where('student_id', $studentId)
+                        ->update(['notified_at' => now()]);
+                    $notifiedCount++;
+                }
+            }
+        }
+
+        $msg = 'Certification mise à jour.';
+        if ($notifiedCount > 0) {
+            $msg .= " {$notifiedCount} nouvel(aux) étudiant(s) notifié(s) par email.";
+        }
+
+        return back()->with('success', $msg);
     }
 
     /**
@@ -485,5 +614,135 @@ class CertificationAdminController extends Controller
             'total_points' => $total,
             'updated_at' => now(),
         ]);
+    }
+
+    /**
+     * Récupérer les étudiants actifs ayant au moins 2 TP/projets réalisés
+     */
+    private function getEligibleStudents()
+    {
+        $students = DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where(function ($q) {
+                $q->where('students.status', 'active')
+                  ->orWhereNull('students.status')
+                  ->orWhere('students.status', '');
+            })
+            ->select('students.*', 'users.email')
+            ->get();
+
+        return $students->filter(function ($student) {
+            // Compter les TP assignés traités
+            $tpCount = DB::table('tp_assignments')
+                ->where('student_id', $student->id)
+                ->whereIn('status', ['submitted', 'validated', 'graded', 'completed'])
+                ->count();
+
+            // Compter les projets traités
+            $projectCount = DB::table('project_assignments')
+                ->where('student_id', $student->id)
+                ->whereIn('status', ['submitted', 'validated', 'graded', 'completed'])
+                ->count();
+
+            $student->tp_project_count = $tpCount + $projectCount;
+            return $student->tp_project_count >= 2;
+        })->values();
+    }
+
+    /**
+     * Notifier un étudiant par email de sa certification assignée
+     */
+    private function notifyStudent($studentId, $certification): bool
+    {
+        try {
+            $student = DB::table('students')
+                ->leftJoin('users', 'students.user_id', '=', 'users.id')
+                ->where('students.id', $studentId)
+                ->select('students.*', 'users.email')
+                ->first();
+
+            if (!$student || empty($student->email)) {
+                return false;
+            }
+
+            $scheduledInfo = '';
+            if ($certification->status === 'scheduled' && $certification->scheduled_at) {
+                $date = \Carbon\Carbon::parse($certification->scheduled_at)->format('d/m/Y à H:i');
+                $scheduledInfo = "<p style='color:#f59e0b;font-weight:bold;'>📅 Date programmée : {$date}</p>";
+            }
+
+            $studentName = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
+            if (empty($studentName)) {
+                $studentName = 'Cher(e) étudiant(e)';
+            }
+
+            $instructions = $certification->instructions
+                ? nl2br(e($certification->instructions))
+                : 'Aucune consigne spécifique.';
+
+            Mail::send([], [], function ($message) use ($student, $certification, $studentName, $instructions, $scheduledInfo) {
+                $message->to($student->email)
+                    ->subject("📝 Certification : {$certification->title} - École Virtuelle des Créatifs")
+                    ->html("
+                        <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#1e293b;color:#e2e8f0;border-radius:16px;overflow:hidden;'>
+                            <div style='background:linear-gradient(135deg,#1e3c72,#2a5298);padding:2rem;text-align:center;'>
+                                <h1 style='color:#fff;margin:0;font-size:1.5rem;'>📝 Certification Assignée</h1>
+                                <p style='color:rgba(255,255,255,0.7);margin:0.5rem 0 0;'>École Virtuelle des Créatifs</p>
+                            </div>
+                            <div style='padding:2rem;'>
+                                <p>Bonjour <strong>{$studentName}</strong>,</p>
+                                <p>Vous avez été sélectionné(e) pour passer la certification suivante :</p>
+
+                                <div style='background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:1.25rem;margin:1rem 0;'>
+                                    <h2 style='color:#818cf8;margin:0 0 0.5rem;font-size:1.2rem;'>{$certification->title}</h2>
+                                    " . ($certification->description ? "<p style='margin:0.5rem 0;'>" . e($certification->description) . "</p>" : "") . "
+                                </div>
+
+                                {$scheduledInfo}
+
+                                <div style='background:rgba(255,255,255,0.05);border-radius:12px;padding:1rem;margin:1rem 0;'>
+                                    <h3 style='color:#10b981;margin:0 0 0.75rem;'>📋 Informations</h3>
+                                    <p>⏱ <strong>Durée :</strong> {$certification->duration_minutes} minutes</p>
+                                    <p>✅ <strong>Note de passage :</strong> {$certification->passing_score}%</p>
+                                    <p>🔒 <strong>Tentative :</strong> Une seule tentative autorisée</p>
+                                </div>
+
+                                <div style='background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:1rem;margin:1rem 0;'>
+                                    <h3 style='color:#fbbf24;margin:0 0 0.75rem;'>⚠️ Règles importantes</h3>
+                                    <ul style='margin:0;padding-left:1.2rem;'>
+                                        <li>Le décompte commence dès que vous cliquez sur \"Commencer\".</li>
+                                        <li>Le test ne peut être passé qu'<strong>une seule fois</strong>.</li>
+                                        <li>Si le temps expire, vos réponses sont soumises <strong>automatiquement</strong>.</li>
+                                        <li>Ne quittez pas la page pendant le test.</li>
+                                        <li>Vos réponses sont sauvegardées en temps réel.</li>
+                                    </ul>
+                                </div>
+
+                                <div style='background:rgba(99,102,241,0.1);border-radius:12px;padding:1rem;margin:1rem 0;'>
+                                    <h3 style='color:#818cf8;margin:0 0 0.5rem;'>📖 Consignes du formateur</h3>
+                                    <p>{$instructions}</p>
+                                </div>
+
+                                <div style='text-align:center;margin:1.5rem 0;'>
+                                    <a href='" . url('/evc/compte/certifications') . "' style='display:inline-block;background:linear-gradient(45deg,#10b981,#059669);color:#fff;padding:0.75rem 2rem;border-radius:12px;text-decoration:none;font-weight:bold;font-size:1rem;'>
+                                        Accéder à mes certifications
+                                    </a>
+                                </div>
+
+                                <p style='color:#94a3b8;font-size:0.85rem;text-align:center;'>Bonne chance ! 🍀</p>
+                            </div>
+                            <div style='background:rgba(0,0,0,0.2);padding:1rem;text-align:center;color:#64748b;font-size:0.75rem;'>
+                                École Virtuelle des Créatifs - ecolevirtuelledescreatifs.com
+                            </div>
+                        </div>
+                    ");
+            });
+
+            Log::info("Certification email sent to {$student->email} for cert #{$certification->id}");
+            return true;
+        } catch (\Exception $e) {
+            Log::error("Failed to send certification email to student #{$studentId}: " . $e->getMessage());
+            return false;
+        }
     }
 }
