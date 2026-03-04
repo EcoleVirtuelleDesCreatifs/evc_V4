@@ -248,7 +248,7 @@
             <div class="form-card">
                 <h5 class="text-white mb-3"><i class="fas fa-users me-2"></i>Tentatives des étudiants</h5>
                 @if($attempts->isEmpty())
-                    <p class="text-muted text-center py-3">Aucune tentative pour le moment.</p>
+                    <p class="text-white-50 text-center py-3">Aucune tentative pour le moment.</p>
                 @else
                     @foreach($attempts as $att)
                     <div class="attempt-row">
