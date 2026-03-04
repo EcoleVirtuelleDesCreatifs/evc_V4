@@ -5971,40 +5971,50 @@ class AdminDashboardController extends Controller
             return $student;
         });
 
-        // Calculer les statistiques par formation normalisée
-        $stats = [
-            'total_students' => $students->count(),
-            'design_graphique' => $students->where('program_normalized', 'Design Graphique')->count(),
-            'design_graphique_cm' => $students->where('program_normalized', 'Design Graphique & Community Management')->count(),
-            'community_management' => $students->where('program_normalized', 'Community Management')->count(),
-            'gestion_informatique' => $students->where('program_normalized', 'Gestion Informatique')->count(),
-            'intelligence_artificielle' => $students->where('program_normalized', 'Intelligence Artificielle')->count(),
-            'sans_formation' => $students->where('program_normalized', 'Sans formation')->count(),
-        ];
-
         // Récupérer tous les étudiants pour la liste
         $all_students = $students;
 
-        // Compter les projets par user_id
+        // Compter les TP soumis/validés par student_id (travail réellement effectué)
+        $tpCountsByStudentId = DB::table('tp_assignments')
+            ->whereIn('status', ['submitted', 'validated'])
+            ->selectRaw('student_id, COUNT(*) as tp_count')
+            ->groupBy('student_id')
+            ->pluck('tp_count', 'student_id');
+
+        // Compter les projets soumis/validés par user_id (travail réellement effectué)
         $projectCountsByUserId = DB::table('projects')
+            ->where('status', 'valide')
             ->selectRaw('user_id, COUNT(*) as project_count')
             ->groupBy('user_id')
             ->pluck('project_count', 'user_id');
 
-        $students = $students->map(function ($student) use ($projectCountsByUserId) {
+        $students = $students->map(function ($student) use ($projectCountsByUserId, $tpCountsByStudentId) {
             $userId = (int) ($student->user_id ?? 0);
+            $studentId = (int) ($student->id ?? 0);
+            $student->tp_count = $studentId > 0 ? (int) ($tpCountsByStudentId[$studentId] ?? 0) : 0;
             $student->project_count = $userId > 0 ? (int) ($projectCountsByUserId[$userId] ?? 0) : 0;
-            $student->has_projects = $student->project_count > 0;
+            $student->has_completed_work = ($student->tp_count + $student->project_count) > 0;
             return $student;
         });
 
         $studentsWithoutProjects = $students
-            ->filter(fn($s) => empty($s->has_projects))
+            ->filter(fn($s) => empty($s->has_completed_work))
             ->values();
 
         $studentsWithProjects = $students
-            ->filter(fn($s) => !empty($s->has_projects))
+            ->filter(fn($s) => !empty($s->has_completed_work))
             ->values();
+
+        // Calculer les statistiques par formation — uniquement les étudiants ayant réalisé au moins 1 TP/Projet
+        $stats = [
+            'total_students' => $studentsWithProjects->count(),
+            'design_graphique' => $studentsWithProjects->where('program_normalized', 'Design Graphique')->count(),
+            'design_graphique_cm' => $studentsWithProjects->where('program_normalized', 'Design Graphique & Community Management')->count(),
+            'community_management' => $studentsWithProjects->where('program_normalized', 'Community Management')->count(),
+            'gestion_informatique' => $studentsWithProjects->where('program_normalized', 'Gestion Informatique')->count(),
+            'intelligence_artificielle' => $studentsWithProjects->where('program_normalized', 'Intelligence Artificielle')->count(),
+            'sans_formation' => $studentsWithProjects->where('program_normalized', 'Sans formation')->count(),
+        ];
 
         $stats['zero_projects'] = $studentsWithoutProjects->count();
 
