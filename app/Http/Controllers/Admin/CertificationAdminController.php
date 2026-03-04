@@ -632,17 +632,20 @@ class CertificationAdminController extends Controller
             ->get();
 
         return $students->filter(function ($student) {
-            // Compter les TP assignés traités
+            // Compter les TP assignés traités (par student_id)
             $tpCount = DB::table('tp_assignments')
                 ->where('student_id', $student->id)
-                ->whereIn('status', ['submitted', 'validated', 'graded', 'completed'])
+                ->whereIn('status', ['submitted', 'pending', 'validated'])
                 ->count();
 
-            // Compter les projets traités
-            $projectCount = DB::table('project_assignments')
-                ->where('student_id', $student->id)
-                ->whereIn('status', ['submitted', 'validated', 'graded', 'completed'])
-                ->count();
+            // Compter les projets traités (par user_id, table projects)
+            $projectCount = 0;
+            if ($student->user_id) {
+                $projectCount = DB::table('projects')
+                    ->where('user_id', $student->user_id)
+                    ->whereIn('status', ['en_cours', 'termine', 'valide', 'soumis'])
+                    ->count();
+            }
 
             $student->tp_project_count = $tpCount + $projectCount;
             return $student->tp_project_count >= 2;
