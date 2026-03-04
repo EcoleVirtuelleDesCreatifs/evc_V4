@@ -683,62 +683,20 @@ class CertificationAdminController extends Controller
                 ? nl2br(e($certification->instructions))
                 : 'Aucune consigne spécifique.';
 
-            Mail::send([], [], function ($message) use ($student, $certification, $studentName, $instructions, $scheduledInfo) {
+            $formation = $student->program ?? 'votre formation';
+            $certUrl = url('/evc/compte/certifications');
+            $duration = $certification->duration_minutes;
+            $passingScore = $certification->passing_score;
+
+            $htmlBody = view('emails.certification_notification', compact(
+                'studentName', 'formation', 'scheduledInfo', 'duration',
+                'passingScore', 'instructions', 'certUrl'
+            ))->render();
+
+            Mail::send([], [], function ($message) use ($student, $certification, $htmlBody) {
                 $message->to($student->email)
-                    ->subject("📝 Certification : {$certification->title} - École Virtuelle des Créatifs")
-                    ->html("
-                        <div style='font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#1e293b;color:#e2e8f0;border-radius:16px;overflow:hidden;'>
-                            <div style='background:linear-gradient(135deg,#1e3c72,#2a5298);padding:2rem;text-align:center;'>
-                                <h1 style='color:#fff;margin:0;font-size:1.5rem;'>📝 Certification Assignée</h1>
-                                <p style='color:rgba(255,255,255,0.7);margin:0.5rem 0 0;'>École Virtuelle des Créatifs</p>
-                            </div>
-                            <div style='padding:2rem;'>
-                                <p>Bonjour <strong>{$studentName}</strong>,</p>
-                                <p>Vous avez été sélectionné(e) pour passer la certification suivante :</p>
-
-                                <div style='background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.3);border-radius:12px;padding:1.25rem;margin:1rem 0;'>
-                                    <h2 style='color:#818cf8;margin:0 0 0.5rem;font-size:1.2rem;'>{$certification->title}</h2>
-                                    " . ($certification->description ? "<p style='margin:0.5rem 0;'>" . e($certification->description) . "</p>" : "") . "
-                                </div>
-
-                                {$scheduledInfo}
-
-                                <div style='background:rgba(255,255,255,0.05);border-radius:12px;padding:1rem;margin:1rem 0;'>
-                                    <h3 style='color:#10b981;margin:0 0 0.75rem;'>📋 Informations</h3>
-                                    <p>⏱ <strong>Durée :</strong> {$certification->duration_minutes} minutes</p>
-                                    <p>✅ <strong>Note de passage :</strong> {$certification->passing_score}%</p>
-                                    <p>🔒 <strong>Tentative :</strong> Une seule tentative autorisée</p>
-                                </div>
-
-                                <div style='background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:1rem;margin:1rem 0;'>
-                                    <h3 style='color:#fbbf24;margin:0 0 0.75rem;'>⚠️ Règles importantes</h3>
-                                    <ul style='margin:0;padding-left:1.2rem;'>
-                                        <li>Le décompte commence dès que vous cliquez sur \"Commencer\".</li>
-                                        <li>Le test ne peut être passé qu'<strong>une seule fois</strong>.</li>
-                                        <li>Si le temps expire, vos réponses sont soumises <strong>automatiquement</strong>.</li>
-                                        <li>Ne quittez pas la page pendant le test.</li>
-                                        <li>Vos réponses sont sauvegardées en temps réel.</li>
-                                    </ul>
-                                </div>
-
-                                <div style='background:rgba(99,102,241,0.1);border-radius:12px;padding:1rem;margin:1rem 0;'>
-                                    <h3 style='color:#818cf8;margin:0 0 0.5rem;'>📖 Consignes du formateur</h3>
-                                    <p>{$instructions}</p>
-                                </div>
-
-                                <div style='text-align:center;margin:1.5rem 0;'>
-                                    <a href='" . url('/evc/compte/certifications') . "' style='display:inline-block;background:linear-gradient(45deg,#10b981,#059669);color:#fff;padding:0.75rem 2rem;border-radius:12px;text-decoration:none;font-weight:bold;font-size:1rem;'>
-                                        Accéder à mes certifications
-                                    </a>
-                                </div>
-
-                                <p style='color:#94a3b8;font-size:0.85rem;text-align:center;'>Bonne chance ! 🍀</p>
-                            </div>
-                            <div style='background:rgba(0,0,0,0.2);padding:1rem;text-align:center;color:#64748b;font-size:0.75rem;'>
-                                École Virtuelle des Créatifs - ecolevirtuelledescreatifs.com
-                            </div>
-                        </div>
-                    ");
+                    ->subject("🎓 Certification Officielle : {$certification->title} - École Virtuelle des Créatifs")
+                    ->html($htmlBody);
             });
 
             Log::info("Certification email sent to {$student->email} for cert #{$certification->id}");
