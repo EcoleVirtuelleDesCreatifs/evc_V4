@@ -332,6 +332,18 @@
                     </li>
 
 
+                    <!-- Séparateur : Évaluation & Certification -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-clipboard-check me-2"></i>Évaluation & Certification
+                    </li>
+
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.certifications.index') }}" class="admin-nav-link {{ request()->routeIs('admin.certifications.*') ? 'active' : '' }}">
+                            <i class="fas fa-file-signature"></i>
+                            Évaluation Certification
+                        </a>
+                    </li>
+
                     <!-- Séparateur : Communication -->
                     <li class="nav-section-title">
                         <i class="fas fa-bullhorn me-2"></i>Communication
