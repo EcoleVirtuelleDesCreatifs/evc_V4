@@ -175,6 +175,49 @@
         border-color: rgba(239, 68, 68, 0.5);
         background: rgba(255,255,255,0.08);
     }
+    .zero-tp-item { cursor: pointer; }
+    .zero-tp-item.selected {
+        background: rgba(56, 189, 248, 0.08);
+        border-left: 3px solid #38bdf8;
+    }
+    .zero-tp-item .form-check-input {
+        width: 1.1em; height: 1.1em;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+    .zero-tp-item .form-check-input:checked {
+        background-color: #38bdf8;
+        border-color: #38bdf8;
+    }
+    .zero-tp-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .zero-tp-toolbar .btn-select-all {
+        font-size: 0.78rem;
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        border: 1px solid rgba(56,189,248,0.4);
+        background: rgba(56,189,248,0.1);
+        color: #38bdf8;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .zero-tp-toolbar .btn-select-all:hover {
+        background: rgba(56,189,248,0.2);
+    }
+    .zero-tp-selection-count {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        margin-left: auto;
+    }
+    .zero-tp-selection-count strong {
+        color: #38bdf8;
+    }
 
     /* Recipients Info */
     .recipients-info {
@@ -339,6 +382,11 @@
                 <div style="padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
                     <input type="text" class="zero-tp-search" id="zeroTpSearch" placeholder="Rechercher un étudiant...">
                 </div>
+                <div class="zero-tp-toolbar">
+                    <button type="button" class="btn-select-all" id="zeroTpSelectAll">Tout sélectionner</button>
+                    <button type="button" class="btn-select-all" id="zeroTpDeselectAll" style="border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.1);color:#ef4444;">Tout désélectionner</button>
+                    <span class="zero-tp-selection-count" id="zeroTpSelectionCount"><strong>0</strong> sélectionné(s)</span>
+                </div>
 
                 @if(isset($studentsWithoutProjects) && $studentsWithoutProjects->count() > 0)
                     @foreach($studentsWithoutProjects as $stu)
@@ -354,7 +402,8 @@
                                 default => 'background:#475569;color:#fff;',
                             };
                         @endphp
-                        <div class="zero-tp-item" data-name="{{ strtolower(($stu->first_name ?? '') . ' ' . ($stu->last_name ?? '')) }}" data-formation="{{ strtolower($stu->program_normalized ?? '') }}">
+                        <div class="zero-tp-item" data-name="{{ strtolower(($stu->first_name ?? '') . ' ' . ($stu->last_name ?? '')) }}" data-formation="{{ strtolower($stu->program_normalized ?? '') }}" data-student-id="{{ $stu->id }}">
+                            <input class="form-check-input zero-tp-student-check" type="checkbox" value="{{ $stu->id }}">
                             <img src="{{ $photoUrl }}" alt="{{ ($stu->first_name ?? '') . ' ' . ($stu->last_name ?? '') }}" class="zero-tp-photo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
                             <div class="zero-tp-photo-placeholder" style="display:none;">{{ $initials ?: '?' }}</div>
                             <div class="zero-tp-info">
@@ -832,6 +881,84 @@ if (zeroTpSearch) {
             const formation = item.getAttribute('data-formation') || '';
             item.style.display = (q === '' || name.includes(q) || formation.includes(q)) ? 'flex' : 'none';
         });
+    });
+}
+
+// Sélection étudiants dans le panel 0 TP
+function updateZeroTpSelectionCount() {
+    const checked = document.querySelectorAll('.zero-tp-student-check:checked').length;
+    const countEl = document.getElementById('zeroTpSelectionCount');
+    if (countEl) countEl.innerHTML = '<strong>' + checked + '</strong> sélectionné(s)';
+}
+
+function syncZeroTpToStudentsSelect() {
+    const checkedIds = Array.from(document.querySelectorAll('.zero-tp-student-check:checked')).map(cb => cb.value);
+    const studentsSel = document.getElementById('students');
+    if (!studentsSel) return;
+
+    // Show the students select container when items are checked
+    const container = document.getElementById('studentsSelectContainer');
+    if (container && checkedIds.length > 0) {
+        container.style.display = 'block';
+    }
+
+    // Sync selections
+    Array.from(studentsSel.options).forEach(opt => {
+        if (checkedIds.includes(opt.value)) {
+            opt.selected = true;
+        }
+    });
+    updateRecipientsCount();
+}
+
+// Click on row toggles checkbox
+document.querySelectorAll('.zero-tp-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        if (e.target.classList.contains('form-check-input')) return; // direct click on checkbox
+        const cb = this.querySelector('.zero-tp-student-check');
+        if (cb) {
+            cb.checked = !cb.checked;
+            this.classList.toggle('selected', cb.checked);
+            updateZeroTpSelectionCount();
+            syncZeroTpToStudentsSelect();
+        }
+    });
+});
+
+// Checkbox direct click
+document.querySelectorAll('.zero-tp-student-check').forEach(cb => {
+    cb.addEventListener('change', function() {
+        this.closest('.zero-tp-item').classList.toggle('selected', this.checked);
+        updateZeroTpSelectionCount();
+        syncZeroTpToStudentsSelect();
+    });
+});
+
+// Select all / Deselect all
+const btnSelectAll = document.getElementById('zeroTpSelectAll');
+const btnDeselectAll = document.getElementById('zeroTpDeselectAll');
+
+if (btnSelectAll) {
+    btnSelectAll.addEventListener('click', function() {
+        document.querySelectorAll('.zero-tp-item').forEach(item => {
+            if (item.style.display !== 'none') { // only visible items
+                const cb = item.querySelector('.zero-tp-student-check');
+                if (cb) { cb.checked = true; item.classList.add('selected'); }
+            }
+        });
+        updateZeroTpSelectionCount();
+        syncZeroTpToStudentsSelect();
+    });
+}
+
+if (btnDeselectAll) {
+    btnDeselectAll.addEventListener('click', function() {
+        document.querySelectorAll('.zero-tp-student-check').forEach(cb => {
+            cb.checked = false;
+            cb.closest('.zero-tp-item').classList.remove('selected');
+        });
+        updateZeroTpSelectionCount();
+        syncZeroTpToStudentsSelect();
     });
 }
 
