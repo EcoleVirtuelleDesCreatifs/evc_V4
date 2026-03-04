@@ -103,7 +103,7 @@
                         </div>
                     </li>
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <!-- Formations -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.formations.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#formationsMenu">
@@ -137,7 +137,7 @@
                         <i class="fas fa-book me-2"></i>Contenu Pédagogique
                     </li>
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <!-- Bibliothèque -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.bibliotheque.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#bibliothequeMenu">
@@ -185,7 +185,7 @@
                     </li>
                     @endif
 
-                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager', 'assistant']))
                     <!-- Séparateur : Gestion des Salaires -->
                     <li class="nav-section-title">
                         <i class="fas fa-hand-holding-usd me-2"></i>Gestion des Salaires
@@ -337,7 +337,7 @@
                         <i class="fas fa-bullhorn me-2"></i>Communication
                     </li>
 
-                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager', 'assistant']))
                     <!-- Événements -->
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.articles.evenements') }}" class="admin-nav-link">
@@ -419,7 +419,7 @@
                     </li>
                     @endif
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <!-- Certificats -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#certificatsMenu">
@@ -440,7 +440,7 @@
                     </li>
                     @endif
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <!-- Gestion des CVthèque -->
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.cvtheque.profiles') }}" class="admin-nav-link">
@@ -450,7 +450,7 @@
                     </li>
                     @endif
 
-                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager', 'assistant']))
                     <!-- Séparateur : Rejoignez-nous -->
                     <li class="nav-section-title">
                         <i class="fas fa-handshake me-2"></i>Rejoignez-nous
@@ -490,7 +490,7 @@
                     </li>
                     @endif
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.donations.index') }}" class="admin-nav-link {{ request()->routeIs('admin.donations.*') ? 'active' : '' }}">
                             <i class="fas fa-hand-holding-heart"></i>
@@ -499,7 +499,7 @@
                     </li>
                     @endif
 
-                    @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager', 'assistant']))
                     <!-- Gestion WebTV -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.webtv.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#webtvMenu">
@@ -520,7 +520,7 @@
                     </li>
                     @endif
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.plaquettes.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#plaquettesMenu">
                             <i class="fas fa-file-pdf"></i>
@@ -544,7 +544,7 @@
                     </li>
                     @endif
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.partnerships.index') }}" class="admin-nav-link {{ request()->routeIs('admin.partnerships.*') ? 'active' : '' }}">
                             <i class="fas fa-handshake"></i>
@@ -553,7 +553,7 @@
                     </li>
                     @endif
 
-                    @if(session('admin_role') === 'super_admin')
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <!-- Gestion des Rapports -->
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.rapports') }}" class="admin-nav-link">

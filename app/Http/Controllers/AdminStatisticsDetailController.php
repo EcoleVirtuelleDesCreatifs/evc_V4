@@ -14,12 +14,12 @@ class AdminStatisticsDetailController extends Controller
      * Service de statistiques
      */
     private StatisticsService $statisticsService;
-    
+
     /**
      * Service d'administration
      */
     private AdminService $adminService;
-    
+
     /**
      * Constructeur avec injection de dépendance
      * Architecture Laravel propre avec services dédiés
@@ -29,7 +29,7 @@ class AdminStatisticsDetailController extends Controller
         $this->statisticsService = $statisticsService;
         $this->adminService = $adminService;
     }
-    
+
     /**
      * Afficher les détails d'une statistique spécifique
      * Architecture Laravel propre avec typage strict
@@ -38,12 +38,12 @@ class AdminStatisticsDetailController extends Controller
     {
         try {
             $data = $this->getStatisticDetails($statType);
-            
+
             if (!$data) {
                 Log::warning("Statistique non trouvée: {$statType}");
                 abort(404, 'Statistique non trouvée');
             }
-            
+
             // Utiliser une vue spécifique pour les statistiques des étudiants
             if ($statType === 'total-students') {
                 return view('admin.statistics.students', [
@@ -51,7 +51,7 @@ class AdminStatisticsDetailController extends Controller
                     'statType' => $statType
                 ]);
             }
-            
+
             // Utiliser une vue spécifique pour les statistiques des admins
             if ($statType === 'total-admins') {
                 return view('admin.statistics.admins', [
@@ -59,25 +59,25 @@ class AdminStatisticsDetailController extends Controller
                     'statType' => $statType
                 ]);
             }
-            
+
             return view('admin.statistics.detail', [
                 'data' => $data,
                 'statType' => $statType
             ]);
-            
+
         } catch (\Exception $e) {
             Log::error("Erreur dans AdminStatisticsDetailController::show: " . $e->getMessage(), [
                 'statType' => $statType,
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             abort(500, 'Erreur lors du chargement des statistiques');
         }
     }
-    
+
     /**
      * Récupérer les détails d'une statistique avec architecture propre
-     * 
+     *
      * @param string $statType
      * @return array|null
      */
@@ -88,32 +88,32 @@ class AdminStatisticsDetailController extends Controller
                 case 'total-students':
                     $statisticsData = $this->statisticsService->getStudentsStatistics();
                     return $statisticsData->toArray();
-                    
+
                 case 'total-formations':
                     return $this->getFormationsDetails();
-                    
+
                 case 'total-projects':
                     return $this->getProjectsDetails();
-                    
+
                 case 'tp':
                 case 'total-tp':
                     return $this->getTpDetails();
-                    
+
                 case 'total-articles':
                     return $this->getArticlesDetails();
-                    
+
                 case 'total-resources':
                     return $this->getResourcesDetails();
-                    
+
                 case 'total-certificates':
                     return $this->getCertificatesDetails();
-                    
+
                 case 'total-documents':
                     return $this->getDocumentsDetails();
-                    
+
                 case 'total-admins':
                     return $this->adminService->getAdminsStatistics();
-                    
+
                 default:
                     Log::warning("Type de statistique non supporté: {$statType}");
                     return null;
@@ -126,10 +126,10 @@ class AdminStatisticsDetailController extends Controller
             return null;
         }
     }
-    
+
     // Méthode getStudentsDetails supprimée - remplacée par StatisticsService
     // Architecture Laravel propre avec injection de dépendance
-    
+
     /**
      * Détails des formations
      */
@@ -169,7 +169,7 @@ class AdminStatisticsDetailController extends Controller
                 'modules' => 7
             ]
         ];
-        
+
         return [
             'title' => 'Détails des Formations',
             'icon' => 'fas fa-graduation-cap',
@@ -192,7 +192,7 @@ class AdminStatisticsDetailController extends Controller
             ]
         ];
     }
-    
+
     /**
      * Détails des projets
      */
@@ -202,7 +202,7 @@ class AdminStatisticsDetailController extends Controller
             $totalProjects = DB::table('projects')->count();
             $completedProjects = DB::table('projects')->where('status', 'validate')->count();
             $pendingProjects = DB::table('projects')->where('status', 'pending')->count();
-            
+
             return [
                 'title' => 'Détails des Projets',
                 'icon' => 'fas fa-project-diagram',
@@ -227,7 +227,7 @@ class AdminStatisticsDetailController extends Controller
             return $this->getFallbackData('total-projects');
         }
     }
-    
+
     /**
      * Détails des TP
      */
@@ -237,7 +237,7 @@ class AdminStatisticsDetailController extends Controller
             $totalTp = DB::table('tp')->count();
             $validatedTp = DB::table('tp')->where('status', 'validated')->count();
             $pendingTp = DB::table('tp')->where('status', 'pending')->count();
-            
+
             return [
                 'title' => 'Détails des Travaux Pratiques',
                 'icon' => 'fas fa-tasks',
@@ -262,7 +262,7 @@ class AdminStatisticsDetailController extends Controller
             return $this->getFallbackData('total-tp');
         }
     }
-    
+
     /**
      * Détails des articles
      */
@@ -289,7 +289,7 @@ class AdminStatisticsDetailController extends Controller
             ]
         ];
     }
-    
+
     /**
      * Détails des ressources
      */
@@ -316,7 +316,7 @@ class AdminStatisticsDetailController extends Controller
             ]
         ];
     }
-    
+
     /**
      * Détails des certificats
      */
@@ -343,7 +343,7 @@ class AdminStatisticsDetailController extends Controller
             ]
         ];
     }
-    
+
     /**
      * Détails des documents
      */
@@ -370,7 +370,7 @@ class AdminStatisticsDetailController extends Controller
             ]
         ];
     }
-    
+
     /**
      * Détails des administrateurs
      */
@@ -410,25 +410,37 @@ class AdminStatisticsDetailController extends Controller
                 ->orderBy('role')
                 ->orderBy('name')
                 ->get();
-            
+
             // Grouper les admins par rôle
             $adminsByRole = [
                 'super_admin' => $admins->where('role', 'super_admin'),
+                'manager' => $admins->where('role', 'manager'),
                 'assistant' => $admins->where('role', 'assistant'),
                 'comptable' => $admins->where('role', 'comptable'),
             ];
-            
+
             // Définir les permissions pour chaque rôle
             $permissions = [
                 'super_admin' => [
                     'label' => 'Super Admin',
                     'description' => 'Accès complet à toutes les fonctionnalités',
                     'access' => [
-                        'Dashboard', 'Formations', 'Pré-inscriptions', 'Étudiants', 'Évènements', 
-                        'Actualités', 'Bibliothèque', 'TP', 'Projets', 'Paiements', 
+                        'Dashboard', 'Formations', 'Pré-inscriptions', 'Étudiants', 'Évènements',
+                        'Actualités', 'Bibliothèque', 'TP', 'Projets', 'Paiements',
                         'Rapports', 'Statistiques', 'Gestion des Admins'
                     ],
                     'color' => '#1e3c72',
+                ],
+                'manager' => [
+                    'label' => 'Manager',
+                    'description' => 'Accès complet sauf comptabilité et paiements',
+                    'access' => [
+                        'Dashboard', 'Formations', 'Pré-inscriptions', 'Étudiants', 'Évènements',
+                        'Actualités', 'Bibliothèque', 'TP', 'Projets', 'Badges', 'Certificats',
+                        'CVthèque', 'Rapports', 'Statistiques', 'WebTV', 'Plaquettes',
+                        'Partenariats', 'Communiqués', 'Dons', 'Candidatures'
+                    ],
+                    'color' => '#f59e0b',
                 ],
                 'assistant' => [
                     'label' => 'Assistant',
@@ -449,19 +461,20 @@ class AdminStatisticsDetailController extends Controller
                     'color' => '#9c27b0',
                 ],
             ];
-            
+
             $stats = [
                 'total_admins' => $admins->count(),
                 'total_super_admins' => $adminsByRole['super_admin']->count(),
+                'total_managers' => $adminsByRole['manager']->count(),
                 'total_assistants' => $adminsByRole['assistant']->count(),
                 'total_comptables' => $adminsByRole['comptable']->count(),
             ];
-            
+
             return view('admin.statistics.total-admins', compact('adminsByRole', 'permissions', 'stats'));
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur dans totalAdmins: ' . $e->getMessage());
-            
+
             return redirect()->route('admin.dashboard')
                 ->with('error', 'Erreur lors du chargement des administrateurs');
         }
@@ -474,7 +487,7 @@ class AdminStatisticsDetailController extends Controller
     {
         // Initialiser toutes les statistiques avec des valeurs par défaut
         $stats = [];
-        
+
         // Statistiques des étudiants par formation
         try {
             $stats['students_design_graphique'] = DB::table('pre_registrations')
@@ -483,7 +496,7 @@ class AdminStatisticsDetailController extends Controller
         } catch (\Exception $e) {
             $stats['students_design_graphique'] = 0;
         }
-        
+
         try {
             $stats['students_community_management'] = DB::table('pre_registrations')
                 ->where('choix_formation', 'community_management')
@@ -491,7 +504,7 @@ class AdminStatisticsDetailController extends Controller
         } catch (\Exception $e) {
             $stats['students_community_management'] = 0;
         }
-        
+
         try {
             $stats['students_gestion_informatique'] = DB::table('pre_registrations')
                 ->where('choix_formation', 'gestion_informatique')
@@ -499,7 +512,7 @@ class AdminStatisticsDetailController extends Controller
         } catch (\Exception $e) {
             $stats['students_gestion_informatique'] = 0;
         }
-        
+
         try {
             $stats['students_intelligence_artificielle'] = DB::table('pre_registrations')
                 ->where('choix_formation', 'intelligence_artificielle')
@@ -507,81 +520,81 @@ class AdminStatisticsDetailController extends Controller
         } catch (\Exception $e) {
             $stats['students_intelligence_artificielle'] = 0;
         }
-        
+
         // Bibliothèque
         try {
             $stats['total_bibliotheque_documents'] = DB::table('libraries')->count();
         } catch (\Exception $e) {
             $stats['total_bibliotheque_documents'] = 0;
         }
-        
+
         // Événements
         try {
             $stats['total_events'] = DB::table('events')->count();
         } catch (\Exception $e) {
             $stats['total_events'] = 0;
         }
-        
+
         // Actualités
         try {
             $stats['total_actualites'] = DB::table('actualites')->count();
         } catch (\Exception $e) {
             $stats['total_actualites'] = 0;
         }
-        
+
         // Paiements
         try {
             $stats['total_payments'] = DB::table('payments')->count();
         } catch (\Exception $e) {
             $stats['total_payments'] = 0;
         }
-        
+
         // Rapports
         try {
             $stats['total_reports'] = DB::table('reports')->count();
         } catch (\Exception $e) {
             $stats['total_reports'] = 0;
         }
-        
+
         // Pré-inscriptions
         try {
             $stats['total_pre_inscriptions'] = DB::table('pre_registrations')->count();
         } catch (\Exception $e) {
             $stats['total_pre_inscriptions'] = 0;
         }
-        
+
         // Admins
         try {
             $stats['total_admins'] = DB::table('users')->where('role', 'admin')->count();
         } catch (\Exception $e) {
             $stats['total_admins'] = 0;
         }
-        
+
         // Autres statistiques
         try {
             $stats['total_students'] = DB::table('users')->where('role', 'student')->count();
         } catch (\Exception $e) {
             $stats['total_students'] = 0;
         }
-        
+
         try {
             $stats['total_formations'] = DB::table('formations')->count();
         } catch (\Exception $e) {
             $stats['total_formations'] = 0;
         }
-        
+
         try {
             $stats['total_projects'] = DB::table('projects')->count();
         } catch (\Exception $e) {
             $stats['total_projects'] = 0;
         }
-        
+
         try {
             $stats['total_tp'] = DB::table('tp')->count();
         } catch (\Exception $e) {
             $stats['total_tp'] = 0;
         }
-        
+
         return view('admin.statistics.all', compact('stats'));
     }
 
@@ -721,7 +734,7 @@ class AdminStatisticsDetailController extends Controller
                 'description' => 'Analyse des travaux pratiques'
             ]
         ];
-        
+
         return $fallbackData[$statType] ?? null;
     }
 }

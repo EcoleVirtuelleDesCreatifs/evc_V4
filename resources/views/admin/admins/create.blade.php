@@ -215,6 +215,12 @@
         border: 1px solid rgba(59, 130, 246, 0.3);
     }
 
+    .role-badge.manager {
+        background: rgba(245, 158, 11, 0.1);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
     .role-badge.comptable {
         background: rgba(34, 197, 94, 0.1);
         color: #22c55e;
@@ -440,6 +446,7 @@
                                 required>
                             <option value="">Sélectionnez un rôle</option>
                             <option value="super_admin" {{ old('role') == 'super_admin' ? 'selected' : '' }}>Super Admin - Accès complet</option>
+                            <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Manager - Tout sauf comptabilité</option>
                             <option value="assistant" {{ old('role') == 'assistant' ? 'selected' : '' }}>Assistant - Gestion quotidienne</option>
                             <option value="comptable" {{ old('role') == 'comptable' ? 'selected' : '' }}>Comptable - Gestion financière</option>
                         </select>
@@ -551,6 +558,14 @@ document.addEventListener('DOMContentLoaded', function() {
             'Sauvegarde et restauration des données',
             'Consultation des logs système',
             'Gestion de la sécurité'
+        ],
+        'manager': [
+            'Accès complet sauf comptabilité et paiements',
+            'Gestion des formations et étudiants',
+            'Gestion des projets, TP et badges',
+            'Certificats, CVthèque et rapports',
+            'Communication, WebTV et plaquettes',
+            'Partenariats, dons et candidatures'
         ],
         'assistant': [
             'Gestion des étudiants et inscriptions',

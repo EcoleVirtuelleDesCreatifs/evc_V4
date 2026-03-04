@@ -136,6 +136,13 @@
             </div>
         </div>
         <div class="col-md-3">
+            <div class="stats-card text-center" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                <i class="fas fa-user-shield fa-3x mb-3" style="opacity: 0.8; color: white;"></i>
+                <h2 class="stat-number">{{ $stats['total_managers'] ?? 0 }}</h2>
+                <p class="text-white mb-0">Managers</p>
+            </div>
+        </div>
+        <div class="col-md-3">
             <div class="stats-card text-center" style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);">
                 <i class="fas fa-user-tie fa-3x mb-3" style="opacity: 0.8; color: white;"></i>
                 <h2 class="stat-number">{{ $stats['total_assistants'] }}</h2>
@@ -151,7 +158,7 @@
         </div>
     </div>
 
-    @foreach(['super_admin', 'assistant', 'comptable'] as $roleKey)
+    @foreach(['super_admin', 'manager', 'assistant', 'comptable'] as $roleKey)
         @if($adminsByRole[$roleKey]->count() > 0)
         <div class="role-section">
             <div class="role-header text-white" style="background: linear-gradient(135deg, {{ $permissions[$roleKey]['color'] }} 0%, {{ $permissions[$roleKey]['color'] }}dd 100%);">
@@ -214,8 +221,8 @@
                             </div>
                             @if(session('admin_role') === 'super_admin')
                             <div class="ms-3">
-                                <a href="{{ route('admin.admins.edit', $admin->id) }}" 
-                                   class="btn btn-sm btn-warning mb-2" 
+                                <a href="{{ route('admin.admins.edit', $admin->id) }}"
+                                   class="btn btn-sm btn-warning mb-2"
                                    style="background: linear-gradient(45deg, #ffc107, #ff9800); border: none; padding: 0.4rem 0.8rem; border-radius: 8px; width: 100%;">
                                     <i class="fas fa-edit me-1"></i>Modifier
                                 </a>
@@ -223,8 +230,8 @@
                                 <form action="{{ route('admin.admins.destroy', $admin->id) }}" method="POST" class="d-inline" onsubmit="return confirm('\u00cates-vous s\u00fbr de vouloir supprimer cet administrateur ?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" 
-                                            class="btn btn-sm btn-danger" 
+                                    <button type="submit"
+                                            class="btn btn-sm btn-danger"
                                             style="background: linear-gradient(45deg, #dc3545, #c82333); border: none; padding: 0.4rem 0.8rem; border-radius: 8px; width: 100%;">
                                         <i class="fas fa-trash me-1"></i>Supprimer
                                     </button>

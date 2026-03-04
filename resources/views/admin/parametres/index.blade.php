@@ -473,6 +473,8 @@
                         <strong style="color: white;">Rôle :</strong>
                         @if($admin->role === 'super_admin')
                             <span style="color: #f97316;">Super Administrateur</span>
+                        @elseif($admin->role === 'manager')
+                            <span style="color: #f59e0b;">Manager</span>
                         @elseif($admin->role === 'assistant')
                             <span style="color: #3b82f6;">Assistant</span>
                         @elseif($admin->role === 'comptable')

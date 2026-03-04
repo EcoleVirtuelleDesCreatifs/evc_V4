@@ -36,7 +36,7 @@ class AdminManagementController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:admins,email',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:super_admin,assistant,comptable',
+            'role' => 'required|in:super_admin,manager,assistant,comptable',
             'bio' => 'nullable|string|max:500',
             'phone' => 'nullable|string|max:20',
         ], [
@@ -146,7 +146,7 @@ class AdminManagementController extends Controller
                 'email',
                 Rule::unique('admins', 'email')->ignore($id)
             ],
-            'role' => 'required|in:super_admin,assistant,comptable',
+            'role' => 'required|in:super_admin,manager,assistant,comptable',
             'bio' => 'nullable|string|max:500',
             'phone' => 'nullable|string|max:20',
             'is_active' => 'required|boolean',
@@ -262,6 +262,17 @@ class AdminManagementController extends Controller
                     'Rapports', 'Statistiques', 'Gestion des Admins'
                 ],
                 'color' => '#1e3c72',
+            ],
+            'manager' => [
+                'label' => 'Manager',
+                'description' => 'Accès complet sauf comptabilité et paiements',
+                'access' => [
+                    'Dashboard', 'Formations', 'Pré-inscriptions', 'Étudiants', 'Évènements',
+                    'Actualités', 'Bibliothèque', 'TP', 'Projets', 'Badges', 'Certificats',
+                    'CVthèque', 'Rapports', 'Statistiques', 'WebTV', 'Plaquettes',
+                    'Partenariats', 'Communiqués', 'Dons', 'Candidatures'
+                ],
+                'color' => '#f59e0b',
             ],
             'assistant' => [
                 'label' => 'Assistant',

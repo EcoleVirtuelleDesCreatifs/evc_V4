@@ -13,7 +13,7 @@ class AdminService
 {
     /**
      * Récupérer les statistiques des administrateurs
-     * 
+     *
      * @return array
      */
     public function getAdminsStatistics(): array
@@ -22,7 +22,7 @@ class AdminService
             $totalAdmins = $this->getTotalAdmins();
             $activeAdmins = $this->getActiveAdmins();
             $newThisMonth = $this->getNewAdminsThisMonth();
-            
+
             return [
                 'main_kpi' => $totalAdmins,
                 'growth' => $this->calculateGrowthPercentage($totalAdmins, $newThisMonth),
@@ -31,29 +31,29 @@ class AdminService
                 'active_admins' => $activeAdmins,
                 'new_this_month' => $newThisMonth
             ];
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur dans getAdminsStatistics: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             return $this->getFallbackAdminStatistics();
         }
     }
-    
+
     /**
      * Récupérer le nombre total d'administrateurs
-     * 
+     *
      * @return int
      */
     private function getTotalAdmins(): int
     {
         return (int) DB::table('admins')->count();
     }
-    
+
     /**
      * Récupérer le nombre d'administrateurs actifs
-     * 
+     *
      * @return int
      */
     private function getActiveAdmins(): int
@@ -62,10 +62,10 @@ class AdminService
             ->where('status', 'active')
             ->count();
     }
-    
+
     /**
      * Récupérer le nombre de nouveaux administrateurs ce mois
-     * 
+     *
      * @return int
      */
     private function getNewAdminsThisMonth(): int
@@ -75,10 +75,10 @@ class AdminService
             ->whereYear('created_at', date('Y'))
             ->count();
     }
-    
+
     /**
      * Calculer le pourcentage de croissance
-     * 
+     *
      * @param int $totalAdmins
      * @param int $newThisMonth
      * @return float
@@ -88,14 +88,14 @@ class AdminService
         if ($totalAdmins <= 0 || $newThisMonth <= 0) {
             return 0.0;
         }
-        
+
         $previousTotal = max($totalAdmins - $newThisMonth, 1);
         return round(($newThisMonth / $previousTotal) * 100, 1);
     }
-    
+
     /**
      * Récupérer les rôles d'administrateurs
-     * 
+     *
      * @return array
      */
     private function getAdminRoles(): array
@@ -115,6 +115,12 @@ class AdminService
                     'icon' => 'user-cog'
                 ],
                 [
+                    'name' => 'Manager',
+                    'role_field' => 'manager',
+                    'color' => 'warning',
+                    'icon' => 'user-shield'
+                ],
+                [
                     'name' => 'Modérateur',
                     'role_field' => 'moderator',
                     'color' => 'info',
@@ -127,12 +133,12 @@ class AdminService
                     'icon' => 'headset'
                 ]
             ];
-            
+
             return array_map(function ($role) {
                 $count = $this->getRoleCount($role['role_field']);
                 $totalAdmins = $this->getTotalAdmins();
                 $percentage = $totalAdmins > 0 ? round(($count / $totalAdmins) * 100, 1) : 0.0;
-                
+
                 return [
                     'name' => $role['name'],
                     'count' => $count,
@@ -141,16 +147,16 @@ class AdminService
                     'icon' => $role['icon']
                 ];
             }, $roles);
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur dans getAdminRoles: ' . $e->getMessage());
             return $this->getFallbackAdminRoles();
         }
     }
-    
+
     /**
      * Récupérer le nombre d'administrateurs pour un rôle
-     * 
+     *
      * @param string $role
      * @return int
      */
@@ -160,10 +166,10 @@ class AdminService
             ->where('role', $role)
             ->count();
     }
-    
+
     /**
      * Données de fallback pour les statistiques d'administration
-     * 
+     *
      * @return array
      */
     private function getFallbackAdminStatistics(): array
@@ -177,10 +183,10 @@ class AdminService
             'new_this_month' => 2
         ];
     }
-    
+
     /**
      * Rôles d'administration de fallback
-     * 
+     *
      * @return array
      */
     private function getFallbackAdminRoles(): array
@@ -199,6 +205,13 @@ class AdminService
                 'percentage' => 33.3,
                 'color' => 'warning',
                 'icon' => 'user-cog'
+            ],
+            [
+                'name' => 'Manager',
+                'count' => 0,
+                'percentage' => 0,
+                'color' => 'warning',
+                'icon' => 'user-shield'
             ],
             [
                 'name' => 'Modérateur',
