@@ -1274,6 +1274,14 @@
                 </div>
             </div>
 
+            <!-- Évaluation Certification -->
+            <div class="nav-item">
+                <a href="{{ route('certification.index') }}" class="nav-link {{ request()->routeIs('certification.*') ? 'active' : '' }}">
+                    <i class="fas fa-award"></i>
+                    <span>Évaluation Certification</span>
+                </a>
+            </div>
+
             <!-- Mon Profil (avec sous-menus) -->
             <div class="nav-item-dropdown">
                 <div class="nav-link-dropdown {{ request()->routeIs($formationPrefix . '.parametres.*') || request()->routeIs($formationPrefix . '.documents.*') || request()->routeIs($formationPrefix . '.cvtheque.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)">
