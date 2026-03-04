@@ -67,6 +67,115 @@
         margin-top: 0.75rem;
     }
 
+    /* Zero Projects Panel */
+    .zero-tp-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        user-select: none;
+        padding: 0.85rem 1.25rem;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.04));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        transition: all 0.3s ease;
+        margin-bottom: 0;
+    }
+    .zero-tp-toggle:hover {
+        border-color: rgba(239, 68, 68, 0.6);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(239, 68, 68, 0.08));
+    }
+    .zero-tp-toggle .form-check-input {
+        width: 1.15em; height: 1.15em;
+        cursor: pointer;
+    }
+    .zero-tp-toggle .form-check-input:checked {
+        background-color: #ef4444;
+        border-color: #ef4444;
+    }
+    .zero-tp-toggle-label {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--form-text, #e2e8f0);
+    }
+    .zero-tp-toggle-count {
+        margin-left: auto;
+        background: #ef4444;
+        color: #fff;
+        font-weight: 800;
+        font-size: 0.8rem;
+        padding: 0.2rem 0.65rem;
+        border-radius: 999px;
+    }
+    .zero-tp-panel {
+        background: var(--form-surface, #1a1f2e);
+        border: 1px solid var(--form-border, #2d3548);
+        border-radius: 14px;
+        max-height: 420px;
+        overflow-y: auto;
+        margin-top: 0.75rem;
+    }
+    .zero-tp-panel .zero-tp-item {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.7rem 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        transition: background 0.15s;
+    }
+    .zero-tp-panel .zero-tp-item:last-child { border-bottom: none; }
+    .zero-tp-panel .zero-tp-item:hover { background: rgba(255,255,255,0.03); }
+    .zero-tp-photo {
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255,255,255,0.1);
+        flex-shrink: 0;
+    }
+    .zero-tp-photo-placeholder {
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #334155, #475569);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.85rem; color: #94a3b8;
+        flex-shrink: 0;
+    }
+    .zero-tp-info { flex: 1; min-width: 0; }
+    .zero-tp-name {
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: var(--form-text, #e2e8f0);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .zero-tp-email {
+        font-size: 0.78rem;
+        color: var(--form-text-muted, #94a3b8);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .zero-tp-badge {
+        font-size: 0.72rem;
+        font-weight: 700;
+        padding: 0.2rem 0.55rem;
+        border-radius: 6px;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+    .zero-tp-search {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        color: var(--form-text, #e2e8f0);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        width: 100%;
+    }
+    .zero-tp-search::placeholder { color: #64748b; }
+    .zero-tp-search:focus {
+        outline: none;
+        border-color: rgba(239, 68, 68, 0.5);
+        background: rgba(255,255,255,0.08);
+    }
+
     /* Recipients Info */
     .recipients-info {
         background: rgba(56, 189, 248, 0.1);
@@ -212,6 +321,61 @@
                     <i class="fas fa-user-check"></i>
                     <span>Étudiants actifs</span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel : Étudiants avec 0 TP/Projet -->
+    <div class="mb-4">
+        <label class="zero-tp-toggle" for="zeroTpCheckbox">
+            <input class="form-check-input" type="checkbox" id="zeroTpCheckbox">
+            <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i>
+            <span class="zero-tp-toggle-label">Étudiants avec 0 TP / Projet</span>
+            <span class="zero-tp-toggle-count">{{ $stats['zero_projects'] ?? 0 }}</span>
+        </label>
+
+        <div id="zeroTpPanel" style="display: none;">
+            <div class="zero-tp-panel">
+                <div style="padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <input type="text" class="zero-tp-search" id="zeroTpSearch" placeholder="Rechercher un étudiant...">
+                </div>
+
+                @if(isset($studentsWithoutProjects) && $studentsWithoutProjects->count() > 0)
+                    @foreach($studentsWithoutProjects as $stu)
+                        @php
+                            $initials = strtoupper(mb_substr($stu->first_name ?? '', 0, 1) . mb_substr($stu->last_name ?? '', 0, 1));
+                            $photoUrl = null;
+                            if (!empty($stu->profile_photo)) {
+                                $photoUrl = asset('storage/' . $stu->profile_photo);
+                            }
+                            $badgeColor = match ($stu->program_normalized ?? '') {
+                                'Design Graphique' => 'background:#1e3c72;color:#fff;',
+                                'Community Management' => 'background:#0891b2;color:#fff;',
+                                'Design Graphique & Community Management' => 'background:#833AB4;color:#fff;',
+                                'Gestion Informatique' => 'background:#d97706;color:#fff;',
+                                'Intelligence Artificielle' => 'background:#0d9488;color:#fff;',
+                                default => 'background:#475569;color:#fff;',
+                            };
+                        @endphp
+                        <div class="zero-tp-item" data-name="{{ strtolower(($stu->first_name ?? '') . ' ' . ($stu->last_name ?? '')) }}" data-formation="{{ strtolower($stu->program_normalized ?? '') }}">
+                            @if($photoUrl)
+                                <img src="{{ $photoUrl }}" alt="" class="zero-tp-photo">
+                            @else
+                                <div class="zero-tp-photo-placeholder">{{ $initials ?: '?' }}</div>
+                            @endif
+                            <div class="zero-tp-info">
+                                <div class="zero-tp-name">{{ $stu->first_name }} {{ $stu->last_name }}</div>
+                                <div class="zero-tp-email">{{ $stu->email ?? '—' }}</div>
+                            </div>
+                            <span class="zero-tp-badge" style="{{ $badgeColor }}">{{ $stu->program_normalized ?? 'N/A' }}</span>
+                        </div>
+                    @endforeach
+                @else
+                    <div style="padding: 2rem; text-align: center; color: #64748b;">
+                        <i class="fas fa-check-circle" style="font-size: 1.5rem; color: #22c55e;"></i>
+                        <div style="margin-top: 0.5rem; font-weight: 600;">Tous les étudiants ont au moins un projet</div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -650,6 +814,31 @@ function updateRecipientsCount() {
             recipientsCount.textContent = `Étudiants des formations sélectionnées (${total} étudiants)`;
         }
     }
+}
+
+// Toggle panel "0 TP/Projet"
+const zeroTpCheckbox = document.getElementById('zeroTpCheckbox');
+const zeroTpPanel = document.getElementById('zeroTpPanel');
+const zeroTpSearch = document.getElementById('zeroTpSearch');
+
+if (zeroTpCheckbox && zeroTpPanel) {
+    zeroTpCheckbox.addEventListener('change', function() {
+        zeroTpPanel.style.display = this.checked ? 'block' : 'none';
+        if (this.checked && zeroTpSearch) {
+            setTimeout(() => zeroTpSearch.focus(), 100);
+        }
+    });
+}
+
+if (zeroTpSearch) {
+    zeroTpSearch.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        document.querySelectorAll('#zeroTpPanel .zero-tp-item').forEach(item => {
+            const name = item.getAttribute('data-name') || '';
+            const formation = item.getAttribute('data-formation') || '';
+            item.style.display = (q === '' || name.includes(q) || formation.includes(q)) ? 'flex' : 'none';
+        });
+    });
 }
 
 // Validation du formulaire

@@ -5985,6 +5985,19 @@ class AdminDashboardController extends Controller
         // Récupérer tous les étudiants pour la liste
         $all_students = $students;
 
+        // Compter les projets par user_id
+        $projectCountsByUserId = DB::table('projects')
+            ->selectRaw('user_id, COUNT(*) as project_count')
+            ->groupBy('user_id')
+            ->pluck('project_count', 'user_id');
+
+        $students = $students->map(function ($student) use ($projectCountsByUserId) {
+            $userId = (int) ($student->user_id ?? 0);
+            $student->project_count = $userId > 0 ? (int) ($projectCountsByUserId[$userId] ?? 0) : 0;
+            $student->has_projects = $student->project_count > 0;
+            return $student;
+        });
+
         $studentsWithoutProjects = $students
             ->filter(fn($s) => empty($s->has_projects))
             ->values();
@@ -5992,6 +6005,8 @@ class AdminDashboardController extends Controller
         $studentsWithProjects = $students
             ->filter(fn($s) => !empty($s->has_projects))
             ->values();
+
+        $stats['zero_projects'] = $studentsWithoutProjects->count();
 
         return view('admin.projets.to-send', [
             'students' => $students,
