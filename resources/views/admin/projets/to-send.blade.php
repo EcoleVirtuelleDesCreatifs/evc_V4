@@ -893,19 +893,20 @@ function updateZeroTpSelectionCount() {
 
 function syncZeroTpToStudentsSelect() {
     const checkedIds = Array.from(document.querySelectorAll('.zero-tp-student-check:checked')).map(cb => cb.value);
+    const allZeroTpIds = Array.from(document.querySelectorAll('.zero-tp-student-check')).map(cb => cb.value);
     const studentsSel = document.getElementById('students');
     if (!studentsSel) return;
 
-    // Show the students select container when items are checked
+    // Show/hide the students select container
     const container = document.getElementById('studentsSelectContainer');
-    if (container && checkedIds.length > 0) {
-        container.style.display = 'block';
+    if (container) {
+        container.style.display = checkedIds.length > 0 ? 'block' : 'none';
     }
 
-    // Sync selections
+    // Sync: select checked, deselect unchecked (only for 0 TP students)
     Array.from(studentsSel.options).forEach(opt => {
-        if (checkedIds.includes(opt.value)) {
-            opt.selected = true;
+        if (allZeroTpIds.includes(opt.value)) {
+            opt.selected = checkedIds.includes(opt.value);
         }
     });
     updateRecipientsCount();

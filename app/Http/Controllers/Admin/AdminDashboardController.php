@@ -6362,7 +6362,11 @@ class AdminDashboardController extends Controller
                         $formationSlug = 'design-graphique';
                         if (!empty($student->program)) {
                             $prog = strtolower((string) $student->program);
-                            if (str_contains($prog, 'community')) {
+                            $containsDesign = str_contains($prog, 'design');
+                            $containsCommunity = str_contains($prog, 'community');
+                            if ($containsDesign && $containsCommunity) {
+                                $formationSlug = 'design-graphique-community-manager';
+                            } elseif ($containsCommunity) {
                                 $formationSlug = 'community-management';
                             } elseif (str_contains($prog, 'informatique')) {
                                 $formationSlug = 'gestion-informatique';
@@ -6431,7 +6435,11 @@ class AdminDashboardController extends Controller
                         $formationSlug = 'design-graphique';
                         if (!empty($student->program)) {
                             $prog = strtolower((string) $student->program);
-                            if (str_contains($prog, 'community')) {
+                            $containsDesign = str_contains($prog, 'design');
+                            $containsCommunity = str_contains($prog, 'community');
+                            if ($containsDesign && $containsCommunity) {
+                                $formationSlug = 'design-graphique-community-manager';
+                            } elseif ($containsCommunity) {
                                 $formationSlug = 'community-management';
                             } elseif (str_contains($prog, 'informatique')) {
                                 $formationSlug = 'gestion-informatique';
