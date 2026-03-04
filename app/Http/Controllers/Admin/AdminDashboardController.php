@@ -5978,6 +5978,27 @@ class AdminDashboardController extends Controller
         // Récupérer tous les étudiants pour la liste
         $all_students = $students;
 
+        // DEBUG: Vérifier l'étudiant ID 19
+        $student19 = $students->firstWhere('id', 19);
+        if ($student19) {
+            Log::info('DEBUG student 19 TROUVÉ dans la liste', [
+                'id' => $student19->id,
+                'status' => $student19->status ?? 'NULL',
+                'user_id' => $student19->user_id ?? 'NULL',
+                'program' => $student19->program ?? 'NULL',
+                'first_name' => $student19->first_name ?? '',
+                'last_name' => $student19->last_name ?? '',
+            ]);
+        } else {
+            // Chercher directement en base
+            $raw19 = DB::table('students')->where('id', 19)->first();
+            Log::warning('DEBUG student 19 NON TROUVÉ dans la liste filtrée', [
+                'exists_in_db' => $raw19 ? true : false,
+                'db_status' => $raw19->status ?? 'NULL',
+                'db_user_id' => $raw19->user_id ?? 'NULL',
+            ]);
+        }
+
         // Compter les TP soumis/validés par student_id (travail réellement effectué)
         $tpCountsByStudentId = DB::table('tp_assignments')
             ->whereIn('status', ['submitted', 'pending', 'validated'])
@@ -6000,6 +6021,17 @@ class AdminDashboardController extends Controller
             $student->has_projects = $student->project_count > 0;
             return $student;
         });
+
+        // DEBUG: Vérifier student 19 après comptage projets
+        $s19after = $students->firstWhere('id', 19);
+        if ($s19after) {
+            Log::info('DEBUG student 19 APRÈS comptage', [
+                'tp_count' => $s19after->tp_count,
+                'project_count' => $s19after->project_count,
+                'has_projects' => $s19after->has_projects,
+                'user_id' => $s19after->user_id ?? 'NULL',
+            ]);
+        }
 
         $studentsWithoutProjects = $students
             ->filter(fn($s) => empty($s->has_projects))
