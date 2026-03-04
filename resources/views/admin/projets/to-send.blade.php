@@ -344,10 +344,7 @@
                     @foreach($studentsWithoutProjects as $stu)
                         @php
                             $initials = strtoupper(mb_substr($stu->first_name ?? '', 0, 1) . mb_substr($stu->last_name ?? '', 0, 1));
-                            $photoUrl = null;
-                            if (!empty($stu->profile_photo)) {
-                                $photoUrl = asset('storage/' . $stu->profile_photo);
-                            }
+                            $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($stu->profile_photo ?? null);
                             $badgeColor = match ($stu->program_normalized ?? '') {
                                 'Design Graphique' => 'background:#1e3c72;color:#fff;',
                                 'Community Management' => 'background:#0891b2;color:#fff;',
@@ -358,11 +355,8 @@
                             };
                         @endphp
                         <div class="zero-tp-item" data-name="{{ strtolower(($stu->first_name ?? '') . ' ' . ($stu->last_name ?? '')) }}" data-formation="{{ strtolower($stu->program_normalized ?? '') }}">
-                            @if($photoUrl)
-                                <img src="{{ $photoUrl }}" alt="" class="zero-tp-photo">
-                            @else
-                                <div class="zero-tp-photo-placeholder">{{ $initials ?: '?' }}</div>
-                            @endif
+                            <img src="{{ $photoUrl }}" alt="{{ ($stu->first_name ?? '') . ' ' . ($stu->last_name ?? '') }}" class="zero-tp-photo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                            <div class="zero-tp-photo-placeholder" style="display:none;">{{ $initials ?: '?' }}</div>
                             <div class="zero-tp-info">
                                 <div class="zero-tp-name">{{ $stu->first_name }} {{ $stu->last_name }}</div>
                                 <div class="zero-tp-email">{{ $stu->email ?? '—' }}</div>
