@@ -8,6 +8,7 @@
     .form-card { background: linear-gradient(145deg, #1e293b, #334155); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin-bottom: 1.5rem; }
     .form-control, .form-select { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 10px; }
     .form-control:focus, .form-select:focus { background: rgba(255,255,255,0.08); border-color: #6366f1; color: #fff; box-shadow: 0 0 0 3px rgba(99,102,241,0.2); }
+    .form-control::placeholder, .search-students::placeholder { color: #94a3b8; opacity: 1; }
     .form-label { color: #cbd5e1; font-weight: 500; }
     textarea.form-control { min-height: 100px; }
 
