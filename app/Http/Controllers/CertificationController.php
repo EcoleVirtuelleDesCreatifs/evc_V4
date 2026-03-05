@@ -39,6 +39,7 @@ class CertificationController extends Controller
                         });
                 });
             })
+            ->where('is_active', true)
             ->where(function ($q) {
                 // Certification publiée ou programmée dont la date est passée
                 $q->where('status', 'published')
@@ -105,6 +106,7 @@ class CertificationController extends Controller
         if (!$student) return redirect()->back()->with('error', 'Profil introuvable.');
         $certification = DB::table('certifications')->where('id', $id)->first();
         if (!$certification) return redirect()->back()->with('error', 'Certification introuvable.');
+        if (!$certification->is_active) return redirect()->back()->with('error', 'Certification inactive.');
         $attempt = DB::table('certification_attempts')->where('certification_id', $id)->where('student_id', $student->id)->where('status', 'in_progress')->first();
         if (!$attempt) return redirect()->back()->with('error', 'Aucune tentative en cours.');
         $finishedAt = Carbon::parse($attempt->finished_at);
