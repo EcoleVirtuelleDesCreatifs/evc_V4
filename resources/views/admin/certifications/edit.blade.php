@@ -13,12 +13,12 @@
     .btn-save { background: linear-gradient(45deg, #10b981, #059669); border: none; padding: 0.75rem 2rem; border-radius: 12px; color: #fff; font-weight: 600; }
     .btn-save:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(16,185,129,0.4); color: #fff; }
     .student-list { max-height: 340px; overflow-y: auto; }
-    .student-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem; border-radius: 10px; margin-bottom: 4px; cursor: pointer; transition: all 0.2s; }
+    .student-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem; border-radius: 10px; margin-bottom: 4px; cursor: pointer; transition: all 0.2s; color: #e2e8f0; }
     .student-item:hover { background: rgba(99,102,241,0.1); }
     .student-item.selected { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); }
     .student-item input[type=checkbox] { accent-color: #10b981; width: 18px; height: 18px; cursor: pointer; }
-    .student-name { color: #e2e8f0; font-weight: 500; font-size: 0.9rem; }
-    .student-meta { color: #94a3b8; font-size: 0.75rem; }
+    .student-name { color: #e2e8f0 !important; font-weight: 500; font-size: 0.9rem; }
+    .student-meta { color: #94a3b8 !important; font-size: 0.75rem; }
     .student-badge { background: rgba(99,102,241,0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
     .search-students { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 10px; padding: 0.5rem 1rem; width: 100%; margin-bottom: 0.75rem; }
     .search-students:focus { outline: none; border-color: #6366f1; }
