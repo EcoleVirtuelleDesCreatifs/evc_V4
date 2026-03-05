@@ -32,7 +32,7 @@
 </div>
 <div style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #2563eb;border-radius:12px;padding:1.25rem;margin:1.5rem 0;">
 <h3 style="color:#1a3a6b;margin:0 0 0.5rem;">📖 Message du formateur</h3>
-<p style="color:#374151;line-height:1.7;">{!! $instructions !!}</p>
+<div style="color:#374151;line-height:1.7;">{!! $instructions !!}</div>
 </div>
 <div style="text-align:center;margin:2rem 0;">
 <a href="{{ $certUrl }}" style="display:inline-block;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;padding:0.9rem 2.5rem;border-radius:30px;text-decoration:none;font-weight:700;font-size:1rem;box-shadow:0 4px 15px rgba(249,115,22,0.4);">Accéder à mes certifications</a>

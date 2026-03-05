@@ -702,8 +702,8 @@ class CertificationAdminController extends Controller
             }
 
             $instructions = $certification->instructions
-                ? nl2br(e($certification->instructions))
-                : 'Aucune consigne spécifique.';
+                ? $certification->instructions
+                : '<p>Aucune consigne spécifique.</p>';
 
             $formation = $student->program ?? 'votre formation';
             $certUrl = url('/evc/compte/certifications');
