@@ -2,6 +2,8 @@
 
 @section('title', 'Examen de certification')
 
+@section('page-title', 'Évaluation Certification')
+
 @section('content')
 <style>
     .cert-page-header {
@@ -71,11 +73,6 @@
 </style>
 
 <div class="container-fluid">
-    <div class="cert-page-header">
-        <h2 class="mb-1"><i class="fas fa-certificate me-2"></i>Examen de certification</h2>
-        <p class="mb-0 opacity-75">Accédez à votre évaluation finale en fin de parcours</p>
-    </div>
-
     @if(session('error'))
         <div class="alert alert-danger alert-dismissible fade show"><i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
     @endif
