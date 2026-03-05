@@ -3,7 +3,7 @@
 @section('title', 'Modifier - ' . $certification->title)
 
 @push('styles')
-<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.css" rel="stylesheet">
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <style>
     .page-header { background: linear-gradient(135deg, #1e3c72, #2a5298); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
     .form-card { background: linear-gradient(145deg, #1e293b, #334155); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin-bottom: 1.5rem; }
@@ -47,7 +47,15 @@
     .add-option-btn { background: none; border: 1px dashed rgba(255,255,255,0.2); color: #94a3b8; border-radius: 8px; padding: 0.4rem 1rem; font-size: 0.85rem; cursor: pointer; }
     .add-option-btn:hover { border-color: #6366f1; color: #6366f1; }
     textarea.form-control { min-height: 80px; }
-    .note-editor.note-frame { border-color: rgba(255,255,255,0.15); }
+
+    #quill-cert-description, #quill-cert-instructions { height: 220px; }
+    #quill-add-question { height: 180px; }
+    .ql-toolbar.ql-snow { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px 10px 0 0; }
+    .ql-container.ql-snow { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); border-top: none; border-radius: 0 0 10px 10px; color: #fff; }
+    .ql-snow .ql-stroke { stroke: #cbd5e1; }
+    .ql-snow .ql-fill { fill: #cbd5e1; }
+    .ql-snow .ql-picker { color: #cbd5e1; }
+    .ql-editor { color: #fff; }
 </style>
 @endpush
 
@@ -79,7 +87,7 @@
     <div class="tab-content">
         <!-- TAB: Paramètres -->
         <div class="tab-pane fade show active" id="tab-settings">
-            <form action="{{ route('admin.certifications.update', $certification->id) }}" method="POST">
+            <form action="{{ route('admin.certifications.update', $certification->id) }}" method="POST" id="certSettingsForm">
                 @csrf @method('PUT')
                 <div class="row">
                     <div class="col-lg-8">
@@ -91,11 +99,13 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea class="form-control" name="description" rows="3">{{ old('description', $certification->description) }}</textarea>
+                                <div id="quill-cert-description">{!! old('description', $certification->description) !!}</div>
+                                <input type="hidden" name="description" id="cert_description_hidden">
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Consignes</label>
-                                <textarea class="form-control" name="instructions" rows="4">{{ old('instructions', $certification->instructions) }}</textarea>
+                                <div id="quill-cert-instructions">{!! old('instructions', $certification->instructions) !!}</div>
+                                <input type="hidden" name="instructions" id="cert_instructions_hidden">
                             </div>
                         </div>
 
@@ -182,7 +192,7 @@
                         <span class="text-white-50 ms-2">{{ $q->points }} pt{{ $q->points > 1 ? 's' : '' }}</span>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#editQ{{ $q->id }}"><i class="fas fa-edit"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#editQ{{ $q->id }}"><i class="fas fa-edit"></i></button>
                         <form action="{{ route('admin.certifications.questions.destroy', [$certification->id, $q->id]) }}" method="POST" onsubmit="return confirm('Supprimer cette question ?')">
                             @csrf @method('DELETE')
                             <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
@@ -209,7 +219,12 @@
                     <form action="{{ route('admin.certifications.questions.update', $q->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf @method('PUT')
                         <div class="mb-2">
-                            <textarea class="form-control" name="question_text" rows="2">{{ $q->question_text }}</textarea>
+                            @if($q->type === 'redaction')
+                                <div id="quill-edit-question-{{ $q->id }}" class="quill-edit-question" data-hidden="edit_question_hidden_{{ $q->id }}">{!! old('question_text', $q->question_text) !!}</div>
+                                <input type="hidden" name="question_text" id="edit_question_hidden_{{ $q->id }}">
+                            @else
+                                <textarea class="form-control" name="question_text" rows="2">{{ $q->question_text }}</textarea>
+                            @endif
                         </div>
                         <div class="row mb-2">
                             <div class="col-4">
@@ -259,7 +274,9 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Question <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="question_text" rows="3" required placeholder="Saisissez la question..."></textarea>
+                        <textarea class="form-control" name="question_text" id="add_question_text" rows="3" required placeholder="Saisissez la question..."></textarea>
+                        <div id="quill-add-question" style="display:none;"></div>
+                        <input type="hidden" id="add_question_text_hidden" name="question_text">
                     </div>
                     <div id="optionsContainer">
                         <label class="form-label">Options de réponse</label>
@@ -329,36 +346,82 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-fr-FR.min.js"></script>
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
-function initCertificationEditors() {
-    if (typeof $ === 'undefined' || typeof $.fn.summernote === 'undefined') return;
+function initCertificationQuills() {
+    if (typeof Quill === 'undefined') return;
 
-    $('textarea').each(function () {
-        const $ta = $(this);
-        if ($ta.data('summernote')) return;
+    const toolbar = [['bold','italic','underline'], [{'list':'ordered'},{'list':'bullet'}], ['link'], ['clean']];
 
-        $ta.summernote({
-            height: 180,
-            lang: 'fr-FR',
-            disableDragAndDrop: true,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'italic', 'underline', 'clear']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link']],
-                ['view', ['fullscreen', 'codeview']]
-            ]
-        });
+    const descEl = document.getElementById('quill-cert-description');
+    if (descEl && !descEl.dataset.inited) {
+        const q = new Quill('#quill-cert-description', { theme: 'snow', modules: { toolbar } });
+        descEl.dataset.inited = '1';
+        const sync = () => { const h = document.getElementById('cert_description_hidden'); if (h) h.value = q.root.innerHTML; };
+        q.on('text-change', sync);
+        sync();
+    }
+
+    const instEl = document.getElementById('quill-cert-instructions');
+    if (instEl && !instEl.dataset.inited) {
+        const q = new Quill('#quill-cert-instructions', { theme: 'snow', modules: { toolbar } });
+        instEl.dataset.inited = '1';
+        const sync = () => { const h = document.getElementById('cert_instructions_hidden'); if (h) h.value = q.root.innerHTML; };
+        q.on('text-change', sync);
+        sync();
+    }
+
+    const addEl = document.getElementById('quill-add-question');
+    if (addEl && !addEl.dataset.inited) {
+        const q = new Quill('#quill-add-question', { theme: 'snow', modules: { toolbar } });
+        addEl.dataset.inited = '1';
+        const sync = () => { const h = document.getElementById('add_question_text_hidden'); if (h) h.value = q.root.innerHTML; };
+        q.on('text-change', sync);
+        sync();
+    }
+
+
+    document.querySelectorAll('.quill-edit-question').forEach(el => {
+        if (el.dataset.inited) return;
+        const id = el.getAttribute('id');
+        const hiddenId = el.getAttribute('data-hidden');
+        if (!id || !hiddenId) return;
+        const q = new Quill('#' + id, { theme: 'snow', modules: { toolbar } });
+        el.dataset.inited = '1';
+        const sync = () => { const h = document.getElementById(hiddenId); if (h) h.value = q.root.innerHTML; };
+        q.on('text-change', sync);
+        sync();
     });
+
 }
+
 
 function toggleOptionsUI() {
     const type = document.getElementById('questionType').value;
     document.getElementById('optionsContainer').style.display = type === 'qcm' ? 'block' : 'none';
     document.querySelectorAll('#optionsContainer input[type=text]').forEach(i => i.required = type === 'qcm');
-    initCertificationEditors();
+
+    const ta = document.getElementById('add_question_text');
+    const quill = document.getElementById('quill-add-question');
+    const hidden = document.getElementById('add_question_text_hidden');
+
+    if (ta && quill && hidden) {
+        if (type === 'redaction') {
+            ta.style.display = 'none';
+            ta.required = false;
+            ta.name = '';
+            hidden.name = 'question_text';
+            quill.style.display = '';
+            initCertificationQuills();
+            ta.value = hidden.value || '';
+        } else {
+            quill.style.display = 'none';
+            ta.style.display = '';
+            ta.required = true;
+            ta.name = 'question_text';
+            hidden.name = '';
+        }
+    }
 }
 
 function updateSelectedCount() {
@@ -397,16 +460,28 @@ function filterStudents() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('addQuestionForm')?.addEventListener('submit', function() {
+        const type = document.getElementById('questionType')?.value;
+        if (type === 'redaction') {
+            initCertificationQuills();
+            const ta = document.getElementById('add_question_text');
+            const hidden = document.getElementById('add_question_text_hidden');
+            if (ta && hidden) ta.value = hidden.value || '';
+        }
+    });
+    document.getElementById('certSettingsForm')?.addEventListener('submit', function() {
+        initCertificationQuills();
+    });
     updateSelectedCount();
-    initCertificationEditors();
+    initCertificationQuills();
     toggleOptionsUI();
 
     document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(el => {
-        el.addEventListener('shown.bs.tab', () => initCertificationEditors());
+        el.addEventListener('shown.bs.tab', () => initCertificationQuills());
     });
 
     document.querySelectorAll('.collapse').forEach(el => {
-        el.addEventListener('shown.bs.collapse', () => initCertificationEditors());
+        el.addEventListener('shown.bs.collapse', () => initCertificationQuills());
     });
 });
 

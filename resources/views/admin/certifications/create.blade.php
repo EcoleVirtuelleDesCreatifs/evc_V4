@@ -3,7 +3,7 @@
 @section('title', 'Nouvelle Certification')
 
 @push('styles')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.css">
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <style>
     .page-header { background: linear-gradient(135deg, #1e3c72, #2a5298); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
     .form-card { background: linear-gradient(145deg, #1e293b, #334155); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin-bottom: 1.5rem; }
@@ -12,7 +12,14 @@
     .form-control::placeholder, .search-students::placeholder { color: #94a3b8; opacity: 1; }
     .form-label { color: #cbd5e1; font-weight: 500; }
     textarea.form-control { min-height: 100px; }
-    .note-editor.note-frame .note-editing-area .note-editable { background: rgba(255,255,255,0.03); color: #fff; }
+
+    #quill-description, #quill-instructions { height: 220px; }
+    .ql-toolbar.ql-snow { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px 10px 0 0; }
+    .ql-container.ql-snow { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); border-top: none; border-radius: 0 0 10px 10px; color: #fff; }
+    .ql-snow .ql-stroke { stroke: #cbd5e1; }
+    .ql-snow .ql-fill { fill: #cbd5e1; }
+    .ql-snow .ql-picker { color: #cbd5e1; }
+    .ql-editor { color: #fff; }
 
     .btn-publish { background: linear-gradient(45deg, #10b981, #059669); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: #fff; font-weight: 600; }
     .btn-publish:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(16,185,129,0.4); color: #fff; }
@@ -69,11 +76,13 @@
                     </div>
                     <div class="mb-3">
                         <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Description de la certification...">{{ old('description') }}</textarea>
+                        <div id="quill-description">{!! old('description') !!}</div>
+                        <input type="hidden" id="description" name="description">
                     </div>
                     <div class="mb-3">
                         <label for="instructions" class="form-label">Consignes pour l'étudiant</label>
-                        <textarea class="form-control" id="instructions" name="instructions" rows="4" placeholder="Instructions affichées avant le début du test...">{{ old('instructions') }}</textarea>
+                        <div id="quill-instructions">{!! old('instructions') !!}</div>
+                        <input type="hidden" id="instructions" name="instructions">
                     </div>
                 </div>
 
@@ -175,34 +184,29 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-fr-FR.min.js"></script>
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
 <script>
-function initCertificationCreateEditors() {
-    if (typeof $ === 'undefined' || typeof $.fn.summernote === 'undefined') return;
+const quillDescription = new Quill('#quill-description', {
+    theme: 'snow',
+    modules: { toolbar: [['bold','italic','underline'], [{'list':'ordered'},{'list':'bullet'}], ['link'], ['clean']] }
+});
+const quillInstructions = new Quill('#quill-instructions', {
+    theme: 'snow',
+    modules: { toolbar: [['bold','italic','underline'], [{'list':'ordered'},{'list':'bullet'}], ['link'], ['clean']] }
+});
 
-    $('textarea').each(function () {
-        const $ta = $(this);
-        if ($ta.data('summernote')) return;
-
-        $ta.summernote({
-            height: 180,
-            lang: 'fr-FR',
-            disableDragAndDrop: true,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'italic', 'underline', 'clear']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link']],
-                ['view', ['fullscreen', 'codeview']]
-            ]
-        });
-    });
+function syncQuillCreateFields() {
+    const desc = document.getElementById('description');
+    const inst = document.getElementById('instructions');
+    if (desc) desc.value = quillDescription.root.innerHTML;
+    if (inst) inst.value = quillInstructions.root.innerHTML;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    initCertificationCreateEditors();
-});
+quillDescription.on('text-change', syncQuillCreateFields);
+quillInstructions.on('text-change', syncQuillCreateFields);
+document.getElementById('certForm')?.addEventListener('submit', function() { syncQuillCreateFields(); });
+syncQuillCreateFields();
+
 function updateCount() {
     const checked = document.querySelectorAll('#studentList input[type=checkbox]:checked').length;
     document.getElementById('selectedCount').textContent = '(' + checked + ' sélectionné' + (checked > 1 ? 's' : '') + ')';
