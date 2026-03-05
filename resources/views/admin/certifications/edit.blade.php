@@ -335,7 +335,15 @@
                         </div>
                         <div class="d-flex align-items-center gap-3">
                             <span class="status-badge status-{{ $att->status }}">
-                                {{ $att->status_label }}
+                                @php
+                                    $statusLabel = match($att->status) {
+                                        'in_progress' => 'En cours',
+                                        'submitted' => 'Soumis',
+                                        'graded' => 'Corrigé',
+                                        default => ucfirst(str_replace('_', ' ', (string) $att->status)),
+                                    };
+                                @endphp
+                                {{ $statusLabel }}
                             </span>
                             @if($att->score !== null)
                                 <span class="text-white fw-bold">{{ $att->score_percentage ?? '—' }}%</span>
