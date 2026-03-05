@@ -66,7 +66,7 @@
     }
     .info-pill i { margin-right: 6px; color: #6366f1; }
     .btn-begin {
-        background: linear-gradient(45deg, #10b981, #059669);
+        background: linear-gradient(45deg, #f97316, #ea580c);
         border: none;
         padding: 1rem 3rem;
         border-radius: 14px;
@@ -78,7 +78,7 @@
     }
     .btn-begin:hover {
         transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(16,185,129,0.4);
+        box-shadow: 0 8px 25px rgba(249,115,22,0.45);
     }
     .btn-cancel {
         color: #94a3b8;
@@ -109,7 +109,7 @@
         <div class="rules-box">
             <h6><i class="fas fa-exclamation-triangle me-2"></i>Règles importantes</h6>
             <ul>
-                <li>Le décompte commence dès que vous cliquez sur <strong>"Commencer le test"</strong>.</li>
+                <li>Le décompte commence dès que vous cliquez sur <strong>"Je démarre ma certification"</strong>.</li>
                 <li>Vous disposez de <strong>{{ $certification->duration_minutes }} minutes</strong> pour terminer.</li>
                 <li>Le test ne peut être passé qu'<strong>une seule fois</strong>. Aucun recommencement possible.</li>
                 <li>Si le temps expire, vos réponses sont <strong>soumises automatiquement</strong>.</li>
@@ -128,7 +128,7 @@
         <form action="{{ route('certification.confirm', $certification->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir commencer ? Le décompte démarrera immédiatement et vous ne pourrez pas recommencer.')">
             @csrf
             <button type="submit" class="btn-begin">
-                <i class="fas fa-play me-2"></i>Commencer le test
+                <i class="fas fa-play me-2"></i>Je démarre ma certification
             </button>
         </form>
 
