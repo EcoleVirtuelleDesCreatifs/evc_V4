@@ -401,6 +401,10 @@
         padding: 1rem 1.5rem;
         margin-bottom: 1.5rem;
     }
+
+    .tp-details-description{background:#f8f9fa;padding:1.5rem;border-radius:12px;line-height:1.85;color:#111827;word-break:break-word;white-space:normal;}
+    .tp-details-description .tp-details-heading{margin:0.25rem 0 0.6rem;font-weight:900;letter-spacing:.04em;color:#0f172a;}
+    .tp-details-description .tp-details-line{margin:0 0 0.7rem;color:#111827;}
 </style>
 @endpush
 
@@ -901,7 +905,21 @@ function showDetails(tpId) {
     function toPlainText(html) {
         const tmp = document.createElement('div');
         tmp.innerHTML = html || '';
-        const text = (tmp.textContent || tmp.innerText || '').trim();
+
+        // Convertir les <br> en retours ligne pour éviter que tout soit collé
+        tmp.querySelectorAll('br').forEach((br) => br.replaceWith("\n"));
+
+        // Ajouter des retours ligne après certains blocs
+        tmp.querySelectorAll('p,div,li,h1,h2,h3,h4').forEach((el) => {
+            el.insertAdjacentText('beforeend', "\n");
+        });
+
+        const text = (tmp.textContent || tmp.innerText || '')
+            .replace(/\u00a0/g, ' ')
+            .replace(/[ \t]+/g, ' ')
+            .replace(/\n\s*\n\s*\n+/g, "\n\n")
+            .trim();
+
         return text;
     }
 
@@ -961,9 +979,9 @@ function showDetails(tpId) {
         const htmlLines = lines.map((line) => {
             const upper = line.toUpperCase();
             if (headings.includes(upper)) {
-                return `<div style="margin: 0.25rem 0 0.5rem; font-weight: 900; letter-spacing: 0.04em; color: #0f172a;">${escapeHtml(upper)}</div>`;
+                return `<div class="tp-details-heading">${escapeHtml(upper)}</div>`;
             }
-            return `<div style="margin: 0 0 0.6rem; color:#111827;">${escapeHtml(line)}</div>`;
+            return `<div class="tp-details-line">${escapeHtml(line)}</div>`;
         });
 
         return htmlLines.join('');
@@ -1037,7 +1055,7 @@ function showDetails(tpId) {
             <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
                 <i class="fas fa-align-left me-2"></i>Description
             </h4>
-            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 12px; line-height: 1.8; color: #111827;">
+            <div class="tp-details-description">
                 ${formatDescription(tp.description)}
             </div>
         </div>
