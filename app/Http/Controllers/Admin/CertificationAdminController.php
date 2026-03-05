@@ -207,8 +207,12 @@ class CertificationAdminController extends Controller
             ->toArray();
 
         return view('admin.certifications.edit', compact(
-            'certification', 'formations', 'questions', 'attempts',
-            'eligibleStudents', 'assignedStudentIds'
+            'certification',
+            'formations',
+            'questions',
+            'attempts',
+            'eligibleStudents',
+            'assignedStudentIds'
         ));
     }
 
@@ -217,6 +221,11 @@ class CertificationAdminController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $current = DB::table('certifications')->where('id', $id)->first();
+        if (!$current) {
+            return back()->with('error', 'Certification introuvable.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -232,9 +241,18 @@ class CertificationAdminController extends Controller
             'student_ids.*' => 'integer|exists:students,id',
         ]);
 
-        $status = $validated['status'] ?? 'draft';
+        $status = $validated['status'] ?? ($current->status ?? 'draft');
         $isActive = $request->boolean('is_active');
         $scheduledAt = $validated['scheduled_at'] ?? null;
+
+        if (!array_key_exists('status', $validated) || $validated['status'] === null) {
+            if ($isActive && $status === 'draft') {
+                $status = 'published';
+            }
+            if (!$isActive) {
+                $status = 'draft';
+            }
+        }
 
         if ($status === 'published') {
             $isActive = true;
@@ -628,8 +646,8 @@ class CertificationAdminController extends Controller
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->where(function ($q) {
                 $q->where('students.status', 'active')
-                  ->orWhereNull('students.status')
-                  ->orWhere('students.status', '');
+                    ->orWhereNull('students.status')
+                    ->orWhere('students.status', '');
             })
             ->select('students.*', 'users.email')
             ->get();
@@ -692,8 +710,13 @@ class CertificationAdminController extends Controller
             $passingScore = $certification->passing_score;
 
             $htmlBody = view('emails.certification_notification', compact(
-                'studentName', 'formation', 'scheduledInfo', 'duration',
-                'passingScore', 'instructions', 'certUrl'
+                'studentName',
+                'formation',
+                'scheduledInfo',
+                'duration',
+                'passingScore',
+                'instructions',
+                'certUrl'
             ))->render();
 
             Mail::send([], [], function ($message) use ($student, $certification, $htmlBody) {
