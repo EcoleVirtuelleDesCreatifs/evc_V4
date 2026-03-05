@@ -201,13 +201,7 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <div class="d-flex gap-1 flex-wrap">
-                                                    @if(($project['status'] ?? null) === 'pending')
-                                                        <a href="{{ \Illuminate\Support\Facades\Route::has($todoTraiterRouteName) ? route($todoTraiterRouteName, $project['id']) : route('design-graphique.todo.traiter', $project['id']) }}" class="btn btn-sm btn-primary" title="Traiter">
-                                                            <i class="fas fa-upload"></i>
-                                                        </a>
-                                                    @endif
-                                                </div>
+                                                <div class="text-muted">-</div>
                                             </td>
                                         </tr>
                                     @endforeach

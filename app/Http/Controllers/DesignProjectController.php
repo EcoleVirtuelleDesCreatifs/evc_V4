@@ -105,14 +105,13 @@ class DesignProjectController extends Controller
                 if ($student && Schema::hasTable('tp_assignments')) {
                     $tpRows = DB::table('tp_assignments')
                         ->where('student_id', $student->id)
-                        ->whereIn('status', ['assigned', 'submitted', 'validated', 'rejected'])
+                        ->whereIn('status', ['submitted', 'validated', 'rejected'])
                         ->orderByDesc('created_at')
                         ->limit(500)
                         ->get();
                 }
 
                 $tpStatusMap = [
-                    'assigned' => 'pending',
                     'submitted' => 'pending',
                     'validated' => 'validated',
                     'rejected' => 'rejected',
@@ -135,14 +134,13 @@ class DesignProjectController extends Controller
                 if (Schema::hasTable('projects')) {
                     $projectRows = DB::table('projects')
                         ->where('user_id', $userId)
-                        ->whereIn('status', ['en_cours', 'termine', 'valide', 'rejete'])
+                        ->whereIn('status', ['termine', 'valide', 'rejete'])
                         ->orderByDesc('created_at')
                         ->limit(500)
                         ->get();
                 }
 
                 $projectStatusMap = [
-                    'en_cours' => 'pending',
                     'termine' => 'pending',
                     'valide' => 'validated',
                     'rejete' => 'rejected',
