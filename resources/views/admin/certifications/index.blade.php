@@ -99,7 +99,7 @@
                         @endif
                     </div>
                     @if($cert->description)
-                        <p class="text-white-50 mb-2">{{ Str::limit($cert->description, 120) }}</p>
+                        <p class="text-white-50 mb-2">{{ Str::limit(strip_tags($cert->description), 120) }}</p>
                     @endif
                     <div class="d-flex gap-3" style="font-size: 0.85rem; color: #94a3b8;">
                         <span><i class="fas fa-clock me-1"></i>{{ $cert->duration_minutes }} min</span>

@@ -125,7 +125,7 @@
                         <span class="cert-status {{ $statusClass }}">{{ $cert->status_label }}</span>
                     </div>
                     @if($cert->description)
-                        <p class="text-white-50 mb-1">{{ Str::limit($cert->description, 150) }}</p>
+                        <p class="text-white-50 mb-1">{{ Str::limit(strip_tags($cert->description), 150) }}</p>
                     @endif
                     <div class="cert-info">
                         <span><i class="fas fa-clock"></i>{{ $cert->duration_minutes }} minutes</span>
