@@ -79,7 +79,6 @@ class DesignProjectController extends Controller
             ]);
         }
     }
-
     public function historique()
     {
         if (!$this->isAuthenticated()) {
@@ -96,9 +95,88 @@ class DesignProjectController extends Controller
 
             $allowedStatuses = ['pending', 'validated', 'rejected'];
 
-            $designProjects = [];
-            if (!$isCommunityFormation) {
-                $projects = $this->designProjectService->getUserProjects($userId, [
+            $projects = [];
+            $stats = [];
+
+            if ($isCommunityFormation || $isDesignGraphiqueCmFormation) {
+                $student = DB::table('students')->where('user_id', $userId)->first();
+
+                $tpRows = collect();
+                if ($student && Schema::hasTable('tp_assignments')) {
+                    $tpRows = DB::table('tp_assignments')
+                        ->where('student_id', $student->id)
+                        ->whereIn('status', ['assigned', 'submitted', 'validated', 'rejected'])
+                        ->orderByDesc('created_at')
+                        ->limit(500)
+                        ->get();
+                }
+
+                $tpStatusMap = [
+                    'assigned' => 'pending',
+                    'submitted' => 'pending',
+                    'validated' => 'validated',
+                    'rejected' => 'rejected',
+                ];
+
+                $tpItems = $tpRows->map(function ($tp) use ($tpStatusMap) {
+                    return [
+                        'id' => (int) ($tp->id ?? 0),
+                        'title' => (string) ($tp->title ?? ''),
+                        'description' => (string) ($tp->description ?? ''),
+                        'category' => 'tp',
+                        'project_type' => 'TP',
+                        'status' => $tpStatusMap[$tp->status ?? 'assigned'] ?? 'pending',
+                        'created_at' => $tp->created_at ?? null,
+                        'files' => [],
+                    ];
+                });
+
+                $projectRows = collect();
+                if (Schema::hasTable('projects')) {
+                    $projectRows = DB::table('projects')
+                        ->where('user_id', $userId)
+                        ->whereIn('status', ['en_cours', 'termine', 'valide', 'rejete'])
+                        ->orderByDesc('created_at')
+                        ->limit(500)
+                        ->get();
+                }
+
+                $projectStatusMap = [
+                    'en_cours' => 'pending',
+                    'termine' => 'pending',
+                    'valide' => 'validated',
+                    'rejete' => 'rejected',
+                ];
+
+                $projectItems = $projectRows->map(function ($p) use ($projectStatusMap) {
+                    return [
+                        'id' => (int) ($p->id ?? 0),
+                        'title' => (string) ($p->title ?? ''),
+                        'description' => (string) ($p->description ?? ''),
+                        'category' => (string) (($p->category ?? '') ?: 'projet'),
+                        'project_type' => 'Projet',
+                        'status' => $projectStatusMap[$p->status ?? 'en_cours'] ?? 'pending',
+                        'created_at' => $p->created_at ?? null,
+                        'files' => [],
+                    ];
+                });
+
+                $projects = $tpItems
+                    ->concat($projectItems)
+                    ->filter(function ($item) use ($allowedStatuses) {
+                        return in_array(($item['status'] ?? null), $allowedStatuses, true);
+                    })
+                    ->sortByDesc(function ($item) {
+                        return !empty($item['created_at']) ? strtotime((string) $item['created_at']) : 0;
+                    })
+                    ->values()
+                    ->all();
+
+                $stats = [
+                    'total_projects' => count($projects),
+                ];
+            } else {
+                $designProjects = $this->designProjectService->getUserProjects($userId, [
                     'limit' => 500,
                 ]);
 
@@ -110,7 +188,7 @@ class DesignProjectController extends Controller
                     'cancelled' => 'rejected',
                 ];
 
-                $designProjects = collect($projects)
+                $projects = collect($designProjects)
                     ->map(function ($project) use ($designStatusMap) {
                         $srcStatus = (string) ($project['status'] ?? '');
                         $project['status'] = $designStatusMap[$srcStatus] ?? null;
@@ -121,54 +199,6 @@ class DesignProjectController extends Controller
                     })
                     ->values()
                     ->all();
-
-                $projects = $designProjects;
-            }
-
-            if (($isCommunityFormation || $isDesignGraphiqueCmFormation) && Schema::hasTable('projects')) {
-                $rows = DB::table('projects')
-                    ->where('user_id', $userId)
-                    ->whereIn('status', ['en_cours', 'termine', 'valide', 'rejete'])
-                    ->orderByDesc('created_at')
-                    ->limit(500)
-                    ->get();
-
-                $statusMap = [
-                    'en_cours' => 'pending',
-                    'termine' => 'pending',
-                    'valide' => 'validated',
-                    'rejete' => 'rejected',
-                ];
-
-                $laravelProjects = $rows->map(function ($p) use ($statusMap) {
-                    return [
-                        'id' => (int) ($p->id ?? 0),
-                        'title' => (string) ($p->title ?? ''),
-                        'description' => (string) ($p->description ?? ''),
-                        'category' => (string) (($p->category ?? '') ?: 'solo'),
-                        'project_type' => (string) (($p->category ?? '') ?: '-'),
-                        'status' => $statusMap[$p->status ?? 'en_cours'] ?? 'pending',
-                        'created_at' => $p->created_at ?? null,
-                        'files' => [],
-                    ];
-                })
-                ->filter(function ($project) use ($allowedStatuses) {
-                    return in_array(($project['status'] ?? null), $allowedStatuses, true);
-                })
-                ->values()
-                ->all();
-
-                if ($isDesignGraphiqueCmFormation) {
-                    $projects = array_merge($designProjects, $laravelProjects);
-                } else {
-                    $projects = $laravelProjects;
-                }
-
-                usort($projects, function ($a, $b) {
-                    $aTs = !empty($a['created_at']) ? strtotime((string) $a['created_at']) : 0;
-                    $bTs = !empty($b['created_at']) ? strtotime((string) $b['created_at']) : 0;
-                    return $bTs <=> $aTs;
-                });
 
                 $stats = $stats ?? [];
                 $stats['total_projects'] = count($projects);
@@ -186,6 +216,7 @@ class DesignProjectController extends Controller
                 ->with('error', 'Erreur lors du chargement de l\'historique des projets.');
         }
     }
+
 
     /**
      * Traite la création d'un nouveau projet

@@ -15,6 +15,7 @@
         $projectsShowRouteName = $formationPrefix . '.projets.show';
         $projectsEditRouteName = $formationPrefix . '.projets.edit';
         $projectsDestroyRouteName = $formationPrefix . '.projets.destroy';
+        $todoTraiterRouteName = $formationPrefix . '.todo.traiter';
     @endphp
 
     <div class="row mb-4">
@@ -25,7 +26,7 @@
                         <i class="fas fa-history me-2"></i>
                         Historiques Projet
                     </h2>
-                    <p class="text-white-50 mb-0">Tous vos projets : en cours de validation, validés et rejetés</p>
+                    <p class="text-white-50 mb-0">Tous vos TP/Projets : en cours de validation, validés et rejetés</p>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
                     <a href="{{ \Illuminate\Support\Facades\Route::has($projectsIndexRouteName) ? route($projectsIndexRouteName) : route('design-graphique.projets.index') }}" class="btn btn-outline-light" style="border-radius: 12px; font-weight: 800;">
@@ -93,7 +94,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <h5 class="mb-0" style="font-weight: 900;">
                         <i class="fas fa-list me-2"></i>
-                        Tableau des projets
+                        Tableau des TP/Projets
                         <span class="badge bg-light text-dark ms-2">{{ is_array($projects ?? null) ? count($projects) : 0 }}</span>
                     </h5>
                 </div>
@@ -126,6 +127,8 @@
 
                                             $category = $project['category'] ?? '';
                                             $categoryMap = [
+                                                'tp' => ['label' => 'TP', 'class' => 'bg-primary', 'icon' => 'fa-file-alt'],
+                                                'projet' => ['label' => 'Projet', 'class' => 'bg-info', 'icon' => 'fa-folder'],
                                                 'solo' => ['label' => 'Solo', 'class' => 'bg-primary', 'icon' => 'fa-user'],
                                                 'groupe' => ['label' => 'Groupe', 'class' => 'bg-info', 'icon' => 'fa-users'],
                                             ];
@@ -199,22 +202,10 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex gap-1 flex-wrap">
-                                                    <a href="{{ \Illuminate\Support\Facades\Route::has($projectsShowRouteName) ? route($projectsShowRouteName, $project['id']) : route('design-graphique.projets.show', $project['id']) }}" class="btn btn-sm btn-success" title="Voir">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-
                                                     @if(($project['status'] ?? null) === 'pending')
-                                                        <a href="{{ \Illuminate\Support\Facades\Route::has($projectsEditRouteName) ? route($projectsEditRouteName, $project['id']) : route('design-graphique.projets.edit', $project['id']) }}" class="btn btn-sm btn-primary" title="Modifier">
-                                                            <i class="fas fa-edit"></i>
+                                                        <a href="{{ \Illuminate\Support\Facades\Route::has($todoTraiterRouteName) ? route($todoTraiterRouteName, $project['id']) : route('design-graphique.todo.traiter', $project['id']) }}" class="btn btn-sm btn-primary" title="Traiter">
+                                                            <i class="fas fa-upload"></i>
                                                         </a>
-
-                                                        <form action="{{ \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName) ? route($projectsDestroyRouteName, $project['id']) : route('design-graphique.projets.destroy', $project['id']) }}" method="POST" class="d-inline" onsubmit="return confirmDeleteProject();">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </form>
                                                     @endif
                                                 </div>
                                             </td>
@@ -226,7 +217,7 @@
                     @else
                         <div class="text-center py-5">
                             <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Aucun projet dans l'historique</h5>
+                            <h5 class="text-muted">Aucun TP/Projet dans l'historique</h5>
                             <p class="text-muted mb-0">Les projets apparaîtront ici une fois soumis (validation) ou traités.</p>
                         </div>
                     @endif
