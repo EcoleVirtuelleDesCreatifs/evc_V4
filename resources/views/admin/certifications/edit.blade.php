@@ -177,11 +177,11 @@
                         <span class="q-type-badge {{ $q->type === 'qcm' ? 'q-type-qcm' : 'q-type-redaction' }}">
                             {{ $q->type === 'qcm' ? 'QCM' : 'Rédaction' }}
                         </span>
-                        <span class="text-muted ms-2">{{ $q->points }} pt{{ $q->points > 1 ? 's' : '' }}</span>
+                        <span class="text-white-50 ms-2">{{ $q->points }} pt{{ $q->points > 1 ? 's' : '' }}</span>
                     </div>
                     <div class="d-flex gap-2">
                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#editQ{{ $q->id }}"><i class="fas fa-edit"></i></button>
-                        <form action="{{ route('admin.certifications.questions.destroy', $q->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer cette question ?')">
+                        <form action="{{ route('admin.certifications.questions.destroy', [$certification->id, $q->id]) }}" method="POST" onsubmit="return confirm('Supprimer cette question ?')">
                             @csrf @method('DELETE')
                             <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
                         </form>
@@ -297,12 +297,12 @@
                     <div class="attempt-row">
                         <div>
                             <strong class="text-white">{{ $att->first_name }} {{ $att->last_name }}</strong>
-                            <span class="text-muted ms-2">{{ $att->email }}</span>
-                            <span class="text-muted ms-2">{{ $att->program }}</span>
+                            <span class="text-white-50 ms-2">{{ $att->email }}</span>
+                            <span class="text-white-50 ms-2">{{ $att->program }}</span>
                         </div>
                         <div class="d-flex align-items-center gap-3">
                             <span class="status-badge status-{{ $att->status }}">
-                                {{ $att->status === 'in_progress' ? 'En cours' : ($att->status === 'submitted' ? 'À noter' : 'Noté') }}
+                                {{ $att->status_label }}
                             </span>
                             @if($att->score !== null)
                                 <span class="text-white fw-bold">{{ $att->score_percentage ?? '—' }}%</span>
