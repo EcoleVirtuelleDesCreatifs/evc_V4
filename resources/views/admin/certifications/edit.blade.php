@@ -12,6 +12,21 @@
     .form-label { color: #cbd5e1; font-weight: 500; }
     .btn-save { background: linear-gradient(45deg, #10b981, #059669); border: none; padding: 0.75rem 2rem; border-radius: 12px; color: #fff; font-weight: 600; }
     .btn-save:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(16,185,129,0.4); color: #fff; }
+    .student-list { max-height: 340px; overflow-y: auto; }
+    .student-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem; border-radius: 10px; margin-bottom: 4px; cursor: pointer; transition: all 0.2s; }
+    .student-item:hover { background: rgba(99,102,241,0.1); }
+    .student-item.selected { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); }
+    .student-item input[type=checkbox] { accent-color: #10b981; width: 18px; height: 18px; cursor: pointer; }
+    .student-name { color: #e2e8f0; font-weight: 500; font-size: 0.9rem; }
+    .student-meta { color: #94a3b8; font-size: 0.75rem; }
+    .student-badge { background: rgba(99,102,241,0.2); color: #818cf8; padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; }
+    .search-students { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 10px; padding: 0.5rem 1rem; width: 100%; margin-bottom: 0.75rem; }
+    .search-students:focus { outline: none; border-color: #6366f1; }
+    .search-students::placeholder { color: #94a3b8; opacity: 1; }
+    .select-actions { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .select-actions button { background: none; border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; padding: 3px 10px; border-radius: 8px; font-size: 0.75rem; cursor: pointer; }
+    .select-actions button:hover { border-color: #6366f1; color: #fff; }
+    .selected-count { color: #10b981; font-weight: 600; font-size: 0.85rem; }
     .question-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
     .question-card:hover { border-color: rgba(99,102,241,0.3); }
     .q-type-badge { display: inline-block; padding: 3px 10px; border-radius: 15px; font-size: 0.7rem; font-weight: 600; }
@@ -80,6 +95,40 @@
                                 <label class="form-label">Consignes</label>
                                 <textarea class="form-control" name="instructions" rows="4">{{ old('instructions', $certification->instructions) }}</textarea>
                             </div>
+                        </div>
+
+                        <div class="form-card">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="text-white mb-0"><i class="fas fa-user-check me-2"></i>Étudiants cibles</h5>
+                                <span class="selected-count" id="selectedCount">0 sélectionné(s)</span>
+                            </div>
+
+                            <input type="text" class="search-students" id="studentSearch" placeholder="Rechercher un étudiant par nom, prénom ou formation..." onkeyup="filterStudents()">
+
+                            <div class="select-actions">
+                                <button type="button" onclick="selectAllStudents()"><i class="fas fa-check-square me-1"></i>Tout sélectionner</button>
+                                <button type="button" onclick="deselectAllStudents()"><i class="fas fa-square me-1"></i>Tout désélectionner</button>
+                            </div>
+
+                            <div class="student-list" id="studentList">
+                                @foreach($eligibleStudents as $student)
+                                    @php
+                                        $checked = in_array($student->id, $assignedStudentIds ?? []);
+                                    @endphp
+                                    <label class="student-item {{ $checked ? 'selected' : '' }}" data-search="{{ strtolower(($student->first_name ?? '') . ' ' . ($student->last_name ?? '') . ' ' . ($student->program ?? '') . ' ' . ($student->email ?? '')) }}">
+                                        <input type="checkbox" name="student_ids[]" value="{{ $student->id }}" {{ $checked ? 'checked' : '' }} onchange="toggleStudentRow(this)">
+                                        <div style="flex:1;min-width:0;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="student-name text-truncate">{{ ($student->first_name ?? '') . ' ' . ($student->last_name ?? '') }}</div>
+                                                <span class="student-badge">{{ $student->tp_project_count ?? 0 }} TP/Proj</span>
+                                            </div>
+                                            <div class="student-meta text-truncate">{{ $student->email ?? '' }}{{ !empty($student->program) ? ' • ' . $student->program : '' }}</div>
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+
+                            <div class="text-white-50" style="font-size:0.8rem;">Décochez un étudiant pour le retirer de cette certification.</div>
                         </div>
                     </div>
                     <div class="col-lg-4">
@@ -284,6 +333,45 @@ function toggleOptionsUI() {
     document.getElementById('optionsContainer').style.display = type === 'qcm' ? 'block' : 'none';
     document.querySelectorAll('#optionsContainer input[type=text]').forEach(i => i.required = type === 'qcm');
 }
+
+function updateSelectedCount() {
+    const checked = document.querySelectorAll('input[name="student_ids[]"]:checked').length;
+    const el = document.getElementById('selectedCount');
+    if (el) el.textContent = checked + ' sélectionné(s)';
+}
+
+function toggleStudentRow(checkbox) {
+    const row = checkbox.closest('.student-item');
+    if (!row) return;
+    row.classList.toggle('selected', checkbox.checked);
+    updateSelectedCount();
+}
+
+function selectAllStudents() {
+    document.querySelectorAll('input[name="student_ids[]"]').forEach(cb => {
+        cb.checked = true;
+        toggleStudentRow(cb);
+    });
+}
+
+function deselectAllStudents() {
+    document.querySelectorAll('input[name="student_ids[]"]').forEach(cb => {
+        cb.checked = false;
+        toggleStudentRow(cb);
+    });
+}
+
+function filterStudents() {
+    const q = (document.getElementById('studentSearch')?.value || '').toLowerCase().trim();
+    document.querySelectorAll('#studentList .student-item').forEach(item => {
+        const hay = item.getAttribute('data-search') || '';
+        item.style.display = hay.includes(q) ? '' : 'none';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    updateSelectedCount();
+});
 
 let optionCount = 4;
 function addOption() {
