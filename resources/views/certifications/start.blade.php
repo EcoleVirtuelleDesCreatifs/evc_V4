@@ -28,6 +28,7 @@
         font-size: 2rem;
         color: #fff;
     }
+    .cert-description { max-width: 980px; margin: 0.75rem auto 0; text-align: left; line-height: 1.65; }
     .rules-box {
         background: rgba(251,191,36,0.1);
         border: 1px solid rgba(251,191,36,0.3);
@@ -96,7 +97,7 @@
 
         <h2 class="text-white mb-2">{{ $certification->title }}</h2>
         @if($certification->description)
-            <div class="text-white-50">{!! $certification->description !!}</div>
+            <div class="cert-description text-white-50">{!! $certification->description !!}</div>
         @endif
 
         <div class="info-pills">
