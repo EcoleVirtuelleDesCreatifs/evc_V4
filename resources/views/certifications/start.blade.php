@@ -96,7 +96,7 @@
 
         <h2 class="text-white mb-2">{{ $certification->title }}</h2>
         @if($certification->description)
-            <p class="text-white-50">{{ $certification->description }}</p>
+            <div class="text-white-50">{!! $certification->description !!}</div>
         @endif
 
         <div class="info-pills">
@@ -120,7 +120,7 @@
         @if($certification->instructions)
         <div class="instructions-box">
             <h6 class="text-white mb-2"><i class="fas fa-info-circle me-2"></i>Consignes du formateur</h6>
-            {!! nl2br(e($certification->instructions)) !!}
+            {!! $certification->instructions !!}
         </div>
         @endif
 
