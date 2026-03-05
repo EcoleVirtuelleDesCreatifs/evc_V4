@@ -239,7 +239,11 @@
             <img src="{{ asset('storage/' . $q->media_url) }}" alt="Media" class="q-media">
         @endif
 
-        <div class="q-text">{!! nl2br(e($q->question_text)) !!}</div>
+        @if($q->type === 'redaction')
+            <div class="q-text">{!! $q->question_text !!}</div>
+        @else
+            <div class="q-text">{!! nl2br(e($q->question_text)) !!}</div>
+        @endif
 
         @if($q->type === 'qcm')
             @foreach($q->options as $opt)
