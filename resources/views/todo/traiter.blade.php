@@ -165,11 +165,6 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label" style="font-weight: 700;">Description</label>
-                            <textarea class="form-control" name="description" rows="6">{{ old('description', strip_tags($assignedProject->description)) }}</textarea>
-                        </div>
-
-                        <div class="mb-3">
                             <label class="form-label" style="font-weight: 700;">Fichiers (images / PDF)</label>
                             <input type="file" class="form-control" name="files[]" multiple accept="image/*,application/pdf">
                             <div class="muted" style="margin-top: 0.5rem; font-size: 0.9rem;">Max 10 Mo par fichier.</div>
