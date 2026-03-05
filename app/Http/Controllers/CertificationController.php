@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class CertificationController extends Controller
@@ -22,23 +21,7 @@ class CertificationController extends Controller
             ->toArray();
 
         $certifications = DB::table('certifications')
-            ->where(function ($q) use ($assignedCertIds, $student) {
-                // Certifications assignées directement
-                $q->whereIn('id', $assignedCertIds);
-                // OU certifications actives sans assignation spécifique (accès libre par formation)
-                $q->orWhere(function ($q2) use ($student) {
-                    $q2->where('is_active', true)
-                        ->where('status', 'published')
-                        ->whereNotIn('id', function ($sub) {
-                            $sub->select('certification_id')->from('certification_student');
-                        })
-                        ->where(function ($q3) use ($student) {
-                            $q3->where('formation', $student->program)
-                               ->orWhereNull('formation')
-                               ->orWhere('formation', '');
-                        });
-                });
-            })
+            ->whereIn('id', $assignedCertIds)
             ->where('is_active', true)
             ->where(function ($q) {
                 // Certification publiée ou programmée dont la date est passée

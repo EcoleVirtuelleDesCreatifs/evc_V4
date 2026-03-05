@@ -88,7 +88,7 @@
             <div class="empty-state">
                 <i class="fas fa-certificate d-block"></i>
                 <h5 class="text-white">Aucune certification disponible</h5>
-                <p>Vos certifications apparaîtront automatiquement dès que vous serez éligible et qu’une certification vous sera assignée (ou activée) par votre formateur.</p>
+                <p>Votre évaluation finale apparaîtra ici dès que votre formateur l’aura assignée en fin de parcours. Une fois l’évaluation validée, votre certificat sera disponible.</p>
             </div>
         </div>
     @else
