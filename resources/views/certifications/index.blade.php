@@ -88,7 +88,20 @@
             <div class="empty-state">
                 <i class="fas fa-certificate d-block"></i>
                 <h5 class="text-white">Aucune certification disponible</h5>
-                <p>Votre évaluation finale apparaîtra ici dès que votre formateur l’aura assignée en fin de parcours. Une fois l’évaluation validée, votre certificat sera disponible.</p>
+                <p class="mb-3">Cette page affiche <strong>votre évaluation finale</strong> (la certification qui couronne votre parcours). Elle apparaît uniquement lorsque votre formateur vous l’assigne.</p>
+
+                <div class="text-start" style="max-width: 720px; margin: 0 auto;">
+                    <p class="mb-2"><strong>Comment ça fonctionne ?</strong></p>
+                    <ol class="mb-3" style="color:#94a3b8; line-height:1.7; text-align:left; padding-left: 1.2rem;">
+                        <li>Vous suivez votre parcours de formation (TP, projets, activités…).</li>
+                        <li>En fin de parcours, votre formateur vous assigne l’évaluation finale.</li>
+                        <li>Vous passez l’évaluation ici, puis votre résultat est enregistré.</li>
+                        <li>Après validation/réussite, votre certificat devient disponible.</li>
+                    </ol>
+
+                    <p class="mb-0" style="color:#94a3b8;"><strong>Si rien ne s’affiche :</strong><br>
+                        cela signifie que l’évaluation finale n’a pas encore été assignée à votre compte, ou qu’elle n’est pas encore activée.</p>
+                </div>
             </div>
         </div>
     @else
