@@ -125,12 +125,42 @@
         </div>
         @endif
 
-        <form action="{{ route('certification.confirm', $certification->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir commencer ? Le décompte démarrera immédiatement et vous ne pourrez pas recommencer.')">
+        <form id="startCertForm" action="{{ route('certification.confirm', $certification->id) }}" method="POST">
             @csrf
-            <button type="submit" class="btn-begin">
+            <button type="button" class="btn-begin" data-bs-toggle="modal" data-bs-target="#startCertModal">
                 <i class="fas fa-play me-2"></i>Je démarre ma certification
             </button>
         </form>
+
+        <div class="modal fade" id="startCertModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="border-radius: 18px; border: none; overflow: hidden;">
+                    <div class="modal-header" style="background: linear-gradient(45deg, #f97316, #ea580c); color: white; border: none;">
+                        <h5 class="modal-title" style="font-weight: 800;"><i class="fas fa-exclamation-triangle me-2"></i>Confirmation</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="padding: 1.5rem; color: #1f2937; line-height: 1.6;">
+                        Êtes-vous sûr de vouloir commencer ? Le décompte démarrera immédiatement et vous ne pourrez pas recommencer.
+                    </div>
+                    <div class="modal-footer" style="border: none; padding: 0 1.5rem 1.5rem;">
+                        <button type="button" class="btn" data-bs-dismiss="modal" style="border-radius: 999px; padding: 0.65rem 1.2rem; font-weight: 700; background: #e5e7eb; color: #111827;">Annuler</button>
+                        <button type="button" id="confirmStartCert" class="btn" style="border-radius: 999px; padding: 0.65rem 1.2rem; font-weight: 800; background: linear-gradient(45deg, #f97316, #ea580c); color: #fff;"><i class="fas fa-play me-2"></i>Je démarre</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('confirmStartCert');
+                const form = document.getElementById('startCertForm');
+                if (btn && form) {
+                    btn.addEventListener('click', function() {
+                        form.submit();
+                    });
+                }
+            });
+        </script>
 
         <a href="{{ route('certification.index') }}" class="btn-cancel">
             <i class="fas fa-arrow-left me-2"></i>Retour aux certifications
