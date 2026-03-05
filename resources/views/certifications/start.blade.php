@@ -5,8 +5,10 @@
 @section('content')
 <style>
     .start-container {
-        max-width: 700px;
+        max-width: 100%;
+        width: 100%;
         margin: 2rem auto;
+        padding: 0 1.5rem;
     }
     .start-card {
         background: linear-gradient(145deg, #1e293b, #334155);
