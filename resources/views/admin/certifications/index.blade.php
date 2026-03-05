@@ -67,13 +67,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
     @if($certifications->isEmpty())
         <div class="text-center py-5">
             <i class="fas fa-certificate fa-3x text-muted mb-3"></i>
