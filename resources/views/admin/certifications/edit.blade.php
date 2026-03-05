@@ -30,6 +30,16 @@
     .selected-count { color: #10b981; font-weight: 600; font-size: 0.85rem; }
     .question-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
     .question-card:hover { border-color: rgba(99,102,241,0.3); }
+    .question-rich { color: rgba(226,232,240,0.95); line-height: 1.6; }
+    .question-rich p { margin: 0 0 0.65rem; }
+    .question-rich h1, .question-rich h2, .question-rich h3 { color: #fff; margin: 0.75rem 0 0.5rem; }
+    .question-rich h1 { font-size: 1.15rem; }
+    .question-rich h2 { font-size: 1.05rem; }
+    .question-rich h3 { font-size: 1rem; }
+    .question-rich ul, .question-rich ol { margin: 0 0 0.85rem; padding-left: 1.25rem; }
+    .question-rich li { margin-bottom: 0.35rem; }
+    .question-rich a { color: #93c5fd; text-decoration: underline; }
+    .question-rich a:hover { color: #bfdbfe; }
     .q-type-badge { display: inline-block; padding: 3px 10px; border-radius: 15px; font-size: 0.7rem; font-weight: 600; }
     .q-type-qcm { background: rgba(59,130,246,0.2); color: #60a5fa; }
     .q-type-redaction { background: rgba(168,85,247,0.2); color: #c084fc; }
@@ -199,7 +209,11 @@
                         </form>
                     </div>
                 </div>
-                <p class="text-white mb-1">{!! nl2br(e($q->question_text)) !!}</p>
+                @if($q->type === 'redaction')
+                    <div class="question-rich mb-1">{!! $q->question_text !!}</div>
+                @else
+                    <p class="text-white mb-1">{!! nl2br(e($q->question_text)) !!}</p>
+                @endif
                 @if($q->media_url)
                     <img src="{{ asset('storage/' . $q->media_url) }}" alt="Media" style="max-height: 120px; border-radius: 8px;" class="mb-2">
                 @endif
