@@ -1,6 +1,6 @@
 @extends('layouts.ki-admin')
 
-@section('title', 'Mes Certifications')
+@section('title', 'Examen de certification')
 
 @section('content')
 <style>
@@ -72,8 +72,8 @@
 
 <div class="container-fluid">
     <div class="cert-page-header">
-        <h2 class="mb-1"><i class="fas fa-certificate me-2"></i>Mes Certifications</h2>
-        <p class="mb-0 opacity-75">Passez vos examens de certification en ligne</p>
+        <h2 class="mb-1"><i class="fas fa-certificate me-2"></i>Examen de certification</h2>
+        <p class="mb-0 opacity-75">Accédez à votre évaluation finale en fin de parcours</p>
     </div>
 
     @if(session('error'))
@@ -87,8 +87,8 @@
         <div class="cert-list-card">
             <div class="empty-state">
                 <i class="fas fa-certificate d-block"></i>
-                <h5 class="text-white">Aucune certification disponible</h5>
-                <p class="mb-3">Cette page affiche <strong>votre évaluation finale</strong> (la certification qui couronne votre parcours). Elle apparaît uniquement lorsque votre formateur vous l’assigne.</p>
+                <h5 class="text-white">Examen de certification</h5>
+                <p class="mb-3">Pour le moment, <strong>vous n’êtes pas encore éligible</strong> à l’examen de certification. Il s’affichera ici dès que votre formateur l’aura activé et assigné en fin de parcours.</p>
 
                 <div class="text-start" style="max-width: 720px; margin: 0 auto;">
                     <p class="mb-2"><strong>Comment ça fonctionne ?</strong></p>
