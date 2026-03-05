@@ -358,6 +358,7 @@ function toggleOptionsUI() {
     const type = document.getElementById('questionType').value;
     document.getElementById('optionsContainer').style.display = type === 'qcm' ? 'block' : 'none';
     document.querySelectorAll('#optionsContainer input[type=text]').forEach(i => i.required = type === 'qcm');
+    initCertificationEditors();
 }
 
 function updateSelectedCount() {
@@ -398,6 +399,7 @@ function filterStudents() {
 document.addEventListener('DOMContentLoaded', () => {
     updateSelectedCount();
     initCertificationEditors();
+    toggleOptionsUI();
 
     document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(el => {
         el.addEventListener('shown.bs.tab', () => initCertificationEditors());
