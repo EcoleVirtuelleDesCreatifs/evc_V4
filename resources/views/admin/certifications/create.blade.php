@@ -3,6 +3,7 @@
 @section('title', 'Nouvelle Certification')
 
 @push('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.css">
 <style>
     .page-header { background: linear-gradient(135deg, #1e3c72, #2a5298); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
     .form-card { background: linear-gradient(145deg, #1e293b, #334155); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin-bottom: 1.5rem; }
@@ -11,6 +12,7 @@
     .form-control::placeholder, .search-students::placeholder { color: #94a3b8; opacity: 1; }
     .form-label { color: #cbd5e1; font-weight: 500; }
     textarea.form-control { min-height: 100px; }
+    .note-editor.note-frame .note-editing-area .note-editable { background: rgba(255,255,255,0.03); color: #fff; }
 
     .btn-publish { background: linear-gradient(45deg, #10b981, #059669); border: none; padding: 0.75rem 1.5rem; border-radius: 12px; color: #fff; font-weight: 600; }
     .btn-publish:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(16,185,129,0.4); color: #fff; }
@@ -173,7 +175,34 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-fr-FR.min.js"></script>
 <script>
+function initCertificationCreateEditors() {
+    if (typeof $ === 'undefined' || typeof $.fn.summernote === 'undefined') return;
+
+    $('textarea').each(function () {
+        const $ta = $(this);
+        if ($ta.data('summernote')) return;
+
+        $ta.summernote({
+            height: 180,
+            lang: 'fr-FR',
+            disableDragAndDrop: true,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link']],
+                ['view', ['fullscreen', 'codeview']]
+            ]
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initCertificationCreateEditors();
+});
 function updateCount() {
     const checked = document.querySelectorAll('#studentList input[type=checkbox]:checked').length;
     document.getElementById('selectedCount').textContent = '(' + checked + ' sélectionné' + (checked > 1 ? 's' : '') + ')';
