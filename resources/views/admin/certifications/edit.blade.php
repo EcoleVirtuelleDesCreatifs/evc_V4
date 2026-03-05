@@ -3,6 +3,7 @@
 @section('title', 'Modifier - ' . $certification->title)
 
 @push('styles')
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.css" rel="stylesheet">
 <style>
     .page-header { background: linear-gradient(135deg, #1e3c72, #2a5298); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
     .form-card { background: linear-gradient(145deg, #1e293b, #334155); border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); padding: 1.5rem; margin-bottom: 1.5rem; }
@@ -46,6 +47,7 @@
     .add-option-btn { background: none; border: 1px dashed rgba(255,255,255,0.2); color: #94a3b8; border-radius: 8px; padding: 0.4rem 1rem; font-size: 0.85rem; cursor: pointer; }
     .add-option-btn:hover { border-color: #6366f1; color: #6366f1; }
     textarea.form-control { min-height: 80px; }
+    .note-editor.note-frame { border-color: rgba(255,255,255,0.15); }
 </style>
 @endpush
 
@@ -327,7 +329,31 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-fr-FR.min.js"></script>
 <script>
+function initCertificationEditors() {
+    if (typeof $ === 'undefined' || typeof $.fn.summernote === 'undefined') return;
+
+    $('textarea').each(function () {
+        const $ta = $(this);
+        if ($ta.data('summernote')) return;
+
+        $ta.summernote({
+            height: 180,
+            lang: 'fr-FR',
+            disableDragAndDrop: true,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['insert', ['link']],
+                ['view', ['fullscreen', 'codeview']]
+            ]
+        });
+    });
+}
+
 function toggleOptionsUI() {
     const type = document.getElementById('questionType').value;
     document.getElementById('optionsContainer').style.display = type === 'qcm' ? 'block' : 'none';
@@ -371,6 +397,15 @@ function filterStudents() {
 
 document.addEventListener('DOMContentLoaded', () => {
     updateSelectedCount();
+    initCertificationEditors();
+
+    document.querySelectorAll('a[data-bs-toggle="tab"]').forEach(el => {
+        el.addEventListener('shown.bs.tab', () => initCertificationEditors());
+    });
+
+    document.querySelectorAll('.collapse').forEach(el => {
+        el.addEventListener('shown.bs.collapse', () => initCertificationEditors());
+    });
 });
 
 let optionCount = 4;
