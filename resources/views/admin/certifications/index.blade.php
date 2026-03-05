@@ -117,6 +117,10 @@
                 </div>
                 <div class="d-flex gap-3 me-3">
                     <div class="stat-mini">
+                        <div class="num text-info">{{ $cert->participants_count ?? 0 }}</div>
+                        <div class="lbl">Participants</div>
+                    </div>
+                    <div class="stat-mini">
                         <div class="num">{{ $cert->attempts_count }}</div>
                         <div class="lbl">Tentatives</div>
                     </div>

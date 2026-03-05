@@ -23,6 +23,9 @@ class CertificationAdminController extends Controller
                 $cert->questions_count = DB::table('certification_questions')
                     ->where('certification_id', $cert->id)
                     ->count();
+                $cert->participants_count = DB::table('certification_student')
+                    ->where('certification_id', $cert->id)
+                    ->count();
                 $cert->attempts_count = DB::table('certification_attempts')
                     ->where('certification_id', $cert->id)
                     ->count();
