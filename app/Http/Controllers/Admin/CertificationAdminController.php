@@ -294,6 +294,7 @@ class CertificationAdminController extends Controller
 
         // Ajouter les nouveaux étudiants et notifier
         $certification = DB::table('certifications')->where('id', $id)->first();
+        $shouldNotify = (bool) ($certification && $certification->is_active && in_array($certification->status, ['published', 'scheduled'], true));
         $notifiedCount = 0;
 
         foreach ($newIds as $studentId) {
@@ -304,7 +305,7 @@ class CertificationAdminController extends Controller
                 'updated_at' => now(),
             ]);
 
-            if ($status === 'published' || $status === 'scheduled') {
+            if ($shouldNotify) {
                 $sent = $this->notifyStudent($studentId, $certification);
                 if ($sent) {
                     DB::table('certification_student')
