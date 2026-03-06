@@ -1827,6 +1827,8 @@ class DashboardController extends Controller
                                 continue;
                             }
 
+                            try {
+
                             $uploadedCount++;
                             $originalName = $file->getClientOriginalName();
                             $extension = $file->getClientOriginalExtension();
@@ -1855,6 +1857,15 @@ class DashboardController extends Controller
                                 'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
+                            } catch (\Throwable $uploadError) {
+                                Log::error('Erreur upload fichier projet assigné (design_project_files)', [
+                                    'project_id' => $assignedProject->id,
+                                    'design_project_id' => $designProjectId,
+                                    'user_id' => $user->id,
+                                    'file_name' => method_exists($file, 'getClientOriginalName') ? $file->getClientOriginalName() : null,
+                                    'error' => $uploadError->getMessage(),
+                                ]);
+                            }
                         }
                     }
                 } else {
@@ -1874,7 +1885,8 @@ class DashboardController extends Controller
                                     continue;
                                 }
 
-                                $uploadedCount++;
+                                try {
+                                    $uploadedCount++;
                                 $originalName = $file->getClientOriginalName();
                                 $extension = $file->getClientOriginalExtension();
                                 $fileSize = $file->getSize();
@@ -1902,6 +1914,14 @@ class DashboardController extends Controller
                                     'created_at' => now(),
                                     'updated_at' => now(),
                                 ]);
+                                } catch (\Throwable $uploadError) {
+                                    Log::error('Erreur upload fichier projet assigné (project_images fallback)', [
+                                        'project_id' => $assignedProject->id,
+                                        'user_id' => $user->id,
+                                        'file_name' => method_exists($file, 'getClientOriginalName') ? $file->getClientOriginalName() : null,
+                                        'error' => $uploadError->getMessage(),
+                                    ]);
+                                }
 
                                 $order++;
                             }
