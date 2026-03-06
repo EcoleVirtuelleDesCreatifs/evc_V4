@@ -4540,15 +4540,15 @@ class DashboardController extends Controller
             // 1. Récupérer les TP assignments (table tp_assignments)
             $tpAssignments = DB::table('tp_assignments')
                 ->where('student_id', $student->id)
-                ->orderBy('deadline', 'asc')
-                ->orderBy('created_at', 'desc')
+                ->where('status', 'assigned')
+                ->orderByDesc('created_at')
                 ->get();
 
             // 2. Récupérer les projets assignés à l'étudiant (table projects)
             $projects = DB::table('projects')
                 ->where('user_id', $user->id)
-                ->orderBy('deadline', 'asc')
-                ->orderBy('created_at', 'desc')
+                ->where('status', 'en_cours')
+                ->orderByDesc('created_at')
                 ->get();
 
             $statusMap = [
@@ -4617,14 +4617,18 @@ class DashboardController extends Controller
             });
 
             // Fusionner les deux collections
-            $tpWithFiles = $tpAssignmentsWithFiles->concat($projectsWithFiles)->sortBy('deadline');
+            $tpWithFiles = $tpAssignmentsWithFiles
+                ->concat($projectsWithFiles)
+                ->where('status', 'assigned')
+                ->sortByDesc('created_at')
+                ->values();
 
             $stats = [
                 'total' => $tpWithFiles->count(),
-                'assigned' => $tpWithFiles->where('status', 'assigned')->count(),
-                'submitted' => $tpWithFiles->where('status', 'submitted')->count(),
-                'validated' => $tpWithFiles->where('status', 'validated')->count(),
-                'rejected' => $tpWithFiles->where('status', 'rejected')->count(),
+                'assigned' => $tpWithFiles->count(),
+                'submitted' => 0,
+                'validated' => 0,
+                'rejected' => 0,
             ];
 
             // Déterminer le préfixe de formation pour les routes (utiliser getFormationSlug)
