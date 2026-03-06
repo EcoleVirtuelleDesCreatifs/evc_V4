@@ -1650,9 +1650,20 @@ class DashboardController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'project_link' => 'nullable|url|max:2000',
             'files' => 'nullable|array',
             'files.*' => 'file|max:10240|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp,application/pdf',
         ]);
+
+        $projectLink = trim((string) ($validated['project_link'] ?? ''));
+        $hasFiles = $request->hasFile('files') && is_array($request->file('files')) && count($request->file('files')) > 0;
+
+        if (!$hasFiles && $projectLink === '') {
+            return redirect()->back()
+                ->withErrors(['files' => 'Veuillez ajouter au moins un fichier OU un lien du projet.'])
+                ->withInput();
+        }
+
 
         DB::beginTransaction();
         try {
@@ -1666,6 +1677,7 @@ class DashboardController extends Controller
                     ->update([
                         'title' => $validated['title'],
                         'description' => $validated['description'] ?? '',
+                        'submission_link' => $projectLink !== '' ? $projectLink : ($assignedProject->submission_link ?? null),
                         'status' => 'submitted',
                         'updated_at' => now(),
                     ]);
@@ -1742,6 +1754,7 @@ class DashboardController extends Controller
                     'user_id' => $user->id,
                     'title' => $validated['title'],
                     'description' => $validated['description'] ?? null,
+                    'reference_url' => $projectLink !== '' ? $projectLink : null,
                     'category' => 'solo',
                     'project_type' => null,
                     'software_used' => null,
@@ -1797,6 +1810,7 @@ class DashboardController extends Controller
                     ->where('user_id', $user->id)
                     ->update([
                         'status' => 'termine',
+                        'link' => $projectLink !== '' ? $projectLink : ($assignedProject->link ?? null),
                         'updated_at' => now(),
                     ]);
             }

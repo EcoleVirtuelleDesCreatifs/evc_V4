@@ -165,6 +165,12 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label" style="font-weight: 700;">Liens du Projet</label>
+                            <input type="url" class="form-control" name="project_link" placeholder="https://..." value="{{ old('project_link', ($isTpAssignment ?? false) ? ($assignedProject->submission_link ?? '') : ($assignedProject->link ?? '')) }}" maxlength="2000">
+                            <div class="muted" style="margin-top: 0.5rem; font-size: 0.9rem;">Ajoute un lien si tu n’as pas de fichiers à envoyer (Drive, Behance, etc.).</div>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label" style="font-weight: 700;">Fichiers (images / PDF)</label>
                             <input type="file" class="form-control" name="files[]" multiple accept="image/*,application/pdf">
                             <div class="muted" style="margin-top: 0.5rem; font-size: 0.9rem;">Max 10 Mo par fichier.</div>
@@ -179,7 +185,29 @@
                                 Annuler
                             </a>
                         </div>
+                        <div class="alert alert-danger" id="todo-traiter-form-error" style="display:none; margin-top: 1rem;"></div>
                     </form>
+
+                    <script>
+                    (function todoTraiterClientGuard(){
+                        var form = document.getElementById('todo-traiter-form');
+                        if(!form) return;
+                        var linkInput = form.querySelector('[name="project_link"]');
+                        var filesInput = form.querySelector('[name="files[]"]');
+                        var errorBox = document.getElementById('todo-traiter-form-error');
+                        form.addEventListener('submit', function(e){
+                            var link = (linkInput && linkInput.value ? linkInput.value.trim() : '');
+                            var hasFiles = !!(filesInput && filesInput.files && filesInput.files.length);
+                            if(!hasFiles && !link){
+                                e.preventDefault();
+                                if(errorBox){
+                                    errorBox.textContent = "Veuillez ajouter au moins un fichier OU un lien du projet.";
+                                    errorBox.style.display = "block";
+                                }
+                            }
+                        });
+                    })();
+                    </script>
                 </div>
             </div>
         </div>
