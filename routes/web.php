@@ -320,13 +320,36 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::get('/evc/compte/gestion-informatique/espace-etudiant', [DashboardController::class, 'gestionInformatique'])->name('dashboard.gestion-informatique');
 
     // Routes Certifications (Étudiant)
-    Route::get('/evc/compte/certifications', [App\Http\Controllers\CertificationController::class, 'index'])->name('certification.index');
-    Route::get('/evc/compte/certifications/{id}/start', [App\Http\Controllers\CertificationController::class, 'start'])->name('certification.start');
-    Route::post('/evc/compte/certifications/{id}/confirm', [App\Http\Controllers\CertificationController::class, 'confirmStart'])->name('certification.confirm');
-    Route::get('/evc/compte/certifications/{id}/take', [App\Http\Controllers\CertificationController::class, 'take'])->name('certification.take');
-    Route::post('/evc/compte/certifications/{id}/save-answer', [App\Http\Controllers\CertificationController::class, 'saveAnswer'])->name('certification.save-answer');
-    Route::post('/evc/compte/certifications/{id}/submit', [App\Http\Controllers\CertificationController::class, 'submit'])->name('certification.submit');
-    Route::get('/evc/compte/certifications/{id}/result', [App\Http\Controllers\CertificationController::class, 'result'])->name('certification.result');
+    Route::get('/evc/compte/design-graphique-cm/certifications', [App\Http\Controllers\CertificationController::class, 'index'])->name('certification.index');
+    Route::get('/evc/compte/design-graphique-cm/certifications/{id}/start', [App\Http\Controllers\CertificationController::class, 'start'])->name('certification.start');
+    Route::post('/evc/compte/design-graphique-cm/certifications/{id}/confirm', [App\Http\Controllers\CertificationController::class, 'confirmStart'])->name('certification.confirm');
+    Route::get('/evc/compte/design-graphique-cm/certifications/{id}/take', [App\Http\Controllers\CertificationController::class, 'take'])->name('certification.take');
+    Route::post('/evc/compte/design-graphique-cm/certifications/{id}/save-answer', [App\Http\Controllers\CertificationController::class, 'saveAnswer'])->name('certification.save-answer');
+    Route::post('/evc/compte/design-graphique-cm/certifications/{id}/submit', [App\Http\Controllers\CertificationController::class, 'submit'])->name('certification.submit');
+    Route::get('/evc/compte/design-graphique-cm/certifications/{id}/result', [App\Http\Controllers\CertificationController::class, 'result'])->name('certification.result');
+
+    // Legacy routes: redirect old URLs to module-prefixed URLs
+    Route::get('/evc/compte/certifications', function () {
+        return redirect('/evc/compte/design-graphique-cm/certifications');
+    });
+    Route::get('/evc/compte/certifications/{id}/start', function ($id) {
+        return redirect('/evc/compte/design-graphique-cm/certifications/' . $id . '/start');
+    });
+    Route::post('/evc/compte/certifications/{id}/confirm', function ($id) {
+        return redirect('/evc/compte/design-graphique-cm/certifications/' . $id . '/confirm', 307);
+    });
+    Route::get('/evc/compte/certifications/{id}/take', function ($id) {
+        return redirect('/evc/compte/design-graphique-cm/certifications/' . $id . '/take');
+    });
+    Route::post('/evc/compte/certifications/{id}/save-answer', function ($id) {
+        return redirect('/evc/compte/design-graphique-cm/certifications/' . $id . '/save-answer', 307);
+    });
+    Route::post('/evc/compte/certifications/{id}/submit', function ($id) {
+        return redirect('/evc/compte/design-graphique-cm/certifications/' . $id . '/submit', 307);
+    });
+    Route::get('/evc/compte/certifications/{id}/result', function ($id) {
+        return redirect('/evc/compte/design-graphique-cm/certifications/' . $id . '/result');
+    });
 });
 
 // Groupe de routes pour Design Graphique avec préfixe commun (PROTÉGÉ PAR AUTH + VÉRIFICATION COMPTE ACTIF + ACCÈS FORMATION)
