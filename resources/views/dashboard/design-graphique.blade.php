@@ -668,6 +668,8 @@
         </div>
     </div>
 
+    @include('homepage._communique')
+
     {{-- Statistics Cards --}}
     <div class="row mb-4">
         <div class="col-12">
