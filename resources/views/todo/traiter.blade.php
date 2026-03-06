@@ -300,6 +300,8 @@
                                 </button>
                                 <input type="file" id="globalFileInput" name="files[]" multiple accept="image/*,application/pdf" style="display: none;">
                             </div>
+
+                            <div id="filesPreview" class="row g-3 mt-4"></div>
                         </div>
                     </div>
 
@@ -334,11 +336,64 @@
                     var browseBtn = document.getElementById('globalBrowseBtn');
                     var fileInput = document.getElementById('globalFileInput');
 
+
+                    function renderPreviews(){
+                        var container = document.getElementById('filesPreview');
+                        if(!container || !fileInput) return;
+                        container.innerHTML = '';
+                        var files = fileInput.files ? Array.from(fileInput.files) : [];
+                        files.forEach(function(file){
+                            var col = document.createElement('div');
+                            col.className = 'col-md-6';
+                            var card = document.createElement('div');
+                            card.className = 'card h-100 border shadow-sm';
+                            card.style.borderRadius = '16px';
+                            var body = document.createElement('div');
+                            body.className = 'card-body p-3';
+                            var name = document.createElement('div');
+                            name.className = 'fw-bold text-truncate';
+                            name.style.fontSize = '0.9rem';
+                            name.textContent = file.name;
+                            var meta = document.createElement('div');
+                            meta.className = 'text-muted';
+                            meta.style.fontSize = '0.85rem';
+                            meta.textContent = (Math.round((file.size/1024/1024)*100)/100) + ' MB';
+                            body.appendChild(name);
+                            body.appendChild(meta);
+
+                            if (file.type && file.type.startsWith('image/')) {
+                                var wrap = document.createElement('div');
+                                wrap.className = 'mt-3';
+                                var img = document.createElement('img');
+                                img.className = 'img-fluid rounded shadow-sm';
+                                img.style.maxHeight = '220px';
+                                img.style.width = '100%';
+                                img.style.objectFit = 'cover';
+                                wrap.appendChild(img);
+                                body.appendChild(wrap);
+
+                                var reader = new FileReader();
+                                reader.onload = function(e){ img.src = e.target.result; };
+                                reader.readAsDataURL(file);
+                            }
+
+                            card.appendChild(body);
+                            col.appendChild(card);
+                            container.appendChild(col);
+                        });
+                    }
+
                     if (browseBtn && fileInput) {
                         browseBtn.addEventListener('click', function(e){
                             e.preventDefault();
                             e.stopPropagation();
                             fileInput.click();
+                        });
+                    }
+
+                    if (fileInput) {
+                        fileInput.addEventListener('change', function(){
+                            renderPreviews();
                         });
                     }
 
@@ -367,6 +422,7 @@
                             dropZone.classList.remove('dragover');
                             if (!fileInput) return;
                             fileInput.files = e.dataTransfer.files;
+                            renderPreviews();
                         });
                     }
 
