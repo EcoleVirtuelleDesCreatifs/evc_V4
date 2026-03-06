@@ -166,7 +166,7 @@
 
                         <div class="mb-3">
                             <label class="form-label" style="font-weight: 700;">Liens du Projet</label>
-                            <input type="url" class="form-control" name="project_link" placeholder="https://..." value="{{ old('project_link', ($isTpAssignment ?? false) ? ($assignedProject->submission_link ?? '') : ($assignedProject->link ?? '')) }}" maxlength="2000">
+                            <input type="url" class="form-control" name="links[]" placeholder="https://..." value="{{ old('links.0', ($isTpAssignment ?? false) ? ($assignedProject->submission_link ?? '') : ($assignedProject->link ?? '')) }}" maxlength="2000">
                             <div class="muted" style="margin-top: 0.5rem; font-size: 0.9rem;">Ajoute un lien si tu n’as pas de fichiers à envoyer (Drive, Behance, etc.).</div>
                         </div>
 
@@ -192,7 +192,7 @@
                     (function todoTraiterClientGuard(){
                         var form = document.getElementById('todo-traiter-form');
                         if(!form) return;
-                        var linkInput = form.querySelector('[name="project_link"]');
+                        var linkInput = form.querySelector('[name="links[]"]') || form.querySelector('[name="project_link"]');
                         var filesInput = form.querySelector('[name="files[]"]');
                         var errorBox = document.getElementById('todo-traiter-form-error');
                         form.addEventListener('submit', function(e){

@@ -1651,11 +1651,20 @@ class DashboardController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'project_link' => 'nullable|url|max:2000',
+            'links.*' => 'nullable|url|max:2000',
             'files' => 'nullable|array',
             'files.*' => 'file|max:10240|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp,application/pdf',
         ]);
 
         $projectLink = trim((string) ($validated['project_link'] ?? ''));
+
+        if ($projectLink === '') {
+            $links = $request->input('links', []);
+            if (is_array($links)) {
+                $links = array_values(array_filter($links, fn ($l) => is_string($l) && trim($l) !== ''));
+                $projectLink = trim((string) ($links[0] ?? ''));
+            }
+        }
         $hasFiles = $request->hasFile('files') && is_array($request->file('files')) && count($request->file('files')) > 0;
 
         $tpLinkColumn = null;
