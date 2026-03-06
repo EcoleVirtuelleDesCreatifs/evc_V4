@@ -1810,7 +1810,7 @@ class DashboardController extends Controller
                 // Design Graphique: soumission sur un projet assigné
                 $designProjectId = null;
 
-                if (Schema::hasTable('design_projects') && Schema::hasTable('design_project_files')) {
+                if (!app()->environment('production') && Schema::hasTable('design_projects') && Schema::hasTable('design_project_files')) {
                     // Environnements où les tables de soumission existent
                     $designProjectData = [
                         'user_id' => $user->id,
