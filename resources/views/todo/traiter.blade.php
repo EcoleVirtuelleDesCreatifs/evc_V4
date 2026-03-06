@@ -156,7 +156,7 @@
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route($formationPrefix . '.todo.traiter.store', $assignedProject->id) }}" enctype="multipart/form-data">
+                    <form id="todo-traiter-form" method="POST" action="{{ route($formationPrefix . '.todo.traiter.store', $assignedProject->id) }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="mb-3">
