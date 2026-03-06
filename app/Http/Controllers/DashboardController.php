@@ -1812,11 +1812,10 @@ class DashboardController extends Controller
 
                 if (Schema::hasTable('design_projects') && Schema::hasTable('design_project_files')) {
                     // Environnements où les tables de soumission existent
-                    $designProjectId = DB::table('design_projects')->insertGetId([
+                    $designProjectData = [
                         'user_id' => $user->id,
                         'title' => $validated['title'],
                         'description' => $validated['description'] ?? null,
-                        'reference_url' => $projectLink !== '' ? $projectLink : null,
                         'category' => 'solo',
                         'project_type' => null,
                         'software_used' => null,
@@ -1826,7 +1825,19 @@ class DashboardController extends Controller
                         'completed_at' => null,
                         'created_at' => now(),
                         'updated_at' => now(),
-                    ]);
+                    ];
+
+                    if ($projectLink !== '') {
+                        if (Schema::hasColumn('design_projects', 'reference_url')) {
+                            $designProjectData['reference_url'] = $projectLink;
+                        } elseif (Schema::hasColumn('design_projects', 'reference_link')) {
+                            $designProjectData['reference_link'] = $projectLink;
+                        } elseif (Schema::hasColumn('design_projects', 'link')) {
+                            $designProjectData['link'] = $projectLink;
+                        }
+                    }
+
+                    $designProjectId = DB::table('design_projects')->insertGetId($designProjectData);
 
                     if ($request->hasFile('files')) {
                         $thumbSet = false;
