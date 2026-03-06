@@ -1697,45 +1697,66 @@ class DashboardController extends Controller
 
             if ($isTpAssignment) {
                 // Community Management: Mettre à jour tp_assignments
+                $tpUpdateData = [
+                    'title' => $validated['title'],
+                    'description' => $validated['description'] ?? '',
+                    'status' => 'submitted',
+                    'updated_at' => now(),
+                ];
+
+                if (!empty($tpLinkColumn)) {
+                    $tpUpdateData[$tpLinkColumn] = $projectLink !== ''
+                        ? $projectLink
+                        : ($assignedProject->{$tpLinkColumn} ?? null);
+                }
+
                 DB::table('tp_assignments')
                     ->where('id', $projectId)
                     ->where('student_id', $student->id)
-                    ->update(array_filter([
-                        'title' => $validated['title'],
-                        'description' => $validated['description'] ?? '',
-                        $tpLinkColumn ? $tpLinkColumn : null => $projectLink !== '' ? $projectLink : ($tpLinkColumn ? ($assignedProject->{$tpLinkColumn} ?? null) : null),
-                        'status' => 'submitted',
-                        'updated_at' => now(),
-                    ], function ($v, $k) {
-                        return $k !== null;
-                    }, ARRAY_FILTER_USE_BOTH));
+                    ->update($tpUpdateData);
 
                 // Uploader les fichiers dans tp_submission_files
                 if ($request->hasFile('files')) {
-                    foreach ($request->file('files') as $file) {
-                        if (!$file || !$file->isValid()) {
-                            continue;
-                        }
-
-                        $uploadedCount++;
-                        $originalName = $file->getClientOriginalName();
-                        $extension = $file->getClientOriginalExtension();
-                        $fileSize = $file->getSize();
-                        $mimeType = $file->getMimeType();
-                        $storedName = time() . '_' . Str::random(10) . '.' . $extension;
-
-                        $directory = 'tp_submissions/' . $projectId . '/' . $student->id;
-                        $filePath = $file->storeAs($directory, $storedName, 'public');
-
-                        DB::table('tp_submission_files')->insert([
+                    if (!Schema::hasTable('tp_submission_files')) {
+                        Log::error('Table tp_submission_files inexistante: fichiers non enregistrés', [
                             'tp_assignment_id' => $projectId,
-                            'file_name' => $originalName,
-                            'file_path' => $filePath,
-                            'file_size' => $fileSize,
-                            'mime_type' => $mimeType,
-                            'created_at' => now(),
-                            'updated_at' => now(),
+                            'student_id' => $student->id,
                         ]);
+                    } else {
+                        foreach ($request->file('files') as $file) {
+                            if (!$file || !$file->isValid()) {
+                                continue;
+                            }
+
+                            try {
+                                $uploadedCount++;
+                                $originalName = $file->getClientOriginalName();
+                                $extension = $file->getClientOriginalExtension();
+                                $fileSize = $file->getSize();
+                                $mimeType = $file->getMimeType();
+                                $storedName = time() . '_' . Str::random(10) . '.' . $extension;
+
+                                $directory = 'tp_submissions/' . $projectId . '/' . $student->id;
+                                $filePath = $file->storeAs($directory, $storedName, 'public');
+
+                                DB::table('tp_submission_files')->insert([
+                                    'tp_assignment_id' => $projectId,
+                                    'file_name' => $originalName,
+                                    'file_path' => $filePath,
+                                    'file_size' => $fileSize,
+                                    'mime_type' => $mimeType,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ]);
+                            } catch (\Throwable $uploadError) {
+                                Log::error('Erreur upload fichier TP', [
+                                    'tp_assignment_id' => $projectId,
+                                    'student_id' => $student->id,
+                                    'file_name' => method_exists($file, 'getClientOriginalName') ? $file->getClientOriginalName() : null,
+                                    'error' => $uploadError->getMessage(),
+                                ]);
+                            }
+                        }
                     }
                 }
 
@@ -1833,16 +1854,21 @@ class DashboardController extends Controller
                     }
                 }
 
+                $projectUpdateData = [
+                    'status' => 'termine',
+                    'updated_at' => now(),
+                ];
+
+                if (!empty($projectLinkColumn)) {
+                    $projectUpdateData[$projectLinkColumn] = $projectLink !== ''
+                        ? $projectLink
+                        : ($assignedProject->{$projectLinkColumn} ?? null);
+                }
+
                 DB::table('projects')
                     ->where('id', $assignedProject->id)
                     ->where('user_id', $user->id)
-                    ->update(array_filter([
-                        'status' => 'termine',
-                        $projectLinkColumn ? $projectLinkColumn : null => $projectLink !== '' ? $projectLink : ($projectLinkColumn ? ($assignedProject->{$projectLinkColumn} ?? null) : null),
-                        'updated_at' => now(),
-                    ], function ($v, $k) {
-                        return $k !== null;
-                    }, ARRAY_FILTER_USE_BOTH));
+                    ->update($projectUpdateData);
             }
 
             DB::commit();
@@ -1892,7 +1918,15 @@ class DashboardController extends Controller
                 ->with('success', 'Projet soumis avec succès.');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erreur publication projet assigné: ' . $e->getMessage());
+            Log::error('Erreur publication projet assigné: ' . $e->getMessage(), [
+                'project_id' => $projectId,
+                'is_tp_assignment' => $isTpAssignment,
+                'user_id' => $user->id ?? null,
+                'student_id' => $student->id ?? null,
+            ]);
+            Log::error('Erreur publication projet assigné trace', [
+                'trace' => $e->getTraceAsString(),
+            ]);
             return redirect()->back()->with('error', 'Erreur lors de la publication.')->withInput();
         }
     }
