@@ -1798,59 +1798,114 @@ class DashboardController extends Controller
                     Log::error('Erreur globale notification admins (TP soumis): ' . $e->getMessage());
                 }
             } else {
-                // Design Graphique: Créer un design_project
-                $designProjectId = DB::table('design_projects')->insertGetId([
-                    'user_id' => $user->id,
-                    'title' => $validated['title'],
-                    'description' => $validated['description'] ?? null,
-                    'reference_url' => $projectLink !== '' ? $projectLink : null,
-                    'category' => 'solo',
-                    'project_type' => null,
-                    'software_used' => null,
-                    'status' => 'pending',
-                    'admin_comment' => null,
-                    'validated_at' => null,
-                    'completed_at' => null,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                // Design Graphique: soumission sur un projet assigné
+                $designProjectId = null;
 
-                if ($request->hasFile('files')) {
-                    $thumbSet = false;
+                if (Schema::hasTable('design_projects') && Schema::hasTable('design_project_files')) {
+                    // Environnements où les tables de soumission existent
+                    $designProjectId = DB::table('design_projects')->insertGetId([
+                        'user_id' => $user->id,
+                        'title' => $validated['title'],
+                        'description' => $validated['description'] ?? null,
+                        'reference_url' => $projectLink !== '' ? $projectLink : null,
+                        'category' => 'solo',
+                        'project_type' => null,
+                        'software_used' => null,
+                        'status' => 'pending',
+                        'admin_comment' => null,
+                        'validated_at' => null,
+                        'completed_at' => null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
 
-                    foreach ($request->file('files') as $file) {
-                        if (!$file || !$file->isValid()) {
-                            continue;
+                    if ($request->hasFile('files')) {
+                        $thumbSet = false;
+
+                        foreach ($request->file('files') as $file) {
+                            if (!$file || !$file->isValid()) {
+                                continue;
+                            }
+
+                            $uploadedCount++;
+                            $originalName = $file->getClientOriginalName();
+                            $extension = $file->getClientOriginalExtension();
+                            $fileSize = $file->getSize();
+                            $mimeType = $file->getMimeType();
+                            $storedName = time() . '_' . Str::random(10) . '.' . $extension;
+
+                            $directory = 'design_projects/' . $designProjectId . '/other';
+                            $filePath = $file->storeAs($directory, $storedName, 'public');
+
+                            $fileType = (is_string($mimeType) && str_starts_with($mimeType, 'image/')) ? 'image' : 'document';
+                            $isThumbnail = false;
+                            if (!$thumbSet && $fileType === 'image') {
+                                $isThumbnail = true;
+                                $thumbSet = true;
+                            }
+
+                            DB::table('design_project_files')->insert([
+                                'project_id' => $designProjectId,
+                                'original_name' => $originalName,
+                                'file_path' => $filePath,
+                                'file_size' => $fileSize,
+                                'mime_type' => $mimeType,
+                                'file_type' => $fileType,
+                                'is_thumbnail' => $isThumbnail,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
                         }
+                    }
+                } else {
+                    // Fallback (prod) : stocker les fichiers sur project_images du projet assigné
+                    if ($request->hasFile('files')) {
+                        if (!Schema::hasTable('project_images')) {
+                            Log::error('Table project_images inexistante: fichiers non enregistrés', [
+                                'project_id' => $assignedProject->id,
+                                'user_id' => $user->id,
+                            ]);
+                        } else {
+                            $thumbSet = false;
+                            $order = 0;
 
-                        $uploadedCount++;
-                        $originalName = $file->getClientOriginalName();
-                        $extension = $file->getClientOriginalExtension();
-                        $fileSize = $file->getSize();
-                        $mimeType = $file->getMimeType();
-                        $storedName = time() . '_' . Str::random(10) . '.' . $extension;
+                            foreach ($request->file('files') as $file) {
+                                if (!$file || !$file->isValid()) {
+                                    continue;
+                                }
 
-                        $directory = 'design_projects/' . $designProjectId . '/other';
-                        $filePath = $file->storeAs($directory, $storedName, 'public');
+                                $uploadedCount++;
+                                $originalName = $file->getClientOriginalName();
+                                $extension = $file->getClientOriginalExtension();
+                                $fileSize = $file->getSize();
+                                $mimeType = $file->getMimeType();
+                                $storedName = time() . '_' . Str::random(10) . '.' . $extension;
 
-                        $fileType = (is_string($mimeType) && str_starts_with($mimeType, 'image/')) ? 'image' : 'document';
-                        $isThumbnail = false;
-                        if (!$thumbSet && $fileType === 'image') {
-                            $isThumbnail = true;
-                            $thumbSet = true;
+                                $directory = 'project_submissions/' . $assignedProject->id . '/' . $user->id;
+                                $filePath = $file->storeAs($directory, $storedName, 'public');
+
+                                $isThumbnail = false;
+                                if (!$thumbSet && is_string($mimeType) && str_starts_with($mimeType, 'image/')) {
+                                    $isThumbnail = true;
+                                    $thumbSet = true;
+                                }
+
+                                DB::table('project_images')->insert([
+                                    'project_id' => $assignedProject->id,
+                                    'filename' => $storedName,
+                                    'original_name' => $originalName,
+                                    'mime_type' => (string) $mimeType,
+                                    'file_size' => $fileSize,
+                                    'file_path' => $filePath,
+                                    'is_thumbnail' => $isThumbnail,
+                                    'order_index' => $order,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ]);
+
+                                $order++;
+                            }
                         }
-
-                        DB::table('design_project_files')->insert([
-                            'project_id' => $designProjectId,
-                            'original_name' => $originalName,
-                            'file_path' => $filePath,
-                            'file_size' => $fileSize,
-                            'mime_type' => $mimeType,
-                            'file_type' => $fileType,
-                            'is_thumbnail' => $isThumbnail,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
                     }
                 }
 
@@ -1880,15 +1935,19 @@ class DashboardController extends Controller
                         ->whereIn('role', ['super_admin', 'assistant'])
                         ->get();
 
+                    $emailProjectId = $designProjectId ?? ($assignedProject->id ?? null);
+
                     $projectForEmail = (object) [
-                        'id' => $designProjectId,
+                        'id' => $emailProjectId,
                         'title' => $validated['title'],
                         'description' => $validated['description'] ?? null,
                         'reference_url' => null,
                     ];
 
                     $studentForEmail = DB::table('users')->where('id', $user->id)->first();
-                    $viewUrl = url('/evc/app/admin/design-projects/view/' . $designProjectId);
+                    $viewUrl = $designProjectId
+                        ? url('/evc/app/admin/design-projects/view/' . $designProjectId)
+                        : url('/evc/app/admin/projets/assigned');
 
                     foreach ($admins as $admin) {
                         if (empty($admin->email)) {
