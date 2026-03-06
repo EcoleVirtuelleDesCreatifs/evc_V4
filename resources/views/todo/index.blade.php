@@ -2,7 +2,7 @@
 
 @section('title', 'Mes TP à Faire')
 
-@section('page-title', 'Mes Travaux Pratiques')
+@section('page-title', 'Mes Projets à faire (ToDo List)')
 
 @push('styles')
 <style>
@@ -418,7 +418,7 @@
                     <i class="fas fa-tasks"></i>
                 </div>
                 <div>
-                    <h1>Mes Travaux Pratiques</h1>
+                    <h1>Mes Projets à faire (ToDo List)</h1>
                     <p>
                         @if($student)
                             Formation : {{ $student->program }}
