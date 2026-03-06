@@ -4513,8 +4513,11 @@ class DashboardController extends Controller
             $modulesToInclude = ['design-graphique-cm', 'design-graphique', 'community-management'];
         }
 
-        $baseQuery = \App\Models\Library::where('status', 'active')
-            ->where(function ($query) use ($modulesToInclude) {
+        $baseQuery = \App\Models\Library::where('status', 'active');
+
+        // Pour design-graphique-cm : afficher toutes les ressources actives (sans filtre recipients)
+        if ($currentModule !== 'design-graphique-cm') {
+            $baseQuery->where(function ($query) use ($modulesToInclude) {
                 $query->where(function ($q) use ($modulesToInclude) {
                     foreach ($modulesToInclude as $module) {
                         $q->orWhereJsonContains('recipients', $module);
@@ -4524,6 +4527,7 @@ class DashboardController extends Controller
                     ->orWhereNull('recipients')
                     ->orWhereRaw('JSON_LENGTH(recipients) = 0');
             });
+        }
 
         // Stats calculées sur l'ensemble des items (non paginé)
         $allItems = (clone $baseQuery)
