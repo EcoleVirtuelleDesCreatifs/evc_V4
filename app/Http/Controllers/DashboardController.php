@@ -1658,6 +1658,32 @@ class DashboardController extends Controller
         $projectLink = trim((string) ($validated['project_link'] ?? ''));
         $hasFiles = $request->hasFile('files') && is_array($request->file('files')) && count($request->file('files')) > 0;
 
+        $tpLinkColumn = null;
+        try {
+            if (Schema::hasTable('tp_assignments')) {
+                if (Schema::hasColumn('tp_assignments', 'submission_link')) {
+                    $tpLinkColumn = 'submission_link';
+                } elseif (Schema::hasColumn('tp_assignments', 'link')) {
+                    $tpLinkColumn = 'link';
+                }
+            }
+        } catch (\Throwable $e) {
+            $tpLinkColumn = null;
+        }
+
+        $projectLinkColumn = null;
+        try {
+            if (Schema::hasTable('projects')) {
+                if (Schema::hasColumn('projects', 'link')) {
+                    $projectLinkColumn = 'link';
+                } elseif (Schema::hasColumn('projects', 'submission_link')) {
+                    $projectLinkColumn = 'submission_link';
+                }
+            }
+        } catch (\Throwable $e) {
+            $projectLinkColumn = null;
+        }
+
         if (!$hasFiles && $projectLink === '') {
             return redirect()->back()
                 ->withErrors(['files' => 'Veuillez ajouter au moins un fichier OU un lien du projet.'])
@@ -1674,13 +1700,15 @@ class DashboardController extends Controller
                 DB::table('tp_assignments')
                     ->where('id', $projectId)
                     ->where('student_id', $student->id)
-                    ->update([
+                    ->update(array_filter([
                         'title' => $validated['title'],
                         'description' => $validated['description'] ?? '',
-                        'submission_link' => $projectLink !== '' ? $projectLink : ($assignedProject->submission_link ?? null),
+                        $tpLinkColumn ? $tpLinkColumn : null => $projectLink !== '' ? $projectLink : ($tpLinkColumn ? ($assignedProject->{$tpLinkColumn} ?? null) : null),
                         'status' => 'submitted',
                         'updated_at' => now(),
-                    ]);
+                    ], function ($v, $k) {
+                        return $k !== null;
+                    }, ARRAY_FILTER_USE_BOTH));
 
                 // Uploader les fichiers dans tp_submission_files
                 if ($request->hasFile('files')) {
@@ -1808,11 +1836,13 @@ class DashboardController extends Controller
                 DB::table('projects')
                     ->where('id', $assignedProject->id)
                     ->where('user_id', $user->id)
-                    ->update([
+                    ->update(array_filter([
                         'status' => 'termine',
-                        'link' => $projectLink !== '' ? $projectLink : ($assignedProject->link ?? null),
+                        $projectLinkColumn ? $projectLinkColumn : null => $projectLink !== '' ? $projectLink : ($projectLinkColumn ? ($assignedProject->{$projectLinkColumn} ?? null) : null),
                         'updated_at' => now(),
-                    ]);
+                    ], function ($v, $k) {
+                        return $k !== null;
+                    }, ARRAY_FILTER_USE_BOTH));
             }
 
             DB::commit();
