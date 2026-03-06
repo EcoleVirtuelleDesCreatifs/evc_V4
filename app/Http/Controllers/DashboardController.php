@@ -4572,7 +4572,10 @@ class DashboardController extends Controller
             $modulesToInclude = ['design-graphique-cm', 'design-graphique', 'community-management'];
         }
 
-        $baseQuery = \App\Models\Library::where('status', 'active');
+        $baseQuery = \App\Models\Library::where(function ($query) {
+            $query->where('status', 'active')
+                ->orWhereNull('status');
+        });
 
         // Pour design-graphique-cm : afficher toutes les ressources actives (sans filtre recipients)
         if ($currentModule !== 'design-graphique-cm') {
