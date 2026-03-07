@@ -205,9 +205,11 @@
                                                     $itemId = (int) ($project['id'] ?? 0);
                                                     $itemCategory = (string) ($project['category'] ?? '');
                                                     $isTpItem = ($itemCategory === 'tp');
+                                                    $itemStatus = (string) ($project['status'] ?? '');
+                                                    $isValidated = ($itemStatus === 'validated');
                                                     $canShow = $itemId > 0 && (\Illuminate\Support\Facades\Route::has($projectsShowRouteName) || \Illuminate\Support\Facades\Route::has($todoTraiterRouteName));
-                                                    $canEdit = !$isTpItem && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsEditRouteName);
-                                                    $canDelete = !$isTpItem && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName);
+                                                    $canEdit = !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsEditRouteName);
+                                                    $canDelete = !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName);
                                                 @endphp
 
                                                 <div class="d-flex flex-wrap gap-2">
