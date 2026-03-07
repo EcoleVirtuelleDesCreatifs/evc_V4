@@ -16,6 +16,7 @@
         $projectsEditRouteName = $formationPrefix . '.projets.edit';
         $projectsDestroyRouteName = $formationPrefix . '.projets.destroy';
         $todoTraiterRouteName = $formationPrefix . '.todo.traiter';
+        $todoRetirerRouteName = $formationPrefix . '.todo.retirer';
 
         $formationKey = strtolower($formationPrefix);
         $isCmFormation = str_ends_with($formationKey, '-cm') || in_array($formationKey, ['community-management', 'community-manager'], true);
@@ -213,6 +214,8 @@
                                                     $canShow = $itemId > 0 && (\Illuminate\Support\Facades\Route::has($todoTraiterRouteName) || \Illuminate\Support\Facades\Route::has($projectsShowRouteName));
                                                     $canEdit = !$isCmFormation && !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsEditRouteName);
                                                     $canDelete = !$isCmFormation && !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName);
+                                                    $canEditAssigned = ($isTpItem || $isCmFormation) && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($todoTraiterRouteName);
+                                                    $canWithdrawAssigned = ($isTpItem || $isCmFormation) && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($todoRetirerRouteName);
                                                 @endphp
 
                                                 <div class="d-flex flex-wrap gap-2">
@@ -228,6 +231,23 @@
                                                                 Voir
                                                             </a>
                                                         @endif
+                                                    @endif
+
+                                                    @if($canEditAssigned)
+                                                        <a href="{{ route($todoTraiterRouteName, ['projectId' => $itemId]) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 10px; font-weight: 800;">
+                                                            <i class="fas fa-edit me-1"></i>
+                                                            Éditer
+                                                        </a>
+                                                    @endif
+
+                                                    @if($canWithdrawAssigned)
+                                                        <form action="{{ route($todoRetirerRouteName, ['projectId' => $itemId]) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir retirer cette soumission ?');" style="display: inline;">
+                                                            @csrf
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 10px; font-weight: 800;">
+                                                                <i class="fas fa-undo me-1"></i>
+                                                                Retirer
+                                                            </button>
+                                                        </form>
                                                     @endif
 
                                                     @if($canEdit)
@@ -248,7 +268,7 @@
                                                         </form>
                                                     @endif
 
-                                                    @if(!$canShow && !$canEdit && !$canDelete)
+                                                    @if(!$canShow && !$canEdit && !$canDelete && !$canEditAssigned && !$canWithdrawAssigned)
                                                         <div class="text-muted">-</div>
                                                     @endif
                                                 </div>
