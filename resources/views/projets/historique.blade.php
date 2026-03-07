@@ -16,6 +16,9 @@
         $projectsEditRouteName = $formationPrefix . '.projets.edit';
         $projectsDestroyRouteName = $formationPrefix . '.projets.destroy';
         $todoTraiterRouteName = $formationPrefix . '.todo.traiter';
+
+        $formationKey = strtolower($formationPrefix);
+        $isCmFormation = str_ends_with($formationKey, '-cm') || in_array($formationKey, ['community-management', 'community-manager'], true);
     @endphp
 
     <div class="row mb-4">
@@ -207,20 +210,20 @@
                                                     $isTpItem = ($itemCategory === 'tp');
                                                     $itemStatus = (string) ($project['status'] ?? '');
                                                     $isValidated = ($itemStatus === 'validated');
-                                                    $canShow = $itemId > 0 && (\Illuminate\Support\Facades\Route::has($projectsShowRouteName) || \Illuminate\Support\Facades\Route::has($todoTraiterRouteName));
-                                                    $canEdit = !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsEditRouteName);
-                                                    $canDelete = !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName);
+                                                    $canShow = $itemId > 0 && (\Illuminate\Support\Facades\Route::has($todoTraiterRouteName) || \Illuminate\Support\Facades\Route::has($projectsShowRouteName));
+                                                    $canEdit = !$isCmFormation && !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsEditRouteName);
+                                                    $canDelete = !$isCmFormation && !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName);
                                                 @endphp
 
                                                 <div class="d-flex flex-wrap gap-2">
                                                     @if($canShow)
-                                                        @if(!$isTpItem && \Illuminate\Support\Facades\Route::has($projectsShowRouteName))
-                                                            <a href="{{ route($projectsShowRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
+                                                        @if(\Illuminate\Support\Facades\Route::has($todoTraiterRouteName) && ($isTpItem || $isCmFormation))
+                                                            <a href="{{ route($todoTraiterRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
                                                                 <i class="fas fa-eye me-1"></i>
                                                                 Voir
                                                             </a>
-                                                        @elseif(\Illuminate\Support\Facades\Route::has($todoTraiterRouteName))
-                                                            <a href="{{ route($todoTraiterRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
+                                                        @elseif(!$isTpItem && \Illuminate\Support\Facades\Route::has($projectsShowRouteName))
+                                                            <a href="{{ route($projectsShowRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
                                                                 <i class="fas fa-eye me-1"></i>
                                                                 Voir
                                                             </a>
