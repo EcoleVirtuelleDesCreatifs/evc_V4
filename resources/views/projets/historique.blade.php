@@ -201,7 +201,52 @@
                                                 </span>
                                             </td>
                                             <td>
-                                                <div class="text-muted">-</div>
+                                                @php
+                                                    $itemId = (int) ($project['id'] ?? 0);
+                                                    $itemCategory = (string) ($project['category'] ?? '');
+                                                    $isTpItem = ($itemCategory === 'tp');
+                                                    $canShow = $itemId > 0 && (\Illuminate\Support\Facades\Route::has($projectsShowRouteName) || \Illuminate\Support\Facades\Route::has($todoTraiterRouteName));
+                                                    $canEdit = !$isTpItem && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsEditRouteName);
+                                                    $canDelete = !$isTpItem && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName);
+                                                @endphp
+
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    @if($canShow)
+                                                        @if(!$isTpItem && \Illuminate\Support\Facades\Route::has($projectsShowRouteName))
+                                                            <a href="{{ route($projectsShowRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
+                                                                <i class="fas fa-eye me-1"></i>
+                                                                Voir
+                                                            </a>
+                                                        @elseif(\Illuminate\Support\Facades\Route::has($todoTraiterRouteName))
+                                                            <a href="{{ route($todoTraiterRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
+                                                                <i class="fas fa-eye me-1"></i>
+                                                                Voir
+                                                            </a>
+                                                        @endif
+                                                    @endif
+
+                                                    @if($canEdit)
+                                                        <a href="{{ route($projectsEditRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-warning" style="border-radius: 10px; font-weight: 800;">
+                                                            <i class="fas fa-edit me-1"></i>
+                                                            Modifier
+                                                        </a>
+                                                    @endif
+
+                                                    @if($canDelete)
+                                                        <form action="{{ route($projectsDestroyRouteName, ['id' => $itemId]) }}" method="POST" onsubmit="return confirmDeleteProject();" style="display: inline;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 10px; font-weight: 800;">
+                                                                <i class="fas fa-trash me-1"></i>
+                                                                Supprimer
+                                                            </button>
+                                                        </form>
+                                                    @endif
+
+                                                    @if(!$canShow && !$canEdit && !$canDelete)
+                                                        <div class="text-muted">-</div>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
