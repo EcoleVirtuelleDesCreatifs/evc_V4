@@ -218,7 +218,7 @@
                                                 <div class="d-flex flex-wrap gap-2">
                                                     @if($canShow)
                                                         @if(\Illuminate\Support\Facades\Route::has($todoTraiterRouteName) && ($isTpItem || $isCmFormation))
-                                                            <a href="{{ route($todoTraiterRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
+                                                            <a href="{{ route($todoTraiterRouteName, ['projectId' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
                                                                 <i class="fas fa-eye me-1"></i>
                                                                 Voir
                                                             </a>
