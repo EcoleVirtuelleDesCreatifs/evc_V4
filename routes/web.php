@@ -422,6 +422,7 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     // Traiter un projet assigné (publication)
     Route::get('/todo/traiter/{projectId}', [DashboardController::class, 'traiterAssignedProject'])->name('todo.traiter');
     Route::post('/todo/traiter/{projectId}', [DashboardController::class, 'storeTreatedAssignedProject'])->name('todo.traiter.store');
+    Route::post('/todo/retirer/{projectId}', [DashboardController::class, 'retirerAssignedProject'])->name('todo.retirer');
 
     // Programme - Structure: /evc/compte/design-graphique/programme/{action}
     Route::get('/programme/index', [DashboardController::class, 'programmeIndex'])->name('programme.index');
@@ -536,6 +537,7 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
     Route::get('/todo/index', [DashboardController::class, 'todoIndex'])->name('todo.index');
     Route::get('/todo/traiter/{projectId}', [DashboardController::class, 'traiterAssignedProject'])->name('todo.traiter');
     Route::post('/todo/traiter/{projectId}', [DashboardController::class, 'storeTreatedAssignedProject'])->name('todo.traiter.store');
+    Route::post('/todo/retirer/{projectId}', [DashboardController::class, 'retirerAssignedProject'])->name('todo.retirer');
 
     // Programme
     Route::get('/programme/index', [DashboardController::class, 'programmeIndex'])->name('programme.index');
@@ -738,6 +740,7 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
     // Traiter un projet assigné (publication)
     Route::get('/todo/traiter/{projectId}', [DashboardController::class, 'traiterAssignedProject'])->name('todo.traiter');
     Route::post('/todo/traiter/{projectId}', [DashboardController::class, 'storeTreatedAssignedProject'])->name('todo.traiter.store');
+    Route::post('/todo/retirer/{projectId}', [DashboardController::class, 'retirerAssignedProject'])->name('todo.retirer');
 
     // Programme - Structure: /evc/compte/community-management/programme/{action}
     Route::get('/programme/index', [DashboardController::class, 'programmeIndex'])->name('programme.index');
