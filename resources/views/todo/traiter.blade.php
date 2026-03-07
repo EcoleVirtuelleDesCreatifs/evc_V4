@@ -203,6 +203,27 @@
                         @if($briefFiles->isEmpty())
                             <div class="muted">Aucun fichier joint.</div>
                         @else
+                            @php
+                                $briefImages = $briefFiles->filter(function ($f) {
+                                    $name = strtolower((string) ($f->name ?? ''));
+                                    $url = strtolower((string) ($f->url ?? ''));
+                                    $ext = pathinfo($name ?: $url, PATHINFO_EXTENSION);
+                                    return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'], true);
+                                })->values();
+                            @endphp
+
+                            @if($briefImages->isNotEmpty())
+                                <div class="row g-3 mb-3">
+                                    @foreach($briefImages as $img)
+                                        <div class="col-6 col-md-4">
+                                            <a href="{{ $img->url }}" target="_blank" style="display:block; text-decoration:none;">
+                                                <img src="{{ $img->url }}" alt="Aperçu" class="img-fluid rounded shadow-sm" style="width: 100%; height: 120px; object-fit: cover;" loading="lazy" onerror="this.style.display='none'">
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+
                             <div>
                                 @foreach($briefFiles as $f)
                                     <a class="file-pill" href="{{ $f->url }}" target="_blank">
