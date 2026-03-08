@@ -1661,7 +1661,7 @@ class DashboardController extends Controller
         if ($projectLink === '') {
             $links = $request->input('links', []);
             if (is_array($links)) {
-                $links = array_values(array_filter($links, fn ($l) => is_string($l) && trim($l) !== ''));
+                $links = array_values(array_filter($links, fn($l) => is_string($l) && trim($l) !== ''));
                 $projectLink = trim((string) ($links[0] ?? ''));
             }
         }
@@ -1849,34 +1849,34 @@ class DashboardController extends Controller
 
                             try {
 
-                            $uploadedCount++;
-                            $originalName = $file->getClientOriginalName();
-                            $extension = $file->getClientOriginalExtension();
-                            $fileSize = $file->getSize();
-                            $mimeType = $file->getMimeType();
-                            $storedName = time() . '_' . Str::random(10) . '.' . $extension;
+                                $uploadedCount++;
+                                $originalName = $file->getClientOriginalName();
+                                $extension = $file->getClientOriginalExtension();
+                                $fileSize = $file->getSize();
+                                $mimeType = $file->getMimeType();
+                                $storedName = time() . '_' . Str::random(10) . '.' . $extension;
 
-                            $directory = 'design_projects/' . $designProjectId . '/other';
-                            $filePath = $file->storeAs($directory, $storedName, 'public');
+                                $directory = 'design_projects/' . $designProjectId . '/other';
+                                $filePath = $file->storeAs($directory, $storedName, 'public');
 
-                            $fileType = (is_string($mimeType) && str_starts_with($mimeType, 'image/')) ? 'image' : 'document';
-                            $isThumbnail = false;
-                            if (!$thumbSet && $fileType === 'image') {
-                                $isThumbnail = true;
-                                $thumbSet = true;
-                            }
+                                $fileType = (is_string($mimeType) && str_starts_with($mimeType, 'image/')) ? 'image' : 'document';
+                                $isThumbnail = false;
+                                if (!$thumbSet && $fileType === 'image') {
+                                    $isThumbnail = true;
+                                    $thumbSet = true;
+                                }
 
-                            DB::table('design_project_files')->insert([
-                                'project_id' => $designProjectId,
-                                'original_name' => $originalName,
-                                'file_path' => $filePath,
-                                'file_size' => $fileSize,
-                                'mime_type' => $mimeType,
-                                'file_type' => $fileType,
-                                'is_thumbnail' => $isThumbnail,
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ]);
+                                DB::table('design_project_files')->insert([
+                                    'project_id' => $designProjectId,
+                                    'original_name' => $originalName,
+                                    'file_path' => $filePath,
+                                    'file_size' => $fileSize,
+                                    'mime_type' => $mimeType,
+                                    'file_type' => $fileType,
+                                    'is_thumbnail' => $isThumbnail,
+                                    'created_at' => now(),
+                                    'updated_at' => now(),
+                                ]);
                             } catch (\Throwable $uploadError) {
                                 Log::error('Erreur upload fichier projet assigné (design_project_files)', [
                                     'project_id' => $assignedProject->id,
@@ -1907,33 +1907,33 @@ class DashboardController extends Controller
 
                                 try {
                                     $uploadedCount++;
-                                $originalName = $file->getClientOriginalName();
-                                $extension = $file->getClientOriginalExtension();
-                                $fileSize = $file->getSize();
-                                $mimeType = $file->getMimeType();
-                                $storedName = time() . '_' . Str::random(10) . '.' . $extension;
+                                    $originalName = $file->getClientOriginalName();
+                                    $extension = $file->getClientOriginalExtension();
+                                    $fileSize = $file->getSize();
+                                    $mimeType = $file->getMimeType();
+                                    $storedName = time() . '_' . Str::random(10) . '.' . $extension;
 
-                                $directory = 'project_submissions/' . $assignedProject->id . '/' . $user->id;
-                                $filePath = $file->storeAs($directory, $storedName, 'public');
+                                    $directory = 'project_submissions/' . $assignedProject->id . '/' . $user->id;
+                                    $filePath = $file->storeAs($directory, $storedName, 'public');
 
-                                $isThumbnail = false;
-                                if (!$thumbSet && is_string($mimeType) && str_starts_with($mimeType, 'image/')) {
-                                    $isThumbnail = true;
-                                    $thumbSet = true;
-                                }
+                                    $isThumbnail = false;
+                                    if (!$thumbSet && is_string($mimeType) && str_starts_with($mimeType, 'image/')) {
+                                        $isThumbnail = true;
+                                        $thumbSet = true;
+                                    }
 
-                                DB::table('project_images')->insert([
-                                    'project_id' => $assignedProject->id,
-                                    'filename' => $storedName,
-                                    'original_name' => $originalName,
-                                    'mime_type' => (string) $mimeType,
-                                    'file_size' => $fileSize,
-                                    'file_path' => $filePath,
-                                    'is_thumbnail' => $isThumbnail,
-                                    'order_index' => $order,
-                                    'created_at' => now(),
-                                    'updated_at' => now(),
-                                ]);
+                                    DB::table('project_images')->insert([
+                                        'project_id' => $assignedProject->id,
+                                        'filename' => $storedName,
+                                        'original_name' => $originalName,
+                                        'mime_type' => (string) $mimeType,
+                                        'file_size' => $fileSize,
+                                        'file_path' => $filePath,
+                                        'is_thumbnail' => $isThumbnail,
+                                        'order_index' => $order,
+                                        'created_at' => now(),
+                                        'updated_at' => now(),
+                                    ]);
                                 } catch (\Throwable $uploadError) {
                                     Log::error('Erreur upload fichier projet assigné (project_images fallback)', [
                                         'project_id' => $assignedProject->id,
@@ -2028,6 +2028,31 @@ class DashboardController extends Controller
             ]);
             return redirect()->back()->with('error', 'Erreur lors de la publication.')->withInput();
         }
+    }
+
+    public function retirerAssignedProject($projectId): RedirectResponse
+    {
+        $userId = Auth::id();
+        $student = DB::table('students')->where('user_id', $userId)->first();
+        $formationPrefix = $this->getFormationSlug($student);
+
+        $updated = DB::table('projects')
+            ->where('id', $projectId)
+            ->where('user_id', $userId)
+            ->whereNotIn('status', ['valide', 'validated'])
+            ->update(['status' => 'en_cours', 'updated_at' => now()]);
+
+        if ($updated <= 0 && $student) {
+            $updated = DB::table('tp_assignments')
+                ->where('id', $projectId)
+                ->where('student_id', $student->id)
+                ->whereNotIn('status', ['validated'])
+                ->update(['status' => 'assigned', 'updated_at' => now()]);
+        }
+
+        return $updated > 0
+            ? redirect()->route($formationPrefix . '.projets.historique')->with('success', 'Soumission retirée avec succès.')
+            : redirect()->back()->with('error', 'Projet non trouvé, déjà validé, ou non autorisé.');
     }
 
     /**
