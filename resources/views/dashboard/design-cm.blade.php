@@ -394,6 +394,15 @@
     $pr = optional($preReg ?? null);
     $userObj = isset($user) ? $user : (auth()->check() ? auth()->user() : null);
 
+    $expirationDateSafe = $expirationDate ?? null;
+    if (!($expirationDateSafe instanceof \Carbon\Carbon)) {
+        try {
+            $expirationDateSafe = \Carbon\Carbon::parse($expirationDateSafe);
+        } catch (\Exception $e) {
+            $expirationDateSafe = \Carbon\Carbon::now();
+        }
+    }
+
     $studentPhoto = $sf->profile_photo;
     $prePhoto = $pr->profile_photo ?? $pr->photo ?? $pr->image ?? $pr->image_url ?? $pr->avatar;
     $rawPhoto = $studentPhoto ?: $prePhoto;
@@ -422,7 +431,14 @@
     $program = ($sf->program ?? '') ?: ($pr->program ?? '');
 
     // Normalisation du nom du programme pour l'affichage
-    if ($program === 'design_graphique_community_management' || $program === 'design-graphique-community-manager') {
+    $programKey = strtolower(trim((string) $program));
+    if (in_array($programKey, [
+        'design_graphique_community_management',
+        'design_graphique_community_manager',
+        'design-graphique-community-manager',
+        'design graphique & community management',
+        'design graphique & community manager',
+    ], true)) {
         $program = 'Design Graphique & Community Management';
     }
 
@@ -588,8 +604,8 @@
                     </div>
                     <div class="col-md-4 text-center">
                         <div class="text-white small" style="opacity: 0.8; text-transform: uppercase; font-weight: 600;">Expire le</div>
-                        <div class="text-white" style="font-size: 1.5rem; font-weight: 700;">{{ $expirationDate->format('d/m/Y') }}</div>
-                        <div class="text-white" style="opacity: 0.8;">{{ $expirationDate->format('H:i') }}</div>
+                        <div class="text-white" style="font-size: 1.5rem; font-weight: 700;">{{ $expirationDateSafe->format('d/m/Y') }}</div>
+                        <div class="text-white" style="opacity: 0.8;">{{ $expirationDateSafe->format('H:i') }}</div>
                     </div>
                     <div class="col-md-4">
                         <div class="text-white small mb-2" style="opacity: 0.85; text-transform: uppercase; font-weight: 700;">Temps restant</div>
@@ -935,7 +951,7 @@
 <script>
     (function() {
         const statsUrl = @json(route('dashboard.design-graphique-cm.stats'));
-        const expirationIso = @json($expirationDate->toIso8601String());
+        const expirationIso = @json($expirationDateSafe->toIso8601String());
 
         const el = {
             formations: document.getElementById('dg_formations_disponibles'),

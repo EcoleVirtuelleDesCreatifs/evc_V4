@@ -36,7 +36,7 @@ class CheckStudentActive
             // Vérifier si la table students existe et si l'étudiant a un compte désactivé
             if (Schema::hasTable('students')) {
                 $student = DB::table('students')
-                    ->where('email', $user->email)
+                    ->where('user_id', $user->id)
                     ->first();
 
                 // Si l'étudiant existe et que son statut est inactive

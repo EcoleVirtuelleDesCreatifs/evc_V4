@@ -594,7 +594,7 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
 });
 
 // Groupe de routes pour Design Graphique & Community Management (design-graphique-cm)
-Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->middleware(['auth', 'student.active', 'formation.access'])->group(function () {
+Route::prefix('/evc/compte/design-graphique-cm-legacy')->name('design-graphique-cm-legacy.')->middleware(['auth', 'student.active', 'formation.access'])->group(function () {
     // Profil
     Route::get('/profil/editer/{id?}', [DashboardController::class, 'editProfile'])->name('profil.editer');
     Route::post('/profil/editer/{id?}', [DashboardController::class, 'updateProfile'])->name('profil.update');

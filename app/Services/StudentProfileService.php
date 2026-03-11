@@ -26,8 +26,11 @@ class StudentProfileService
                 $student = new Student([
                     'user_id' => $user->id,
                     'first_name' => $user->name ?? '',
-                    'email' => $user->email ?? '',
                 ]);
+
+                if (Schema::hasTable('students') && Schema::hasColumn('students', 'email')) {
+                    $student->email = $user->email ?? '';
+                }
             }
 
             return $student;
@@ -52,7 +55,12 @@ class StudentProfileService
             'first_name','last_name','email','phone','whatsapp','date_of_birth','gender','student_id','program',
             'level','specialization','quartier','city','country','status','gpa','credits_earned','years_experience','industry_sector'
         ] as $field) {
-            if (array_key_exists($field, $data) && $data[$field] !== null) {
+            if (
+                array_key_exists($field, $data)
+                && $data[$field] !== null
+                && Schema::hasTable('students')
+                && Schema::hasColumn('students', $field)
+            ) {
                 $student->{$field} = $data[$field];
             }
         }
@@ -109,7 +117,9 @@ class StudentProfileService
         }
 
         if (empty($student->email)) {
-            $student->email = auth()->user()->email ?? 'noemail@evc.com';
+            if (Schema::hasTable('students') && Schema::hasColumn('students', 'email')) {
+                $student->email = auth()->user()->email ?? 'noemail@evc.com';
+            }
         }
 
         if (empty($student->degree)) {

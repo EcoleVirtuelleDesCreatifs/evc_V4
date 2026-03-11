@@ -217,10 +217,7 @@ class DashboardController extends Controller
 
         if ($student && isset($student->id)) {
             $tpAssignmentsQuery = DB::table('tp_assignments')
-                ->where(function ($q) use ($student, $user) {
-                    $q->where('student_id', $student->id)
-                        ->orWhere('student_id', $user->id);
-                });
+                ->where('student_id', $student->id);
 
             if ($isExpiredNow) {
                 $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
@@ -478,7 +475,7 @@ class DashboardController extends Controller
 
         // Compter les programmes disponibles pour Design & CM
         $formationsDisponibles = 0;
-        if (Schema::hasTable('formations')) {
+        if (Schema::hasTable('formations') && Schema::hasColumn('formations', 'modules')) {
             $formationsQuery = DB::table('formations')
                 ->where('status', 'active')
                 ->where(function ($query) {
@@ -501,10 +498,7 @@ class DashboardController extends Controller
 
         if ($student && isset($student->id)) {
             $tpAssignmentsQuery = DB::table('tp_assignments')
-                ->where(function ($q) use ($student, $user) {
-                    $q->where('student_id', $student->id)
-                        ->orWhere('student_id', $user->id);
-                });
+                ->where('student_id', $student->id);
 
             if ($isExpiredNow) {
                 $tpAssignmentsQuery->where('created_at', '<=', $expirationDate);
@@ -4756,7 +4750,7 @@ class DashboardController extends Controller
             // 2. Récupérer les projets assignés à l'étudiant (table projects)
             $projects = DB::table('projects')
                 ->where('user_id', $user->id)
-                ->where('status', 'en_cours')
+                ->whereIn('status', ['en_cours', 'assigned'])
                 ->orderByDesc('created_at')
                 ->get();
 

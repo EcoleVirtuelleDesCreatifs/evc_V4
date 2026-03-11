@@ -117,11 +117,12 @@ class AccountExpirationHelper
             $user = Auth::user();
         }
 
-        // Essayer de récupérer depuis la table students
-        $studentRecord = DB::table('students')
-            ->where('user_id', $user->id)
-            ->orWhere('email', $user->email)
-            ->first();
+        $studentRecord = null;
+        if (Schema::hasTable('students')) {
+            $studentRecord = DB::table('students')
+                ->where('user_id', $user->id)
+                ->first();
+        }
 
         $program = $studentRecord->program ?? null;
         $durationMonths = self::getDefaultDurationMonths($program);
@@ -213,10 +214,7 @@ class AccountExpirationHelper
             // Désactiver le compte si expiré
             // NE PAS mettre de deactivation_reason pour différencier l'expiration d'une désactivation manuelle
             DB::table('students')
-                ->where(function($query) use ($user) {
-                    $query->where('user_id', $user->id)
-                          ->orWhere('email', $user->email);
-                })
+                ->where('user_id', $user->id)
                 ->where('status', 'active')
                 ->update([
                     'status' => 'inactive',
@@ -229,10 +227,7 @@ class AccountExpirationHelper
             // Réactiver automatiquement si le compte n'est plus expiré
             // SAUF si désactivation manuelle (avec deactivation_reason)
             DB::table('students')
-                ->where(function($query) use ($user) {
-                    $query->where('user_id', $user->id)
-                          ->orWhere('email', $user->email);
-                })
+                ->where('user_id', $user->id)
                 ->where('status', 'inactive')
                 ->whereNull('deactivation_reason') // Seulement si pas de désactivation manuelle
                 ->update([
