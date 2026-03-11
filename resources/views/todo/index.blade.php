@@ -402,7 +402,18 @@
         margin-bottom: 1.5rem;
     }
 
-    .tp-details-description{background:#f8f9fa;padding:1.5rem;border-radius:12px;line-height:1.85;color:#111827;word-break:break-word;white-space:normal;}
+    .tp-details-description{background:#f8f9fa;padding:1.5rem;border-radius:12px;line-height:1.95;color:#111827;word-break:break-word;white-space:normal;}
+    .tp-details-description h1,.tp-details-description h2,.tp-details-description h3,.tp-details-description h4{margin:1.1rem 0 0.6rem;font-weight:900;color:#0f172a;}
+    .tp-details-description h1{font-size:1.2rem;}
+    .tp-details-description h2{font-size:1.1rem;}
+    .tp-details-description h3,.tp-details-description h4{font-size:1.05rem;}
+    .tp-details-description p{margin:0 0 0.95rem;color:#111827;}
+    .tp-details-description ul,.tp-details-description ol{margin:0 0 0.95rem;padding-left:1.25rem;}
+    .tp-details-description li{margin:0.25rem 0;color:#111827;}
+    .tp-details-description strong,.tp-details-description b{font-weight:800;}
+    .tp-details-description a{color:var(--blue-700);text-decoration:underline;}
+    .tp-details-description blockquote{margin:0 0 0.95rem;padding:0.75rem 1rem;border-left:4px solid rgba(42,82,152,0.25);background:rgba(42,82,152,0.06);border-radius:10px;}
+
     .tp-details-description .tp-details-heading{margin:0.25rem 0 0.6rem;font-weight:900;letter-spacing:.04em;color:#0f172a;}
     .tp-details-description .tp-details-line{margin:0 0 0.7rem;color:#111827;}
 </style>
@@ -933,6 +944,47 @@ function showDetails(tpId) {
     }
 
     function formatDescription(raw) {
+        const rawHtml = String(raw || '');
+        const looksLikeHtml = /<\s*\w+[^>]*>/i.test(rawHtml);
+
+        function sanitizeRichHtml(html) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+
+            // Remove scripts/iframes/embeds
+            tmp.querySelectorAll('script,iframe,object,embed').forEach((el) => el.remove());
+
+            // Strip inline event handlers + javascript: URLs
+            tmp.querySelectorAll('*').forEach((el) => {
+                Array.from(el.attributes || []).forEach((attr) => {
+                    const name = String(attr.name || '').toLowerCase();
+                    const value = String(attr.value || '');
+
+                    if (name.startsWith('on')) {
+                        el.removeAttribute(attr.name);
+                        return;
+                    }
+
+                    if ((name === 'href' || name === 'src') && /^\s*javascript:/i.test(value)) {
+                        el.removeAttribute(attr.name);
+                    }
+                });
+            });
+
+            // Ensure links are safe
+            tmp.querySelectorAll('a').forEach((a) => {
+                a.setAttribute('rel', 'noopener noreferrer');
+                a.setAttribute('target', '_blank');
+            });
+
+            return tmp.innerHTML;
+        }
+
+        if (looksLikeHtml) {
+            const cleaned = sanitizeRichHtml(rawHtml).trim();
+            return cleaned !== '' ? cleaned : '<span style="color:#64748b;">Aucune description.</span>';
+        }
+
         let text = toPlainText(raw);
         if (!text) {
             return '<span style="color:#64748b;">Aucune description.</span>';
