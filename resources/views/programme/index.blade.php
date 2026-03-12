@@ -1674,6 +1674,15 @@
 .tools-reset:hover {
     filter: brightness(1.02);
 }
+
+.programme-hero-wrap{background:linear-gradient(90deg,#0a1128 0%,#001f54 50%,#034078 100%) !important;}
+.programme-card-modern{background:#fff !important;border:1px solid rgba(15,23,42,.08) !important;}
+.programme-card-title{color:#0f172a !important;}
+.programme-card-desc,.programme-card-desc-muted{color:rgba(15,23,42,.72) !important;}
+.programme-chip{color:rgba(15,23,42,.85) !important;background:rgba(15,23,42,.04) !important;border:1px solid rgba(15,23,42,.08) !important;}
+.programme-chip-soft{color:rgba(15,23,42,.70) !important;}
+.programme-card-icon{background:rgba(249,115,22,.12) !important;border:1px solid rgba(249,115,22,.22) !important;color:#f97316 !important;}
+.programme-card-actions .btn{border-radius:999px !important;font-weight:800 !important;}
 </style>
 @endpush
 
