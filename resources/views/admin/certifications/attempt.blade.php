@@ -117,7 +117,7 @@
             @endif
         </div>
 
-        <p class="text-white mb-2">{!! nl2br(e($ans->question_text)) !!}</p>
+        <p class="text-white mb-2">{!! strip_tags($ans->question_text, '<p><br><strong><b><ul><ol><li>') !!}</p>
 
         @if($ans->media_url)
             <img src="{{ asset('storage/' . $ans->media_url) }}" alt="Media" style="max-height: 150px; border-radius: 8px;" class="mb-2">

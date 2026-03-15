@@ -95,7 +95,7 @@
                             <span class="cert-badge badge-formation">{{ $cert->formation }}</span>
                         @endif
                         @if($cert->status === 'scheduled' && $cert->scheduled_at)
-                            <span class="text-muted" style="font-size:0.8rem;"><i class="fas fa-calendar me-1"></i>{{ \Carbon\Carbon::parse($cert->scheduled_at)->format('d/m/Y H:i') }}</span>
+                            <span class="cert-badge badge-scheduled" style="font-size:0.78rem;"><i class="fas fa-calendar-alt me-1"></i>Programmée le {{ \Carbon\Carbon::parse($cert->scheduled_at)->format('d/m/Y') }} à {{ \Carbon\Carbon::parse($cert->scheduled_at)->format('H:i') }}</span>
                         @endif
                     </div>
                     @if($cert->description)
