@@ -464,9 +464,21 @@
                                                                     <div class="text-white-50 small">{{ $studentWork->student_email }}</div>
                                                                 </div>
                                                             </div>
-                                                            <a href="{{ route('admin.projects.view', $studentWork->id) }}" class="btn btn-sm btn-outline-info">
-                                                                <i class="fas fa-eye me-1"></i>Voir
-                                                            </a>
+                                                            <div class="d-flex align-items-center gap-2">
+                                                                <a href="{{ route('admin.projects.view', $studentWork->id) }}" class="btn btn-sm btn-outline-info">
+                                                                    <i class="fas fa-eye me-1"></i>Voir
+                                                                </a>
+                                                                <a href="{{ route('admin.projects.edit', $studentWork->id) }}" class="btn btn-sm btn-outline-warning">
+                                                                    <i class="fas fa-pen me-1"></i>Éditer
+                                                                </a>
+                                                                <form action="{{ route('admin.projects.delete', $studentWork->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer ce projet ?');">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                        <i class="fas fa-trash me-1"></i>Supprimer
+                                                                    </button>
+                                                                </form>
+                                                            </div>
                                                         </div>
                                                     @endforeach
                                                 </div>
