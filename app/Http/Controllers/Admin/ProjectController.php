@@ -212,6 +212,7 @@ class ProjectController extends Controller
                     ->map(function ($projectItems) {
                         $first = $projectItems->first();
                         return [
+                            'representative_id' => $first->id,
                             'title' => $first->title,
                             'category' => $first->category,
                             'deadline' => $first->deadline,

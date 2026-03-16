@@ -714,8 +714,12 @@ class AdminDashboardController extends Controller
             'status' => 'required|string|max:50',
         ]);
 
-        $project->fill($validated);
-        $project->save();
+        if (!empty($bulkProjectIds)) {
+            Project::query()->whereIn('id', $bulkProjectIds)->update($validated);
+        } else {
+            $project->fill($validated);
+            $project->save();
+        }
 
         return redirect()->route('admin.design-projects.view', $project->id)
             ->with('success', 'Projet mis à jour avec succès.');
@@ -751,6 +755,29 @@ class AdminDashboardController extends Controller
         }
 
         return redirect()->route('admin.design-projects.index')->with('success', 'Projet supprimé avec succès.');
+    }
+
+    
+    private function relatedProjectsQueryFor(Project $project): \Illuminate\Database\Eloquent\Builder
+    {
+        $relatedProjectsQuery = Project::query()
+            ->where('title', $project->title)
+            ->where('category', $project->category);
+
+        if (!is_null($project->deadline)) {
+            $relatedProjectsQuery->whereDate('deadline', $project->deadline);
+        } else {
+            $relatedProjectsQuery->whereNull('deadline');
+        }
+
+        if (!is_null($project->created_at)) {
+            $relatedProjectsQuery->whereBetween('created_at', [
+                $project->created_at->copy()->subMinutes(10),
+                $project->created_at->copy()->addMinutes(10),
+            ]);
+        }
+
+        return $relatedProjectsQuery;
     }
 
     public function editProject($id)
@@ -808,6 +835,18 @@ class AdminDashboardController extends Controller
     {
         $project = Project::with(['user', 'user.student'])->findOrFail($id);
 
+        $isBulk = (bool) $request->boolean('bulk');
+        $bulkProjectIds = [];
+        if ($isBulk) {
+            $bulkProjectIds = $this->relatedProjectsQueryFor($project)
+                ->pluck('id')
+                ->map(fn ($v) => (int) $v)
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -823,8 +862,12 @@ class AdminDashboardController extends Controller
                 : [];
         }
 
-        $project->fill($validated);
-        $project->save();
+        if (!empty($bulkProjectIds)) {
+            Project::query()->whereIn('id', $bulkProjectIds)->update($validated);
+        } else {
+            $project->fill($validated);
+            $project->save();
+        }
 
         return redirect()->route('admin.projets.design-graphique.assigned')
             ->with('success', 'Projet mis à jour avec succès.');
@@ -833,6 +876,24 @@ class AdminDashboardController extends Controller
     public function deleteProject($id)
     {
         $project = Project::findOrFail($id);
+
+        $isBulk = (bool) request()->boolean('bulk');
+        if ($isBulk) {
+            $ids = $this->relatedProjectsQueryFor($project)
+                ->pluck('id')
+                ->map(fn ($v) => (int) $v)
+                ->filter()
+                ->values()
+                ->all();
+
+            if (!empty($ids)) {
+                Project::query()->whereIn('id', $ids)->delete();
+
+                return redirect()->route('admin.projets.design-graphique.assigned')
+                    ->with('success', 'Projets supprimés avec succès.');
+            }
+        }
+
         $project->delete();
 
         return redirect()->route('admin.projets.design-graphique.assigned')

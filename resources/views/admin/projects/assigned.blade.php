@@ -434,7 +434,24 @@
                                         <button class="assigned-card-tile" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $projectId }}" aria-expanded="false" aria-controls="collapse_{{ $projectId }}">
                                             <div class="assigned-tile-top">
                                                 <span class="assigned-pill"><i class="fas fa-tasks"></i></span>
-                                                <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
+                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                    <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
+                                                    @if(!empty($project['representative_id']))
+                                                        <a href="{{ route('admin.projects.view', $project['representative_id']) }}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{{ route('admin.projects.edit', $project['representative_id']) }}?bulk=1" class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();">
+                                                            <i class="fas fa-pen"></i>
+                                                        </a>
+                                                        <form action="{{ route('admin.projects.delete', $project['representative_id']) }}?bulk=1" method="POST" class="d-inline" onsubmit="event.stopPropagation(); return confirm('Supprimer ce projet pour tous les étudiants ?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
                                                 <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
                                             </div>
                                             <div class="assigned-tile-meta">
@@ -464,21 +481,9 @@
                                                                     <div class="text-white-50 small">{{ $studentWork->student_email }}</div>
                                                                 </div>
                                                             </div>
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <a href="{{ route('admin.projects.view', $studentWork->id) }}" class="btn btn-sm btn-outline-info">
-                                                                    <i class="fas fa-eye me-1"></i>Voir
-                                                                </a>
-                                                                <a href="{{ route('admin.projects.edit', $studentWork->id) }}" class="btn btn-sm btn-outline-warning">
-                                                                    <i class="fas fa-pen me-1"></i>Éditer
-                                                                </a>
-                                                                <form action="{{ route('admin.projects.delete', $studentWork->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Supprimer ce projet ?');">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                                        <i class="fas fa-trash me-1"></i>Supprimer
-                                                                    </button>
-                                                                </form>
-                                                            </div>
+                                                            <a href="{{ route('admin.projects.view', $studentWork->id) }}" class="btn btn-sm btn-outline-info">
+                                                                <i class="fas fa-eye me-1"></i>Voir
+                                                            </a>
                                                         </div>
                                                     @endforeach
                                                 </div>
