@@ -677,6 +677,9 @@ class StudentAdminController extends Controller
         if (($containsDesign && $containsCommunity) || $formationNormalized === 'designgraphiquecommunitymanagement') {
             $totalFactures = 165000;
         }
+        if ($containsCommunity && !$containsDesign) {
+            $totalFactures = 107000;
+        }
         $soldeRestant = 0;
 
         // Récupérer la pré-inscription de l'étudiant pour ses paiements
@@ -698,7 +701,7 @@ class StudentAdminController extends Controller
             $totalPaye = $paiements->where('status', 'completed')->sum('amount');
 
             // Calculer le solde restant
-            $soldeRestant = $totalFactures - $totalPaye;
+            $soldeRestant = max(0, $totalFactures - $totalPaye);
         }
 
         // Anciens paiements (table paiements - pour compatibilité)
@@ -719,7 +722,7 @@ class StudentAdminController extends Controller
                         ->orderBy('created_at', 'desc')
                         ->get();
                     $totalFactures = $factures->sum('montant');
-                    $soldeRestant = $totalFactures - $totalPaye;
+                    $soldeRestant = max(0, $totalFactures - $totalPaye);
                 }
             }
         }

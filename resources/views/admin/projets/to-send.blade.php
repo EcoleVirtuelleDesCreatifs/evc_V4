@@ -630,7 +630,7 @@
                         <label for="description">
                             Consignes et instructions <span class="text-danger">*</span>
                         </label>
-                        <div id="quill-editor">{{ old('description') }}</div>
+                        <div id="quill-editor">{!! old('description') !!}</div>
                         <input type="hidden" id="description" name="description" required>
                         @error('description')
                             <div class="text-danger mt-2">{{ $message }}</div>

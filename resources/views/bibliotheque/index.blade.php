@@ -11,9 +11,10 @@
         gap: 0.25rem;
     }
 
-    .pagination .page-item {
-        margin-bottom: 0.25rem;
-    }
+    
+
+    .pagination .page-link{border-radius:10px;padding:0.45rem 0.75rem;line-height:1;}
+    .pagination svg{width:1rem;height:1rem;}
 </style>
 @endpush
 
