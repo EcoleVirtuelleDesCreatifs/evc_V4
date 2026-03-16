@@ -431,7 +431,7 @@
                                     @endphp
 
                                     <div>
-                                        <button class="assigned-card-tile" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $projectId }}" aria-expanded="false" aria-controls="collapse_{{ $projectId }}">
+                                        <div class="assigned-card-tile" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $projectId }}" aria-expanded="false" aria-controls="collapse_{{ $projectId }}" role="button" tabindex="0">
                                             <div class="assigned-tile-top">
                                                 <span class="assigned-pill"><i class="fas fa-tasks"></i></span>
                                                 <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -458,7 +458,7 @@
                                                 <span class="assigned-badge primary">{{ $students->count() }} étudiant(s)</span>
                                                 <span class="text-white-50 small">Voir la liste</span>
                                             </div>
-                                        </button>
+                                        </div>
 
                                         <div class="collapse" id="collapse_{{ $projectId }}">
                                             <div class="students-panel">
