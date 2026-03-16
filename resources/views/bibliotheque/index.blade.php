@@ -15,6 +15,11 @@
 
     .pagination .page-link{border-radius:10px;padding:0.45rem 0.75rem;line-height:1;}
     .pagination svg{width:1rem;height:1rem;}
+
+    .bibliotheque-pagination .pagination{margin-bottom:0;display:flex;flex-wrap:wrap;justify-content:center;}
+    .bibliotheque-pagination .page-link{min-width:40px;display:flex;align-items:center;justify-content:center;}
+    .bibliotheque-pagination .page-item.active .page-link{background:#2563eb;border-color:#2563eb;}
+    .bibliotheque-pagination .page-item.disabled .page-link{opacity:.55;}
 </style>
 @endpush
 
@@ -226,8 +231,8 @@
 
 @if($items instanceof \Illuminate\Pagination\AbstractPaginator)
 <div class="row mt-4">
-    <div class="col-12 d-flex justify-content-center">
-        {{ $items->withQueryString()->links() }}
+    <div class="col-12 d-flex justify-content-center bibliotheque-pagination">
+        {{ $items->withQueryString()->links('pagination::bootstrap-5') }}
     </div>
 </div>
 @endif

@@ -680,6 +680,9 @@ class StudentAdminController extends Controller
         if ($containsCommunity && !$containsDesign) {
             $totalFactures = 107000;
         }
+        if ($containsDesign && !$containsCommunity) {
+            $totalFactures = 80000;
+        }
         $soldeRestant = 0;
 
         // Récupérer la pré-inscription de l'étudiant pour ses paiements
