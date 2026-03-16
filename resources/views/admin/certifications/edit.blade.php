@@ -357,6 +357,14 @@
                                 <span class="text-warning" title="Auto-soumis (temps écoulé)"><i class="fas fa-hourglass-end"></i></span>
                             @endif
                             <a href="{{ route('admin.certifications.attempts.show', $att->id) }}" class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i></a>
+                            @if(($att->status ?? null) === 'graded' && !empty($att->passed) && empty($att->already_certified))
+                                <form action="{{ route('admin.certifications.attempts.certify', $att->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Marquer cet étudiant comme certifié ?')">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success">Certifié</button>
+                                </form>
+                            @elseif(!empty($att->already_certified))
+                                <span class="badge bg-success">Certifié</span>
+                            @endif
                         </div>
                     </div>
                     @endforeach

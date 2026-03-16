@@ -910,6 +910,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/certifications/attempts/{id}', [App\Http\Controllers\Admin\CertificationAdminController::class, 'showAttempt'])->name('certifications.attempts.show');
         Route::post('/certifications/answers/{id}/grade', [App\Http\Controllers\Admin\CertificationAdminController::class, 'gradeAnswer'])->name('certifications.answers.grade');
         Route::post('/certifications/attempts/{id}/finalize', [App\Http\Controllers\Admin\CertificationAdminController::class, 'finalizeGrading'])->name('certifications.attempts.finalize');
+        Route::post('/certifications/attempts/{id}/certify', [App\Http\Controllers\Admin\CertificationAdminController::class, 'certifyAttempt'])->name('certifications.attempts.certify');
 
         // Pages de détails des statistiques (route générique en dernier)
         Route::get('/statistiques/{statType}', [AdminStatisticsDetailController::class, 'show'])->name('statistics.detail');

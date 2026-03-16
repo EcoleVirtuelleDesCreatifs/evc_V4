@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 
 class CertificationAdminController extends Controller
 {
@@ -197,7 +198,14 @@ class CertificationAdminController extends Controller
                 'users.email'
             )
             ->orderBy('certification_attempts.created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($att) {
+                $att->already_certified = false;
+                if (Schema::hasTable('certificates') && !empty($att->student_id)) {
+                    $att->already_certified = DB::table('certificates')->where('student_id', $att->student_id)->exists();
+                }
+                return $att;
+            });
 
         // Étudiants éligibles et déjà assignés
         $eligibleStudents = $this->getEligibleStudents();
@@ -621,6 +629,47 @@ class CertificationAdminController extends Controller
         return back()->with('success', "Notation finalisée. L'étudiant a {$result} ({$scorePercentage}%).");
     }
 
+
+    /**
+     * Marquer une tentative réussie comme certifiée (création d'un certificat)
+     */
+    public function certifyAttempt($attemptId)
+    {
+        $attempt = DB::table('certification_attempts')->where('id', $attemptId)->first();
+        if (!$attempt) {
+            return back()->with('error', 'Tentative introuvable.');
+        }
+
+        if ($attempt->status !== 'graded' || !$attempt->passed) {
+            return back()->with('error', 'La tentative doit être corrigée et réussie pour être certifiée.');
+        }
+
+        if (!Schema::hasTable('certificates')) {
+            return back()->with('error', "La table certificates n'existe pas.");
+        }
+
+        $student = DB::table('students')->where('id', $attempt->student_id)->first();
+        if (!$student) {
+            return back()->with('error', 'Étudiant introuvable.');
+        }
+
+        $existing = DB::table('certificates')->where('student_id', $student->id)->first();
+        if ($existing) {
+            return back()->with('success', 'Étudiant déjà certifié.');
+        }
+
+        DB::table('certificates')->insert([
+            'student_id' => $student->id,
+            'user_id' => $student->user_id,
+            'formation' => $student->program,
+            'generated_by' => auth()->id(),
+            'generated_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return back()->with('success', 'Certification validée : étudiant certifié.');
+    }
     // ─── HELPERS ─────────────────────────────────────────────────────
 
     /**
