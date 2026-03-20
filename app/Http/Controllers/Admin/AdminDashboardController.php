@@ -757,7 +757,7 @@ class AdminDashboardController extends Controller
         return redirect()->route('admin.design-projects.index')->with('success', 'Projet supprimé avec succès.');
     }
 
-    
+
     private function relatedProjectsQueryFor(Project $project): \Illuminate\Database\Eloquent\Builder
     {
         $relatedProjectsQuery = Project::query()
@@ -2744,7 +2744,7 @@ class AdminDashboardController extends Controller
         $pendingProjects = $pendingProjects->map(function ($project) {
             $files = DB::table('project_images')
                 ->where('project_id', $project->id)
-                ->select('id', 'image_path', 'created_at')
+                ->select('id', 'file_path', 'created_at')
                 ->get();
 
             $project->files = $files;
@@ -5942,7 +5942,7 @@ class AdminDashboardController extends Controller
             // Récupérer les images du projet depuis la table project_images
             $files = DB::table('project_images')
                 ->where('project_id', $project->id)
-                ->select('id', 'image_path', 'created_at')
+                ->select('id', 'file_path', 'created_at')
                 ->get();
 
             // Ajouter les fichiers au projet
