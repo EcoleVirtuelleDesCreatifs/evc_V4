@@ -758,6 +758,18 @@ class AdminDashboardController extends Controller
     }
 
 
+    private function deleteProjectImages(array $projectIds): void
+    {
+        $images = DB::table('project_images')->whereIn('project_id', $projectIds)->get();
+        foreach ($images as $img) {
+            $path = $img->file_path ?? null;
+            if ($path && \Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($path);
+            }
+        }
+        DB::table('project_images')->whereIn('project_id', $projectIds)->delete();
+    }
+
     private function relatedProjectsQueryFor(Project $project): \Illuminate\Database\Eloquent\Builder
     {
         $relatedProjectsQuery = Project::query()
@@ -887,6 +899,7 @@ class AdminDashboardController extends Controller
                 ->all();
 
             if (!empty($ids)) {
+                $this->deleteProjectImages($ids);
                 Project::query()->whereIn('id', $ids)->delete();
 
                 return redirect()->route('admin.projets.design-graphique.assigned')
@@ -894,6 +907,7 @@ class AdminDashboardController extends Controller
             }
         }
 
+        $this->deleteProjectImages([$project->id]);
         $project->delete();
 
         return redirect()->route('admin.projets.design-graphique.assigned')
