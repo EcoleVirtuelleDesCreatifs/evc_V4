@@ -626,7 +626,7 @@
             <div class="stat-icon">
                 <i class="fas fa-clipboard-list"></i>
             </div>
-            <div class="stat-number" data-target="{{ DB::table('tp')->where('status', 'pending')->count() }}">0</div>
+            <div class="stat-number" data-target="{{ DB::table('tp')->where('status', 'pending')->count() + DB::table('tp_assignments')->whereIn('status', ['pending', 'submitted'])->count() + DB::table('projects')->where('status', 'termine')->count() }}">0</div>
             <div class="stat-label">TP en Attente</div>
             <div class="stat-change negative">
                 <i class="fas fa-arrow-down"></i>
