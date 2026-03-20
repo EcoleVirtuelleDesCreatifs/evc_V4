@@ -436,7 +436,9 @@
                                                 <span class="assigned-pill"><i class="fas fa-tasks"></i></span>
                                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                                     <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
-                                                    @php($representativeId = $project['representative_id'] ?? ($students->first()->id ?? null))
+                                                    @php
+                                                        $representativeId = $project['representative_id'] ?? ($students->first() ? $students->first()->id : null);
+                                                    @endphp
                                                     @if($representativeId)
                                                         <a href="{{ route('admin.projects.view', $representativeId) }}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();">
                                                             <i class="fas fa-eye"></i>
@@ -573,7 +575,9 @@
                                                 <span class="assigned-pill"><i class="fas fa-tasks"></i></span>
                                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                                     <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
-                                                    @php($representativeId = $project['representative_id'] ?? ($students->first()->id ?? null))
+                                                    @php
+                                                        $representativeId = $project['representative_id'] ?? ($students->first() ? $students->first()->id : null);
+                                                    @endphp
                                                     @if($representativeId)
                                                         <a href="{{ route('admin.projects.view', $representativeId) }}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();">
                                                             <i class="fas fa-eye"></i>
