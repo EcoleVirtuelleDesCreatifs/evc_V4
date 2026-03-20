@@ -20,38 +20,38 @@ class StudentConfirmationController extends Controller
             // Décoder le token
             $decodedToken = base64_decode($token);
             $tokenParts = explode('|', $decodedToken);
-            
+
             if (count($tokenParts) !== 3) {
                 return redirect()->route('home')->with('error', 'Lien de confirmation invalide.');
             }
-            
+
             $email = $tokenParts[0];
             $timestamp = $tokenParts[1];
             $hash = $tokenParts[2];
-            
+
             // Vérifier la validité du token (24h)
             if (time() - $timestamp > 86400) {
                 return redirect()->route('home')->with('error', 'Ce lien de confirmation a expiré.');
             }
-            
+
             // Vérifier l'intégrité du token
             $expectedHash = md5($email . config('app.key'));
             if ($hash !== $expectedHash) {
                 return redirect()->route('home')->with('error', 'Lien de confirmation invalide.');
             }
-            
+
             // Récupérer l'étudiant
             $student = DB::table('users')->where('email', $email)->first();
-            
+
             if (!$student) {
                 return redirect()->route('home')->with('error', 'Aucun compte trouvé avec cette adresse email.');
             }
-            
+
             // Si déjà confirmé, rediriger vers la connexion
             if ($student->email_verified_at) {
                 return redirect()->route('student.login')->with('success', 'Votre inscription est déjà confirmée. Vous pouvez vous connecter.');
             }
-            
+
             // Hydrater des propriétés attendues par la vue (compatibilité)
             if (!property_exists($student, 'first_name') || !property_exists($student, 'last_name')) {
                 $parts = preg_split('/\s+/', (string)($student->name ?? ''), 2);
@@ -86,13 +86,13 @@ class StudentConfirmationController extends Controller
                 $student->formation_souhaitee = $label;
             }
             return view('student.confirm-registration', compact('student', 'token'));
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur lors de la confirmation d\'inscription: ' . $e->getMessage());
             return redirect()->route('home')->with('error', 'Une erreur est survenue lors de la confirmation.');
         }
     }
-    
+
     /**
      * Traiter la confirmation d'inscription
      */
@@ -102,26 +102,26 @@ class StudentConfirmationController extends Controller
             // Décoder le token
             $decodedToken = base64_decode($token);
             $tokenParts = explode('|', $decodedToken);
-            
+
             if (count($tokenParts) !== 3) {
                 return back()->with('error', 'Lien de confirmation invalide.');
             }
-            
+
             $email = $tokenParts[0];
             $timestamp = $tokenParts[1];
             $hash = $tokenParts[2];
-            
+
             // Vérifier la validité du token
             if (time() - $timestamp > 86400) {
                 return back()->with('error', 'Ce lien de confirmation a expiré.');
             }
-            
+
             // Vérifier l'intégrité du token
             $expectedHash = md5($email . config('app.key'));
             if ($hash !== $expectedHash) {
                 return back()->with('error', 'Lien de confirmation invalide.');
             }
-            
+
             // Validation des données
             $request->validate([
                 'password' => 'required|min:8|confirmed',
@@ -138,7 +138,7 @@ class StudentConfirmationController extends Controller
                 'accepte_conditions.accepted' => 'Vous devez accepter les conditions d\'utilisation.',
                 'newsletter_consent.in' => 'Le champ consentement newsletter est invalide.'
             ]);
-            
+
             // Mettre à jour l'étudiant (tolérant au schéma de la table users)
             $updateData = [
                 'password' => bcrypt($request->password),
@@ -167,7 +167,7 @@ class StudentConfirmationController extends Controller
             } catch (\Throwable $e) {
                 Log::warning('Echec envoi mail admin (student completed registration): '.$e->getMessage());
             }
-            
+
             // Mettre à jour le statut de la pré-inscription -> Actif
             try {
                 $update = ['status' => 'Actif'];
@@ -184,12 +184,12 @@ class StudentConfirmationController extends Controller
                 // Vérifier via user_id au lieu de email (email n'existe pas dans students)
                 $user = DB::table('users')->where('email', $email)->first();
                 $studentExists = $user ? DB::table('students')->where('user_id', $user->id)->exists() : false;
-                
+
                 if (!$studentExists) {
                     // Récupérer les infos de la pré-inscription et de l'utilisateur
                     $preRegistration = PreRegistration::where('email', $email)->latest('id')->first();
                     $user = DB::table('users')->where('email', $email)->first();
-                    
+
                     if ($preRegistration && $user) {
                         // Générer un student_id unique (format: EVC-ANNÉE-JOUR-MOIS-NUMERO)
                         // Exemple: EVC-2025-141001 (14 octobre 2025, 1er étudiant du jour)
@@ -197,19 +197,19 @@ class StudentConfirmationController extends Controller
                         $day = date('d');
                         $month = date('m');
                         $datePrefix = "{$year}-{$day}{$month}";
-                        
+
                         $lastStudent = DB::table('students')
                             ->where('student_id', 'like', "EVC-{$datePrefix}%")
                             ->orderBy('id', 'desc')
                             ->first();
-                        
+
                         if ($lastStudent && preg_match('/EVC-\d{4}-\d{4}(\d{2})/', $lastStudent->student_id, $matches)) {
                             $nextNumber = intval($matches[1]) + 1;
                         } else {
                             $nextNumber = 1;
                         }
                         $studentId = sprintf('EVC-%s-%s%02d', $year, $day . $month, $nextNumber);
-                        
+
                         // Mapper la formation de la pré-inscription
                         $formationMap = [
                             'design_graphique' => ['program' => 'Design Graphique', 'specialization' => 'design_graphique'],
@@ -219,10 +219,10 @@ class StudentConfirmationController extends Controller
                             'infographie' => ['program' => 'Design Graphique', 'specialization' => 'design_graphique'],
                             'informatique' => ['program' => 'Gestion Informatique', 'specialization' => 'gestion_informatique'],
                         ];
-                        
+
                         $formationKey = $preRegistration->choix_formation ?? 'design_graphique';
                         $formationData = $formationMap[$formationKey] ?? ['program' => 'Design Graphique', 'specialization' => 'design_graphique'];
-                        
+
                         // Créer l'entrée student
                         DB::table('students')->insert([
                             'user_id' => $user->id,
@@ -244,7 +244,7 @@ class StudentConfirmationController extends Controller
                             'created_at' => now(),
                             'updated_at' => now()
                         ]);
-                        
+
                         Log::info('Entrée student créée automatiquement lors de la confirmation', [
                             'email' => $email,
                             'student_id' => $studentId,
@@ -261,15 +261,14 @@ class StudentConfirmationController extends Controller
             }
 
             Log::info('Inscription confirmée avec succès pour: ' . $email);
-            
+
             return redirect()->route('student.login')->with('success', 'Félicitations ! Votre inscription a été confirmée avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.');
-            
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
         } catch (\Exception $e) {
-            Log::error('Erreur lors de la confirmation d\'inscription: ' . $e->getMessage());
-            $msg = app()->environment('local')
-                ? ('Erreur lors de la confirmation: '.$e->getMessage())
-                : 'Une erreur est survenue lors de la confirmation.';
-            return back()->with('error', $msg)->withInput();
+            Log::error('Erreur confirmation inscription: ' . $e->getMessage(), ['email' => $email ?? null, 'line' => $e->getLine()]);
+            return back()->with('error', 'Une erreur est survenue lors de la confirmation : ' . $e->getMessage())->withInput();
         }
     }
 }

@@ -976,7 +976,7 @@ class PreRegistrationAdminController extends Controller
 
         $student->city = $pre->ville ?? null;
         $student->country = $pre->pays ?? 'Côte d\'Ivoire';
-        $student->program = $pre->choix_formation ?? null;
+        $student->program = $this->getFormationLabel($pre->choix_formation) ?? null;
         $student->level = $pre->niveau_dans_formation ?? null;
         $student->Level_education = $pre->niveau_etude ?? null;
         $student->degree = $pre->niveau_etude ?? null; // Ajout du champ degree
