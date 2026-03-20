@@ -55,7 +55,7 @@ class DesignProjectController extends Controller
         ];
 
         // Nettoyer les filtres vides
-        $filters = array_filter($filters, function($value) {
+        $filters = array_filter($filters, function ($value) {
             return $value !== null && $value !== '';
         });
 
@@ -66,7 +66,6 @@ class DesignProjectController extends Controller
             $formOptions = DesignProjectService::getFormOptions();
 
             return view('projets.index', compact('projects', 'stats', 'formOptions', 'filters'));
-
         } catch (\Exception $e) {
             Log::error('Erreur récupération projets: ' . $e->getMessage());
 
@@ -130,7 +129,8 @@ class DesignProjectController extends Controller
                                     'name' => $f->file_name ?? $f->original_name ?? null,
                                 ])->toArray();
                         }
-                    } catch (\Throwable $e) {}
+                    } catch (\Throwable $e) {
+                    }
                     return [
                         'id' => (int) ($tp->id ?? 0),
                         'title' => (string) ($tp->title ?? ''),
@@ -171,7 +171,8 @@ class DesignProjectController extends Controller
                                 'mime_type' => $f->mime_type ?? null,
                                 'name' => $f->original_name ?? $f->filename ?? null,
                             ])->toArray();
-                    } catch (\Throwable $e) {}
+                    } catch (\Throwable $e) {
+                    }
                     return [
                         'id' => (int) ($p->id ?? 0),
                         'title' => (string) ($p->title ?? ''),
@@ -211,7 +212,7 @@ class DesignProjectController extends Controller
                     'cancelled' => 'rejected',
                 ];
 
-                $projects = collect($designProjects)
+                $designItems = collect($designProjects)
                     ->map(function ($project) use ($designStatusMap) {
                         $srcStatus = (string) ($project['status'] ?? '');
                         $project['status'] = $designStatusMap[$srcStatus] ?? null;
@@ -219,7 +220,13 @@ class DesignProjectController extends Controller
                     })
                     ->filter(function ($project) use ($allowedStatuses) {
                         return in_array(($project['status'] ?? null), $allowedStatuses, true);
-                    })
+                    });
+
+                $assignedItems = $this->getAssignedProjectItems($userId);
+
+                $projects = $designItems
+                    ->concat($assignedItems)
+                    ->sortByDesc(fn($item) => !empty($item['created_at']) ? strtotime((string) $item['created_at']) : 0)
                     ->values()
                     ->all();
 
@@ -270,12 +277,10 @@ class DesignProjectController extends Controller
                     ->with('error', $result['error'])
                     ->withInput();
             }
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
                 ->withErrors($e->errors())
                 ->withInput();
-
         } catch (\Exception $e) {
             Log::error('Erreur création projet: ' . $e->getMessage());
 
@@ -309,7 +314,6 @@ class DesignProjectController extends Controller
             }
 
             return view('projets.show', compact('project'));
-
         } catch (\Exception $e) {
             Log::error('Erreur affichage projet', [
                 'error' => $e->getMessage(),
@@ -361,7 +365,6 @@ class DesignProjectController extends Controller
             $formOptions = DesignProjectService::getFormOptions();
 
             return view('projets.edit', compact('project', 'formOptions', 'userFormation'));
-
         } catch (\Exception $e) {
             Log::error('Erreur chargement formulaire édition: ' . $e->getMessage());
 
@@ -407,7 +410,6 @@ class DesignProjectController extends Controller
                     ->with('error', $result['error'])
                     ->withInput();
             }
-
         } catch (\Exception $e) {
             Log::error('Erreur mise à jour projet: ' . $e->getMessage());
 
@@ -450,7 +452,6 @@ class DesignProjectController extends Controller
                     'error' => 'Impossible de supprimer le fichier.'
                 ], 400);
             }
-
         } catch (\Exception $e) {
             Log::error('Erreur suppression fichier: ' . $e->getMessage());
 
@@ -491,7 +492,6 @@ class DesignProjectController extends Controller
                     'error' => 'Impossible de mettre à jour le statut du projet.'
                 ], 400);
             }
-
         } catch (\Exception $e) {
             Log::error('Erreur mise à jour statut: ' . $e->getMessage());
 
@@ -536,7 +536,6 @@ class DesignProjectController extends Controller
                 return redirect()->back()
                     ->with('error', 'Impossible de supprimer le projet.');
             }
-
         } catch (\Exception $e) {
             Log::error('Erreur suppression projet: ' . $e->getMessage());
 
@@ -561,7 +560,6 @@ class DesignProjectController extends Controller
         try {
             $stats = $this->designProjectService->getUserStats($userId);
             return response()->json($stats);
-
         } catch (\Exception $e) {
             Log::error('Erreur récupération stats: ' . $e->getMessage());
             return response()->json(['error' => 'Erreur serveur'], 500);
@@ -670,5 +668,50 @@ class DesignProjectController extends Controller
             return redirect()->route($userFormation . '.projets.index')
                 ->with('error', 'Erreur lors du chargement de tous les projets.');
         }
+    }
+
+    private function getAssignedProjectItems(int $userId): \Illuminate\Support\Collection
+    {
+        $rows = collect();
+        if (Schema::hasTable('projects')) {
+            $rows = DB::table('projects')
+                ->where('user_id', $userId)
+                ->whereIn('status', ['termine', 'valide', 'rejete'])
+                ->orderByDesc('created_at')
+                ->limit(500)
+                ->get();
+        }
+
+        $statusMap = [
+            'termine' => 'pending',
+            'valide' => 'validated',
+            'rejete' => 'rejected',
+        ];
+
+        return $rows->map(function ($p) use ($statusMap) {
+            $files = [];
+            try {
+                $files = DB::table('project_images')
+                    ->where('project_id', $p->id)
+                    ->orderBy('order_index', 'asc')
+                    ->get()
+                    ->map(fn($f) => [
+                        'path' => $f->file_path ?? null,
+                        'mime_type' => $f->mime_type ?? null,
+                        'name' => $f->original_name ?? $f->filename ?? null,
+                    ])->toArray();
+            } catch (\Throwable $e) {
+            }
+            return [
+                'id' => (int) ($p->id ?? 0),
+                'title' => (string) ($p->title ?? ''),
+                'description' => (string) ($p->description ?? ''),
+                'category' => (string) (($p->category ?? '') ?: 'projet'),
+                'project_type' => 'Projet',
+                'status' => $statusMap[$p->status ?? 'en_cours'] ?? 'pending',
+                'created_at' => $p->created_at ?? null,
+                'files' => $files,
+            ];
+        });
     }
 }
