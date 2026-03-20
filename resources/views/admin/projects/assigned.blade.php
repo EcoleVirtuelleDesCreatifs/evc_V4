@@ -436,14 +436,15 @@
                                                 <span class="assigned-pill"><i class="fas fa-tasks"></i></span>
                                                 <div class="d-flex align-items-center gap-2 flex-wrap">
                                                     <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
-                                                    @if(!empty($project['representative_id']))
-                                                        <a href="{{ route('admin.projects.view', $project['representative_id']) }}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();">
+                                                    @php($representativeId = $project['representative_id'] ?? ($students->first()->id ?? null))
+                                                    @if($representativeId)
+                                                        <a href="{{ route('admin.projects.view', $representativeId) }}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();">
                                                             <i class="fas fa-eye"></i>
                                                         </a>
-                                                        <a href="{{ route('admin.projects.edit', $project['representative_id']) }}?bulk=1" class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();">
+                                                        <a href="{{ route('admin.projects.edit', $representativeId) }}?bulk=1" class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();">
                                                             <i class="fas fa-pen"></i>
                                                         </a>
-                                                        <form action="{{ route('admin.projects.delete', $project['representative_id']) }}?bulk=1" method="POST" class="d-inline" onsubmit="event.stopPropagation(); return confirm('Supprimer ce projet pour tous les étudiants ?');">
+                                                        <form action="{{ route('admin.projects.delete', $representativeId) }}?bulk=1" method="POST" class="d-inline" onsubmit="event.stopPropagation(); return confirm('Supprimer ce projet pour tous les étudiants ?');">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="btn btn-sm btn-outline-danger">
@@ -567,17 +568,35 @@
                                     @endphp
 
                                     <div>
-                                        <button class="assigned-card-tile" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $projectId }}" aria-expanded="false" aria-controls="collapse_{{ $projectId }}">
+                                        <div class="assigned-card-tile" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $projectId }}" aria-expanded="false" aria-controls="collapse_{{ $projectId }}" role="button" tabindex="0">
                                             <div class="assigned-tile-top">
                                                 <span class="assigned-pill"><i class="fas fa-tasks"></i></span>
-                                                <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
+                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                    <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
+                                                    @php($representativeId = $project['representative_id'] ?? ($students->first()->id ?? null))
+                                                    @if($representativeId)
+                                                        <a href="{{ route('admin.projects.view', $representativeId) }}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{{ route('admin.projects.edit', $representativeId) }}?bulk=1" class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();">
+                                                            <i class="fas fa-pen"></i>
+                                                        </a>
+                                                        <form action="{{ route('admin.projects.delete', $representativeId) }}?bulk=1" method="POST" class="d-inline" onsubmit="event.stopPropagation(); return confirm('Supprimer ce projet pour tous les étudiants ?');">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
                                                 <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
                                             </div>
                                             <div class="assigned-tile-meta">
                                                 <span class="assigned-badge primary">{{ $students->count() }} étudiant(s)</span>
                                                 <span class="text-white-50 small">Voir la liste</span>
                                             </div>
-                                        </button>
+                                        </div>
 
                                         <div class="collapse" id="collapse_{{ $projectId }}">
                                             <div class="students-panel">

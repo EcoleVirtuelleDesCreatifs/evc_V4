@@ -1776,7 +1776,22 @@ class DashboardController extends Controller
                     ];
 
                     $studentForEmail = DB::table('users')->where('id', $user->id)->first();
-                    $viewUrl = url('/evc/app/admin/projets/design-cm/pending');
+
+                    // Déterminer la bonne page pending admin selon la formation
+                    $tpAdminSlug = 'design-cm';
+                    if ($student && !empty($student->program)) {
+                        $tpProg = strtolower((string) $student->program);
+                        $tpHasDesign = str_contains($tpProg, 'design');
+                        $tpHasCommunity = str_contains($tpProg, 'community');
+                        if ($tpHasDesign && $tpHasCommunity) {
+                            $tpAdminSlug = 'design-cm';
+                        } elseif ($tpHasCommunity) {
+                            $tpAdminSlug = 'cm-smm';
+                        } elseif ($tpHasDesign) {
+                            $tpAdminSlug = 'design-graphique';
+                        }
+                    }
+                    $viewUrl = url('/evc/app/admin/projets/' . $tpAdminSlug . '/pending');
 
                     foreach ($admins as $admin) {
                         if (empty($admin->email)) {
@@ -1944,6 +1959,8 @@ class DashboardController extends Controller
                 }
 
                 $projectUpdateData = [
+                    'title' => $validated['title'],
+                    'description' => $validated['description'] ?? ($assignedProject->description ?? ''),
                     'status' => 'termine',
                     'updated_at' => now(),
                 ];
@@ -1979,9 +1996,20 @@ class DashboardController extends Controller
                     ];
 
                     $studentForEmail = DB::table('users')->where('id', $user->id)->first();
-                    $viewUrl = $designProjectId
-                        ? url('/evc/app/admin/design-projects/view/' . $designProjectId)
-                        : url('/evc/app/admin/projets/assigned');
+
+                    // Déterminer la bonne page pending admin selon la formation
+                    $adminPendingSlug = 'design-graphique';
+                    if ($student && !empty($student->program)) {
+                        $prog = strtolower((string) $student->program);
+                        $hasDesign = str_contains($prog, 'design');
+                        $hasCommunity = str_contains($prog, 'community');
+                        if ($hasDesign && $hasCommunity) {
+                            $adminPendingSlug = 'design-cm';
+                        } elseif ($hasCommunity) {
+                            $adminPendingSlug = 'cm-smm';
+                        }
+                    }
+                    $viewUrl = url('/evc/app/admin/projets/' . $adminPendingSlug . '/pending');
 
                     foreach ($admins as $admin) {
                         if (empty($admin->email)) {

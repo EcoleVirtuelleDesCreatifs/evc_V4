@@ -547,7 +547,8 @@
                                  $sourceTable = $project->source_table ?? null;
                                  $isDesignProject = ($project instanceof \App\Models\DesignProject) || ($sourceTable === 'design_projects');
                                  $isTpReport = ($project instanceof \App\Models\TP) || ($sourceTable === 'tp');
-                                 $isCmProject = ($type === 'cm-smm') && !$isDesignProject && !$isTpReport && (isset($project->category) || isset($project->formation));
+                                 $isProjectsTable = ($sourceTable === 'projects');
+                                 $isCmProject = $isProjectsTable || (($type === 'cm-smm') && !$isDesignProject && !$isTpReport && (isset($project->category) || isset($project->formation)));
 
                                  $viewUrl = null;
                                  if ($isDesignProject) {

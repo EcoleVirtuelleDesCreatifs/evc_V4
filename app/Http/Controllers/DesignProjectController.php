@@ -118,6 +118,19 @@ class DesignProjectController extends Controller
                 ];
 
                 $tpItems = $tpRows->map(function ($tp) use ($tpStatusMap) {
+                    $files = [];
+                    try {
+                        if (Schema::hasTable('tp_submission_files')) {
+                            $files = DB::table('tp_submission_files')
+                                ->where('tp_assignment_id', $tp->id)
+                                ->get()
+                                ->map(fn($f) => [
+                                    'path' => $f->file_path ?? null,
+                                    'mime_type' => $f->mime_type ?? null,
+                                    'name' => $f->file_name ?? $f->original_name ?? null,
+                                ])->toArray();
+                        }
+                    } catch (\Throwable $e) {}
                     return [
                         'id' => (int) ($tp->id ?? 0),
                         'title' => (string) ($tp->title ?? ''),
@@ -126,7 +139,7 @@ class DesignProjectController extends Controller
                         'project_type' => 'TP',
                         'status' => $tpStatusMap[$tp->status ?? 'assigned'] ?? 'pending',
                         'created_at' => $tp->created_at ?? null,
-                        'files' => [],
+                        'files' => $files,
                     ];
                 });
 
@@ -147,6 +160,18 @@ class DesignProjectController extends Controller
                 ];
 
                 $projectItems = $projectRows->map(function ($p) use ($projectStatusMap) {
+                    $files = [];
+                    try {
+                        $files = DB::table('project_images')
+                            ->where('project_id', $p->id)
+                            ->orderBy('order_index', 'asc')
+                            ->get()
+                            ->map(fn($f) => [
+                                'path' => $f->file_path ?? null,
+                                'mime_type' => $f->mime_type ?? null,
+                                'name' => $f->original_name ?? $f->filename ?? null,
+                            ])->toArray();
+                    } catch (\Throwable $e) {}
                     return [
                         'id' => (int) ($p->id ?? 0),
                         'title' => (string) ($p->title ?? ''),
@@ -155,7 +180,7 @@ class DesignProjectController extends Controller
                         'project_type' => 'Projet',
                         'status' => $projectStatusMap[$p->status ?? 'en_cours'] ?? 'pending',
                         'created_at' => $p->created_at ?? null,
-                        'files' => [],
+                        'files' => $files,
                     ];
                 });
 
