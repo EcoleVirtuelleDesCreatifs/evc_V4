@@ -713,7 +713,7 @@
         </div>
         @if($projects->hasPages())
             <div class="card-footer">
-                {{ $projects->withQueryString()->links() }}
+                {{ $projects->withQueryString()->links('pagination::bootstrap-5') }}
             </div>
         @endif
     </div>
