@@ -122,9 +122,49 @@
                         $pStatus = $programme->status ?? null;
                         $pStatusLabel = $pStatus === 'en_cours' ? 'En cours' : ($pStatus === 'terminee' ? 'Terminée' : 'À venir');
                         $pStatusBadge = $pStatus === 'en_cours' ? 'badge-warning' : ($pStatus === 'terminee' ? 'badge-success' : 'badge-info');
+                        $programmeImageUrl = null;
+                        try {
+                            if (property_exists($programme, 'image') && !empty($programme->image)) {
+                                $programmeImageUrl = \App\Models\MediaUrl::fromPath($programme->image);
+                            }
+                        } catch (\Throwable $e) {
+                            $programmeImageUrl = null;
+                        }
+
+                        $nextItem = $programme->next_item ?? null;
+                        $nextDateLabel = null;
+                        $nextTimeLabel = null;
+                        $nextType = null;
+                        $nextLieu = null;
+                        try {
+                            if (!empty($nextItem?->session_date)) {
+                                $time = !empty($nextItem?->session_time) ? $nextItem->session_time : '00:00';
+                                $dt = \Carbon\Carbon::parse($nextItem->session_date . ' ' . $time);
+                                $nextDateLabel = $dt->format('d/m/Y');
+                                $nextTimeLabel = $dt->format('H:i');
+                                $nextType = $nextItem->type_formation ?? null;
+                                $nextLieu = $nextItem->lieu ?? null;
+                            }
+                        } catch (\Throwable $e) {
+                            $nextDateLabel = null;
+                            $nextTimeLabel = null;
+                            $nextType = null;
+                            $nextLieu = null;
+                        }
+
                     @endphp
                     <div class="col-12 col-md-6 col-lg-4">
                         <div class="programme-card-modern">
+
+                            <div class="programme-card-cover">
+                                @if(!empty($programmeImageUrl))
+                                    <img src="{{ $programmeImageUrl }}" alt="Illustration" loading="lazy">
+                                @else
+                                    <div class="programme-card-cover-placeholder">
+                                        <i class="fas fa-image"></i>
+                                    </div>
+                                @endif
+                            </div>
                             <div class="programme-card-top">
                                 <div class="programme-card-icon">
                                     <i class="fas fa-file-alt"></i>
@@ -145,6 +185,33 @@
                                 @else
                                     <div class="programme-card-desc programme-card-desc-muted">Téléchargez le programme pour consulter le détail.</div>
                                 @endif
+
+
+                                <div class="programme-agenda-meta">
+                                    @if(!empty($nextDateLabel) && !empty($nextTimeLabel))
+                                        <div class="programme-agenda-item">
+                                            <i class="fas fa-calendar"></i>
+                                            <span>{{ $nextDateLabel }}</span>
+                                        </div>
+                                        <div class="programme-agenda-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>{{ $nextTimeLabel }}</span>
+                                        </div>
+                                        <div class="programme-agenda-item">
+                                            <i class="fas {{ ($nextType === 'presentielle') ? 'fa-map-marker-alt' : 'fa-video' }}"></i>
+                                            @if($nextType === 'presentielle')
+                                                <span>Présentiel{{ !empty($nextLieu) ? ' • ' . $nextLieu : '' }}</span>
+                                            @else
+                                                <span>En ligne</span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <div class="programme-agenda-item programme-agenda-muted">
+                                            <i class="fas fa-bolt"></i>
+                                            <span>Aucune séance à venir</span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
 
                             <div class="programme-card-actions">
@@ -263,6 +330,9 @@
                                                     <span class="badge badge-soft"><i class="fas fa-calendar me-1"></i>{{ $monthLabel }}</span>
                                                 @endif
                                                 <span class="badge badge-soft"><i class="fas fa-list me-1"></i>{{ $itemsCount }} séance(s)</span>
+                                                @if(!empty($programme->next_item))
+                                                    <span class="badge badge-soft"><i class="fas fa-bolt me-1"></i>Prochaine: {{ \Carbon\Carbon::parse($programme->next_item->session_date)->format('d/m') }} {{ !empty($programme->next_item->session_time) ? \Carbon\Carbon::parse($programme->next_item->session_time)->format('H:i') : '00:00' }}</span>
+                                                @endif
                                             </div>
                                         </div>
                                     </button>
@@ -528,6 +598,60 @@
      height: 100%;
      display: flex;
      flex-direction: column;
+ }
+
+
+ .programme-card-cover {
+     width: 100%;
+     aspect-ratio: 16 / 9;
+     background: rgba(15, 23, 42, 0.06);
+     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+     overflow: hidden;
+ }
+
+ .programme-card-cover img {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+     display: block;
+ }
+
+ .programme-card-cover-placeholder {
+     width: 100%;
+     height: 100%;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     color: rgba(15, 23, 42, 0.35);
+     background: linear-gradient(135deg, rgba(37, 99, 235, 0.10), rgba(249, 115, 22, 0.08));
+ }
+
+ .programme-agenda-meta {
+     display: flex;
+     gap: .5rem;
+     flex-wrap: wrap;
+     margin-top: .85rem;
+ }
+
+ .programme-agenda-item {
+     display: inline-flex;
+     align-items: center;
+     gap: .45rem;
+     padding: .35rem .7rem;
+     border-radius: 999px;
+     background: rgba(15, 23, 42, 0.04);
+     border: 1px solid rgba(15, 23, 42, 0.08);
+     font-weight: 800;
+     font-size: .82rem;
+     color: rgba(15, 23, 42, 0.82);
+ }
+
+ .programme-agenda-item i {
+     color: rgba(15, 23, 42, 0.55);
+ }
+
+ .programme-agenda-muted {
+     opacity: .8;
  }
 
  .programme-card-top {

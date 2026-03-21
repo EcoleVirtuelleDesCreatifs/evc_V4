@@ -2090,6 +2090,7 @@ class AdminDashboardController extends Controller
     {
         $validatedData = $request->validate([
             'titre' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'month_start' => 'required|date_format:Y-m',
             'recipients_mode' => 'required|in:formation,students',
             'formation' => 'required_if:recipients_mode,formation|array|min:1',
@@ -2109,6 +2110,11 @@ class AdminDashboardController extends Controller
         ]);
 
         $monthStart = \Carbon\Carbon::createFromFormat('Y-m', $validatedData['month_start'])->startOfMonth()->toDateString();
+
+        $programmeImagePath = null;
+        if ($request->hasFile('image') && Schema::hasColumn('programmes', 'image')) {
+            $programmeImagePath = $request->file('image')->store('programmes/images', 'public');
+        }
 
         $programmesCreated = 0;
         $emailsSent = 0;
@@ -2132,6 +2138,9 @@ class AdminDashboardController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            if (!empty($programmeImagePath) && Schema::hasColumn('programmes', 'image')) {
+                DB::table('programmes')->where('id', $programmeId)->update(['image' => $programmeImagePath]);
+            }
             $programmesCreated++;
 
             foreach ($items as $index => $item) {
@@ -2224,6 +2233,9 @@ class AdminDashboardController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+                if (!empty($programmeImagePath) && Schema::hasColumn('programmes', 'image')) {
+                    DB::table('programmes')->where('id', $programmeId)->update(['image' => $programmeImagePath]);
+                }
                 $programmesCreated++;
 
                 foreach ($items as $index => $item) {
@@ -2387,6 +2399,9 @@ class AdminDashboardController extends Controller
             if (!empty($programme->piece_jointe) && Storage::disk('public')->exists($programme->piece_jointe)) {
                 Storage::disk('public')->delete($programme->piece_jointe);
             }
+            if (property_exists($programme, 'image') && !empty($programme->image) && Storage::disk('public')->exists($programme->image)) {
+                Storage::disk('public')->delete($programme->image);
+            }
 
             // Supprimer le programme de la base de données
             DB::table('programmes')->where('id', $id)->delete();
@@ -2472,6 +2487,19 @@ class AdminDashboardController extends Controller
             $programmePdfPath = $newPath;
         }
 
+        $programmeImagePath = null;
+        if (Schema::hasColumn('programmes', 'image')) {
+            $programmeImagePath = $programme->image ?? null;
+            if ($request->hasFile('image')) {
+                $img = $request->file('image');
+                $newImgPath = $img->store('programmes/images', 'public');
+                if (!empty($programmeImagePath) && Storage::disk('public')->exists($programmeImagePath)) {
+                    Storage::disk('public')->delete($programmeImagePath);
+                }
+                $programmeImagePath = $newImgPath;
+            }
+        }
+
         $formationValue = 'Ciblage';
         $studentIdsJson = null;
 
@@ -2499,6 +2527,9 @@ class AdminDashboardController extends Controller
             'student_ids' => $studentIdsJson,
             'updated_at' => now(),
         ]);
+        if (Schema::hasColumn('programmes', 'image')) {
+            DB::table('programmes')->where('id', $programme->id)->update(['image' => $programmeImagePath]);
+        }
 
         // Mettre à jour les séances
         if (!Schema::hasTable('programme_items')) {

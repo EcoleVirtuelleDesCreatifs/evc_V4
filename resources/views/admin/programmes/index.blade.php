@@ -251,6 +251,41 @@
         border-bottom: 1px solid #334155;
     }
 
+    .programme-header-left {
+        display: flex;
+        align-items: center;
+        gap: .9rem;
+        min-width: 260px;
+        flex: 1 1 auto;
+    }
+
+    .programme-cover-thumb {
+        width: 74px;
+        height: 54px;
+        border-radius: 12px;
+        overflow: hidden;
+        background: rgba(15, 23, 42, 0.25);
+        border: 1px solid rgba(51, 65, 85, 0.8);
+        flex: 0 0 auto;
+    }
+
+    .programme-cover-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .programme-cover-thumb-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(226, 232, 240, 0.55);
+        background: linear-gradient(135deg, rgba(79, 195, 247, 0.16), rgba(225, 48, 108, 0.10));
+    }
+
     .programme-meta {
         display: flex;
         flex-wrap: wrap;
@@ -588,31 +623,93 @@
                             <div class="col-12 col-md-6 col-xl-4 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
                                 <div class="programme-accordion {{ $formationClass }}">
                                     <div class="programme-accordion-header">
-                                        <div style="min-width: 260px;">
-                                            <div style="color:#e2e8f0; font-weight:800; font-size:1.05rem;">
-                                                {{ $programme->titre }}
+                                        @php
+                                            $programmeImageUrl = null;
+                                            try {
+                                                if (property_exists($programme, 'image') && !empty($programme->image)) {
+                                                    $programmeImageUrl = \App\Models\MediaUrl::fromPath($programme->image);
+                                                }
+                                            } catch (\Throwable $e) {
+                                                $programmeImageUrl = null;
+                                            }
+
+                                            $nextItem = $programme->next_item ?? null;
+                                            $nextDateLabel = null;
+                                            $nextTimeLabel = null;
+                                            $nextType = null;
+                                            $nextLieu = null;
+                                            $isPresentiel = false;
+                                            try {
+                                                if (!empty($nextItem?->session_date)) {
+                                                    $time = !empty($nextItem?->session_time) ? $nextItem->session_time : '00:00';
+                                                    $dt = \Carbon\Carbon::parse($nextItem->session_date . ' ' . $time);
+                                                    $nextDateLabel = $dt->format('d/m');
+                                                    $nextTimeLabel = $dt->format('H:i');
+                                                    $nextType = $nextItem->type_formation ?? null;
+                                                    $nextLieu = $nextItem->lieu ?? null;
+                                                    $isPresentiel = in_array(strtolower((string) $nextType), ['presentielle', 'presentiel'], true);
+                                                }
+                                            } catch (\Throwable $e) {
+                                                $nextDateLabel = null;
+                                                $nextTimeLabel = null;
+                                                $nextType = null;
+                                                $nextLieu = null;
+                                                $isPresentiel = false;
+                                            }
+                                        @endphp
+                                        <div class="programme-header-left">
+                                            <div class="programme-cover-thumb">
+                                                @if(!empty($programmeImageUrl))
+                                                    <img src="{{ $programmeImageUrl }}" alt="Illustration" loading="lazy">
+                                                @else
+                                                    <div class="programme-cover-thumb-placeholder">
+                                                        <i class="fas fa-image"></i>
+                                                    </div>
+                                                @endif
                                             </div>
-                                            <div class="programme-meta">
-                                                <span>
-                                                    <i class="fas fa-graduation-cap"></i>
-                                                    {{ $formation }}
-                                                </span>
-                                                @if(!empty($monthStart))
+                                            <div style="min-width: 260px;">
+                                                <div style="color:#e2e8f0; font-weight:800; font-size:1.05rem;">
+                                                    {{ $programme->titre }}
+                                                </div>
+                                                <div class="programme-meta">
                                                     <span>
-                                                        <i class="fas fa-calendar"></i>
-                                                        {{ \Carbon\Carbon::parse($monthStart)->translatedFormat('F Y') }}
+                                                        <i class="fas fa-graduation-cap"></i>
+                                                        {{ $formation }}
                                                     </span>
-                                                @endif
-                                                <span>
-                                                    <i class="fas fa-list"></i>
-                                                    {{ (int) ($programme->items_count ?? 0) }} séance(s)
-                                                </span>
-                                                @if(!empty($programme->next_item))
+                                                    @if(!empty($monthStart))
+                                                        <span>
+                                                            <i class="fas fa-calendar"></i>
+                                                            {{ \Carbon\Carbon::parse($monthStart)->translatedFormat('F Y') }}
+                                                        </span>
+                                                    @endif
                                                     <span>
-                                                        <i class="fas fa-bolt"></i>
-                                                        Prochaine: {{ \Carbon\Carbon::parse($programme->next_item->session_date)->format('d/m') }} {{ \Carbon\Carbon::parse($programme->next_item->session_time)->format('H:i') }}
+                                                        <i class="fas fa-list"></i>
+                                                        {{ (int) ($programme->items_count ?? 0) }} séance(s)
                                                     </span>
-                                                @endif
+                                                    @if(!empty($nextDateLabel) && !empty($nextTimeLabel))
+                                                        <span>
+                                                            <i class="fas fa-calendar"></i>
+                                                            {{ $nextDateLabel }}
+                                                        </span>
+                                                        <span>
+                                                            <i class="fas fa-clock"></i>
+                                                            {{ $nextTimeLabel }}
+                                                        </span>
+                                                        <span>
+                                                            <i class="fas {{ $isPresentiel ? 'fa-map-marker-alt' : 'fa-video' }}"></i>
+                                                            @if($isPresentiel)
+                                                                Présentiel{{ !empty($nextLieu) ? ' • ' . $nextLieu : '' }}
+                                                            @else
+                                                                En ligne
+                                                            @endif
+                                                        </span>
+                                                    @else
+                                                        <span>
+                                                            <i class="fas fa-bolt"></i>
+                                                            Aucune séance à venir
+                                                        </span>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
 
@@ -784,31 +881,93 @@
                 <div class="col-12 col-md-6 col-xl-4 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
                     <div class="programme-accordion {{ $formationClass }}">
                         <div class="programme-accordion-header">
-                            <div style="min-width: 260px;">
-                                <div style="color:#e2e8f0; font-weight:800; font-size:1.05rem;">
-                                    {{ $programme->titre }}
+                            @php
+                                $programmeImageUrl = null;
+                                try {
+                                    if (property_exists($programme, 'image') && !empty($programme->image)) {
+                                        $programmeImageUrl = \App\Models\MediaUrl::fromPath($programme->image);
+                                    }
+                                } catch (\Throwable $e) {
+                                    $programmeImageUrl = null;
+                                }
+
+                                $nextItem = $programme->next_item ?? null;
+                                $nextDateLabel = null;
+                                $nextTimeLabel = null;
+                                $nextType = null;
+                                $nextLieu = null;
+                                $isPresentiel = false;
+                                try {
+                                    if (!empty($nextItem?->session_date)) {
+                                        $time = !empty($nextItem?->session_time) ? $nextItem->session_time : '00:00';
+                                        $dt = \Carbon\Carbon::parse($nextItem->session_date . ' ' . $time);
+                                        $nextDateLabel = $dt->format('d/m');
+                                        $nextTimeLabel = $dt->format('H:i');
+                                        $nextType = $nextItem->type_formation ?? null;
+                                        $nextLieu = $nextItem->lieu ?? null;
+                                        $isPresentiel = in_array(strtolower((string) $nextType), ['presentielle', 'presentiel'], true);
+                                    }
+                                } catch (\Throwable $e) {
+                                    $nextDateLabel = null;
+                                    $nextTimeLabel = null;
+                                    $nextType = null;
+                                    $nextLieu = null;
+                                    $isPresentiel = false;
+                                }
+                            @endphp
+                            <div class="programme-header-left">
+                                <div class="programme-cover-thumb">
+                                    @if(!empty($programmeImageUrl))
+                                        <img src="{{ $programmeImageUrl }}" alt="Illustration" loading="lazy">
+                                    @else
+                                        <div class="programme-cover-thumb-placeholder">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    @endif
                                 </div>
-                                <div class="programme-meta">
-                                    <span>
-                                        <i class="fas fa-graduation-cap"></i>
-                                        {{ $formation }}
-                                    </span>
-                                    @if(!empty($monthStart))
+                                <div style="min-width: 260px;">
+                                    <div style="color:#e2e8f0; font-weight:800; font-size:1.05rem;">
+                                        {{ $programme->titre }}
+                                    </div>
+                                    <div class="programme-meta">
                                         <span>
-                                            <i class="fas fa-calendar"></i>
-                                            {{ \Carbon\Carbon::parse($monthStart)->translatedFormat('F Y') }}
+                                            <i class="fas fa-graduation-cap"></i>
+                                            {{ $formation }}
                                         </span>
-                                    @endif
-                                    <span>
-                                        <i class="fas fa-list"></i>
-                                        {{ (int) ($programme->items_count ?? 0) }} séance(s)
-                                    </span>
-                                    @if(!empty($programme->next_item))
+                                        @if(!empty($monthStart))
+                                            <span>
+                                                <i class="fas fa-calendar"></i>
+                                                {{ \Carbon\Carbon::parse($monthStart)->translatedFormat('F Y') }}
+                                            </span>
+                                        @endif
                                         <span>
-                                            <i class="fas fa-bolt"></i>
-                                            Prochaine: {{ \Carbon\Carbon::parse($programme->next_item->session_date)->format('d/m') }} {{ \Carbon\Carbon::parse($programme->next_item->session_time)->format('H:i') }}
+                                            <i class="fas fa-list"></i>
+                                            {{ (int) ($programme->items_count ?? 0) }} séance(s)
                                         </span>
-                                    @endif
+                                        @if(!empty($nextDateLabel) && !empty($nextTimeLabel))
+                                            <span>
+                                                <i class="fas fa-calendar"></i>
+                                                {{ $nextDateLabel }}
+                                            </span>
+                                            <span>
+                                                <i class="fas fa-clock"></i>
+                                                {{ $nextTimeLabel }}
+                                            </span>
+                                            <span>
+                                                <i class="fas {{ $isPresentiel ? 'fa-map-marker-alt' : 'fa-video' }}"></i>
+                                                @if($isPresentiel)
+                                                    Présentiel{{ !empty($nextLieu) ? ' • ' . $nextLieu : '' }}
+                                                @else
+                                                    En ligne
+                                                @endif
+                                            </span>
+                                        @else
+                                            <span>
+                                                <i class="fas fa-bolt"></i>
+                                                Aucune séance à venir
+                                            </span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
 

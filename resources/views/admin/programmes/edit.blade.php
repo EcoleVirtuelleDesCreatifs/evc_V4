@@ -94,6 +94,32 @@
                         </div>
 
                         <div class="form-group mb-4">
+                            <label for="image" class="form-label">
+                                Image d’illustration (optionnel)
+                            </label>
+                            @if(property_exists($programme, 'image') && !empty($programme->image))
+                                <div class="mb-2">
+                                    <a href="{{ \App\Models\MediaUrl::fromPath($programme->image) }}" target="_blank" class="btn btn-sm btn-secondary">
+                                        <i class="fas fa-image me-1"></i>
+                                        Voir l’image actuelle
+                                    </a>
+                                </div>
+                            @endif
+                            <input type="file"
+                                   class="form-control @error('image') is-invalid @enderror"
+                                   id="image"
+                                   name="image"
+                                   accept="image/*">
+                            @error('image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Laisser vide pour conserver l’image actuelle.
+                            </small>
+                        </div>
+
+                        <div class="form-group mb-4">
                             <label for="fichier_pdf" class="form-label">
                                 PDF du programme (optionnel)
                             </label>

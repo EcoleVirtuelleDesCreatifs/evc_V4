@@ -4213,8 +4213,9 @@ class DashboardController extends Controller
             $itemsByProgramme = $items->groupBy('programme_id');
         }
 
+        $nowForNextItem = now();
         $today = now()->startOfDay();
-        $programmes = $programmes->map(function ($programme) use ($itemsByProgramme, $formationMapping, $today) {
+        $programmes = $programmes->map(function ($programme) use ($itemsByProgramme, $formationMapping, $today, $nowForNextItem) {
             $programme->items = $itemsByProgramme->get($programme->id, collect());
             $programme->items_count = $programme->items->count();
             $formation = $programme->formation ?? null;
@@ -4244,6 +4245,19 @@ class DashboardController extends Controller
             if (!($items instanceof \Illuminate\Support\Collection)) {
                 $items = collect($items);
             }
+
+            $programme->next_item = $items->first(function ($it) use ($nowForNextItem) {
+                try {
+                    if (empty($it->session_date)) {
+                        return false;
+                    }
+                    $time = !empty($it->session_time) ? $it->session_time : '00:00';
+                    $dt = \Carbon\Carbon::parse($it->session_date . ' ' . $time);
+                    return $dt->greaterThanOrEqualTo($nowForNextItem);
+                } catch (\Throwable $e) {
+                    return false;
+                }
+            });
 
             $dates = collect();
             foreach ($items as $it) {

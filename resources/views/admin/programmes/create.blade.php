@@ -71,6 +71,24 @@
                             @enderror
                         </div>
 
+                        <div class="form-group mb-4">
+                            <label for="image" class="form-label">
+                                Image d’illustration (optionnel)
+                            </label>
+                            <input type="file"
+                                   class="form-control @error('image') is-invalid @enderror"
+                                   id="image"
+                                   name="image"
+                                   accept="image/*">
+                            @error('image')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted d-block mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Formats: JPG, PNG, WEBP • Taille max: 5 Mo
+                            </small>
+                        </div>
+
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <div class="form-group">
