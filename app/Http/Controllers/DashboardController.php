@@ -2717,7 +2717,7 @@ class DashboardController extends Controller
     public function formationsIndex(): View
     {
         $user = Auth::user();
-        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+        if (false && $user && !$this->userHasAnyProject((int) $user->id)) {
             return view('formations.index', [
                 'title' => 'Formations',
                 'formations' => [],
@@ -2915,7 +2915,7 @@ class DashboardController extends Controller
     public function formationsCategory(string $category): View
     {
         $user = Auth::user();
-        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+        if (false && $user && !$this->userHasAnyProject((int) $user->id)) {
             return view('formations.category', [
                 'category' => $category,
                 'categoryModel' => null,
@@ -3002,7 +3002,7 @@ class DashboardController extends Controller
     public function formationsShow(int $id): View
     {
         $user = Auth::user();
-        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+        if (false && $user && !$this->userHasAnyProject((int) $user->id)) {
             abort(403);
         }
 
@@ -3101,7 +3101,7 @@ class DashboardController extends Controller
     public function formationsDownload(int $id)
     {
         $user = Auth::user();
-        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+        if (false && $user && !$this->userHasAnyProject((int) $user->id)) {
             abort(403);
         }
 
@@ -3157,7 +3157,7 @@ class DashboardController extends Controller
     public function formationsDownloadAll(int $id)
     {
         $user = Auth::user();
-        if ($user && !$this->userHasAnyProject((int) $user->id)) {
+        if (false && $user && !$this->userHasAnyProject((int) $user->id)) {
             abort(403);
         }
 
@@ -3897,6 +3897,10 @@ class DashboardController extends Controller
             'design_graphique' => 'design-graphique',
             'Community Management' => 'community-management',
             'community_management' => 'community-management',
+            'Community Manager' => 'community-management',
+            'community-manager' => 'community-management',
+            'community_manager' => 'community-management',
+            'community manager' => 'community-management',
             'Design Graphique & Community Manager' => 'design-graphique-cm',
             'Design Graphique & Community Management' => 'design-graphique-cm',
             'design-graphique-cm' => 'design-graphique-cm',
@@ -4135,7 +4139,7 @@ class DashboardController extends Controller
         // Mapping des formations pour gérer les différentes variantes
         $formationMapping = [
             'Design Graphique' => ['Design Graphique', 'Infographie', 'design-graphique', 'design_graphique', 'infographie', 'Design graphique'],
-            'Community Management' => ['Community Management', 'community-management', 'community_management', 'Community management', 'CM'],
+            'Community Management' => ['Community Management', 'Community Manager', 'community-management', 'community-manager', 'community_management', 'community_manager', 'community manager', 'Community management', 'CM'],
             'Gestion Informatique' => ['Gestion Informatique', 'gestion-informatique', 'gestion_informatique', 'Gestion informatique', 'GI'],
             'Intelligence Artificielle' => ['Intelligence Artificielle', 'intelligence-artificielle', 'intelligence_artificielle', 'Intelligence artificielle', 'IA'],
             'Design Graphique & Community Management' => [
@@ -4389,7 +4393,7 @@ class DashboardController extends Controller
 
         $formationMapping = [
             'Design Graphique' => ['Design Graphique', 'Infographie', 'design-graphique', 'design_graphique', 'infographie', 'Design graphique'],
-            'Community Management' => ['Community Management', 'community-management', 'community_management', 'Community management', 'CM'],
+            'Community Management' => ['Community Management', 'Community Manager', 'community-management', 'community-manager', 'community_management', 'community_manager', 'community manager', 'Community management', 'CM'],
             'Gestion Informatique' => ['Gestion Informatique', 'gestion-informatique', 'gestion_informatique', 'Gestion informatique', 'GI'],
             'Intelligence Artificielle' => ['Intelligence Artificielle', 'intelligence-artificielle', 'intelligence_artificielle', 'Intelligence artificielle', 'IA'],
             'Design Graphique & Community Management' => [
@@ -4480,7 +4484,7 @@ class DashboardController extends Controller
 
         $formationMapping = [
             'Design Graphique' => ['Design Graphique', 'Infographie', 'design-graphique', 'design_graphique', 'infographie', 'Design graphique'],
-            'Community Management' => ['Community Management', 'community-management', 'community_management', 'Community management', 'CM'],
+            'Community Management' => ['Community Management', 'Community Manager', 'community-management', 'community-manager', 'community_management', 'community_manager', 'community manager', 'Community management', 'CM'],
             'Gestion Informatique' => ['Gestion Informatique', 'gestion-informatique', 'gestion_informatique', 'Gestion informatique', 'GI'],
             'Intelligence Artificielle' => ['Intelligence Artificielle', 'intelligence-artificielle', 'intelligence_artificielle', 'Intelligence artificielle', 'IA'],
             'Design Graphique & Community Management' => [
@@ -4498,7 +4502,7 @@ class DashboardController extends Controller
         if (in_array($slugNormalized, ['design-graphique', 'design_graphique', 'design'], true)) {
             $targetCanonical = 'Design Graphique';
         }
-        if (in_array($slugNormalized, ['community-management', 'community_management', 'community', 'cm'], true)) {
+        if (in_array($slugNormalized, ['community-management', 'community-manager', 'community_management', 'community_manager', 'community', 'cm'], true)) {
             $targetCanonical = 'Community Management';
         }
 
@@ -4669,8 +4673,20 @@ class DashboardController extends Controller
 
         // Pour Design Graphique & CM, on doit inclure les ressources des deux formations
         $modulesToInclude = [$currentModule];
-        if ($currentModule === 'design-graphique-cm') {
-            $modulesToInclude = ['design-graphique-cm', 'design-graphique', 'community-management'];
+        if (in_array($currentModule, ['design-graphique-cm', 'design-graphique-cm-legacy', 'design-graphique-community-manager'], true)) {
+            $modulesToInclude = [
+                $currentModule,
+                'design-graphique-cm',
+                'design-graphique-cm-legacy',
+                'design-graphique-community-manager',
+                'design-graphique',
+                'community-management',
+            ];
+        }
+        $modulesToInclude = array_values(array_unique(array_filter($modulesToInclude)));
+
+        if (in_array('community-management', $modulesToInclude, true) && !in_array('community-manager', $modulesToInclude, true)) {
+            $modulesToInclude[] = 'community-manager';
         }
 
         $baseQuery = \App\Models\Library::where(function ($query) {
@@ -4679,18 +4695,17 @@ class DashboardController extends Controller
         });
 
         // Pour design-graphique-cm : afficher toutes les ressources actives (sans filtre recipients)
-        if ($currentModule !== 'design-graphique-cm') {
-            $baseQuery->where(function ($query) use ($modulesToInclude) {
-                $query->where(function ($q) use ($modulesToInclude) {
-                    foreach ($modulesToInclude as $module) {
-                        $q->orWhereJsonContains('recipients', $module);
-                    }
-                })
-                    ->orWhereJsonContains('recipients', 'tous')
+        $baseQuery->where(function ($query) use ($modulesToInclude) {
+            $query->where(function ($q) use ($modulesToInclude) {
+                $q->whereRaw('0 = 1');
+                foreach ($modulesToInclude as $module) {
+                    $q->orWhereJsonContains('recipients', $module);
+                }
+                $q->orWhereJsonContains('recipients', 'tous')
                     ->orWhereNull('recipients')
                     ->orWhereRaw('JSON_LENGTH(recipients) = 0');
             });
-        }
+        });
 
         // Stats calculées sur l'ensemble des items (non paginé)
         $allItems = (clone $baseQuery)
@@ -4762,7 +4777,7 @@ class DashboardController extends Controller
             // Mapping des formations pour gérer les différentes variantes
             $formationMapping = [
                 'Design Graphique' => ['Design Graphique', 'Infographie', 'design_graphique', 'infographie', 'Design graphique'],
-                'Community Management' => ['Community Management', 'community_management', 'Community management', 'CM'],
+                'Community Management' => ['Community Management', 'Community Manager', 'community_management', 'community_manager', 'community manager', 'Community management', 'CM'],
                 'Gestion Informatique' => ['Gestion Informatique', 'gestion_informatique', 'Gestion informatique', 'GI'],
                 'Intelligence Artificielle' => ['Intelligence Artificielle', 'intelligence_artificielle', 'Intelligence artificielle', 'IA']
             ];
