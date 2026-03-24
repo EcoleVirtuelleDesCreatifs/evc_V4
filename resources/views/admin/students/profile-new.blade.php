@@ -1309,6 +1309,87 @@
             </div>
             @endif
 
+
+            <div class="info-card fade-in" style="animation-delay: 0.78s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #0ea5e9 0%, #1e3a8a 100%);">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Projets Assignés ({{ $data['stats']['total_assigned_projects'] ?? 0 }})</span>
+                </div>
+                <div class="info-card-body">
+                    @if(isset($data['assigned_projects']) && is_countable($data['assigned_projects']) && count($data['assigned_projects']) > 0)
+                        <div class="row">
+                            @foreach($data['assigned_projects'] as $project)
+                            <div class="col-md-4 mb-3">
+                                @php
+                                    $projectFiles = collect(isset($project->project_files) ? $project->project_files : []);
+                                    $projectFileItems = $projectFiles->map(function ($file) {
+                                        $path = $file->file_path ?? ($file->filename ?? '');
+                                        $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
+                                        if (!$url) {
+                                            return null;
+                                        }
+
+                                        $name = $file->original_name ?? ($file->filename ?? basename($path));
+                                        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                        $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp'], true);
+
+                                        return [
+                                            'url' => $url,
+                                            'original_name' => $name,
+                                            'ext' => $ext,
+                                            'is_image' => $isImage,
+                                        ];
+                                    })->filter()->values();
+                                @endphp
+
+                                <div class="project-card" data-project-open data-project-title="{{ e($project->title ?? 'Projet') }}" data-project-description="{{ e($project->description ?? '') }}" data-project-status="{{ e($project->status ?? '') }}" data-project-created="{{ e(!empty($project->created_at) ? date('d/m/Y H:i', strtotime($project->created_at)) : '') }}" data-project-files='@json($projectFileItems)'>
+                                    @php
+                                        $hasImages = $projectFiles->filter(function($file) {
+                                            $path = $file->file_path ?? ($file->filename ?? '');
+                                            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                            return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                        })->isNotEmpty();
+                                        $firstImage = $hasImages ? $projectFiles->filter(function($file) {
+                                            $path = $file->file_path ?? ($file->filename ?? '');
+                                            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                            return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
+                                        })->first() : null;
+                                    @endphp
+
+                                    @if($firstImage)
+                                        @php
+                                            $imgPath = $firstImage->file_path ?? ($firstImage->filename ?? '');
+                                            $imgUrl = \App\Models\MediaUrl::fromPath($imgPath);
+                                        @endphp
+                                        <img src="{{ $imgUrl }}" alt="" class="project-image">
+                                    @else
+                                        <div class="project-placeholder">
+                                            <i class="fas fa-folder-open fa-3x opacity-50"></i>
+                                        </div>
+                                    @endif
+
+                                    <div class="p-3">
+                                        <h6 class="text-white mb-2">{{ $project->title ?? 'Projet' }}</h6>
+                                        <p class="text-white-50 small mb-2">{{ Str::limit($project->description ?? '', 60) }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="badge badge-modern {{ ($project->status ?? '') === 'valide' ? 'badge-success-modern' : 'badge-warning-modern' }}">
+                                                {{ ucfirst($project->status ?? 'En cours') }}
+                                            </span>
+                                            <small class="text-white-50">
+                                                {{ !empty($project->created_at) ? date('d/m/Y', strtotime($project->created_at)) : '-' }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="text-center text-white-50 py-4">Aucun projet assigné</p>
+                    @endif
+                </div>
+            </div>
+
             <!-- Projets Design -->
             <div class="info-card fade-in" style="animation-delay: 0.8s;">
                 <div class="info-card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
@@ -1321,27 +1402,28 @@
                             @foreach($data['projects'] as $project)
                             <div class="col-md-4 mb-3">
                                 @php
-                                    $projectFiles = isset($project->project_files) ? $project->project_files : [];
-                                    $galleryItems = collect($projectFiles)->map(function ($file) {
-                                        $path = $file->file_path ?? '';
-                                        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                                        if (!in_array($ext, ['jpg','jpeg','png','gif','webp'], true)) {
-                                            return null;
-                                        }
+                                    $projectFiles = collect(isset($project->project_files) ? $project->project_files : []);
+                                    $projectFileItems = $projectFiles->map(function ($file) {
+                                        $path = $file->file_path ?? ($file->filename ?? '');
                                         $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
                                         if (!$url) {
                                             return null;
                                         }
 
                                         $name = $file->original_name ?? ($file->filename ?? basename($path));
+                                        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                        $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp'], true);
+
                                         return [
                                             'url' => $url,
                                             'original_name' => $name,
+                                            'ext' => $ext,
+                                            'is_image' => $isImage,
                                         ];
                                     })->filter()->values();
                                 @endphp
 
-                                <div class="project-card" data-project-open data-project-title="{{ e($project->title ?? 'Projet') }}" data-project-description="{{ e($project->description ?? '') }}" data-project-status="{{ e($project->status ?? '') }}" data-project-created="{{ e(!empty($project->created_at) ? date('d/m/Y H:i', strtotime($project->created_at)) : '') }}" data-project-images='@json($galleryItems)'>
+                                <div class="project-card" data-project-open data-project-title="{{ e($project->title ?? 'Projet') }}" data-project-description="{{ e($project->description ?? '') }}" data-project-status="{{ e($project->status ?? '') }}" data-project-created="{{ e(!empty($project->created_at) ? date('d/m/Y H:i', strtotime($project->created_at)) : '') }}" data-project-files='@json($projectFileItems)'>
                                     @php
                                         $hasImages = $projectFiles->filter(function($file) {
                                             $ext = strtolower(pathinfo($file->file_path ?? '', PATHINFO_EXTENSION));
@@ -1411,15 +1493,33 @@ document.addEventListener('click', function(e) {
     const card = e.target.closest('[data-project-open]');
     if (!card) return;
 
-    const images = (() => {
+    const files = (() => {
         try {
-            const raw = card.getAttribute('data-project-images') || '[]';
-            const parsed = JSON.parse(raw);
-            return Array.isArray(parsed) ? parsed.filter(i => i && i.url) : [];
+            const raw = card.getAttribute('data-project-files') || '';
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                return Array.isArray(parsed) ? parsed.filter(f => f && f.url) : [];
+            }
         } catch (err) {
+            // ignore
+        }
+
+        try {
+            const rawImages = card.getAttribute('data-project-images') || '[]';
+            const parsedImages = JSON.parse(rawImages);
+            const imgs = Array.isArray(parsedImages) ? parsedImages.filter(i => i && i.url) : [];
+            return imgs.map(i => ({
+                url: i.url,
+                original_name: i.original_name,
+                is_image: true,
+            }));
+        } catch (err2) {
             return [];
         }
     })();
+
+    const images = files.filter(f => f && f.is_image === true);
+    const documents = files.filter(f => f && f.is_image !== true);
 
     const title = card.getAttribute('data-project-title') || 'Projet';
     const description = card.getAttribute('data-project-description') || '';
@@ -1449,6 +1549,17 @@ document.addEventListener('click', function(e) {
         </div>
     ` : `<p class="text-white-50 mb-0">Aucune image disponible pour ce projet.</p>`;
 
+    const documentsHTML = documents.length > 0 ? `
+        <div class="mt-3">
+            <h6 class="text-white-50 mb-2">Documents</h6>
+            <div class="d-flex flex-wrap gap-2">
+                ${documents.map((doc) => `
+                    <a href="${doc.url}" target="_blank" class="btn btn-sm btn-outline-light">${doc.original_name || 'Document'}</a>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+
     const modalHTML = `
         <div class="modal fade" id="${modalId}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg">
@@ -1463,7 +1574,7 @@ document.addEventListener('click', function(e) {
                             ${status ? `<span class="badge bg-info">${status}</span>` : ''}
                             ${createdAt ? `<span class="badge bg-secondary">${createdAt}</span>` : ''}
                         </div>
-                        ${galleryHTML}
+                        ${galleryHTML}${documentsHTML}
                     </div>
                     <div class="modal-footer border-secondary">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>

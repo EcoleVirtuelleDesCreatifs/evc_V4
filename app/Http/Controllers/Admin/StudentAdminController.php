@@ -668,6 +668,32 @@ class StudentAdminController extends Controller
             }
         }
 
+
+
+        $assignedProjects = collect();
+        if (Schema::hasTable('projects')) {
+            $assignedProjects = DB::table('projects')
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            if ($assignedProjects->isNotEmpty() && Schema::hasTable('project_images')) {
+                $projectIds = $assignedProjects->pluck('id')->map(fn ($v) => (int) $v)->filter()->values()->all();
+                if (!empty($projectIds)) {
+                    $filesByProject = DB::table('project_images')
+                        ->whereIn('project_id', $projectIds)
+                        ->orderBy('order_index', 'asc')
+                        ->orderBy('created_at', 'asc')
+                        ->get()
+                        ->groupBy('project_id');
+
+                    foreach ($assignedProjects as $project) {
+                        $project->project_files = $filesByProject[$project->id] ?? collect();
+                    }
+                }
+            }
+        }
+
         // Récupérer les paiements depuis la nouvelle table payments
         $paiements = collect();
         $factures = collect();
@@ -818,6 +844,7 @@ class StudentAdminController extends Controller
                 'tp_rejetes' => $tpRejetes,
                 'progression' => $progression,
                 'total_projects' => $designProjects->count(),
+                'total_assigned_projects' => is_countable($assignedProjects) ? $assignedProjects->count() : 0,
                 'total_paye' => $totalPaye,
                 'total_factures' => $totalFactures,
                 'solde_restant' => $soldeRestant,
@@ -825,6 +852,7 @@ class StudentAdminController extends Controller
             ],
             'tps' => $tps,
             'projects' => $designProjects,
+            'assigned_projects' => $assignedProjects,
             'paiements' => $paiements,
             'factures' => $factures,
         ];
