@@ -480,7 +480,7 @@
                                         <i class="fas fa-align-left me-2"></i>Description
                                     </h5>
                                     <div class="p-3 rounded" style="background: rgba(255,255,255,0.1); border-left: 4px solid #007bff;">
-                                        <div class="project-richtext">{!! $project->description !!}</div>
+                                        <div class="project-richtext">{!! html_entity_decode($project->description ?? '', ENT_QUOTES | ENT_HTML5, 'UTF-8') !!}</div>
                                     </div>
                                 </div>
                             @endif

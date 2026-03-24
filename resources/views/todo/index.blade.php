@@ -943,9 +943,16 @@ function showDetails(tpId) {
             .replace(/'/g, '&#039;');
     }
 
+    function decodeHtmlEntities(input) {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = String(input || '');
+        return txt.value;
+    }
+
     function formatDescription(raw) {
         const rawHtml = String(raw || '');
-        const looksLikeHtml = /<\s*\w+[^>]*>/i.test(rawHtml);
+        const decodedHtml = decodeHtmlEntities(rawHtml);
+        const looksLikeHtml = /<\s*\w+[^>]*>/i.test(decodedHtml);
 
         function sanitizeRichHtml(html) {
             const tmp = document.createElement('div');
@@ -981,11 +988,11 @@ function showDetails(tpId) {
         }
 
         if (looksLikeHtml) {
-            const cleaned = sanitizeRichHtml(rawHtml).trim();
+            const cleaned = sanitizeRichHtml(decodedHtml).trim();
             return cleaned !== '' ? cleaned : '<span style="color:#64748b;">Aucune description.</span>';
         }
 
-        let text = toPlainText(raw);
+        let text = toPlainText(decodedHtml);
         if (!text) {
             return '<span style="color:#64748b;">Aucune description.</span>';
         }

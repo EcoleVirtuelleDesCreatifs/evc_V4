@@ -196,7 +196,7 @@ class StudentAdminController extends Controller
     {
         // Map slug -> label et clés internes possibles
         $formationMap = [
-            'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique', 'design_graphique', 'infographie', 'design-graphique']],
+            'design-graphique' => ['label' => 'Design Graphique', 'keys' => ['Design Graphique', 'design_graphique', 'infographie', 'design-graphique', 'Infographie et Design Graphique', 'Infographie & Design Graphique', 'design graphique']],
             'community-manager' => ['label' => 'Community Management', 'keys' => ['Community Management', 'Community Manager', 'community_management', 'community-manager', 'community manager']],
             'community-management' => ['label' => 'Community Management', 'keys' => ['Community Management', 'Community Manager', 'community_management', 'community-manager', 'community-management', 'community manager']],
             'design-graphique-community-manager' => ['label' => 'Design Graphique & Community Manager', 'keys' => ['Design Graphique & Community Manager', 'Design Graphique & Community Management', 'design_graphique_community_manager', 'design_graphique_community_management', 'design-graphique-community-manager']],
@@ -239,7 +239,13 @@ class StudentAdminController extends Controller
                     }, $formationMap['design-graphique']['keys'])));
 
                     $query->where(function ($q) use ($dgKeysNormalized) {
-                        $q->whereIn(DB::raw('LOWER(TRIM(program))'), $dgKeysNormalized);
+                        $q->whereIn(DB::raw('LOWER(TRIM(program))'), $dgKeysNormalized)
+                            ->orWhere(function ($q2) use ($dgKeysNormalized) {
+                                $q2->where(function ($q3) {
+                                    $q3->whereNull('program')
+                                        ->orWhereRaw("TRIM(program) = ''");
+                                })->whereIn(DB::raw('LOWER(TRIM(specialization))'), $dgKeysNormalized);
+                            });
                     });
                 } else {
                     $query->where(function ($q) use ($keys) {
