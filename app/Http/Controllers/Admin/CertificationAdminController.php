@@ -702,26 +702,38 @@ class CertificationAdminController extends Controller
             ->select('students.*', 'users.email')
             ->get();
 
-        return $students->filter(function ($student) {
-            // Compter les TP assignés traités (par student_id)
-            $tpCount = DB::table('tp_assignments')
-                ->where('student_id', $student->id)
+        $studentIds = $students->pluck('id')->filter()->values()->all();
+        $tpCounts = collect();
+        if (!empty($studentIds)) {
+            $tpCounts = DB::table('tp_assignments')
+                ->select('student_id', DB::raw('COUNT(*) as cnt'))
+                ->whereIn('student_id', $studentIds)
                 ->whereIn('status', ['submitted', 'pending', 'validated'])
-                ->count();
+                ->groupBy('student_id')
+                ->pluck('cnt', 'student_id');
+        }
 
-            // Compter les projets traités (par user_id, table projects)
+        $userIds = $students->pluck('user_id')->filter()->unique()->values()->all();
+        $projectCounts = collect();
+        if (!empty($userIds)) {
+            $projectCounts = DB::table('projects')
+                ->select('user_id', DB::raw('COUNT(*) as cnt'))
+                ->whereIn('user_id', $userIds)
+                ->whereIn('status', ['en_cours', 'termine', 'valide', 'soumis'])
+                ->groupBy('user_id')
+                ->pluck('cnt', 'user_id');
+        }
+
+        return $students->map(function ($student) use ($tpCounts, $projectCounts) {
+            $tpCount = (int) ($tpCounts[$student->id] ?? 0);
             $projectCount = 0;
-            if ($student->user_id) {
-                $projectCount = DB::table('projects')
-                    ->where('user_id', $student->user_id)
-                    ->whereIn('status', ['en_cours', 'termine', 'valide', 'soumis'])
-                    ->count();
+            if (!empty($student->user_id)) {
+                $projectCount = (int) ($projectCounts[$student->user_id] ?? 0);
             }
-
             $student->tp_project_count = $tpCount + $projectCount;
-            return $student->tp_project_count >= 2;
+            return $student;
         })->values();
-    }
+}
 
     /**
      * Notifier un étudiant par email de sa certification assignée

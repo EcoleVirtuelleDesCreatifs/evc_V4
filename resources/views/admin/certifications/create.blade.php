@@ -93,7 +93,7 @@
                         <span class="selected-count ms-2" id="selectedCount">(0 sélectionné)</span>
                     </h5>
                     <p class="text-muted mb-3" style="font-size:0.85rem;">
-                        <i class="fas fa-info-circle me-1"></i>Seuls les étudiants actifs ayant réalisé au moins 2 TP/Projets sont affichés.
+                        <i class="fas fa-info-circle me-1"></i>Tous les étudiants actifs sont affichés.
                     </p>
 
                     <input type="text" class="search-students" id="searchStudents" placeholder="Rechercher un étudiant par nom, prénom ou formation...">
@@ -106,7 +106,7 @@
 
                     <div class="student-list" id="studentList">
                         @if($eligibleStudents->isEmpty())
-                            <p class="text-center text-muted py-3">Aucun étudiant éligible (2+ TP/Projets réalisés).</p>
+                            <p class="text-center text-muted py-3">Aucun étudiant.</p>
                         @else
                             @foreach($eligibleStudents as $student)
                             <label class="student-item" data-name="{{ strtolower(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')) }}" data-formation="{{ strtolower($student->program ?? '') }}">
