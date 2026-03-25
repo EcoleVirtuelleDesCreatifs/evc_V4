@@ -597,6 +597,19 @@
                 </div>
             </div>
 
+            <!-- Biographie -->
+            @if(!empty($data['student']['biography']))
+            <div class="info-card fade-in" style="animation-delay: 0.35s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #833AB4 0%, #C13584 100%);">
+                    <i class="fas fa-pen-fancy"></i>
+                    <span>Biographie</span>
+                </div>
+                <div class="info-card-body">
+                    <p class="text-white-50 mb-0" style="line-height: 1.8; white-space: pre-line;">{{ $data['student']['biography'] }}</p>
+                </div>
+            </div>
+            @endif
+
             <!-- Formation & Académique -->
             <div class="info-card fade-in" style="animation-delay: 0.4s;">
                 <div class="info-card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">

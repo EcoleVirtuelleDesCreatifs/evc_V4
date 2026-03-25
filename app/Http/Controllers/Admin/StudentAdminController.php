@@ -799,6 +799,7 @@ class StudentAdminController extends Controller
                 'credits_earned' => $student->credits_earned ?? 0,
                 'years_experience' => $student->years_experience ?? null,
                 'industry_sector' => $student->industry_sector ?? '',
+                'biography' => $student->biography ?? '',
             ],
             'cvtheque' => $cvthequeProfile ? [
                 'professional_title' => $cvthequeProfile->professional_title ?? '',
