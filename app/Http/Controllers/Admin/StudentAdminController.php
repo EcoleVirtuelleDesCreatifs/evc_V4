@@ -731,8 +731,9 @@ class StudentAdminController extends Controller
                 }
             }
 
-            // Charger aussi les fichiers de soumission depuis design_project_files (si design_projects existe)
-            $designSubmissionsByUser = collect();
+            // Charger les fichiers de soumission depuis design_project_files (si tables existent)
+            // On associe chaque design_project au projet assigné via le titre
+            $designFilesByTitle = collect();
             if (Schema::hasTable('design_projects') && Schema::hasTable('design_project_files')) {
                 $designProjs = DB::table('design_projects')
                     ->where('user_id', $user->id)
@@ -742,37 +743,44 @@ class StudentAdminController extends Controller
                     $allDesignFiles = DB::table('design_project_files')
                         ->whereIn('project_id', $designProjIds)
                         ->orderBy('created_at', 'asc')
-                        ->get();
-                    // Grouper les fichiers par design_project, puis on les associera au project assigné via le titre
-                    $designSubmissionsByUser = $allDesignFiles->groupBy('project_id');
+                        ->get()
+                        ->groupBy('project_id');
+                    // Mapper titre du design_project → ses fichiers
+                    foreach ($designProjs as $dp) {
+                        $dpTitle = strtolower(trim($dp->title ?? ''));
+                        if ($dpTitle !== '' && isset($allDesignFiles[$dp->id])) {
+                            $designFilesByTitle[$dpTitle] = $allDesignFiles[$dp->id];
+                        }
+                    }
                 }
             }
 
             foreach ($assignedProjects as $project) {
-                $project->project_files = $filesByProject[$project->id] ?? collect();
+                $allProjectFiles = $filesByProject[$project->id] ?? collect();
                 $project->source_table = 'projects';
                 $project->normalized_status = $statusMapProjects[$project->status] ?? 'assigned';
-                $project->brief_files = $project->project_files;
 
-                // Chercher les fichiers soumis: d'abord dans project_images (fichiers avec chemin project_submissions/)
-                // puis dans design_project_files
-                $submFiles = collect();
-
-                // Fichiers soumis stockés directement dans project_images (fallback prod)
-                $submFiles = $project->project_files->filter(function ($f) {
+                // Séparer fichiers brief vs fichiers soumis dans project_images
+                // Les soumissions en prod ont un chemin contenant project_submissions/{project_id}/
+                $submFiles = $allProjectFiles->filter(function ($f) use ($project) {
                     $path = $f->file_path ?? '';
-                    return str_contains($path, 'project_submissions/');
+                    return str_contains($path, 'project_submissions/' . $project->id . '/');
+                });
+                $briefFiles = $allProjectFiles->filter(function ($f) use ($project) {
+                    $path = $f->file_path ?? '';
+                    return !str_contains($path, 'project_submissions/' . $project->id . '/');
                 });
 
-                // Si pas de fichiers submission dans project_images, chercher dans design_project_files
-                if ($submFiles->isEmpty() && $designSubmissionsByUser->isNotEmpty()) {
-                    foreach ($designSubmissionsByUser as $dpId => $dpFiles) {
-                        if ($dpFiles->isNotEmpty()) {
-                            $submFiles = $submFiles->merge($dpFiles);
-                        }
+                // Si pas de fichiers submission dans project_images, chercher dans design_project_files par titre
+                if ($submFiles->isEmpty() && $designFilesByTitle->isNotEmpty()) {
+                    $projectTitle = strtolower(trim($project->title ?? ''));
+                    if ($projectTitle !== '' && isset($designFilesByTitle[$projectTitle])) {
+                        $submFiles = $designFilesByTitle[$projectTitle];
                     }
                 }
 
+                $project->project_files = $allProjectFiles;
+                $project->brief_files = $briefFiles->values();
                 $project->submission_files = $submFiles->values();
                 $allTodos->push($project);
             }

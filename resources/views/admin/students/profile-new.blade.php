@@ -1467,14 +1467,7 @@
 
                                     {{-- Galerie images/fichiers soumis par l'étudiant --}}
                                     @php
-                                        // Combiner submission_files + project_files (pour projects table en prod)
-                                        $allFiles = collect();
-                                        if ($todoSubmissionFiles->count() > 0) {
-                                            $allFiles = $todoSubmissionFiles;
-                                        } elseif ($isFromProjects && $todoBriefFiles->count() > 0) {
-                                            // Pour projects table en prod, les fichiers soumis sont dans project_images
-                                            $allFiles = $todoBriefFiles;
-                                        }
+                                        $allFiles = $todoSubmissionFiles;
 
                                         $imageFiles = $allFiles->filter(function ($f) {
                                             $mime = $f->mime_type ?? '';
