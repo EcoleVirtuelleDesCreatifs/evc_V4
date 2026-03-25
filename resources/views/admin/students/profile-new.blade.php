@@ -1465,6 +1465,80 @@
                                     <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit($todoDesc, 120) }}</p>
                                     @endif
 
+                                    {{-- Galerie images/fichiers soumis par l'étudiant --}}
+                                    @php
+                                        // Combiner submission_files + project_files (pour projects table en prod)
+                                        $allFiles = collect();
+                                        if ($todoSubmissionFiles->count() > 0) {
+                                            $allFiles = $todoSubmissionFiles;
+                                        } elseif ($isFromProjects && $todoBriefFiles->count() > 0) {
+                                            // Pour projects table en prod, les fichiers soumis sont dans project_images
+                                            $allFiles = $todoBriefFiles;
+                                        }
+
+                                        $imageFiles = $allFiles->filter(function ($f) {
+                                            $mime = $f->mime_type ?? '';
+                                            $path = $f->file_path ?? ($f->filename ?? '');
+                                            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                            return str_starts_with($mime, 'image/') || in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                        });
+
+                                        $otherFiles = $allFiles->filter(function ($f) {
+                                            $mime = $f->mime_type ?? '';
+                                            $path = $f->file_path ?? ($f->filename ?? '');
+                                            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                            return !str_starts_with($mime, 'image/') && !in_array($ext, ['jpg','jpeg','png','gif','webp']);
+                                        });
+                                    @endphp
+
+                                    @if($imageFiles->count() > 0)
+                                    <div class="mb-3">
+                                        <small class="text-white-50 d-block mb-2"><i class="fas fa-images me-1"></i>Fichiers soumis ({{ $allFiles->count() }})</small>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach($imageFiles->take(6) as $imgFile)
+                                            @php
+                                                $fPath = $imgFile->file_path ?? ($imgFile->filename ?? '');
+                                                $fPath = ltrim((string) $fPath, '/');
+                                                if (str_starts_with($fPath, 'storage/app/public/')) {
+                                                    $fPath = substr($fPath, strlen('storage/app/public/'));
+                                                }
+                                                $fUrl = \App\Models\MediaUrl::fromPath($fPath);
+                                                $fName = $imgFile->original_name ?? ($imgFile->file_name ?? basename($fPath));
+                                            @endphp
+                                            <a href="{{ $fUrl }}" target="_blank" style="display:block; width:80px; height:80px; border-radius:10px; overflow:hidden; border:2px solid rgba(255,255,255,0.1); transition:all 0.2s;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.transform='scale(1.05)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.transform='none';">
+                                                <img src="{{ $fUrl }}" alt="{{ $fName }}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                                            </a>
+                                            @endforeach
+                                            @if($imageFiles->count() > 6)
+                                            <div style="width:80px; height:80px; border-radius:10px; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,0.1);">
+                                                <small class="text-white-50 fw-bold">+{{ $imageFiles->count() - 6 }}</small>
+                                            </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    @if($otherFiles->count() > 0)
+                                    <div class="mb-3">
+                                        @foreach($otherFiles->take(3) as $oFile)
+                                        @php
+                                            $oPath = $oFile->file_path ?? ($oFile->filename ?? '');
+                                            $oPath = ltrim((string) $oPath, '/');
+                                            if (str_starts_with($oPath, 'storage/app/public/')) {
+                                                $oPath = substr($oPath, strlen('storage/app/public/'));
+                                            }
+                                            $oUrl = \App\Models\MediaUrl::fromPath($oPath);
+                                            $oName = $oFile->original_name ?? ($oFile->file_name ?? basename($oPath));
+                                            $oExt = strtolower(pathinfo($oPath, PATHINFO_EXTENSION));
+                                        @endphp
+                                        <a href="{{ $oUrl }}" target="_blank" class="d-flex align-items-center gap-2 mb-1" style="color:#4fc3f7; text-decoration:none; font-size:0.8rem;">
+                                            <i class="fas fa-{{ $oExt === 'pdf' ? 'file-pdf' : 'file' }}" style="font-size:0.85rem;"></i>
+                                            {{ Str::limit($oName, 30) }}
+                                        </a>
+                                        @endforeach
+                                    </div>
+                                    @endif
+
                                     <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
                                         <div class="d-flex align-items-center gap-2 mb-2">
                                             <i class="fas fa-graduation-cap text-white-50" style="width:14px; font-size:0.75rem;"></i>
@@ -1480,18 +1554,6 @@
                                         <div class="d-flex align-items-center gap-2 mb-2">
                                             <i class="fas fa-check text-success" style="width:14px; font-size:0.75rem;"></i>
                                             <small class="text-success">Validé le {{ date('d/m/Y', strtotime($todo->validated_at)) }}</small>
-                                        </div>
-                                        @endif
-                                        @if($todoSubmissionFiles->count() > 0)
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <i class="fas fa-file-upload text-info" style="width:14px; font-size:0.75rem;"></i>
-                                            <small class="text-info">{{ $todoSubmissionFiles->count() }} fichier(s) soumis</small>
-                                        </div>
-                                        @endif
-                                        @if($todoBriefFiles->count() > 0)
-                                        <div class="d-flex align-items-center gap-2">
-                                            <i class="fas fa-paperclip text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                            <small class="text-white-50">{{ $todoBriefFiles->count() }} fichier(s) brief</small>
                                         </div>
                                         @endif
                                     </div>

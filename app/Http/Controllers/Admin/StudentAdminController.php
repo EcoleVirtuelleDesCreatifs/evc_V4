@@ -626,7 +626,7 @@ class StudentAdminController extends Controller
 
             // Charger les fichiers TP (si dispo) pour galerie images
             if ($tps->isNotEmpty() && Schema::hasTable('tp_files')) {
-                $tpIds = $tps->pluck('id')->map(fn ($v) => (int) $v)->filter()->values()->all();
+                $tpIds = $tps->pluck('id')->map(fn($v) => (int) $v)->filter()->values()->all();
                 if (!empty($tpIds)) {
                     $filesByTp = DB::table('tp_files')
                         ->whereIn('tp_id', $tpIds)
@@ -720,7 +720,7 @@ class StudentAdminController extends Controller
 
             $filesByProject = collect();
             if ($assignedProjects->isNotEmpty() && Schema::hasTable('project_images')) {
-                $projectIds = $assignedProjects->pluck('id')->map(fn ($v) => (int) $v)->filter()->values()->all();
+                $projectIds = $assignedProjects->pluck('id')->map(fn($v) => (int) $v)->filter()->values()->all();
                 if (!empty($projectIds)) {
                     $filesByProject = DB::table('project_images')
                         ->whereIn('project_id', $projectIds)
@@ -731,12 +731,49 @@ class StudentAdminController extends Controller
                 }
             }
 
+            // Charger aussi les fichiers de soumission depuis design_project_files (si design_projects existe)
+            $designSubmissionsByUser = collect();
+            if (Schema::hasTable('design_projects') && Schema::hasTable('design_project_files')) {
+                $designProjs = DB::table('design_projects')
+                    ->where('user_id', $user->id)
+                    ->get();
+                if ($designProjs->isNotEmpty()) {
+                    $designProjIds = $designProjs->pluck('id')->toArray();
+                    $allDesignFiles = DB::table('design_project_files')
+                        ->whereIn('project_id', $designProjIds)
+                        ->orderBy('created_at', 'asc')
+                        ->get();
+                    // Grouper les fichiers par design_project, puis on les associera au project assigné via le titre
+                    $designSubmissionsByUser = $allDesignFiles->groupBy('project_id');
+                }
+            }
+
             foreach ($assignedProjects as $project) {
                 $project->project_files = $filesByProject[$project->id] ?? collect();
                 $project->source_table = 'projects';
                 $project->normalized_status = $statusMapProjects[$project->status] ?? 'assigned';
                 $project->brief_files = $project->project_files;
-                $project->submission_files = collect();
+
+                // Chercher les fichiers soumis: d'abord dans project_images (fichiers avec chemin project_submissions/)
+                // puis dans design_project_files
+                $submFiles = collect();
+
+                // Fichiers soumis stockés directement dans project_images (fallback prod)
+                $submFiles = $project->project_files->filter(function ($f) {
+                    $path = $f->file_path ?? '';
+                    return str_contains($path, 'project_submissions/');
+                });
+
+                // Si pas de fichiers submission dans project_images, chercher dans design_project_files
+                if ($submFiles->isEmpty() && $designSubmissionsByUser->isNotEmpty()) {
+                    foreach ($designSubmissionsByUser as $dpId => $dpFiles) {
+                        if ($dpFiles->isNotEmpty()) {
+                            $submFiles = $submFiles->merge($dpFiles);
+                        }
+                    }
+                }
+
+                $project->submission_files = $submFiles->values();
                 $allTodos->push($project);
             }
         }
@@ -745,8 +782,8 @@ class StudentAdminController extends Controller
         $allTodos = $allTodos->sortByDesc('created_at')->values();
 
         // Séparer Non Traités / Traités
-        $todosNonTraites = $allTodos->filter(fn ($t) => in_array($t->normalized_status, ['assigned', 'pending']));
-        $todosTraites = $allTodos->filter(fn ($t) => in_array($t->normalized_status, ['submitted', 'validated', 'rejected']));
+        $todosNonTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['assigned', 'pending']));
+        $todosTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['submitted', 'validated', 'rejected']));
 
         // Récupérer les paiements depuis la nouvelle table payments
         $paiements = collect();
@@ -1444,7 +1481,7 @@ class StudentAdminController extends Controller
                                 $q2->whereNull('ends_at')->orWhere('ends_at', '>=', now()->toDateString());
                             })
                             ->pluck('job_profile_id')
-                            ->map(fn ($v) => (int) $v)
+                            ->map(fn($v) => (int) $v)
                             ->unique()
                             ->values()
                             ->all();
