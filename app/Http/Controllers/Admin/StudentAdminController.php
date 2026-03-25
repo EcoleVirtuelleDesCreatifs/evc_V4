@@ -670,6 +670,47 @@ class StudentAdminController extends Controller
 
 
 
+        // ── Fusionner tp_assignments + projects en une vue unifiée (comme la page todo étudiant) ──
+        $statusMapProjects = [
+            'en_cours' => 'assigned',
+            'assigned' => 'assigned',
+            'termine' => 'submitted',
+            'valide' => 'validated',
+            'rejete' => 'rejected',
+        ];
+
+        $allTodos = collect();
+
+        // 1) Depuis tp_assignments
+        if ($student->id && Schema::hasTable('tp_assignments')) {
+            $allAssignments = DB::table('tp_assignments')
+                ->where('student_id', $student->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Charger les fichiers brief (tp_assignment_files) et soumission (tp_submission_files)
+            if ($allAssignments->isNotEmpty()) {
+                $assignmentIds = $allAssignments->pluck('id')->toArray();
+
+                $briefFiles = Schema::hasTable('tp_assignment_files')
+                    ? DB::table('tp_assignment_files')->whereIn('tp_assignment_id', $assignmentIds)->get()->groupBy('tp_assignment_id')
+                    : collect();
+
+                $submissionFiles = Schema::hasTable('tp_submission_files')
+                    ? DB::table('tp_submission_files')->whereIn('tp_assignment_id', $assignmentIds)->orderBy('created_at', 'desc')->get()->groupBy('tp_assignment_id')
+                    : collect();
+
+                foreach ($allAssignments as $a) {
+                    $a->brief_files = $briefFiles[$a->id] ?? collect();
+                    $a->submission_files = $submissionFiles[$a->id] ?? collect();
+                    $a->source_table = 'tp_assignments';
+                    $a->normalized_status = $a->status; // déjà normalisé
+                    $allTodos->push($a);
+                }
+            }
+        }
+
+        // 2) Depuis projects
         $assignedProjects = collect();
         if (Schema::hasTable('projects')) {
             $assignedProjects = DB::table('projects')
@@ -677,6 +718,7 @@ class StudentAdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
+            $filesByProject = collect();
             if ($assignedProjects->isNotEmpty() && Schema::hasTable('project_images')) {
                 $projectIds = $assignedProjects->pluck('id')->map(fn ($v) => (int) $v)->filter()->values()->all();
                 if (!empty($projectIds)) {
@@ -686,42 +728,25 @@ class StudentAdminController extends Controller
                         ->orderBy('created_at', 'asc')
                         ->get()
                         ->groupBy('project_id');
-
-                    foreach ($assignedProjects as $project) {
-                        $project->project_files = $filesByProject[$project->id] ?? collect();
-                    }
-                }
-            }
-        }
-
-        // Récupérer les TP assignés (table tp_assignments)
-        $tpAssignmentsNonTraites = collect();
-        $tpAssignmentsTraites = collect();
-        if ($student->id && Schema::hasTable('tp_assignments')) {
-            $allAssignments = DB::table('tp_assignments')
-                ->where('student_id', $student->id)
-                ->orderBy('created_at', 'desc')
-                ->get();
-
-            // Charger les fichiers de soumission
-            if ($allAssignments->isNotEmpty() && Schema::hasTable('tp_submission_files')) {
-                $assignmentIds = $allAssignments->pluck('id')->toArray();
-                $filesByAssignment = DB::table('tp_submission_files')
-                    ->whereIn('tp_assignment_id', $assignmentIds)
-                    ->orderBy('created_at', 'desc')
-                    ->get()
-                    ->groupBy('tp_assignment_id');
-
-                foreach ($allAssignments as $a) {
-                    $a->submission_files = $filesByAssignment[$a->id] ?? collect();
                 }
             }
 
-            // Non traités : assigned, pending
-            $tpAssignmentsNonTraites = $allAssignments->filter(fn ($a) => in_array($a->status, ['assigned', 'pending']));
-            // Traités : submitted, validated, rejected
-            $tpAssignmentsTraites = $allAssignments->filter(fn ($a) => in_array($a->status, ['submitted', 'validated', 'rejected']));
+            foreach ($assignedProjects as $project) {
+                $project->project_files = $filesByProject[$project->id] ?? collect();
+                $project->source_table = 'projects';
+                $project->normalized_status = $statusMapProjects[$project->status] ?? 'assigned';
+                $project->brief_files = $project->project_files;
+                $project->submission_files = collect();
+                $allTodos->push($project);
+            }
         }
+
+        // Trier par date décroissante
+        $allTodos = $allTodos->sortByDesc('created_at')->values();
+
+        // Séparer Non Traités / Traités
+        $todosNonTraites = $allTodos->filter(fn ($t) => in_array($t->normalized_status, ['assigned', 'pending']));
+        $todosTraites = $allTodos->filter(fn ($t) => in_array($t->normalized_status, ['submitted', 'validated', 'rejected']));
 
         // Récupérer les paiements depuis la nouvelle table payments
         $paiements = collect();
@@ -874,9 +899,9 @@ class StudentAdminController extends Controller
                 'tp_rejetes' => $tpRejetes,
                 'progression' => $progression,
                 'total_projects' => $designProjects->count(),
-                'total_assigned_projects' => is_countable($assignedProjects) ? $assignedProjects->count() : 0,
-                'tp_assignments_non_traites' => $tpAssignmentsNonTraites->count(),
-                'tp_assignments_traites' => $tpAssignmentsTraites->count(),
+                'total_assigned_projects' => $allTodos->count(),
+                'todos_non_traites' => $todosNonTraites->count(),
+                'todos_traites' => $todosTraites->count(),
                 'total_paye' => $totalPaye,
                 'total_factures' => $totalFactures,
                 'solde_restant' => $soldeRestant,
@@ -887,8 +912,8 @@ class StudentAdminController extends Controller
             'assigned_projects' => $assignedProjects,
             'paiements' => $paiements,
             'factures' => $factures,
-            'tp_assignments_non_traites' => $tpAssignmentsNonTraites,
-            'tp_assignments_traites' => $tpAssignmentsTraites,
+            'todos_non_traites' => $todosNonTraites,
+            'todos_traites' => $todosTraites,
         ];
 
         return view('admin.students.profile-new', compact('data'));

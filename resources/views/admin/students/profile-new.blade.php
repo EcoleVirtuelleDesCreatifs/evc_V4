@@ -1323,217 +1323,202 @@
             @endif
 
 
-            <!-- TP Assignés - Non Traités -->
+            <!-- Projets Assignés — Non Traités (unifié tp_assignments + projects) -->
             <div class="info-card fade-in" style="animation-delay: 0.74s;">
                 <div class="info-card-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
                     <i class="fas fa-clock"></i>
-                    <span>TP Assignés — Non Traités ({{ $data['stats']['tp_assignments_non_traites'] ?? 0 }})</span>
+                    <span>Projets Assignés — Non Traités ({{ $data['stats']['todos_non_traites'] ?? 0 }})</span>
                 </div>
                 <div class="info-card-body">
-                    @if(isset($data['tp_assignments_non_traites']) && $data['tp_assignments_non_traites']->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-modern mb-0">
-                                <thead>
-                                    <tr>
-                                        <th style="color: #94a3b8;">Titre</th>
-                                        <th style="color: #94a3b8;">Formation</th>
-                                        <th style="color: #94a3b8;">Deadline</th>
-                                        <th style="color: #94a3b8;">Statut</th>
-                                        <th style="color: #94a3b8;">Assigné le</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($data['tp_assignments_non_traites'] as $tp)
-                                    <tr>
-                                        <td>
-                                            <strong class="text-white">{{ $tp->title }}</strong>
-                                            @if(!empty($tp->description))
-                                            <br><small class="text-white-50">{{ Str::limit($tp->description, 80) }}</small>
-                                            @endif
-                                        </td>
-                                        <td><span class="text-white-50">{{ $tp->formation ?? '—' }}</span></td>
-                                        <td>
-                                            @if(!empty($tp->deadline))
-                                                @php
-                                                    $deadline = \Carbon\Carbon::parse($tp->deadline);
-                                                    $isOverdue = $deadline->isPast();
-                                                @endphp
-                                                <span class="{{ $isOverdue ? 'text-danger' : 'text-warning' }}">
-                                                    <i class="fas fa-{{ $isOverdue ? 'exclamation-triangle' : 'calendar-alt' }} me-1"></i>
-                                                    {{ $deadline->format('d/m/Y') }}
-                                                </span>
-                                            @else
-                                                <span class="text-white-50">—</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-modern" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff;">
-                                                <i class="fas fa-hourglass-half me-1"></i>En attente
+                    @if(isset($data['todos_non_traites']) && $data['todos_non_traites']->count() > 0)
+                        <div class="row g-3">
+                            @foreach($data['todos_non_traites'] as $todo)
+                            @php
+                                $isFromProjects = ($todo->source_table ?? '') === 'projects';
+                                $todoTitle = $todo->title ?? 'Projet';
+                                $todoDesc = strip_tags($todo->description ?? '');
+                                $todoFormation = $todo->formation ?? ($todo->category ?? '—');
+                                $todoDeadline = $todo->deadline ?? null;
+                                $todoCreated = $todo->created_at ?? null;
+                                $todoBriefFiles = collect($todo->brief_files ?? []);
+                            @endphp
+                            <div class="col-md-6 col-lg-4">
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.25); border-radius: 16px; padding: 1.25rem; height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(245,158,11,0.15)';" onmouseout="this.style.borderColor='rgba(245,158,11,0.25)'; this.style.transform='none'; this.style.boxShadow='none';">
+                                    <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#f59e0b,#d97706);"></div>
+
+                                    <div class="d-flex align-items-start gap-3 mb-3">
+                                        <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                            <i class="fas fa-{{ $isFromProjects ? 'folder-open' : 'file-alt' }} text-white"></i>
+                                        </div>
+                                        <div style="min-width:0;">
+                                            <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $todoTitle }}</h6>
+                                            <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
+                                                <i class="fas fa-hourglass-half me-1"></i>À traiter
                                             </span>
-                                        </td>
-                                        <td><span class="text-white-50">{{ !empty($tp->created_at) ? date('d/m/Y', strtotime($tp->created_at)) : '—' }}</span></td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                        </div>
+                                    </div>
+
+                                    @if(!empty($todoDesc))
+                                    <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit($todoDesc, 120) }}</p>
+                                    @endif
+
+                                    <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-graduation-cap text-white-50" style="width:14px; font-size:0.75rem;"></i>
+                                            <small class="text-white-50">{{ $todoFormation }}</small>
+                                        </div>
+                                        @if($todoDeadline)
+                                        @php
+                                            $dl = \Carbon\Carbon::parse($todoDeadline);
+                                            $isOverdue = $dl->isPast();
+                                            $daysLeft = now()->diffInDays($dl, false);
+                                        @endphp
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-clock {{ $isOverdue ? 'text-danger' : ($daysLeft <= 3 ? 'text-warning' : 'text-white-50') }}" style="width:14px; font-size:0.75rem;"></i>
+                                            <small class="{{ $isOverdue ? 'text-danger fw-bold' : ($daysLeft <= 3 ? 'text-warning fw-bold' : 'text-white-50') }}">
+                                                @if($isOverdue)
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>Dépassé — {{ $dl->format('d/m/Y') }}
+                                                @elseif($daysLeft == 0)
+                                                    Aujourd'hui
+                                                @elseif($daysLeft <= 3)
+                                                    {{ $dl->format('d/m/Y') }} ({{ $daysLeft }}j restant{{ $daysLeft > 1 ? 's' : '' }})
+                                                @else
+                                                    {{ $dl->format('d/m/Y') }}
+                                                @endif
+                                            </small>
+                                        </div>
+                                        @endif
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-calendar-plus text-white-50" style="width:14px; font-size:0.75rem;"></i>
+                                            <small class="text-white-50">Assigné le {{ $todoCreated ? date('d/m/Y', strtotime($todoCreated)) : '—' }}</small>
+                                        </div>
+                                        @if($todoBriefFiles->count() > 0)
+                                        <div class="d-flex align-items-center gap-2 mt-2">
+                                            <i class="fas fa-paperclip text-white-50" style="width:14px; font-size:0.75rem;"></i>
+                                            <small class="text-info">{{ $todoBriefFiles->count() }} fichier(s) brief</small>
+                                        </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <small class="text-white-50" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px;">
+                                            <i class="fas fa-database me-1"></i>{{ $isFromProjects ? 'Projet' : 'TP Assignment' }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
                     @else
                         <p class="text-center text-white-50 py-4 mb-0">
-                            <i class="fas fa-check-circle me-2 text-success"></i>Aucun TP en attente
+                            <i class="fas fa-check-circle me-2 text-success"></i>Aucun projet en attente de traitement
                         </p>
                     @endif
                 </div>
             </div>
 
-            <!-- TP Assignés - Traités -->
+            <!-- Projets Assignés — Traités (unifié tp_assignments + projects) -->
             <div class="info-card fade-in" style="animation-delay: 0.76s;">
                 <div class="info-card-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                     <i class="fas fa-check-double"></i>
-                    <span>TP Assignés — Traités ({{ $data['stats']['tp_assignments_traites'] ?? 0 }})</span>
+                    <span>Projets Assignés — Traités ({{ $data['stats']['todos_traites'] ?? 0 }})</span>
                 </div>
                 <div class="info-card-body">
-                    @if(isset($data['tp_assignments_traites']) && $data['tp_assignments_traites']->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-modern mb-0">
-                                <thead>
-                                    <tr>
-                                        <th style="color: #94a3b8;">Titre</th>
-                                        <th style="color: #94a3b8;">Formation</th>
-                                        <th style="color: #94a3b8;">Statut</th>
-                                        <th style="color: #94a3b8;">Fichiers</th>
-                                        <th style="color: #94a3b8;">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($data['tp_assignments_traites'] as $tp)
-                                    <tr>
-                                        <td>
-                                            <strong class="text-white">{{ $tp->title }}</strong>
-                                            @if(!empty($tp->description))
-                                            <br><small class="text-white-50">{{ Str::limit($tp->description, 80) }}</small>
-                                            @endif
-                                            @if(!empty($tp->submission_link))
-                                            <br><a href="{{ $tp->submission_link }}" target="_blank" class="small" style="color: #4fc3f7;">
-                                                <i class="fas fa-external-link-alt me-1"></i>Lien de soumission
-                                            </a>
-                                            @endif
-                                        </td>
-                                        <td><span class="text-white-50">{{ $tp->formation ?? '—' }}</span></td>
-                                        <td>
-                                            @if($tp->status === 'validated')
-                                                <span class="badge badge-modern badge-success-modern">
-                                                    <i class="fas fa-check-circle me-1"></i>Validé
-                                                </span>
-                                            @elseif($tp->status === 'submitted')
-                                                <span class="badge badge-modern badge-info-modern">
-                                                    <i class="fas fa-paper-plane me-1"></i>Soumis
-                                                </span>
-                                            @elseif($tp->status === 'rejected')
-                                                <span class="badge badge-modern badge-danger-modern">
-                                                    <i class="fas fa-times-circle me-1"></i>Rejeté
-                                                </span>
-                                            @endif
-                                            @if(!empty($tp->admin_comment))
-                                            <br><small class="text-white-50 mt-1 d-inline-block">
-                                                <i class="fas fa-comment me-1"></i>{{ Str::limit($tp->admin_comment, 60) }}
-                                            </small>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @php $files = isset($tp->submission_files) ? collect($tp->submission_files) : collect(); @endphp
-                                            @if($files->count() > 0)
-                                                <span class="text-info">
-                                                    <i class="fas fa-paperclip me-1"></i>{{ $files->count() }} fichier(s)
-                                                </span>
-                                            @else
-                                                <span class="text-white-50">—</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="text-white-50">
-                                                {{ !empty($tp->submitted_at) ? date('d/m/Y', strtotime($tp->submitted_at)) : (!empty($tp->updated_at) ? date('d/m/Y', strtotime($tp->updated_at)) : '—') }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <p class="text-center text-white-50 py-4 mb-0">
-                            <i class="fas fa-inbox me-2"></i>Aucun TP traité
-                        </p>
-                    @endif
-                </div>
-            </div>
+                    @if(isset($data['todos_traites']) && $data['todos_traites']->count() > 0)
+                        <div class="row g-3">
+                            @foreach($data['todos_traites'] as $todo)
+                            @php
+                                $isFromProjects = ($todo->source_table ?? '') === 'projects';
+                                $todoTitle = $todo->title ?? 'Projet';
+                                $todoDesc = strip_tags($todo->description ?? '');
+                                $todoFormation = $todo->formation ?? ($todo->category ?? '—');
+                                $todoStatus = $todo->normalized_status ?? $todo->status ?? '';
+                                $todoLink = $todo->submission_link ?? null;
+                                $todoAdminComment = $todo->admin_comment ?? null;
+                                $todoSubmissionFiles = collect($todo->submission_files ?? []);
+                                $todoBriefFiles = collect($todo->brief_files ?? []);
 
-            <div class="info-card fade-in" style="animation-delay: 0.78s;">
-                <div class="info-card-header" style="background: linear-gradient(135deg, #0ea5e9 0%, #1e3a8a 100%);">
-                    <i class="fas fa-folder-open"></i>
-                    <span>Projets Assignés ({{ $data['stats']['total_assigned_projects'] ?? 0 }})</span>
-                </div>
-                <div class="info-card-body">
-                    @if(isset($data['assigned_projects']) && is_countable($data['assigned_projects']) && count($data['assigned_projects']) > 0)
-                        <div class="row">
-                            @foreach($data['assigned_projects'] as $project)
-                            <div class="col-md-4 mb-3">
-                                @php
-                                    $projectFiles = collect(isset($project->project_files) ? $project->project_files : []);
-                                    $projectFileItems = $projectFiles->map(function ($file) {
-                                        $path = $file->file_path ?? ($file->filename ?? '');
-                                        $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
-                                        if (!$url) {
-                                            return null;
-                                        }
+                                $statusConfig = [
+                                    'submitted' => ['label' => 'Soumis', 'icon' => 'paper-plane', 'bg' => 'linear-gradient(135deg,#3b82f6,#2563eb)', 'border' => 'rgba(59,130,246,0.3)'],
+                                    'validated' => ['label' => 'Validé', 'icon' => 'check-circle', 'bg' => 'linear-gradient(135deg,#10b981,#059669)', 'border' => 'rgba(16,185,129,0.3)'],
+                                    'rejected'  => ['label' => 'Rejeté', 'icon' => 'times-circle', 'bg' => 'linear-gradient(135deg,#ef4444,#dc2626)', 'border' => 'rgba(239,68,68,0.3)'],
+                                ];
+                                $sc = $statusConfig[$todoStatus] ?? $statusConfig['submitted'];
+                            @endphp
+                            <div class="col-md-6 col-lg-4">
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid {{ $sc['border'] }}; border-radius: 16px; padding: 1.25rem; height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.15)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                                    <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:{{ $sc['bg'] }};"></div>
 
-                                        $name = $file->original_name ?? ($file->filename ?? basename($path));
-                                        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                                        $isImage = in_array($ext, ['jpg','jpeg','png','gif','webp'], true);
-
-                                        return [
-                                            'url' => $url,
-                                            'original_name' => $name,
-                                            'ext' => $ext,
-                                            'is_image' => $isImage,
-                                        ];
-                                    })->filter()->values();
-                                @endphp
-
-                                <div class="project-card" data-project-open data-project-title="{{ e($project->title ?? 'Projet') }}" data-project-description="{{ e($project->description ?? '') }}" data-project-status="{{ e($project->status ?? '') }}" data-project-created="{{ e(!empty($project->created_at) ? date('d/m/Y H:i', strtotime($project->created_at)) : '') }}" data-project-files='@json($projectFileItems)'>
-                                    @php
-                                        $hasImages = $projectFiles->filter(function($file) {
-                                            $path = $file->file_path ?? ($file->filename ?? '');
-                                            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                                            return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                                        })->isNotEmpty();
-                                        $firstImage = $hasImages ? $projectFiles->filter(function($file) {
-                                            $path = $file->file_path ?? ($file->filename ?? '');
-                                            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                                            return in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                                        })->first() : null;
-                                    @endphp
-
-                                    @if($firstImage)
-                                        @php
-                                            $imgPath = $firstImage->file_path ?? ($firstImage->filename ?? '');
-                                            $imgUrl = \App\Models\MediaUrl::fromPath($imgPath);
-                                        @endphp
-                                        <img src="{{ $imgUrl }}" alt="" class="project-image">
-                                    @else
-                                        <div class="project-placeholder">
-                                            <i class="fas fa-folder-open fa-3x opacity-50"></i>
+                                    <div class="d-flex align-items-start gap-3 mb-3">
+                                        <div style="width:42px;height:42px;border-radius:10px;background:{{ $sc['bg'] }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                            <i class="fas fa-{{ $isFromProjects ? 'folder-open' : 'file-alt' }} text-white"></i>
                                         </div>
+                                        <div style="min-width:0;">
+                                            <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $todoTitle }}</h6>
+                                            <span class="badge" style="background:{{ $sc['bg'] }}; color:#fff; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
+                                                <i class="fas fa-{{ $sc['icon'] }} me-1"></i>{{ $sc['label'] }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    @if(!empty($todoDesc))
+                                    <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit($todoDesc, 120) }}</p>
                                     @endif
 
-                                    <div class="p-3">
-                                        <h6 class="text-white mb-2">{{ $project->title ?? 'Projet' }}</h6>
-                                        <p class="text-white-50 small mb-2">{{ Str::limit($project->description ?? '', 60) }}</p>
+                                    <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-graduation-cap text-white-50" style="width:14px; font-size:0.75rem;"></i>
+                                            <small class="text-white-50">{{ $todoFormation }}</small>
+                                        </div>
+                                        @if(!empty($todo->submitted_at))
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-paper-plane text-white-50" style="width:14px; font-size:0.75rem;"></i>
+                                            <small class="text-white-50">Soumis le {{ date('d/m/Y', strtotime($todo->submitted_at)) }}</small>
+                                        </div>
+                                        @endif
+                                        @if(!empty($todo->validated_at))
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-check text-success" style="width:14px; font-size:0.75rem;"></i>
+                                            <small class="text-success">Validé le {{ date('d/m/Y', strtotime($todo->validated_at)) }}</small>
+                                        </div>
+                                        @endif
+                                        @if($todoSubmissionFiles->count() > 0)
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-file-upload text-info" style="width:14px; font-size:0.75rem;"></i>
+                                            <small class="text-info">{{ $todoSubmissionFiles->count() }} fichier(s) soumis</small>
+                                        </div>
+                                        @endif
+                                        @if($todoBriefFiles->count() > 0)
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-paperclip text-white-50" style="width:14px; font-size:0.75rem;"></i>
+                                            <small class="text-white-50">{{ $todoBriefFiles->count() }} fichier(s) brief</small>
+                                        </div>
+                                        @endif
+                                    </div>
+
+                                    @if(!empty($todoLink))
+                                    <div class="mb-2">
+                                        <a href="{{ $todoLink }}" target="_blank" class="small" style="color: #4fc3f7; text-decoration: none;">
+                                            <i class="fas fa-external-link-alt me-1"></i>Lien de soumission
+                                        </a>
+                                    </div>
+                                    @endif
+
+                                    @if(!empty($todoAdminComment))
+                                    <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:0.6rem; margin-bottom:0.5rem; border-left:3px solid {{ $todoStatus === 'rejected' ? '#ef4444' : '#3b82f6' }};">
+                                        <small class="text-white-50">
+                                            <i class="fas fa-comment me-1"></i>{{ Str::limit($todoAdminComment, 100) }}
+                                        </small>
+                                    </div>
+                                    @endif
+
+                                    <div class="mt-auto">
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <span class="badge badge-modern {{ ($project->status ?? '') === 'valide' ? 'badge-success-modern' : 'badge-warning-modern' }}">
-                                                {{ ucfirst($project->status ?? 'En cours') }}
-                                            </span>
+                                            <small class="text-white-50" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px;">
+                                                <i class="fas fa-database me-1"></i>{{ $isFromProjects ? 'Projet' : 'TP Assignment' }}
+                                            </small>
                                             <small class="text-white-50">
-                                                {{ !empty($project->created_at) ? date('d/m/Y', strtotime($project->created_at)) : '-' }}
+                                                {{ !empty($todo->created_at) ? date('d/m/Y', strtotime($todo->created_at)) : '—' }}
                                             </small>
                                         </div>
                                     </div>
@@ -1542,7 +1527,9 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="text-center text-white-50 py-4">Aucun projet assigné</p>
+                        <p class="text-center text-white-50 py-4 mb-0">
+                            <i class="fas fa-inbox me-2"></i>Aucun projet traité
+                        </p>
                     @endif
                 </div>
             </div>
