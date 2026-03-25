@@ -1323,6 +1323,150 @@
             @endif
 
 
+            <!-- TP Assignés - Non Traités -->
+            <div class="info-card fade-in" style="animation-delay: 0.74s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <i class="fas fa-clock"></i>
+                    <span>TP Assignés — Non Traités ({{ $data['stats']['tp_assignments_non_traites'] ?? 0 }})</span>
+                </div>
+                <div class="info-card-body">
+                    @if(isset($data['tp_assignments_non_traites']) && $data['tp_assignments_non_traites']->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-modern mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="color: #94a3b8;">Titre</th>
+                                        <th style="color: #94a3b8;">Formation</th>
+                                        <th style="color: #94a3b8;">Deadline</th>
+                                        <th style="color: #94a3b8;">Statut</th>
+                                        <th style="color: #94a3b8;">Assigné le</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($data['tp_assignments_non_traites'] as $tp)
+                                    <tr>
+                                        <td>
+                                            <strong class="text-white">{{ $tp->title }}</strong>
+                                            @if(!empty($tp->description))
+                                            <br><small class="text-white-50">{{ Str::limit($tp->description, 80) }}</small>
+                                            @endif
+                                        </td>
+                                        <td><span class="text-white-50">{{ $tp->formation ?? '—' }}</span></td>
+                                        <td>
+                                            @if(!empty($tp->deadline))
+                                                @php
+                                                    $deadline = \Carbon\Carbon::parse($tp->deadline);
+                                                    $isOverdue = $deadline->isPast();
+                                                @endphp
+                                                <span class="{{ $isOverdue ? 'text-danger' : 'text-warning' }}">
+                                                    <i class="fas fa-{{ $isOverdue ? 'exclamation-triangle' : 'calendar-alt' }} me-1"></i>
+                                                    {{ $deadline->format('d/m/Y') }}
+                                                </span>
+                                            @else
+                                                <span class="text-white-50">—</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-modern" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff;">
+                                                <i class="fas fa-hourglass-half me-1"></i>En attente
+                                            </span>
+                                        </td>
+                                        <td><span class="text-white-50">{{ !empty($tp->created_at) ? date('d/m/Y', strtotime($tp->created_at)) : '—' }}</span></td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center text-white-50 py-4 mb-0">
+                            <i class="fas fa-check-circle me-2 text-success"></i>Aucun TP en attente
+                        </p>
+                    @endif
+                </div>
+            </div>
+
+            <!-- TP Assignés - Traités -->
+            <div class="info-card fade-in" style="animation-delay: 0.76s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fas fa-check-double"></i>
+                    <span>TP Assignés — Traités ({{ $data['stats']['tp_assignments_traites'] ?? 0 }})</span>
+                </div>
+                <div class="info-card-body">
+                    @if(isset($data['tp_assignments_traites']) && $data['tp_assignments_traites']->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-modern mb-0">
+                                <thead>
+                                    <tr>
+                                        <th style="color: #94a3b8;">Titre</th>
+                                        <th style="color: #94a3b8;">Formation</th>
+                                        <th style="color: #94a3b8;">Statut</th>
+                                        <th style="color: #94a3b8;">Fichiers</th>
+                                        <th style="color: #94a3b8;">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($data['tp_assignments_traites'] as $tp)
+                                    <tr>
+                                        <td>
+                                            <strong class="text-white">{{ $tp->title }}</strong>
+                                            @if(!empty($tp->description))
+                                            <br><small class="text-white-50">{{ Str::limit($tp->description, 80) }}</small>
+                                            @endif
+                                            @if(!empty($tp->submission_link))
+                                            <br><a href="{{ $tp->submission_link }}" target="_blank" class="small" style="color: #4fc3f7;">
+                                                <i class="fas fa-external-link-alt me-1"></i>Lien de soumission
+                                            </a>
+                                            @endif
+                                        </td>
+                                        <td><span class="text-white-50">{{ $tp->formation ?? '—' }}</span></td>
+                                        <td>
+                                            @if($tp->status === 'validated')
+                                                <span class="badge badge-modern badge-success-modern">
+                                                    <i class="fas fa-check-circle me-1"></i>Validé
+                                                </span>
+                                            @elseif($tp->status === 'submitted')
+                                                <span class="badge badge-modern badge-info-modern">
+                                                    <i class="fas fa-paper-plane me-1"></i>Soumis
+                                                </span>
+                                            @elseif($tp->status === 'rejected')
+                                                <span class="badge badge-modern badge-danger-modern">
+                                                    <i class="fas fa-times-circle me-1"></i>Rejeté
+                                                </span>
+                                            @endif
+                                            @if(!empty($tp->admin_comment))
+                                            <br><small class="text-white-50 mt-1 d-inline-block">
+                                                <i class="fas fa-comment me-1"></i>{{ Str::limit($tp->admin_comment, 60) }}
+                                            </small>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php $files = isset($tp->submission_files) ? collect($tp->submission_files) : collect(); @endphp
+                                            @if($files->count() > 0)
+                                                <span class="text-info">
+                                                    <i class="fas fa-paperclip me-1"></i>{{ $files->count() }} fichier(s)
+                                                </span>
+                                            @else
+                                                <span class="text-white-50">—</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="text-white-50">
+                                                {{ !empty($tp->submitted_at) ? date('d/m/Y', strtotime($tp->submitted_at)) : (!empty($tp->updated_at) ? date('d/m/Y', strtotime($tp->updated_at)) : '—') }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center text-white-50 py-4 mb-0">
+                            <i class="fas fa-inbox me-2"></i>Aucun TP traité
+                        </p>
+                    @endif
+                </div>
+            </div>
+
             <div class="info-card fade-in" style="animation-delay: 0.78s;">
                 <div class="info-card-header" style="background: linear-gradient(135deg, #0ea5e9 0%, #1e3a8a 100%);">
                     <i class="fas fa-folder-open"></i>
