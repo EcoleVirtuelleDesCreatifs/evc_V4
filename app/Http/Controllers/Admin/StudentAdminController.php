@@ -965,6 +965,212 @@ class StudentAdminController extends Controller
     }
 
     /**
+     * Travaux de l'étudiant (page dédiée)
+     */
+    public function works(int $id)
+    {
+        // Résolution user/student identique à profile()
+        if (request()->get('source') === 'user') {
+            $user = DB::table('users')->where('id', $id)->first();
+            $student = $user ? DB::table('students')->where('user_id', $user->id)->first() : null;
+        } else {
+            $student = DB::table('students')->where('id', $id)->first();
+            if ($student) {
+                $user = DB::table('users')->where('id', $student->user_id)->first();
+            } else {
+                $user = DB::table('users')->where('id', $id)->first();
+                if ($user) {
+                    $student = DB::table('students')->where('user_id', $user->id)->first();
+                }
+            }
+        }
+
+        abort_unless($user, 404, 'Utilisateur non trouvé');
+
+        if (!$student) {
+            $student = (object) [
+                'id' => null,
+                'first_name' => $user->first_name ?? '',
+                'last_name' => $user->last_name ?? '',
+                'email' => $user->email,
+                'phone' => $user->phone ?? '',
+                'program' => $user->formation_souhaitee ?? '',
+                'profile_photo' => $user->profile_photo ?? null,
+                'student_id' => '',
+                'created_at' => $user->created_at,
+            ];
+        }
+
+        $photoUrl = ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null);
+
+        // ── TPs ──
+        $tps = collect();
+        if (Schema::hasTable('tp')) {
+            $tps = DB::table('tp')
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            if ($tps->isNotEmpty() && Schema::hasTable('tp_files')) {
+                $tpIds = $tps->pluck('id')->map(fn($v) => (int) $v)->filter()->values()->all();
+                if (!empty($tpIds)) {
+                    $filesByTp = DB::table('tp_files')
+                        ->whereIn('tp_id', $tpIds)
+                        ->orderBy('created_at', 'desc')
+                        ->get()
+                        ->groupBy('tp_id');
+                    foreach ($tps as $tp) {
+                        $tp->tp_files = $filesByTp[$tp->id] ?? collect();
+                    }
+                }
+            }
+        }
+
+        $totalTp = $tps->count();
+        $tpValides = $tps->where('status', 'validated')->count();
+        $tpEnCours = $tps->where('status', 'pending')->count();
+        $tpRejetes = $tps->where('status', 'rejected')->count();
+
+        // ── Fusionner tp_assignments + projects ──
+        $statusMapProjects = [
+            'en_cours' => 'assigned',
+            'assigned' => 'assigned',
+            'termine' => 'submitted',
+            'valide' => 'validated',
+            'rejete' => 'rejected',
+        ];
+
+        $allTodos = collect();
+
+        // tp_assignments
+        if ($student->id && Schema::hasTable('tp_assignments')) {
+            $allAssignments = DB::table('tp_assignments')
+                ->where('student_id', $student->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            if ($allAssignments->isNotEmpty()) {
+                $assignmentIds = $allAssignments->pluck('id')->toArray();
+
+                $briefFiles = Schema::hasTable('tp_assignment_files')
+                    ? DB::table('tp_assignment_files')->whereIn('tp_assignment_id', $assignmentIds)->get()->groupBy('tp_assignment_id')
+                    : collect();
+
+                $submissionFiles = Schema::hasTable('tp_submission_files')
+                    ? DB::table('tp_submission_files')->whereIn('tp_assignment_id', $assignmentIds)->orderBy('created_at', 'desc')->get()->groupBy('tp_assignment_id')
+                    : collect();
+
+                foreach ($allAssignments as $a) {
+                    $a->brief_files = $briefFiles[$a->id] ?? collect();
+                    $a->submission_files = $submissionFiles[$a->id] ?? collect();
+                    $a->source_table = 'tp_assignments';
+                    $a->normalized_status = $a->status;
+                    $allTodos->push($a);
+                }
+            }
+        }
+
+        // projects
+        if (Schema::hasTable('projects')) {
+            $assignedProjects = DB::table('projects')
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $filesByProject = collect();
+            if ($assignedProjects->isNotEmpty() && Schema::hasTable('project_images')) {
+                $projectIds = $assignedProjects->pluck('id')->map(fn($v) => (int) $v)->filter()->values()->all();
+                if (!empty($projectIds)) {
+                    $filesByProject = DB::table('project_images')
+                        ->whereIn('project_id', $projectIds)
+                        ->orderBy('order_index', 'asc')
+                        ->orderBy('created_at', 'asc')
+                        ->get()
+                        ->groupBy('project_id');
+                }
+            }
+
+            $designFilesByTitle = collect();
+            if (Schema::hasTable('design_projects') && Schema::hasTable('design_project_files')) {
+                $designProjs = DB::table('design_projects')
+                    ->where('user_id', $user->id)
+                    ->get();
+                if ($designProjs->isNotEmpty()) {
+                    $designProjIds = $designProjs->pluck('id')->toArray();
+                    $allDesignFiles = DB::table('design_project_files')
+                        ->whereIn('project_id', $designProjIds)
+                        ->orderBy('created_at', 'asc')
+                        ->get()
+                        ->groupBy('project_id');
+                    foreach ($designProjs as $dp) {
+                        $dpTitle = strtolower(trim($dp->title ?? ''));
+                        if ($dpTitle !== '' && isset($allDesignFiles[$dp->id])) {
+                            $designFilesByTitle[$dpTitle] = $allDesignFiles[$dp->id];
+                        }
+                    }
+                }
+            }
+
+            foreach ($assignedProjects as $project) {
+                $allProjectFiles = $filesByProject[$project->id] ?? collect();
+                $project->source_table = 'projects';
+                $project->normalized_status = $statusMapProjects[$project->status] ?? 'assigned';
+
+                $submFiles = $allProjectFiles->filter(function ($f) use ($project) {
+                    $path = $f->file_path ?? '';
+                    return str_contains($path, 'project_submissions/' . $project->id . '/');
+                });
+                $projBriefFiles = $allProjectFiles->filter(function ($f) use ($project) {
+                    $path = $f->file_path ?? '';
+                    return !str_contains($path, 'project_submissions/' . $project->id . '/');
+                });
+
+                if ($submFiles->isEmpty() && $designFilesByTitle->isNotEmpty()) {
+                    $projectTitle = strtolower(trim($project->title ?? ''));
+                    if ($projectTitle !== '' && isset($designFilesByTitle[$projectTitle])) {
+                        $submFiles = $designFilesByTitle[$projectTitle];
+                    }
+                }
+
+                $project->project_files = $allProjectFiles;
+                $project->brief_files = $projBriefFiles->values();
+                $project->submission_files = $submFiles->values();
+                $allTodos->push($project);
+            }
+        }
+
+        $allTodos = $allTodos->sortByDesc('created_at')->values();
+        $todosNonTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['assigned', 'pending']));
+        $todosTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['submitted', 'validated', 'rejected']));
+
+        $data = [
+            'student' => [
+                'id' => $student->id,
+                'user_id' => $user->id,
+                'prenom' => $student->first_name ?? '—',
+                'nom' => $student->last_name ?? '—',
+                'email' => $student->email ?? $user->email,
+                'formation' => $student->program ?? '—',
+                'photo_url' => $photoUrl,
+                'student_id' => $student->student_id ?? '',
+            ],
+            'stats' => [
+                'total_tp' => $totalTp,
+                'tp_valides' => $tpValides,
+                'tp_en_cours' => $tpEnCours,
+                'tp_rejetes' => $tpRejetes,
+                'todos_non_traites' => $todosNonTraites->count(),
+                'todos_traites' => $todosTraites->count(),
+            ],
+            'tps' => $tps,
+            'todos_non_traites' => $todosNonTraites,
+            'todos_traites' => $todosTraites,
+        ];
+
+        return view('admin.students.works', compact('data'));
+    }
+
+    /**
      * Éditer un étudiant (admin)
      */
     public function edit(int $id)

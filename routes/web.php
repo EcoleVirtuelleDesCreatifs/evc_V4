@@ -1295,6 +1295,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         // Route::post('/students/{id}/toggle-status', [AdminDashboardController::class, 'toggleStudentStatus'])->name('students.toggle-status'); // COMMENTÉ - Route dupliquée, voir ligne 107
         // Route::get('/students/by-formation/{formation}', [AdminDashboardController::class, 'studentsByFormation'])->name('students.by-formation'); // COMMENTÉ - Méthode inexistante
         Route::get('/students/{id}/profile', [\App\Http\Controllers\Admin\StudentAdminController::class, 'profile'])->name('students.profile');
+        Route::get('/students/{id}/works', [\App\Http\Controllers\Admin\StudentAdminController::class, 'works'])->name('students.works');
         Route::delete('/students/{id}/delete', [\App\Http\Controllers\Admin\StudentAdminController::class, 'destroy'])->name('students.delete');
         // Route::get('/students/add', [AdminDashboardController::class, 'createStudent'])->name('students.add');
 
