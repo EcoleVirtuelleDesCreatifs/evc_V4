@@ -320,9 +320,9 @@
                                     </div>
                                 </div>
 
-                                @if(!empty($todoDesc))
-                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit($todoDesc, 120) }}</p>
-                                @endif
+{{--                                 @if(!empty($todoDesc)) --}}
+{{--                                 <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit($todoDesc, 120) }}</p> --}}
+{{--                                 @endif --}}
 
                                 <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
                                     <div class="d-flex align-items-center gap-2 mb-2">
