@@ -33,7 +33,7 @@
 
     <div style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; overflow: hidden;">
         <!-- Header -->
-        <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 20px 24px; display: flex; align-items: center; gap: 16px;">
+        <div style="background: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fbbf24 100%); padding: 20px 24px; display: flex; align-items: center; gap: 16px;">
             <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
@@ -54,11 +54,11 @@
                     <div class="flash-slide" data-slide="{{ $index }}" style="display: {{ $index === 0 ? 'block' : 'none' }};">
                         @if($item['date'])
                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                <span style="background: #dbeafe; color: #1e40af; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                <span style="background: #ffedd5; color: #c2410c; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
                                     {{ $item['date'] }}
                                 </span>
                                 @if($index === 0)
-                                    <span style="background: #ef4444; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
+                                    <span style="background: #f97316; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
                                         NOUVEAU
                                     </span>
                                 @endif
@@ -71,7 +71,7 @@
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             @if($item['url'])
-                                <a href="{{ $item['url'] }}" style="display: inline-flex; align-items: center; gap: 6px; background: #0f172a; color: white; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;">
+                                <a href="{{ $item['url'] }}" style="display: inline-flex; align-items: center; gap: 6px; background: #ea580c; color: white; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;">
                                     Lire
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="9 18 15 12 9 6"></polyline>
@@ -101,7 +101,7 @@
                                 <polyline points="15 18 9 12 15 6"></polyline>
                             </svg>
                         </button>
-                        <button onclick="nextSlide()" style="width: 32px; height: 32px; border-radius: 50%; border: none; background: #0f172a; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                        <button onclick="nextSlide()" style="width: 32px; height: 32px; border-radius: 50%; border: none; background: #ea580c; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
                                 <polyline points="9 18 15 12 9 6"></polyline>
                             </svg>
