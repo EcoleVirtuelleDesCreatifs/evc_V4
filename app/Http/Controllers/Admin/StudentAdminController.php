@@ -877,6 +877,8 @@ class StudentAdminController extends Controller
         $data = [
             'student' => [
                 'id' => $user->id,
+                'user_id' => $user->id,
+                'student_row_id' => $student->id,
                 'student_id' => $student->student_id ?? '',
                 'email' => $student->email,
                 'prenom' => $student->first_name ?? '—',
