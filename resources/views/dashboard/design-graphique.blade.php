@@ -668,7 +668,7 @@
         </div>
     </div>
 
-    @include('homepage._communique')
+    @include('dashboard._communique-design')
 
     {{-- Statistics Cards --}}
     <div class="row mb-4">
