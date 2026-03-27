@@ -71,7 +71,7 @@
 
                         <div style="display: flex; align-items: center; justify-content: space-between;">
                             @if($item['url'])
-                                <a href="{{ $item['url'] }}" style="display: inline-flex; align-items: center; gap: 6px; background: #ea580c; color: white; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;">
+                                <a href="{{ $item['url'] }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #ea580c; color: white; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;">
                                     Lire
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <polyline points="9 18 15 12 9 6"></polyline>
