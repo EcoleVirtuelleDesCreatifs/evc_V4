@@ -147,7 +147,7 @@
     <div class="works-header fade-in">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div class="d-flex align-items-center gap-3">
-                <a href="{{ route('admin.students.profile', !empty(\$data['student']['id']) ? \$data['student']['id'] : ['id' => \$data['student']['user_id'], 'source' => 'user']) }}" class="text-white text-decoration-none" title="Retour au profil">
+                <a href="{{ route('admin.students.profile', !empty($data['student']['id']) ? $data['student']['id'] : ['id' => $data['student']['user_id'], 'source' => 'user']) }}" class="text-white text-decoration-none" title="Retour au profil">
                     <i class="fas fa-arrow-left fa-lg"></i>
                 </a>
                 @if(!empty($data['student']['photo_url']))
@@ -162,7 +162,7 @@
                     <small class="opacity-75">{{ $data['student']['formation'] }} &mdash; {{ $data['student']['email'] }}</small>
                 </div>
             </div>
-            <a href="{{ route('admin.students.profile', !empty(\$data['student']['id']) ? \$data['student']['id'] : ['id' => \$data['student']['user_id'], 'source' => 'user']) }}" class="btn btn-modern btn-primary-modern">
+            <a href="{{ route('admin.students.profile', !empty($data['student']['id']) ? $data['student']['id'] : ['id' => $data['student']['user_id'], 'source' => 'user']) }}" class="btn btn-modern btn-primary-modern">
                 <i class="fas fa-user me-1"></i>Retour au profil
             </a>
         </div>
