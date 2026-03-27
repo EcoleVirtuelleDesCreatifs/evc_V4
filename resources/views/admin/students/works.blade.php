@@ -449,7 +449,7 @@
                                 <div class="mb-3">
                                     <small class="text-white-50 d-block mb-2"><i class="fas fa-images me-1"></i>Fichiers soumis ({{ $allFiles->count() }})</small>
                                     <div class="d-flex flex-wrap gap-2">
-                                        @foreach($imageFiles->take(6) as $imgFile)
+                                        @foreach($imageFiles as $imgFile)
                                         @php
                                             $fPath = $imgFile->file_path ?? ($imgFile->filename ?? '');
                                             $fPath = ltrim((string) $fPath, '/');
@@ -463,11 +463,6 @@
                                             <img src="{{ $fUrl }}" alt="{{ $fName }}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
                                         </a>
                                         @endforeach
-                                        @if($imageFiles->count() > 6)
-                                        <div style="width:80px; height:80px; border-radius:10px; background:rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; border:2px solid rgba(255,255,255,0.1);">
-                                            <small class="text-white-50 fw-bold">+{{ $imageFiles->count() - 6 }}</small>
-                                        </div>
-                                        @endif
                                     </div>
                                 </div>
                                 @endif
