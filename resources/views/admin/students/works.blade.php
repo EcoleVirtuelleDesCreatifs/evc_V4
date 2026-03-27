@@ -333,7 +333,7 @@
                                     @php
                                         $dl = \Carbon\Carbon::parse($todoDeadline);
                                         $isOverdue = $dl->isPast();
-                                        $daysLeft = now()->diffInDays($dl, false);
+                                        $daysLeft = round(now()->diffInDays($dl, false));
                                     @endphp
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <i class="fas fa-clock {{ $isOverdue ? 'text-danger' : ($daysLeft <= 3 ? 'text-warning' : 'text-white-50') }}" style="width:14px; font-size:0.75rem;"></i>
