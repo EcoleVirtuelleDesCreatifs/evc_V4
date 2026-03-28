@@ -4737,7 +4737,7 @@ class DashboardController extends Controller
         return view('bibliotheque.index', [
             'user' => $user,
             'student' => $student,
-            'items' => $items,
+            'items' => $allItems,
             'stats' => $stats,
             'currentModule' => $currentModule,
             'formationPrefix' => $formationPrefix
