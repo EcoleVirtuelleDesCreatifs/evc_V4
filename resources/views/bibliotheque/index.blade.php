@@ -11,7 +11,7 @@
         gap: 0.25rem;
     }
 
-    
+
 
     .pagination .page-link{border-radius:10px;padding:0.45rem 0.75rem;line-height:1;}
     .pagination svg{width:1rem;height:1rem;}
@@ -646,7 +646,7 @@
 <script>
 // Variables globales
 let currentFilter = null;
-let itemsPerPage = 8; // Nombre d'items affichés initialement
+let itemsPerPage = 100; // Nombre d'items affichés initialement
 let itemsToLoad = 4; // Nombre d'items à charger à chaque clic
 let currentlyShown = itemsPerPage;
 
