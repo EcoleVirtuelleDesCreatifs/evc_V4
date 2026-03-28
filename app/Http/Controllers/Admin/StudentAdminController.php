@@ -228,7 +228,8 @@ class StudentAdminController extends Controller
                 }, $dgcmKeys)));
 
                 $query->where(function ($q) use ($dgcmKeysNormalized) {
-                    $q->whereIn(DB::raw('LOWER(TRIM(program))'), $dgcmKeysNormalized);
+                    $q->whereIn(DB::raw('LOWER(TRIM(program))'), $dgcmKeysNormalized)
+                        ->orWhereIn(DB::raw('LOWER(TRIM(specialization))'), $dgcmKeysNormalized);
                 });
             } else {
                 // Cas spécial (DEMANDE MÉTIER): la page Design Graphique doit refléter le choix de formation
