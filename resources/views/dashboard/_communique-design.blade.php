@@ -1,5 +1,5 @@
 <!-- Flash Info Section - Fixed Professional Design -->
-<section class="flash-section w-full max-w-7xl mx-auto my-8 mb-12 px-4" style="font-family: system-ui, -apple-system, sans-serif;">
+<section class="flash-section w-full max-w-7xl mx-auto my-8 mb-20 px-4" style="font-family: system-ui, -apple-system, sans-serif;">
     @php
         $communiques = \App\Models\Communique::active()
             ->with(['actualite:id,slug', 'evenement:id,slug'])
