@@ -216,7 +216,8 @@ class StudentConfirmationController extends Controller
                             'community_management' => ['program' => 'Community Management', 'specialization' => 'community_management'],
                             'intelligence_artificielle' => ['program' => 'Intelligence Artificielle', 'specialization' => 'intelligence_artificielle'],
                             'gestion_informatique' => ['program' => 'Gestion Informatique', 'specialization' => 'gestion_informatique'],
-                            'infographie' => ['program' => 'Design Graphique', 'specialization' => 'design_graphique'],
+                            'design_cm' => ['program' => 'Design Graphique & Community Management', 'specialization' => 'design_cm'],
+                            'design_graphique_community_management' => ['program' => 'Design Graphique & Community Management', 'specialization' => 'design_cm'],
                             'informatique' => ['program' => 'Gestion Informatique', 'specialization' => 'gestion_informatique'],
                         ];
 
