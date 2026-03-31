@@ -10,6 +10,10 @@ class CanonicalHost
 {
     public function handle(Request $request, Closure $next): Response
     {
+        if (! $request->isMethodSafe()) {
+            return $next($request);
+        }
+
         $appUrl = (string) env('APP_URL', '');
         $canonicalHost = parse_url($appUrl, PHP_URL_HOST);
         $canonicalScheme = parse_url($appUrl, PHP_URL_SCHEME);
