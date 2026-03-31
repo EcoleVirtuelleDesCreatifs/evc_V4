@@ -14,6 +14,11 @@ class CanonicalHost
             return $next($request);
         }
 
+        $path = ltrim($request->path(), '/');
+        if (str_starts_with($path, 'auth/evc/') || str_starts_with($path, 'evc/app/admin/')) {
+            return $next($request);
+        }
+
         $appUrl = (string) env('APP_URL', '');
         $canonicalHost = parse_url($appUrl, PHP_URL_HOST);
         $canonicalScheme = parse_url($appUrl, PHP_URL_SCHEME);

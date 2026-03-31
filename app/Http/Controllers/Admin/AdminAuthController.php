@@ -63,6 +63,8 @@ class AdminAuthController extends Controller
                 'admin_permissions' => json_decode($admin->permissions ?? '[]', true)
             ]);
 
+            $request->session()->regenerate();
+
             // Update last login
             DB::table('admins')->where('id', $admin->id)->update([
                 'last_login_at' => now(),
@@ -89,11 +91,11 @@ class AdminAuthController extends Controller
     public function logout(Request $request): RedirectResponse
     {
         $adminId = session('admin_id');
-        
+
         // Clear admin session
         session()->forget([
             'admin_logged_in',
-            'admin_id', 
+            'admin_id',
             'admin_name',
             'admin_email',
             'admin_role',
