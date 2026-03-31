@@ -19,6 +19,16 @@ return Application::configure(basePath: dirname(__DIR__))
             | Request::HEADER_X_FORWARDED_PREFIX
             | Request::HEADER_X_FORWARDED_AWS_ELB);
 
+        $middleware->validateCsrfTokens(except: [
+            'auth/register-no-csrf',
+            'auth/evc/login',
+            'evc/app/admin/login',
+            'pre-registration',
+            'candidature',
+            'evc/pre-registration',
+            'evc/candidature',
+        ]);
+
         $middleware->alias([
             'admin.errors' => \App\Http\Middleware\AdminErrorHandler::class,
             'admin.guest' => \App\Http\Middleware\RedirectIfAdminAuthenticated::class,
