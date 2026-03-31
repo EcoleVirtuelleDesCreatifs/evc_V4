@@ -13,6 +13,8 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'auth/register-no-csrf',
+        'auth/evc/login',
+        'evc/app/admin/login',
         'pre-registration',
         'candidature',
         'evc/pre-registration',
