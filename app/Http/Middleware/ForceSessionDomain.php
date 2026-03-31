@@ -14,6 +14,8 @@ class ForceSessionDomain
 
         if ($host === 'www.ecolevirtuelledescreatifs.com' || $host === 'ecolevirtuelledescreatifs.com') {
             config(['session.domain' => '.ecolevirtuelledescreatifs.com']);
+            config(['session.secure' => true]);
+            config(['session.same_site' => 'lax']);
         }
 
         return $next($request);

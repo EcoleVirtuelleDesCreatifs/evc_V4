@@ -123,6 +123,8 @@ class AuthController extends Controller
                 Auth::login($userModel, $request->has('remember'));
             }
 
+            $request->session()->regenerate();
+
             // Enregistrer l'activité de connexion si la table existe
             if (\Illuminate\Support\Facades\Schema::hasTable('user_activities')) {
                 DB::table('user_activities')->insert([
@@ -262,6 +264,8 @@ class AuthController extends Controller
             }
 
             // Rediriger vers la page de chargement
+            $request->session()->save();
+
             return redirect()->route('auth.loading')->with('success', 'Connexion réussie ! Bienvenue dans votre espace ' . $this->getFormationDisplayName($formationNormalized) . ', ' . ($user->first_name ?? 'Étudiant') . ' 👋');
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput($request->only('email'));

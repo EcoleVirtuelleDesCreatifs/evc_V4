@@ -17,8 +17,13 @@ class TrackOnlineStatus
      */
     public function handle(Request $request, Closure $next)
     {
+        $path = ltrim($request->path(), '/');
+        if (str_starts_with($path, 'auth/evc/') || str_starts_with($path, 'evc/app/admin/')) {
+            return $next($request);
+        }
+
         $response = $next($request);
-        
+
         // Traitement APRÈS la réponse pour ne pas ralentir l'utilisateur
         register_shutdown_function(function() use ($request) {
             $this->updateUserActivity($request);
@@ -26,7 +31,7 @@ class TrackOnlineStatus
 
         return $response;
     }
-    
+
     /**
      * Mettre à jour l'activité utilisateur
      */
@@ -36,10 +41,10 @@ class TrackOnlineStatus
             // Vérifier si l'utilisateur est connecté (plusieurs méthodes)
             $userId = session('user_id') ?? $request->session()->get('user_id') ?? null;
             $isLoggedIn = session('logged_in') ?? $request->session()->get('logged_in') ?? false;
-            
+
             if ($userId && $isLoggedIn) {
                 $sessionId = $request->session()->getId();
-                
+
                 // Mettre à jour le timestamp de dernière activité utilisateur
                 DB::table('users')
                     ->where('id', $userId)
@@ -47,7 +52,7 @@ class TrackOnlineStatus
                         'last_login' => now(),
                         'updated_at' => now()
                     ]);
-                
+
                 // Maintenir la session active avec user_id (persistant)
                 if ($sessionId) {
                     // Nettoyer les anciennes sessions expirées de cet utilisateur (plus de 24h)
@@ -55,7 +60,7 @@ class TrackOnlineStatus
                         ->where('user_id', $userId)
                         ->where('last_activity', '<', time() - 86400) // 24 heures
                         ->delete();
-                    
+
                     // Mettre à jour/créer la session actuelle (persistante)
                     DB::table('sessions')
                         ->updateOrInsert(
@@ -69,7 +74,7 @@ class TrackOnlineStatus
                             ]
                         );
                 }
-                
+
                 // Log pour debugging (temporaire)
                 error_log("TrackOnlineStatus: User $userId session $sessionId maintained as active");
             }
