@@ -423,6 +423,15 @@
                 </div>
             @endif
 
+            @if($errors->any())
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @foreach($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+            @endif
+
             @if(session('success'))
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle me-2"></i>

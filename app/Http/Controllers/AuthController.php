@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cookie;
 
 class AuthController extends Controller
 {
@@ -266,7 +267,10 @@ class AuthController extends Controller
             // Rediriger vers la page de chargement
             $request->session()->save();
 
-            return redirect()->route('auth.loading')->with('success', 'Connexion réussie ! Bienvenue dans votre espace ' . $this->getFormationDisplayName($formationNormalized) . ', ' . ($user->first_name ?? 'Étudiant') . ' 👋');
+            return redirect()
+                ->route('auth.loading')
+                ->with('success', 'Connexion réussie ! Bienvenue dans votre espace ' . $this->getFormationDisplayName($formationNormalized) . ', ' . ($user->first_name ?? 'Étudiant') . ' 👋')
+                ->withCookie(Cookie::make('evc_login_probe', '1', 60, '/', '.ecolevirtuelledescreatifs.com', true, true, false, 'Lax'));
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors())->withInput($request->only('email'));
         } catch (\Exception $e) {
@@ -337,7 +341,9 @@ class AuthController extends Controller
             $formation = session('user_formation', 'design-graphique');
             try {
                 $routeName = $this->getFormationRouteName($formation);
-                return redirect()->route($routeName);
+                return redirect()
+                    ->route($routeName)
+                    ->withCookie(Cookie::make('evc_login_probe', '1', 60, '/', '.ecolevirtuelledescreatifs.com', true, false, false, 'Lax'));
             } catch (\Throwable $e) {
                 return redirect()->route('dashboard.design-graphique');
             }

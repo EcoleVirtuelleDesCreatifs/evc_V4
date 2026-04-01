@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -54,7 +55,7 @@ class AdminAuthController extends Controller
             }
 
             // Create admin session
-            session([
+            $request->session()->put([
                 'admin_logged_in' => true,
                 'admin_id' => $admin->id,
                 'admin_name' => $admin->name,
@@ -64,6 +65,8 @@ class AdminAuthController extends Controller
             ]);
 
             $request->session()->regenerate();
+
+            $request->session()->save();
 
             // Update last login
             DB::table('admins')->where('id', $admin->id)->update([
@@ -77,7 +80,10 @@ class AdminAuthController extends Controller
                 'ip' => $request->ip()
             ]);
 
-            return redirect()->route('admin.dashboard')->with('success', 'Connexion administrateur réussie.');
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('success', 'Connexion administrateur réussie.')
+                ->withCookie(Cookie::make('evc_login_probe', '1', 60, '/', '.ecolevirtuelledescreatifs.com', true, true, false, 'Lax'));
 
         } catch (\Exception $e) {
             Log::error('Admin login error: ' . $e->getMessage());
