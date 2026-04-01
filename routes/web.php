@@ -219,6 +219,66 @@ Route::get('/debug/mail/ui', function () {
     return view('debug.mail');
 })->name('debug.mail.ui');
 
+Route::get('/debug/session', function (\Illuminate\Http\Request $request) {
+    if (!app()->environment('local')) {
+        $token = (string) $request->query('token', '');
+        $expected = (string) env('DEBUG_SESSION_TOKEN', '');
+        if ($expected === '' || !hash_equals($expected, $token)) {
+            abort(404);
+        }
+    }
+
+    return response()->json([
+        'app_env' => app()->environment(),
+        'app_url' => config('app.url'),
+        'host' => $request->getHost(),
+        'scheme' => $request->getScheme(),
+        'is_secure' => $request->isSecure(),
+        'full_url' => $request->fullUrl(),
+        'ip' => $request->ip(),
+        'user_agent' => $request->userAgent(),
+        'session_driver' => config('session.driver'),
+        'session_cookie_name' => config('session.cookie'),
+        'session_domain' => config('session.domain'),
+        'session_secure' => config('session.secure'),
+        'session_same_site' => config('session.same_site'),
+        'session_id' => session()->getId(),
+        'auth_check' => \Illuminate\Support\Facades\Auth::check(),
+        'auth_user_id' => optional(\Illuminate\Support\Facades\Auth::user())->id,
+        'legacy_logged_in' => session('logged_in'),
+        'legacy_user_id' => session('user_id'),
+        'legacy_admin_logged_in' => session('admin_logged_in'),
+        'legacy_admin_id' => session('admin_id'),
+        'cookies' => $request->cookies->all(),
+        'headers' => [
+            'x_forwarded_proto' => $request->headers->get('x-forwarded-proto'),
+            'x_forwarded_host' => $request->headers->get('x-forwarded-host'),
+            'x_forwarded_port' => $request->headers->get('x-forwarded-port'),
+        ],
+    ]);
+});
+
+Route::get('/debug/session/set', function (\Illuminate\Http\Request $request) {
+    if (!app()->environment('local')) {
+        $token = (string) $request->query('token', '');
+        $expected = (string) env('DEBUG_SESSION_TOKEN', '');
+        if ($expected === '' || !hash_equals($expected, $token)) {
+            abort(404);
+        }
+    }
+
+    session(['debug_session_set' => now()->toDateTimeString()]);
+    session()->save();
+
+    return response()
+        ->json([
+            'ok' => true,
+            'session_id' => session()->getId(),
+            'debug_session_set' => session('debug_session_set'),
+        ])
+        ->cookie('evc_debug_cookie', '1', 60, '/', '.ecolevirtuelledescreatifs.com', true, true, false, 'Lax');
+});
+
 // Routes de confirmation d'inscription étudiant
 Route::get('/student/confirm-registration/{token}', [StudentConfirmationController::class, 'showConfirmationForm'])->name('student.confirm-registration');
 Route::post('/student/confirm-registration/{token}', [StudentConfirmationController::class, 'confirmRegistration'])->name('student.confirm-registration.process');
