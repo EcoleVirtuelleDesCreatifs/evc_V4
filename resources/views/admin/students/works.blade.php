@@ -367,7 +367,7 @@
                                 @php
                                     $isHidden = !empty($todo->admin_hidden);
                                 @endphp
-                                <form method="POST" action="{{ route('admin.students.works.toggle-hidden', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mb-2">
+                                <form method="POST" action="{{ route('students.works.toggle-hidden', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mb-2">
                                     @csrf
                                     <input type="hidden" name="source_table" value="{{ $todo->source_table }}">
                                     <input type="hidden" name="work_id" value="{{ $todo->id }}">
