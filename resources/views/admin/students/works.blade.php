@@ -362,6 +362,19 @@
                                     @endif
                                 </div>
 
+
+
+                                @php
+                                    $isHidden = !empty($todo->admin_hidden);
+                                @endphp
+                                <form method="POST" action="{{ route('admin.students.works.toggle-hidden', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mb-2">
+                                    @csrf
+                                    <input type="hidden" name="source_table" value="{{ $todo->source_table }}">
+                                    <input type="hidden" name="work_id" value="{{ $todo->id }}">
+                                    <button type="submit" class="btn btn-sm btn-modern" style="background: {{ $isHidden ? 'rgba(79,195,247,0.15)' : 'rgba(239,68,68,0.15)' }}; color: {{ $isHidden ? '#4fc3f7' : '#ef4444' }}; border: 1px solid {{ $isHidden ? 'rgba(79,195,247,0.35)' : 'rgba(239,68,68,0.35)' }};" onclick="return confirm('{{ $isHidden ? 'Afficher ce projet à l\'étudiant ?' : 'Masquer ce projet à l\'étudiant ?' }}')">
+                                        <i class="fas fa-{{ $isHidden ? 'eye' : 'eye-slash' }} me-1"></i>{{ $isHidden ? 'Afficher' : 'Masquer' }}
+                                    </button>
+                                </form>
                                 <div class="mt-auto">
                                     <small class="text-white-50" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px;">
                                         <i class="fas fa-database me-1"></i>{{ $isFromProjects ? 'Projet' : 'TP Assignment' }}

@@ -404,6 +404,10 @@ class DashboardController extends Controller
             $pendingAssignmentsQuery->where('created_at', '<=', $expirationDate);
         }
 
+        if (Schema::hasColumn('tp_assignments', 'admin_hidden')) {
+            $pendingAssignmentsQuery->where('admin_hidden', 0);
+        }
+
         $pendingAssignments = $pendingAssignmentsQuery->get();
 
         $assignedProjects = collect();

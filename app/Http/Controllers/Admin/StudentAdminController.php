@@ -1174,6 +1174,46 @@ class StudentAdminController extends Controller
     }
 
     /**
+     * Masquer / Afficher un travail (projects ou tp_assignments) pour un étudiant
+     */
+    public function toggleWorkHidden(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'source_table' => 'required|in:projects,tp_assignments',
+            'work_id' => 'required|integer',
+        ]);
+
+        $source = $validated['source_table'];
+        $workId = (int) $validated['work_id'];
+
+        if ($source === 'projects') {
+            abort_unless(Schema::hasTable('projects'), 404);
+            abort_unless(Schema::hasColumn('projects', 'admin_hidden'), 400);
+
+            $work = DB::table('projects')->where('id', $workId)->first();
+            abort_unless($work, 404);
+
+            DB::table('projects')->where('id', $workId)->update([
+                'admin_hidden' => empty($work->admin_hidden) ? 1 : 0,
+                'updated_at' => now(),
+            ]);
+        } else {
+            abort_unless(Schema::hasTable('tp_assignments'), 404);
+            abort_unless(Schema::hasColumn('tp_assignments', 'admin_hidden'), 400);
+
+            $work = DB::table('tp_assignments')->where('id', $workId)->first();
+            abort_unless($work, 404);
+
+            DB::table('tp_assignments')->where('id', $workId)->update([
+                'admin_hidden' => empty($work->admin_hidden) ? 1 : 0,
+                'updated_at' => now(),
+            ]);
+        }
+
+        return back()->with('success', 'Visibilité mise à jour.');
+    }
+
+    /**
      * Éditer un étudiant (admin)
      */
     public function edit(int $id)
