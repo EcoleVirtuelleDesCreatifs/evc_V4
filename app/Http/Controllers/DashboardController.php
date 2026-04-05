@@ -423,6 +423,10 @@ class DashboardController extends Controller
                 $assignedProjectsQuery->where('created_at', '<=', $expirationDate);
             }
 
+            if (Schema::hasColumn('projects', 'admin_hidden')) {
+                $assignedProjectsQuery->where('admin_hidden', 0);
+            }
+
             $statusMap = [
                 'en_cours' => 'assigned',
                 'termine' => 'submitted',
@@ -4802,18 +4806,28 @@ class DashboardController extends Controller
             ]);
 
             // 1. Récupérer les TP assignments (table tp_assignments)
-            $tpAssignments = DB::table('tp_assignments')
+            $tpAssignmentsQuery = DB::table('tp_assignments')
                 ->where('student_id', $student->id)
                 ->where('status', 'assigned')
-                ->orderByDesc('created_at')
-                ->get();
+                ->orderByDesc('created_at');
+
+            if (Schema::hasColumn('tp_assignments', 'admin_hidden')) {
+                $tpAssignmentsQuery->where('admin_hidden', 0);
+            }
+
+            $tpAssignments = $tpAssignmentsQuery->get();
 
             // 2. Récupérer les projets assignés à l'étudiant (table projects)
-            $projects = DB::table('projects')
+            $projectsQuery = DB::table('projects')
                 ->where('user_id', $user->id)
                 ->whereIn('status', ['en_cours', 'assigned'])
-                ->orderByDesc('created_at')
-                ->get();
+                ->orderByDesc('created_at');
+
+            if (Schema::hasColumn('projects', 'admin_hidden')) {
+                $projectsQuery->where('admin_hidden', 0);
+            }
+
+            $projects = $projectsQuery->get();
 
             $statusMap = [
                 'en_cours' => 'assigned',
