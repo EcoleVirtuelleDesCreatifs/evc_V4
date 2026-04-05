@@ -1447,3 +1447,9 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
 
 // Routes supprimées - toutes les routes respectent maintenant la nomenclature /evc/compte/design-graphique/{menu}/{action}
 // Anciennes routes avec préfixe 'compte-evc/' supprimées pour respecter la nouvelle nomenclature
+
+
+// Alias de nom de route (compat) pour éviter l'erreur: Route [admin.students.works.toggle-hidden] not defined
+Route::post('/evc/app/admin/students/{id}/works/toggle-hidden', [\App\Http\Controllers\Admin\StudentAdminController::class, 'toggleWorkHidden'])
+    ->middleware(['admin.errors', 'admin.auth'])
+    ->name('admin.students.works.toggle-hidden');
