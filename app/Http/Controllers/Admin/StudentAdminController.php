@@ -1213,6 +1213,45 @@ class StudentAdminController extends Controller
         return back()->with('success', 'Visibilité mise à jour.');
     }
 
+    public function updateWorkDeadline(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'source_table' => 'required|in:projects,tp_assignments',
+            'work_id' => 'required|integer',
+            'deadline' => 'nullable|date',
+        ]);
+
+        $source = $validated['source_table'];
+        $workId = (int) $validated['work_id'];
+        $deadline = $validated['deadline'] ?? null;
+
+        if ($source === 'projects') {
+            abort_unless(Schema::hasTable('projects'), 404);
+            abort_unless(Schema::hasColumn('projects', 'deadline'), 400);
+
+            $work = DB::table('projects')->where('id', $workId)->first();
+            abort_unless($work, 404);
+
+            DB::table('projects')->where('id', $workId)->update([
+                'deadline' => $deadline,
+                'updated_at' => now(),
+            ]);
+        } else { // source === 'tp_assignments'
+            abort_unless(Schema::hasTable('tp_assignments'), 404);
+            abort_unless(Schema::hasColumn('tp_assignments', 'deadline'), 400);
+
+            $work = DB::table('tp_assignments')->where('id', $workId)->first();
+            abort_unless($work, 404);
+
+            DB::table('tp_assignments')->where('id', $workId)->update([
+                'deadline' => $deadline,
+                'updated_at' => now(),
+            ]);
+        }
+
+        return back()->with('success', 'Délai mis à jour.');
+    }
+
     /**
      * Éditer un étudiant (admin)
      */

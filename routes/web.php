@@ -1357,6 +1357,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/students/{id}/profile', [\App\Http\Controllers\Admin\StudentAdminController::class, 'profile'])->name('students.profile');
         Route::get('/students/{id}/works', [\App\Http\Controllers\Admin\StudentAdminController::class, 'works'])->name('students.works');
         Route::post('/students/{id}/works/toggle-hidden', [\App\Http\Controllers\Admin\StudentAdminController::class, 'toggleWorkHidden'])->name('students.works.toggle-hidden');
+        Route::post('/students/{id}/works/update-deadline', [\App\Http\Controllers\Admin\StudentAdminController::class, 'updateWorkDeadline'])->name('students.works.update-deadline');
         Route::delete('/students/{id}/delete', [\App\Http\Controllers\Admin\StudentAdminController::class, 'destroy'])->name('students.delete');
         // Route::get('/students/add', [AdminDashboardController::class, 'createStudent'])->name('students.add');
 
@@ -1453,3 +1454,9 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
 Route::post('/evc/app/admin/students/{id}/works/toggle-hidden', [\App\Http\Controllers\Admin\StudentAdminController::class, 'toggleWorkHidden'])
     ->middleware(['admin.errors', 'admin.auth'])
     ->name('admin.students.works.toggle-hidden');
+
+// Alias de nom de route (compat) pour permettre la mise à jour du délai
+Route::post('/evc/app/admin/students/{id}/works/update-deadline', [\App\Http\Controllers\Admin\StudentAdminController::class, 'updateWorkDeadline'])
+    ->middleware(['admin.errors', 'admin.auth'])
+    ->name('admin.students.works.update-deadline');
+

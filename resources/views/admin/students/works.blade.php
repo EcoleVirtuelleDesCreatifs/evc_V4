@@ -375,6 +375,18 @@
                                         <i class="fas fa-{{ $isHidden ? 'eye' : 'eye-slash' }} me-1"></i>{{ $isHidden ? 'Afficher' : 'Masquer' }}
                                     </button>
                                 </form>
+
+                                <form method="POST" action="{{ route('admin.students.works.update-deadline', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mb-2">
+                                    @csrf
+                                    <input type="hidden" name="source_table" value="{{ $todo->source_table }}">
+                                    <input type="hidden" name="work_id" value="{{ $todo->id }}">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="date" name="deadline" value="{{ !empty($todo->deadline) ? \Illuminate\Support\Carbon::parse($todo->deadline)->format('Y-m-d') : '' }}" class="form-control form-control-sm" style="max-width: 170px;">
+                                        <button type="submit" class="btn btn-sm btn-modern" style="background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.35);">
+                                            <i class="fas fa-calendar-check me-1"></i>Mettre à jour
+                                        </button>
+                                    </div>
+                                </form>
                                 <div class="mt-auto">
                                     <small class="text-white-50" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px;">
                                         <i class="fas fa-database me-1"></i>{{ $isFromProjects ? 'Projet' : 'TP Assignment' }}
