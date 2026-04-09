@@ -2091,6 +2091,7 @@ class AdminDashboardController extends Controller
         $validatedData = $request->validate([
             'titre' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'programme_pdf' => 'required|file|mimes:pdf|max:51200',
             'month_start' => 'required|date_format:Y-m',
             'recipients_mode' => 'required|in:formation,students',
             'formation' => 'required_if:recipients_mode,formation|array|min:1',
@@ -2098,15 +2099,6 @@ class AdminDashboardController extends Controller
             'description' => 'nullable|string',
             'students' => 'required_if:recipients_mode,students|array|min:1',
             'students.*' => 'integer|exists:students,id',
-
-            'items' => 'required|array|min:1',
-            'items.*.thematique' => 'required|string|max:255',
-            'items.*.session_date' => 'required|date',
-            'items.*.session_time' => 'required|date_format:H:i',
-            'items.*.type_formation' => 'required|in:en_ligne,presentielle',
-            'items.*.lieu' => 'required_if:items.*.type_formation,presentielle|nullable|string|max:255',
-            'items.*.description' => 'nullable|string',
-            'items.*.piece_jointe' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx,ppt,pptx,xls,xlsx|max:51200', // Max 50MB
         ]);
 
         $monthStart = \Carbon\Carbon::createFromFormat('Y-m', $validatedData['month_start'])->startOfMonth()->toDateString();
@@ -2116,11 +2108,14 @@ class AdminDashboardController extends Controller
             $programmeImagePath = $request->file('image')->store('programmes/images', 'public');
         }
 
+        $programmePdfPath = null;
+        if ($request->hasFile('programme_pdf') && Schema::hasColumn('programmes', 'fichier_pdf')) {
+            $programmePdfPath = $request->file('programme_pdf')->store('programmes/pdfs', 'public');
+        }
+
         $programmesCreated = 0;
         $emailsSent = 0;
         $emailsFailures = [];
-
-        $items = array_values($validatedData['items'] ?? []);
 
         if (($validatedData['recipients_mode'] ?? 'formation') === 'students') {
             // Mode: étudiants spécifiques -> 1 programme ciblé
@@ -2131,7 +2126,7 @@ class AdminDashboardController extends Controller
                 'month_start' => $monthStart,
                 'formation' => 'Ciblage',
                 'description' => $validatedData['description'] ?? null,
-                'fichier_pdf' => '',
+                'fichier_pdf' => $programmePdfPath,
                 'piece_jointe' => null,
                 'student_ids' => json_encode($studentIds),
                 'created_by' => session('admin_id'),
@@ -2142,30 +2137,6 @@ class AdminDashboardController extends Controller
                 DB::table('programmes')->where('id', $programmeId)->update(['image' => $programmeImagePath]);
             }
             $programmesCreated++;
-
-            foreach ($items as $index => $item) {
-                $filePath = null;
-                $fileMime = null;
-                if ($request->hasFile("items.$index.piece_jointe")) {
-                    $file = $request->file("items.$index.piece_jointe");
-                    $filePath = $file->store('programmes/items', 'public');
-                    $fileMime = $file->getMimeType();
-                }
-
-                DB::table('programme_items')->insert([
-                    'programme_id' => $programmeId,
-                    'thematique' => $item['thematique'],
-                    'session_date' => $item['session_date'],
-                    'session_time' => $item['session_time'],
-                    'type_formation' => $item['type_formation'],
-                    'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
-                    'description' => $item['description'] ?? null,
-                    'piece_jointe' => $filePath,
-                    'piece_jointe_mime' => $fileMime,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-            }
 
             $students = DB::table('students')
                 ->leftJoin('users', 'students.user_id', '=', 'users.id')
@@ -2226,7 +2197,7 @@ class AdminDashboardController extends Controller
                     'month_start' => $monthStart,
                     'formation' => $formation,
                     'description' => $validatedData['description'] ?? null,
-                    'fichier_pdf' => '',
+                    'fichier_pdf' => $programmePdfPath,
                     'piece_jointe' => null,
                     'student_ids' => null,
                     'created_by' => session('admin_id'),
@@ -2237,30 +2208,6 @@ class AdminDashboardController extends Controller
                     DB::table('programmes')->where('id', $programmeId)->update(['image' => $programmeImagePath]);
                 }
                 $programmesCreated++;
-
-                foreach ($items as $index => $item) {
-                    $filePath = null;
-                    $fileMime = null;
-                    if ($request->hasFile("items.$index.piece_jointe")) {
-                        $file = $request->file("items.$index.piece_jointe");
-                        $filePath = $file->store('programmes/items', 'public');
-                        $fileMime = $file->getMimeType();
-                    }
-
-                    DB::table('programme_items')->insert([
-                        'programme_id' => $programmeId,
-                        'thematique' => $item['thematique'],
-                        'session_date' => $item['session_date'],
-                        'session_time' => $item['session_time'],
-                        'type_formation' => $item['type_formation'],
-                        'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
-                        'description' => $item['description'] ?? null,
-                        'piece_jointe' => $filePath,
-                        'piece_jointe_mime' => $fileMime,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ]);
-                }
 
                 // Récupérer les étudiants concernés par cette formation
                 $studentsQuery = DB::table('students')
