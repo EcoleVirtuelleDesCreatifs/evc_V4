@@ -740,6 +740,77 @@
                                                 </div>
                                             @endif
 
+                                            <!-- PDF du programme -->
+                                            @if(!empty($programme->fichier_pdf))
+                                                <div style="margin-bottom: 1rem;">
+                                                    <div style="color:#e2e8f0; font-weight:600; font-size:0.9rem; margin-bottom:0.5rem;">
+                                                        <i class="fas fa-file-pdf me-2" style="color:#ef4444;"></i>PDF du programme
+                                                    </div>
+                                                    @php
+                                                        try {
+                                                            $pdfUrl = \App\Models\MediaUrl::fromPath($programme->fichier_pdf);
+                                                        } catch (\Throwable $e) {
+                                                            $pdfUrl = null;
+                                                        }
+                                                    @endphp
+                                                    @if(!empty($pdfUrl))
+                                                        <a href="{{ $pdfUrl }}" target="_blank" class="btn-download">
+                                                            <i class="fas fa-download me-1"></i>Télécharger le PDF
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            @endif
+
+                                            <!-- Ciblage -->
+                                            <div style="margin-bottom: 1rem;">
+                                                <div style="color:#e2e8f0; font-weight:600; font-size:0.9rem; margin-bottom:0.5rem;">
+                                                    <i class="fas fa-bullseye me-2" style="color:#4fc3f7;"></i>Ciblage
+                                                </div>
+                                                <div style="color:#94a3b8; font-size:0.85rem;">
+                                                    @php
+                                                        $isStudentTargeting = !empty($programme->student_ids) && is_string($programme->student_ids);
+                                                        $studentIds = [];
+                                                        if ($isStudentTargeting) {
+                                                            try {
+                                                                $studentIds = json_decode($programme->student_ids, true) ?? [];
+                                                            } catch (\Throwable $e) {
+                                                                $studentIds = [];
+                                                            }
+                                                            $isStudentTargeting = !empty($studentIds);
+                                                        }
+                                                    @endphp
+                                                    @if($isStudentTargeting)
+                                                        <span style="color:#f59e0b; font-weight:600;">
+                                                            <i class="fas fa-user-graduate me-1"></i>Étudiants spécifiques ({{ count($studentIds) }})
+                                                        </span>
+                                                        @if(!empty($studentIds))
+                                                            <div style="margin-top:0.5rem; padding:0.5rem; background:rgba(245, 158, 11, 0.1); border-radius:8px;">
+                                                                @php
+                                                                    $targetedStudents = DB::table('students')
+                                                                        ->whereIn('id', $studentIds)
+                                                                        ->leftJoin('users', 'students.user_id', '=', 'users.id')
+                                                                        ->select('students.*', 'users.email')
+                                                                        ->get();
+                                                                @endphp
+                                                                @foreach($targetedStudents as $ts)
+                                                                    <div style="margin-bottom:0.25rem;">
+                                                                        <i class="fas fa-user me-1"></i>
+                                                                        {{ $ts->first_name }} {{ $ts->last_name }}
+                                                                        @if(!empty($ts->email))
+                                                                            <span style="color:#64748b;">({{ $ts->email }})</span>
+                                                                        @endif
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                    @else
+                                                        <span style="color:#10b981; font-weight:600;">
+                                                            <i class="fas fa-graduation-cap me-1"></i>Formation : {{ $programme->formation ?? 'Non défini' }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+
                                             @if(($programme->items ?? collect())->isEmpty())
                                                 <div class="empty-state" style="padding: 1.5rem 1rem;">
                                                     <i class="fas fa-inbox"></i>
@@ -997,6 +1068,77 @@
                                         {{ $programme->description }}
                                     </div>
                                 @endif
+
+                                <!-- PDF du programme -->
+                                @if(!empty($programme->fichier_pdf))
+                                    <div style="margin-bottom: 1rem;">
+                                        <div style="color:#e2e8f0; font-weight:600; font-size:0.9rem; margin-bottom:0.5rem;">
+                                            <i class="fas fa-file-pdf me-2" style="color:#ef4444;"></i>PDF du programme
+                                        </div>
+                                        @php
+                                            try {
+                                                $pdfUrl = \App\Models\MediaUrl::fromPath($programme->fichier_pdf);
+                                            } catch (\Throwable $e) {
+                                                $pdfUrl = null;
+                                            }
+                                        @endphp
+                                        @if(!empty($pdfUrl))
+                                            <a href="{{ $pdfUrl }}" target="_blank" class="btn-download">
+                                                <i class="fas fa-download me-1"></i>Télécharger le PDF
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                <!-- Ciblage -->
+                                <div style="margin-bottom: 1rem;">
+                                    <div style="color:#e2e8f0; font-weight:600; font-size:0.9rem; margin-bottom:0.5rem;">
+                                        <i class="fas fa-bullseye me-2" style="color:#4fc3f7;"></i>Ciblage
+                                    </div>
+                                    <div style="color:#94a3b8; font-size:0.85rem;">
+                                        @php
+                                            $isStudentTargeting = !empty($programme->student_ids) && is_string($programme->student_ids);
+                                            $studentIds = [];
+                                            if ($isStudentTargeting) {
+                                                try {
+                                                    $studentIds = json_decode($programme->student_ids, true) ?? [];
+                                                } catch (\Throwable $e) {
+                                                    $studentIds = [];
+                                                }
+                                                $isStudentTargeting = !empty($studentIds);
+                                            }
+                                        @endphp
+                                        @if($isStudentTargeting)
+                                            <span style="color:#f59e0b; font-weight:600;">
+                                                <i class="fas fa-user-graduate me-1"></i>Étudiants spécifiques ({{ count($studentIds) }})
+                                            </span>
+                                            @if(!empty($studentIds))
+                                                <div style="margin-top:0.5rem; padding:0.5rem; background:rgba(245, 158, 11, 0.1); border-radius:8px;">
+                                                    @php
+                                                        $targetedStudents = DB::table('students')
+                                                            ->whereIn('id', $studentIds)
+                                                            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+                                                            ->select('students.*', 'users.email')
+                                                            ->get();
+                                                    @endphp
+                                                    @foreach($targetedStudents as $ts)
+                                                        <div style="margin-bottom:0.25rem;">
+                                                            <i class="fas fa-user me-1"></i>
+                                                            {{ $ts->first_name }} {{ $ts->last_name }}
+                                                            @if(!empty($ts->email))
+                                                                <span style="color:#64748b;">({{ $ts->email }})</span>
+                                                            @endif
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        @else
+                                            <span style="color:#10b981; font-weight:600;">
+                                                <i class="fas fa-graduation-cap me-1"></i>Formation : {{ $programme->formation ?? 'Non défini' }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
 
                                 @if(($programme->items ?? collect())->isEmpty())
                                     <div class="empty-state" style="padding: 1.5rem 1rem;">
