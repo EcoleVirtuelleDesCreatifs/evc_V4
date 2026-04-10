@@ -415,7 +415,6 @@
                         <option value="Design Graphique & Community Manager">Design Graphique & Community Manager</option>
                         <option value="Gestion Informatique">Gestion Informatique</option>
                         <option value="Intelligence Artificielle">Intelligence Artificielle</option>
-                        <option value="Toutes">Toutes</option>
                         <option value="Ciblage">Ciblage</option>
                     </select>
                 </div>
