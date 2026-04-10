@@ -563,6 +563,9 @@
                                                     ->get();
                                             @endphp
                                             <div style="padding: 0.5rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px;">
+                                                <div style="margin-bottom: 0.5rem; color: #f59e0b; font-weight: 600;">
+                                                    <i class="fas fa-user-graduate me-1"></i>Étudiants spécifiques ({{ count($studentIds) }})
+                                                </div>
                                                 @foreach($targetedStudents as $ts)
                                                     <div style="margin-bottom: 0.25rem; color: #94a3b8;">
                                                         <i class="fas fa-user me-1"></i>
@@ -574,8 +577,13 @@
                                                 @endforeach
                                             </div>
                                         @else
-                                            <div style="color: #94a3b8;">
-                                                <i class="fas fa-graduation-cap me-1"></i>Formation destinataire : <strong style="color: #10b981;">{{ $programme->formation ?? 'Non défini' }}</strong>
+                                            <div style="padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px;">
+                                                <div style="color: #10b981; font-weight: 600; margin-bottom: 0.25rem;">
+                                                    <i class="fas fa-graduation-cap me-1"></i>Formation destinataire
+                                                </div>
+                                                <div style="color: #94a3b8; font-size: 1.1rem;">
+                                                    <strong style="color: #e2e8f0;">{{ $programme->formation ?? 'Non défini' }}</strong>
+                                                </div>
                                             </div>
                                         @endif
                                     </div>
