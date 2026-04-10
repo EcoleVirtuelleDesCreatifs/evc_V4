@@ -740,7 +740,7 @@
                                                 </div>
                                             @endif
 
-                                            @if($items->isEmpty())
+                                            @if(($programme->items ?? collect())->isEmpty())
                                                 <div class="empty-state" style="padding: 1.5rem 1rem;">
                                                     <i class="fas fa-inbox"></i>
                                                     <h3>Aucune séance</h3>
@@ -759,7 +759,7 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        @foreach($items as $it)
+                                                        @foreach($programme->items as $it)
                                                             <tr>
                                                                 <td>
                                                                     <div class="item-title">{{ $it->thematique ?? '' }}</div>
@@ -998,7 +998,7 @@
                                     </div>
                                 @endif
 
-                                @if($items->isEmpty())
+                                @if(($programme->items ?? collect())->isEmpty())
                                     <div class="empty-state" style="padding: 1.5rem 1rem;">
                                         <i class="fas fa-inbox"></i>
                                         <h3>Aucune séance</h3>
@@ -1007,6 +1007,7 @@
                                 @else
                                     @php
                                         $now = now();
+                                        $items = $programme->items ?? collect();
                                         $seancesEnCours = $items->filter(function ($it) use ($now) {
                                             try {
                                                 $dt = \Carbon\Carbon::parse(($it->session_date ?? '') . ' ' . ($it->session_time ?? '00:00:00'));
