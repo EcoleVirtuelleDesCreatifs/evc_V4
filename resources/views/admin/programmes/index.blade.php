@@ -878,368 +878,230 @@
             <h3>Aucun programme disponible</h3>
             <p>Commencez par ajouter un programme de formation</p>
             <a href="{{ route('admin.programmes.create') }}" class="btn-export mt-3">
-                <i class="fas fa-plus me-2"></i>
-                Ajouter un Programme
+                <i class="fas fa-plus me-2"></i>Ajouter un Programme
             </a>
         </div>
     @else
-        @php
-            $programmesByFormation = $programmes
-                ->groupBy(fn($p) => (string) ($p->formation ?? ''));
-        @endphp
+        <div style="background: #1e293b; border: 2px solid #334155; border-radius: 16px; overflow: hidden;">
+            <table class="table" style="color: #e2e8f0; margin-bottom: 0;">
+                <thead>
+                    <tr style="background: rgba(15, 23, 42, 0.55);">
+                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Image</th>
+                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Titre</th>
+                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Formation</th>
+                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Mois</th>
+                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Séances</th>
+                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">PDF</th>
+                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Ciblage</th>
+                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($programmes as $programme)
+                        @php
+                            $formation = $programme->formation ?? '';
+                            $monthStart = $programme->month_start ?? '';
+                            $items = $programme->items ?? collect();
 
-        <div id="programmesContainer">
-            @foreach($programmesByFormation as $formationGroup => $formationProgrammes)
-                @php
-                    $fg = (string) ($formationGroup ?? '');
-                    $fgLower = strtolower($fg);
-                    $formationKey = 'all';
-                    if (str_contains($fgLower, 'design') && (str_contains($fgLower, 'community') || str_contains($fgLower, 'manager'))) {
-                        $formationKey = 'dgcm';
-                    } elseif (str_contains($fgLower, 'design')) {
-                        $formationKey = 'dg';
-                    } elseif (str_contains($fgLower, 'community')) {
-                        $formationKey = 'cm';
-                    } elseif (str_contains($fgLower, 'informatique')) {
-                        $formationKey = 'gi';
-                    } elseif (str_contains($fgLower, 'intelligence')) {
-                        $formationKey = 'ia';
-                    } elseif ($fgLower === 'toutes' || $fgLower === 'tous' || $fgLower === 'toutes les formations' || $fgLower === 'toute') {
-                        $formationKey = 'all';
-                    }
-
-                    $formationIcons = [
-                        'dg' => 'fa-palette',
-                        'cm' => 'fa-bullhorn',
-                        'dgcm' => 'fa-object-group',
-                        'gi' => 'fa-laptop-code',
-                        'ia' => 'fa-brain',
-                        'all' => 'fa-layer-group',
-                    ];
-                    $fgIcon = $formationIcons[$formationKey] ?? 'fa-graduation-cap';
-                    $sectionLabel = $fg !== '' ? $fg : 'Formation';
-                @endphp
-
-                <div class="mb-4" data-formation-section data-formation="{{ $formationGroup }}">
-                    <div class="d-flex align-items-center justify-content-between mb-2" style="padding: 0 .25rem;">
-                        <div class="formation-chip {{ $formationKey }}">
-                            <i class="fas {{ $fgIcon }}"></i>
-                            {{ $sectionLabel }}
-                        </div>
-                        <span class="badge bg-secondary">{{ $formationProgrammes->count() }}</span>
-                    </div>
-                    <div class="row g-4">
-                        @foreach($formationProgrammes as $programme)
-                @php
-                    $formation = $programme->formation ?? '';
-                    $monthStart = $programme->month_start ?? '';
-                    $items = $programme->items ?? collect();
-                    $formationClass = $formationKey === 'dg' ? 'theme-dg'
-                        : ($formationKey === 'cm' ? 'theme-cm'
-                            : ($formationKey === 'dgcm' ? 'theme-dgcm'
-                                : ($formationKey === 'gi' ? 'theme-gi'
-                                    : ($formationKey === 'ia' ? 'theme-ia' : 'theme-all'))));
-                    $searchText = strtolower(
-                        ($programme->titre ?? '') . ' ' .
-                        ($programme->description ?? '') . ' ' .
-                        ($formation ?? '') . ' ' .
-                        $items->pluck('thematique')->implode(' ') . ' ' .
-                        $items->pluck('lieu')->implode(' ') . ' ' .
-                        $items->pluck('description')->implode(' ')
-                    );
-                @endphp
-
-                <div class="col-12 col-md-6 col-xl-4 programme-wrapper" data-formation="{{ $formation }}" data-month="{{ $monthStart }}" data-search="{{ $searchText }}">
-                    <div class="programme-accordion {{ $formationClass }}">
-                        <div class="programme-accordion-header">
-                            @php
+                            $programmeImageUrl = null;
+                            try {
+                                if (property_exists($programme, 'image') && !empty($programme->image)) {
+                                    $programmeImageUrl = \App\Models\MediaUrl::fromPath($programme->image);
+                                }
+                            } catch (\Throwable $e) {
                                 $programmeImageUrl = null;
-                                try {
-                                    if (property_exists($programme, 'image') && !empty($programme->image)) {
-                                        $programmeImageUrl = \App\Models\MediaUrl::fromPath($programme->image);
-                                    }
-                                } catch (\Throwable $e) {
-                                    $programmeImageUrl = null;
-                                }
+                            }
 
-                                $nextItem = $programme->next_item ?? null;
-                                $nextDateLabel = null;
-                                $nextTimeLabel = null;
-                                $nextType = null;
-                                $nextLieu = null;
-                                $isPresentiel = false;
+                            $isStudentTargeting = !empty($programme->student_ids) && is_string($programme->student_ids);
+                            $studentIds = [];
+                            if ($isStudentTargeting) {
                                 try {
-                                    if (!empty($nextItem?->session_date)) {
-                                        $time = !empty($nextItem?->session_time) ? $nextItem->session_time : '00:00';
-                                        $dt = \Carbon\Carbon::parse($nextItem->session_date . ' ' . $time);
-                                        $nextDateLabel = $dt->format('d/m');
-                                        $nextTimeLabel = $dt->format('H:i');
-                                        $nextType = $nextItem->type_formation ?? null;
-                                        $nextLieu = $nextItem->lieu ?? null;
-                                        $isPresentiel = in_array(strtolower((string) $nextType), ['presentielle', 'presentiel'], true);
-                                    }
+                                    $studentIds = json_decode($programme->student_ids, true) ?? [];
                                 } catch (\Throwable $e) {
-                                    $nextDateLabel = null;
-                                    $nextTimeLabel = null;
-                                    $nextType = null;
-                                    $nextLieu = null;
-                                    $isPresentiel = false;
+                                    $studentIds = [];
                                 }
-                            @endphp
-                            <div class="programme-header-left">
-                                <div class="programme-cover-thumb">
+                                $isStudentTargeting = !empty($studentIds);
+                            }
+
+                            $pdfUrl = null;
+                            try {
+                                if (!empty($programme->fichier_pdf)) {
+                                    $pdfUrl = \App\Models\MediaUrl::fromPath($programme->fichier_pdf);
+                                }
+                            } catch (\Throwable $e) {
+                                $pdfUrl = null;
+                            }
+                        @endphp
+                        <tr style="border-bottom: 1px solid rgba(51, 65, 85, 0.7);">
+                            <td style="padding: 1rem; vertical-align: middle;">
+                                <div style="width: 60px; height: 45px; border-radius: 8px; overflow: hidden; background: rgba(15, 23, 42, 0.25); border: 1px solid rgba(51, 65, 85, 0.8);">
                                     @if(!empty($programmeImageUrl))
-                                        <img src="{{ $programmeImageUrl }}" alt="Illustration" loading="lazy">
+                                        <img src="{{ $programmeImageUrl }}" alt="Illustration" style="width: 100%; height: 100%; object-fit: cover;">
                                     @else
-                                        <div class="programme-cover-thumb-placeholder">
+                                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(226, 232, 240, 0.55);">
                                             <i class="fas fa-image"></i>
                                         </div>
                                     @endif
                                 </div>
-                                <div style="min-width: 260px;">
-                                    <div style="color:#e2e8f0; font-weight:800; font-size:1.05rem;">
-                                        {{ $programme->titre }}
-                                    </div>
-                                    <div class="programme-meta">
-                                        <span>
-                                            <i class="fas fa-graduation-cap"></i>
-                                            {{ $formation }}
-                                        </span>
-                                        @if(!empty($monthStart))
-                                            <span>
-                                                <i class="fas fa-calendar"></i>
-                                                {{ \Carbon\Carbon::parse($monthStart)->translatedFormat('F Y') }}
-                                            </span>
-                                        @endif
-                                        <span>
-                                            <i class="fas fa-list"></i>
-                                            {{ (int) ($programme->items_count ?? 0) }} séance(s)
-                                        </span>
-                                        @if(!empty($nextDateLabel) && !empty($nextTimeLabel))
-                                            <span>
-                                                <i class="fas fa-calendar"></i>
-                                                {{ $nextDateLabel }}
-                                            </span>
-                                            <span>
-                                                <i class="fas fa-clock"></i>
-                                                {{ $nextTimeLabel }}
-                                            </span>
-                                            <span>
-                                                <i class="fas {{ $isPresentiel ? 'fa-map-marker-alt' : 'fa-video' }}"></i>
-                                                @if($isPresentiel)
-                                                    Présentiel{{ !empty($nextLieu) ? ' • ' . $nextLieu : '' }}
-                                                @else
-                                                    En ligne
-                                                @endif
-                                            </span>
-                                        @else
-                                            <span>
-                                                <i class="fas fa-bolt"></i>
-                                                Aucune séance à venir
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="programme-actions">
-                                <button class="btn-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#prog_{{ $programme->id }}" aria-expanded="false">
-                                    <i class="fas fa-eye me-1"></i>
-                                    Détails
-                                </button>
-                                <a href="{{ route('admin.programmes.edit', $programme->id) }}" class="btn-toggle" style="border-radius:10px; font-weight:600; text-decoration:none;">
-                                    <i class="fas fa-edit me-1"></i>
-                                    Modifier
-                                </a>
-                                <form action="{{ route('admin.programmes.destroy', $programme->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce programme ?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger" style="border-radius:10px; font-weight:600;">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <div id="prog_{{ $programme->id }}" class="collapse">
-                            <div style="padding: 1rem 1.25rem;">
-                                @if($programme->description)
-                                    <div style="color:#94a3b8; margin-bottom: 1rem;">
-                                        {{ $programme->description }}
-                                    </div>
+                            </td>
+                            <td style="padding: 1rem; vertical-align: middle;">
+                                <div style="font-weight: 700; color: #e2e8f0;">{{ $programme->titre }}</div>
+                                @if(!empty($programme->description))
+                                    <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.25rem;">{{ \Illuminate\Support\Str::limit($programme->description, 80) }}</div>
                                 @endif
-
-                                <!-- PDF du programme -->
-                                @if(!empty($programme->fichier_pdf))
-                                    <div style="margin-bottom: 1rem;">
-                                        <div style="color:#e2e8f0; font-weight:600; font-size:0.9rem; margin-bottom:0.5rem;">
-                                            <i class="fas fa-file-pdf me-2" style="color:#ef4444;"></i>PDF du programme
-                                        </div>
-                                        @php
-                                            try {
-                                                $pdfUrl = \App\Models\MediaUrl::fromPath($programme->fichier_pdf);
-                                            } catch (\Throwable $e) {
-                                                $pdfUrl = null;
-                                            }
-                                        @endphp
-                                        @if(!empty($pdfUrl))
-                                            <a href="{{ $pdfUrl }}" target="_blank" class="btn-download">
-                                                <i class="fas fa-download me-1"></i>Télécharger le PDF
-                                            </a>
-                                        @endif
-                                    </div>
-                                @endif
-
-                                <!-- Ciblage -->
-                                <div style="margin-bottom: 1rem;">
-                                    <div style="color:#e2e8f0; font-weight:600; font-size:0.9rem; margin-bottom:0.5rem;">
-                                        <i class="fas fa-bullseye me-2" style="color:#4fc3f7;"></i>Ciblage
-                                    </div>
-                                    <div style="color:#94a3b8; font-size:0.85rem;">
-                                        @php
-                                            $isStudentTargeting = !empty($programme->student_ids) && is_string($programme->student_ids);
-                                            $studentIds = [];
-                                            if ($isStudentTargeting) {
-                                                try {
-                                                    $studentIds = json_decode($programme->student_ids, true) ?? [];
-                                                } catch (\Throwable $e) {
-                                                    $studentIds = [];
-                                                }
-                                                $isStudentTargeting = !empty($studentIds);
-                                            }
-                                        @endphp
-                                        @if($isStudentTargeting)
-                                            <span style="color:#f59e0b; font-weight:600;">
-                                                <i class="fas fa-user-graduate me-1"></i>Étudiants spécifiques ({{ count($studentIds) }})
-                                            </span>
-                                            @if(!empty($studentIds))
-                                                <div style="margin-top:0.5rem; padding:0.5rem; background:rgba(245, 158, 11, 0.1); border-radius:8px;">
-                                                    @php
-                                                        $targetedStudents = DB::table('students')
-                                                            ->whereIn('students.id', $studentIds)
-                                                            ->leftJoin('users', 'students.user_id', '=', 'users.id')
-                                                            ->select('students.*', 'users.email')
-                                                            ->get();
-                                                    @endphp
-                                                    @foreach($targetedStudents as $ts)
-                                                        <div style="margin-bottom:0.25rem;">
-                                                            <i class="fas fa-user me-1"></i>
-                                                            {{ $ts->first_name }} {{ $ts->last_name }}
-                                                            @if(!empty($ts->email))
-                                                                <span style="color:#64748b;">({{ $ts->email }})</span>
-                                                            @endif
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-                                        @else
-                                            <span style="color:#10b981; font-weight:600;">
-                                                <i class="fas fa-graduation-cap me-1"></i>Formation : {{ $programme->formation ?? 'Non défini' }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                @if(($programme->items ?? collect())->isEmpty())
-                                    <div class="empty-state" style="padding: 1.5rem 1rem;">
-                                        <i class="fas fa-inbox"></i>
-                                        <h3>Aucune séance</h3>
-                                        <p>Ce programme ne contient pas encore de séances.</p>
+                            </td>
+                            <td style="padding: 1rem; vertical-align: middle;">
+                                <span class="formation-badge badge-design">{{ $formation }}</span>
+                            </td>
+                            <td style="padding: 1rem; vertical-align: middle;">
+                                @if(!empty($monthStart))
+                                    <div style="color: #94a3b8;">
+                                        <i class="fas fa-calendar me-1"></i>{{ \Carbon\Carbon::parse($monthStart)->translatedFormat('F Y') }}
                                     </div>
                                 @else
-                                    @php
-                                        $now = now();
-                                        $items = $programme->items ?? collect();
-                                        $seancesEnCours = $items->filter(function ($it) use ($now) {
-                                            try {
-                                                $dt = \Carbon\Carbon::parse(($it->session_date ?? '') . ' ' . ($it->session_time ?? '00:00:00'));
-                                                return $dt->greaterThanOrEqualTo($now);
-                                            } catch (\Exception $e) {
-                                                return true;
-                                            }
-                                        })->values();
-                                        $seancesTerminees = $items->filter(function ($it) use ($now) {
-                                            try {
-                                                $dt = \Carbon\Carbon::parse(($it->session_date ?? '') . ' ' . ($it->session_time ?? '00:00:00'));
-                                                return $dt->lessThan($now);
-                                            } catch (\Exception $e) {
-                                                return false;
-                                            }
-                                        })->values();
-
-                                        $renderItemsTable = function ($list) {
-                                            ob_start();
-                                            echo '<div style="overflow:auto; border-radius: 12px; border: 1px solid rgba(51, 65, 85, 0.7);">';
-                                            echo '<table class="items-table">';
-                                            echo '<thead><tr><th>Séance</th><th>Date</th><th>Type</th><th>Fichier</th></tr></thead>';
-                                            echo '<tbody>';
-                                            foreach ($list as $it) {
-                                                $filePath = $it->piece_jointe ?? null;
-                                                echo '<tr>';
-                                                echo '<td>';
-                                                echo '<div class="item-title">' . e($it->thematique ?? '') . '</div>';
-                                                if (!empty($it->description)) {
-                                                    echo '<div class="item-sub">' . e(\Illuminate\Support\Str::limit($it->description, 120)) . '</div>';
-                                                }
-                                                echo '</td>';
-                                                echo '<td style="white-space:nowrap;">';
-                                                echo e(\Carbon\Carbon::parse($it->session_date)->format('d/m/Y'));
-                                                echo '<div class="item-sub">' . e(\Carbon\Carbon::parse($it->session_time)->format('H:i')) . '</div>';
-                                                echo '</td>';
-                                                echo '<td>';
-                                                echo '<div style="white-space:nowrap;">' . e((($it->type_formation ?? '') === 'presentielle') ? 'Présentielle' : 'En ligne') . '</div>';
-                                                if ((($it->type_formation ?? '') === 'presentielle') && !empty($it->lieu)) {
-                                                    echo '<div class="item-sub">' . e($it->lieu) . '</div>';
-                                                }
-                                                echo '</td>';
-                                                echo '<td style="white-space:nowrap;">';
-                                                if (!empty($filePath)) {
-                                                    $url = \App\Models\MediaUrl::fromPath($filePath);
-                                                    echo '<a href="' . e($url) . '" target="_blank" class="btn-download btn-sm"><i class="fas fa-download me-1"></i>Télécharger</a>';
-                                                } else {
-                                                    echo '<span class="item-sub">Aucun</span>';
-                                                }
-                                                echo '</td>';
-                                                echo '</tr>';
-                                            }
-                                            echo '</tbody></table></div>';
-                                            return ob_get_clean();
-                                        };
-                                    @endphp
-
-                                    <div class="d-flex align-items-center justify-content-between" style="margin-bottom:.75rem;">
-                                        <div style="color:#e2e8f0; font-weight:800;">
-                                            <i class="fas fa-hourglass-half me-2"></i>Séances en cours / à venir
+                                    <span style="color: #64748b;">—</span>
+                                @endif
+                            </td>
+                            <td style="padding: 1rem; vertical-align: middle;">
+                                <span class="badge bg-info">{{ (int) ($programme->items_count ?? 0) }}</span>
+                            </td>
+                            <td style="padding: 1rem; vertical-align: middle;">
+                                @if(!empty($pdfUrl))
+                                    <a href="{{ $pdfUrl }}" target="_blank" class="btn-download" style="padding: 0.35rem 0.75rem;">
+                                        <i class="fas fa-file-pdf me-1"></i>Télécharger
+                                    </a>
+                                @else
+                                    <span style="color: #64748b;">—</span>
+                                @endif
+                            </td>
+                            <td style="padding: 1rem; vertical-align: middle;">
+                                @if($isStudentTargeting)
+                                    <span style="color: #f59e0b; font-weight: 600;">
+                                        <i class="fas fa-user-graduate me-1"></i>{{ count($studentIds) }} étudiants
+                                    </span>
+                                @else
+                                    <span style="color: #10b981; font-weight: 600;">
+                                        <i class="fas fa-graduation-cap me-1"></i>Formation
+                                    </span>
+                                @endif
+                            </td>
+                            <td style="padding: 1rem; vertical-align: middle;">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn-toggle btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#prog_table_{{ $programme->id }}" aria-expanded="false" style="padding: 0.35rem 0.75rem;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="{{ route('admin.programmes.edit', $programme->id) }}" class="btn-toggle" style="padding: 0.35rem 0.75rem; text-decoration: none;">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('admin.programmes.destroy', $programme->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce programme ?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm" style="padding: 0.35rem 0.75rem;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="8" style="padding: 0; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">
+                                <div id="prog_table_{{ $programme->id }}" class="collapse" style="padding: 1rem; background: rgba(15, 23, 42, 0.3);">
+                                    @if($programme->description)
+                                        <div style="color: #94a3b8; margin-bottom: 1rem;">
+                                            <strong style="color: #e2e8f0;">Description :</strong> {{ $programme->description }}
                                         </div>
-                                        <span class="badge bg-success">{{ $seancesEnCours->count() }}</span>
-                                    </div>
-                                    {!! $renderItemsTable($seancesEnCours) !!}
+                                    @endif
 
-                                    <div class="d-flex align-items-center justify-content-between" style="margin:1.1rem 0 .75rem;">
-                                        <div style="color:#e2e8f0; font-weight:800;">
-                                            <i class="fas fa-check-circle me-2"></i>Séances terminées
+                                    <!-- Ciblage détaillé -->
+                                    <div style="margin-bottom: 1rem;">
+                                        <div style="color: #e2e8f0; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem;">
+                                            <i class="fas fa-bullseye me-2" style="color: #4fc3f7;"></i>Détails du ciblage
                                         </div>
-                                        <span class="badge bg-secondary">{{ $seancesTerminees->count() }}</span>
+                                        @if($isStudentTargeting && !empty($studentIds))
+                                            @php
+                                                $targetedStudents = DB::table('students')
+                                                    ->whereIn('students.id', $studentIds)
+                                                    ->leftJoin('users', 'students.user_id', '=', 'users.id')
+                                                    ->select('students.*', 'users.email')
+                                                    ->get();
+                                            @endphp
+                                            <div style="padding: 0.5rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px;">
+                                                @foreach($targetedStudents as $ts)
+                                                    <div style="margin-bottom: 0.25rem; color: #94a3b8;">
+                                                        <i class="fas fa-user me-1"></i>
+                                                        {{ $ts->first_name }} {{ $ts->last_name }}
+                                                        @if(!empty($ts->email))
+                                                            <span style="color: #64748b;">({{ $ts->email }})</span>
+                                                        @endif
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div style="color: #94a3b8;">
+                                                <i class="fas fa-graduation-cap me-1"></i>Formation destinataire : <strong style="color: #10b981;">{{ $programme->formation ?? 'Non défini' }}</strong>
+                                            </div>
+                                        @endif
                                     </div>
-                                    @php
-                                        $seacesTerminees = $seancesTerminees;
-                                    @endphp
-                                    @if($seacesTerminees->isEmpty())
-                                        <div class="text-white-50" style="padding:.75rem 1rem; border: 1px dashed rgba(255,255,255,0.14); border-radius: 12px;">
-                                            Aucune séance terminée pour le moment.
+
+                                    <!-- Séances -->
+                                    @if(($programme->items ?? collect())->isEmpty())
+                                        <div style="padding: 1.5rem 1rem; text-align: center; border: 1px dashed rgba(255,255,255,0.14); border-radius: 12px;">
+                                            <i class="fas fa-inbox" style="font-size: 2rem; color: #475569; margin-bottom: 0.5rem;"></i>
+                                            <div style="color: #e2e8f0; font-weight: 600;">Aucune séance</div>
+                                            <div style="color: #94a3b8; font-size: 0.85rem;">Ce programme ne contient pas encore de séances.</div>
                                         </div>
                                     @else
-                                        {!! $renderItemsTable($seacesTerminees) !!}
+                                        @php
+                                            $now = now();
+                                            $items = $programme->items ?? collect();
+                                        @endphp
+                                        <table class="items-table" style="margin-top: 1rem;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Thématique</th>
+                                                    <th>Date</th>
+                                                    <th>Heure</th>
+                                                    <th>Type</th>
+                                                    <th>Lieu</th>
+                                                    <th>Pièce jointe</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($programme->items as $it)
+                                                    <tr>
+                                                        <td>
+                                                            <div class="item-title">{{ $it->thematique ?? '' }}</div>
+                                                            @if(!empty($it->description))
+                                                                <div class="item-sub">{{ $it->description }}</div>
+                                                            @endif
+                                                        </td>
+                                                        <td>{{ !empty($it->session_date) ? \Carbon\Carbon::parse($it->session_date)->format('d/m/Y') : '' }}</td>
+                                                        <td>{{ !empty($it->session_time) ? \Carbon\Carbon::parse($it->session_time)->format('H:i') : '' }}</td>
+                                                        <td>{{ ($it->type_formation ?? '') === 'presentielle' ? 'Présentielle' : 'En ligne' }}</td>
+                                                        <td>{{ $it->lieu ?? '—' }}</td>
+                                                        <td>
+                                                            @if(!empty($it->piece_jointe))
+                                                                @php
+                                                                    $url = \App\Models\MediaUrl::fromPath($it->piece_jointe);
+                                                                @endphp
+                                                                <a href="{{ $url }}" target="_blank" class="btn-download" style="padding: 0.35rem 0.75rem;">
+                                                                    <i class="fas fa-paperclip me-1"></i>Ouvrir
+                                                                </a>
+                                                            @else
+                                                                —
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
                                     @endif
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endforeach
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     @endif
 </div>
