@@ -454,7 +454,7 @@
                                 <th style="min-width: 120px;">Période (Mois)</th>
                                 <th style="min-width: 200px;">Titre programme</th>
                                 <th>Document</th>
-                                <th>Formations</th>
+                                <th>Formation destinataire</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
