@@ -12,7 +12,7 @@
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <a href="{{ route('admin.programmes') }}" class="btn btn-secondary mb-3">
+            <a href="{{ route('programmes') }}" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left me-2"></i>
                 Retour à la liste
             </a>
@@ -42,7 +42,7 @@
     @endif
 
     <!-- Formulaire -->
-    <form action="{{ route('admin.programmes.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('programmes.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="row g-4">

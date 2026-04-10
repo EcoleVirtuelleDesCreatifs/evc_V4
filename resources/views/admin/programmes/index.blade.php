@@ -372,7 +372,7 @@
         <h1 class="text-white mb-0">
             <i class="fas fa-book me-2"></i>Gestion des Programmes
         </h1>
-        <a href="{{ route('admin.programmes.create') }}" class="btn-export">
+        <a href="{{ route('programmes.create') }}" class="btn-export">
             <i class="fas fa-plus me-2"></i>Ajouter un Programme
         </a>
     </div>
@@ -718,11 +718,11 @@
                                                 <i class="fas fa-eye me-1"></i>
                                                 Détails
                                             </button>
-                                            <a href="{{ route('admin.programmes.edit', $programme->id) }}" class="btn-toggle" style="border-radius:10px; font-weight:600; text-decoration:none;">
+                                            <a href="{{ route('programmes.edit', $programme->id) }}" class="btn-toggle" style="border-radius:10px; font-weight:600; text-decoration:none;">
                                                 <i class="fas fa-edit me-1"></i>
                                                 Modifier
                                             </a>
-                                            <form action="{{ route('admin.programmes.destroy', $programme->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce programme ?')">
+                                            <form action="{{ route('programmes.destroy', $programme->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce programme ?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger" style="border-radius:10px; font-weight:600;">
@@ -806,7 +806,7 @@
             <i class="fas fa-inbox"></i>
             <h3>Aucun programme disponible</h3>
             <p>Commencez par ajouter un programme de formation</p>
-            <a href="{{ route('admin.programmes.create') }}" class="btn-export mt-3">
+            <a href="{{ route('programmes.create') }}" class="btn-export mt-3">
                 <i class="fas fa-plus me-2"></i>
                 Ajouter un Programme
             </a>
@@ -976,11 +976,11 @@
                                     <i class="fas fa-eye me-1"></i>
                                     Détails
                                 </button>
-                                <a href="{{ route('admin.programmes.edit', $programme->id) }}" class="btn-toggle" style="border-radius:10px; font-weight:600; text-decoration:none;">
+                                <a href="{{ route('programmes.edit', $programme->id) }}" class="btn-toggle" style="border-radius:10px; font-weight:600; text-decoration:none;">
                                     <i class="fas fa-edit me-1"></i>
                                     Modifier
                                 </a>
-                                <form action="{{ route('admin.programmes.destroy', $programme->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce programme ?')">
+                                <form action="{{ route('programmes.destroy', $programme->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Supprimer ce programme ?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger" style="border-radius:10px; font-weight:600;">
