@@ -451,13 +451,10 @@
                     <table class="table table-dark table-hover">
                         <thead>
                             <tr>
-                                <th style="min-width: 60px;">Image</th>
-                                <th style="min-width: 200px;">Titre</th>
-                                <th>Formation</th>
-                                <th class="text-nowrap">Mois</th>
-                                <th class="text-nowrap">Séances</th>
-                                <th>PDF</th>
-                                <th>Ciblage</th>
+                                <th style="min-width: 120px;">Période (Mois)</th>
+                                <th style="min-width: 200px;">Titre programme</th>
+                                <th>Document</th>
+                                <th>Formations</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -499,26 +496,6 @@
                         @endphp
                         <tr style="border-bottom: 1px solid rgba(51, 65, 85, 0.7);">
                             <td style="padding: 1rem; vertical-align: middle;">
-                                <div style="width: 60px; height: 45px; border-radius: 8px; overflow: hidden; background: rgba(15, 23, 42, 0.25); border: 1px solid rgba(51, 65, 85, 0.8);">
-                                    @if(!empty($programmeImageUrl))
-                                        <img src="{{ $programmeImageUrl }}" alt="Illustration" style="width: 100%; height: 100%; object-fit: cover;">
-                                    @else
-                                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: rgba(226, 232, 240, 0.55);">
-                                            <i class="fas fa-image"></i>
-                                        </div>
-                                    @endif
-                                </div>
-                            </td>
-                            <td style="padding: 1rem; vertical-align: middle;">
-                                <div style="font-weight: 700; color: #e2e8f0;">{{ $programme->titre }}</div>
-                                @if(!empty($programme->description))
-                                    <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.25rem;">{{ \Illuminate\Support\Str::limit($programme->description, 80) }}</div>
-                                @endif
-                            </td>
-                            <td style="padding: 1rem; vertical-align: middle;">
-                                <span class="formation-badge badge-design">{{ $formation }}</span>
-                            </td>
-                            <td style="padding: 1rem; vertical-align: middle;">
                                 @if(!empty($monthStart))
                                     <div style="color: #94a3b8;">
                                         <i class="fas fa-calendar me-1"></i>{{ \Carbon\Carbon::parse($monthStart)->translatedFormat('F Y') }}
@@ -528,7 +505,10 @@
                                 @endif
                             </td>
                             <td style="padding: 1rem; vertical-align: middle;">
-                                <span class="badge bg-info">{{ (int) ($programme->items_count ?? 0) }}</span>
+                                <div style="font-weight: 700; color: #e2e8f0;">{{ $programme->titre }}</div>
+                                @if(!empty($programme->description))
+                                    <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.25rem;">{{ \Illuminate\Support\Str::limit($programme->description, 80) }}</div>
+                                @endif
                             </td>
                             <td style="padding: 1rem; vertical-align: middle;">
                                 @if(!empty($pdfUrl))
@@ -540,15 +520,7 @@
                                 @endif
                             </td>
                             <td style="padding: 1rem; vertical-align: middle;">
-                                @if($isStudentTargeting)
-                                    <span style="color: #f59e0b; font-weight: 600;">
-                                        <i class="fas fa-user-graduate me-1"></i>{{ count($studentIds) }} étudiants
-                                    </span>
-                                @else
-                                    <span style="color: #10b981; font-weight: 600;">
-                                        <i class="fas fa-graduation-cap me-1"></i>Formation
-                                    </span>
-                                @endif
+                                <span class="formation-badge badge-design">{{ $formation }}</span>
                             </td>
                             <td style="padding: 1rem; vertical-align: middle;">
                                 <div style="display: flex; gap: 0.5rem;">
@@ -569,7 +541,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="8" style="padding: 0; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">
+                            <td colspan="5" style="padding: 0; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">
                                 <div id="prog_table_{{ $programme->id }}" class="collapse" style="padding: 1rem; background: rgba(15, 23, 42, 0.3);">
                                     @if($programme->description)
                                         <div style="color: #94a3b8; margin-bottom: 1rem;">
