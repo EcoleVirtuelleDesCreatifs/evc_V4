@@ -787,7 +787,7 @@
                                                             <div style="margin-top:0.5rem; padding:0.5rem; background:rgba(245, 158, 11, 0.1); border-radius:8px;">
                                                                 @php
                                                                     $targetedStudents = DB::table('students')
-                                                                        ->whereIn('id', $studentIds)
+                                                                        ->whereIn('students.id', $studentIds)
                                                                         ->leftJoin('users', 'students.user_id', '=', 'users.id')
                                                                         ->select('students.*', 'users.email')
                                                                         ->get();
@@ -1116,7 +1116,7 @@
                                                 <div style="margin-top:0.5rem; padding:0.5rem; background:rgba(245, 158, 11, 0.1); border-radius:8px;">
                                                     @php
                                                         $targetedStudents = DB::table('students')
-                                                            ->whereIn('id', $studentIds)
+                                                            ->whereIn('students.id', $studentIds)
                                                             ->leftJoin('users', 'students.user_id', '=', 'users.id')
                                                             ->select('students.*', 'users.email')
                                                             ->get();
