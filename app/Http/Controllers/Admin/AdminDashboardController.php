@@ -2320,7 +2320,7 @@ class AdminDashboardController extends Controller
             $message .= '. Attention : ' . count($emailsFailures) . ' email(s) non envoyé(s)';
         }
 
-        return redirect()->route('programmes')->with('success', $message);
+        return redirect()->route('admin.programmes')->with('success', $message);
     }
 
     public function destroyProgramme($id)
@@ -2353,17 +2353,17 @@ class AdminDashboardController extends Controller
             // Supprimer le programme de la base de données
             DB::table('programmes')->where('id', $id)->delete();
 
-            return redirect()->route('programmes')->with('success', 'Programme supprimé avec succès.');
+            return redirect()->route('admin.programmes')->with('success', 'Programme supprimé avec succès.');
         }
 
-        return redirect()->route('programmes')->with('error', 'Programme introuvable.');
+        return redirect()->route('admin.programmes')->with('error', 'Programme introuvable.');
     }
 
     public function editProgramme($id)
     {
         $programme = DB::table('programmes')->where('id', (int) $id)->first();
         if (!$programme) {
-            return redirect()->route('programmes')->with('error', 'Programme introuvable.');
+            return redirect()->route('admin.programmes')->with('error', 'Programme introuvable.');
         }
 
         $items = collect();
@@ -2395,7 +2395,7 @@ class AdminDashboardController extends Controller
     {
         $programme = DB::table('programmes')->where('id', (int) $id)->first();
         if (!$programme) {
-            return redirect()->route('programmes')->with('error', 'Programme introuvable.');
+            return redirect()->route('admin.programmes')->with('error', 'Programme introuvable.');
         }
 
         $validatedData = $request->validate([
@@ -2480,7 +2480,7 @@ class AdminDashboardController extends Controller
 
         // Mettre à jour les séances
         if (!Schema::hasTable('programme_items')) {
-            return redirect()->route('programmes')->with('error', 'Table programme_items introuvable.');
+            return redirect()->route('admin.programmes')->with('error', 'Table programme_items introuvable.');
         }
 
         $existingItemIds = DB::table('programme_items')
@@ -2561,7 +2561,7 @@ class AdminDashboardController extends Controller
             DB::table('programme_items')->whereIn('id', $toDelete)->delete();
         }
 
-        return redirect()->route('programmes')->with('success', 'Programme mis à jour avec succès.');
+        return redirect()->route('admin.programmes')->with('success', 'Programme mis à jour avec succès.');
     }
 
     public function createBibliothequeItem()

@@ -11,7 +11,7 @@
 <div class="interactive-dashboard-form">
     <div class="row mb-4">
         <div class="col-12">
-            <a href="{{ route('programmes') }}" class="btn btn-secondary mb-3">
+            <a href="{{ route('admin.programmes') }}" class="btn btn-secondary mb-3">
                 <i class="fas fa-arrow-left me-2"></i>
                 Retour à la liste
             </a>
@@ -39,7 +39,7 @@
         </div>
     @endif
 
-    <form action="{{ route('programmes.update', $programme->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.programmes.update', $programme->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
