@@ -272,7 +272,17 @@
                                                         </div>
                                                         <div class="col-md-6">
                                                             <label class="form-label">Heure <span class="text-danger">*</span></label>
-                                                            <input type="time" class="form-control" name="items[{{ $i }}][session_time]" required value="{{ old('items.' . $i . '.session_time', \Carbon\Carbon::parse($it->session_time)->format('H:i')) }}">
+                                                            @php
+                                                                $sessionTimeValue = $it->session_time;
+                                                                if (!empty($sessionTimeValue)) {
+                                                                    try {
+                                                                        $sessionTimeValue = \Carbon\Carbon::parse($sessionTimeValue)->format('H:i');
+                                                                    } catch (\Throwable $e) {
+                                                                        $sessionTimeValue = '';
+                                                                    }
+                                                                }
+                                                            @endphp
+                                                            <input type="time" class="form-control" name="items[{{ $i }}][session_time]" required value="{{ old('items.' . $i . '.session_time', $sessionTimeValue) }}">
                                                         </div>
                                                     </div>
 
