@@ -441,21 +441,27 @@
             </a>
         </div>
     @else
-        <div style="background: #1e293b; border: 2px solid #334155; border-radius: 16px; overflow: hidden;">
-            <table class="table" style="color: #e2e8f0; margin-bottom: 0;">
-                <thead>
-                    <tr style="background: rgba(15, 23, 42, 0.55);">
-                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Image</th>
-                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Titre</th>
-                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Formation</th>
-                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Mois</th>
-                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Séances</th>
-                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">PDF</th>
-                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Ciblage</th>
-                        <th style="padding: 1rem; border-bottom: 1px solid rgba(51, 65, 85, 0.7);">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
+        <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+            <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                <h5 class="mb-0 text-white"><i class="fas fa-list me-2"></i>Liste des Programmes</h5>
+                <span class="badge bg-primary">{{ $programmes->count() }}</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th style="min-width: 60px;">Image</th>
+                                <th style="min-width: 200px;">Titre</th>
+                                <th>Formation</th>
+                                <th class="text-nowrap">Mois</th>
+                                <th class="text-nowrap">Séances</th>
+                                <th>PDF</th>
+                                <th>Ciblage</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                     @foreach($programmes as $programme)
                         @php
                             $formation = $programme->formation ?? '';
@@ -661,6 +667,8 @@
                     @endforeach
                 </tbody>
             </table>
+                </div>
+            </div>
         </div>
     @endif
 </div>
