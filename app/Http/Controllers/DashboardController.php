@@ -4195,14 +4195,22 @@ class DashboardController extends Controller
         // Toujours inclure "Toutes"
         $allowedFormations = array_values(array_unique(array_merge(['Toutes'], $studentFormationVariants)));
 
+        $allowedFormationsNormalized = array_values(array_unique(array_map(function ($v) {
+            return strtolower(trim((string) $v));
+        }, array_merge($allowedFormations, ['toutes', 'toutes les formations', 'toute']))));
+
         // Récupérer les programmes publiés par l'admin
         // Visible si :
         // - formation = Toutes
         // - formation correspond à la formation de l'étudiant (mapping)
         // - OU ciblage spécifique via student_ids
         $programmes = DB::table('programmes')
-            ->where(function ($query) use ($allowedFormations, $student) {
+            ->where(function ($query) use ($allowedFormations, $allowedFormationsNormalized, $student) {
                 $query->whereIn('formation', $allowedFormations);
+
+                if (!empty($allowedFormationsNormalized)) {
+                    $query->orWhereIn(DB::raw('LOWER(TRIM(formation))'), $allowedFormationsNormalized);
+                }
 
                 if (!empty($student?->id) && Schema::hasColumn('programmes', 'student_ids')) {
                     $query->orWhereJsonContains('student_ids', (int) $student->id);
@@ -4545,10 +4553,18 @@ class DashboardController extends Controller
             $formationMapping[$targetCanonical] ?? []
         )));
 
+        $allowedFormationsNormalized = array_values(array_unique(array_map(function ($v) {
+            return strtolower(trim((string) $v));
+        }, array_merge($allowedFormations, ['toutes', 'toutes les formations', 'toute']))));
+
         $studentId = $student?->id;
         $programmes = DB::table('programmes')
-            ->where(function ($query) use ($allowedFormations, $studentId) {
+            ->where(function ($query) use ($allowedFormations, $allowedFormationsNormalized, $studentId) {
                 $query->whereIn('formation', $allowedFormations);
+
+                if (!empty($allowedFormationsNormalized)) {
+                    $query->orWhereIn(DB::raw('LOWER(TRIM(formation))'), $allowedFormationsNormalized);
+                }
 
                 if (!empty($studentId) && Schema::hasColumn('programmes', 'student_ids')) {
                     $query->orWhereJsonContains('student_ids', (int) $studentId);
