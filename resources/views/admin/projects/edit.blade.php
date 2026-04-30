@@ -328,7 +328,7 @@
                                                 @endif
                                                 <div>
                                                     <div class="fw-medium">{{ $rpName }}</div>
-                                                    <small class="text-muted">{{ $rp->user->email }}</small>
+                                                    <small class="text-muted">{{ $rp->user->email ?? '' }}</small>
                                                 </div>
                                             </div>
                                         </td>
