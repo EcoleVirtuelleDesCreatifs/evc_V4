@@ -71,7 +71,6 @@
                                         <th>Niveau</th>
                                         <th>Durée</th>
                                         <th>Statut</th>
-                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -85,11 +84,6 @@
                                             <span class="badge {{ $formation->status === 'active' ? 'bg-success' : 'bg-warning' }}">
                                                 {{ $formation->status ?? 'N/A' }}
                                             </span>
-                                        </td>
-                                        <td>
-                                            <a href="{{ route('formations.show', $formation->id) }}" class="btn btn-sm btn-primary">
-                                                <i class="fas fa-eye"></i> Voir détails
-                                            </a>
                                         </td>
                                     </tr>
                                     @endforeach
