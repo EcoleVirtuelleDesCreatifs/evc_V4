@@ -1038,17 +1038,23 @@
                             <table class="table table-modern table-sm">
                                 <thead>
                                     <tr>
-                                        <th>Titre</th>
-                                        <th>Formation</th>
-                                        <th>Période</th>
+                                        <th>Nom</th>
+                                        <th>Catégorie</th>
+                                        <th>Niveau</th>
+                                        <th>Statut</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($data['student_programs'] as $program)
                                     <tr>
-                                        <td>{{ $program->titre ?? 'Sans titre' }}</td>
-                                        <td><span class="badge badge-modern badge-info-modern">{{ $program->formation ?? 'N/A' }}</span></td>
-                                        <td>{{ !empty($program->month_start) ? \Carbon\Carbon::parse($program->month_start)->format('m/Y') : '-' }}</td>
+                                        <td>{{ $program->name ?? 'Sans nom' }}</td>
+                                        <td><span class="badge badge-modern badge-info-modern">{{ $program->category_id ?? 'N/A' }}</span></td>
+                                        <td>{{ $program->level ?? 'N/A' }}</td>
+                                        <td>
+                                            <span class="badge badge-modern {{ $program->status === 'active' ? 'badge-success-modern' : 'badge-warning-modern' }}">
+                                                {{ $program->status ?? 'N/A' }}
+                                            </span>
+                                        </td>
                                     </tr>
                                     @endforeach
                                 </tbody>
