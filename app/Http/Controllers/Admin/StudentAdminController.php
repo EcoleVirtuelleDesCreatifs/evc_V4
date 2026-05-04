@@ -1253,6 +1253,40 @@ class StudentAdminController extends Controller
     }
 
     /**
+     * Retirer un projet du compte d'un étudiant (suppression de l'assignation)
+     */
+    public function removeWork(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'source_table' => 'required|in:projects,tp_assignments',
+            'work_id' => 'required|integer',
+        ]);
+
+        $source = $validated['source_table'];
+        $workId = (int) $validated['work_id'];
+
+        if ($source === 'projects') {
+            abort_unless(Schema::hasTable('projects'), 404);
+
+            $work = DB::table('projects')->where('id', $workId)->first();
+            abort_unless($work, 404);
+
+            // Supprimer le projet (si c'est une assignation spécifique à l'étudiant)
+            DB::table('projects')->where('id', $workId)->delete();
+        } else {
+            abort_unless(Schema::hasTable('tp_assignments'), 404);
+
+            $work = DB::table('tp_assignments')->where('id', $workId)->first();
+            abort_unless($work, 404);
+
+            // Supprimer l'assignation TP
+            DB::table('tp_assignments')->where('id', $workId)->delete();
+        }
+
+        return back()->with('success', 'Projet retiré du compte de l\'étudiant.');
+    }
+
+    /**
      * Éditer un étudiant (admin)
      */
     public function edit(int $id)

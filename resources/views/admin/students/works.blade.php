@@ -387,6 +387,15 @@
                                         </button>
                                     </div>
                                 </form>
+
+                                <form method="POST" action="{{ route('admin.students.works.remove', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mb-2">
+                                    @csrf
+                                    <input type="hidden" name="source_table" value="{{ $todo->source_table }}">
+                                    <input type="hidden" name="work_id" value="{{ $todo->id }}">
+                                    <button type="submit" class="btn btn-sm btn-modern w-100" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.35);" onclick="return confirm('Êtes-vous sûr de vouloir retirer ce projet du compte de l\'étudiant ? Cette action est irréversible.')">
+                                        <i class="fas fa-trash-alt me-1"></i>Retirer le projet
+                                    </button>
+                                </form>
                                 <div class="mt-auto">
                                     <small class="text-white-50" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px;">
                                         <i class="fas fa-database me-1"></i>{{ $isFromProjects ? 'Projet' : 'TP Assignment' }}
