@@ -1461,3 +1461,8 @@ Route::post('/evc/app/admin/students/{id}/works/update-deadline', [\App\Http\Con
     ->middleware(['admin.errors', 'admin.auth'])
     ->name('admin.students.works.update-deadline');
 
+// Alias de nom de route (compat) pour permettre le retrait de projet
+Route::post('/evc/app/admin/students/{id}/works/remove', [\App\Http\Controllers\Admin\StudentAdminController::class, 'removeWork'])
+    ->middleware(['admin.errors', 'admin.auth'])
+    ->name('admin.students.works.remove');
+
