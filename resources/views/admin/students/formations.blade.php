@@ -218,7 +218,8 @@
                                             $youtubeId = explode('&', $youtubeId)[0];
                                         }
                                         if ($youtubeId) {
-                                            $thumbnailUrl = 'https://img.youtube.com/vi/' . $youtubeId . '/maxresdefault.jpg';
+                                            // Utiliser hqdefault.jpg comme fallback si maxresdefault.jpg n'existe pas
+                                            $thumbnailUrl = 'https://img.youtube.com/vi/' . $youtubeId . '/hqdefault.jpg';
                                         }
                                     }
                                     // Vimeo thumbnail (nécessite l'API, utiliser l'image par défaut pour l'instant)
@@ -232,9 +233,8 @@
                             @endphp
                             @if(!empty($thumbnailUrl))
                             <div style="width: 100%; height: 200px; background: #0f172a; position: relative; overflow: hidden;">
-                                <div class="absolute inset-0 bg-black/50"></div>
-                                <img src="{{ $thumbnailUrl }}" alt="{{ $formation->name ?? 'Formation' }}" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-1;">
-                                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-10;">
+                                <img src="{{ $thumbnailUrl }}" alt="{{ $formation->name ?? 'Formation' }}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='{{ $formation->image_url ?? '' }}'">
+                                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6));">
                                     <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(79,195,247,0.4); transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='none';">
                                         <i class="fas fa-play text-white text-2xl" style="margin-left: 4px;"></i>
                                     </div>
@@ -247,13 +247,12 @@
                             </div>
                             @else
                             <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
-                                <div class="absolute inset-0 bg-black/50"></div>
-                                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-10;">
+                                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;">
                                     <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(79,195,247,0.4);">
                                         <i class="fas fa-play text-white text-2xl" style="margin-left: 4px;"></i>
                                     </div>
                                 </div>
-                                <i class="fas fa-graduation-cap text-white" style="font-size: 3rem; opacity: 0.5; position: relative; z-0;"></i>
+                                <i class="fas fa-graduation-cap text-white" style="font-size: 3rem; opacity: 0.5;"></i>
                                 <div style="position: absolute; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(79,195,247,0.9); backdrop-filter: blur(4px); border-radius: 20px;">
                                     <i class="fas fa-video text-white text-xs"></i>
                                     <span class="text-white text-xs font-bold uppercase">Formation</span>
