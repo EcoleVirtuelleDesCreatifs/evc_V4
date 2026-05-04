@@ -200,16 +200,46 @@
                             <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#4fc3f7,#29b6f6);"></div>
 
                             {{-- Image de couverture avec bouton play --}}
-                            @if(!empty($formation->image_url))
+                            @php
+                                // Déterminer l'URL de la thumbnail vidéo
+                                $thumbnailUrl = $formation->image_url ?? null;
+                                $hasVideo = false;
+
+                                if (!empty($formation->video_url)) {
+                                    $hasVideo = true;
+                                    // YouTube thumbnail
+                                    if (str_contains($formation->video_url, 'youtube.com') || str_contains($formation->video_url, 'youtu.be')) {
+                                        $youtubeId = '';
+                                        if (str_contains($formation->video_url, 'youtu.be/')) {
+                                            $youtubeId = substr($formation->video_url, strpos($formation->video_url, 'youtu.be/') + 9);
+                                            $youtubeId = explode('?', $youtubeId)[0];
+                                        } elseif (str_contains($formation->video_url, 'v=')) {
+                                            $youtubeId = substr($formation->video_url, strpos($formation->video_url, 'v=') + 2);
+                                            $youtubeId = explode('&', $youtubeId)[0];
+                                        }
+                                        if ($youtubeId) {
+                                            $thumbnailUrl = 'https://img.youtube.com/vi/' . $youtubeId . '/maxresdefault.jpg';
+                                        }
+                                    }
+                                    // Vimeo thumbnail (nécessite l'API, utiliser l'image par défaut pour l'instant)
+                                    elseif (str_contains($formation->video_url, 'vimeo.com')) {
+                                        $thumbnailUrl = $formation->image_url ?? null;
+                                    }
+                                } elseif (!empty($formation->vimeo_code)) {
+                                    $hasVideo = true;
+                                    $thumbnailUrl = $formation->image_url ?? null;
+                                }
+                            @endphp
+                            @if(!empty($thumbnailUrl))
                             <div style="width: 100%; height: 200px; background: #0f172a; position: relative; overflow: hidden;">
                                 <div class="absolute inset-0 bg-black/50"></div>
-                                <img src="{{ $formation->image_url }}" alt="{{ $formation->name ?? 'Formation' }}" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-1;">
+                                <img src="{{ $thumbnailUrl }}" alt="{{ $formation->name ?? 'Formation' }}" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-1;">
                                 <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-10;">
                                     <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(79,195,247,0.4); transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='none';">
                                         <i class="fas fa-play text-white text-2xl" style="margin-left: 4px;"></i>
                                     </div>
                                 </div>
-                                {{-- Badge Replay --}}
+                                {{-- Badge Formation --}}
                                 <div style="position: absolute; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(79,195,247,0.9); backdrop-filter: blur(4px); border-radius: 20px;">
                                     <i class="fas fa-video text-white text-xs"></i>
                                     <span class="text-white text-xs font-bold uppercase">Formation</span>
