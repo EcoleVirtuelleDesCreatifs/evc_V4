@@ -870,31 +870,47 @@ class StudentAdminController extends Controller
                 ->first();
         }
 
-        // Récupérer les formations auxquelles l'étudiant est inscrit (via table pivot formation_user)
+        // Récupérer les formations auxquelles l'étudiant est inscrit (basé sur son programme/module)
         $studentPrograms = collect();
-        if ($user->id && Schema::hasTable('formations') && Schema::hasTable('formation_user')) {
-            // Essayer d'abord avec user_id
-            $studentPrograms = DB::table('formations')
-                ->join('formation_user', 'formations.id', '=', 'formation_user.formation_id')
-                ->where('formation_user.user_id', $user->id)
-                ->select('formations.*')
-                ->get();
+        if ($user->id && Schema::hasTable('formations')) {
+            // Récupérer le programme de l'étudiant
+            $program = $student->program ?? '';
 
-            // Si aucun résultat et que student_id existe, essayer avec student_id
-            if ($studentPrograms->isEmpty() && $student->id) {
-                $studentPrograms = DB::table('formations')
-                    ->join('formation_user', 'formations.id', '=', 'formation_user.formation_id')
-                    ->where('formation_user.user_id', $student->id)
-                    ->select('formations.*')
-                    ->get();
+            // Déterminer le module slug basé sur le programme
+            $moduleSlug = 'design-graphique';
+            if (str_contains(strtolower($program), 'community') || str_contains(strtolower($program), 'cm')) {
+                $moduleSlug = 'community-management';
+            } elseif (str_contains(strtolower($program), 'intelligence') || str_contains(strtolower($program), 'ia')) {
+                $moduleSlug = 'intelligence-artificielle';
+            } elseif (str_contains(strtolower($program), 'gestion') || str_contains(strtolower($program), 'informatique')) {
+                $moduleSlug = 'gestion-informatique';
             }
 
+            // Récupérer les formations du module de l'étudiant
+            $studentPrograms = DB::table('formations')
+                ->where('status', 'active')
+                ->where(function ($query) use ($moduleSlug) {
+                    $query->whereJsonContains('modules', $moduleSlug)
+                        ->orWhereJsonContains('modules', str_replace('-', '_', $moduleSlug))
+                        ->orWhereJsonContains('modules', ucwords(str_replace('-', ' ', $moduleSlug)));
+
+                    // Si le module est design-graphique-cm, inclure les deux
+                    if (str_contains(strtolower($moduleSlug), 'design') && str_contains(strtolower($moduleSlug), 'community')) {
+                        $query->orWhereJsonContains('modules', 'design-graphique')
+                            ->orWhereJsonContains('modules', 'community-management');
+                    }
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+
             // Log pour débogage
-            \Log::info('Formations attribuées pour étudiant', [
+            \Log::info('Formations pour étudiant (basé sur module)', [
                 'user_id' => $user->id,
                 'student_id' => $student->id,
+                'program' => $program,
+                'module_slug' => $moduleSlug,
                 'formations_count' => $studentPrograms->count(),
-                'formations' => $studentPrograms->toArray()
+                'formations' => $studentPrograms->pluck('name')->toArray()
             ]);
         }
 
