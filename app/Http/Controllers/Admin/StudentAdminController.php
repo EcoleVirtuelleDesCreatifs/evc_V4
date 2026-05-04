@@ -873,11 +873,29 @@ class StudentAdminController extends Controller
         // Récupérer les formations auxquelles l'étudiant est inscrit (via table pivot formation_user)
         $studentPrograms = collect();
         if ($user->id && Schema::hasTable('formations') && Schema::hasTable('formation_user')) {
+            // Essayer d'abord avec user_id
             $studentPrograms = DB::table('formations')
                 ->join('formation_user', 'formations.id', '=', 'formation_user.formation_id')
                 ->where('formation_user.user_id', $user->id)
                 ->select('formations.*')
                 ->get();
+
+            // Si aucun résultat et que student_id existe, essayer avec student_id
+            if ($studentPrograms->isEmpty() && $student->id) {
+                $studentPrograms = DB::table('formations')
+                    ->join('formation_user', 'formations.id', '=', 'formation_user.formation_id')
+                    ->where('formation_user.user_id', $student->id)
+                    ->select('formations.*')
+                    ->get();
+            }
+
+            // Log pour débogage
+            \Log::info('Formations attribuées pour étudiant', [
+                'user_id' => $user->id,
+                'student_id' => $student->id,
+                'formations_count' => $studentPrograms->count(),
+                'formations' => $studentPrograms->toArray()
+            ]);
         }
 
         // Calculer la progression (basée sur les TPs validés)
