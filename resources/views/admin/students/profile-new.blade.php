@@ -665,40 +665,6 @@
                 </div>
             </div>
 
-            <!-- Formations Attribuées -->
-            <div class="info-card fade-in" style="animation-delay: 0.42s;">
-                <div class="info-card-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                    <i class="fas fa-clipboard-list"></i>
-                    <span>Formations Attribuées ({{ isset($data['student_programs']) ? $data['student_programs']->count() : 0 }})</span>
-                </div>
-                <div class="info-card-body">
-                    @if(isset($data['student_programs']) && $data['student_programs']->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-modern table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Titre</th>
-                                        <th>Formation</th>
-                                        <th>Période</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($data['student_programs'] as $program)
-                                    <tr>
-                                        <td>{{ $program->titre ?? 'Sans titre' }}</td>
-                                        <td><span class="badge badge-modern badge-info-modern">{{ $program->formation ?? 'N/A' }}</span></td>
-                                        <td>{{ !empty($program->month_start) ? \Carbon\Carbon::parse($program->month_start)->format('m/Y') : '-' }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <p class="text-center text-white-50 py-3 mb-0">Aucune formation attribuée</p>
-                    @endif
-                </div>
-            </div>
-
             <!-- Localisation -->
             <div class="info-card fade-in" style="animation-delay: 0.45s;">
                 <div class="info-card-header">
@@ -1057,6 +1023,40 @@
                        onmouseout="this.style.transform='none'; this.style.boxShadow='0 6px 20px rgba(79,195,247,0.3)';">
                         <i class="fas fa-eye me-2"></i>Voir tous les travaux
                     </a>
+                </div>
+            </div>
+
+            <!-- Formations Attribuées -->
+            <div class="info-card fade-in" style="animation-delay: 0.72s;">
+                <div class="info-card-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Formations Attribuées ({{ isset($data['student_programs']) ? $data['student_programs']->count() : 0 }})</span>
+                </div>
+                <div class="info-card-body">
+                    @if(isset($data['student_programs']) && $data['student_programs']->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-modern table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Titre</th>
+                                        <th>Formation</th>
+                                        <th>Période</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($data['student_programs'] as $program)
+                                    <tr>
+                                        <td>{{ $program->titre ?? 'Sans titre' }}</td>
+                                        <td><span class="badge badge-modern badge-info-modern">{{ $program->formation ?? 'N/A' }}</span></td>
+                                        <td>{{ !empty($program->month_start) ? \Carbon\Carbon::parse($program->month_start)->format('m/Y') : '-' }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center text-white-50 py-3 mb-0">Aucune formation attribuée</p>
+                    @endif
                 </div>
             </div>
 
