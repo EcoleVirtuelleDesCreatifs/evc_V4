@@ -517,7 +517,7 @@
             </div>
         @else
             @foreach($tpAssignments as $index => $tp)
-            <div class="col-md-6 col-lg-3">
+            <div class="col-md-6 col-lg-4">
                     @php
                         $deadline = \Carbon\Carbon::parse($tp->deadline);
                         $now = \Carbon\Carbon::now();
