@@ -196,53 +196,61 @@
                 <div class="row g-3">
                     @foreach($categoryFormations as $formation)
                     <div class="col-md-6 col-lg-4">
-                        <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(79,195,247,0.25); border-radius: 16px; padding: 0; height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(79,195,247,0.15)';" onmouseout="this.style.borderColor='rgba(79,195,247,0.25)'; this.style.transform='none'; this.style.boxShadow='none';">
+                        <div class="group" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(79,195,247,0.25); border-radius: 16px; padding: 0; height: 100%; display: flex; flex-direction: column; transition: all 0.5s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.transform='translateY(-3px) scale(1.02)'; this.style.boxShadow='0 8px 25px rgba(79,195,247,0.15)';" onmouseout="this.style.borderColor='rgba(79,195,247,0.25)'; this.style.transform='none scale(1)'; this.style.boxShadow='none';">
                             <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#4fc3f7,#29b6f6);"></div>
 
-                            {{-- Image de couverture --}}
+                            {{-- Image de couverture avec bouton play --}}
                             @if(!empty($formation->image_url))
-                            <div style="width: 100%; height: 180px; background: #0f172a; position: relative; overflow: hidden;">
-                                <img src="{{ $formation->image_url }}" alt="{{ $formation->name ?? 'Formation' }}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div style="width: 100%; height: 200px; background: #0f172a; position: relative; overflow: hidden;">
+                                <div class="absolute inset-0 bg-black/50"></div>
+                                <img src="{{ $formation->image_url }}" alt="{{ $formation->name ?? 'Formation' }}" style="width: 100%; height: 100%; object-fit: cover; position: relative; z-1;">
+                                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-10;">
+                                    <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(79,195,247,0.4); transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.1)';" onmouseout="this.style.transform='none';">
+                                        <i class="fas fa-play text-white text-2xl" style="margin-left: 4px;"></i>
+                                    </div>
+                                </div>
+                                {{-- Badge Replay --}}
+                                <div style="position: absolute; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(79,195,247,0.9); backdrop-filter: blur(4px); border-radius: 20px;">
+                                    <i class="fas fa-video text-white text-xs"></i>
+                                    <span class="text-white text-xs font-bold uppercase">Formation</span>
+                                </div>
                             </div>
                             @else
-                            <div style="width: 100%; height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-graduation-cap text-white" style="font-size: 3rem; opacity: 0.5;"></i>
+                            <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+                                <div class="absolute inset-0 bg-black/50"></div>
+                                <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-10;">
+                                    <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(79,195,247,0.4);">
+                                        <i class="fas fa-play text-white text-2xl" style="margin-left: 4px;"></i>
+                                    </div>
+                                </div>
+                                <i class="fas fa-graduation-cap text-white" style="font-size: 3rem; opacity: 0.5; position: relative; z-0;"></i>
+                                <div style="position: absolute; top: 12px; left: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(79,195,247,0.9); backdrop-filter: blur(4px); border-radius: 20px;">
+                                    <i class="fas fa-video text-white text-xs"></i>
+                                    <span class="text-white text-xs font-bold uppercase">Formation</span>
+                                </div>
                             </div>
                             @endif
 
                             <div style="padding: 1.25rem;">
-                                <div class="d-flex align-items-start gap-3 mb-3">
-                                    <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#4fc3f7,#29b6f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i class="fas fa-graduation-cap text-white"></i>
-                                    </div>
-                                    <div style="min-width:0;">
-                                        <h6 class="text-white mb-1" style="font-weight:700; line-height: 1.3;">{{ $formation->name ?? 'Sans nom' }}</h6>
-                                        <span class="badge badge-modern {{ $formation->status === 'active' ? 'badge-success-modern' : 'badge-warning-modern' }}">
-                                            {{ $formation->status ?? 'N/A' }}
-                                        </span>
-                                    </div>
+                                {{-- Titre --}}
+                                <h6 class="text-white mb-2" style="font-weight:700; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $formation->name ?? 'Sans nom' }}</h6>
+
+                                {{-- Description --}}
+                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit($formation->description ?? '-', 100) }}</p>
+
+                                {{-- Meta info --}}
+                                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-bottom: 1rem;">
+                                    <span style="display: flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-calendar"></i>
+                                        {{ $formation->created_at ? date('d/m/Y', strtotime($formation->created_at)) : '—' }}
+                                    </span>
+                                    <span style="display: flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-clock"></i>
+                                        {{ $formation->duration_weeks ?? 'N/A' }} sem
+                                    </span>
                                 </div>
 
-                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit($formation->description ?? '-', 120) }}</p>
-
-                                <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <i class="fas fa-layer-group text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">Niveau: {{ $formation->level ?? 'N/A' }}</small>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <i class="fas fa-clock text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">Durée: {{ $formation->duration_weeks ?? 'N/A' }} sem</small>
-                                    </div>
-                                    @if(!empty($formation->price) && $formation->price > 0)
-                                    <div class="d-flex align-items-center gap-2">
-                                        <i class="fas fa-tag text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">Prix: {{ number_format($formation->price, 0) }} FCFA</small>
-                                    </div>
-                                    @endif
-                                </div>
-
-                                {{-- Bouton pour voir la vidéo --}}
+                                {{-- Bouton Regarder --}}
                                 @if(!empty($formation->resources))
                                 @php
                                     $resources = json_decode($formation->resources, true);
@@ -257,17 +265,11 @@
                                     }
                                 @endphp
                                 @if($videoUrl)
-                                <button type="button" class="btn btn-sm btn-modern w-100 mb-2" style="background: rgba(79,195,247,0.15); color: #4fc3f7; border: 1px solid rgba(79,195,247,0.35);" onclick="openVideoModal('{{ $videoUrl }}', '{{ e($formation->name ?? 'Formation') }}')">
-                                    <i class="fas fa-play-circle me-1"></i>Voir la vidéo
+                                <button type="button" class="btn btn-modern w-100" style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); color: white; padding: 0.6rem; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(79,195,247,0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';" onclick="openVideoModal('{{ $videoUrl }}', '{{ e($formation->name ?? 'Formation') }}')">
+                                    <i class="fas fa-play me-1"></i>Regarder
                                 </button>
                                 @endif
                                 @endif
-
-                                <div class="mt-auto">
-                                    <small class="text-white-50" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px;">
-                                        <i class="fas fa-calendar me-1"></i>Créée le {{ $formation->created_at ? date('d/m/Y', strtotime($formation->created_at)) : '—' }}
-                                    </small>
-                                </div>
                             </div>
                         </div>
                     </div>
