@@ -295,14 +295,40 @@
 function openVideoModal(videoUrl, formationName) {
     const modal = document.createElement('div');
     modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:2rem;';
+
+    // Déterminer le type de vidéo
+    let videoHtml = '';
+
+    // Vérifier si c'est une vidéo YouTube
+    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+        let youtubeId = '';
+        if (videoUrl.includes('youtu.be/')) {
+            youtubeId = videoUrl.split('youtu.be/')[1].split('?')[0];
+        } else if (videoUrl.includes('v=')) {
+            youtubeId = videoUrl.split('v=')[1].split('&')[0];
+        }
+        videoHtml = `<iframe src="https://www.youtube.com/embed/${youtubeId}?autoplay=1" style="width:100%;height:100%;border:none;" allowfullscreen allow="autoplay"></iframe>`;
+    }
+    // Vérifier si c'est une vidéo Vimeo
+    else if (videoUrl.includes('vimeo.com')) {
+        const vimeoId = videoUrl.split('vimeo.com/')[1].split('?')[0];
+        videoHtml = `<iframe src="https://player.vimeo.com/video/${vimeoId}?autoplay=1" style="width:100%;height:100%;border:none;" allowfullscreen allow="autoplay"></iframe>`;
+    }
+    // Sinon, utiliser le player vidéo HTML5
+    else {
+        videoHtml = `<video src="${videoUrl}" controls style="width:100%;max-height:600px;" autoplay></video>`;
+    }
+
     modal.innerHTML = `
-        <div style="background:#1e293b;border-radius:16px;max-width:900px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+        <div style="background:#1e293b;border-radius:16px;max-width:1000px;width:100%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
             <div style="padding:1.5rem;border-bottom:1px solid rgba(255,255,255,0.1);display:flex;justify-content:space-between;align-items:center;">
                 <h5 class="text-white mb-0">${formationName}</h5>
                 <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background:none;border:none;color:white;font-size:1.5rem;cursor:pointer;">&times;</button>
             </div>
             <div style="padding:0;">
-                <video src="${videoUrl}" controls style="width:100%;max-height:500px;" autoplay></video>
+                <div style="width:100%;height:600px;background:#000;">
+                    ${videoHtml}
+                </div>
             </div>
         </div>
     `;
@@ -313,5 +339,15 @@ function openVideoModal(videoUrl, formationName) {
     };
     document.body.appendChild(modal);
 }
+
+// Fermer le modal avec la touche Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.querySelector('[style*="position:fixed"][style*="z-index:9999"]');
+        if (modal) {
+            modal.remove();
+        }
+    }
+});
 </script>
 @endpush
