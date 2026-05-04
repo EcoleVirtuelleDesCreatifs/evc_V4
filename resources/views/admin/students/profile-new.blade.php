@@ -1081,7 +1081,7 @@
                         @endforeach
 
                         <div class="text-center mt-3">
-                            <a href="{{ route('admin.formations.index') }}"
+                            <a href="{{ route('admin.students.formations', !empty($data['student']['student_row_id']) ? $data['student']['student_row_id'] : ['id' => ($data['student']['user_id'] ?? $data['student']['id']), 'source' => 'user']) }}"
                                class="btn btn-lg btn-modern"
                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 0.75rem 2.5rem; font-size: 1.1rem; border-radius: 14px; box-shadow: 0 6px 20px rgba(79,195,247,0.3); transition: all 0.3s ease;"
                                onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 30px rgba(79,195,247,0.4)';"

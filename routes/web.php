@@ -1356,6 +1356,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         // Route::get('/students/by-formation/{formation}', [AdminDashboardController::class, 'studentsByFormation'])->name('students.by-formation'); // COMMENTÉ - Méthode inexistante
         Route::get('/students/{id}/profile', [\App\Http\Controllers\Admin\StudentAdminController::class, 'profile'])->name('students.profile');
         Route::get('/students/{id}/works', [\App\Http\Controllers\Admin\StudentAdminController::class, 'works'])->name('students.works');
+        Route::get('/students/{id}/formations', [\App\Http\Controllers\Admin\StudentAdminController::class, 'formations'])->name('students.formations');
         Route::post('/students/{id}/works/toggle-hidden', [\App\Http\Controllers\Admin\StudentAdminController::class, 'toggleWorkHidden'])->name('students.works.toggle-hidden');
         Route::post('/students/{id}/works/update-deadline', [\App\Http\Controllers\Admin\StudentAdminController::class, 'updateWorkDeadline'])->name('students.works.update-deadline');
         Route::post('/students/{id}/works/remove', [\App\Http\Controllers\Admin\StudentAdminController::class, 'removeWork'])->name('students.works.remove');

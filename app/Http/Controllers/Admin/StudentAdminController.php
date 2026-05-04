@@ -1010,6 +1010,72 @@ class StudentAdminController extends Controller
     }
 
     /**
+     * Formations de l'étudiant (page dédiée)
+     */
+    public function formations(int $id)
+    {
+        // Résolution user/student identique à profile()
+        if (request()->get('source') === 'user') {
+            $user = DB::table('users')->where('id', $id)->first();
+            $student = $user ? DB::table('students')->where('user_id', $user->id)->first() : null;
+        } else {
+            $student = DB::table('students')->where('id', $id)->first();
+            if ($student) {
+                $user = DB::table('users')->where('id', $student->user_id)->first();
+            } else {
+                $user = DB::table('users')->where('id', $id)->first();
+                if ($user) {
+                    $student = DB::table('students')->where('user_id', $user->id)->first();
+                }
+            }
+        }
+
+        abort_unless($user, 404, 'Utilisateur non trouvé');
+
+        // Récupérer le programme de l'étudiant
+        $program = $student->program ?? '';
+
+        // Déterminer le module slug basé sur le programme
+        $moduleSlug = 'design-graphique';
+        if (str_contains(strtolower($program), 'community') || str_contains(strtolower($program), 'cm')) {
+            $moduleSlug = 'community-management';
+        } elseif (str_contains(strtolower($program), 'intelligence') || str_contains(strtolower($program), 'ia')) {
+            $moduleSlug = 'intelligence-artificielle';
+        } elseif (str_contains(strtolower($program), 'gestion') || str_contains(strtolower($program), 'informatique')) {
+            $moduleSlug = 'gestion-informatique';
+        }
+
+        // Récupérer les formations du module de l'étudiant avec les catégories
+        $studentPrograms = DB::table('formations')
+            ->leftJoin('categories', 'formations.category_id', '=', 'categories.id')
+            ->select('formations.*', 'categories.name as category_name', 'categories.slug as category_slug')
+            ->where('formations.status', 'active')
+            ->where(function ($query) use ($moduleSlug) {
+                $query->whereJsonContains('formations.modules', $moduleSlug)
+                    ->orWhereJsonContains('formations.modules', str_replace('-', '_', $moduleSlug))
+                    ->orWhereJsonContains('formations.modules', ucwords(str_replace('-', ' ', $moduleSlug)));
+
+                // Si le module est design-graphique-cm, inclure les deux
+                if (str_contains(strtolower($moduleSlug), 'design') && str_contains(strtolower($moduleSlug), 'community')) {
+                    $query->orWhereJsonContains('formations.modules', 'design-graphique')
+                        ->orWhereJsonContains('formations.modules', 'community-management');
+                }
+            })
+            ->orderBy('formations.created_at', 'desc')
+            ->get();
+
+        // Grouper les formations par catégorie
+        $formationsByCategory = $studentPrograms->groupBy('category_name');
+
+        return view('admin.students.formations', [
+            'student' => $student,
+            'user' => $user,
+            'student_programs' => $studentPrograms,
+            'formations_by_category' => $formationsByCategory,
+        ]);
+    }
+
+    /**
      * Travaux de l'étudiant (page dédiée)
      */
     public function works(int $id)
