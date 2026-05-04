@@ -263,13 +263,17 @@
                                             }
                                         }
                                     }
+                                    // Log pour débogage
+                                    \Log::info('Formation resources', [
+                                        'formation_id' => $formation->id,
+                                        'resources' => $resources,
+                                        'video_url' => $videoUrl
+                                    ]);
                                 @endphp
-                                @if($videoUrl)
-                                <button type="button" class="btn btn-modern w-100" style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); color: white; padding: 0.6rem; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(79,195,247,0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';" onclick="openVideoModal('{{ $videoUrl }}', '{{ e($formation->name ?? 'Formation') }}')">
+                                @endif
+                                <button type="button" class="btn btn-modern w-100" style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); color: white; padding: 0.6rem; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(79,195,247,0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';" onclick="openVideoModal('{{ $videoUrl ?? '' }}', '{{ e($formation->name ?? 'Formation') }}')">
                                     <i class="fas fa-play me-1"></i>Regarder
                                 </button>
-                                @endif
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -299,8 +303,17 @@ function openVideoModal(videoUrl, formationName) {
     // Déterminer le type de vidéo
     let videoHtml = '';
 
+    if (!videoUrl || videoUrl === '') {
+        videoHtml = `
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:white;text-align:center;padding:2rem;">
+                <i class="fas fa-video-slash" style="font-size:4rem;margin-bottom:1rem;opacity:0.5;"></i>
+                <h3 style="font-size:1.5rem;margin-bottom:0.5rem;">Aucune vidéo disponible</h3>
+                <p style="color:rgba(255,255,255,0.7);">Cette formation ne dispose pas encore de vidéo.</p>
+            </div>
+        `;
+    }
     // Vérifier si c'est une vidéo YouTube
-    if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
+    else if (videoUrl.includes('youtube.com') || videoUrl.includes('youtu.be')) {
         let youtubeId = '';
         if (videoUrl.includes('youtu.be/')) {
             youtubeId = videoUrl.split('youtu.be/')[1].split('?')[0];
@@ -316,7 +329,7 @@ function openVideoModal(videoUrl, formationName) {
     }
     // Sinon, utiliser le player vidéo HTML5
     else {
-        videoHtml = `<video src="${videoUrl}" controls style="width:100%;max-height:600px;" autoplay></video>`;
+        videoHtml = `<video src="${videoUrl}" controls style="width:100%;height:100%;" autoplay></video>`;
     }
 
     modal.innerHTML = `
