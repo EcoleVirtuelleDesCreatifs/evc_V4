@@ -251,26 +251,22 @@
                                 </div>
 
                                 {{-- Bouton Regarder --}}
-                                @if(!empty($formation->resources))
                                 @php
-                                    $resources = json_decode($formation->resources, true);
+                                    // Utiliser video_url ou vimeo_code pour la vidéo
                                     $videoUrl = null;
-                                    if (is_array($resources)) {
-                                        foreach ($resources as $resource) {
-                                            if (isset($resource['type']) && $resource['type'] === 'video' && isset($resource['url'])) {
-                                                $videoUrl = $resource['url'];
-                                                break;
-                                            }
-                                        }
+                                    if (!empty($formation->video_url)) {
+                                        $videoUrl = $formation->video_url;
+                                    } elseif (!empty($formation->vimeo_code)) {
+                                        $videoUrl = 'https://vimeo.com/' . $formation->vimeo_code;
                                     }
                                     // Log pour débogage
-                                    \Log::info('Formation resources', [
+                                    \Log::info('Formation video check', [
                                         'formation_id' => $formation->id,
-                                        'resources' => $resources,
-                                        'video_url' => $videoUrl
+                                        'video_url' => $formation->video_url ?? null,
+                                        'vimeo_code' => $formation->vimeo_code ?? null,
+                                        'final_video_url' => $videoUrl
                                     ]);
                                 @endphp
-                                @endif
                                 <button type="button" class="btn btn-modern w-100" style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); color: white; padding: 0.6rem; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 15px rgba(79,195,247,0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';" onclick="openVideoModal('{{ $videoUrl ?? '' }}', '{{ e($formation->name ?? 'Formation') }}')">
                                     <i class="fas fa-play me-1"></i>Regarder
                                 </button>

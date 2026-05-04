@@ -906,6 +906,24 @@ class StudentAdminController extends Controller
                 ->orderBy('formations.created_at', 'desc')
                 ->get();
 
+            // Log pour débogage des vidéos
+            \Log::info('Formations récupérées pour étudiant', [
+                'user_id' => $user->id,
+                'student_id' => $student->id,
+                'program' => $program,
+                'module_slug' => $moduleSlug,
+                'formations_count' => $studentPrograms->count(),
+                'formations' => $studentPrograms->map(function($f) {
+                    return [
+                        'id' => $f->id,
+                        'name' => $f->name,
+                        'video_url' => $f->video_url ?? null,
+                        'vimeo_code' => $f->vimeo_code ?? null,
+                        'resources' => $f->resources ?? null,
+                    ];
+                })->toArray()
+            ]);
+
             // Grouper les formations par catégorie
             $formationsByCategory = $studentPrograms->groupBy('category_name');
         }
