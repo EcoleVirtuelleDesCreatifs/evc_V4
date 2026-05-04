@@ -1033,32 +1033,61 @@
                     <span>Formations Attribuées ({{ isset($data['student_programs']) ? $data['student_programs']->count() : 0 }})</span>
                 </div>
                 <div class="info-card-body">
-                    @if(isset($data['student_programs']) && $data['student_programs']->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-modern table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Nom</th>
-                                        <th>Catégorie</th>
-                                        <th>Niveau</th>
-                                        <th>Statut</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($data['student_programs'] as $program)
-                                    <tr>
-                                        <td>{{ $program->name ?? 'Sans nom' }}</td>
-                                        <td><span class="badge badge-modern badge-info-modern">{{ $program->category_id ?? 'N/A' }}</span></td>
-                                        <td>{{ $program->level ?? 'N/A' }}</td>
-                                        <td>
-                                            <span class="badge badge-modern {{ $program->status === 'active' ? 'badge-success-modern' : 'badge-warning-modern' }}">
-                                                {{ $program->status ?? 'N/A' }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                    @if(isset($data['formations_by_category']) && $data['formations_by_category']->count() > 0)
+                        <div class="row mb-4">
+                            @foreach($data['formations_by_category'] as $categoryName => $categoryFormations)
+                            <div class="col-4 mb-3">
+                                <div class="p-3 rounded" style="background: rgba(79, 195, 247, 0.1); cursor: pointer; transition: all 0.3s ease;" onclick="toggleCategoryFormations('{{ $categoryName ?? 'Sans catégorie' }}')">
+                                    <h4 class="mb-0" style="color: #4fc3f7;">{{ $categoryFormations->count() }}</h4>
+                                    <small class="text-white-50">{{ $categoryName ?? 'Sans catégorie' }}</small>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Liste des formations par catégorie -->
+                        @foreach($data['formations_by_category'] as $categoryName => $categoryFormations)
+                        <div id="category-{{ str_replace(' ', '-', $categoryName ?? 'sans-categorie') }}" class="category-formations mb-3" style="display: none;">
+                            <h6 class="text-white mb-2" style="color: #4fc3f7;">
+                                <i class="fas fa-folder me-2"></i>{{ $categoryName ?? 'Sans catégorie' }}
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-modern table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Nom</th>
+                                            <th>Niveau</th>
+                                            <th>Durée</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($categoryFormations as $formation)
+                                        <tr>
+                                            <td>{{ $formation->name ?? 'Sans nom' }}</td>
+                                            <td>{{ $formation->level ?? 'N/A' }}</td>
+                                            <td>{{ $formation->duration_weeks ?? 'N/A' }} sem</td>
+                                            <td>
+                                                <span class="badge badge-modern {{ $formation->status === 'active' ? 'badge-success-modern' : 'badge-warning-modern' }}">
+                                                    {{ $formation->status ?? 'N/A' }}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        @endforeach
+
+                        <div class="text-center mt-3">
+                            <a href="{{ route('admin.formations.index') }}"
+                               class="btn btn-lg btn-modern"
+                               style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 0.75rem 2.5rem; font-size: 1.1rem; border-radius: 14px; box-shadow: 0 6px 20px rgba(79,195,247,0.3); transition: all 0.3s ease;"
+                               onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 30px rgba(79,195,247,0.4)';"
+                               onmouseout="this.style.transform='none'; this.style.boxShadow='0 6px 20px rgba(79,195,247,0.3)';">
+                                <i class="fas fa-eye me-2"></i>Voir toutes les formations
+                            </a>
                         </div>
                     @else
                         <p class="text-center text-white-50 py-3 mb-0">Aucune formation attribuée</p>
@@ -1349,6 +1378,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 });
+
+// Fonction pour basculer l'affichage des formations par catégorie
+function toggleCategoryFormations(categoryName) {
+    const categoryId = 'category-' + categoryName.replace(/\s+/g, '-').toLowerCase();
+    const element = document.getElementById(categoryId);
+    if (element) {
+        element.style.display = element.style.display === 'none' ? 'block' : 'none';
+    }
+}
 
 document.addEventListener('click', function(e) {
     const card = e.target.closest('[data-project-open]');

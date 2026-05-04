@@ -872,6 +872,7 @@ class StudentAdminController extends Controller
 
         // Récupérer les formations auxquelles l'étudiant est inscrit (basé sur son programme/module)
         $studentPrograms = collect();
+        $formationsByCategory = collect();
         if ($user->id && Schema::hasTable('formations')) {
             // Récupérer le programme de l'étudiant
             $program = $student->program ?? '';
@@ -886,32 +887,27 @@ class StudentAdminController extends Controller
                 $moduleSlug = 'gestion-informatique';
             }
 
-            // Récupérer les formations du module de l'étudiant
+            // Récupérer les formations du module de l'étudiant avec les catégories
             $studentPrograms = DB::table('formations')
-                ->where('status', 'active')
+                ->leftJoin('categories', 'formations.category_id', '=', 'categories.id')
+                ->select('formations.*', 'categories.name as category_name', 'categories.slug as category_slug')
+                ->where('formations.status', 'active')
                 ->where(function ($query) use ($moduleSlug) {
-                    $query->whereJsonContains('modules', $moduleSlug)
-                        ->orWhereJsonContains('modules', str_replace('-', '_', $moduleSlug))
-                        ->orWhereJsonContains('modules', ucwords(str_replace('-', ' ', $moduleSlug)));
+                    $query->whereJsonContains('formations.modules', $moduleSlug)
+                        ->orWhereJsonContains('formations.modules', str_replace('-', '_', $moduleSlug))
+                        ->orWhereJsonContains('formations.modules', ucwords(str_replace('-', ' ', $moduleSlug)));
 
                     // Si le module est design-graphique-cm, inclure les deux
                     if (str_contains(strtolower($moduleSlug), 'design') && str_contains(strtolower($moduleSlug), 'community')) {
-                        $query->orWhereJsonContains('modules', 'design-graphique')
-                            ->orWhereJsonContains('modules', 'community-management');
+                        $query->orWhereJsonContains('formations.modules', 'design-graphique')
+                            ->orWhereJsonContains('formations.modules', 'community-management');
                     }
                 })
-                ->orderBy('created_at', 'desc')
+                ->orderBy('formations.created_at', 'desc')
                 ->get();
 
-            // Log pour débogage
-            \Log::info('Formations pour étudiant (basé sur module)', [
-                'user_id' => $user->id,
-                'student_id' => $student->id,
-                'program' => $program,
-                'module_slug' => $moduleSlug,
-                'formations_count' => $studentPrograms->count(),
-                'formations' => $studentPrograms->pluck('name')->toArray()
-            ]);
+            // Grouper les formations par catégorie
+            $formationsByCategory = $studentPrograms->groupBy('category_name');
         }
 
         // Calculer la progression (basée sur les TPs validés)
@@ -1007,6 +1003,7 @@ class StudentAdminController extends Controller
             'todos_non_traites' => $todosNonTraites,
             'todos_traites' => $todosTraites,
             'student_programs' => $studentPrograms,
+            'formations_by_category' => $formationsByCategory,
         ];
 
         return view('admin.students.profile-new', compact('data'));
