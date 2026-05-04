@@ -870,6 +870,21 @@ class StudentAdminController extends Controller
                 ->first();
         }
 
+        // Récupérer les programmes auxquels l'étudiant est inscrit (via student_ids JSON)
+        $studentPrograms = collect();
+        if ($student->id && Schema::hasTable('programmes') && Schema::hasColumn('programmes', 'student_ids')) {
+            $allProgrammes = DB::table('programmes')
+                ->whereNotNull('student_ids')
+                ->get();
+
+            foreach ($allProgrammes as $programme) {
+                $studentIds = json_decode($programme->student_ids, true);
+                if (is_array($studentIds) && in_array($student->id, $studentIds)) {
+                    $studentPrograms->push($programme);
+                }
+            }
+        }
+
         // Calculer la progression (basée sur les TPs validés)
         $totalTpRequis = 20; // Nombre de TPs requis pour 100%
         $progression = $totalTp > 0 ? min(100, round(($tpValides / $totalTpRequis) * 100)) : 0;
@@ -962,6 +977,7 @@ class StudentAdminController extends Controller
             'factures' => $factures,
             'todos_non_traites' => $todosNonTraites,
             'todos_traites' => $todosTraites,
+            'student_programs' => $studentPrograms,
         ];
 
         return view('admin.students.profile-new', compact('data'));

@@ -147,6 +147,41 @@
                 </div>
             </div>
 
+            <!-- Formations Attribuées -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Formations Attribuées ({{ isset($data['student_programs']) ? $data['student_programs']->count() : 0 }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if(isset($data['student_programs']) && $data['student_programs']->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Titre</th>
+                                        <th>Formation</th>
+                                        <th>Période</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($data['student_programs'] as $program)
+                                    <tr>
+                                        <td>{{ $program->titre ?? 'Sans titre' }}</td>
+                                        <td><span class="badge bg-primary">{{ $program->formation ?? 'N/A' }}</span></td>
+                                        <td>{{ !empty($program->month_start) ? \Carbon\Carbon::parse($program->month_start)->format('m/Y') : '-' }}</td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <p class="text-center text-muted py-3 mb-0">Aucune formation attribuée</p>
+                    @endif
+                </div>
+            </div>
+
             <!-- Expérience Professionnelle (si applicable) -->
             @if(!empty($data['student']['years_experience']) || !empty($data['student']['industry_sector']))
             <div class="card border-0 shadow-sm mt-4">
