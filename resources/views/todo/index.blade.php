@@ -976,12 +976,18 @@ function showDetails(tpId) {
                         el.removeAttribute(attr.name);
                     }
                 });
+
+                // Remove inline color styles to force black text
+                if (el.style && el.style.color) {
+                    el.style.color = '#111827';
+                }
             });
 
             // Ensure links are safe
             tmp.querySelectorAll('a').forEach((a) => {
                 a.setAttribute('rel', 'noopener noreferrer');
                 a.setAttribute('target', '_blank');
+                a.style.color = 'var(--blue-700)';
             });
 
             return tmp.innerHTML;
