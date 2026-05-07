@@ -177,7 +177,7 @@
     .tp-title {
         font-size: 1.1rem;
         font-weight: 700;
-        color: #1a202c;
+        color: #0f172a;
         margin-bottom: 0;
         line-height: 1.3;
         display: -webkit-box;
@@ -187,10 +187,10 @@
     }
 
     .tp-description {
-        color: #4a5568;
+        color: #374151;
         margin-bottom: 1rem;
         line-height: 1.5;
-        font-size: 0.85rem;
+        font-size: 0.875rem;
         display: -webkit-box;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
@@ -213,7 +213,7 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.8rem;
-        color: #4a5568;
+        color: #374151;
     }
 
     .tp-meta-item i {
