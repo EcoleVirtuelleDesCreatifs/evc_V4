@@ -336,61 +336,6 @@
                 </a>
             </div>
 
-            <!-- Design Graphique & Community Management -->
-            <div class="formation-card-modern rounded-3xl p-8 animate-on-scroll" style="animation-delay: 0.15s;">
-                <div class="icon-circle mb-6" style="background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);">
-                    <i class="fas fa-layer-group text-white text-3xl"></i>
-                </div>
-                <h3 class="text-2xl font-black text-white mb-3 text-center">Design Graphique & Community Management</h3>
-                <p class="text-gray-300 text-center mb-6 leading-relaxed">
-                    La formation complète pour devenir créatif(ve) et stratégique : design, contenu, réseaux sociaux et gestion de communauté.
-                </p>
-
-                <div class="space-y-2 mb-6">
-                    <div class="flex items-center gap-3 text-sm text-gray-300">
-                        <i class="fas fa-check-circle text-orange-400"></i>
-                        <span>Design + Social Media (compétences combinées)</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm text-gray-300">
-                        <i class="fas fa-check-circle text-orange-400"></i>
-                        <span>Portfolio + stratégie de contenu</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm text-gray-300">
-                        <i class="fas fa-check-circle text-orange-400"></i>
-                        <span>Certificat Reconnu avec lettre de recommandation</span>
-                    </div>
-                    <div class="flex items-center gap-3 text-sm text-gray-300">
-                        <i class="fas fa-check-circle text-orange-400"></i>
-                        <span>En ligne et en présentiel</span>
-                    </div>
-                </div>
-
-                <div class="mb-6 p-4 bg-slate-800/50 rounded-xl border-l-4 border-orange-400">
-                    <div class="flex items-center justify-between mb-3">
-                        <div>
-                            <div class="text-sm text-gray-400">Tarif Total</div>
-                            <div class="text-2xl font-black text-white">165.000 <span class="text-sm">FCFA</span></div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-sm text-gray-400">Durée</div>
-                            <div class="text-lg font-bold text-orange-400">7 Mois</div>
-                        </div>
-                    </div>
-                    <div class="pt-3 border-t border-slate-700">
-                        <div class="text-xs text-gray-400 mb-1">Modalités de paiement :</div>
-                        <div class="text-sm text-gray-300">Paiement en une ou plusieurs tranches</div>
-                    </div>
-                </div>
-
-                <a href="{{ route('preinscription.start') }}" class="block w-full text-center bg-gradient-to-r from-blue-600 to-orange-500 text-white font-bold py-4 rounded-full hover:from-blue-700 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    <i class="fas fa-rocket mr-2"></i>Choisir cette formation
-                </a>
-
-                <a href="{{ route('plaquettes.formations') }}" class="mt-3 block w-full text-center bg-white/10 text-white font-bold py-4 rounded-full hover:bg-white/15 transition-all transform hover:scale-105 shadow-lg hover:shadow-xl">
-                    <i class="fas fa-file-pdf mr-2"></i>Demander la plaquette
-                </a>
-            </div>
-
             <!-- Bureautique et informatique -->
             <div class="formation-card-modern rounded-3xl p-8 animate-on-scroll" style="animation-delay: 0.2s;">
                 <div class="icon-circle mb-6" style="background: linear-gradient(135deg, #10b981, #059669);">
