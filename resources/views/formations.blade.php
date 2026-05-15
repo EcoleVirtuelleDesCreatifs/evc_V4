@@ -158,42 +158,54 @@
                     Maîtrisez Adobe Photoshop, Illustrator et InDesign. Créez des identités visuelles, des logotypes, charte graphique, Étiquettes, Affiches professionnelles et devenez un infographiste recherché.
                 </p>
 
+                <div class="mb-6 p-3 bg-slate-800/50 rounded-xl border-l-4 border-orange-500">
+                    <div class="text-sm text-gray-400 mb-2">Format & Lieu :</div>
+                    <div class="text-sm text-gray-300">
+                        <div class="mb-1"><i class="fas fa-clock text-orange-500 mr-2"></i>Format hybride : En ligne + Présentiel (01 séance/mois)</div>
+                        <div><i class="fas fa-map-marker-alt text-orange-500 mr-2"></i>Immeuble Bloom Square Akwaba (Palmeraie - Carrefour Guiraud)</div>
+                    </div>
+                </div>
+
                 <div class="space-y-2 mb-6">
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-orange-500"></i>
-                        <span>Adobe Creative Suite complet</span>
+                        <span>Adobe Photoshop, Illustrator, InDesign</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-orange-500"></i>
-                        <span>Projets réels d'entreprises</span>
+                        <span>Accompagnement & assistance</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-orange-500"></i>
-                        <span>Portfolio professionnel</span>
+                        <span>Espace Étudiant My EVC à vie</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-orange-500"></i>
-                        <span>Accompagnement et assistance</span>
+                        <span>Kit étudiant : T-shirt EVC, BlocNote, Stylo, Souris, Tapis</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-orange-500"></i>
-                        <span>Possibilité d'obtention de stage ou d'emploi</span>
+                        <span>Certificat reconnu</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-orange-500"></i>
-                        <span>En ligne et en présentiel</span>
+                        <span>Lettre de recommandation</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-orange-500"></i>
-                        <span>Formation orientée pratique et résultat</span>
+                        <span>Coaching personnalisé</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-orange-500"></i>
-                        <span>Certificat Reconnu avec lettre de recommandation</span>
+                        <span>Ressources pédagogiques</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-orange-500"></i>
-                        <span>Stratégie business, des programmes orientés entreprises</span>
+                        <span>Accès aux Classes virtuelles de travail</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-300">
+                        <i class="fas fa-check-circle text-orange-500"></i>
+                        <span>Module Pitch pour Convaincre (PPC)</span>
                     </div>
                 </div>
 
@@ -201,7 +213,7 @@
                     <div class="flex items-center justify-between mb-3">
                         <div>
                             <div class="text-sm text-gray-400">Tarif Total</div>
-                            <div class="text-2xl font-black text-white">80.000 <span class="text-sm">FCFA</span></div>
+                            <div class="text-2xl font-black text-white">165.000 <span class="text-sm">FCFA</span></div>
                         </div>
                         <div class="text-right">
                             <div class="text-sm text-gray-400">Durée</div>
@@ -210,7 +222,8 @@
                     </div>
                     <div class="pt-3 border-t border-slate-700">
                         <div class="text-xs text-gray-400 mb-1">Modalités de paiement :</div>
-                        <div class="text-sm text-gray-300">Paiement en une ou plusieurs tranches</div>
+                        <div class="text-sm text-gray-300">85.000 FCFA à l'inscription, 80.000 FCFA en tranche</div>
+                        <div class="text-xs text-gray-500 mt-1">À solder après 2 mois (le 20 du mois en cours)</div>
                     </div>
                 </div>
 
