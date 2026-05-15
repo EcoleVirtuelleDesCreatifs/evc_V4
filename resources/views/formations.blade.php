@@ -213,7 +213,7 @@
                     <div class="flex items-center justify-between mb-3">
                         <div>
                             <div class="text-sm text-gray-400">Tarif Total</div>
-                            <div class="text-2xl font-black text-white">165.000 <span class="text-sm">FCFA</span></div>
+                            <div class="text-2xl font-black text-white">185.000 <span class="text-sm">FCFA</span></div>
                         </div>
                         <div class="text-right">
                             <div class="text-sm text-gray-400">Durée</div>
@@ -222,7 +222,7 @@
                     </div>
                     <div class="pt-3 border-t border-slate-700">
                         <div class="text-xs text-gray-400 mb-1">Modalités de paiement :</div>
-                        <div class="text-sm text-gray-300">85.000 FCFA à l'inscription, 80.000 FCFA en tranche</div>
+                        <div class="text-sm text-gray-300">95.000 FCFA à l'inscription, 90.000 FCFA en tranche</div>
                         <div class="text-xs text-gray-500 mt-1">À solder après 2 mois (le 20 du mois en cours)</div>
                     </div>
                 </div>
