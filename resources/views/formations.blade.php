@@ -249,43 +249,59 @@
                 <div class="space-y-2 mb-6">
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>Stratégie Social Media complète</span>
+                        <span>Installation du logiciel Adobe Photoshop</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>Création de contenu viral</span>
+                        <span>Projets réels d'entreprises</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>Publicité Facebook, Instagram, TikTok, LinkedIn, YouTube, X</span>
+                        <span>Accompagnement & assistance personnalisée</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>Accompagnement et assistance</span>
+                        <span>Espace Étudiant My EVC</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>Possibilité d'obtention de stage ou d'emploi</span>
+                        <span>Kit étudiant : T-shirt EVC, BlocNote, Stylo, Souris, Tapis</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>En ligne et en présentiel</span>
+                        <span>Certificat reconnu</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>Formation orientée pratique et résultat</span>
+                        <span>Lettre de recommandation</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>Certificat Reconnu avec lettre de recommandation</span>
+                        <span>Coaching personnalisé</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>T-shirt EVC offert</span>
+                        <span>Ressources pédagogiques</span>
                     </div>
                     <div class="flex items-center gap-3 text-sm text-gray-300">
                         <i class="fas fa-check-circle text-blue-500"></i>
-                        <span>Stratégie business, des programmes orientés entreprises</span>
+                        <span>Accès aux classes virtuelles de travail</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-300">
+                        <i class="fas fa-check-circle text-blue-500"></i>
+                        <span>Module Pitch pour Convaincre (PPC)</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-sm text-gray-300">
+                        <i class="fas fa-check-circle text-blue-500"></i>
+                        <span>Opportunités de stage, missions et insertion professionnelle</span>
+                    </div>
+                </div>
+
+                <div class="mb-6 p-3 bg-slate-800/50 rounded-xl border-l-4 border-blue-500">
+                    <div class="text-sm text-gray-400 mb-2">Format & Lieu :</div>
+                    <div class="text-sm text-gray-300">
+                        <div class="mb-1"><i class="fas fa-clock text-blue-500 mr-2"></i>Format hybride : 08 séances (04 présentiel Samedi 09h-12h, 04 en ligne Dimanche 14h-15h30)</div>
+                        <div><i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>Immeuble Bloom Square Akwaba (Palmeraie - Carrefour Guiraud)</div>
                     </div>
                 </div>
 
@@ -293,16 +309,17 @@
                     <div class="flex items-center justify-between mb-3">
                         <div>
                             <div class="text-sm text-gray-400">Tarif Total</div>
-                            <div class="text-2xl font-black text-white">105.000 <span class="text-sm">FCFA</span></div>
+                            <div class="text-2xl font-black text-white">165.000 <span class="text-sm">FCFA</span></div>
                         </div>
                         <div class="text-right">
                             <div class="text-sm text-gray-400">Durée</div>
-                            <div class="text-lg font-bold text-blue-500">3 Mois</div>
+                            <div class="text-lg font-bold text-blue-500">2 Mois</div>
                         </div>
                     </div>
                     <div class="pt-3 border-t border-slate-700">
                         <div class="text-xs text-gray-400 mb-1">Modalités de paiement :</div>
-                        <div class="text-sm text-gray-300">Paiement en une ou plusieurs tranches</div>
+                        <div class="text-sm text-gray-300">85.000 FCFA à l'inscription, 80.000 FCFA en tranche</div>
+                        <div class="text-xs text-gray-500 mt-1">À solder après 1 mois (le 15 du mois en cours)</div>
                     </div>
                 </div>
 
