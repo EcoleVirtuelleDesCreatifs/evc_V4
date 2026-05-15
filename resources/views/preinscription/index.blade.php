@@ -518,7 +518,7 @@
             <div class="col-lg-10 offset-lg-1">
                 <div class="stats">
                     <div class="stat-card">
-                        <div class="stat-number">4</div>
+                        <div class="stat-number">3</div>
                         <div class="stat-label">Formations</div>
                     </div>
                     <div class="stat-card">
@@ -550,27 +550,17 @@
                             <div style="font-size: 13px; line-height: 1.8;">
                                 <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
                                     <strong style="color: var(--primary);">Design Graphique</strong><br>
-                                    <span style="color: var(--text-secondary);">80.000 FCFA</span><br>
+                                    <span style="color: var(--text-secondary);">185.000 FCFA</span><br>
                                     <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
                                 </div>
                                 <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
                                     <strong style="color: var(--primary);">Community Management</strong><br>
-                                    <span style="color: var(--text-secondary);">100.000 FCFA</span><br>
-                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
-                                </div>
-                                <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
-                                    <strong style="color: var(--primary);">Design Graphique &amp; Community Management</strong><br>
                                     <span style="color: var(--text-secondary);">165.000 FCFA</span><br>
                                     <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
                                 </div>
-                                <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
+                                <div>
                                     <strong style="color: var(--primary);">Gestion Informatique</strong><br>
                                     <span style="color: var(--text-secondary);">150.000 FCFA</span><br>
-                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
-                                </div>
-                                <div>
-                                    <strong style="color: var(--primary);">Intelligence Artificielle</strong><br>
-                                    <span style="color: var(--text-secondary);">55.000 FCFA</span><br>
                                     <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
                                 </div>
                             </div>
@@ -593,7 +583,6 @@
                                 <li>Design Graphique</li>
                                 <li>Community Management</li>
                                 <li>Gestion Informatique</li>
-                                <li>Intelligence Artificielle</li>
                             </ul>
                         </div>
 
@@ -708,10 +697,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let pendingProgrammeValue = '';
 
     const prices = {
-        'design-graphique': { name: 'Design Graphique', amount: '80.000 FCFA' },
-        'community-manager': { name: 'Community Management', amount: '100.000 FCFA' },
-        'design-graphique-community-manager': { name: 'Design Graphique & Community Management', amount: '165.000 FCFA' },
-        'intelligence-artificielle': { name: 'Intelligence Artificielle', amount: '55.000 FCFA' },
+        'design-graphique': { name: 'Design Graphique', amount: '185.000 FCFA' },
+        'community-manager': { name: 'Community Management', amount: '165.000 FCFA' },
         'gestion-informatique': { name: 'Gestion Informatique', amount: '150.000 FCFA' },
     };
 
