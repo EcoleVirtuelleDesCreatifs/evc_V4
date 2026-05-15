@@ -300,7 +300,7 @@
                 <div class="mb-6 p-3 bg-slate-800/50 rounded-xl border-l-4 border-blue-500">
                     <div class="text-sm text-gray-400 mb-2">Format & Lieu :</div>
                     <div class="text-sm text-gray-300">
-                        <div class="mb-1"><i class="fas fa-clock text-blue-500 mr-2"></i>Format hybride : 08 séances (04 présentiel Samedi 09h-12h, 04 en ligne Dimanche 14h-15h30)</div>
+                        <div class="mb-1"><i class="fas fa-clock text-blue-500 mr-2"></i>Format hybride : 08 séances (04 séances en présentiel samedi (09h-12h); 04 séances en ligne (samedi (14h-15h30); dimanche (14h-15h30))</div>
                         <div><i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>Immeuble Bloom Square Akwaba (Palmeraie - Carrefour Guiraud)</div>
                     </div>
                 </div>
