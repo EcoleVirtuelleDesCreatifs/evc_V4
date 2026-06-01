@@ -59,6 +59,17 @@
     <img height="1" width="1" src="https://www.facebook.com/tr?id=3150853591778776&ev=PageView&noscript=1"/>
     </noscript>
     <!-- End Facebook Pixel Code -->
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-TB3PRBDYP0"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-TB3PRBDYP0');
+    </script>
+    <!-- End Google tag (gtag.js) -->
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/favicon/favicon.png') }}">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/img/favicon/favicon.png') }}">
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/img/favicon/favicon.png') }}">
