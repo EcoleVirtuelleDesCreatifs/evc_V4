@@ -209,23 +209,24 @@
                                                     $itemId = (int) ($project['id'] ?? 0);
                                                     $itemCategory = (string) ($project['category'] ?? '');
                                                     $isTpItem = ($itemCategory === 'tp');
+                                                    $isAssignedProject = (($project['source'] ?? '') === 'assigned_project');
                                                     $itemStatus = (string) ($project['status'] ?? '');
                                                     $isValidated = ($itemStatus === 'validated');
                                                     $canShow = $itemId > 0 && (\Illuminate\Support\Facades\Route::has($todoTraiterRouteName) || \Illuminate\Support\Facades\Route::has($projectsShowRouteName));
-                                                    $canEdit = !$isCmFormation && !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsEditRouteName);
-                                                    $canDelete = !$isCmFormation && !$isTpItem && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName);
-                                                    $canEditAssigned = ($isTpItem || $isCmFormation) && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($todoTraiterRouteName);
-                                                    $canWithdrawAssigned = ($isTpItem || $isCmFormation) && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($todoRetirerRouteName);
+                                                    $canEdit = !$isCmFormation && !$isTpItem && !$isAssignedProject && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsEditRouteName);
+                                                    $canDelete = !$isCmFormation && !$isTpItem && !$isAssignedProject && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName);
+                                                    $canEditAssigned = ($isTpItem || $isCmFormation || $isAssignedProject) && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($todoTraiterRouteName);
+                                                    $canWithdrawAssigned = ($isTpItem || $isCmFormation || $isAssignedProject) && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($todoRetirerRouteName);
                                                 @endphp
 
                                                 <div class="d-flex flex-wrap gap-2">
                                                     @if($canShow)
-                                                        @if(\Illuminate\Support\Facades\Route::has($todoTraiterRouteName) && ($isTpItem || $isCmFormation))
+                                                        @if(\Illuminate\Support\Facades\Route::has($todoTraiterRouteName) && ($isTpItem || $isCmFormation || $isAssignedProject))
                                                             <a href="{{ route($todoTraiterRouteName, ['projectId' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
                                                                 <i class="fas fa-eye me-1"></i>
                                                                 Voir
                                                             </a>
-                                                        @elseif(!$isTpItem && \Illuminate\Support\Facades\Route::has($projectsShowRouteName))
+                                                        @elseif(!$isTpItem && !$isAssignedProject && \Illuminate\Support\Facades\Route::has($projectsShowRouteName))
                                                             <a href="{{ route($projectsShowRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
                                                                 <i class="fas fa-eye me-1"></i>
                                                                 Voir
