@@ -78,27 +78,6 @@
                     <span>{{ $programmes->count() }} programme{{ $programmes->count() > 1 ? 's' : '' }}</span>
                 </div>
 
-                <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
-                    @if($isDgCm)
-                        @if(\Illuminate\Support\Facades\Route::has(($formationPrefix ?? 'design-graphique') . '.programme.formation'))
-                            <a class="btn btn-sm btn-outline-light" href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', 'design-graphique') }}">
-                                <i class="fas fa-calendar-alt me-1"></i>
-                                Voir les séances (DG)
-                            </a>
-                            <a class="btn btn-sm btn-outline-light" href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', 'community-management') }}">
-                                <i class="fas fa-calendar-alt me-1"></i>
-                                Voir les séances (CM)
-                            </a>
-                        @endif
-                    @else
-                        @if(\Illuminate\Support\Facades\Route::has(($formationPrefix ?? 'design-graphique') . '.programme.formation'))
-                            <a class="btn btn-sm btn-outline-light" href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', $formationProgrammeSlug) }}">
-                                <i class="fas fa-calendar-alt me-1"></i>
-                                Voir les séances
-                            </a>
-                        @endif
-                    @endif
-                </div>
             </div>
         </div>
     </div>
@@ -215,11 +194,6 @@
                             </div>
 
                             <div class="programme-card-actions">
-                                @if(!empty($programme->id) && \Illuminate\Support\Facades\Route::has(($formationPrefix ?? 'design-graphique') . '.programme.show'))
-                                    <a class="btn btn-sm btn-outline-light" href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.show', (int) $programme->id) }}">
-                                        Voir les séances
-                                    </a>
-                                @endif
                                 @if(!empty($programme->fichier_pdf))
                                     <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}">
                                         Télécharger
