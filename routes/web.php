@@ -58,6 +58,13 @@ Route::get('/preinscription', function () {
         ->header('Pragma', 'no-cache')
         ->header('Expires', '0');
 })->name('preinscription.start');
+Route::get('/test-eligibilite-saop', function () {
+    return response()
+        ->view('eligibilite.index')
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+})->name('eligibilite.saop');
 Route::post('/pre-registration', [HomepageController::class, 'store'])->name('pre-registration.store');
 Route::post('/candidature', [HomepageController::class, 'candidatureStore'])->name('candidature.store');
 
