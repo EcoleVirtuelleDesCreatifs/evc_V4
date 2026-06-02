@@ -310,15 +310,32 @@ class DashboardController extends Controller
             $actualitesEnCours = 0;
         }
 
-        // Calculer le montant restant à payer
-        $montantRestant = 0;
+        // Calculer le montant restant à payer avec la même logique que la page Paiements
+        $formationLabel = $preReg
+            ? (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null)
+            : null;
+
         $payments = DB::table('payments')
-            ->where('user_id', $user->id)
+            ->where(function ($q) use ($user, $preReg) {
+                $q->where('user_id', $user->id);
+                if ($preReg) {
+                    $q->orWhere('pre_registration_id', $preReg->id);
+                }
+            })
             ->get();
 
-        $montantTotal = $payments->sum('amount');
-        $montantPaye = $payments->where('status', 'completed')->sum('amount');
-        $montantRestant = max(0, $montantTotal - $montantPaye);
+        $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
+        $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
+        $grossPaymentAmount = $formationLabel
+            ? (float) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate)
+            : 0;
+        $discountAmount = min((float) ($preReg->discount_amount ?? 0), $grossPaymentAmount);
+        $expectedAmount = max(0, $grossPaymentAmount - $discountAmount);
+        $paymentsTotal = (float) ($payments->max('total_amount') ?? 0);
+        $sumAmounts = (float) $payments->sum('amount');
+        $paymentAmount = $discountAmount > 0 ? max($expectedAmount, $sumAmounts) : max($paymentsTotal, $expectedAmount, $sumAmounts);
+        $montantPaye = (float) $payments->where('status', 'completed')->sum('amount');
+        $montantRestant = max(0, (float) $paymentAmount - (float) $montantPaye);
 
         $stats = [
             // Nombre de formations/programmes disponibles (dynamique)
@@ -357,11 +374,6 @@ class DashboardController extends Controller
             $globalProgress += ($stats['projets_realises'] / $stats['projets_total']) * 50;
         }
         $stats['global_progress'] = $globalProgress;
-
-        // Si vous avez des informations de paiement dans preReg ou student
-        if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
-            $stats['montant_restant'] = $preReg->montant_total - $preReg->montant_paye;
-        }
 
         $accountCreatedAt = \Carbon\Carbon::parse($user->created_at);
         $expirationDate = AccountExpirationHelper::getExpirationDate($user);
@@ -637,10 +649,6 @@ class DashboardController extends Controller
             'actualites_en_cours' => $actualitesEnCours,
             'montant_restant' => $montantRestant,
         ];
-
-        if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
-            $stats['montant_restant'] = $preReg->montant_total - $preReg->montant_paye;
-        }
 
         $expirationDate = AccountExpirationHelper::getExpirationDate($user);
         $daysRemaining = (int) $now->diffInDays($expirationDate, false);
@@ -1002,35 +1010,29 @@ class DashboardController extends Controller
             $actualitesEnCours = 0;
         }
 
-        // Calculer le montant restant à payer (cohérent avec paiementsIndex)
+        // Calculer le montant restant à payer avec la même logique que la page Paiements
         $montantRestant = 0;
         try {
-            if ($preReg && isset($preReg->montant_total) && isset($preReg->montant_paye)) {
-                $montantRestant = max(0, (float) $preReg->montant_total - (float) $preReg->montant_paye);
-            } else {
-                $paymentsQuery = DB::table('payments')
-                    ->where(function ($q) use ($user, $preReg) {
-                        $q->where('user_id', $user->id);
-                        if ($preReg && isset($preReg->id)) {
-                            $q->orWhere('pre_registration_id', $preReg->id);
-                        }
-                    });
+            $payments = DB::table('payments')
+                ->where(function ($q) use ($user, $preReg) {
+                    $q->where('user_id', $user->id);
+                    if ($preReg && isset($preReg->id)) {
+                        $q->orWhere('pre_registration_id', $preReg->id);
+                    }
+                })
+                ->get();
 
-                $payments = $paymentsQuery->get();
-
-                $formationLabel = $preReg ? (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null) : null;
-                $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
-                $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
-                $grossPaymentAmount = $formationLabel ? (float) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate) : 0;
-                $discountAmount = min((float) ($preReg->discount_amount ?? 0), $grossPaymentAmount);
-                $expectedAmount = max(0, $grossPaymentAmount - $discountAmount);
-                $paymentsTotal = (float) ($payments->max('total_amount') ?? 0);
-                $sumAmounts = (float) $payments->sum('amount');
-                $paymentAmount = $discountAmount > 0 ? max($expectedAmount, $sumAmounts) : max($paymentsTotal, $expectedAmount, $sumAmounts);
-
-                $paymentPaid = (float) $payments->where('status', 'completed')->sum('amount');
-                $montantRestant = max(0, $paymentAmount - $paymentPaid);
-            }
+            $formationLabel = $preReg ? (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null) : null;
+            $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
+            $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
+            $grossPaymentAmount = $formationLabel ? (float) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate) : 0;
+            $discountAmount = min((float) ($preReg->discount_amount ?? 0), $grossPaymentAmount);
+            $expectedAmount = max(0, $grossPaymentAmount - $discountAmount);
+            $paymentsTotal = (float) ($payments->max('total_amount') ?? 0);
+            $sumAmounts = (float) $payments->sum('amount');
+            $paymentAmount = $discountAmount > 0 ? max($expectedAmount, $sumAmounts) : max($paymentsTotal, $expectedAmount, $sumAmounts);
+            $paymentPaid = (float) $payments->where('status', 'completed')->sum('amount');
+            $montantRestant = max(0, $paymentAmount - $paymentPaid);
         } catch (\Exception $e) {
             $montantRestant = 0;
         }
