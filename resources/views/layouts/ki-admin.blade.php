@@ -1274,12 +1274,25 @@
                 </div>
             </div>
 
-            <!-- Évaluation Certification -->
-            <div class="nav-item">
-                <a href="{{ route('certification.index') }}" class="nav-link {{ request()->routeIs('certification.*') ? 'active' : '' }}">
-                    <i class="fas fa-award"></i>
-                    <span>Évaluation Certification</span>
-                </a>
+            <!-- Évaluations (avec sous-menus) -->
+            <div class="nav-item-dropdown">
+                <div class="nav-link-dropdown {{ request()->routeIs('evaluation.*') || request()->routeIs('certification.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)">
+                    <div>
+                        <i class="fas fa-clipboard-check"></i>
+                        Évaluations
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                </div>
+                <div class="submenu {{ request()->routeIs('evaluation.*') || request()->routeIs('certification.*') ? 'open' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has('evaluation.test.index') ? route('evaluation.test.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs('evaluation.test.*') ? 'active' : '' }}">
+                        <i class="fas fa-brain"></i>
+                        Test de connaissance
+                    </a>
+                    <a href="{{ \Illuminate\Support\Facades\Route::has('certification.index') ? route('certification.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs('certification.*') ? 'active' : '' }}">
+                        <i class="fas fa-award"></i>
+                        Certification
+                    </a>
+                </div>
             </div>
 
             <!-- Mon Profil (avec sous-menus) -->
