@@ -831,6 +831,14 @@ class StudentAdminController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
+            $paymentsTotal = $paiements->max('total_amount');
+            if (!empty($paymentsTotal)) {
+                $totalFactures = (int) round((float) $paymentsTotal);
+            } else {
+                $formationName = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preRegistration->choix_formation ?? null);
+                $totalFactures = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $preRegistration->created_at ?? null);
+            }
+
             // Calculer le total payé (uniquement les paiements completed)
             $totalPaye = $paiements->where('status', 'completed')->sum('amount');
 

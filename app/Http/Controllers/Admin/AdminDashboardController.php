@@ -5050,8 +5050,6 @@ class AdminDashboardController extends Controller
      */
     public function paiementsAJour(): View
     {
-        $formationTotals = (array) config('chariow.formation_amounts', []);
-
         $studentsBase = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->leftJoin('pre_registrations', 'pre_registrations.email', '=', 'students.email')
@@ -5059,7 +5057,8 @@ class AdminDashboardController extends Controller
                 'students.*',
                 'users.email as user_email',
                 'pre_registrations.id as pre_registration_id',
-                'pre_registrations.choix_formation as choix_formation'
+                'pre_registrations.choix_formation as choix_formation',
+                'pre_registrations.created_at as pre_registered_at'
             )
             ->where('students.status', 'active')
             ->orderBy('students.created_at', 'desc')
@@ -5082,15 +5081,15 @@ class AdminDashboardController extends Controller
                 ->keyBy('pre_registration_id');
         }
 
-        $students = $studentsBase->map(function ($s) use ($paymentAgg, $formationTotals) {
+        $students = $studentsBase->map(function ($s) use ($paymentAgg) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
 
             $totalAmount = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
 
             if ($totalAmount <= 0) {
-                $formationLabel = $s->choix_formation ?: ($s->program ?? null);
-                $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+                $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
+                $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
             }
 
             $remaining = max(0, $totalAmount - $amountPaid);
@@ -5120,8 +5119,6 @@ class AdminDashboardController extends Controller
      */
     public function paiementsASolder(): View
     {
-        $formationTotals = (array) config('chariow.formation_amounts', []);
-
         $studentsBase = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->leftJoin('pre_registrations', 'pre_registrations.email', '=', 'students.email')
@@ -5129,7 +5126,8 @@ class AdminDashboardController extends Controller
                 'students.*',
                 'users.email as user_email',
                 'pre_registrations.id as pre_registration_id',
-                'pre_registrations.choix_formation as choix_formation'
+                'pre_registrations.choix_formation as choix_formation',
+                'pre_registrations.created_at as pre_registered_at'
             )
             ->where('students.status', 'active')
             ->orderBy('students.created_at', 'desc')
@@ -5151,15 +5149,15 @@ class AdminDashboardController extends Controller
                 ->keyBy('pre_registration_id');
         }
 
-        $students = $studentsBase->map(function ($s) use ($paymentAgg, $formationTotals) {
+        $students = $studentsBase->map(function ($s) use ($paymentAgg) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
 
             $totalAmount = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
 
             if ($totalAmount <= 0) {
-                $formationLabel = $s->choix_formation ?: ($s->program ?? null);
-                $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+                $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
+                $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
             }
 
             $remaining = max(0, $totalAmount - $amountPaid);
@@ -5213,12 +5211,11 @@ class AdminDashboardController extends Controller
                 return redirect()->back()->with('error', 'Aucun paiement trouvé pour cette préinscription.');
             }
 
-            $formationTotals = (array) config('chariow.formation_amounts', []);
-            $formationLabel = $preReg->choix_formation ?? (($student->program ?? null) ?: 'Formation');
+            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
 
             $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
             if ($totalAmount <= 0) {
-                $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+                $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
             }
 
             $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
@@ -5325,8 +5322,6 @@ class AdminDashboardController extends Controller
      */
     public function paiementsResteAPayer(): View
     {
-        $formationTotals = (array) config('chariow.formation_amounts', []);
-
         $studentsBase = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->leftJoin('pre_registrations', 'pre_registrations.email', '=', 'students.email')
@@ -5334,7 +5329,8 @@ class AdminDashboardController extends Controller
                 'students.*',
                 'users.email as user_email',
                 'pre_registrations.id as pre_registration_id',
-                'pre_registrations.choix_formation as choix_formation'
+                'pre_registrations.choix_formation as choix_formation',
+                'pre_registrations.created_at as pre_registered_at'
             )
             ->where('students.status', 'active')
             ->orderBy('students.created_at', 'desc')
@@ -5356,15 +5352,15 @@ class AdminDashboardController extends Controller
                 ->keyBy('pre_registration_id');
         }
 
-        $students = $studentsBase->map(function ($s) use ($paymentAgg, $formationTotals) {
+        $students = $studentsBase->map(function ($s) use ($paymentAgg) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
 
             $totalAmount = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
 
             if ($totalAmount <= 0) {
-                $formationLabel = $s->choix_formation ?: ($s->program ?? null);
-                $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+                $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
+                $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
             }
 
             $remaining = max(0, $totalAmount - $amountPaid);
@@ -5533,8 +5529,6 @@ class AdminDashboardController extends Controller
                 $amountPaid = 0;
                 $totalAmount = 0;
                 $remaining = 0;
-                $formationTotals = (array) config('chariow.formation_amounts', []);
-
                 $preReg = DB::table('pre_registrations')
                     ->where('email', $student->email)
                     ->first();
@@ -5548,12 +5542,12 @@ class AdminDashboardController extends Controller
                     $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
 
                     if ($totalAmount <= 0) {
-                        $formationLabel = $preReg->choix_formation ?? ($student->program ?? null);
-                        $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+                        $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? ($student->program ?? null));
+                        $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
                     }
                 } else {
-                    $formationLabel = $student->program ?? null;
-                    $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+                    $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($student->program ?? null);
+                    $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $student->created_at ?? null);
                 }
 
                 $remaining = max(0, $totalAmount - $amountPaid);

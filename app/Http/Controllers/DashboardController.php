@@ -5241,9 +5241,8 @@ class DashboardController extends Controller
 
         $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
         if ($totalAmount <= 0) {
-            $formationTotals = (array) config('chariow.formation_amounts', []);
-            $formationLabel = $preReg->choix_formation ?? (($student->program ?? null) ?: 'Formation');
-            $totalAmount = (int) (($formationTotals[$formationLabel]['total'] ?? 0) ?: 0);
+            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
+            $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
         }
 
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
@@ -5378,7 +5377,7 @@ class DashboardController extends Controller
             $paymentAmount = $sumAmounts > 0 ? $sumAmounts : 0;
 
             if ($paymentAmount <= 0 && $formationLabel) {
-                $paymentAmount = (float) \App\Services\CinetPayService::getFormationPrice($formationLabel);
+                $paymentAmount = (float) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
             }
         }
 
@@ -5466,7 +5465,7 @@ class DashboardController extends Controller
                 ->get();
 
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
-            $paymentAmount = \App\Services\CinetPayService::getFormationPrice($formationLabel);
+            $paymentAmount = \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
 
             $paymentsTotal = $payments->max('total_amount');
             if (!empty($paymentsTotal)) {

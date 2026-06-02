@@ -334,23 +334,8 @@ class PreRegistrationAdminController extends Controller
         $pre = PreRegistration::findOrFail($id);
 
         $formationName = $this->getFormationLabel($pre->choix_formation);
-        $totalAmount = (int) round((float) \App\Services\CinetPayService::getFormationPrice($formationName));
-
-        $installment1Amount = 75000;
-        $installment2Amount = max(0, $totalAmount - $installment1Amount);
-
-        if ($formationName === 'Design Graphique') {
-            $installment1Amount = 95000;
-            $installment2Amount = 90000;
-        } elseif ($formationName === 'Community Management') {
-            $installment1Amount = 85000;
-            $installment2Amount = 80000;
-        } elseif ($formationName === 'Design Graphique & Community Management' || $formationName === 'Design Graphique & Community Manager') {
-            $installment1Amount = 100000;
-            $installment2Amount = 65000;
-        } else {
-            $installment2Amount = max(0, $totalAmount - $installment1Amount);
-        }
+        $totalAmount = (int) round((float) \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at));
+        [$installment1Amount, $installment2Amount] = \App\Services\CinetPayService::getFormationInstallments($formationName, $pre->created_at);
 
         $quoteNumber = 'EVC-DEVIS-' . now()->format('Ymd') . '-' . strtoupper(substr(md5($pre->id . '|' . $pre->email . '|' . now()->timestamp), 0, 8));
         $issuedAt = now()->format('d/m/Y');
@@ -553,7 +538,7 @@ class PreRegistrationAdminController extends Controller
         $formationName = $this->getFormationLabel($pre->choix_formation);
         $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
         if ($totalAmount <= 0) {
-            $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationName);
+            $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
         }
 
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
@@ -658,7 +643,7 @@ class PreRegistrationAdminController extends Controller
         $paidAt = !empty($validated['paid_at']) ? \Carbon\Carbon::parse($validated['paid_at']) : now();
 
         $formationName = $this->getFormationLabel($pre->choix_formation);
-        $totalAmount = \App\Services\CinetPayService::getFormationPrice($formationName);
+        $totalAmount = \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
 
         DB::beginTransaction();
         try {
@@ -1168,23 +1153,12 @@ class PreRegistrationAdminController extends Controller
             $pre->save();
 
             $formationName = $this->getFormationLabel($pre->choix_formation);
-            $totalAmount = \App\Services\CinetPayService::getFormationPrice($formationName);
+            $totalAmount = \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
 
             $paymentMode = $request->input('payment_mode', 'installment');
 
             if ($paymentMode === 'installment') {
-                $installment1Amount = 75000;
-                $installment2Amount = max(0, $totalAmount - $installment1Amount);
-                if ($formationName === 'Design Graphique') {
-                    $installment1Amount = 95000;
-                    $installment2Amount = 90000;
-                } elseif ($formationName === 'Community Management') {
-                    $installment1Amount = 85000;
-                    $installment2Amount = 80000;
-                } elseif ($formationName === 'Design Graphique & Community Management') {
-                    $installment1Amount = 100000;
-                    $installment2Amount = 65000;
-                }
+                [$installment1Amount, $installment2Amount] = \App\Services\CinetPayService::getFormationInstallments($formationName, $pre->created_at);
 
                 // Paiement par tranche (PRODUCTION)
                 $firstInstallmentRef = 'EVC-PAY-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));

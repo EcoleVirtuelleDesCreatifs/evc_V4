@@ -209,9 +209,31 @@ class CinetPayService
     /**
      * Obtenir le prix d'une formation
      */
-    public static function getFormationPrice($formation)
+    public static function getFormationPrice($formation, $registeredAt = null)
     {
-        return config("cinetpay.prices.{$formation}", 150000);
+        $prices = self::usesNewFormationPrices($registeredAt)
+            ? config('cinetpay.prices', [])
+            : config('cinetpay.old_prices', []);
+
+        return $prices[$formation] ?? config("cinetpay.prices.{$formation}", 150000);
+    }
+
+    public static function getFormationInstallments($formation, $registeredAt = null): array
+    {
+        $installments = self::usesNewFormationPrices($registeredAt)
+            ? config('cinetpay.installments', [])
+            : config('cinetpay.old_installments', []);
+
+        return $installments[$formation] ?? [75000, max(0, (int) self::getFormationPrice($formation, $registeredAt) - 75000)];
+    }
+
+    public static function usesNewFormationPrices($registeredAt = null): bool
+    {
+        if (empty($registeredAt)) {
+            return true;
+        }
+
+        return strtotime((string) $registeredAt) >= strtotime((string) config('cinetpay.new_prices_effective_from', '2026-06-02 00:00:00'));
     }
 
     /**

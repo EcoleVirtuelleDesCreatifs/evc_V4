@@ -41,12 +41,38 @@ return [
     'cancel_url' => env('CINETPAY_CANCEL_URL', 'http://127.0.0.1:8000/evc/payment/cancel'),
 
     // Tarifs par formation (en XOF)
+    'new_prices_effective_from' => env('FORMATION_NEW_PRICES_EFFECTIVE_FROM', '2026-06-02 00:00:00'),
+
     'prices' => [
         'Design Graphique' => 185000,
         'Community Management' => 165000,
         'Design Graphique & Community Management' => 165000,
         'Gestion Informatique' => 150000,
         'Intelligence Artificielle' => 57000,
+    ],
+
+    'old_prices' => [
+        'Design Graphique' => 80000,
+        'Community Management' => 107000,
+        'Design Graphique & Community Management' => 165000,
+        'Gestion Informatique' => 152000,
+        'Intelligence Artificielle' => 57000,
+    ],
+
+    'installments' => [
+        'Design Graphique' => [95000, 90000],
+        'Community Management' => [85000, 80000],
+        'Design Graphique & Community Management' => [100000, 65000],
+        'Gestion Informatique' => [75000, 75000],
+        'Intelligence Artificielle' => [30000, 27000],
+    ],
+
+    'old_installments' => [
+        'Design Graphique' => [53500, 27000],
+        'Community Management' => [53500, 53500],
+        'Design Graphique & Community Management' => [100000, 65000],
+        'Gestion Informatique' => [50000, 102000],
+        'Intelligence Artificielle' => [30000, 27000],
     ],
 
     // Liens de paiement externes (Chariow)
