@@ -71,9 +71,27 @@
                                                         2ème Tranche (Après 2 mois)
                                                     </td>
                                                     <td style="padding: 12px; text-align: right; color: #64748b; font-size: 16px;">
-                                                        {{ number_format($payment->installment2_amount ?? (($payment->total_amount ?? 80000) - $payment->amount), 0, ',', ' ') }} FCFA
+                                                        {{ number_format($payment->installment2_amount ?? max(0, ($payment->total_amount ?? 0) - $payment->amount), 0, ',', ' ') }} FCFA
                                                     </td>
                                                 </tr>
+                                                @if(!empty($payment->gross_total_amount) && !empty($payment->discount_amount))
+                                                <tr style="background: #ffffff; border-bottom: 1px solid #e2e8f0;">
+                                                    <td style="padding: 12px; color: #64748b; font-size: 14px;">
+                                                        Coût formation
+                                                    </td>
+                                                    <td style="padding: 12px; text-align: right; color: #64748b; font-size: 15px; text-decoration: line-through;">
+                                                        {{ number_format($payment->gross_total_amount, 0, ',', ' ') }} FCFA
+                                                    </td>
+                                                </tr>
+                                                <tr style="background: #ecfdf5; border-bottom: 1px solid #d1fae5;">
+                                                    <td style="padding: 12px; color: #047857; font-size: 14px; font-weight: 700;">
+                                                        Remise appliquée
+                                                    </td>
+                                                    <td style="padding: 12px; text-align: right; color: #047857; font-size: 15px; font-weight: 700;">
+                                                        - {{ number_format($payment->discount_amount, 0, ',', ' ') }} FCFA
+                                                    </td>
+                                                </tr>
+                                                @endif
                                                 <tr style="background: #f1f5f9;">
                                                     <td style="padding: 12px; font-weight: 700; color: #0f172a; font-size: 15px;">
                                                         Montant Total

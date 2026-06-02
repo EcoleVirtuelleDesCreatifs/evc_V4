@@ -71,6 +71,16 @@
                                 <td style="padding: 18px;">
                                     <h3 style="margin: 0 0 12px; color: #333333; font-size: 16px;">Suivi de votre scolarité</h3>
                                     <table style="width: 100%; border-collapse: collapse;">
+                                        @if(($discountAmount ?? 0) > 0)
+                                        <tr>
+                                            <td style="padding: 8px 0; color: #64748b; font-size: 14px;">Coût formation :</td>
+                                            <td style="padding: 8px 0; text-align: right; color: #64748b; font-size: 14px; text-decoration: line-through;">{{ number_format($grossTotalAmount ?? $totalAmount, 0, ',', ' ') }} FCFA</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px 0; color: #047857; font-size: 14px; font-weight: 700;">Remise appliquée :</td>
+                                            <td style="padding: 8px 0; text-align: right; color: #047857; font-size: 14px; font-weight: 700;">- {{ number_format($discountAmount, 0, ',', ' ') }} FCFA</td>
+                                        </tr>
+                                        @endif
                                         <tr>
                                             <td style="padding: 8px 0; color: #666666; font-size: 14px;">Total formation :</td>
                                             <td style="padding: 8px 0; text-align: right; color: #333333; font-size: 14px; font-weight: 700;">{{ number_format($totalAmount, 0, ',', ' ') }} FCFA</td>

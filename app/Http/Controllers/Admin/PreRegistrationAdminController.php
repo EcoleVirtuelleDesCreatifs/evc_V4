@@ -644,6 +644,45 @@ class PreRegistrationAdminController extends Controller
                     'total_amount' => $netTotalAmount,
                     'updated_at' => now(),
                 ]);
+
+            $paidAmount = (int) round((float) DB::table('payments')
+                ->where('pre_registration_id', $pre->id)
+                ->where('status', 'completed')
+                ->sum('amount'));
+            $remainingAmount = max(0, $netTotalAmount - $paidAmount);
+
+            $pendingSecondInstallment = DB::table('payments')
+                ->where('pre_registration_id', $pre->id)
+                ->where('installment_number', 2)
+                ->whereIn('status', ['pending', 'PENDING'])
+                ->orderByDesc('id')
+                ->first();
+
+            if ($pendingSecondInstallment) {
+                DB::table('payments')
+                    ->where('id', $pendingSecondInstallment->id)
+                    ->update([
+                        'amount' => $remainingAmount,
+                        'updated_at' => now(),
+                    ]);
+            } else {
+                $pendingFirstInstallment = DB::table('payments')
+                    ->where('pre_registration_id', $pre->id)
+                    ->where('installment_number', 1)
+                    ->whereIn('status', ['pending', 'PENDING'])
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($pendingFirstInstallment) {
+                    $firstInstallmentAmount = min((int) round((float) $pendingFirstInstallment->amount), $netTotalAmount);
+                    DB::table('payments')
+                        ->where('id', $pendingFirstInstallment->id)
+                        ->update([
+                            'amount' => $firstInstallmentAmount,
+                            'updated_at' => now(),
+                        ]);
+                }
+            }
         }
 
         return redirect()->route('admin.preinscriptions.payment', $pre->id)
@@ -882,6 +921,10 @@ class PreRegistrationAdminController extends Controller
                             'method' => $method,
                             'reference' => $paymentReference,
                             'paidAt' => $paidAt instanceof \Carbon\Carbon ? $paidAt->format('d/m/Y H:i') : \Carbon\Carbon::parse($paidAt)->format('d/m/Y H:i'),
+                            'grossTotalAmount' => (int) $grossTotalAmount,
+                            'discountAmount' => (int) $discountAmount,
+                            'grossTotalAmount' => (int) $grossTotalAmount,
+                            'discountAmount' => (int) $discountAmount,
                             'totalAmount' => (int) $totalAmount,
                             'amountPaid' => (int) $paidSum,
                             'remaining' => (int) $remaining,
@@ -1186,12 +1229,16 @@ class PreRegistrationAdminController extends Controller
             $pre->save();
 
             $formationName = $this->getFormationLabel($pre->choix_formation);
-            $totalAmount = \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
+            $grossTotalAmount = (int) round((float) \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at));
+            $discountAmount = min((int) ($pre->discount_amount ?? 0), $grossTotalAmount);
+            $totalAmount = max(0, $grossTotalAmount - $discountAmount);
 
             $paymentMode = $request->input('payment_mode', 'installment');
 
             if ($paymentMode === 'installment') {
-                [$installment1Amount, $installment2Amount] = \App\Services\CinetPayService::getFormationInstallments($formationName, $pre->created_at);
+                [$grossInstallment1Amount, $grossInstallment2Amount] = \App\Services\CinetPayService::getFormationInstallments($formationName, $pre->created_at);
+                $installment1Amount = min((int) $grossInstallment1Amount, $totalAmount);
+                $installment2Amount = max(0, $totalAmount - $installment1Amount);
 
                 // Paiement par tranche (PRODUCTION)
                 $firstInstallmentRef = 'EVC-PAY-' . date('Ymd') . '-' . strtoupper(substr(md5(uniqid()), 0, 8));
@@ -1246,6 +1293,8 @@ class PreRegistrationAdminController extends Controller
                     'payment_reference' => $firstInstallmentRef,
                     'expires_at' => now()->addDays(7)->format('d/m/Y'),
                     'payment_type' => 'installment',
+                    'gross_total_amount' => $grossTotalAmount,
+                    'discount_amount' => $discountAmount,
                     'total_amount' => $totalAmount,
                 ];
             } else {
@@ -1263,6 +1312,7 @@ class PreRegistrationAdminController extends Controller
                     'payer_name' => $pre->prenom . ' ' . $pre->nom,
                     'expires_at' => now()->addDays(7),
                     'payment_type' => 'full',
+                    'total_amount' => $totalAmount,
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
@@ -1275,6 +1325,8 @@ class PreRegistrationAdminController extends Controller
                     'payment_reference' => $paymentReference,
                     'expires_at' => now()->addDays(7)->format('d/m/Y'),
                     'payment_type' => 'full',
+                    'gross_total_amount' => $grossTotalAmount,
+                    'discount_amount' => $discountAmount,
                     'total_amount' => $totalAmount,
                 ];
             }
