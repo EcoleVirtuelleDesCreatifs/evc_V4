@@ -35,10 +35,13 @@
         <div class="alert-success"><i class="fas fa-check-circle"></i><div>{{ session('success') }}</div></div>
     @endif
 
+    <div id="saopAlreadySubmittedMessage" class="alert-success" style="display:none;"><i class="fas fa-check-circle"></i><div>Votre test d’éligibilité a déjà été soumis. Le formulaire n’est plus disponible.</div></div>
+
     @if($errors->any())
         <div class="alert-error"><i class="fas fa-exclamation-circle"></i><div><strong>Veuillez corriger :</strong><ul class="mb-0 mt-2">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div></div>
     @endif
 
+    @unless($alreadySubmitted)
     <div class="timer-bar">
         <div>
             <div class="timer-label">Temps imparti pour finaliser le test</div>
@@ -47,6 +50,14 @@
         <div id="saopTimer" class="timer-value">01:00:00</div>
     </div>
 
+    @endunless
+
+    @if($alreadySubmitted)
+        <article class="saop-card highlight">
+            <h3 class="saop-section-title"><i class="fas fa-check-circle"></i> Test déjà soumis</h3>
+            <p>Votre test d’éligibilité a bien été enregistré. Vous ne pouvez plus soumettre un nouveau formulaire depuis cette session.</p>
+        </article>
+    @else
     <article class="saop-card highlight">
         <h3 class="saop-section-title"><i class="fas fa-shield-halved"></i> Parcours officiel d'intégration et d'orientation</h3>
         <p>Le système EVC Admission et d'Orientation est le pilier de notre charte qualité. Il ne s'agit pas d'un simple test, mais d'un diagnostic obligatoire pour chaque futur étudiant.</p>
@@ -75,6 +86,7 @@
             <div class="progress-note">Après soumission, vos réponses seront disponibles dans le dashboard administrateur.</div>
         </article>
     </form>
+    @endif
 </div>
 @endsection
 
@@ -83,6 +95,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const limit = 3600;
     const storageKey = 'saop_test_started_at';
+    const submittedKey = 'saop_test_submitted';
     const startedInput = document.getElementById('startedAt');
     const timer = document.getElementById('saopTimer');
     const timerBar = timer ? timer.closest('.timer-bar') : null;
@@ -90,6 +103,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitBtn = document.getElementById('submitBtn');
     const autoSubmitInput = document.getElementById('autoSubmit');
     let isSubmitting = false;
+
+    if (localStorage.getItem(submittedKey) === '1') {
+        const message = document.getElementById('saopAlreadySubmittedMessage');
+        if (message) message.style.display = 'flex';
+        if (form) form.style.display = 'none';
+        if (timerBar) timerBar.style.display = 'none';
+        return;
+    }
     let startedAt = startedInput.value || localStorage.getItem(storageKey);
 
     if (!startedAt) {
@@ -124,6 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
     form.addEventListener('submit', function () {
         isSubmitting = true;
         localStorage.removeItem(storageKey);
+        localStorage.setItem(submittedKey, '1');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
     });

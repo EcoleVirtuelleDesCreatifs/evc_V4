@@ -21,10 +21,13 @@ class SaopEligibilityTestController extends Controller
         "Si votre profil est retenu, êtes-vous prêt à valider administrativement et financièrement votre inscription sous un délai de 72 heures pour bloquer votre place au sein de la cohorte ?",
     ];
 
-    public function index()
+    public function index(Request $request)
     {
         return response()
-            ->view('eligibilite.index', ['questions' => self::QUESTIONS])
+            ->view('eligibilite.index', [
+                'questions' => self::QUESTIONS,
+                'alreadySubmitted' => $request->session()->has('saop_test_submitted'),
+            ])
             ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
@@ -33,6 +36,12 @@ class SaopEligibilityTestController extends Controller
     public function store(Request $request)
     {
         $isAutoSubmit = $request->boolean('auto_submit');
+
+        if ($request->session()->has('saop_test_submitted')) {
+            return redirect()
+                ->route('eligibilite.saop')
+                ->with('success', 'Votre test d’éligibilité a déjà été soumis. Vous ne pouvez pas le soumettre une deuxième fois.');
+        }
 
         $validated = $request->validate([
             'full_name' => 'nullable|string|max:191',
@@ -64,7 +73,7 @@ class SaopEligibilityTestController extends Controller
             ];
         }
 
-        SaopEligibilityTest::create([
+        $test = SaopEligibilityTest::create([
             'full_name' => $validated['full_name'] ?? 'Candidat non renseigné',
             'email' => $validated['email'] ?? 'non-renseigne-' . now()->timestamp . '-' . uniqid() . '@saop.local',
             'whatsapp' => $validated['whatsapp'] ?? null,
@@ -77,6 +86,8 @@ class SaopEligibilityTestController extends Controller
             'ip_address' => $request->ip(),
             'user_agent' => (string) $request->userAgent(),
         ]);
+
+        $request->session()->put('saop_test_submitted', $test->id);
 
         return redirect()
             ->route('eligibilite.saop')
