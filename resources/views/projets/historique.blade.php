@@ -235,7 +235,7 @@
                                                     @endif
 
                                                     @if($canWithdrawAssigned)
-                                                        <form action="{{ route($todoRetirerRouteName, ['projectId' => $itemId]) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir retirer cette soumission ?');" style="display: inline;">
+                                                        <form action="{{ url('/evc/compte/design-graphique/todo/retirer/' . $itemId) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir retirer cette soumission ?');" style="display: inline;">
                                                             @csrf
                                                             <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 10px; font-weight: 800;">
                                                                 <i class="fas fa-undo me-1"></i>
