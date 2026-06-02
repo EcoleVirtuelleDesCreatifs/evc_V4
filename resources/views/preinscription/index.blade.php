@@ -80,99 +80,9 @@
         font-weight: 400;
     }
 
-    /* Stats */
-    .stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 20px;
-        margin-bottom: 60px;
-    }
-
-    .stat-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 24px;
-        text-align: center;
-        transition: all 0.3s;
-    }
-
-    .stat-card:hover {
-        border-color: var(--primary);
-        transform: translateY(-4px);
-    }
-
-    .stat-number {
-        font-size: 32px;
-        font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 8px;
-    }
-
-    .stat-label {
-        font-size: 14px;
-        color: var(--text-secondary);
-        font-weight: 500;
-    }
-
     /* Content Grid */
     .content-grid {
-        display: grid;
-        grid-template-columns: 280px 1fr;
-        gap: 50px;
-        align-items: start;
         max-width: 100%;
-    }
-
-    /* Sidebar */
-    .sidebar {
-        position: sticky;
-        top: 100px;
-    }
-
-    .info-box {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 24px;
-        margin-bottom: 20px;
-    }
-
-    .info-box h3 {
-        font-size: 16px;
-        font-weight: 600;
-        margin-bottom: 16px;
-        color: var(--text-primary);
-    }
-
-    .info-box ul {
-        list-style: none;
-    }
-
-    .info-box li {
-        font-size: 14px;
-        color: var(--text-secondary);
-        margin-bottom: 12px;
-        padding-left: 20px;
-        position: relative;
-    }
-
-    .info-box li:before {
-        content: "•";
-        position: absolute;
-        left: 0;
-        color: var(--primary);
-        font-weight: bold;
-    }
-
-    .contact-info {
-        font-size: 14px;
-        color: var(--text-secondary);
-        line-height: 1.8;
-    }
-
-    .contact-info strong {
-        color: var(--text-primary);
     }
 
     /* Form Card */
@@ -456,14 +366,6 @@
         .content-grid {
             grid-template-columns: 1fr;
         }
-
-        .sidebar {
-            position: static;
-        }
-
-        .stats {
-            grid-template-columns: repeat(2, 1fr);
-        }
     }
 
     @media (max-width: 768px) {
@@ -481,11 +383,6 @@
 
         .header p {
             font-size: 16px;
-        }
-
-        .stats {
-            grid-template-columns: 1fr;
-            gap: 12px;
         }
 
         .form-card {
@@ -513,101 +410,10 @@
             </div>
         </div>
 
-        <!-- Stats -->
-        <div class="row">
-            <div class="col-lg-10 offset-lg-1">
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-number">3</div>
-                        <div class="stat-label">Formations</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">Ultra-pratique</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">1000+</div>
-                        <div class="stat-label">Étudiants</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label">Accès</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Content -->
         <div class="row">
-            <div class="col-lg-10 offset-lg-1">
+            <div class="col-lg-8 offset-lg-2">
                 <div class="content-grid">
-                    <!-- Sidebar -->
-                    <aside class="sidebar">
-                        <div class="info-box" style="background: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(251, 140, 0, 0.05) 100%); border: 1px solid rgba(255, 152, 0, 0.3);">
-                            <h3 style="color: var(--primary); display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-money-bill-wave"></i> Tarifs & Modalités
-                            </h3>
-                            <div style="font-size: 13px; line-height: 1.8;">
-                                <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
-                                    <strong style="color: var(--primary);">Design Graphique</strong><br>
-                                    <span style="color: var(--text-secondary);">185.000 FCFA</span><br>
-                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
-                                </div>
-                                <div style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 152, 0, 0.2);">
-                                    <strong style="color: var(--primary);">Community Management</strong><br>
-                                    <span style="color: var(--text-secondary);">165.000 FCFA</span><br>
-                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
-                                </div>
-                                <div>
-                                    <strong style="color: var(--primary);">Gestion Informatique</strong><br>
-                                    <span style="color: var(--text-secondary);">150.000 FCFA</span><br>
-                                    <small style="color: var(--text-secondary);">Paiement en une ou plusieurs tranches</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="info-box">
-                            <h3>Conditions d'admissibilité</h3>
-                            <ul>
-                                <li>Avoir au minimum 16 ans</li>
-                                <li>Être passionné par le digital</li>
-                                <li>Disposer d'un ordinateur ou smartphone</li>
-                                <li>Avoir une connexion internet</li>
-                                <li>Être motivé et assidu</li>
-                            </ul>
-                        </div>
-
-                        <div class="info-box">
-                            <h3>Formations disponibles</h3>
-                            <ul>
-                                <li>Design Graphique</li>
-                                <li>Community Management</li>
-                                <li>Gestion Informatique</li>
-                            </ul>
-                        </div>
-
-                        <div class="info-box">
-                            <h3>Processus d'inscription</h3>
-                            <ul>
-                                <li>Remplissez le formulaire</li>
-                                <li>Validation (48h)</li>
-                                <li>Entretien de motivation</li>
-                                <li>Confirmation d'admission</li>
-                                <li>Début de la formation</li>
-                            </ul>
-                        </div>
-
-                        <div class="info-box">
-                            <h3>Contact</h3>
-                            <div class="contact-info">
-                                <strong>Email:</strong><br>
-                                info@ecolevirtuelledescreatifs.com<br><br>
-                                <strong>Téléphone:</strong><br>
-                                +225 07 47 25 95 07
-                            </div>
-                        </div>
-                    </aside>
-
                     <!-- Form -->
                     <div class="form-card">
                         <div class="form-header">
