@@ -1616,10 +1616,10 @@ class DashboardController extends Controller
                 }
             }
         } else if ($assignedProject) {
-            // Récupérer les fichiers du brief depuis project_images
-            $briefFiles = DB::table('project_images')
+            $projectFiles = DB::table('project_images')
                 ->where('project_id', $assignedProject->id)
                 ->orderBy('order_index', 'asc')
+                ->orderBy('created_at', 'asc')
                 ->get()
                 ->map(function ($file) {
                     $path = ltrim((string) $file->file_path, '/');
@@ -1631,7 +1631,37 @@ class DashboardController extends Controller
                     return $file;
                 });
 
-            $submittedFiles = $briefFiles;
+            $submittedFiles = $projectFiles->filter(function ($file) use ($assignedProject) {
+                return str_contains((string) ($file->file_path ?? ''), 'project_submissions/' . $assignedProject->id . '/');
+            })->values();
+
+            $briefFiles = $projectFiles->filter(function ($file) use ($assignedProject) {
+                return !str_contains((string) ($file->file_path ?? ''), 'project_submissions/' . $assignedProject->id . '/');
+            })->values();
+
+            if ($submittedFiles->isEmpty() && Schema::hasTable('design_projects') && Schema::hasTable('design_project_files')) {
+                $designProject = DB::table('design_projects')
+                    ->where('user_id', $user->id)
+                    ->where('title', $assignedProject->title)
+                    ->orderByDesc('created_at')
+                    ->first();
+
+                if ($designProject) {
+                    $submittedFiles = DB::table('design_project_files')
+                        ->where('project_id', $designProject->id)
+                        ->orderBy('created_at', 'asc')
+                        ->get()
+                        ->map(function ($file) {
+                            $path = ltrim((string) $file->file_path, '/');
+                            if (str_starts_with($path, 'storage/app/public/')) {
+                                $path = substr($path, strlen('storage/app/public/'));
+                            }
+                            $file->url = \App\Models\MediaUrl::fromPath($path);
+                            $file->name = $file->original_name ?? 'fichier';
+                            return $file;
+                        });
+                }
+            }
         }
 
         if (!$assignedProject) {
