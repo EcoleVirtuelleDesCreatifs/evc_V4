@@ -105,7 +105,7 @@
                             <div class="fw-bold text-warning">{{ number_format($discountAmount ?? 0, 0, ',', ' ') }} FCFA</div>
                         </div>
                         <div class="col-md-6">
-                            <form method="POST" action="{{ route('admin.preinscriptions.discount', $pre->id) }}" class="d-flex gap-2">
+                            <form method="POST" action="{{ url('/evc/app/admin/preinscriptions/' . $pre->id . '/discount') }}" class="d-flex gap-2">
                                 @csrf
                                 <input type="number" name="discount_amount" class="form-control" min="0" step="1" value="{{ old('discount_amount', $discountAmount ?? 0) }}" placeholder="Montant de la remise">
                                 <button type="submit" class="btn btn-warning">
