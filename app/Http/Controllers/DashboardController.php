@@ -108,17 +108,25 @@ class DashboardController extends Controller
             $limit = 20;
         }
 
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+        $formationSlug = $this->getFormationSlug($student);
         $unreadCount = $user->unreadNotifications()->count();
         $items = $user->notifications()
             ->orderByDesc('created_at')
             ->limit($limit)
             ->get()
-            ->map(function ($n) {
+            ->map(function ($n) use ($formationSlug) {
+                $data = is_array($n->data) ? $n->data : [];
+
+                if (($data['category'] ?? null) === 'project' && !empty($data['project_id'])) {
+                    $data['url'] = url('/evc/compte/' . $formationSlug . '/todo/traiter/' . $data['project_id']);
+                }
+
                 return [
                     'id' => $n->id,
                     'read_at' => optional($n->read_at)->toIso8601String(),
                     'created_at' => optional($n->created_at)->toIso8601String(),
-                    'data' => $n->data,
+                    'data' => $data,
                 ];
             });
 

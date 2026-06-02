@@ -990,7 +990,7 @@ class AdminDashboardController extends Controller
                     'project_id' => $newProject->id,
                     'project_title' => $newProject->title ?? null,
                     'created_at' => now()->toIso8601String(),
-                    'url' => url("/evc/compte/{$formationSlug}/projets"),
+                    'url' => url("/evc/compte/{$formationSlug}/todo/traiter/{$newProject->id}"),
                 ]));
             }
         } catch (\Exception $e) {
@@ -6501,7 +6501,7 @@ class AdminDashboardController extends Controller
                             $containsDesign = str_contains($prog, 'design');
                             $containsCommunity = str_contains($prog, 'community');
                             if ($containsDesign && $containsCommunity) {
-                                $formationSlug = 'design-graphique-community-manager';
+                                $formationSlug = 'design-graphique-cm';
                             } elseif ($containsCommunity) {
                                 $formationSlug = 'community-management';
                             } elseif (str_contains($prog, 'informatique')) {
@@ -6511,7 +6511,7 @@ class AdminDashboardController extends Controller
                             }
                         }
 
-                        $studentUrl = url("/evc/compte/{$formationSlug}/projets");
+                        $studentUrl = url("/evc/compte/{$formationSlug}/todo/traiter/{$projectId}");
 
                         $user->notify(new ProjectAssignedNotification([
                             'category' => 'project',

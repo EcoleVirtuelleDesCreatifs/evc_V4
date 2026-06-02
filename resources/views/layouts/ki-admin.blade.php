@@ -1350,24 +1350,7 @@
                         <div id="notificationsList" style="max-height: 360px; overflow:auto;"></div>
                         <div class="dropdown-divider"></div>
                         <div class="px-3 py-2 d-flex align-items-center justify-content-between">
-                            @php
-                                $userFormation = session('user_formation', '');
-                                $notifRoute = 'dashboard.notifications.index';
-
-                                // Détection de la formation pour les notifications
-                                if ($userFormation === 'design-graphique-cm') {
-                                    $notifRoute = 'design-graphique-cm.notifications.index';
-                                } elseif ($userFormation === 'community-management') {
-                                    $notifRoute = 'community-management.notifications.index';
-                                } elseif ($userFormation === 'gestion-informatique') {
-                                    $notifRoute = 'gestion-informatique.notifications.index';
-                                } elseif ($userFormation === 'intelligence-artificielle') {
-                                    $notifRoute = 'intelligence-artificielle.notifications.index';
-                                } elseif ($userFormation === 'design-graphique') {
-                                    $notifRoute = 'design-graphique.notifications.index';
-                                }
-                            @endphp
-                            <a href="{{ \Illuminate\Support\Facades\Route::has($notifRoute) ? route($notifRoute) : route($dashboardRoute) }}" class="btn btn-sm" style="background: #0d6efd; border-color: #0d6efd; color: #fff;">Voir toutes les notifications</a>
+                            <a href="{{ route('dashboard.notifications.index') }}" class="btn btn-sm" style="background: #0d6efd; border-color: #0d6efd; color: #fff;">Voir toutes les notifications</a>
                             <div class="small text-muted" id="notificationsFooter">Mise à jour…</div>
                         </div>
                     </div>
