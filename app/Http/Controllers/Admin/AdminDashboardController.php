@@ -5052,7 +5052,7 @@ class AdminDashboardController extends Controller
     {
         $studentsBase = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->leftJoin('pre_registrations', 'pre_registrations.email', '=', 'students.email')
+            ->leftJoin(DB::raw('(SELECT pr1.* FROM pre_registrations pr1 INNER JOIN (SELECT email, MAX(id) as id FROM pre_registrations GROUP BY email) pr2 ON pr1.id = pr2.id) as pre_registrations'), 'pre_registrations.email', '=', 'students.email')
             ->select(
                 'students.*',
                 'users.email as user_email',
@@ -5084,13 +5084,11 @@ class AdminDashboardController extends Controller
         $students = $studentsBase->map(function ($s) use ($paymentAgg) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
 
-            $totalAmount = (int) round((float) ($agg->total_amount ?? 0));
+            $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
-
-            if ($totalAmount <= 0) {
-                $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
-                $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
-            }
+            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
+            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
+            $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
 
@@ -5121,7 +5119,7 @@ class AdminDashboardController extends Controller
     {
         $studentsBase = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->leftJoin('pre_registrations', 'pre_registrations.email', '=', 'students.email')
+            ->leftJoin(DB::raw('(SELECT pr1.* FROM pre_registrations pr1 INNER JOIN (SELECT email, MAX(id) as id FROM pre_registrations GROUP BY email) pr2 ON pr1.id = pr2.id) as pre_registrations'), 'pre_registrations.email', '=', 'students.email')
             ->select(
                 'students.*',
                 'users.email as user_email',
@@ -5152,13 +5150,11 @@ class AdminDashboardController extends Controller
         $students = $studentsBase->map(function ($s) use ($paymentAgg) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
 
-            $totalAmount = (int) round((float) ($agg->total_amount ?? 0));
+            $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
-
-            if ($totalAmount <= 0) {
-                $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
-                $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
-            }
+            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
+            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
+            $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
 
@@ -5325,7 +5321,7 @@ class AdminDashboardController extends Controller
     {
         $studentsBase = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->leftJoin('pre_registrations', 'pre_registrations.email', '=', 'students.email')
+            ->leftJoin(DB::raw('(SELECT pr1.* FROM pre_registrations pr1 INNER JOIN (SELECT email, MAX(id) as id FROM pre_registrations GROUP BY email) pr2 ON pr1.id = pr2.id) as pre_registrations'), 'pre_registrations.email', '=', 'students.email')
             ->select(
                 'students.*',
                 'users.email as user_email',
@@ -5356,13 +5352,11 @@ class AdminDashboardController extends Controller
         $students = $studentsBase->map(function ($s) use ($paymentAgg) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
 
-            $totalAmount = (int) round((float) ($agg->total_amount ?? 0));
+            $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
-
-            if ($totalAmount <= 0) {
-                $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
-                $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
-            }
+            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
+            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
+            $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
 
