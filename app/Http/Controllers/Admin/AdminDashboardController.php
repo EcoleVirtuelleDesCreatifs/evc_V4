@@ -5213,7 +5213,9 @@ class AdminDashboardController extends Controller
 
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
 
-            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
+            $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
+            $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
+            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
             $totalAmount = max($paymentsTotal, $expectedTotal);
 

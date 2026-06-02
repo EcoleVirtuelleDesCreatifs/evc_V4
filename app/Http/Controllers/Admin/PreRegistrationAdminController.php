@@ -536,7 +536,9 @@ class PreRegistrationAdminController extends Controller
         }
 
         $formationName = $this->getFormationLabel($pre->choix_formation);
-        $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
+        $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
+        $pricingDate = $firstPaymentDate ?: ($pre->created_at ?? null);
+        $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pricingDate);
         $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
         $totalAmount = max($paymentsTotal, $expectedTotal);
 

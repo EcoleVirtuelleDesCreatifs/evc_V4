@@ -834,7 +834,9 @@ class StudentAdminController extends Controller
                 ->get();
 
             $formationName = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preRegistration->choix_formation ?? null);
-            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $preRegistration->created_at ?? null);
+            $firstPaymentDate = optional($paiements->sortBy('created_at')->first())->created_at;
+            $pricingDate = $firstPaymentDate ?: ($preRegistration->created_at ?? null);
+            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pricingDate);
             $paymentsTotal = (int) round((float) ($paiements->max('total_amount') ?? 0));
             $totalFactures = max($paymentsTotal, $expectedTotal);
 
