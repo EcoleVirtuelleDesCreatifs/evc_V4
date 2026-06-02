@@ -536,10 +536,9 @@ class PreRegistrationAdminController extends Controller
         }
 
         $formationName = $this->getFormationLabel($pre->choix_formation);
-        $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
-        if ($totalAmount <= 0) {
-            $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
-        }
+        $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
+        $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
+        $totalAmount = max($paymentsTotal, $expectedTotal);
 
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
         $remaining = max(0, $totalAmount - $amountPaid);

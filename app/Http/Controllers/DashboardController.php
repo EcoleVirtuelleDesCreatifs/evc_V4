@@ -5239,11 +5239,10 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'asc')
             ->get();
 
-        $totalAmount = (int) round((float) ($payments->max('total_amount') ?? 0));
-        if ($totalAmount <= 0) {
-            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
-            $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
-        }
+        $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
+        $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
+        $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
+        $totalAmount = max($paymentsTotal, $expectedTotal);
 
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
         $remaining = max(0, $totalAmount - $amountPaid);
@@ -5368,18 +5367,12 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Montant total : priorité à total_amount si présent, sinon somme des montants, sinon prix formation
-        $paymentsTotal = $payments->max('total_amount');
-        if (!empty($paymentsTotal)) {
-            $paymentAmount = (float) $paymentsTotal;
-        } else {
-            $sumAmounts = (float) $payments->sum('amount');
-            $paymentAmount = $sumAmounts > 0 ? $sumAmounts : 0;
-
-            if ($paymentAmount <= 0 && $formationLabel) {
-                $paymentAmount = (float) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
-            }
-        }
+        $expectedAmount = $formationLabel
+            ? (float) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null)
+            : 0;
+        $paymentsTotal = (float) ($payments->max('total_amount') ?? 0);
+        $sumAmounts = (float) $payments->sum('amount');
+        $paymentAmount = max($paymentsTotal, $expectedAmount, $sumAmounts);
 
         $paymentPaid = (float) $payments->where('status', 'completed')->sum('amount');
         $paymentRemaining = max(0, (float) $paymentAmount - (float) $paymentPaid);
@@ -5465,12 +5458,9 @@ class DashboardController extends Controller
                 ->get();
 
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
-            $paymentAmount = \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
-
-            $paymentsTotal = $payments->max('total_amount');
-            if (!empty($paymentsTotal)) {
-                $paymentAmount = (int) $paymentsTotal;
-            }
+            $expectedAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
+            $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
+            $paymentAmount = max($paymentsTotal, $expectedAmount);
 
             $paymentPaid = $payments->where('status', 'completed')->sum('amount');
             $paymentRemaining = $paymentAmount - $paymentPaid;
