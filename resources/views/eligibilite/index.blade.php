@@ -42,7 +42,7 @@
     <div class="timer-bar">
         <div>
             <div class="timer-label">Temps imparti pour finaliser le test</div>
-            <div class="helper-text">Le formulaire sera bloqué automatiquement à la fin du délai.</div>
+            <div class="helper-text">À la fin du délai, les réponses déjà saisies seront enregistrées automatiquement.</div>
         </div>
         <div id="saopTimer" class="timer-value">01:00:00</div>
     </div>
@@ -55,6 +55,7 @@
     <form id="saopForm" action="{{ route('eligibilite.saop.store') }}" method="POST">
         @csrf
         <input type="hidden" name="started_at" id="startedAt" value="{{ old('started_at') }}">
+        <input type="hidden" name="auto_submit" id="autoSubmit" value="0">
 
         <article class="saop-card">
             <h3 class="saop-section-title"><i class="fas fa-user"></i> Informations du candidat</h3>
@@ -115,6 +116,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const timer = document.getElementById('saopTimer');
     const form = document.getElementById('saopForm');
     const submitBtn = document.getElementById('submitBtn');
+    const autoSubmitInput = document.getElementById('autoSubmit');
+    let isSubmitting = false;
     let startedAt = startedInput.value || localStorage.getItem(storageKey);
 
     if (!startedAt) {
@@ -132,15 +135,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const s = remaining % 60;
         timer.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
         if (remaining <= 300) timer.classList.add('timer-warning');
-        if (remaining <= 0) {
+        if (remaining <= 0 && !isSubmitting) {
+            isSubmitting = true;
+            autoSubmitInput.value = '1';
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-clock"></i> Temps écoulé';
-            form.querySelectorAll('input, select, textarea').forEach(el => { if (el.name !== '_token') el.disabled = true; });
+            submitBtn.innerHTML = '<i class="fas fa-clock"></i> Temps écoulé - enregistrement...';
+            form.querySelectorAll('textarea[required]').forEach(el => el.removeAttribute('required'));
+            form.submit();
             clearInterval(interval);
         }
     }
 
     form.addEventListener('submit', function () {
+        isSubmitting = true;
         localStorage.removeItem(storageKey);
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';

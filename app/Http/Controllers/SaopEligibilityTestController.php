@@ -32,30 +32,35 @@ class SaopEligibilityTestController extends Controller
 
     public function store(Request $request)
     {
+        $isAutoSubmit = $request->boolean('auto_submit');
+
         $validated = $request->validate([
             'full_name' => 'required|string|max:191',
             'email' => 'required|email|max:191',
             'whatsapp' => 'nullable|string|max:50',
             'formation' => 'nullable|string|max:100',
             'started_at' => 'required|date',
-            'answers' => 'required|array|size:10',
-            'answers.*' => 'required|string|min:10|max:5000',
+            'auto_submit' => 'nullable|boolean',
+            'answers' => $isAutoSubmit ? 'nullable|array|max:10' : 'required|array|size:10',
+            'answers.*' => $isAutoSubmit ? 'nullable|string|max:5000' : 'required|string|min:10|max:5000',
         ]);
 
         $startedAt = Carbon::parse($validated['started_at']);
         $durationSeconds = max(0, $startedAt->diffInSeconds(now()));
 
-        if ($durationSeconds > 3600) {
+        if ($durationSeconds > 3600 && !$isAutoSubmit) {
             return back()
                 ->withInput()
                 ->withErrors(['time' => 'Le délai imparti de 1h est dépassé. Veuillez recommencer le test.']);
         }
 
+        $durationSeconds = min($durationSeconds, 3600);
+
         $answers = [];
         foreach (self::QUESTIONS as $index => $question) {
             $answers[] = [
                 'question' => $question,
-                'answer' => $validated['answers'][$index] ?? '',
+                'answer' => trim((string) ($validated['answers'][$index] ?? '')),
             ];
         }
 
@@ -68,13 +73,15 @@ class SaopEligibilityTestController extends Controller
             'duration_seconds' => $durationSeconds,
             'started_at' => $startedAt,
             'submitted_at' => now(),
-            'status' => 'submitted',
+            'status' => $isAutoSubmit ? 'auto_submitted' : 'submitted',
             'ip_address' => $request->ip(),
             'user_agent' => (string) $request->userAgent(),
         ]);
 
         return redirect()
             ->route('eligibilite.saop')
-            ->with('success', 'Votre test d’éligibilité a été soumis avec succès. Notre équipe pédagogique analysera vos réponses.');
+            ->with('success', $isAutoSubmit
+                ? 'Le temps est écoulé. Vos informations et réponses saisies ont été enregistrées automatiquement.'
+                : 'Votre test d’éligibilité a été soumis avec succès. Notre équipe pédagogique analysera vos réponses.');
     }
 }

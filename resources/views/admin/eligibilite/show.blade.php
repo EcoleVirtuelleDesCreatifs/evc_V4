@@ -20,6 +20,7 @@
                 <div class="col-md-3"><div class="text-muted small">WhatsApp</div><strong>{{ $test->whatsapp ?: '—' }}</strong></div>
                 <div class="col-md-3"><div class="text-muted small">Formation</div><strong>{{ $test->formation ? ucwords(str_replace('_', ' ', $test->formation)) : '—' }}</strong></div>
                 <div class="col-md-3"><div class="text-muted small">Durée</div><strong>{{ gmdate('H\hi\ms\s', (int) $test->duration_seconds) }}</strong></div>
+                <div class="col-md-3"><div class="text-muted small">Statut</div><strong>{{ $test->status === 'auto_submitted' ? 'Enregistré automatiquement' : 'Soumis par le candidat' }}</strong></div>
                 <div class="col-md-3"><div class="text-muted small">IP</div><strong>{{ $test->ip_address ?: '—' }}</strong></div>
             </div>
         </div>

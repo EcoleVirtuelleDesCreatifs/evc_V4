@@ -39,6 +39,7 @@
                         <th>Candidat</th>
                         <th>Formation</th>
                         <th>Durée</th>
+                        <th>Statut</th>
                         <th>Date</th>
                         <th class="text-end">Action</th>
                     </tr>
@@ -49,11 +50,18 @@
                             <td><strong>{{ $test->full_name }}</strong><br><span class="text-muted small">{{ $test->email }} @if($test->whatsapp) · {{ $test->whatsapp }} @endif</span></td>
                             <td>{{ $test->formation ? ucwords(str_replace('_', ' ', $test->formation)) : '—' }}</td>
                             <td>{{ gmdate('H\hi\ms\s', (int) $test->duration_seconds) }}</td>
+                            <td>
+                                @if($test->status === 'auto_submitted')
+                                    <span class="badge bg-warning text-dark">Auto</span>
+                                @else
+                                    <span class="badge bg-success">Soumis</span>
+                                @endif
+                            </td>
                             <td>{{ optional($test->submitted_at)->format('d/m/Y H:i') }}</td>
                             <td class="text-end"><a href="{{ route('admin.eligibilite.show', $test) }}" class="btn btn-sm btn-primary" style="border-radius:10px;"><i class="fas fa-eye me-1"></i>Voir</a></td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center text-muted py-5">Aucun test soumis pour le moment.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-5">Aucun test soumis pour le moment.</td></tr>
                     @endforelse
                 </tbody>
             </table>
