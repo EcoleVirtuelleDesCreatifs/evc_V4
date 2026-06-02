@@ -5073,6 +5073,7 @@ class AdminDashboardController extends Controller
                     'pre_registration_id',
                     DB::raw("COALESCE(MAX(total_amount), 0) as total_amount"),
                     DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid"),
+                    DB::raw("MIN(created_at) as first_payment_date"),
                     DB::raw("SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_count")
                 )
                 ->whereIn('pre_registration_id', $preRegIds)
@@ -5087,7 +5088,8 @@ class AdminDashboardController extends Controller
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
-            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
+            $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
+            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
@@ -5139,7 +5141,8 @@ class AdminDashboardController extends Controller
                 ->select(
                     'pre_registration_id',
                     DB::raw("COALESCE(MAX(total_amount), 0) as total_amount"),
-                    DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid")
+                    DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid"),
+                    DB::raw("MIN(created_at) as first_payment_date")
                 )
                 ->whereIn('pre_registration_id', $preRegIds)
                 ->groupBy('pre_registration_id')
@@ -5153,7 +5156,8 @@ class AdminDashboardController extends Controller
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
-            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
+            $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
+            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
@@ -5341,7 +5345,8 @@ class AdminDashboardController extends Controller
                 ->select(
                     'pre_registration_id',
                     DB::raw("COALESCE(MAX(total_amount), 0) as total_amount"),
-                    DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid")
+                    DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid"),
+                    DB::raw("MIN(created_at) as first_payment_date")
                 )
                 ->whereIn('pre_registration_id', $preRegIds)
                 ->groupBy('pre_registration_id')
@@ -5355,7 +5360,8 @@ class AdminDashboardController extends Controller
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
-            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $s->pre_registered_at ?? $s->created_at ?? null);
+            $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
+            $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
