@@ -11,12 +11,14 @@ use App\Http\Controllers\Admin\AdminStatisticsController;
 use App\Http\Controllers\Admin\PreRegistrationAdminController;
 use App\Http\Controllers\Admin\CVThequeAdminController;
 use App\Http\Controllers\Admin\DonationAdminController;
+use App\Http\Controllers\Admin\SaopEligibilityTestAdminController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\Api\ProjectApiController;
 use App\Http\Controllers\AdminStatisticsDetailController;
 use App\Http\Controllers\StudentConfirmationController;
 use App\Http\Controllers\DonationController;
+use App\Http\Controllers\SaopEligibilityTestController;
 use App\Http\Controllers\StudentIdVerificationController;
 use App\Http\Controllers\ActivityReportPublicController;
 use App\Http\Controllers\PartnershipController;
@@ -58,13 +60,8 @@ Route::get('/preinscription', function () {
         ->header('Pragma', 'no-cache')
         ->header('Expires', '0');
 })->name('preinscription.start');
-Route::get('/test-eligibilite-saop', function () {
-    return response()
-        ->view('eligibilite.index')
-        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-        ->header('Pragma', 'no-cache')
-        ->header('Expires', '0');
-})->name('eligibilite.saop');
+Route::get('/test-eligibilite-saop', [SaopEligibilityTestController::class, 'index'])->name('eligibilite.saop');
+Route::post('/test-eligibilite-saop', [SaopEligibilityTestController::class, 'store'])->name('eligibilite.saop.store');
 Route::post('/pre-registration', [HomepageController::class, 'store'])->name('pre-registration.store');
 Route::post('/candidature', [HomepageController::class, 'candidatureStore'])->name('candidature.store');
 
@@ -1054,6 +1051,9 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/projects/view/{id}', [AdminDashboardController::class, 'viewProject'])->name('projects.view');
 
         // Pré-inscriptions - Liste & Export
+        Route::get('/tests-eligibilite-saop', [SaopEligibilityTestAdminController::class, 'index'])->name('eligibilite.index');
+        Route::get('/tests-eligibilite-saop/{test}', [SaopEligibilityTestAdminController::class, 'show'])->name('eligibilite.show');
+
         Route::get('/preinscriptions', [PreRegistrationAdminController::class, 'index'])->name('preinscriptions.index');
         Route::get('/preinscriptions/pending', [PreRegistrationAdminController::class, 'pending'])->name('preinscriptions.pending');
         Route::get('/preinscriptions/accepted', [PreRegistrationAdminController::class, 'accepted'])->name('preinscriptions.accepted');

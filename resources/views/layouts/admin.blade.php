@@ -58,18 +58,21 @@
 
                     <!-- Pré-inscriptions -->
                     <li class="admin-nav-item dropdown">
-                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.preinscriptions.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#preinscriptionsMenu">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ (request()->routeIs('admin.preinscriptions.*') || request()->routeIs('admin.eligibilite.*')) ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#preinscriptionsMenu">
                             <i class="fas fa-user-plus"></i>
                             Pré-inscriptions
                             <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
-                        <div class="collapse {{ request()->routeIs('admin.preinscriptions.*') ? 'show' : '' }}" id="preinscriptionsMenu">
+                        <div class="collapse {{ (request()->routeIs('admin.preinscriptions.*') || request()->routeIs('admin.eligibilite.*')) ? 'show' : '' }}" id="preinscriptionsMenu">
                             <ul class="admin-nav-submenu">
                                 <li><a href="{{ route('admin.preinscriptions.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.preinscriptions.index') ? 'active' : '' }}">
                                     <i class="fas fa-list"></i>Candidatures
                                 </a></li>
                                 <li><a href="{{ route('admin.preinscriptions.eligibles') }}" class="admin-nav-sublink {{ request()->routeIs('admin.preinscriptions.eligibles') ? 'active' : '' }}">
                                     <i class="fas fa-user-check"></i>Éligibles
+                                </a></li>
+                                <li><a href="{{ route('admin.eligibilite.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.eligibilite.*') ? 'active' : '' }}">
+                                    <i class="fas fa-clipboard-check"></i>Tests SAOP
                                 </a></li>
                             </ul>
                         </div>
