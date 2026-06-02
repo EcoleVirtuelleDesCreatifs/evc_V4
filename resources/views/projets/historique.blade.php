@@ -221,7 +221,7 @@
 
                                                 <div class="d-flex flex-wrap gap-2">
                                                     @if($canShow)
-                                                        <a href="{{ route($todoTraiterRouteName, ['projectId' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
+                                                        <a href="{{ url('/evc/compte/design-graphique/todo/traiter/' . $itemId) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
                                                             <i class="fas fa-eye me-1"></i>
                                                             Voir
                                                         </a>

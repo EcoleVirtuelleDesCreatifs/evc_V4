@@ -136,9 +136,10 @@ class CheckFormationAccess
 
             $isHybridFormationAllowed = $userFormation === 'design-graphique-cm'
                 && in_array($requestedFormation, ['design-graphique', 'community-management'], true);
+            $isTodoTraiterRoute = preg_match('#^evc/compte/[^/]+/todo/traiter/[^/]+#', $path) === 1;
 
             // Vérifier si l'utilisateur essaie d'accéder à un autre module
-            if ($requestedFormation !== $userFormation && !$isHybridFormationAllowed) {
+            if ($requestedFormation !== $userFormation && !$isHybridFormationAllowed && !$isTodoTraiterRoute) {
                 // Rediriger vers son propre module avec un message d'erreur
                 $dashboardRoute = 'dashboard.' . $userFormation;
 
