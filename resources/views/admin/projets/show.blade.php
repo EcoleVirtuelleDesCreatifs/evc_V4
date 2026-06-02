@@ -408,102 +408,6 @@
     <div class="row">
         <!-- Colonne principale -->
         <div class="col-lg-8">
-            <!-- Informations du Projet -->
-            <div class="info-card">
-                <div class="card-header-custom">
-                    <div class="icon">📋</div>
-                    <h3>Détails du Projet</h3>
-                </div>
-
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">
-                            <i class="fas fa-calendar-alt"></i>
-                            Date de création
-                        </div>
-                        <div class="info-value">
-                            {{ \Carbon\Carbon::parse($tp->created_at)->format('d/m/Y à H:i') }}
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <i class="fas fa-clock"></i>
-                            Dernière modification
-                        </div>
-                        <div class="info-value">
-                            {{ \Carbon\Carbon::parse($tp->updated_at)->format('d/m/Y à H:i') }}
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <i class="fas fa-hourglass-end"></i>
-                            Délai attendu
-                        </div>
-                        <div class="info-value">
-                            @if(!empty($tp->deadline))
-                                {{ \Carbon\Carbon::parse($tp->deadline)->format('d/m/Y à H:i') }}
-                            @else
-                                Non spécifié
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <i class="fas fa-tag"></i>
-                            Catégorie
-                        </div>
-                        <div class="info-value">
-                            {{ $tp->category ?? 'Non spécifiée' }}
-                        </div>
-                    </div>
-
-                    <div class="info-item">
-                        <div class="info-label">
-                            <i class="fas fa-graduation-cap"></i>
-                            Formation
-                        </div>
-                        <div class="info-value">
-                            {{ $tp->formation }}
-                        </div>
-                    </div>
-                </div>
-
-                <h4 class="mb-3" style="color: var(--admin-blue-dark);">
-                    <i class="fas fa-align-left me-2"></i>Description du Projet
-                </h4>
-                <div class="description-box">
-                    {!! $tp->description !!}
-                </div>
-
-                @if($assignmentFiles && $assignmentFiles->count() > 0)
-                <h4 class="mt-4 mb-3" style="color: var(--admin-blue-dark);">
-                    <i class="fas fa-paperclip me-2"></i>Fichiers joints par l'admin ({{ $assignmentFiles->count() }})
-                </h4>
-                <div class="file-list">
-                    @foreach($assignmentFiles as $file)
-                        @php
-                            $fileUrl = \App\Models\MediaUrl::fromPath($file->file_path ?? null);
-                        @endphp
-                        <div class="file-item">
-                            <div class="file-icon">
-                                <i class="fas fa-file"></i>
-                            </div>
-                            <div class="file-info">
-                                <div class="file-name" title="{{ $file->file_name }}">{{ $file->file_name }}</div>
-                                <div class="file-size">{{ $file->file_size ? number_format($file->file_size / 1024, 2) . ' KB' : 'N/A' }}</div>
-                            </div>
-                            <a href="{{ $fileUrl }}" target="_blank" class="btn-download">
-                                <i class="fas fa-download"></i>
-                            </a>
-                        </div>
-                    @endforeach
-                </div>
-                @endif
-            </div>
-
             <!-- Fichiers soumis par l'étudiant -->
             <div class="info-card">
                 <div class="card-header-custom">
@@ -524,11 +428,6 @@
                     @endif
                 </div>
 
-                @if(!empty($tp->description))
-                    <div class="description-box mb-3">
-                        {!! $tp->description !!}
-                    </div>
-                @endif
 
                 @if($submittedFiles && $submittedFiles->count() > 0)
                     <div class="file-list">
