@@ -5249,9 +5249,13 @@ class DashboardController extends Controller
             ->get();
 
         $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
-        $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
+        $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
+        $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
+        $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
+        $discountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
+        $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
         $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
-        $totalAmount = max($paymentsTotal, $expectedTotal);
+        $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
 
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
         $remaining = max(0, $totalAmount - $amountPaid);
@@ -5334,6 +5338,8 @@ class DashboardController extends Controller
             'student_id' => $studentIdLabel,
             'registration_date' => $registrationDate,
             'payment_reference' => $primaryRef,
+            'gross_total_amount' => $grossTotalAmount,
+            'discount_amount' => $discountAmount,
             'total_amount' => $totalAmount,
             'amount_paid' => $amountPaid,
             'remaining' => $remaining,

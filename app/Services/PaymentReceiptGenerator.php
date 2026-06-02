@@ -79,6 +79,9 @@ class PaymentReceiptGenerator
             $studentId = (string) ($data['student_id'] ?? '');
             $registrationDate = (string) ($data['registration_date'] ?? '');
 
+            $grossTotalAmount = $this->money($data['gross_total_amount'] ?? ($data['total_amount'] ?? 0));
+            $discountAmountRaw = (float) ($data['discount_amount'] ?? 0);
+            $discountAmount = $this->money($discountAmountRaw);
             $totalAmount = $this->money($data['total_amount'] ?? 0);
             $amountPaid = $this->money($data['amount_paid'] ?? 0);
             $remaining = $this->money($data['remaining'] ?? 0);
@@ -108,7 +111,7 @@ class PaymentReceiptGenerator
             $pdf->SetDrawColor(200, 200, 200);
             $pdf->SetLineWidth(0.2);
             $pdf->SetFillColor(255, 255, 255);
-            $pdf->Rect($boxX, $boxY, $boxW, 44, 'D');
+            $pdf->Rect($boxX, $boxY, $boxW, $discountAmountRaw > 0 ? 50 : 44, 'D');
 
             $leftX = $boxX + 4;
             $rightX = $boxX + ($boxW / 2) + 2;
@@ -164,7 +167,7 @@ class PaymentReceiptGenerator
             $pdf->Cell(45, $lineH, $this->toLatin('Coût formation'), 0, 0, 'L');
             $pdf->SetFont('Helvetica', 'B', 10);
             $pdf->SetXY($leftX + 28, $y);
-            $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($totalAmount), 0, 0, 'L');
+            $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin($grossTotalAmount), 0, 0, 'L');
 
             $pdf->SetFont('Helvetica', 'B', 10);
             $pdf->SetXY($rightX, $y);
@@ -172,6 +175,25 @@ class PaymentReceiptGenerator
             $pdf->SetFont('Helvetica', 'B', 10);
             $pdf->SetXY($rightX + 28, $y);
             $pdf->Cell(($boxW / 2) - 32, $lineH, $this->toLatin($amountPaid), 0, 0, 'L');
+
+            if ($discountAmountRaw > 0) {
+                $y += $lineH;
+                $pdf->SetFont('Helvetica', 'B', 10);
+                $pdf->SetXY($leftX, $y);
+                $pdf->Cell(45, $lineH, $this->toLatin('Remise'), 0, 0, 'L');
+                $pdf->SetFont('Helvetica', 'B', 10);
+                $pdf->SetTextColor(0, 130, 70);
+                $pdf->SetXY($leftX + 28, $y);
+                $pdf->Cell(($boxW / 2) - 28, $lineH, $this->toLatin('- ' . $discountAmount), 0, 0, 'L');
+                $pdf->SetTextColor(0, 0, 0);
+
+                $pdf->SetFont('Helvetica', 'B', 10);
+                $pdf->SetXY($rightX, $y);
+                $pdf->Cell(45, $lineH, $this->toLatin('Total dû'), 0, 0, 'L');
+                $pdf->SetFont('Helvetica', 'B', 10);
+                $pdf->SetXY($rightX + 28, $y);
+                $pdf->Cell(($boxW / 2) - 32, $lineH, $this->toLatin($totalAmount), 0, 0, 'L');
+            }
 
             $y += $lineH;
             $pdf->SetFont('Helvetica', 'B', 10);
@@ -256,8 +278,23 @@ class PaymentReceiptGenerator
 
             $pdf->SetFont('Helvetica', '', 9);
             $pdf->SetXY($totalsX, $totalsY + $lineH);
-            $pdf->Cell(45, $lineH, $this->toLatin('Total dû'), 1, 0, 'L');
-            $pdf->Cell($totalsW - 45, $lineH, $this->toLatin($totalAmount), 1, 1, 'R');
+            if ($discountAmountRaw > 0) {
+                $pdf->Cell(45, $lineH, $this->toLatin('Coût formation'), 1, 0, 'L');
+                $pdf->Cell($totalsW - 45, $lineH, $this->toLatin($grossTotalAmount), 1, 1, 'R');
+
+                $pdf->SetX($totalsX);
+                $pdf->Cell(45, $lineH, $this->toLatin('Remise'), 1, 0, 'L');
+                $pdf->SetTextColor(0, 130, 70);
+                $pdf->Cell($totalsW - 45, $lineH, $this->toLatin('- ' . $discountAmount), 1, 1, 'R');
+                $pdf->SetTextColor(0, 0, 0);
+
+                $pdf->SetX($totalsX);
+                $pdf->Cell(45, $lineH, $this->toLatin('Total dû'), 1, 0, 'L');
+                $pdf->Cell($totalsW - 45, $lineH, $this->toLatin($totalAmount), 1, 1, 'R');
+            } else {
+                $pdf->Cell(45, $lineH, $this->toLatin('Total dû'), 1, 0, 'L');
+                $pdf->Cell($totalsW - 45, $lineH, $this->toLatin($totalAmount), 1, 1, 'R');
+            }
 
             $pdf->SetX($totalsX);
             $pdf->Cell(45, $lineH, $this->toLatin('Total payé'), 1, 0, 'L');
@@ -310,7 +347,13 @@ class PaymentReceiptGenerator
             $pdf->Cell(0, 6, $this->toLatin('Récapitulatif'), 0, 1, 'L');
 
             $pdf->SetFont('Helvetica', '', 10);
-            $pdf->Cell(0, 5, $this->toLatin('Montant total : ') . $this->toLatin($this->money($data['total_amount'] ?? 0)), 0, 1, 'L');
+            if ((float) ($data['discount_amount'] ?? 0) > 0) {
+                $pdf->Cell(0, 5, $this->toLatin('Coût formation : ') . $this->toLatin($this->money($data['gross_total_amount'] ?? ($data['total_amount'] ?? 0))), 0, 1, 'L');
+                $pdf->Cell(0, 5, $this->toLatin('Remise : - ') . $this->toLatin($this->money($data['discount_amount'] ?? 0)), 0, 1, 'L');
+                $pdf->Cell(0, 5, $this->toLatin('Total dû après remise : ') . $this->toLatin($this->money($data['total_amount'] ?? 0)), 0, 1, 'L');
+            } else {
+                $pdf->Cell(0, 5, $this->toLatin('Montant total : ') . $this->toLatin($this->money($data['total_amount'] ?? 0)), 0, 1, 'L');
+            }
             $pdf->Cell(0, 5, $this->toLatin('Montant payé : ') . $this->toLatin($this->money($data['amount_paid'] ?? 0)), 0, 1, 'L');
             $pdf->Cell(0, 5, $this->toLatin('Reste à payer : ') . $this->toLatin($this->money($data['remaining'] ?? 0)), 0, 1, 'L');
 
