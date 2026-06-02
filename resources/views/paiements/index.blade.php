@@ -71,6 +71,14 @@
                             <strong>{{ number_format($paymentPaid, 0, ',', ' ') }} / {{ number_format($paymentAmount, 0, ',', ' ') }} FCFA</strong>
                         </div>
                     </div>
+                    @if(($discountAmount ?? 0) > 0)
+                        <div class="alert alert-success mt-3 mb-0">
+                            <i class="fas fa-tags me-2"></i>
+                            Remise appliquée : <strong>{{ number_format($discountAmount, 0, ',', ' ') }} FCFA</strong>
+                            sur {{ number_format($grossPaymentAmount ?? $paymentAmount, 0, ',', ' ') }} FCFA.
+                            Nouveau total : <strong>{{ number_format($paymentAmount, 0, ',', ' ') }} FCFA</strong>.
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
