@@ -35,8 +35,8 @@ class SaopEligibilityTestController extends Controller
         $isAutoSubmit = $request->boolean('auto_submit');
 
         $validated = $request->validate([
-            'full_name' => 'required|string|max:191',
-            'email' => 'required|email|max:191',
+            'full_name' => 'nullable|string|max:191',
+            'email' => 'nullable|email|max:191',
             'whatsapp' => 'nullable|string|max:50',
             'formation' => 'nullable|string|max:100',
             'started_at' => 'required|date',
@@ -65,8 +65,8 @@ class SaopEligibilityTestController extends Controller
         }
 
         SaopEligibilityTest::create([
-            'full_name' => $validated['full_name'],
-            'email' => $validated['email'],
+            'full_name' => $validated['full_name'] ?? 'Candidat non renseigné',
+            'email' => $validated['email'] ?? 'non-renseigne-' . now()->timestamp . '-' . uniqid() . '@saop.local',
             'whatsapp' => $validated['whatsapp'] ?? null,
             'formation' => $validated['formation'] ?? null,
             'answers' => $answers,
