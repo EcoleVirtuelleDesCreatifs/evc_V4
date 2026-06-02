@@ -6336,9 +6336,10 @@ class AdminDashboardController extends Controller
                 ->with('error', 'Projet non trouvé');
         }
 
-        // Récupérer les images du projet
+        // Récupérer uniquement les fichiers/images publiés par l'étudiant
         $submittedFiles = DB::table('project_images')
             ->where('project_id', $id)
+            ->where('file_path', 'like', 'project_submissions/' . $id . '/%')
             ->select(
                 'id',
                 'file_path',

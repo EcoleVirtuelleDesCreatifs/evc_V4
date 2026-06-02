@@ -438,6 +438,20 @@
 
                     <div class="info-item">
                         <div class="info-label">
+                            <i class="fas fa-hourglass-end"></i>
+                            Délai attendu
+                        </div>
+                        <div class="info-value">
+                            @if(!empty($tp->deadline))
+                                {{ \Carbon\Carbon::parse($tp->deadline)->format('d/m/Y à H:i') }}
+                            @else
+                                Non spécifié
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
                             <i class="fas fa-tag"></i>
                             Catégorie
                         </div>
