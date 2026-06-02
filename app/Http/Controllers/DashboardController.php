@@ -1573,6 +1573,7 @@ class DashboardController extends Controller
             ->first();
 
         $briefFiles = collect([]);
+        $submittedFiles = collect([]);
         $isTpAssignment = false;
 
         // Si pas trouvé dans projects, chercher dans tp_assignments
@@ -1597,6 +1598,22 @@ class DashboardController extends Controller
                         $file->name = $file->file_name ?? 'fichier';
                         return $file;
                     });
+
+                if (Schema::hasTable('tp_submission_files')) {
+                    $submittedFiles = DB::table('tp_submission_files')
+                        ->where('tp_assignment_id', $assignedProject->id)
+                        ->orderBy('created_at', 'desc')
+                        ->get()
+                        ->map(function ($file) {
+                            $path = ltrim((string) $file->file_path, '/');
+                            if (str_starts_with($path, 'storage/app/public/')) {
+                                $path = substr($path, strlen('storage/app/public/'));
+                            }
+                            $file->url = \App\Models\MediaUrl::fromPath($path);
+                            $file->name = $file->file_name ?? 'fichier';
+                            return $file;
+                        });
+                }
             }
         } else if ($assignedProject) {
             // Récupérer les fichiers du brief depuis project_images
@@ -1613,12 +1630,15 @@ class DashboardController extends Controller
                     $file->name = $file->original_name ?? $file->filename ?? 'fichier';
                     return $file;
                 });
+
+            $submittedFiles = $briefFiles;
         }
 
         if (!$assignedProject) {
             return view('todo.traiter', [
                 'assignedProject' => null,
                 'briefFiles' => collect([]),
+                'submittedFiles' => collect([]),
                 'error' => 'Projet non trouvé ou non autorisé.',
                 'formationPrefix' => $formationPrefix,
             ]);
@@ -1627,6 +1647,7 @@ class DashboardController extends Controller
         return view('todo.traiter', [
             'assignedProject' => $assignedProject,
             'briefFiles' => $briefFiles,
+            'submittedFiles' => $submittedFiles,
             'formationPrefix' => $formationPrefix,
             'isTpAssignment' => $isTpAssignment,
         ]);
@@ -1665,6 +1686,8 @@ class DashboardController extends Controller
             'links.*' => 'nullable|url|max:2000',
             'files' => 'nullable|array',
             'files.*' => 'file|max:10240|mimetypes:image/jpeg,image/jpg,image/png,image/gif,image/webp,application/pdf',
+            'remove_file_ids' => 'nullable|array',
+            'remove_file_ids.*' => 'integer',
         ]);
 
         $projectLink = trim((string) ($validated['project_link'] ?? ''));
@@ -1677,6 +1700,11 @@ class DashboardController extends Controller
             }
         }
         $hasFiles = $request->hasFile('files') && is_array($request->file('files')) && count($request->file('files')) > 0;
+        $removeFileIds = collect($request->input('remove_file_ids', []))
+            ->map(fn($id) => (int) $id)
+            ->filter(fn($id) => $id > 0)
+            ->unique()
+            ->values();
 
         $tpLinkColumn = null;
         try {
@@ -1704,9 +1732,22 @@ class DashboardController extends Controller
             $projectLinkColumn = null;
         }
 
-        if (!$hasFiles && $projectLink === '') {
+        $existingFilesCount = 0;
+        if ($isTpAssignment && Schema::hasTable('tp_submission_files')) {
+            $existingFilesCount = DB::table('tp_submission_files')
+                ->where('tp_assignment_id', $projectId)
+                ->whereNotIn('id', $removeFileIds->all())
+                ->count();
+        } elseif (!$isTpAssignment && Schema::hasTable('project_images')) {
+            $existingFilesCount = DB::table('project_images')
+                ->where('project_id', $assignedProject->id)
+                ->whereNotIn('id', $removeFileIds->all())
+                ->count();
+        }
+
+        if (!$hasFiles && $projectLink === '' && $existingFilesCount <= 0) {
             return redirect()->back()
-                ->withErrors(['files' => 'Veuillez ajouter au moins un fichier OU un lien du projet.'])
+                ->withErrors(['files' => 'Veuillez conserver ou ajouter au moins un fichier OU un lien du projet.'])
                 ->withInput();
         }
 
@@ -1716,6 +1757,22 @@ class DashboardController extends Controller
             $uploadedCount = 0;
 
             if ($isTpAssignment) {
+                if ($removeFileIds->isNotEmpty() && Schema::hasTable('tp_submission_files')) {
+                    $filesToDelete = DB::table('tp_submission_files')
+                        ->where('tp_assignment_id', $projectId)
+                        ->whereIn('id', $removeFileIds->all())
+                        ->get();
+
+                    foreach ($filesToDelete as $fileToDelete) {
+                        Storage::disk('public')->delete(ltrim((string) $fileToDelete->file_path, '/'));
+                    }
+
+                    DB::table('tp_submission_files')
+                        ->where('tp_assignment_id', $projectId)
+                        ->whereIn('id', $removeFileIds->all())
+                        ->delete();
+                }
+
                 // Community Management: Mettre à jour tp_assignments
                 $tpUpdateData = [
                     'title' => $validated['title'],
@@ -1833,6 +1890,22 @@ class DashboardController extends Controller
                     Log::error('Erreur globale notification admins (TP soumis): ' . $e->getMessage());
                 }
             } else {
+                if ($removeFileIds->isNotEmpty() && Schema::hasTable('project_images')) {
+                    $filesToDelete = DB::table('project_images')
+                        ->where('project_id', $assignedProject->id)
+                        ->whereIn('id', $removeFileIds->all())
+                        ->get();
+
+                    foreach ($filesToDelete as $fileToDelete) {
+                        Storage::disk('public')->delete(ltrim((string) $fileToDelete->file_path, '/'));
+                    }
+
+                    DB::table('project_images')
+                        ->where('project_id', $assignedProject->id)
+                        ->whereIn('id', $removeFileIds->all())
+                        ->delete();
+                }
+
                 // Design Graphique: soumission sur un projet assigné
                 $designProjectId = null;
 

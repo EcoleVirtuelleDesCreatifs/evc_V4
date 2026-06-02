@@ -323,6 +323,45 @@
                             </div>
 
                             <div id="filesPreview" class="row g-3 mt-4"></div>
+
+                            @if(($submittedFiles ?? collect())->isNotEmpty())
+                                <div class="mt-4">
+                                    <label class="form-label fw-semibold">Fichiers déjà envoyés</label>
+                                    <div class="row g-3">
+                                        @foreach($submittedFiles as $file)
+                                            @php
+                                                $fileName = (string) ($file->name ?? $file->original_name ?? $file->file_name ?? $file->filename ?? 'fichier');
+                                                $fileUrl = (string) ($file->url ?? '');
+                                                $fileExt = strtolower(pathinfo($fileName ?: $fileUrl, PATHINFO_EXTENSION));
+                                                $isImageFile = in_array($fileExt, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'], true);
+                                            @endphp
+                                            <div class="col-md-6">
+                                                <div class="card h-100 border shadow-sm" style="border-radius: 16px; overflow: hidden;">
+                                                    @if($isImageFile && $fileUrl !== '')
+                                                        <a href="{{ $fileUrl }}" target="_blank">
+                                                            <img src="{{ $fileUrl }}" alt="{{ $fileName }}" class="img-fluid" style="width: 100%; height: 180px; object-fit: cover;" loading="lazy">
+                                                        </a>
+                                                    @else
+                                                        <div class="d-flex align-items-center justify-content-center" style="height: 180px; background: #f8fafc; color: #2563eb;">
+                                                            <i class="fas fa-file fa-3x"></i>
+                                                        </div>
+                                                    @endif
+                                                    <div class="card-body p-3">
+                                                        <div class="fw-bold text-truncate mb-2" title="{{ $fileName }}">{{ $fileName }}</div>
+                                                        <div class="form-check">
+                                                            <input class="form-check-input remove-existing-file" type="checkbox" name="remove_file_ids[]" value="{{ $file->id }}" id="remove-file-{{ $file->id }}">
+                                                            <label class="form-check-label text-danger fw-semibold" for="remove-file-{{ $file->id }}">
+                                                                Retirer ce fichier
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
                         </div>
                     </div>
 
@@ -450,10 +489,12 @@
                     form.addEventListener('submit', function(e){
                         var link = (linkInput && linkInput.value ? linkInput.value.trim() : '');
                         var hasFiles = !!(filesInput && filesInput.files && filesInput.files.length);
-                        if(!hasFiles && !link){
+                        var existingChecks = Array.from(form.querySelectorAll('.remove-existing-file'));
+                        var hasKeptExistingFiles = existingChecks.some(function(input){ return !input.checked; });
+                        if(!hasFiles && !link && !hasKeptExistingFiles){
                             e.preventDefault();
                             if(errorBox){
-                                errorBox.textContent = "Veuillez ajouter au moins un fichier OU un lien du projet.";
+                                errorBox.textContent = "Veuillez conserver ou ajouter au moins un fichier OU un lien du projet.";
                                 errorBox.style.display = "block";
                             }
                         }
