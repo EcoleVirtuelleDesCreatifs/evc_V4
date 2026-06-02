@@ -5097,7 +5097,7 @@ class AdminDashboardController extends Controller
                 : 0;
             $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
-            $totalAmount = $discountAmount > 0 ? max($expectedTotal, $amountPaid) : max($paymentsTotal, $expectedTotal);
+            $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
 
@@ -5174,7 +5174,7 @@ class AdminDashboardController extends Controller
                 : 0;
             $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
-            $totalAmount = $discountAmount > 0 ? max($expectedTotal, $amountPaid) : max($paymentsTotal, $expectedTotal);
+            $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
 
@@ -5395,7 +5395,7 @@ class AdminDashboardController extends Controller
                 : 0;
             $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
-            $totalAmount = $discountAmount > 0 ? max($expectedTotal, $amountPaid) : max($paymentsTotal, $expectedTotal);
+            $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
 
@@ -5465,9 +5465,15 @@ class AdminDashboardController extends Controller
             ->get();
 
         $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? ($student->program ?? null));
-        $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
+        $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
+        $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
+        $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
         $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
-        $totalAmount = max($paymentsTotal, $expectedTotal);
+        $storedDiscountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
+        $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount) ? ($grossTotalAmount - $paymentsTotal) : 0;
+        $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
+        $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
+        $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
         $remaining = max(0, $totalAmount - $amountPaid);
 
@@ -5580,9 +5586,15 @@ class AdminDashboardController extends Controller
                         ->get();
 
                     $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? ($student->program ?? null));
-                    $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $preReg->created_at ?? null);
+                    $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
+                    $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
+                    $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
                     $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
-                    $totalAmount = max($paymentsTotal, $expectedTotal);
+                    $storedDiscountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
+                    $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount) ? ($grossTotalAmount - $paymentsTotal) : 0;
+                    $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
+                    $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
+                    $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
                     $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
                 } else {
                     $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($student->program ?? null);
