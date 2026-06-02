@@ -158,6 +158,10 @@
                             </td>
                             <td>
                                 <strong class="text-danger">{{ number_format($student->remaining, 0, ',', ' ') }} FCFA</strong>
+                                @if(($student->discount_amount ?? 0) > 0)
+                                    <div class="small text-success">Remise : -{{ number_format($student->discount_amount, 0, ',', ' ') }} FCFA</div>
+                                    <div class="small text-muted">Total net : {{ number_format($student->total_amount, 0, ',', ' ') }} FCFA</div>
+                                @endif
                             </td>
                             <td>
                                 <span class="badge bg-secondary" id="reminders-count-{{ $student->id }}">{{ (int) ($student->reminders_count ?? 0) }}</span>

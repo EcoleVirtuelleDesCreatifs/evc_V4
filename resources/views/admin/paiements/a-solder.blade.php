@@ -175,7 +175,13 @@
                             <td>{{ $student->country ?? '-' }}</td>
                             <td><span class="badge bg-primary">{{ $student->program }}</span></td>
                             <td class="text-success"><strong>{{ number_format($student->amount_paid, 0, ',', ' ') }} FCFA</strong></td>
-                            <td class="text-warning"><strong>{{ number_format($student->remaining, 0, ',', ' ') }} FCFA</strong></td>
+                            <td class="text-warning">
+                                <strong>{{ number_format($student->remaining, 0, ',', ' ') }} FCFA</strong>
+                                @if(($student->discount_amount ?? 0) > 0)
+                                    <div class="small text-success">Remise : -{{ number_format($student->discount_amount, 0, ',', ' ') }} FCFA</div>
+                                    <div class="small text-muted">Total net : {{ number_format($student->total_amount, 0, ',', ' ') }} FCFA</div>
+                                @endif
+                            </td>
                             <td>
                                 <button
                                     type="button"
@@ -186,6 +192,8 @@
                                     data-student-email="{{ $student->email }}"
                                     data-student-program="{{ $student->program }}"
                                     data-total-amount="{{ (int) ($student->total_amount ?? 0) }}"
+                                    data-gross-total="{{ (int) ($student->gross_total_amount ?? $student->total_amount ?? 0) }}"
+                                    data-discount="{{ (int) ($student->discount_amount ?? 0) }}"
                                     data-amount-paid="{{ (int) ($student->amount_paid ?? 0) }}"
                                     data-remaining="{{ (int) ($student->remaining ?? 0) }}"
                                     data-bs-toggle="tooltip"
@@ -237,6 +245,11 @@
                 <div class="mb-2"><strong>Étudiant :</strong> <span id="recapStudentName">-</span></div>
                 <div class="mb-2"><strong>Email :</strong> <span id="recapStudentEmail">-</span></div>
                 <div class="mb-3"><strong>Formation :</strong> <span id="recapStudentProgram">-</span></div>
+
+                <div class="alert alert-success py-2 d-none" id="recapDiscountBox">
+                    Remise appliquée : <strong id="recapDiscount">0 FCFA</strong>
+                    <span class="text-muted">sur un coût initial de <span id="recapGrossTotal">0 FCFA</span></span>
+                </div>
 
                 <div class="row g-3">
                     <div class="col-4">
@@ -309,6 +322,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const email = btn.getAttribute('data-student-email') || '-';
         const program = btn.getAttribute('data-student-program') || '-';
         const total = Number(btn.getAttribute('data-total-amount') || 0);
+        const grossTotal = Number(btn.getAttribute('data-gross-total') || total);
+        const discount = Number(btn.getAttribute('data-discount') || 0);
         const paid = Number(btn.getAttribute('data-amount-paid') || 0);
         const remaining = Number(btn.getAttribute('data-remaining') || 0);
 
@@ -318,6 +333,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('recapStudentEmail').textContent = email;
         document.getElementById('recapStudentProgram').textContent = program;
         document.getElementById('recapTotalAmount').textContent = formatFcfa(total);
+        document.getElementById('recapGrossTotal').textContent = formatFcfa(grossTotal);
+        document.getElementById('recapDiscount').textContent = '-' + formatFcfa(discount);
+        document.getElementById('recapDiscountBox').classList.toggle('d-none', discount <= 0);
         document.getElementById('recapAmountPaid').textContent = formatFcfa(paid);
         document.getElementById('recapRemaining').textContent = formatFcfa(remaining);
         document.getElementById('recapProgress').textContent = Math.round(percentage) + '%';
