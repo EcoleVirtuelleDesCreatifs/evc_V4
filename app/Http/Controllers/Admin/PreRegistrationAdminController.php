@@ -336,15 +336,15 @@ class PreRegistrationAdminController extends Controller
         $formationName = $this->getFormationLabel($pre->choix_formation);
         $totalAmount = (int) round((float) \App\Services\CinetPayService::getFormationPrice($formationName));
 
-        $installment1Amount = 50000;
+        $installment1Amount = 75000;
         $installment2Amount = max(0, $totalAmount - $installment1Amount);
 
         if ($formationName === 'Design Graphique') {
-            $installment1Amount = 53500;
-            $installment2Amount = 27000;
+            $installment1Amount = 95000;
+            $installment2Amount = 90000;
         } elseif ($formationName === 'Community Management') {
-            $installment1Amount = 53500;
-            $installment2Amount = 53500;
+            $installment1Amount = 85000;
+            $installment2Amount = 80000;
         } elseif ($formationName === 'Design Graphique & Community Management' || $formationName === 'Design Graphique & Community Manager') {
             $installment1Amount = 100000;
             $installment2Amount = 65000;
@@ -1173,14 +1173,14 @@ class PreRegistrationAdminController extends Controller
             $paymentMode = $request->input('payment_mode', 'installment');
 
             if ($paymentMode === 'installment') {
-                $installment1Amount = 50000;
-                $installment2Amount = 27000;
+                $installment1Amount = 75000;
+                $installment2Amount = max(0, $totalAmount - $installment1Amount);
                 if ($formationName === 'Design Graphique') {
-                    $installment1Amount = 53500;
-                    $installment2Amount = 27000;
+                    $installment1Amount = 95000;
+                    $installment2Amount = 90000;
                 } elseif ($formationName === 'Community Management') {
-                    $installment1Amount = 53500;
-                    $installment2Amount = 53500;
+                    $installment1Amount = 85000;
+                    $installment2Amount = 80000;
                 } elseif ($formationName === 'Design Graphique & Community Management') {
                     $installment1Amount = 100000;
                     $installment2Amount = 65000;

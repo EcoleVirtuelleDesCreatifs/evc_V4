@@ -42,10 +42,10 @@ return [
 
     // Tarifs par formation (en XOF)
     'prices' => [
-        'Design Graphique' => 80000,
-        'Community Management' => 107000,
+        'Design Graphique' => 185000,
+        'Community Management' => 165000,
         'Design Graphique & Community Management' => 165000,
-        'Gestion Informatique' => 152000,
+        'Gestion Informatique' => 150000,
         'Intelligence Artificielle' => 57000,
     ],
 

@@ -798,8 +798,7 @@ class StudentAdminController extends Controller
         $paiements = collect();
         $factures = collect();
         $totalPaye = 0;
-        // Total formation par défaut (système par tranche): 50 000 (1ère tranche) + 27 000 (2ème tranche)
-        $totalFactures = 77000;
+        $totalFactures = 150000;
         // Cas spécial: Design Graphique & Community Management = 165 000 FCFA
         // Supporte différentes variantes (program, specialization, slug)
         $formationKey = (string) ($student->program ?? ($student->specialization ?? ''));
@@ -810,10 +809,10 @@ class StudentAdminController extends Controller
             $totalFactures = 165000;
         }
         if ($containsCommunity && !$containsDesign) {
-            $totalFactures = 107000;
+            $totalFactures = 165000;
         }
         if ($containsDesign && !$containsCommunity) {
-            $totalFactures = 80000;
+            $totalFactures = 185000;
         }
         $soldeRestant = 0;
 
