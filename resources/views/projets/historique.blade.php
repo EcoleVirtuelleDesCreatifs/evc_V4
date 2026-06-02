@@ -212,7 +212,7 @@
                                                     $isAssignedProject = (($project['source'] ?? '') === 'assigned_project');
                                                     $itemStatus = (string) ($project['status'] ?? '');
                                                     $isValidated = ($itemStatus === 'validated');
-                                                    $canShow = $itemId > 0 && (\Illuminate\Support\Facades\Route::has($todoTraiterRouteName) || \Illuminate\Support\Facades\Route::has($projectsShowRouteName));
+                                                    $canShow = $itemId > 0 && \Illuminate\Support\Facades\Route::has($todoTraiterRouteName);
                                                     $canEdit = !$isCmFormation && !$isTpItem && !$isAssignedProject && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsEditRouteName);
                                                     $canDelete = !$isCmFormation && !$isTpItem && !$isAssignedProject && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($projectsDestroyRouteName);
                                                     $canEditAssigned = ($isTpItem || $isCmFormation || $isAssignedProject) && !$isValidated && $itemId > 0 && \Illuminate\Support\Facades\Route::has($todoTraiterRouteName);
@@ -221,17 +221,10 @@
 
                                                 <div class="d-flex flex-wrap gap-2">
                                                     @if($canShow)
-                                                        @if(\Illuminate\Support\Facades\Route::has($todoTraiterRouteName) && ($isTpItem || $isCmFormation || $isAssignedProject))
-                                                            <a href="{{ route($todoTraiterRouteName, ['projectId' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
-                                                                <i class="fas fa-eye me-1"></i>
-                                                                Voir
-                                                            </a>
-                                                        @elseif(!$isTpItem && !$isAssignedProject && \Illuminate\Support\Facades\Route::has($projectsShowRouteName))
-                                                            <a href="{{ route($projectsShowRouteName, ['id' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
-                                                                <i class="fas fa-eye me-1"></i>
-                                                                Voir
-                                                            </a>
-                                                        @endif
+                                                        <a href="{{ route($todoTraiterRouteName, ['projectId' => $itemId]) }}" class="btn btn-sm btn-outline-primary" style="border-radius: 10px; font-weight: 800;">
+                                                            <i class="fas fa-eye me-1"></i>
+                                                            Voir
+                                                        </a>
                                                     @endif
 
                                                     @if($canEditAssigned)
