@@ -6,7 +6,6 @@
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div>
-            <h3 class="mb-1" style="font-weight: 800; color: #0f172a;">Tests d’éligibilité SAOP</h3>
             <div class="text-muted">Suivi des réponses soumises par les candidats.</div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -56,7 +55,7 @@
         <div class="card-header bg-white border-0 py-3" style="border-radius: 16px 16px 0 0;">
             <h5 class="mb-0 d-flex align-items-center">
                 <i class="fas fa-clipboard-check me-2" style="color: #1e3c72;"></i>
-                Liste des Tests d’éligibilité SAOP
+                Liste des tests soumis
             </h5>
         </div>
         <div class="card-body p-0">
