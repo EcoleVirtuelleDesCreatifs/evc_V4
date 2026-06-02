@@ -379,6 +379,9 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::get('/evc/compte/intelligence-artificielle/espace-etudiant', [DashboardController::class, 'intelligenceArtificielle'])->name('dashboard.intelligence-artificielle');
     Route::get('/evc/compte/gestion-informatique/espace-etudiant', [DashboardController::class, 'gestionInformatique'])->name('dashboard.gestion-informatique');
 
+    // Routes Test de connaissance (Étudiant)
+    Route::get('/evc/compte/design-graphique-cm/evaluations/test-de-connaissance', [App\Http\Controllers\KnowledgeTestController::class, 'index'])->name('evaluation.test.index');
+
     // Routes Certifications (Étudiant)
     Route::get('/evc/compte/design-graphique-cm/certifications', [App\Http\Controllers\CertificationController::class, 'index'])->name('certification.index');
     Route::get('/evc/compte/design-graphique-cm/certifications/{id}/start', [App\Http\Controllers\CertificationController::class, 'start'])->name('certification.start');
