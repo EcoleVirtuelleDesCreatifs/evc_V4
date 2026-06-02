@@ -5252,9 +5252,13 @@ class DashboardController extends Controller
         $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
         $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
         $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
-        $discountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
-        $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
         $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
+        $storedDiscountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
+        $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount)
+            ? ($grossTotalAmount - $paymentsTotal)
+            : 0;
+        $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
+        $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
         $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
 
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));

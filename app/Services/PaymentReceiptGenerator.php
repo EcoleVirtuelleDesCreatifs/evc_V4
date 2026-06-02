@@ -102,6 +102,17 @@ class PaymentReceiptGenerator
             $pdf->Cell($pageW, 6, $this->toLatin("Merci pour votre confiance. Ce document confirme votre inscription."), 0, 0, 'C');
             $pdf->SetTextColor(0, 0, 0);
 
+            if ($discountAmountRaw > 0) {
+                $pdf->SetFillColor(220, 255, 235);
+                $pdf->SetDrawColor(0, 130, 70);
+                $pdf->Rect(15, 63.5 + $offsetY, $pageW - 30, 7, 'DF');
+                $pdf->SetFont('Helvetica', 'B', 10);
+                $pdf->SetTextColor(0, 110, 60);
+                $pdf->SetXY(18, 64.2 + $offsetY);
+                $pdf->Cell($pageW - 36, 5.5, $this->toLatin('REMISE APPLIQUÉE : - ' . $discountAmount . ' | TOTAL APRÈS REMISE : ' . $totalAmount), 0, 0, 'C');
+                $pdf->SetTextColor(0, 0, 0);
+            }
+
             // Bloc informations (structure comptable)
             $boxX = 15;
             $boxY = 68 + $offsetY;
