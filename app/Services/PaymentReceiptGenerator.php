@@ -319,7 +319,8 @@ class PaymentReceiptGenerator
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->SetTextColor(90, 90, 90);
             $pdf->SetXY(15, 255 + $offsetY);
-            $pdf->MultiCell(185, 4.5, $this->toLatin("Ce reçu est un document ORIGINAL. Pour toute vérification, veuillez contacter l'administration EVC avec la référence ci-dessus."));
+            $pdf->MultiCell(185, 4.5, $this->toLatin("Ce reçu est un document ORIGINAL.
+Pour toute vérification, veuillez contacter l'administration EVC avec la référence ci-dessus."));
             $pdf->SetTextColor(0, 0, 0);
         } else {
             $pdf->AddPage('P', 'A4');
