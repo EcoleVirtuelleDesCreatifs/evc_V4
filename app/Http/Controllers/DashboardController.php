@@ -2888,8 +2888,9 @@ class DashboardController extends Controller
                         ->orWhereJsonContains('formations.modules', 'community-management');
                 }
 
-                // Toujours inclure la variante community-manager (legacy)
-                $query->orWhereJsonContains('formations.modules', 'community-manager');
+                if (in_array($moduleSlug, ['community-management', 'design-graphique-cm'], true)) {
+                    $query->orWhereJsonContains('formations.modules', 'community-manager');
+                }
             })
             ->orderBy('formations.created_at', 'desc')
             ->get();
@@ -2979,7 +2980,21 @@ class DashboardController extends Controller
             if (empty($modules)) continue;
 
             foreach ($modules as $modSlug) {
-                $title = $formatModuleTitle($modSlug);
+                $normalizedModSlug = strtolower(str_replace(['_', ' '], '-', (string) $modSlug));
+                if ($normalizedModSlug === 'community-manager') {
+                    $normalizedModSlug = 'community-management';
+                }
+                if (in_array($normalizedModSlug, ['design-graphique-community-manager', 'design-graphique-community-management'], true)) {
+                    $normalizedModSlug = 'design-graphique-cm';
+                }
+                if ($moduleSlug !== 'design-graphique-cm' && $normalizedModSlug !== $moduleSlug) {
+                    continue;
+                }
+                if ($moduleSlug === 'design-graphique-cm' && !in_array($normalizedModSlug, ['design-graphique', 'community-management', 'design-graphique-cm'], true)) {
+                    continue;
+                }
+
+                $title = $formatModuleTitle($normalizedModSlug);
 
                 if (!isset($groupedCategories[$title])) {
                     $groupedCategories[$title] = [];
