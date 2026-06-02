@@ -538,14 +538,16 @@ class PreRegistrationAdminController extends Controller
         $formationName = $this->getFormationLabel($pre->choix_formation);
         $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
         $pricingDate = $firstPaymentDate ?: ($pre->created_at ?? null);
-        $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pricingDate);
+        $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pricingDate);
+        $discountAmount = min((int) ($pre->discount_amount ?? 0), $grossTotalAmount);
+        $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
         $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
-        $totalAmount = max($paymentsTotal, $expectedTotal);
+        $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
 
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
         $remaining = max(0, $totalAmount - $amountPaid);
 
-        return view('admin.preregistrations.payment', compact('pre', 'payments', 'formationName', 'totalAmount', 'amountPaid', 'remaining', 'commercialAdmins'));
+        return view('admin.preregistrations.payment', compact('pre', 'payments', 'formationName', 'grossTotalAmount', 'discountAmount', 'totalAmount', 'amountPaid', 'remaining', 'commercialAdmins'));
     }
 
     public function bulkStatus(Request $request)
@@ -620,6 +622,34 @@ class PreRegistrationAdminController extends Controller
         }
     }
 
+    public function updateDiscount(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'discount_amount' => 'required|integer|min:0',
+        ]);
+
+        $pre = PreRegistration::findOrFail($id);
+        $formationName = $this->getFormationLabel($pre->choix_formation);
+        $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
+        $discountAmount = min((int) $validated['discount_amount'], $grossTotalAmount);
+        $netTotalAmount = max(0, $grossTotalAmount - $discountAmount);
+
+        $pre->discount_amount = $discountAmount;
+        $pre->save();
+
+        if (\Illuminate\Support\Facades\Schema::hasTable('payments')) {
+            DB::table('payments')
+                ->where('pre_registration_id', $pre->id)
+                ->update([
+                    'total_amount' => $netTotalAmount,
+                    'updated_at' => now(),
+                ]);
+        }
+
+        return redirect()->route('admin.preinscriptions.payment', $pre->id)
+            ->with('success', '✅ Remise mise à jour avec succès.');
+    }
+
     public function manualPayment(Request $request, $id)
     {
         $validated = $request->validate([
@@ -644,7 +674,9 @@ class PreRegistrationAdminController extends Controller
         $paidAt = !empty($validated['paid_at']) ? \Carbon\Carbon::parse($validated['paid_at']) : now();
 
         $formationName = $this->getFormationLabel($pre->choix_formation);
-        $totalAmount = \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
+        $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationName, $pre->created_at);
+        $discountAmount = min((int) ($pre->discount_amount ?? 0), $grossTotalAmount);
+        $totalAmount = max(0, $grossTotalAmount - $discountAmount);
 
         DB::beginTransaction();
         try {

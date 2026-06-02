@@ -1061,6 +1061,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/preinscriptions/{id}/accept', [PreRegistrationAdminController::class, 'acceptCandidate'])->name('preinscriptions.accept');
         Route::post('/preinscriptions/{id}/reject', [PreRegistrationAdminController::class, 'rejectCandidate'])->name('preinscriptions.reject');
         Route::post('/preinscriptions/{id}/notify-eligible', [PreRegistrationAdminController::class, 'notifyEligible'])->name('preinscriptions.notify-eligible');
+        Route::post('/preinscriptions/{id}/discount', [PreRegistrationAdminController::class, 'updateDiscount'])->name('preinscriptions.discount');
         Route::post('/preinscriptions/{id}/manual-payment', [PreRegistrationAdminController::class, 'manualPayment'])->name('preinscriptions.manual-payment');
         Route::delete('/preinscriptions/{id}', [PreRegistrationAdminController::class, 'destroy'])->name('preinscriptions.destroy');
 

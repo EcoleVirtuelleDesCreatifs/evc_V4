@@ -41,6 +41,7 @@ class PreRegistration extends Model
         'certify',
         'consent',
         'commercial_admin_id',
+        'discount_amount',
         'status',
     ];
 }

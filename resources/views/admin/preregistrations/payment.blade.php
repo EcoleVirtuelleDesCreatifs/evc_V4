@@ -87,6 +87,38 @@
         </div>
     </div>
 
+    <div class="row g-3 mb-3">
+        <div class="col-lg-12">
+            <div class="form-card h-100">
+                <div class="form-card-header">
+                    <i class="fas fa-tags"></i>
+                    <h3>Remise sur la formation</h3>
+                </div>
+                <div class="form-card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <div class="text-muted">Montant formation</div>
+                            <div class="fw-bold">{{ number_format($grossTotalAmount ?? $totalAmount, 0, ',', ' ') }} FCFA</div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-muted">Remise actuelle</div>
+                            <div class="fw-bold text-warning">{{ number_format($discountAmount ?? 0, 0, ',', ' ') }} FCFA</div>
+                        </div>
+                        <div class="col-md-6">
+                            <form method="POST" action="{{ route('admin.preinscriptions.discount', $pre->id) }}" class="d-flex gap-2">
+                                @csrf
+                                <input type="number" name="discount_amount" class="form-control" min="0" step="1" value="{{ old('discount_amount', $discountAmount ?? 0) }}" placeholder="Montant de la remise">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-save me-2"></i>Appliquer
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row g-3">
         <div class="col-lg-12">
             <div class="form-card h-100">
