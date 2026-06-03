@@ -115,11 +115,26 @@
                 ];
             @endphp
 
+            @if(isset($homepageJuryMembers) && $homepageJuryMembers->isNotEmpty())
+                @php
+                    $jury_members = $homepageJuryMembers->map(function ($member) {
+                        return [
+                            'name' => $member->name,
+                            'title' => $member->title,
+                            'country' => $member->country,
+                            'flag' => $member->flag,
+                            'image' => $member->photo_url,
+                            'is_external' => true,
+                        ];
+                    })->all();
+                @endphp
+            @endif
+
             @foreach ($jury_members as $member)
                 <div class="card-hover-effect group" data-aos="fade-up" data-aos-delay="{{ $loop->index * 100 }}">
                     <div class="bg-black/20 backdrop-blur-lg rounded-2xl p-6 border border-white/10 h-full flex flex-col text-center transition-all duration-300 group-hover:bg-black/30 group-hover:border-orange-500/30">
                         <div class="w-32 h-32 mx-auto mb-4 relative rounded-full overflow-hidden border-4 border-white/20 shadow-lg group-hover:border-orange-500 transition-colors duration-300">
-                            <img src="{{ asset('assets/img/membre_du_jury/' . $member['image']) }}"
+                            <img src="{{ isset($member['is_external']) && $member['is_external'] ? $member['image'] : asset('assets/img/membre_du_jury/' . $member['image']) }}"
                                  alt="{{ $member['name'] }}"
                                  class="w-full h-full object-cover object-top transition-transform duration-500" loading="lazy" decoding="async">
                         </div>

@@ -197,6 +197,21 @@
                     ];
                 @endphp
 
+                @if(isset($juryMembers) && $juryMembers->isNotEmpty())
+                    @php
+                        $all_jury_members = $juryMembers->map(function ($member) {
+                            return [
+                                'name' => $member->name,
+                                'title' => $member->title,
+                                'country' => $member->country,
+                                'flag' => $member->flag,
+                                'image' => $member->photo_url,
+                                'is_external' => true,
+                            ];
+                        })->all();
+                    @endphp
+                @endif
+
                 @foreach ($all_jury_members as $index => $member)
                     <div class="card-hover-effect group" data-aos="fade-up" data-aos-delay="{{ ($index % 4) * 100 }}">
                         <div class="bg-black/20 backdrop-blur-lg rounded-2xl p-6 border border-white/10 h-full flex flex-col text-center transition-all duration-300 group-hover:bg-black/30 group-hover:border-orange-500/30">

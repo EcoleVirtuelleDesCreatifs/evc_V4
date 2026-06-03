@@ -11,8 +11,10 @@ class JuryEvaluationController extends Controller
 {
     public function create()
     {
+        $groups = $this->availableGroups();
+
         return view('jury.evaluation', [
-            'groups' => $this->groups(),
+            'groups' => $groups,
             'categories' => $this->categories(),
             'storeRoute' => request()->is('evc/*') ? route('jury.evaluation.store.evc') : route('jury.evaluation.store'),
         ]);
@@ -41,6 +43,15 @@ class JuryEvaluationController extends Controller
 
         $validated = $request->validate($rules);
         $totalScore = collect($validated['scores'])->flatten()->sum();
+
+        if (
+            $validated['status'] === 'submitted'
+            && JuryEvaluation::where('group_name', $validated['group_name'])->where('status', 'submitted')->exists()
+        ) {
+            return back()
+                ->withInput()
+                ->with('error', 'Ce groupe a déjà été noté et n’est plus disponible pour une nouvelle évaluation.');
+        }
 
         try {
             DB::transaction(function () use ($validated, $categories, $totalScore) {
@@ -102,6 +113,16 @@ class JuryEvaluationController extends Controller
             'Groupe 3' => 'Groupe 3',
             'Groupe 4' => 'Groupe 4',
         ];
+    }
+
+    private function availableGroups(): array
+    {
+        $evaluatedGroups = JuryEvaluation::query()
+            ->where('status', 'submitted')
+            ->pluck('group_name')
+            ->all();
+
+        return array_diff_key($this->groups(), array_flip($evaluatedGroups));
     }
 
     private function categories(): array

@@ -561,6 +561,15 @@
 
                     @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <li class="admin-nav-item">
+                        <a href="{{ route('admin.jury-members.index') }}" class="admin-nav-link {{ request()->routeIs('admin.jury-members.*') ? 'active' : '' }}">
+                            <i class="fas fa-user-tie"></i>
+                            Membres du jury
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
+                    <li class="admin-nav-item">
                         <a href="{{ route('admin.partnerships.index') }}" class="admin-nav-link {{ request()->routeIs('admin.partnerships.*') ? 'active' : '' }}">
                             <i class="fas fa-handshake"></i>
                             Partenariats

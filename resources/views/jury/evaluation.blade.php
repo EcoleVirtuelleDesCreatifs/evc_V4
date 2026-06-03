@@ -301,7 +301,9 @@
 
         .green .stars,
         .orange .stars,
-        .pink .stars { color: var(--jury-primary); }
+        .pink .stars {
+            color: var(--jury-primary);
+        }
 
         .note {
             padding: 7px 12px;
@@ -410,6 +412,23 @@
 
         .errors ul {
             padding-left: 20px;
+        }
+
+        .empty-state {
+            max-width: 760px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .empty-state .icon {
+            margin: 0 auto 20px;
+        }
+
+        .empty-state p {
+            color: var(--jury-text-secondary);
+            font-size: 17px;
+            line-height: 1.7;
+            margin: 0;
         }
 
         @media (max-width: 950px) {
@@ -586,127 +605,144 @@
             <div class="trophy">🏆</div>
         </section>
 
-        @if(session('success'))
+        @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        @if(session('error'))
+        @if (session('error'))
             <div class="alert alert-error">{{ session('error') }}</div>
         @endif
 
-        @if($errors->any())
+        @if ($errors->any())
             <div class="errors">
                 <ul>
-                    @foreach($errors->all() as $error)
+                    @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
             </div>
         @endif
 
-        <form method="POST" action="{{ $storeRoute }}" id="evaluationForm">
-            @csrf
-            <input type="hidden" name="status" id="statusInput" value="submitted">
-
-            <section class="card jury-info">
-                <h2 class="section-title">👤 Informations du jury</h2>
-
-                <div class="form-grid">
-                    <div class="field">
-                        <label>Nom et prénom</label>
-                        <input type="text" name="jury_name" value="{{ old('jury_name') }}" placeholder="Ex : Jean Dupont" required>
-                    </div>
-
-                    <div class="field">
-                        <label>Fonction / Organisation</label>
-                        <input type="text" name="jury_function" value="{{ old('jury_function') }}" placeholder="Ex : Directeur Créatif">
-                    </div>
-
-                    <div class="field">
-                        <label>Email</label>
-                        <input type="email" name="jury_email" value="{{ old('jury_email') }}" placeholder="exemple@email.com" required>
-                    </div>
-
-                    <input type="hidden" name="evaluation_date" value="{{ old('evaluation_date', now()->format('Y-m-d')) }}">
-                </div>
+        @if (empty($groups))
+            <section class="card empty-state">
+                <div class="icon">✅</div>
+                <h2 class="section-title" style="justify-content: center;">Tous les groupes ont été notés</h2>
+                <p>
+                    Aucun groupe n’est disponible pour une nouvelle évaluation. Les groupes déjà soumis sont automatiquement
+                    masqués.
+                </p>
             </section>
+        @else
+            <form method="POST" action="{{ $storeRoute }}" id="evaluationForm">
+                @csrf
+                <input type="hidden" name="status" id="statusInput" value="submitted">
 
-            <section class="groups-area">
-                <div class="card">
-                    <h2 class="section-title">👥 Groupe à évaluer</h2>
-                    <div class="field">
-                        <select name="group_name" id="groupSelect" required>
-                            @foreach($groups as $groupValue => $groupLabel)
-                                <option value="{{ $groupValue }}" @selected(old('group_name', 'Groupe 1') === $groupValue)>{{ $groupLabel }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
+                <section class="card jury-info">
+                    <h2 class="section-title">👤 Informations du jury</h2>
 
-                <div class="card group-buttons">
-                    @foreach($groups as $groupValue => $groupLabel)
-                        <button type="button" class="group-btn" data-group="{{ $groupValue }}">👥 {{ $groupLabel }}</button>
-                    @endforeach
-                </div>
-            </section>
-
-            <section class="evaluation-grid">
-                @foreach($categories as $categoryKey => $category)
-                    <div class="eval-card {{ $category['theme'] }}" data-category="{{ $categoryKey }}">
-                        <div class="eval-head">
-                            <div class="eval-title">
-                                <div class="icon">{{ $category['icon'] }}</div>
-                                <div>{{ $category['label'] }}</div>
-                            </div>
-                            <div class="score-pill">/80 points</div>
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Nom et prénom</label>
+                            <input type="text" name="jury_name" value="{{ old('jury_name') }}"
+                                placeholder="Ex : Jean Dupont" required>
                         </div>
 
-                        <div class="criteria">
-                            @foreach($category['criteria'] as $criterionKey => $criterionLabel)
-                                @php
-                                    $oldScore = old("scores.{$categoryKey}.{$criterionKey}", 0);
-                                @endphp
-                                <div class="criterion">
-                                    <span>{{ $criterionLabel }}</span>
-                                    <div class="stars" data-stars-for="scores[{{ $categoryKey }}][{{ $criterionKey }}]">☆☆☆☆☆</div>
-                                    <div>
-                                        <input
-                                            type="number"
-                                            class="score-input"
-                                            name="scores[{{ $categoryKey }}][{{ $criterionKey }}]"
-                                            value="{{ $oldScore }}"
-                                            min="0"
-                                            max="20"
-                                            required
-                                        >
-                                        <div class="note">{{ $oldScore }}/20</div>
-                                    </div>
+                        <div class="field">
+                            <label>Fonction / Organisation</label>
+                            <input type="text" name="jury_function" value="{{ old('jury_function') }}"
+                                placeholder="Ex : Directeur Créatif">
+                        </div>
+
+                        <div class="field">
+                            <label>Email</label>
+                            <input type="email" name="jury_email" value="{{ old('jury_email') }}"
+                                placeholder="exemple@email.com" required>
+                        </div>
+
+                        <input type="hidden" name="evaluation_date"
+                            value="{{ old('evaluation_date', now()->format('Y-m-d')) }}">
+                    </div>
+                </section>
+
+                <section class="groups-area">
+                    <div class="card">
+                        <h2 class="section-title">👥 Groupe à évaluer</h2>
+                        <div class="field">
+                            <select name="group_name" id="groupSelect" required>
+                                @foreach ($groups as $groupValue => $groupLabel)
+                                    <option value="{{ $groupValue }}" @selected(old('group_name', 'Groupe 1') === $groupValue)>{{ $groupLabel }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="card group-buttons">
+                        @foreach ($groups as $groupValue => $groupLabel)
+                            <button type="button" class="group-btn" data-group="{{ $groupValue }}">👥
+                                {{ $groupLabel }}</button>
+                        @endforeach
+                    </div>
+                </section>
+
+                <section class="evaluation-grid">
+                    @foreach ($categories as $categoryKey => $category)
+                        <div class="eval-card {{ $category['theme'] }}" data-category="{{ $categoryKey }}">
+                            <div class="eval-head">
+                                <div class="eval-title">
+                                    <div class="icon">{{ $category['icon'] }}</div>
+                                    <div>{{ $category['label'] }}</div>
                                 </div>
-                            @endforeach
-                        </div>
+                                <div class="score-pill">/80 points</div>
+                            </div>
 
-                        <div class="total">
-                            <span>Total catégorie</span>
-                            <strong><span class="category-total">0</span> / 80</strong>
+                            <div class="criteria">
+                                @foreach ($category['criteria'] as $criterionKey => $criterionLabel)
+                                    @php
+                                        $oldScore = old("scores.{$categoryKey}.{$criterionKey}", 0);
+                                    @endphp
+                                    <div class="criterion">
+                                        <span>{{ $criterionLabel }}</span>
+                                        <div class="stars"
+                                            data-stars-for="scores[{{ $categoryKey }}][{{ $criterionKey }}]">
+                                            ☆☆☆☆☆</div>
+                                        <div>
+                                            <input type="number" class="score-input"
+                                                name="scores[{{ $categoryKey }}][{{ $criterionKey }}]"
+                                                value="{{ $oldScore }}" min="0" max="20" required>
+                                            <div class="note">{{ $oldScore }}/20</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="total">
+                                <span>Total catégorie</span>
+                                <strong><span class="category-total">0</span> / 80</strong>
+                            </div>
                         </div>
+                    @endforeach
+                </section>
+
+                <section class="card comment-box">
+                    <h2 class="section-title">💬 Appréciation globale sur ce groupe</h2>
+                    <textarea name="global_comment"
+                        placeholder="Exprimez ici votre avis général sur ce groupe, leurs forces, points d’amélioration...">{{ old('global_comment') }}</textarea>
+                </section>
+
+                <section class="bottom">
+                    <div class="reminder">
+                        💡 Rappel important : veuillez évaluer les 4 groupes séparément pour chaque catégorie. Total actuel
+                        :
+                        <strong><span id="grandTotal">0</span> / 320</strong>
                     </div>
-                @endforeach
-            </section>
 
-            <section class="card comment-box">
-                <h2 class="section-title">💬 Appréciation globale sur ce groupe</h2>
-                <textarea name="global_comment" placeholder="Exprimez ici votre avis général sur ce groupe, leurs forces, points d’amélioration...">{{ old('global_comment') }}</textarea>
-            </section>
-
-            <section class="bottom">
-                <div class="reminder">
-                    💡 Rappel important : veuillez évaluer les 4 groupes séparément pour chaque catégorie. Total actuel : <strong><span id="grandTotal">0</span> / 320</strong>
-                </div>
-
-                <button type="submit" class="btn btn-outline" data-status="draft">💾 Enregistrer brouillon</button>
-                <button type="submit" class="btn btn-primary" data-status="submitted">🚀 Soumettre mon évaluation</button>
-            </section>
-        </form>
+                    <button type="submit" class="btn btn-outline" data-status="draft">💾 Enregistrer brouillon</button>
+                    <button type="submit" class="btn btn-primary" data-status="submitted">🚀 Soumettre mon
+                        évaluation</button>
+                </section>
+            </form>
+        @endif
     </main>
 @endsection
 
@@ -717,6 +753,8 @@
         const scoreInputs = document.querySelectorAll('.score-input');
         const grandTotal = document.getElementById('grandTotal');
         const statusInput = document.getElementById('statusInput');
+
+        if (groupSelect && grandTotal && statusInput) {
 
         function updateGroupButtons() {
             groupButtons.forEach((button) => {
@@ -772,5 +810,6 @@
 
         updateGroupButtons();
         updateTotals();
+        }
     </script>
 @endpush

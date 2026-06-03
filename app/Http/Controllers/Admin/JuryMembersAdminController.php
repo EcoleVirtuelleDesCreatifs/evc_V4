@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\JuryMember;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+
+class JuryMembersAdminController extends Controller
+{
+    private function ensureAllowed(): void
+    {
+        if (!in_array(session('admin_role'), ['super_admin', 'manager'], true)) {
+            abort(403);
+        }
+    }
+
+    public function index(): View
+    {
+        $this->ensureAllowed();
+
+        $members = JuryMember::query()
+            ->orderByDesc('is_active')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('admin.jury_members.index', compact('members'));
+    }
+
+    public function create(): View
+    {
+        $this->ensureAllowed();
+
+        return view('admin.jury_members.create');
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $this->ensureAllowed();
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
+            'flag' => ['nullable', 'string', 'max:20'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'image_url' => ['nullable', 'url', 'max:500'],
+            'is_active' => ['nullable', 'boolean'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        $path = null;
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('jury_members', 'public');
+        }
+
+        $member = JuryMember::query()->create([
+            'name' => $validated['name'],
+            'title' => $validated['title'] ?? null,
+            'country' => $validated['country'] ?? null,
+            'flag' => $validated['flag'] ?? null,
+            'image_path' => $path,
+            'image_url' => $validated['image_url'] ?? null,
+            'is_active' => (bool) ($validated['is_active'] ?? false),
+            'sort_order' => (int) ($validated['sort_order'] ?? 0),
+        ]);
+
+        return redirect()
+            ->route('admin.jury-members.edit', $member)
+            ->with('success', 'Membre du jury ajouté.');
+    }
+
+    public function edit(JuryMember $juryMember): View
+    {
+        $this->ensureAllowed();
+
+        return view('admin.jury_members.edit', compact('juryMember'));
+    }
+
+    public function update(Request $request, JuryMember $juryMember): RedirectResponse
+    {
+        $this->ensureAllowed();
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
+            'flag' => ['nullable', 'string', 'max:20'],
+            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+            'image_url' => ['nullable', 'url', 'max:500'],
+            'is_active' => ['nullable', 'boolean'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        if ($request->hasFile('photo')) {
+            if (!empty($juryMember->image_path)) {
+                Storage::disk('public')->delete($juryMember->image_path);
+            }
+
+            $juryMember->image_path = $request->file('photo')->store('jury_members', 'public');
+        }
+
+        $juryMember->name = $validated['name'];
+        $juryMember->title = $validated['title'] ?? null;
+        $juryMember->country = $validated['country'] ?? null;
+        $juryMember->flag = $validated['flag'] ?? null;
+        $juryMember->image_url = $validated['image_url'] ?? null;
+        $juryMember->is_active = (bool) ($validated['is_active'] ?? false);
+        $juryMember->sort_order = (int) ($validated['sort_order'] ?? 0);
+        $juryMember->save();
+
+        return redirect()
+            ->route('admin.jury-members.index')
+            ->with('success', 'Membre du jury mis à jour.');
+    }
+
+    public function destroy(JuryMember $juryMember): RedirectResponse
+    {
+        $this->ensureAllowed();
+
+        if (!empty($juryMember->image_path)) {
+            Storage::disk('public')->delete($juryMember->image_path);
+        }
+
+        $juryMember->delete();
+
+        return redirect()
+            ->route('admin.jury-members.index')
+            ->with('success', 'Membre du jury supprimé.');
+    }
+}

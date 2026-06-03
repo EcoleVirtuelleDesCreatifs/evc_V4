@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Schema;
 use App\Models\PlaquetteRequest;
+use App\Models\JuryMember;
 use Illuminate\Support\Str;
 use App\Models\Plaquette;
 use App\Mail\PreRegistrationSubmitted;
@@ -43,6 +45,16 @@ class HomepageController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(3)
             ->get();
+
+        $homepageJuryMembers = collect();
+        if (Schema::hasTable('jury_members')) {
+            $homepageJuryMembers = JuryMember::query()
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->take(12)
+                ->get();
+        }
 
         // Récupérer la playlist Vimeo pour la WebTV
         // Prendre la première vidéo active
@@ -86,7 +98,7 @@ class HomepageController extends Controller
             }
         }
 
-        return view('welcome', compact('evenements', 'actualites', 'activePlaylist', 'nextVideo'));
+        return view('welcome', compact('evenements', 'actualites', 'activePlaylist', 'nextVideo', 'homepageJuryMembers'));
     }
 
     /**
@@ -829,7 +841,16 @@ class HomepageController extends Controller
      */
     public function jury()
     {
-        return view('jury');
+        $juryMembers = collect();
+        if (Schema::hasTable('jury_members')) {
+            $juryMembers = JuryMember::query()
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get();
+        }
+
+        return view('jury', compact('juryMembers'));
     }
 
     /**

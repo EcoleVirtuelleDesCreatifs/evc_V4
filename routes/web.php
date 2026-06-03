@@ -23,6 +23,7 @@ use App\Http\Controllers\StudentIdVerificationController;
 use App\Http\Controllers\ActivityReportPublicController;
 use App\Http\Controllers\PartnershipController;
 use App\Http\Controllers\Admin\PartnershipsAdminController;
+use App\Http\Controllers\Admin\JuryMembersAdminController;
 use App\Http\Controllers\JuryEvaluationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -895,6 +896,13 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/partnerships/{partnership}/edit', [PartnershipsAdminController::class, 'edit'])->name('partnerships.edit');
         Route::put('/partnerships/{partnership}', [PartnershipsAdminController::class, 'update'])->name('partnerships.update');
         Route::post('/partnerships/{partnership}/delete-document', [PartnershipsAdminController::class, 'deleteDocument'])->name('partnerships.document.delete');
+
+        Route::get('/jury-members', [JuryMembersAdminController::class, 'index'])->name('jury-members.index');
+        Route::get('/jury-members/create', [JuryMembersAdminController::class, 'create'])->name('jury-members.create');
+        Route::post('/jury-members', [JuryMembersAdminController::class, 'store'])->name('jury-members.store');
+        Route::get('/jury-members/{juryMember}/edit', [JuryMembersAdminController::class, 'edit'])->name('jury-members.edit');
+        Route::put('/jury-members/{juryMember}', [JuryMembersAdminController::class, 'update'])->name('jury-members.update');
+        Route::delete('/jury-members/{juryMember}', [JuryMembersAdminController::class, 'destroy'])->name('jury-members.destroy');
 
         Route::get('/plaquettes', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'index'])->name('plaquettes.index');
         Route::get('/plaquettes/create', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'create'])->name('plaquettes.create');
