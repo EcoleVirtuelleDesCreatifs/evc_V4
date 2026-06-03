@@ -37,8 +37,24 @@
                     </div>
 
                     <div class="col-12 col-md-6">
-                        <label class="form-label">Identifiant unique</label>
-                        <input type="text" name="unique_identifier" class="form-control" value="{{ old('unique_identifier') }}" required>
+                        <label class="form-label">
+                            Identifiant unique
+                            <span class="text-muted small ms-1">(auto-généré)</span>
+                        </label>
+                        <div class="input-group">
+                            <input type="text" name="unique_identifier" id="unique_identifier"
+                                class="form-control font-monospace"
+                                value="{{ old('unique_identifier') }}"
+                                required
+                                placeholder="EVC-JURY-XXXX-XXXX">
+                            <button type="button" class="btn btn-outline-secondary" id="regenBtn" title="Regénérer">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="copyBtn" title="Copier">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">Partagez cet identifiant avec le membre du jury pour qu'il puisse se connecter.</div>
                     </div>
 
                     <div class="col-12 col-md-6">
@@ -87,3 +103,35 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function generateId() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        const part = (len) => Array.from({length: len}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+        return `EVC-JURY-${part(4)}-${part(4)}`;
+    }
+
+    const input   = document.getElementById('unique_identifier');
+    const regenBtn = document.getElementById('regenBtn');
+    const copyBtn  = document.getElementById('copyBtn');
+
+    if (input && !input.value) {
+        input.value = generateId();
+    }
+
+    regenBtn.addEventListener('click', () => {
+        input.value = generateId();
+        input.classList.add('border-success');
+        setTimeout(() => input.classList.remove('border-success'), 800);
+    });
+
+    copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(input.value).then(() => {
+            copyBtn.innerHTML = '<i class="fas fa-check text-success"></i>';
+            setTimeout(() => copyBtn.innerHTML = '<i class="fas fa-copy"></i>', 1500);
+        });
+    });
+</script>
+@endpush
+
