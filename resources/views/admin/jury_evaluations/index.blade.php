@@ -206,6 +206,16 @@
                 @endif
 
                 {{-- Catégories --}}
+                @php
+                $catMeta = [
+                    'best_logo'                 => ['label' => 'Meilleur Logo',                          'icon' => '🏅', 'color' => '#8b5cf6'],
+                    'best_graphic_charter'       => ['label' => 'Meilleure Charte Graphique',              'icon' => '🎨', 'color' => '#3b82f6'],
+                    'professional_presentation'  => ['label' => 'Meilleure Présentation Professionnelle',  'icon' => '🎤', 'color' => '#10b981'],
+                    'jury_favorite'              => ['label' => 'Prix Coup de Coeur du Jury',              'icon' => '❤️', 'color' => '#f43f5e'],
+                    'visual_identity'            => ['label' => 'Meilleur Logo',                          'icon' => '🏅', 'color' => '#8b5cf6'],
+                    'digital_campaign'           => ['label' => 'Meilleure Charte Graphique',              'icon' => '🎨', 'color' => '#3b82f6'],
+                ];
+                @endphp
                 <div style="font-size:.72rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.75rem;">Détails par catégorie</div>
                 @foreach($evaluation->scores->groupBy('category_key') as $categoryKey => $categoryScores)
                     @php
@@ -217,10 +227,14 @@
                             $catPct >= 50 => '#f59e0b',
                             default       => '#f87171',
                         };
+                        $meta      = $catMeta[$categoryKey] ?? null;
+                        $catLabel  = $meta ? $meta['label'] : $categoryScores->first()->category_label;
+                        $catIcon   = $meta ? $meta['icon'] : '📂';
+                        $catBorder = $meta ? $meta['color'] : '#334155';
                     @endphp
-                    <div style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:1rem 1.2rem;margin-bottom:.75rem;">
+                    <div style="background:#0f172a;border:1px solid #334155;border-left:3px solid {{ $catBorder }};border-radius:10px;padding:1rem 1.2rem;margin-bottom:.75rem;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;">
-                            <span style="font-weight:600;color:#f1f5f9;font-size:.9rem;">{{ $categoryScores->first()->category_label }}</span>
+                            <span style="font-weight:600;color:#f1f5f9;font-size:.9rem;">{{ $catIcon }} {{ $catLabel }}</span>
                             <span style="font-size:.85rem;font-weight:700;color:{{ $catColor }};">{{ $catTotal }}/{{ $catMax }} <span style="font-size:.7rem;color:#64748b;">({{ $catPct }}%)</span></span>
                         </div>
                         <div style="height:5px;background:#1e3347;border-radius:99px;overflow:hidden;margin-bottom:.75rem;">
