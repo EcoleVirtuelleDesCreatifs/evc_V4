@@ -54,12 +54,12 @@ class JuryEvaluationsAdminController extends Controller
         foreach ($categories as $categoryKey => $meta) {
             $rankings[$categoryKey] = $evaluations->map(function ($evaluation) use ($categoryKey) {
                 $categoryScore = $evaluation->scores
-                    ->where('category_key', $categoryKey)
-                    ->sum('score');
+                    ->filter(fn($s) => $s->category_key === $categoryKey)
+                    ->sum(fn($s) => (int) $s->score);
                 return [
                     'group_name'     => $evaluation->group_name,
                     'category_score' => $categoryScore,
-                    'total_score'    => $evaluation->total_score,
+                    'total_score'    => (int) $evaluation->total_score,
                     'jury_name'      => $evaluation->jury_name,
                     'evaluation_date'=> $evaluation->evaluation_date,
                 ];
@@ -69,8 +69,9 @@ class JuryEvaluationsAdminController extends Controller
         }
 
         $globalScores = collect($allGroups)->map(function ($group) use ($evaluations) {
-            $total = $evaluations->where('group_name', $group)->sum('total_score');
-            $count = $evaluations->where('group_name', $group)->count();
+            $groupEvals = $evaluations->filter(fn($e) => $e->group_name === $group);
+            $count = $groupEvals->count();
+            $total = $groupEvals->sum(fn($e) => (int) $e->total_score);
             return [
                 'group_name' => $group,
                 'total'      => $total,
