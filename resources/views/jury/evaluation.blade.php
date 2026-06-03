@@ -116,7 +116,7 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
         }
 
@@ -413,6 +413,15 @@
         }
 
         @media (max-width: 950px) {
+            .page {
+                padding: 130px 16px 44px;
+            }
+
+            .hero {
+                padding: 40px 0 0;
+                margin-bottom: 40px;
+            }
+
             .form-grid,
             .evaluation-grid,
             .groups-area,
@@ -420,8 +429,25 @@
                 grid-template-columns: 1fr;
             }
 
+            .card,
+            .eval-card {
+                padding: 24px;
+            }
+
             .group-buttons {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .eval-head {
+                align-items: flex-start;
+            }
+
+            .bottom {
+                gap: 16px;
+            }
+
+            .btn {
+                width: 100%;
             }
 
             h1 {
@@ -440,8 +466,65 @@
         }
 
         @media (max-width: 600px) {
+            .page {
+                padding: 115px 12px 36px;
+            }
+
+            .hero {
+                margin-bottom: 28px;
+            }
+
+            .logo {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+
+            h1 {
+                font-size: 30px;
+                line-height: 1.1;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .intro {
+                font-size: 15px;
+            }
+
+            .card,
+            .eval-card {
+                padding: 18px;
+                border-radius: 10px;
+            }
+
+            .section-title {
+                font-size: 20px;
+                align-items: flex-start;
+            }
+
+            .eval-head {
+                flex-direction: column;
+            }
+
+            .eval-title {
+                font-size: 19px;
+                align-items: flex-start;
+            }
+
+            .icon {
+                width: 46px;
+                height: 46px;
+                font-size: 24px;
+            }
+
+            .score-pill {
+                align-self: flex-start;
+            }
+
             .criterion {
                 grid-template-columns: 1fr;
+                gap: 10px;
             }
 
             .stars {
@@ -452,8 +535,38 @@
                 grid-template-columns: 1fr;
             }
 
+            .total {
+                font-size: 17px;
+                gap: 12px;
+            }
+
+            .reminder {
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 13px 18px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .page {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+
             h1 {
-                font-size: 30px;
+                font-size: 26px;
+            }
+
+            .group-btn {
+                padding: 14px;
+                font-size: 14px;
+            }
+
+            .eval-title {
+                font-size: 17px;
             }
         }
     </style>
@@ -514,10 +627,7 @@
                         <input type="email" name="jury_email" value="{{ old('jury_email') }}" placeholder="exemple@email.com" required>
                     </div>
 
-                    <div class="field">
-                        <label>Date de l’évaluation</label>
-                        <input type="date" name="evaluation_date" value="{{ old('evaluation_date', now()->format('Y-m-d')) }}" required>
-                    </div>
+                    <input type="hidden" name="evaluation_date" value="{{ old('evaluation_date', now()->format('Y-m-d')) }}">
                 </div>
             </section>
 
