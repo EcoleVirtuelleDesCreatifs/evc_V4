@@ -36,6 +36,21 @@
             overflow: hidden;
         }
 
+        @media (max-width: 768px) {
+            .page {
+                padding-top: 220px;
+            }
+            .hero {
+                padding-top: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page {
+                padding-top: 200px;
+            }
+        }
+
         .logo {
             position: static;
             display: inline-block;
@@ -755,7 +770,7 @@
         function showFeedback(msg, ok) {
             juryFeedback.style.display = 'block';
             juryFeedback.style.color   = ok ? '#22c55e' : '#ef4444';
-            juryFeedback.textContent   = msg;
+            juryFeedback.innerHTML     = msg;
         }
 
         function buildGroupUI(availableGroups) {
@@ -822,6 +837,12 @@
                         ? '❌ Erreur : ' + data.debug
                         : '❌ Identifiant non reconnu. Vérifiez votre identifiant unique.';
                     showFeedback(msg, false);
+                    evaluationBody.style.display = 'none';
+                } else if (data.already_voted) {
+                    showFeedback(
+                        '✅ Bienvenue, ' + data.name + '. Vous avez déjà soumis votre évaluation pour <strong>' + data.voted_group + '</strong>. Merci pour votre participation !',
+                        true
+                    );
                     evaluationBody.style.display = 'none';
                 } else {
                     showFeedback('✅ Bienvenue, ' + data.name + ' !', true);
