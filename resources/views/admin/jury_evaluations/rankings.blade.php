@@ -15,13 +15,13 @@
     /* Global podium */
     .podium-section { background: #1e293b; border: 1px solid #334155; border-radius: 16px; overflow: hidden; }
     .podium-header { background: #0f172a; border-bottom: 1px solid #334155; padding: 1rem 1.5rem; display: flex; align-items: center; gap: .75rem; }
-    .podium-body { padding: 1.5rem; }
-    .podium-bars { display: flex; align-items: flex-end; justify-content: center; gap: 1rem; height: 160px; }
-    .podium-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: .4rem; flex: 1; max-width: 120px; }
-    .podium-bar { width: 100%; border-radius: 8px 8px 0 0; transition: all .3s; position: relative; min-height: 10px; }
-    .podium-bar-label { font-size: .75rem; color: #94a3b8; font-weight: 600; }
-    .podium-bar-score { font-size: .85rem; font-weight: 700; color: #f1f5f9; }
-    .podium-rank { font-size: 1.5rem; }
+    .podium-body { padding: 2rem 2.5rem; }
+    .podium-bars { display: flex; align-items: flex-end; justify-content: center; gap: 1.5rem; height: 320px; }
+    .podium-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: .6rem; flex: 1; max-width: 160px; }
+    .podium-bar { width: 100%; border-radius: 10px 10px 0 0; transition: all .3s; position: relative; min-height: 16px; }
+    .podium-bar-label { font-size: .9rem; color: #94a3b8; font-weight: 700; }
+    .podium-bar-score { font-size: 1.05rem; font-weight: 700; color: #f1f5f9; }
+    .podium-rank { font-size: 2rem; }
 
     /* Category section */
     .cat-section { background: #1e293b; border: 1px solid #334155; border-radius: 16px; overflow: hidden; }
@@ -118,12 +118,12 @@
         <div class="podium-body">
             @php
                 $maxAvg = $globalScores->max('avg') ?: 1;
-                $podiumColors = ['#f59e0b','#94a3b8','#cd7f32','#6366f1'];
-                $podiumRanks  = ['🥇','🥈','🥉','4️⃣'];
+                $podiumColors = ['#f59e0b','#94a3b8','#cd7f32','#6366f1','#334155'];
+                $podiumRanks  = ['🥇','🥈','🥉','4️⃣','5️⃣'];
             @endphp
             <div class="podium-bars">
                 @foreach($globalScores as $i => $gs)
-                    @php $barH = max(20, round(($gs['avg'] / $maxAvg) * 140)); @endphp
+                    @php $barH = max(24, round(($gs['avg'] / $maxAvg) * 280)); @endphp
                     <div class="podium-bar-wrap">
                         <div class="podium-bar-score">{{ $gs['avg'] }}<small style="font-size:.65rem;color:#64748b;">/320</small></div>
                         <div class="podium-bar" style="height:{{ $barH }}px; background: {{ $podiumColors[$i] ?? '#334155' }}; opacity:{{ $i === 0 ? 1 : 0.7 }};"></div>
