@@ -1,0 +1,156 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\JuryEvaluation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+
+class JuryEvaluationController extends Controller
+{
+    public function create()
+    {
+        return view('jury.evaluation', [
+            'groups' => $this->groups(),
+            'categories' => $this->categories(),
+            'storeRoute' => request()->is('evc/*') ? route('jury.evaluation.store.evc') : route('jury.evaluation.store'),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $groups = array_keys($this->groups());
+        $categories = $this->categories();
+
+        $rules = [
+            'jury_name' => ['required', 'string', 'max:255'],
+            'jury_function' => ['nullable', 'string', 'max:255'],
+            'jury_email' => ['required', 'email', 'max:255'],
+            'evaluation_date' => ['required', 'date'],
+            'group_name' => ['required', Rule::in($groups)],
+            'global_comment' => ['nullable', 'string', 'max:5000'],
+            'status' => ['required', Rule::in(['draft', 'submitted'])],
+        ];
+
+        foreach ($categories as $categoryKey => $category) {
+            foreach ($category['criteria'] as $criterionKey => $criterionLabel) {
+                $rules["scores.{$categoryKey}.{$criterionKey}"] = ['required', 'integer', 'min:0', 'max:20'];
+            }
+        }
+
+        $validated = $request->validate($rules);
+        $totalScore = collect($validated['scores'])->flatten()->sum();
+
+        try {
+            DB::transaction(function () use ($validated, $categories, $totalScore) {
+                $evaluation = JuryEvaluation::updateOrCreate(
+                    [
+                        'jury_email' => $validated['jury_email'],
+                        'group_name' => $validated['group_name'],
+                    ],
+                    [
+                        'jury_name' => $validated['jury_name'],
+                        'jury_function' => $validated['jury_function'] ?? null,
+                        'evaluation_date' => $validated['evaluation_date'],
+                        'global_comment' => $validated['global_comment'] ?? null,
+                        'total_score' => $totalScore,
+                        'status' => $validated['status'],
+                    ]
+                );
+
+                $evaluation->scores()->delete();
+
+                foreach ($validated['scores'] as $categoryKey => $criteriaScores) {
+                    foreach ($criteriaScores as $criterionKey => $score) {
+                        $evaluation->scores()->create([
+                            'category_key' => $categoryKey,
+                            'category_label' => $categories[$categoryKey]['label'],
+                            'criterion_key' => $criterionKey,
+                            'criterion_label' => $categories[$categoryKey]['criteria'][$criterionKey],
+                            'score' => $score,
+                            'max_score' => 20,
+                        ]);
+                    }
+                }
+            });
+        } catch (\Throwable $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Une erreur est survenue lors de l’enregistrement de votre évaluation. Veuillez réessayer.');
+        }
+
+        if ($validated['status'] === 'draft') {
+            return back()->with('success', 'Votre brouillon a été enregistré avec succès.');
+        }
+
+        $thankYouRoute = $request->is('evc/*') ? 'jury.evaluation.thank-you.evc' : 'jury.evaluation.thank-you';
+
+        return redirect()->route($thankYouRoute)->with('success', 'Votre évaluation a été soumise avec succès.');
+    }
+
+    public function thankYou()
+    {
+        return view('jury.thank-you');
+    }
+
+    private function groups(): array
+    {
+        return [
+            'Groupe 1' => 'Groupe 1',
+            'Groupe 2' => 'Groupe 2',
+            'Groupe 3' => 'Groupe 3',
+            'Groupe 4' => 'Groupe 4',
+        ];
+    }
+
+    private function categories(): array
+    {
+        return [
+            'visual_identity' => [
+                'label' => 'Meilleure identité visuelle',
+                'icon' => '🎨',
+                'theme' => 'purple',
+                'criteria' => [
+                    'logo_originality' => 'Originalité du logo',
+                    'graphic_consistency' => 'Cohérence de la charte graphique',
+                    'visual_support_quality' => 'Qualité des supports visuels',
+                    'brief_relevance' => 'Pertinence par rapport au brief',
+                ],
+            ],
+            'digital_campaign' => [
+                'label' => 'Meilleure campagne digitale',
+                'icon' => '📣',
+                'theme' => 'green',
+                'criteria' => [
+                    'digital_strategy' => 'Qualité de la stratégie digitale',
+                    'content_creativity' => 'Créativité des contenus',
+                    'channel_relevance' => 'Pertinence des canaux choisis',
+                    'campaign_impact' => 'Impact potentiel de la campagne',
+                ],
+            ],
+            'professional_presentation' => [
+                'label' => 'Meilleure présentation professionnelle',
+                'icon' => '👨‍🏫',
+                'theme' => 'orange',
+                'criteria' => [
+                    'presentation_clarity' => 'Clarté de la présentation',
+                    'subject_mastery' => 'Maîtrise du sujet',
+                    'pitch_quality' => 'Qualité du pitch',
+                    'time_posture' => 'Gestion du temps et posture',
+                ],
+            ],
+            'jury_favorite' => [
+                'label' => 'Prix Coup de Cœur du Jury',
+                'icon' => '❤️',
+                'theme' => 'pink',
+                'criteria' => [
+                    'emotion' => 'Émotion ressentie',
+                    'global_originality' => 'Originalité globale du projet',
+                    'wow_effect' => 'Effet “waouh”',
+                    'real_potential' => 'Potentiel réel du projet',
+                ],
+            ],
+        ];
+    }
+}
