@@ -1,57 +1,86 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Évaluation envoyée - Studio Creative 5</title>
+@extends('layouts.app')
+
+@section('title', 'Évaluation envoyée - Jury EVC')
+@section('description', 'Confirmation d’envoi de l’évaluation jury Studio Créatif EVC.')
+@section('keywords', 'jury EVC, évaluation envoyée, studio créatif')
+
+@section('content')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+        :root {
+            --jury-primary: #ff9800;
+            --jury-primary-dark: #f57c00;
+            --jury-gradient: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
+            --jury-accent: #ffb74d;
+            --jury-bg-dark: #0f172a;
+            --jury-bg-card: #1e293b;
+            --jury-text-primary: #f1f5f9;
+            --jury-text-secondary: #94a3b8;
+            --jury-border: #334155;
+            --jury-glow: rgba(255, 152, 0, 0.3);
         }
 
-        body {
+        .thank-page {
             min-height: 100vh;
             display: grid;
             place-items: center;
-            background: linear-gradient(135deg, #eef3ff, #ffffff, #f4edff);
-            color: #090b2d;
-            padding: 25px;
+            background: var(--jury-bg-dark);
+            color: var(--jury-text-primary);
+            padding: 160px 20px 60px;
         }
 
-        .card {
+        .thank-card {
             width: min(720px, 100%);
             text-align: center;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid #dde3f3;
-            border-radius: 28px;
-            box-shadow: 0 24px 70px rgba(71, 55, 150, 0.12);
+            background: var(--jury-bg-card);
+            border: 1px solid var(--jury-border);
+            border-radius: 12px;
             padding: 55px 35px;
-            backdrop-filter: blur(12px);
+            transition: all 0.3s;
+        }
+
+        .thank-card:hover {
+            border-color: var(--jury-primary);
         }
 
         .icon {
-            width: 92px;
-            height: 92px;
+            width: 80px;
+            height: 80px;
             display: grid;
             place-items: center;
             margin: 0 auto 25px;
-            border-radius: 28px;
-            font-size: 48px;
-            background: linear-gradient(135deg, #7b35ff, #541bd8);
-            box-shadow: 0 15px 30px rgba(91, 35, 220, 0.35);
+            border-radius: 12px;
+            font-size: 42px;
+            background: var(--jury-gradient);
+            box-shadow: 0 0 24px var(--jury-glow);
+        }
+
+        .header-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            margin-bottom: 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            background: rgba(255, 152, 0, 0.1);
+            color: var(--jury-primary);
+            box-shadow: 0 0 20px var(--jury-glow);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         h1 {
             font-size: 42px;
-            font-weight: 900;
-            margin-bottom: 15px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, var(--jury-primary) 0%, var(--jury-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         p {
-            color: #4c5070;
+            color: var(--jury-text-secondary);
             font-size: 17px;
             line-height: 1.7;
             margin-bottom: 30px;
@@ -69,27 +98,63 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            border-radius: 50px;
-            padding: 16px 28px;
-            font-weight: 900;
+            border-radius: 8px;
+            padding: 14px 24px;
+            font-weight: 600;
             font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #7b35ff, #541bd8);
+            background: var(--jury-primary);
             color: #fff;
-            box-shadow: 0 15px 30px rgba(91, 35, 220, 0.25);
+        }
+
+        .btn-primary:hover {
+            background: var(--jury-primary-dark);
         }
 
         .btn-outline {
-            background: #fff;
-            color: #3516b8;
-            border: 2px solid #6d35f2;
+            background: transparent;
+            color: var(--jury-primary);
+            border: 1px solid var(--jury-primary);
+        }
+
+        @media (max-width: 600px) {
+            .thank-page {
+                padding: 120px 14px 44px;
+            }
+
+            .thank-card {
+                padding: 34px 20px;
+            }
+
+            h1 {
+                font-size: 30px;
+                line-height: 1.1;
+            }
+
+            p {
+                font-size: 15px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
         }
     </style>
-</head>
-<body>
-    <section class="card">
+
+    <main class="thank-page">
+    <section class="thank-card">
+        <span class="header-badge">ÉVALUATION JURY</span>
         <div class="icon">🏆</div>
         <h1>Merci pour votre évaluation</h1>
         <p>
@@ -100,5 +165,5 @@
             <a href="{{ route('jury') }}" class="btn btn-outline">Voir les membres du jury</a>
         </div>
     </section>
-</body>
-</html>
+    </main>
+@endsection
