@@ -12,6 +12,7 @@ class JuryMember extends Model
 
     protected $fillable = [
         'name',
+        'unique_identifier',
         'title',
         'country',
         'flag',

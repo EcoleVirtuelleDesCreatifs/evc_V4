@@ -39,6 +39,7 @@
                             <th>Ordre</th>
                             <th>Photo</th>
                             <th>Membre</th>
+                            <th>Identifiant</th>
                             <th>Pays</th>
                             <th class="text-end">Actions</th>
                         </tr>
@@ -61,6 +62,7 @@
                                     <div class="fw-bold">{{ $member->name }}</div>
                                     <div class="small text-muted">{{ $member->title ?: 'Fonction non renseignée' }}</div>
                                 </td>
+                                <td><span class="badge bg-light text-dark">{{ $member->unique_identifier }}</span></td>
                                 <td>
                                     <span>{{ $member->flag }}</span>
                                     <span>{{ $member->country ?: 'Non renseigné' }}</span>
@@ -76,7 +78,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="text-center text-muted py-4">Aucun membre du jury enregistré</td>
+                                <td colspan="7" class="text-center text-muted py-4">Aucun membre du jury enregistré</td>
                             </tr>
                         @endforelse
                     </tbody>

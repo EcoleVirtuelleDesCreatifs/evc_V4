@@ -37,6 +37,11 @@
                     </div>
 
                     <div class="col-12 col-md-6">
+                        <label class="form-label">Identifiant unique</label>
+                        <input type="text" name="unique_identifier" class="form-control" value="{{ old('unique_identifier') }}" required>
+                    </div>
+
+                    <div class="col-12 col-md-6">
                         <label class="form-label">Fonction</label>
                         <input type="text" name="title" class="form-control" value="{{ old('title') }}">
                     </div>

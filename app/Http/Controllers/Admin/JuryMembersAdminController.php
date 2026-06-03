@@ -7,6 +7,7 @@ use App\Models\JuryMember;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class JuryMembersAdminController extends Controller
@@ -44,6 +45,7 @@ class JuryMembersAdminController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'unique_identifier' => ['required', 'string', 'max:100', 'unique:jury_members,unique_identifier'],
             'title' => ['nullable', 'string', 'max:255'],
             'country' => ['nullable', 'string', 'max:255'],
             'flag' => ['nullable', 'string', 'max:20'],
@@ -60,6 +62,7 @@ class JuryMembersAdminController extends Controller
 
         $member = JuryMember::query()->create([
             'name' => $validated['name'],
+            'unique_identifier' => $validated['unique_identifier'],
             'title' => $validated['title'] ?? null,
             'country' => $validated['country'] ?? null,
             'flag' => $validated['flag'] ?? null,
@@ -87,6 +90,7 @@ class JuryMembersAdminController extends Controller
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'unique_identifier' => ['required', 'string', 'max:100', Rule::unique('jury_members', 'unique_identifier')->ignore($juryMember->id)],
             'title' => ['nullable', 'string', 'max:255'],
             'country' => ['nullable', 'string', 'max:255'],
             'flag' => ['nullable', 'string', 'max:20'],
@@ -105,6 +109,7 @@ class JuryMembersAdminController extends Controller
         }
 
         $juryMember->name = $validated['name'];
+        $juryMember->unique_identifier = $validated['unique_identifier'];
         $juryMember->title = $validated['title'] ?? null;
         $juryMember->country = $validated['country'] ?? null;
         $juryMember->flag = $validated['flag'] ?? null;

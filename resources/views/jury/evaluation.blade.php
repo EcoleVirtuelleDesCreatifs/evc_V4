@@ -632,6 +632,14 @@
                     masqués.
                 </p>
             </section>
+        @elseif (!isset($juryMembers) || $juryMembers->isEmpty())
+            <section class="card empty-state">
+                <div class="icon">👤</div>
+                <h2 class="section-title" style="justify-content: center;">Aucun membre du jury enregistré</h2>
+                <p>
+                    Aucun membre du jury actif n’est disponible. Veuillez enregistrer les membres du jury depuis le dashboard admin avant de commencer les évaluations.
+                </p>
+            </section>
         @else
             <form method="POST" action="{{ $storeRoute }}" id="evaluationForm">
                 @csrf
@@ -642,21 +650,21 @@
 
                     <div class="form-grid">
                         <div class="field">
-                            <label>Nom et prénom</label>
-                            <input type="text" name="jury_name" value="{{ old('jury_name') }}"
-                                placeholder="Ex : Jean Dupont" required>
+                            <label>Membre du jury</label>
+                            <select name="jury_member_id" required>
+                                <option value="">Sélectionnez votre nom</option>
+                                @foreach ($juryMembers as $juryMember)
+                                    <option value="{{ $juryMember->id }}" @selected((string) old('jury_member_id') === (string) $juryMember->id)>
+                                        {{ $juryMember->name }}{{ $juryMember->title ? ' - ' . $juryMember->title : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="field">
-                            <label>Fonction / Organisation</label>
-                            <input type="text" name="jury_function" value="{{ old('jury_function') }}"
-                                placeholder="Ex : Directeur Créatif">
-                        </div>
-
-                        <div class="field">
-                            <label>Email</label>
-                            <input type="email" name="jury_email" value="{{ old('jury_email') }}"
-                                placeholder="exemple@email.com" required>
+                            <label>Identifiant unique</label>
+                            <input type="text" name="jury_identifier" value="{{ old('jury_identifier') }}"
+                                placeholder="Entrez votre identifiant unique" required>
                         </div>
 
                         <input type="hidden" name="evaluation_date"
@@ -756,60 +764,60 @@
 
         if (groupSelect && grandTotal && statusInput) {
 
-        function updateGroupButtons() {
-            groupButtons.forEach((button) => {
-                button.classList.toggle('active', button.dataset.group === groupSelect.value);
-            });
-        }
+            function updateGroupButtons() {
+                groupButtons.forEach((button) => {
+                    button.classList.toggle('active', button.dataset.group === groupSelect.value);
+                });
+            }
 
-        function starsFromScore(score) {
-            const fullStars = Math.round(Number(score || 0) / 4);
-            return '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
-        }
+            function starsFromScore(score) {
+                const fullStars = Math.round(Number(score || 0) / 4);
+                return '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+            }
 
-        function updateTotals() {
-            let total = 0;
+            function updateTotals() {
+                let total = 0;
 
-            document.querySelectorAll('.eval-card').forEach((card) => {
-                let categoryTotal = 0;
+                document.querySelectorAll('.eval-card').forEach((card) => {
+                    let categoryTotal = 0;
 
-                card.querySelectorAll('.score-input').forEach((input) => {
-                    let value = Number(input.value || 0);
-                    value = Math.max(0, Math.min(20, value));
-                    input.value = value;
-                    categoryTotal += value;
+                    card.querySelectorAll('.score-input').forEach((input) => {
+                        let value = Number(input.value || 0);
+                        value = Math.max(0, Math.min(20, value));
+                        input.value = value;
+                        categoryTotal += value;
 
-                    const note = input.parentElement.querySelector('.note');
-                    const stars = input.closest('.criterion').querySelector('.stars');
-                    note.textContent = value + '/20';
-                    stars.textContent = starsFromScore(value);
+                        const note = input.parentElement.querySelector('.note');
+                        const stars = input.closest('.criterion').querySelector('.stars');
+                        note.textContent = value + '/20';
+                        stars.textContent = starsFromScore(value);
+                    });
+
+                    card.querySelector('.category-total').textContent = categoryTotal;
+                    total += categoryTotal;
                 });
 
-                card.querySelector('.category-total').textContent = categoryTotal;
-                total += categoryTotal;
+                grandTotal.textContent = total;
+            }
+
+            groupButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    groupSelect.value = button.dataset.group;
+                    updateGroupButtons();
+                });
             });
 
-            grandTotal.textContent = total;
-        }
+            groupSelect.addEventListener('change', updateGroupButtons);
+            scoreInputs.forEach((input) => input.addEventListener('input', updateTotals));
 
-        groupButtons.forEach((button) => {
-            button.addEventListener('click', () => {
-                groupSelect.value = button.dataset.group;
-                updateGroupButtons();
+            document.querySelectorAll('[data-status]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    statusInput.value = button.dataset.status;
+                });
             });
-        });
 
-        groupSelect.addEventListener('change', updateGroupButtons);
-        scoreInputs.forEach((input) => input.addEventListener('input', updateTotals));
-
-        document.querySelectorAll('[data-status]').forEach((button) => {
-            button.addEventListener('click', () => {
-                statusInput.value = button.dataset.status;
-            });
-        });
-
-        updateGroupButtons();
-        updateTotals();
+            updateGroupButtons();
+            updateTotals();
         }
     </script>
 @endpush

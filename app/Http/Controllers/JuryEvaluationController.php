@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\JuryEvaluation;
+use App\Models\JuryMember;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class JuryEvaluationController extends Controller
@@ -12,9 +14,11 @@ class JuryEvaluationController extends Controller
     public function create()
     {
         $groups = $this->availableGroups();
+        $juryMembers = $this->activeJuryMembers();
 
         return view('jury.evaluation', [
             'groups' => $groups,
+            'juryMembers' => $juryMembers,
             'categories' => $this->categories(),
             'storeRoute' => request()->is('evc/*') ? route('jury.evaluation.store.evc') : route('jury.evaluation.store'),
         ]);
@@ -24,11 +28,11 @@ class JuryEvaluationController extends Controller
     {
         $groups = array_keys($this->groups());
         $categories = $this->categories();
+        $juryMemberIds = $this->activeJuryMembers()->pluck('id')->all();
 
         $rules = [
-            'jury_name' => ['required', 'string', 'max:255'],
-            'jury_function' => ['nullable', 'string', 'max:255'],
-            'jury_email' => ['required', 'email', 'max:255'],
+            'jury_member_id' => ['required', Rule::in($juryMemberIds)],
+            'jury_identifier' => ['required', 'string', 'max:100'],
             'evaluation_date' => ['required', 'date'],
             'group_name' => ['required', Rule::in($groups)],
             'global_comment' => ['nullable', 'string', 'max:5000'],
@@ -42,6 +46,21 @@ class JuryEvaluationController extends Controller
         }
 
         $validated = $request->validate($rules);
+        $juryMember = JuryMember::query()
+            ->where('id', $validated['jury_member_id'])
+            ->where('is_active', true)
+            ->where('unique_identifier', $validated['jury_identifier'])
+            ->first();
+
+        if (!$juryMember) {
+            return back()
+                ->withInput()
+                ->with('error', 'Le membre du jury ou l’identifiant unique est incorrect.');
+        }
+
+        $validated['jury_name'] = $juryMember->name;
+        $validated['jury_function'] = $juryMember->title;
+        $validated['jury_email'] = 'jury-' . $juryMember->id . '@evc.local';
         $totalScore = collect($validated['scores'])->flatten()->sum();
 
         if (
@@ -123,6 +142,19 @@ class JuryEvaluationController extends Controller
             ->all();
 
         return array_diff_key($this->groups(), array_flip($evaluatedGroups));
+    }
+
+    private function activeJuryMembers()
+    {
+        if (!Schema::hasTable('jury_members')) {
+            return collect();
+        }
+
+        return JuryMember::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
     }
 
     private function categories(): array
