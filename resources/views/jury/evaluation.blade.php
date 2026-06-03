@@ -1,37 +1,21 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Évaluation des Groupes - Studio Creative 5</title>
+@extends('layouts.app')
 
+@section('title', 'Évaluation des groupes - Membres du Jury | EVC')
+@section('description', 'Page officielle d’évaluation des groupes Studio Créatif par les membres du jury EVC.')
+@section('keywords', 'jury EVC, évaluation groupes, studio créatif, école virtuelle des créatifs')
+
+@section('content')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Inter", "Segoe UI", Arial, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #eef3ff, #ffffff, #f4edff);
-            color: #090b2d;
-        }
-
         .page {
-            max-width: 1250px;
-            margin: auto;
-            padding: 35px 25px;
+            background: #000;
+            color: #fff;
         }
 
         .hero {
             position: relative;
             text-align: center;
-            padding: 40px 20px 60px;
-            border-radius: 0 0 35px 35px;
-            background: linear-gradient(120deg, #f8fbff, #ffffff, #efe6ff);
+            padding: 150px 20px 70px;
+            background: linear-gradient(to bottom, #000033, #000066);
             overflow: hidden;
         }
 
@@ -41,7 +25,7 @@
             left: 35px;
             font-size: 24px;
             font-weight: 800;
-            color: #140f3f;
+            color: #f97316;
             line-height: 1.1;
         }
 
@@ -61,22 +45,22 @@
 
         .subtitle {
             font-size: 28px;
-            color: #6428e8;
+            color: #f97316;
             font-weight: 800;
             margin-bottom: 20px;
         }
 
         .intro {
-            color: #4c5070;
+            color: #d1d5db;
             font-size: 16px;
             line-height: 1.6;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.86);
-            border: 1px solid #dde3f3;
+            background: rgba(31, 41, 55, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 22px;
-            box-shadow: 0 18px 45px rgba(71, 55, 150, 0.08);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
             padding: 25px;
             backdrop-filter: blur(12px);
         }
@@ -107,7 +91,7 @@
             font-size: 13px;
             font-weight: 700;
             margin-bottom: 8px;
-            color: #25284f;
+            color: #e5e7eb;
         }
 
         .field input,
@@ -120,14 +104,14 @@
             font-size: 15px;
             outline: none;
             background: #fff;
-            color: #151735;
+            color: #000033;
         }
 
         .field input:focus,
         .field select:focus,
         textarea:focus {
-            border-color: #6d35f2;
-            box-shadow: 0 0 0 4px rgba(109, 53, 242, 0.1);
+            border-color: #f97316;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.16);
         }
 
         .groups-area {
@@ -144,21 +128,22 @@
         }
 
         .group-btn {
-            border: 1px solid #dce2f2;
-            background: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             padding: 17px;
             border-radius: 16px;
             font-weight: 800;
-            color: #11143b;
+            color: #fff;
             cursor: pointer;
             transition: 0.25s;
         }
 
         .group-btn.active,
         .group-btn:hover {
-            border-color: #6d35f2;
-            color: #6029e6;
-            box-shadow: 0 10px 25px rgba(98, 41, 230, 0.15);
+            border-color: #f97316;
+            color: #fb923c;
+            background: rgba(249, 115, 22, 0.12);
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.15);
         }
 
         .evaluation-grid {
@@ -171,14 +156,16 @@
         .eval-card {
             border-radius: 24px;
             padding: 25px;
-            border: 1px solid #e2e6f4;
-            box-shadow: 0 15px 40px rgba(44, 38, 120, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
         }
 
-        .purple { background: linear-gradient(145deg, #ffffff, #f2ecff); }
-        .green { background: linear-gradient(145deg, #ffffff, #eafff6); }
-        .orange { background: linear-gradient(145deg, #ffffff, #fff3df); }
-        .pink { background: linear-gradient(145deg, #ffffff, #fff0f7); }
+        .purple,
+        .green,
+        .orange,
+        .pink {
+            background: rgba(31, 41, 55, 0.82);
+        }
 
         .eval-head {
             display: flex;
@@ -208,26 +195,29 @@
             flex-shrink: 0;
         }
 
-        .purple .icon { background: linear-gradient(135deg, #7b35ff, #4215bf); }
-        .green .icon { background: linear-gradient(135deg, #28d891, #0ca66c); }
-        .orange .icon { background: linear-gradient(135deg, #ff9c1a, #ff6500); }
-        .pink .icon { background: linear-gradient(135deg, #ff4e9a, #d10065); }
+        .purple .icon,
+        .green .icon,
+        .orange .icon,
+        .pink .icon {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
 
         .score-pill {
             padding: 10px 20px;
             border-radius: 50px;
             font-weight: 900;
             font-size: 17px;
-            background: rgba(255, 255, 255, 0.75);
-            border: 1px solid rgba(120, 90, 240, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fb923c;
             white-space: nowrap;
         }
 
         .criteria {
-            border: 1px solid #dce2f2;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 18px;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.72);
+            background: rgba(0, 0, 0, 0.25);
         }
 
         .criterion {
@@ -236,7 +226,7 @@
             align-items: center;
             gap: 15px;
             padding: 15px;
-            border-bottom: 1px solid #e6eaf5;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .criterion:last-child {
@@ -246,7 +236,7 @@
         .criterion span {
             font-size: 14px;
             font-weight: 600;
-            color: #20234a;
+            color: #e5e7eb;
         }
 
         .score-input {
@@ -265,14 +255,14 @@
             display: flex;
             gap: 1px;
             font-size: 18px;
-            color: #6b35f2;
+            color: #f97316;
             letter-spacing: 1px;
             justify-content: flex-end;
         }
 
-        .green .stars { color: #14b979; }
-        .orange .stars { color: #ff7a00; }
-        .pink .stars { color: #ee1d7b; }
+        .green .stars,
+        .orange .stars,
+        .pink .stars { color: #f97316; }
 
         .note {
             padding: 7px 12px;
@@ -280,7 +270,7 @@
             font-weight: 800;
             font-size: 14px;
             background: #fff;
-            color: #5521d9;
+            color: #000033;
             text-align: center;
         }
 
@@ -311,12 +301,12 @@
         }
 
         .reminder {
-            background: #f4f0ff;
-            border: 1px solid #ddd2ff;
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.3);
             border-radius: 20px;
             padding: 20px;
             font-weight: 700;
-            color: #22125a;
+            color: #ffedd5;
         }
 
         .btn {
@@ -329,15 +319,15 @@
         }
 
         .btn-outline {
-            background: #fff;
-            color: #3516b8;
-            border: 2px solid #6d35f2;
+            background: transparent;
+            color: #fb923c;
+            border: 2px solid #f97316;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #7b35ff, #541bd8);
+            background: linear-gradient(135deg, #f97316, #ea580c);
             color: #fff;
-            box-shadow: 0 15px 30px rgba(91, 35, 220, 0.35);
+            box-shadow: 0 15px 30px rgba(249, 115, 22, 0.25);
         }
 
         .alert {
@@ -418,8 +408,7 @@
             }
         }
     </style>
-</head>
-<body>
+
     <main class="page">
         <section class="hero">
             <div class="logo">Studio<br>Creative 5</div>
@@ -560,7 +549,9 @@
             </section>
         </form>
     </main>
+@endsection
 
+@push('scripts')
     <script>
         const groupSelect = document.getElementById('groupSelect');
         const groupButtons = document.querySelectorAll('.group-btn');
@@ -623,5 +614,4 @@
         updateGroupButtons();
         updateTotals();
     </script>
-</body>
-</html>
+@endpush
