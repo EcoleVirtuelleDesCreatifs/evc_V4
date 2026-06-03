@@ -15,8 +15,8 @@
     /* Global podium */
     .podium-section { background: #1e293b; border: 1px solid #334155; border-radius: 16px; overflow: visible; }
     .podium-header { background: #0f172a; border-bottom: 1px solid #334155; padding: 1rem 1.5rem; display: flex; align-items: center; gap: .75rem; border-radius: 16px 16px 0 0; }
-    .podium-body { padding: 2rem 2.5rem 2rem; }
-    .podium-bars { display: flex; align-items: flex-end; justify-content: center; gap: 1.5rem; height: 360px; padding-top: 60px; box-sizing: border-box; }
+    .podium-body { padding: 2.5rem 2.5rem 2.5rem; }
+    .podium-bars { display: flex; align-items: flex-end; justify-content: center; gap: 1.5rem; height: 420px; padding-top: 100px; box-sizing: border-box; }
     .podium-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: .6rem; flex: 1; max-width: 160px; }
     .podium-bar { width: 100%; border-radius: 10px 10px 0 0; transition: all .3s; position: relative; min-height: 16px; }
     .podium-bar-label { font-size: .9rem; color: #94a3b8; font-weight: 700; }
