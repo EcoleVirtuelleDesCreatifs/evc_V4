@@ -24,6 +24,7 @@ use App\Http\Controllers\ActivityReportPublicController;
 use App\Http\Controllers\PartnershipController;
 use App\Http\Controllers\Admin\PartnershipsAdminController;
 use App\Http\Controllers\Admin\JuryMembersAdminController;
+use App\Http\Controllers\Admin\JuryEvaluationsAdminController;
 use App\Http\Controllers\JuryEvaluationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -903,6 +904,9 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/jury-members/{juryMember}/edit', [JuryMembersAdminController::class, 'edit'])->name('jury-members.edit');
         Route::put('/jury-members/{juryMember}', [JuryMembersAdminController::class, 'update'])->name('jury-members.update');
         Route::delete('/jury-members/{juryMember}', [JuryMembersAdminController::class, 'destroy'])->name('jury-members.destroy');
+        Route::get('/jury-members/{juryMember}/evaluations', [JuryEvaluationsAdminController::class, 'index'])->name('jury-members.evaluations.index');
+
+        Route::get('/jury-evaluations/rankings', [JuryEvaluationsAdminController::class, 'rankings'])->name('jury-evaluations.rankings');
 
         Route::get('/plaquettes', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'index'])->name('plaquettes.index');
         Route::get('/plaquettes/create', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'create'])->name('plaquettes.create');

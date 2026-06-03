@@ -39,4 +39,9 @@ class JuryMember extends Model
 
         return asset('assets/img/default-avatar.png');
     }
+
+    public function evaluations()
+    {
+        return $this->hasMany(JuryEvaluation::class);
+    }
 }

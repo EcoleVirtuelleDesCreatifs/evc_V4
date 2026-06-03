@@ -566,6 +566,12 @@
                             Membres du jury
                         </a>
                     </li>
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.jury-evaluations.rankings') }}" class="admin-nav-link {{ request()->routeIs('admin.jury-evaluations.rankings') ? 'active' : '' }}">
+                            <i class="fas fa-trophy"></i>
+                            Classements jury
+                        </a>
+                    </li>
                     @endif
 
                     @if(in_array(session('admin_role'), ['super_admin', 'manager']))

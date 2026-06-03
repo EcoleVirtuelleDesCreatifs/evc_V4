@@ -61,6 +61,7 @@ class JuryEvaluationController extends Controller
         $validated['jury_name'] = $juryMember->name;
         $validated['jury_function'] = $juryMember->title;
         $validated['jury_email'] = 'jury-' . $juryMember->id . '@evc.local';
+        $validated['jury_member_id'] = $juryMember->id;
         $totalScore = collect($validated['scores'])->flatten()->sum();
 
         if (
@@ -80,6 +81,7 @@ class JuryEvaluationController extends Controller
                         'group_name' => $validated['group_name'],
                     ],
                     [
+                        'jury_member_id' => $validated['jury_member_id'],
                         'jury_name' => $validated['jury_name'],
                         'jury_function' => $validated['jury_function'] ?? null,
                         'evaluation_date' => $validated['evaluation_date'],

@@ -10,6 +10,7 @@ class JuryEvaluation extends Model
     use HasFactory;
 
     protected $fillable = [
+        'jury_member_id',
         'jury_name',
         'jury_function',
         'jury_email',
@@ -27,5 +28,10 @@ class JuryEvaluation extends Model
     public function scores()
     {
         return $this->hasMany(JuryEvaluationScore::class);
+    }
+
+    public function juryMember()
+    {
+        return $this->belongsTo(JuryMember::class);
     }
 }
