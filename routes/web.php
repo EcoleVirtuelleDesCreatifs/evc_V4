@@ -111,10 +111,12 @@ Route::get('/laureats', [HomepageController::class, 'laureats'])->name('laureats
 Route::get('/jury', [HomepageController::class, 'jury'])->name('jury');
 Route::get('/jury/evaluation', [JuryEvaluationController::class, 'create'])->name('jury.evaluation.create');
 Route::post('/jury/evaluation', [JuryEvaluationController::class, 'store'])->name('jury.evaluation.store');
+Route::get('/jury/evaluation/lookup', [JuryEvaluationController::class, 'lookupMember'])->name('jury.evaluation.lookup');
 Route::get('/jury/evaluation/evaluated-groups', [JuryEvaluationController::class, 'getEvaluatedGroups'])->name('jury.evaluation.evaluated-groups');
 Route::get('/jury/evaluation/merci', [JuryEvaluationController::class, 'thankYou'])->name('jury.evaluation.thank-you');
 Route::get('/evc/jury/evaluation', [JuryEvaluationController::class, 'create'])->name('jury.evaluation.create.evc');
 Route::post('/evc/jury/evaluation', [JuryEvaluationController::class, 'store'])->name('jury.evaluation.store.evc');
+Route::get('/evc/jury/evaluation/lookup', [JuryEvaluationController::class, 'lookupMember'])->name('jury.evaluation.lookup.evc');
 Route::get('/evc/jury/evaluation/evaluated-groups', [JuryEvaluationController::class, 'getEvaluatedGroups'])->name('jury.evaluation.evaluated-groups.evc');
 Route::get('/evc/jury/evaluation/merci', [JuryEvaluationController::class, 'thankYou'])->name('jury.evaluation.thank-you.evc');
 Route::get('/rapports-activite', [ActivityReportPublicController::class, 'index'])->name('activity-reports.index');

@@ -13,14 +13,48 @@ class JuryEvaluationController extends Controller
 {
     public function create()
     {
-        $groups = $this->availableGroups(null);
-        $juryMembers = $this->activeJuryMembers();
-
         return view('jury.evaluation', [
-            'groups' => $groups,
-            'juryMembers' => $juryMembers,
+            'groups'     => $this->groups(),
             'categories' => $this->categories(),
             'storeRoute' => request()->is('evc/*') ? route('jury.evaluation.store.evc') : route('jury.evaluation.store'),
+            'lookupRoute' => request()->is('evc/*') ? route('jury.evaluation.lookup.evc') : route('jury.evaluation.lookup'),
+        ]);
+    }
+
+    public function lookupMember(Request $request)
+    {
+        $identifier = trim((string) $request->input('jury_identifier', ''));
+
+        if (!$identifier) {
+            return response()->json(['found' => false]);
+        }
+
+        $member = JuryMember::query()
+            ->where('unique_identifier', $identifier)
+            ->where('is_active', true)
+            ->first();
+
+        if (!$member) {
+            return response()->json(['found' => false]);
+        }
+
+        $evaluatedGroups = JuryEvaluation::query()
+            ->where('jury_member_id', $member->id)
+            ->where('status', 'submitted')
+            ->pluck('group_name')
+            ->all();
+
+        $availableGroups = array_values(
+            array_diff(array_keys($this->groups()), $evaluatedGroups)
+        );
+
+        return response()->json([
+            'found'            => true,
+            'id'               => $member->id,
+            'name'             => $member->name,
+            'title'            => $member->title,
+            'evaluated_groups' => $evaluatedGroups,
+            'available_groups' => $availableGroups,
         ]);
     }
 
@@ -28,15 +62,13 @@ class JuryEvaluationController extends Controller
     {
         $groups = array_keys($this->groups());
         $categories = $this->categories();
-        $juryMemberIds = $this->activeJuryMembers()->pluck('id')->all();
 
         $rules = [
-            'jury_member_id' => ['required', Rule::in($juryMemberIds)],
             'jury_identifier' => ['required', 'string', 'max:100'],
             'evaluation_date' => ['required', 'date'],
-            'group_name' => ['required', Rule::in($groups)],
-            'global_comment' => ['nullable', 'string', 'max:5000'],
-            'status' => ['required', Rule::in(['draft', 'submitted'])],
+            'group_name'      => ['required', Rule::in($groups)],
+            'global_comment'  => ['nullable', 'string', 'max:5000'],
+            'status'          => ['required', Rule::in(['draft', 'submitted'])],
         ];
 
         foreach ($categories as $categoryKey => $category) {
@@ -46,16 +78,16 @@ class JuryEvaluationController extends Controller
         }
 
         $validated = $request->validate($rules);
+
         $juryMember = JuryMember::query()
-            ->where('id', $validated['jury_member_id'])
-            ->where('is_active', true)
             ->where('unique_identifier', $validated['jury_identifier'])
+            ->where('is_active', true)
             ->first();
 
         if (!$juryMember) {
             return back()
                 ->withInput()
-                ->with('error', 'Le membre du jury ou l’identifiant unique est incorrect.');
+                ->with('error', 'Identifiant non reconnu. Veuillez vérifier votre identifiant unique.');
         }
 
         $validated['jury_name'] = $juryMember->name;
@@ -131,6 +163,7 @@ class JuryEvaluationController extends Controller
 
     public function getEvaluatedGroups(Request $request)
     {
+        // Kept for compatibility
         $juryMemberId = $request->input('jury_member_id');
 
         if (!$juryMemberId) {

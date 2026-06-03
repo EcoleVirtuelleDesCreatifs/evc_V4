@@ -623,51 +623,39 @@
             </div>
         @endif
 
-        @if (empty($groups))
-            <section class="card empty-state">
-                <div class="icon">✅</div>
-                <h2 class="section-title" style="justify-content: center;">Tous les groupes ont été notés</h2>
-                <p>
-                    Aucun groupe n’est disponible pour une nouvelle évaluation. Les groupes déjà soumis sont automatiquement
-                    masqués.
-                </p>
+        {{-- Étape 1 : saisie identifiant --}}
+            <section class="card jury-info" id="juryLoginSection">
+                <h2 class="section-title">👤 Identification du jury</h2>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="jury_identifier_input">Votre identifiant unique</label>
+                        <input type="text" id="jury_identifier_input"
+                            placeholder="Ex : JURY-2024-XYZ"
+                            autocomplete="off"
+                            value="{{ old('jury_identifier') }}">
+                    </div>
+                    <div class="field" style="display:flex;align-items:flex-end;">
+                        <button type="button" id="juryLookupBtn" class="btn btn-primary" style="width:100%;">Valider</button>
+                    </div>
+                </div>
+                <div id="juryFeedback" class="mt-2" style="display:none;"></div>
             </section>
-        @elseif (!isset($juryMembers) || $juryMembers->isEmpty())
-            <section class="card empty-state">
-                <div class="icon">👤</div>
-                <h2 class="section-title" style="justify-content: center;">Aucun membre du jury enregistré</h2>
-                <p>
-                    Aucun membre du jury actif n’est disponible. Veuillez enregistrer les membres du jury depuis le
-                    dashboard admin avant de commencer les évaluations.
-                </p>
-            </section>
-        @else
+
+        {{-- Étape 2 : formulaire complet (caché jusqu'à validation) --}}
+        @php $oldIdentifier = old('jury_identifier'); @endphp
+        <div id="evaluationBody" style="display:none;">
             <form method="POST" action="{{ $storeRoute }}" id="evaluationForm">
                 @csrf
                 <input type="hidden" name="status" id="statusInput" value="submitted">
+                <input type="hidden" name="jury_identifier" id="juryIdentifierHidden" value="{{ $oldIdentifier }}">
 
                 <section class="card jury-info">
                     <h2 class="section-title">👤 Informations du jury</h2>
-
                     <div class="form-grid">
                         <div class="field">
-                            <label>Membre du jury</label>
-                            <select name="jury_member_id" required>
-                                <option value="">Sélectionnez votre nom</option>
-                                @foreach ($juryMembers as $juryMember)
-                                    <option value="{{ $juryMember->id }}" @selected((string) old('jury_member_id') === (string) $juryMember->id)>
-                                        {{ $juryMember->name }}{{ $juryMember->title ? ' - ' . $juryMember->title : '' }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label>Membre identifié</label>
+                            <div id="juryNameDisplay" style="font-weight:600;font-size:1.1rem;padding:0.5rem 0;"></div>
                         </div>
-
-                        <div class="field">
-                            <label>Identifiant unique</label>
-                            <input type="text" name="jury_identifier" value="{{ old('jury_identifier') }}"
-                                placeholder="Entrez votre identifiant unique" required>
-                        </div>
-
                         <input type="hidden" name="evaluation_date"
                             value="{{ old('evaluation_date', now()->format('Y-m-d')) }}">
                     </div>
@@ -677,21 +665,13 @@
                     <div class="card">
                         <h2 class="section-title">👥 Groupe à évaluer</h2>
                         <div class="field">
-                            <select name="group_name" id="groupSelect" required>
-                                @foreach ($groups as $groupValue => $groupLabel)
-                                    <option value="{{ $groupValue }}" @selected(old('group_name', 'Groupe A') === $groupValue)>{{ $groupLabel }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <select name="group_name" id="groupSelect" required></select>
+                        </div>
+                        <div id="allEvaluatedMsg" style="display:none;color:#f97316;font-weight:600;margin-top:0.5rem;">
+                            ✅ Vous avez déjà noté tous les groupes.
                         </div>
                     </div>
-
-                    <div class="card group-buttons">
-                        @foreach ($groups as $groupValue => $groupLabel)
-                            <button type="button" class="group-btn" data-group="{{ $groupValue }}">👥
-                                {{ $groupLabel }}</button>
-                        @endforeach
-                    </div>
+                    <div class="card group-buttons" id="groupButtonsContainer"></div>
                 </section>
 
                 <section class="evaluation-grid">
@@ -751,89 +731,114 @@
                         évaluation</button>
                 </section>
             </form>
-        @endif
+        </div>{{-- #evaluationBody --}}
     </main>
 @endsection
 
 @push('scripts')
     <script>
-        const groupSelect = document.getElementById('groupSelect');
-        const groupButtons = document.querySelectorAll('.group-btn');
+        const LOOKUP_URL = window.location.pathname.startsWith('/evc/')
+            ? '{{ route("jury.evaluation.lookup.evc") }}'
+            : '{{ route("jury.evaluation.lookup") }}';
+
+        const identifierInput  = document.getElementById('jury_identifier_input');
+        const lookupBtn        = document.getElementById('juryLookupBtn');
+        const juryFeedback     = document.getElementById('juryFeedback');
+        const evaluationBody   = document.getElementById('evaluationBody');
+        const juryLoginSection = document.getElementById('juryLoginSection');
+        const juryNameDisplay  = document.getElementById('juryNameDisplay');
+        const juryIdentHidden  = document.getElementById('juryIdentifierHidden');
+        const groupSelect      = document.getElementById('groupSelect');
+        const groupBtnContainer= document.getElementById('groupButtonsContainer');
+        const allGroupKeys     = @json(array_keys($groups));
+
+        function showFeedback(msg, ok) {
+            juryFeedback.style.display = 'block';
+            juryFeedback.style.color   = ok ? '#22c55e' : '#ef4444';
+            juryFeedback.textContent   = msg;
+        }
+
+        function buildGroupUI(availableGroups) {
+            groupSelect.innerHTML = '';
+            if (groupBtnContainer) groupBtnContainer.innerHTML = '';
+            const allEvaluatedMsg = document.getElementById('allEvaluatedMsg');
+
+            if (availableGroups.length === 0) {
+                if (allEvaluatedMsg) allEvaluatedMsg.style.display = 'block';
+                document.querySelectorAll('[data-status]').forEach(b => b.disabled = true);
+                return;
+            }
+            if (allEvaluatedMsg) allEvaluatedMsg.style.display = 'none';
+
+            availableGroups.forEach((g, i) => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g;
+                if (i === 0) opt.selected = true;
+                groupSelect.appendChild(opt);
+
+                if (groupBtnContainer) {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'group-btn' + (i === 0 ? ' active' : '');
+                    btn.dataset.group = g;
+                    btn.textContent = '👥 ' + g;
+                    btn.addEventListener('click', () => {
+                        groupSelect.value = g;
+                        groupBtnContainer.querySelectorAll('.group-btn').forEach(b => b.classList.toggle('active', b.dataset.group === g));
+                    });
+                    groupBtnContainer.appendChild(btn);
+                }
+            });
+        }
+
+        async function doLookup() {
+            const val = identifierInput ? identifierInput.value.trim() : '';
+            if (!val) { showFeedback('Veuillez saisir votre identifiant.', false); return; }
+
+            lookupBtn.disabled = true;
+            lookupBtn.textContent = 'Vérification...';
+
+            try {
+                const res  = await fetch(LOOKUP_URL + '?jury_identifier=' + encodeURIComponent(val));
+                const data = await res.json();
+
+                if (!data.found) {
+                    showFeedback('❌ Identifiant non reconnu. Vérifiez votre identifiant unique.', false);
+                    evaluationBody.style.display = 'none';
+                } else {
+                    showFeedback('✅ Bienvenue, ' + data.name + ' !', true);
+                    juryNameDisplay.textContent = data.name + (data.title ? ' — ' + data.title : '');
+                    juryIdentHidden.value = val;
+                    buildGroupUI(data.available_groups);
+                    evaluationBody.style.display = 'block';
+                    updateTotals();
+                }
+            } catch(e) {
+                showFeedback('Erreur réseau. Réessayez.', false);
+            }
+
+            lookupBtn.disabled = false;
+            lookupBtn.textContent = 'Valider';
+        }
+
+        if (lookupBtn) lookupBtn.addEventListener('click', doLookup);
+        if (identifierInput) identifierInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doLookup(); } });
+
+        @if(old('jury_identifier'))
+        document.addEventListener('DOMContentLoaded', () => doLookup());
+        @endif
+
         const scoreInputs = document.querySelectorAll('.score-input');
-        const grandTotal = document.getElementById('grandTotal');
+        const grandTotal  = document.getElementById('grandTotal');
         const statusInput = document.getElementById('statusInput');
-        const juryMemberSelect = document.querySelector('select[name="jury_member_id"]');
 
-        if (groupSelect && grandTotal && statusInput) {
-
-            async function filterGroupsByJury() {
-                const juryMemberId = juryMemberSelect ? juryMemberSelect.value : null;
-                if (!juryMemberId) {
-                    enableAllGroups();
-                    return;
-                }
-
-                const route = window.location.pathname.startsWith('/evc/')
-                    ? '{{ route("jury.evaluation.evaluated-groups.evc") }}'
-                    : '{{ route("jury.evaluation.evaluated-groups") }}';
-
-                try {
-                    const response = await fetch(route + '?jury_member_id=' + juryMemberId);
-                    const data = await response.json();
-                    const evaluatedGroups = data.evaluated_groups || [];
-
-                    disableEvaluatedGroups(evaluatedGroups);
-                } catch (error) {
-                    console.error('Error fetching evaluated groups:', error);
-                    enableAllGroups();
-                }
-            }
-
-            function disableEvaluatedGroups(evaluatedGroups) {
-                groupSelect.querySelectorAll('option').forEach(option => {
-                    if (evaluatedGroups.includes(option.value)) {
-                        option.disabled = true;
-                        option.textContent = option.value + ' (déjà noté)';
-                    } else {
-                        option.disabled = false;
-                        option.textContent = option.value;
-                    }
-                });
-
-                groupButtons.forEach(button => {
-                    if (evaluatedGroups.includes(button.dataset.group)) {
-                        button.disabled = true;
-                        button.classList.add('disabled');
-                    } else {
-                        button.disabled = false;
-                        button.classList.remove('disabled');
-                    }
-                });
-
-                if (evaluatedGroups.includes(groupSelect.value)) {
-                    const firstAvailable = groupSelect.querySelector('option:not(:disabled)');
-                    if (firstAvailable) {
-                        groupSelect.value = firstAvailable.value;
-                        updateGroupButtons();
-                    }
-                }
-            }
-
-            function enableAllGroups() {
-                groupSelect.querySelectorAll('option').forEach(option => {
-                    option.disabled = false;
-                    option.textContent = option.value;
-                });
-
-                groupButtons.forEach(button => {
-                    button.disabled = false;
-                    button.classList.remove('disabled');
-                });
-            }
+        if (grandTotal && statusInput) {
 
             function updateGroupButtons() {
-                groupButtons.forEach((button) => {
-                    button.classList.toggle('active', button.dataset.group === groupSelect.value);
+                if (!groupBtnContainer) return;
+                groupBtnContainer.querySelectorAll('.group-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.group === groupSelect.value);
                 });
             }
 
@@ -867,18 +872,9 @@
                 grandTotal.textContent = total;
             }
 
-            groupButtons.forEach((button) => {
-                button.addEventListener('click', () => {
-                    groupSelect.value = button.dataset.group;
-                    updateGroupButtons();
-                });
-            });
-
-            if (juryMemberSelect) {
-                juryMemberSelect.addEventListener('change', filterGroupsByJury);
+            if (groupSelect) {
+                groupSelect.addEventListener('change', updateGroupButtons);
             }
-
-            groupSelect.addEventListener('change', updateGroupButtons);
             scoreInputs.forEach((input) => input.addEventListener('input', updateTotals));
 
             document.querySelectorAll('[data-status]').forEach((button) => {
@@ -887,7 +883,6 @@
                 });
             });
 
-            updateGroupButtons();
             updateTotals();
         }
     </script>
