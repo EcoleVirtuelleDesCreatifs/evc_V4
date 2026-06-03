@@ -637,7 +637,8 @@
                 <div class="icon">👤</div>
                 <h2 class="section-title" style="justify-content: center;">Aucun membre du jury enregistré</h2>
                 <p>
-                    Aucun membre du jury actif n’est disponible. Veuillez enregistrer les membres du jury depuis le dashboard admin avant de commencer les évaluations.
+                    Aucun membre du jury actif n’est disponible. Veuillez enregistrer les membres du jury depuis le
+                    dashboard admin avant de commencer les évaluations.
                 </p>
             </section>
         @else
@@ -678,7 +679,7 @@
                         <div class="field">
                             <select name="group_name" id="groupSelect" required>
                                 @foreach ($groups as $groupValue => $groupLabel)
-                                    <option value="{{ $groupValue }}" @selected(old('group_name', 'Groupe 1') === $groupValue)>{{ $groupLabel }}
+                                    <option value="{{ $groupValue }}" @selected(old('group_name', 'Groupe A') === $groupValue)>{{ $groupLabel }}
                                     </option>
                                 @endforeach
                             </select>
@@ -761,8 +762,74 @@
         const scoreInputs = document.querySelectorAll('.score-input');
         const grandTotal = document.getElementById('grandTotal');
         const statusInput = document.getElementById('statusInput');
+        const juryMemberSelect = document.querySelector('select[name="jury_member_id"]');
 
         if (groupSelect && grandTotal && statusInput) {
+
+            async function filterGroupsByJury() {
+                const juryMemberId = juryMemberSelect ? juryMemberSelect.value : null;
+                if (!juryMemberId) {
+                    enableAllGroups();
+                    return;
+                }
+
+                const route = window.location.pathname.startsWith('/evc/')
+                    ? '{{ route("jury.evaluation.evaluated-groups.evc") }}'
+                    : '{{ route("jury.evaluation.evaluated-groups") }}';
+
+                try {
+                    const response = await fetch(route + '?jury_member_id=' + juryMemberId);
+                    const data = await response.json();
+                    const evaluatedGroups = data.evaluated_groups || [];
+
+                    disableEvaluatedGroups(evaluatedGroups);
+                } catch (error) {
+                    console.error('Error fetching evaluated groups:', error);
+                    enableAllGroups();
+                }
+            }
+
+            function disableEvaluatedGroups(evaluatedGroups) {
+                groupSelect.querySelectorAll('option').forEach(option => {
+                    if (evaluatedGroups.includes(option.value)) {
+                        option.disabled = true;
+                        option.textContent = option.value + ' (déjà noté)';
+                    } else {
+                        option.disabled = false;
+                        option.textContent = option.value;
+                    }
+                });
+
+                groupButtons.forEach(button => {
+                    if (evaluatedGroups.includes(button.dataset.group)) {
+                        button.disabled = true;
+                        button.classList.add('disabled');
+                    } else {
+                        button.disabled = false;
+                        button.classList.remove('disabled');
+                    }
+                });
+
+                if (evaluatedGroups.includes(groupSelect.value)) {
+                    const firstAvailable = groupSelect.querySelector('option:not(:disabled)');
+                    if (firstAvailable) {
+                        groupSelect.value = firstAvailable.value;
+                        updateGroupButtons();
+                    }
+                }
+            }
+
+            function enableAllGroups() {
+                groupSelect.querySelectorAll('option').forEach(option => {
+                    option.disabled = false;
+                    option.textContent = option.value;
+                });
+
+                groupButtons.forEach(button => {
+                    button.disabled = false;
+                    button.classList.remove('disabled');
+                });
+            }
 
             function updateGroupButtons() {
                 groupButtons.forEach((button) => {
@@ -806,6 +873,10 @@
                     updateGroupButtons();
                 });
             });
+
+            if (juryMemberSelect) {
+                juryMemberSelect.addEventListener('change', filterGroupsByJury);
+            }
 
             groupSelect.addEventListener('change', updateGroupButtons);
             scoreInputs.forEach((input) => input.addEventListener('input', updateTotals));

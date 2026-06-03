@@ -13,7 +13,7 @@ class JuryEvaluationController extends Controller
 {
     public function create()
     {
-        $groups = $this->availableGroups();
+        $groups = $this->availableGroups(null);
         $juryMembers = $this->activeJuryMembers();
 
         return view('jury.evaluation', [
@@ -66,11 +66,14 @@ class JuryEvaluationController extends Controller
 
         if (
             $validated['status'] === 'submitted'
-            && JuryEvaluation::where('group_name', $validated['group_name'])->where('status', 'submitted')->exists()
+            && JuryEvaluation::where('jury_member_id', $validated['jury_member_id'])
+                ->where('group_name', $validated['group_name'])
+                ->where('status', 'submitted')
+                ->exists()
         ) {
             return back()
                 ->withInput()
-                ->with('error', 'Ce groupe a déjà été noté et n’est plus disponible pour une nouvelle évaluation.');
+                ->with('error', 'Vous avez déjà noté ce groupe. Vous ne pouvez pas noter le même groupe plusieurs fois.');
         }
 
         try {
@@ -126,22 +129,42 @@ class JuryEvaluationController extends Controller
         return view('jury.thank-you');
     }
 
-    private function groups(): array
+    public function getEvaluatedGroups(Request $request)
     {
-        return [
-            'Groupe 1' => 'Groupe 1',
-            'Groupe 2' => 'Groupe 2',
-            'Groupe 3' => 'Groupe 3',
-            'Groupe 4' => 'Groupe 4',
-        ];
-    }
+        $juryMemberId = $request->input('jury_member_id');
 
-    private function availableGroups(): array
-    {
+        if (!$juryMemberId) {
+            return response()->json(['evaluated_groups' => []]);
+        }
+
         $evaluatedGroups = JuryEvaluation::query()
+            ->where('jury_member_id', $juryMemberId)
             ->where('status', 'submitted')
             ->pluck('group_name')
             ->all();
+
+        return response()->json(['evaluated_groups' => $evaluatedGroups]);
+    }
+
+    private function groups(): array
+    {
+        return [
+            'Groupe A' => 'Groupe A',
+            'Groupe B' => 'Groupe B',
+            'Groupe C' => 'Groupe C',
+            'Groupe D' => 'Groupe D',
+        ];
+    }
+
+    private function availableGroups(?int $juryMemberId = null): array
+    {
+        $query = JuryEvaluation::query()->where('status', 'submitted');
+
+        if ($juryMemberId) {
+            $query->where('jury_member_id', $juryMemberId);
+        }
+
+        $evaluatedGroups = $query->pluck('group_name')->all();
 
         return array_diff_key($this->groups(), array_flip($evaluatedGroups));
     }
