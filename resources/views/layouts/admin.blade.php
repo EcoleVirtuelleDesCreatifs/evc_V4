@@ -561,19 +561,29 @@
 
                     @if(in_array(session('admin_role'), ['super_admin', 'manager']))
                     <li class="admin-nav-item">
-                        <a href="{{ route('admin.jury-members.index') }}" class="admin-nav-link {{ request()->routeIs('admin.jury-members.*') ? 'active' : '' }}">
-                            <i class="fas fa-user-tie"></i>
-                            Membres du jury
+                        @php $studioActive = request()->routeIs('admin.jury-members.*') || request()->routeIs('admin.jury-evaluations.*'); @endphp
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ $studioActive ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#studioCreatifMenu">
+                            <i class="fas fa-paint-brush"></i>
+                            Studio Créatif
+                            <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
+                        <div class="collapse {{ $studioActive ? 'show' : '' }}" id="studioCreatifMenu">
+                            <ul class="admin-nav-submenu">
+                                <li>
+                                    <a href="{{ route('admin.jury-members.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.jury-members.*') ? 'active' : '' }}">
+                                        <i class="fas fa-user-tie"></i>Jury
+                                    </a>
+                                </li>
+                                @if(\Illuminate\Support\Facades\Route::has('admin.jury-evaluations.rankings'))
+                                <li>
+                                    <a href="{{ route('admin.jury-evaluations.rankings') }}" class="admin-nav-sublink {{ request()->routeIs('admin.jury-evaluations.*') ? 'active' : '' }}">
+                                        <i class="fas fa-trophy"></i>Classement
+                                    </a>
+                                </li>
+                                @endif
+                            </ul>
+                        </div>
                     </li>
-                    @if(\Illuminate\Support\Facades\Route::has('admin.jury-evaluations.rankings'))
-                    <li class="admin-nav-item">
-                        <a href="{{ route('admin.jury-evaluations.rankings') }}" class="admin-nav-link {{ request()->routeIs('admin.jury-evaluations.rankings') ? 'active' : '' }}">
-                            <i class="fas fa-trophy"></i>
-                            Classements jury
-                        </a>
-                    </li>
-                    @endif
                     @endif
 
                     @if(in_array(session('admin_role'), ['super_admin', 'manager']))
