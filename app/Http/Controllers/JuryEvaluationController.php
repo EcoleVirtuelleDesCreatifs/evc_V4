@@ -13,11 +13,12 @@ class JuryEvaluationController extends Controller
 {
     public function create()
     {
+        $isEvc = request()->is('evc/*');
         return view('jury.evaluation', [
-            'groups'     => $this->groups(),
-            'categories' => $this->categories(),
-            'storeRoute' => request()->is('evc/*') ? route('jury.evaluation.store.evc') : route('jury.evaluation.store'),
-            'lookupRoute' => request()->is('evc/*') ? route('jury.evaluation.lookup.evc') : route('jury.evaluation.lookup'),
+            'groups'      => $this->groups(),
+            'categories'  => $this->categories(),
+            'storeRoute'  => $isEvc ? url('/evc/jury/evaluation') : url('/jury/evaluation'),
+            'lookupRoute' => $isEvc ? url('/evc/jury/evaluation/lookup') : url('/jury/evaluation/lookup'),
         ]);
     }
 

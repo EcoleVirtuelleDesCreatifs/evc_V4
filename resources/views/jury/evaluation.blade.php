@@ -738,8 +738,8 @@
 @push('scripts')
     <script>
         const LOOKUP_URL = window.location.pathname.startsWith('/evc/')
-            ? '{{ route("jury.evaluation.lookup.evc") }}'
-            : '{{ route("jury.evaluation.lookup") }}';
+            ? '{{ url("/evc/jury/evaluation/lookup") }}'
+            : '{{ url("/jury/evaluation/lookup") }}';
 
         const identifierInput  = document.getElementById('jury_identifier_input');
         const lookupBtn        = document.getElementById('juryLookupBtn');
