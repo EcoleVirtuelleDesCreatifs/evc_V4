@@ -17,8 +17,8 @@ class JuryEvaluationController extends Controller
         return view('jury.evaluation', [
             'groups'      => $this->groups(),
             'categories'  => $this->categories(),
-            'storeRoute'  => $isEvc ? url('/evc/jury/evaluation') : url('/jury/evaluation'),
-            'lookupRoute' => $isEvc ? url('/evc/jury/evaluation/lookup') : url('/jury/evaluation/lookup'),
+            'storeRoute'  => $isEvc ? '/evc/jury/evaluation' : '/jury/evaluation',
+            'lookupRoute' => $isEvc ? '/evc/jury/evaluation/lookup' : '/jury/evaluation/lookup',
         ]);
     }
 
