@@ -29,16 +29,18 @@
     .eval-table tbody tr:last-child td { border-bottom: none; }
     .score-bar-bg { background: #0f172a; border-radius: 99px; height: 6px; width: 100%; min-width: 80px; }
     .score-bar-fill { height: 6px; border-radius: 99px; background: linear-gradient(90deg, #3b82f6, #8b5cf6); }
-    /* Modal dark */
-    .modal-content { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; }
-    .modal-header { background: #0f172a; border-bottom: 1px solid #334155; }
-    .modal-footer { background: #0f172a; border-top: 1px solid #334155; }
-    .crit-row { display: flex; justify-content: space-between; align-items: center; padding: .45rem 0; border-bottom: 1px solid #1e3347; font-size: .85rem; }
-    .crit-row:last-child { border-bottom: none; }
-    .cat-block { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: .75rem; }
-    .cat-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
-    .progress-sm { height: 5px; background: #1e3347; border-radius: 99px; overflow: hidden; margin-top: 4px; }
-    .progress-sm-fill { height: 5px; border-radius: 99px; }
+    /* Modal dark — préfixé jury-modal pour éviter conflits Bootstrap */
+    .jury-modal .modal-content { background: #1e293b !important; border: 1px solid #334155 !important; color: #f1f5f9 !important; border-radius: 12px !important; }
+    .jury-modal .modal-header { background: #0f172a !important; border-bottom: 1px solid #334155 !important; border-radius: 12px 12px 0 0 !important; }
+    .jury-modal .modal-body { background: #1e293b !important; }
+    .jury-modal .modal-footer { background: #0f172a !important; border-top: 1px solid #334155 !important; border-radius: 0 0 12px 12px !important; }
+    .jury-modal .modal-title { color: #f1f5f9 !important; }
+    .jury-crit-row { display: flex; justify-content: space-between; align-items: center; padding: .45rem 0; border-bottom: 1px solid #1e3347; font-size: .85rem; }
+    .jury-crit-row:last-child { border-bottom: none; }
+    .jury-cat-block { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: .75rem; }
+    .jury-cat-block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .6rem; }
+    .jury-progress-sm { height: 5px; background: #1e3347; border-radius: 99px; overflow: hidden; margin-top: 4px; }
+    .jury-progress-sm-fill { height: 5px; border-radius: 99px; }
 </style>
 
 <div class="eval-page p-4">
@@ -166,7 +168,7 @@
 
 {{-- Modals --}}
 @foreach($evaluations as $evaluation)
-<div class="modal fade" id="modal-{{ $evaluation->id }}" tabindex="-1">
+<div class="modal fade jury-modal" id="modal-{{ $evaluation->id }}" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -214,17 +216,17 @@
                             default       => '#f87171',
                         };
                     @endphp
-                    <div class="cat-block">
-                        <div class="cat-block-header">
+                    <div class="jury-cat-block">
+                        <div class="jury-cat-block-header">
                             <span style="font-weight:600;color:#f1f5f9;font-size:.9rem;">{{ $categoryScores->first()->category_label }}</span>
                             <span style="font-size:.85rem;font-weight:700;color:{{ $catColor }};">{{ $catTotal }}/{{ $catMax }} <span style="font-size:.7rem;color:#64748b;">({{ $catPct }}%)</span></span>
                         </div>
-                        <div class="progress-sm">
-                            <div class="progress-sm-fill" style="width:{{ $catPct }}%;background:{{ $catColor }};"></div>
+                        <div class="jury-progress-sm">
+                            <div class="jury-progress-sm-fill" style="width:{{ $catPct }}%;background:{{ $catColor }};"></div>
                         </div>
                         <div style="margin-top:.75rem;">
                             @foreach($categoryScores as $score)
-                                <div class="crit-row">
+                                <div class="jury-crit-row">
                                     <span style="color:#94a3b8;">{{ $score->criterion_label }}</span>
                                     <span style="font-weight:600;color:#f1f5f9;">{{ $score->score }}<span style="color:#475569;font-weight:400;">/20</span></span>
                                 </div>
