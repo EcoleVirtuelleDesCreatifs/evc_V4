@@ -566,12 +566,14 @@
                             Membres du jury
                         </a>
                     </li>
+                    @if(\Illuminate\Support\Facades\Route::has('admin.jury-evaluations.rankings'))
                     <li class="admin-nav-item">
                         <a href="{{ route('admin.jury-evaluations.rankings') }}" class="admin-nav-link {{ request()->routeIs('admin.jury-evaluations.rankings') ? 'active' : '' }}">
                             <i class="fas fa-trophy"></i>
                             Classements jury
                         </a>
                     </li>
+                    @endif
                     @endif
 
                     @if(in_array(session('admin_role'), ['super_admin', 'manager']))

@@ -68,7 +68,9 @@
                                     <span>{{ $member->country ?: 'Non renseigné' }}</span>
                                 </td>
                                 <td class="text-end">
+                                    @if(\Illuminate\Support\Facades\Route::has('admin.jury-members.evaluations.index'))
                                     <a href="{{ route('admin.jury-members.evaluations.index', $member) }}" class="btn btn-sm btn-outline-primary">Évaluations</a>
+                                    @endif
                                     <a href="{{ route('admin.jury-members.edit', $member) }}" class="btn btn-sm btn-primary">Modifier</a>
                                     <form method="POST" action="{{ route('admin.jury-members.destroy', $member) }}" class="d-inline" onsubmit="return confirm('Supprimer ce membre du jury ?')">
                                         @csrf
