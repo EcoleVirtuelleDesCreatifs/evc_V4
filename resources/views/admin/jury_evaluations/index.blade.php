@@ -166,14 +166,16 @@
     </div>
 </div>
 
-{{-- Modals --}}
+@endsection
+
+@push('modals')
 @foreach($evaluations as $evaluation)
-<div class="modal fade jury-modal" id="modal-{{ $evaluation->id }}" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
+<div class="modal fade jury-modal" id="modal-{{ $evaluation->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content" style="background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:12px;">
+            <div class="modal-header" style="background:#0f172a;border-bottom:1px solid #334155;border-radius:12px 12px 0 0;">
                 <div>
-                    <h5 class="modal-title mb-0 text-white">
+                    <h5 class="modal-title mb-0" style="color:#f1f5f9;">
                         {{ $evaluation->group_name }}
                         <span style="font-size:.82rem;color:#64748b;margin-left:.5rem;">
                             {{ $evaluation->evaluation_date ? $evaluation->evaluation_date->format('d/m/Y') : '' }}
@@ -181,7 +183,7 @@
                     </h5>
                     <div style="font-size:.78rem;color:#64748b;margin-top:2px;">{{ $juryMember->name }}</div>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
             </div>
             <div class="modal-body" style="background:#1e293b;">
 
@@ -216,30 +218,28 @@
                             default       => '#f87171',
                         };
                     @endphp
-                    <div class="jury-cat-block">
-                        <div class="jury-cat-block-header">
+                    <div style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:1rem 1.2rem;margin-bottom:.75rem;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;">
                             <span style="font-weight:600;color:#f1f5f9;font-size:.9rem;">{{ $categoryScores->first()->category_label }}</span>
                             <span style="font-size:.85rem;font-weight:700;color:{{ $catColor }};">{{ $catTotal }}/{{ $catMax }} <span style="font-size:.7rem;color:#64748b;">({{ $catPct }}%)</span></span>
                         </div>
-                        <div class="jury-progress-sm">
-                            <div class="jury-progress-sm-fill" style="width:{{ $catPct }}%;background:{{ $catColor }};"></div>
+                        <div style="height:5px;background:#1e3347;border-radius:99px;overflow:hidden;margin-bottom:.75rem;">
+                            <div style="height:5px;border-radius:99px;width:{{ $catPct }}%;background:{{ $catColor }};"></div>
                         </div>
-                        <div style="margin-top:.75rem;">
-                            @foreach($categoryScores as $score)
-                                <div class="jury-crit-row">
-                                    <span style="color:#94a3b8;">{{ $score->criterion_label }}</span>
-                                    <span style="font-weight:600;color:#f1f5f9;">{{ $score->score }}<span style="color:#475569;font-weight:400;">/20</span></span>
-                                </div>
-                            @endforeach
-                        </div>
+                        @foreach($categoryScores as $score)
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem 0;border-bottom:1px solid #1e3347;font-size:.85rem;">
+                                <span style="color:#94a3b8;">{{ $score->criterion_label }}</span>
+                                <span style="font-weight:600;color:#f1f5f9;">{{ $score->score }}<span style="color:#475569;font-weight:400;">/20</span></span>
+                            </div>
+                        @endforeach
                     </div>
                 @endforeach
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" style="background:#0f172a;border-top:1px solid #334155;border-radius:0 0 12px 12px;">
                 <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Fermer</button>
             </div>
         </div>
     </div>
 </div>
 @endforeach
-@endsection
+@endpush
