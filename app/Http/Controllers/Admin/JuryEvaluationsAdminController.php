@@ -44,6 +44,7 @@ class JuryEvaluationsAdminController extends Controller
 
         $evaluations = JuryEvaluation::query()
             ->where('status', 'submitted')
+            ->whereIn('group_name', $allGroups)
             ->with('scores')
             ->get();
 
