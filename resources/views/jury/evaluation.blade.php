@@ -36,18 +36,30 @@
             overflow: hidden;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .page {
-                padding-top: 220px;
-            }
-            .hero {
-                padding-top: 20px;
+                padding-top: 200px;
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
             .page {
-                padding-top: 200px;
+                padding-top: 240px;
+            }
+            .hero {
+                padding-top: 10px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                padding-top: 290px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .page {
+                padding-top: 310px;
             }
         }
 
