@@ -247,8 +247,8 @@ class JuryEvaluationController extends Controller
                 'criteria' => [
                     'logo_creativity'    => "Créativité et originalité du logo en relation avec les valeurs de l'association",
                     'logo_technical'     => "Technicité de réalisation (vérifiable sur les docs sources)",
-                    'logo_visual_choice' => "Pertinence et choix visuel et typographique",
-                    'logo_readability'   => "Lisibilité visuelle et hiérarchisation des informations",
+                    'logo_visual_choice' => "Pertinence visuelle et typographique",
+                    'logo_readability'   => "Hiérarchisation des informations",
                 ],
             ],
             'best_graphic_charter' => [
