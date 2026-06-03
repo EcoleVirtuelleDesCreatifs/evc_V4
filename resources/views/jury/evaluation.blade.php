@@ -186,7 +186,7 @@
 
         .group-buttons {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 18px;
         }
 
@@ -748,7 +748,7 @@
 
                 <section class="bottom">
                     <div class="reminder">
-                        💡 Rappel important : veuillez évaluer les 4 groupes séparément pour chaque catégorie. Total actuel
+                        💡 Rappel important : veuillez évaluer les 5 groupes séparément pour chaque catégorie. Total actuel
                         :
                         <strong><span id="grandTotal">0</span> / 320</strong>
                     </div>
