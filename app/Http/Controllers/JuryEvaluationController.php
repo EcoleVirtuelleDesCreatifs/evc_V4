@@ -24,39 +24,53 @@ class JuryEvaluationController extends Controller
 
     public function lookupMember(Request $request)
     {
-        $identifier = trim((string) $request->input('jury_identifier', ''));
+        try {
+            $identifier = trim((string) $request->input('jury_identifier', ''));
 
-        if (!$identifier) {
-            return response()->json(['found' => false]);
+            if (!$identifier) {
+                return response()->json(['found' => false]);
+            }
+
+            if (!Schema::hasTable('jury_members')) {
+                return response()->json(['found' => false, 'debug' => 'table jury_members manquante']);
+            }
+
+            $member = JuryMember::query()
+                ->where('unique_identifier', $identifier)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$member) {
+                return response()->json(['found' => false]);
+            }
+
+            $evaluatedGroups = [];
+            if (Schema::hasTable('jury_evaluations')) {
+                $evaluatedGroups = JuryEvaluation::query()
+                    ->where('jury_member_id', $member->id)
+                    ->where('status', 'submitted')
+                    ->pluck('group_name')
+                    ->all();
+            }
+
+            $availableGroups = array_values(
+                array_diff(array_keys($this->groups()), $evaluatedGroups)
+            );
+
+            return response()->json([
+                'found'            => true,
+                'id'               => $member->id,
+                'name'             => $member->name,
+                'title'            => $member->title,
+                'evaluated_groups' => $evaluatedGroups,
+                'available_groups' => $availableGroups,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'found' => false,
+                'debug' => $e->getMessage(),
+            ], 500);
         }
-
-        $member = JuryMember::query()
-            ->where('unique_identifier', $identifier)
-            ->where('is_active', true)
-            ->first();
-
-        if (!$member) {
-            return response()->json(['found' => false]);
-        }
-
-        $evaluatedGroups = JuryEvaluation::query()
-            ->where('jury_member_id', $member->id)
-            ->where('status', 'submitted')
-            ->pluck('group_name')
-            ->all();
-
-        $availableGroups = array_values(
-            array_diff(array_keys($this->groups()), $evaluatedGroups)
-        );
-
-        return response()->json([
-            'found'            => true,
-            'id'               => $member->id,
-            'name'             => $member->name,
-            'title'            => $member->title,
-            'evaluated_groups' => $evaluatedGroups,
-            'available_groups' => $availableGroups,
-        ]);
     }
 
     public function store(Request $request)

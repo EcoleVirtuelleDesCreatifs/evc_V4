@@ -800,11 +800,28 @@
             lookupBtn.textContent = 'Vérification...';
 
             try {
-                const res  = await fetch(LOOKUP_URL + '?jury_identifier=' + encodeURIComponent(val));
-                const data = await res.json();
+                const res  = await fetch(LOOKUP_URL + '?jury_identifier=' + encodeURIComponent(val), {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                });
 
-                if (!data.found) {
-                    showFeedback('❌ Identifiant non reconnu. Vérifiez votre identifiant unique.', false);
+                let data;
+                try {
+                    data = await res.json();
+                } catch(jsonErr) {
+                    showFeedback('❌ Erreur serveur (réponse invalide). Contactez l\'administrateur.', false);
+                    lookupBtn.disabled = false;
+                    lookupBtn.textContent = 'Valider';
+                    return;
+                }
+
+                if (!res.ok) {
+                    showFeedback('❌ Erreur serveur (' + res.status + ')' + (data.debug ? ' : ' + data.debug : '') + '.', false);
+                    evaluationBody.style.display = 'none';
+                } else if (!data.found) {
+                    const msg = data.debug
+                        ? '❌ Erreur : ' + data.debug
+                        : '❌ Identifiant non reconnu. Vérifiez votre identifiant unique.';
+                    showFeedback(msg, false);
                     evaluationBody.style.display = 'none';
                 } else {
                     showFeedback('✅ Bienvenue, ' + data.name + ' !', true);
@@ -815,7 +832,7 @@
                     updateTotals();
                 }
             } catch(e) {
-                showFeedback('Erreur réseau. Réessayez.', false);
+                showFeedback('❌ Erreur réseau : ' + e.message, false);
             }
 
             lookupBtn.disabled = false;
