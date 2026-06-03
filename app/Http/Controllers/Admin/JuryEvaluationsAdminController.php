@@ -34,10 +34,10 @@ class JuryEvaluationsAdminController extends Controller
         $this->ensureAllowed();
 
         $categories = [
-            'visual_identity'           => ['label' => 'Identité visuelle',           'icon' => '🎨', 'color' => '#8b5cf6'],
-            'digital_campaign'          => ['label' => 'Campagne digitale',            'icon' => '📱', 'color' => '#3b82f6'],
-            'professional_presentation' => ['label' => 'Présentation professionnelle', 'icon' => '🎤', 'color' => '#10b981'],
-            'jury_favorite'             => ['label' => 'Coup de Cœur du Jury',         'icon' => '❤️', 'color' => '#f43f5e'],
+            'best_logo'                 => ['label' => 'Meilleur Logo',                         'icon' => '�', 'color' => '#8b5cf6'],
+            'best_graphic_charter'      => ['label' => 'Meilleure Charte Graphique',             'icon' => '🎨', 'color' => '#3b82f6'],
+            'professional_presentation' => ['label' => 'Meilleure Présentation Professionnelle', 'icon' => '🎤', 'color' => '#10b981'],
+            'jury_favorite'             => ['label' => 'Prix Coup de Cœur du Jury',              'icon' => '❤️', 'color' => '#f43f5e'],
         ];
 
         $allGroups = ['Groupe A', 'Groupe B', 'Groupe C', 'Groupe D', 'Groupe E'];

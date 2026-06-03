@@ -712,6 +712,12 @@
                                 <div class="score-pill">/80 points</div>
                             </div>
 
+                            @if(!empty($category['brief']))
+                            <div style="background:rgba(255,255,255,.04);border-left:3px solid var(--jury-primary);border-radius:0 8px 8px 0;padding:.6rem .9rem;margin-bottom:1rem;font-size:.78rem;color:#94a3b8;line-height:1.5;">
+                                📋 {{ $category['brief'] }}
+                            </div>
+                            @endif
+
                             <div class="criteria">
                                 @foreach ($category['criteria'] as $criterionKey => $criterionLabel)
                                     @php

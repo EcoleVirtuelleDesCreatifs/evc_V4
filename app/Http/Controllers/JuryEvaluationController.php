@@ -239,48 +239,52 @@ class JuryEvaluationController extends Controller
     private function categories(): array
     {
         return [
-            'visual_identity' => [
-                'label' => 'Meilleure identité visuelle',
-                'icon' => '🎨',
+            'best_logo' => [
+                'label' => 'Meilleur Logo',
+                'icon'  => '🏅',
                 'theme' => 'purple',
+                'brief' => "Le logo doit être simple, mémorable et adapté à une large gamme de supports (imprimés et numériques). Il peut incorporer des éléments visuels tels que des personnes, des symboles, une dimension poétique, de fraternité et de paix.",
                 'criteria' => [
-                    'logo_originality' => 'Originalité du logo',
-                    'graphic_consistency' => 'Cohérence de la charte graphique',
-                    'visual_support_quality' => 'Qualité des supports visuels',
-                    'brief_relevance' => 'Pertinence par rapport au brief',
+                    'logo_creativity'    => "Créativité et originalité du logo en relation avec les valeurs de l'association",
+                    'logo_technical'     => "Technicité de réalisation (vérifiable sur les docs sources)",
+                    'logo_visual_choice' => "Pertinence et choix visuel et typographique",
+                    'logo_readability'   => "Lisibilité visuelle et hiérarchisation des informations",
                 ],
             ],
-            'digital_campaign' => [
-                'label' => 'Meilleure campagne digitale',
-                'icon' => '📣',
+            'best_graphic_charter' => [
+                'label' => 'Meilleure Charte Graphique',
+                'icon'  => '🎨',
                 'theme' => 'green',
+                'brief' => "Palette de couleurs accessibles, polices cohérentes, éléments visuels (icônes, illustrations, motifs), directives d'utilisation du logo, règles couleurs, exemples de mise en page (papeterie, carte de visite, gadgets, flyer, affichage, signature email). Assemblage InDesign requis.",
                 'criteria' => [
-                    'digital_strategy' => 'Qualité de la stratégie digitale',
-                    'content_creativity' => 'Créativité des contenus',
-                    'channel_relevance' => 'Pertinence des canaux choisis',
-                    'campaign_impact' => 'Impact potentiel de la campagne',
+                    'charter_comprehension' => "Niveau de compréhension du sujet",
+                    'charter_constraints'   => "Respect des contraintes graphiques et du brief technique",
+                    'charter_coherence'     => "Cohérence de la charte graphique avec l'inclusion et l'accessibilité",
+                    'charter_creativity'    => "Créativité et originalité / technicité de réalisation",
                 ],
             ],
             'professional_presentation' => [
-                'label' => 'Meilleure présentation professionnelle',
-                'icon' => '👨‍🏫',
+                'label' => 'Meilleure Présentation Professionnelle',
+                'icon'  => '🎤',
                 'theme' => 'orange',
+                'brief' => "Évaluation de la capacité du groupe à présenter clairement leur projet, à maîtriser le sujet, à respecter les contraintes données et à travailler en équipe de façon structurée et organisée.",
                 'criteria' => [
-                    'presentation_clarity' => 'Clarté de la présentation',
-                    'subject_mastery' => 'Maîtrise du sujet',
-                    'pitch_quality' => 'Qualité du pitch',
-                    'time_posture' => 'Gestion du temps et posture',
+                    'pres_comprehension' => "Niveau de compréhension du sujet",
+                    'pres_creativity'    => "Créativité et originalité",
+                    'pres_brief_respect' => "Respect du brief technique",
+                    'pres_teamwork'      => "Travail de groupe, structure et organisation",
                 ],
             ],
             'jury_favorite' => [
-                'label' => 'Prix Coup de Cœur du Jury',
-                'icon' => '❤️',
+                'label' => 'Prix Coup de Coeur du Jury',
+                'icon'  => '❤️',
                 'theme' => 'pink',
+                'brief' => "Distinction libre accordée au groupe qui a su se démarquer par son authenticité, sa cohérence globale et l'émotion suscitée — indépendamment des critères techniques.",
                 'criteria' => [
-                    'emotion' => 'Émotion ressentie',
-                    'global_originality' => 'Originalité globale du projet',
-                    'wow_effect' => 'Effet “waouh”',
-                    'real_potential' => 'Potentiel réel du projet',
+                    'fav_comprehension' => "Niveau de compréhension du sujet",
+                    'fav_creativity'    => "Créativité et originalité",
+                    'fav_technical'     => "Technicité de réalisation",
+                    'fav_teamwork'      => "Travail de groupe, structure et organisation",
                 ],
             ],
         ];
