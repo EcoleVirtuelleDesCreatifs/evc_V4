@@ -24,6 +24,8 @@ class JuryMembersAdminController extends Controller
         $this->ensureAllowed();
 
         $members = JuryMember::query()
+            ->withCount('evaluations')
+            ->with(['evaluations' => fn($q) => $q->where('status', 'submitted')->select('id', 'jury_member_id', 'group_name')])
             ->orderByDesc('is_active')
             ->orderBy('sort_order')
             ->orderBy('name')
