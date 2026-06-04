@@ -57,14 +57,21 @@
 <div class="rankings-page">
 
     {{-- Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-start mb-4" style="flex-wrap:wrap;gap:1rem;">
         <div>
             <h1 class="text-white mb-1" style="font-size:1.5rem;font-weight:700;">🏆 Classements Studio Créatif</h1>
             <p style="color:#64748b;margin:0;font-size:.875rem;">Résultats des évaluations par catégorie</p>
         </div>
-        <a href="{{ route('admin.jury-members.index') }}" class="btn btn-sm" style="background:#1e293b;border:1px solid #334155;color:#94a3b8;">
-            <i class="fas fa-arrow-left me-1"></i> Retour
-        </a>
+        <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+            <div style="background:#1e293b;border:1px solid #334155;border-radius:10px;padding:.5rem 1rem;text-align:right;">
+                <div style="font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">📅 Date &amp; heure</div>
+                <div style="font-size:.95rem;font-weight:700;color:#f1f5f9;" id="liveClock">{{ now()->locale('fr')->isoFormat('dddd D MMMM YYYY') }}</div>
+                <div style="font-size:.8rem;color:#f59e0b;font-weight:600;" id="liveTime">{{ now()->format('H:i') }}</div>
+            </div>
+            <a href="{{ route('admin.jury-members.index') }}" class="btn btn-sm" style="background:#1e293b;border:1px solid #334155;color:#94a3b8;">
+                <i class="fas fa-arrow-left me-1"></i> Retour
+            </a>
+        </div>
     </div>
 
     {{-- Stats --}}
@@ -212,4 +219,20 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+    function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        const el = document.getElementById('liveTime');
+        if (el) el.textContent = h + ':' + m + ':' + s;
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+</script>
+@endpush
+
 @endsection
