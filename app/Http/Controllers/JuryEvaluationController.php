@@ -189,6 +189,20 @@ class JuryEvaluationController extends Controller
         return view('jury.thank-you');
     }
 
+    public function results(int $id)
+    {
+        $member = JuryMember::query()->findOrFail($id);
+
+        $evaluations = JuryEvaluation::query()
+            ->where('jury_member_id', $member->id)
+            ->where('status', 'submitted')
+            ->with('scores')
+            ->orderBy('group_name')
+            ->get();
+
+        return view('jury.results', compact('member', 'evaluations'));
+    }
+
     public function getEvaluatedGroups(Request $request)
     {
         // Kept for compatibility

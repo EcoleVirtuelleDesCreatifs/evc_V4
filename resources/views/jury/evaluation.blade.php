@@ -888,6 +888,16 @@
                         true
                     );
                     evaluationBody.style.display = 'none';
+                    const isEvc = window.location.pathname.startsWith('/evc/');
+                    const resultsUrl = (isEvc ? '/evc/jury/resultats/' : '/jury/resultats/') + data.id;
+                    let resultBtn = document.getElementById('resultsBtn');
+                    if (!resultBtn) {
+                        resultBtn = document.createElement('div');
+                        resultBtn.id = 'resultsBtn';
+                        resultBtn.style.cssText = 'text-align:center;margin-top:1.25rem;';
+                        juryFeedback.parentNode.insertBefore(resultBtn, juryFeedback.nextSibling);
+                    }
+                    resultBtn.innerHTML = '<a href="' + resultsUrl + '" style="display:inline-flex;align-items:center;gap:.6rem;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:700;font-size:1rem;border:none;border-radius:10px;padding:.8rem 1.8rem;text-decoration:none;box-shadow:0 4px 15px rgba(245,158,11,.3);">🏆 Voir mes résultats</a>';
                 } else {
                     const progress = data.evaluated_count > 0
                         ? ' Vous avez déjà noté ' + data.evaluated_count + '/' + data.total_groups + ' groupe(s).'

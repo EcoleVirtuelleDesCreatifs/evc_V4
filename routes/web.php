@@ -120,6 +120,8 @@ Route::post('/evc/jury/evaluation', [JuryEvaluationController::class, 'store'])-
 Route::get('/evc/jury/evaluation/lookup', [JuryEvaluationController::class, 'lookupMember'])->name('jury.evaluation.lookup.evc');
 Route::get('/evc/jury/evaluation/evaluated-groups', [JuryEvaluationController::class, 'getEvaluatedGroups'])->name('jury.evaluation.evaluated-groups.evc');
 Route::get('/evc/jury/evaluation/merci', [JuryEvaluationController::class, 'thankYou'])->name('jury.evaluation.thank-you.evc');
+Route::get('/jury/resultats/{id}', [JuryEvaluationController::class, 'results'])->name('jury.results');
+Route::get('/evc/jury/resultats/{id}', [JuryEvaluationController::class, 'results'])->name('jury.results.evc');
 Route::get('/rapports-activite', [ActivityReportPublicController::class, 'index'])->name('activity-reports.index');
 Route::get('/rapports-activite/download/{activityReport}', [ActivityReportPublicController::class, 'download'])->name('activity-reports.download');
 Route::get('/evenements', [App\Http\Controllers\EvenementPublicController::class, 'allEvenements'])->name('evenements.all');
