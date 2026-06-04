@@ -22,7 +22,7 @@
         .page {
             min-height: 100vh;
             min-height: -webkit-fill-available;
-            padding: 110px 20px 40px;
+            padding: 0 20px 40px;
             background: var(--jury-bg-dark);
             color: var(--jury-text-primary);
         }
@@ -31,7 +31,7 @@
             text-align: center;
             max-width: 900px;
             margin: 0 auto 24px;
-            padding: 0 20px;
+            padding: 150px 20px 0;
         }
 
         @media (max-width: 1024px) {
