@@ -22,7 +22,7 @@
         .page {
             min-height: 100vh;
             min-height: -webkit-fill-available;
-            padding: 160px 20px 60px;
+            padding: 110px 20px 40px;
             background: var(--jury-bg-dark);
             color: var(--jury-text-primary);
         }
@@ -31,45 +31,45 @@
             position: relative;
             text-align: center;
             max-width: 900px;
-            margin: 0 auto 60px;
-            padding: 60px 20px 0;
+            margin: 0 auto 24px;
+            padding: 16px 20px 0;
             background: transparent;
             overflow: hidden;
         }
 
         @media (max-width: 1024px) {
             .page {
-                padding-top: 200px;
+                padding-top: 120px;
             }
         }
 
         @media (max-width: 768px) {
             .page {
-                padding-top: 120px;
+                padding-top: 100px;
             }
 
             .hero {
-                padding-top: 10px;
+                padding-top: 8px;
             }
         }
 
         @media (max-width: 640px) {
             .page {
-                padding-top: 100px;
+                padding-top: 90px;
             }
         }
 
         @media (max-width: 400px) {
             .page {
-                padding-top: 90px;
+                padding-top: 80px;
             }
         }
 
         .logo {
             position: static;
             display: inline-block;
-            padding: 6px 16px;
-            margin-bottom: 20px;
+            padding: 4px 12px;
+            margin-bottom: 10px;
             border-radius: 20px;
             border: 1px solid rgba(255, 152, 0, 0.3);
             background: rgba(255, 152, 0, 0.1);
@@ -86,10 +86,10 @@
         }
 
         h1 {
-            font-size: 48px;
+            font-size: 30px;
             font-weight: 700;
-            margin-bottom: 16px;
-            letter-spacing: -1px;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
             background: linear-gradient(135deg, var(--jury-primary) 0%, var(--jury-accent) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -97,18 +97,18 @@
         }
 
         .subtitle {
-            font-size: 18px;
+            font-size: 14px;
             color: var(--jury-text-secondary);
             font-weight: 400;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
         }
 
         .intro {
             max-width: 620px;
             margin: 0 auto;
             color: var(--jury-text-secondary);
-            font-size: 18px;
-            line-height: 1.6;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         .card {
@@ -119,7 +119,7 @@
             border: 1px solid var(--jury-border);
             border-radius: 12px;
             box-shadow: none;
-            padding: 32px;
+            padding: 18px 24px;
             backdrop-filter: none;
             transition: all 0.3s;
         }
@@ -134,11 +134,11 @@
         }
 
         .section-title {
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 24px;
+            margin-bottom: 14px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             color: var(--jury-text-primary);
         }
@@ -216,15 +216,15 @@
 
         .evaluation-grid {
             max-width: 1180px;
-            margin: 40px auto 0;
+            margin: 16px auto 0;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
+            gap: 16px;
         }
 
         .eval-card {
             border-radius: 12px;
-            padding: 32px;
+            padding: 18px 24px;
             border: 1px solid var(--jury-border);
             box-shadow: none;
             transition: all 0.3s;
@@ -241,8 +241,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 22px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
 
         .eval-title {
@@ -381,10 +381,10 @@
         .bottom {
             display: grid;
             grid-template-columns: 1fr auto auto;
-            gap: 25px;
+            gap: 16px;
             align-items: center;
             max-width: 1180px;
-            margin: 32px auto 0;
+            margin: 16px auto 0;
         }
 
         .reminder {
