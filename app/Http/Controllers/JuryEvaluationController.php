@@ -194,6 +194,51 @@ class JuryEvaluationController extends Controller
         return redirect()->route($thankYouRoute)->with('success', 'Votre évaluation a été soumise avec succès.');
     }
 
+    public function loadDraft(Request $request)
+    {
+        try {
+            $identifier = trim((string) $request->input('jury_identifier', ''));
+            $groupName  = trim((string) $request->input('group_name', ''));
+
+            if (!$identifier || !$groupName) {
+                return response()->json(['found' => false]);
+            }
+
+            $member = JuryMember::query()
+                ->where('unique_identifier', $identifier)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$member) {
+                return response()->json(['found' => false]);
+            }
+
+            $draft = JuryEvaluation::query()
+                ->where('jury_member_id', $member->id)
+                ->where('group_name', $groupName)
+                ->where('status', 'draft')
+                ->with('scores')
+                ->first();
+
+            if (!$draft) {
+                return response()->json(['found' => false]);
+            }
+
+            $scores = [];
+            foreach ($draft->scores as $score) {
+                $scores[$score->category_key][$score->criterion_key] = $score->score;
+            }
+
+            return response()->json([
+                'found'          => true,
+                'global_comment' => $draft->global_comment ?? '',
+                'scores'         => $scores,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['found' => false, 'debug' => $e->getMessage()], 500);
+        }
+    }
+
     public function thankYou()
     {
         return view('jury.thank-you');

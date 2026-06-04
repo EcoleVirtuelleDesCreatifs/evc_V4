@@ -911,10 +911,66 @@
             banner.className = 'draft-banner';
             banner.innerHTML =
                 '<span>✏️ Un <strong>brouillon</strong> a été enregistré pour <strong>' + group + '</strong>.</span>' +
-                '<button type="button" class="draft-continue-btn" onclick="scrollToForm()">▶ Continuer l\'évaluation du ' + group + '</button>';
+                '<button type="button" class="draft-continue-btn" id="loadDraftBtn">▶ Continuer l\'évaluation du ' + group + '</button>';
 
             const groupsArea = document.querySelector('.groups-area');
             if (groupsArea) groupsArea.parentNode.insertBefore(banner, groupsArea.nextSibling);
+
+            document.getElementById('loadDraftBtn').addEventListener('click', () => loadDraftData(group));
+        }
+
+        async function loadDraftData(group) {
+            const identifier = document.getElementById('juryIdentifierHidden').value;
+            if (!identifier) return;
+
+            const isEvc = window.location.pathname.startsWith('/evc/');
+            const draftUrl = (isEvc ? '/evc' : '') + '/jury/evaluation/draft'
+                + '?jury_identifier=' + encodeURIComponent(identifier)
+                + '&group_name=' + encodeURIComponent(group);
+
+            const btn = document.getElementById('loadDraftBtn');
+            if (btn) { btn.disabled = true; btn.textContent = 'Chargement...'; }
+
+            try {
+                const res = await fetch(draftUrl, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+                const data = await res.json();
+
+                if (!data.found) {
+                    if (btn) { btn.disabled = false; btn.textContent = '▶ Continuer l\'évaluation du ' + group; }
+                    return;
+                }
+
+                // Pré-remplir les scores
+                if (data.scores) {
+                    Object.entries(data.scores).forEach(([catKey, criteria]) => {
+                        Object.entries(criteria).forEach(([critKey, score]) => {
+                            const input = document.querySelector(
+                                'input[name="scores[' + catKey + '][' + critKey + ']"]'
+                            );
+                            if (input) {
+                                input.value = score;
+                                input.dispatchEvent(new Event('input', { bubbles: true }));
+                            }
+                        });
+                    });
+                }
+
+                // Pré-remplir le commentaire
+                const commentArea = document.querySelector('textarea[name="global_comment"]');
+                if (commentArea && data.global_comment) {
+                    commentArea.value = data.global_comment;
+                }
+
+                updateTotals();
+
+                // Supprimer la bannière et scroller vers le formulaire
+                document.querySelectorAll('.draft-banner').forEach(el => el.remove());
+                const form = document.getElementById('evaluationBody');
+                if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (e) {
+                if (btn) { btn.disabled = false; btn.textContent = '▶ Continuer l\'évaluation du ' + group; }
+            }
         }
 
         function scrollToForm() {
