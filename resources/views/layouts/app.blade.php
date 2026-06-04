@@ -325,6 +325,16 @@
                         Actualités
                     </a>
                     <div class="evc-topbar-sep evc-topbar-hide-sm"></div>
+                    <a href="{{ route('parcours-formateur') }}" class="evc-topbar-link evc-topbar-hide-sm">
+                        <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6c0 2.173 1.157 4.078 2.89 5.13.29.176.49.48.49.82V16a1 1 0 001 1h3.24a1 1 0 001-1v-2.05c0-.34.2-.644.49-.82A5.994 5.994 0 0016 8a6 6 0 00-6-6z"/><path d="M7 19a1 1 0 001 1h4a1 1 0 001-1H7z"/></svg>
+                        Parcours du formateur
+                    </a>
+                    <div class="evc-topbar-sep evc-topbar-hide-sm"></div>
+                    <a href="{{ route('plaquettes.formations') }}" class="evc-topbar-link evc-topbar-hide-sm">
+                        <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 3a2 2 0 012-2h5.586A2 2 0 0113 1.586L16.414 5A2 2 0 0117 6.414V17a2 2 0 01-2 2H6a2 2 0 01-2-2V3zm8 3a1 1 0 001 1h3l-4-4v3z" clip-rule="evenodd"/></svg>
+                        Plaquette de formation
+                    </a>
+                    <div class="evc-topbar-sep evc-topbar-hide-sm"></div>
                     <a href="{{ route('evenements.all') }}" class="evc-topbar-link evc-topbar-hide-sm">
                         <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
                         Événements
