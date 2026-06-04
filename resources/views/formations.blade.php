@@ -2,7 +2,7 @@
 
 @section('title', 'Formations Certifiantes École Numérique EVC Abidjan | Design Graphique, Motion Design, Community Management')
 @section('description', 'Formations certifiées par l\'État à l\'EVC école numérique d\'Abidjan : Design Graphique Adobe Photoshop (4 mois), Motion Design, Community Management (3 mois), Bureautique avancée (2 mois). Paiement échelonné.')
-@section('keywords', 'formation design graphique Abidjan, centre de formation Adobe Photoshop Abidjan, formation motion design Abidjan, formation community management Abidjan, formation bureautique avancé Abidjan, école numérique Abidjan, école de formatique, école de communication visuelle Abidjan, formation certifiante Côte d\'Ivoire, EVC, Adobe Illustrator, InDesign')
+@section('keywords', 'formation design graphique Abidjan, centre de formation Adobe Photoshop Abidjan, formation motion design Abidjan, formation community management Abidjan, formation bureautique avancé Abidjan, école numérique Abidjan, école d\'infographie Abidjan, centre de formation professionnelle Abidjan, formation certifiante reconnue par l\'État, formation en ligne reconnue par l\'État, formation en ligne reconnue à l\'international, école de formatique, école de communication visuelle Abidjan, formation certifiante Côte d\'Ivoire, EVC, Adobe Illustrator, InDesign')
 
 @push('styles')
 <style>

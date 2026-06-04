@@ -7,7 +7,8 @@
     <!-- SEO Essentials -->
     <title>@yield('title', 'EVC - École Numérique Abidjan | Formation Design Graphique & Digital Côte d\'Ivoire')</title>
     <meta name="description" content="@yield('description', 'EVC, école numérique N°1 à Abidjan. Formations certifiantes en Design Graphique (Adobe Photoshop), Community Management, Motion Design, Bureautique. École virtuelle des créatifs en Côte d\'Ivoire. Inscriptions ouvertes !')">
-    <meta name="keywords" content="@yield('keywords', 'école numérique Abidjan, ecole numérique, école virtuelle des créatifs, EVC, ecole virtuelle abidjan, formation design graphique Abidjan, centre de formation Adobe Photoshop Abidjan, formation motion design Abidjan, école de community management Abidjan, formation bureautique avancé Abidjan, école de formatique, liste des écoles informatique Abidjan, école de communication visuelle Abidjan, école de formation Abidjan, ecole digitale Côte d\'Ivoire, ECV, ECAV')">
+    <meta name="keywords" content="@yield('keywords', 'école numérique Abidjan, ecole numérique, école virtuelle des créatifs, EVC, ecole virtuelle abidjan, formation design graphique Abidjan, centre de formation Adobe Photoshop Abidjan, formation motion design Abidjan, école de community management Abidjan, formation bureautique avancé Abidjan, école d\'infographie Abidjan, centre de formation professionnelle Abidjan, formation certifiante reconnue par l\'État, formation en ligne reconnue par l\'État, formation en ligne reconnue à l\'international, école de formatique, liste des écoles informatique Abidjan, école de communication visuelle Abidjan, école de formation Abidjan, ecole digitale Côte d\'Ivoire, ECV, ECAV')">
+
     <meta name="author" content="EVC - École Virtuelle des Créatifs">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="googlebot" content="index, follow">
