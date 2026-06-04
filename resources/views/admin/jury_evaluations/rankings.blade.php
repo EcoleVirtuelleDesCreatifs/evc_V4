@@ -198,7 +198,7 @@
                                     </td>
                                     <td>
                                         <span style="font-size:.78rem;color:#94a3b8;">
-                                            <i class="fas fa-user-tie me-1" style="color:#334155;"></i>{{ $ranking['jury_name'] }}
+                                            <i class="fas fa-users me-1" style="color:#334155;"></i>{{ $ranking['count'] }} note(s)
                                         </span>
                                     </td>
                                 </tr>
