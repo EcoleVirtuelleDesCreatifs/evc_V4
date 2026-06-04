@@ -31,7 +31,7 @@
             text-align: center;
             max-width: 900px;
             margin: 0 auto 24px;
-            padding: 150px 20px 0;
+            padding: 250px 20px 0;
         }
 
         @media (max-width: 1024px) {
