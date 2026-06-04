@@ -6,7 +6,7 @@
 
 @section('content')
     <!-- Page Jury -->
-    <div class="relative pt-[150px] pb-20 overflow-hidden min-h-screen">
+    <div class="relative pt-[250px] pb-20 overflow-hidden min-h-screen">
 
         <div class="absolute inset-0 opacity-70" style="background: linear-gradient(135deg, #063E77 0%, #2071C3 50%, #3399ff 100%);"></div>
 

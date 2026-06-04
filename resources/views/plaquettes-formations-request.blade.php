@@ -3,7 +3,7 @@
 @section('title', 'Télécharger une plaquette')
 
 @section('content')
-    <div class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-[150px] pb-16">
+    <div class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-[250px] pb-16">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
             <div class="mx-auto max-w-4xl text-center">
                 <nav class="flex justify-center mb-8" aria-label="Breadcrumb">

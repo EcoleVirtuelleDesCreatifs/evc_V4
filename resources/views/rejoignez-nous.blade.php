@@ -17,7 +17,7 @@
         /* Hero Section */
         .hero-section {
             position: relative;
-            padding: 150px 0 35px;
+            padding: 250px 0 35px;
             text-align: center;
             color: white;
             overflow: hidden;
@@ -302,7 +302,7 @@
         /* Responsive */
         @media (max-width: 768px) {
             .hero-section {
-                padding: 150px 0 25px;
+                padding: 250px 0 25px;
             }
 
             .hero-title {
