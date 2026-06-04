@@ -269,7 +269,7 @@
         #flash-info-bar {
             height: auto;
             min-height: 80px;
-            top: calc(var(--evc-topbar-height, 40px) + 68px);
+            top: calc(var(--evc-topbar-height, 40px) + 104px);
         }
         #flash-info-bar > div {
             flex-direction: row;
