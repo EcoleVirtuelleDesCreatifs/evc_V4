@@ -44,7 +44,7 @@
                     </div>
                 </div>
                 <p class="mt-6 text-base sm:text-lg leading-7 sm:leading-8 text-gray-300 text-center lg:text-left">
-                    <strong class="text-white">L’École Virtuelle des Créatifs (EVC) est une référence incontournable en formation digitale. Reconnue par l’État ivoirien, cette SARL mise sur une pédagogie 100 % Ultra-pratique, axée sur les besoins réels du marché. EVC forme en Design Graphique, Community Management, Social Media Management, Gestion Informatique et Intelligence Artificielle Appliquée.</strong>
+                    <strong class="text-white">L’École Virtuelle des Créatifs (EVC) est une référence incontournable en formation digitale. Reconnue par l’État ivoirien, cette SARL mise sur une pédagogie 100 % Ultra-pratique, axée sur les besoins réels du marché.</strong>
                 </p>
 
                 <div class="mt-8 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-x-6">
