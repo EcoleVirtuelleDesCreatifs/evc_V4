@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Membres du Jury - EVC | École Virtuelle des Créatifs')
-@section('description', 'Découvrez les experts internationaux qui composent notre jury et qui guident nos étudiants vers l\'excellence dans les métiers du digital.')
+@section('title', 'Membres du Jury EVC | École Numérique Abidjan | Experts Design & Digital Côte d\'Ivoire')
+@section('description', 'Découvrez les experts internationaux du jury EVC, école numérique d\'Abidjan. Professionnels en design graphique, motion design et community management qui évaluent nos étudiants.')
+@section('keywords', 'jury école numérique Abidjan, jury EVC, experts design graphique, jury motion design, école virtuelle des créatifs, Studio Creative 5, évaluation étudiants Côte d\'Ivoire')
 
 @section('content')
     <!-- Page Jury -->

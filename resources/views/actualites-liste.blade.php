@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Toutes les Actualités - Blog EVC')
-@section('description', 'Découvrez toutes nos actualités, articles de blog et dernières nouvelles de l\'École Virtuelle des Créatifs')
-@section('keywords', 'actualités, blog, articles, EVC, nouvelles, formations')
+@section('title', 'Actualités École Numérique EVC Abidjan | Blog Design Graphique & Digital Côte d\'Ivoire')
+@section('description', 'Actualités et articles de l\'EVC, école numérique d\'Abidjan : formations design graphique, motion design, community management, Adobe Photoshop. Toutes les nouvelles de l\'école virtuelle des créatifs.')
+@section('keywords', 'actualités école numérique Abidjan, blog design graphique, EVC, école virtuelle des créatifs, formation motion design Abidjan, Adobe Photoshop Abidjan, community management Côte d\'Ivoire')
 
 @section('content')
 <!-- Hero Section -->

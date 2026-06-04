@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Formations Certifiantes Design Graphique, Community Management | EVC Abidjan')
-@section('description', 'Formations professionnelles certifiées par l\'État : Design Graphique (4 mois), Community Management (3 mois), Bureautique (2 mois), IA (1 mois). Tarifs accessibles, paiement échelonné. 95% de réussite à Abidjan.')
-@section('keywords', 'formation design graphique Abidjan, formation community management, formation bureautique, formation intelligence artificielle, Adobe Photoshop, Illustrator, InDesign, formation certifiante Côte d\'Ivoire, école digitale Abidjan, tarif formation')
+@section('title', 'Formations Certifiantes École Numérique EVC Abidjan | Design Graphique, Motion Design, Community Management')
+@section('description', 'Formations certifiées par l\'État à l\'EVC école numérique d\'Abidjan : Design Graphique Adobe Photoshop (4 mois), Motion Design, Community Management (3 mois), Bureautique avancée (2 mois). Paiement échelonné.')
+@section('keywords', 'formation design graphique Abidjan, centre de formation Adobe Photoshop Abidjan, formation motion design Abidjan, formation community management Abidjan, formation bureautique avancé Abidjan, école numérique Abidjan, école de formatique, école de communication visuelle Abidjan, formation certifiante Côte d\'Ivoire, EVC, Adobe Illustrator, InDesign')
 
 @push('styles')
 <style>

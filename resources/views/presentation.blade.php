@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'À Propos de l\'EVC | École Digitale N°1 en Côte d\'Ivoire | Bilé Bossombra')
-@section('description', 'Découvrez l\'EVC, première école digitale certifiée en Côte d\'Ivoire. Notre mission : former les leaders du digital africain. Fondée par Bilé Bossombra, expert 360° avec 10+ ans d\'expérience internationale. 1500+ étudiants formés.')
-@section('keywords', 'école virtuelle créatifs, EVC Abidjan, Bilé Bossombra, école digitale Côte d\'Ivoire, formation professionnelle Afrique, mission EVC, valeurs école digitale, expert digital Abidjan')
+@section('title', 'À Propos EVC | École Numérique N°1 Abidjan | Bilé Bossombra | École Virtuelle des Créatifs')
+@section('description', 'Découvrez l\'EVC, école numérique N°1 à Abidjan, fondée par Bilé Bossombra. 1500+ étudiants formés en Design Graphique, Motion Design, Community Management en Côte d\'Ivoire. École virtuelle des créatifs certifiée.')
+@section('keywords', 'école numérique Abidjan, ecole numérique, EVC, école virtuelle des créatifs, Bilé Bossombra, école de formation Abidjan, formation design graphique Abidjan, école de communication visuelle Abidjan, école community management Abidjan, ECV, ECAV, ev ecole')
 
 @push('styles')
 <style>

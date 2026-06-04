@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- SEO Essentials -->
-    <title>@yield('title', 'EVC - École Virtuelle des Créatifs | Formation Design & Marketing Digital Abidjan')</title>
-    <meta name="description" content="@yield('description', 'Première école digitale en Afrique francophone. Formations certifiantes en Design Graphique, Community Management, Intelligence Artificielle. Rejoignez +1000 étudiants à travers le monde.')">
-    <meta name="keywords" content="@yield('keywords', 'école virtuelle abidjan, formation design graphique côte d&rsquo;ivoire, formation marketing digital abidjan, community management formation, intelligence artificielle formation, école en ligne afrique, certification adobe abidjan, formation professionnelle ivoirienne')">
+    <title>@yield('title', 'EVC - École Numérique Abidjan | Formation Design Graphique & Digital Côte d\'Ivoire')</title>
+    <meta name="description" content="@yield('description', 'EVC, école numérique N°1 à Abidjan. Formations certifiantes en Design Graphique (Adobe Photoshop), Community Management, Motion Design, Bureautique. École virtuelle des créatifs en Côte d\'Ivoire. Inscriptions ouvertes !')">
+    <meta name="keywords" content="@yield('keywords', 'école numérique Abidjan, ecole numérique, école virtuelle des créatifs, EVC, ecole virtuelle abidjan, formation design graphique Abidjan, centre de formation Adobe Photoshop Abidjan, formation motion design Abidjan, école de community management Abidjan, formation bureautique avancé Abidjan, école de formatique, liste des écoles informatique Abidjan, école de communication visuelle Abidjan, école de formation Abidjan, ecole digitale Côte d\'Ivoire, ECV, ECAV')">
     <meta name="author" content="EVC - École Virtuelle des Créatifs">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="googlebot" content="index, follow">
@@ -23,8 +23,8 @@
     <meta property="og:type" content="@yield('og:type', 'website')">
     <meta property="og:url" content="@yield('og:url', url()->current())">
     <meta property="og:site_name" content="EVC - École Virtuelle des Créatifs">
-    <meta property="og:title" content="@yield('og:title', 'EVC - Première École Virtuelle de Côte d&rsquo;Ivoire | Formations Certifiantes')">
-    <meta property="og:description" content="@yield('og:description', 'Formations en Design Graphique, Community Management et Intelligence Artificielle. +500 étudiants formés à Abidjan. Inscriptions ouvertes !')">
+    <meta property="og:title" content="@yield('og:title', 'EVC - École Numérique Abidjan | Design Graphique, Motion Design, Community Management')">
+    <meta property="og:description" content="@yield('og:description', 'École numérique N°1 à Abidjan. Formations certifiées Adobe Photoshop, Motion Design, Community Management. École virtuelle des créatifs en Côte d\'Ivoire. Inscriptions ouvertes !')">
     <meta property="og:image" content="@yield('og:image', asset('assets/img/hero-1.jpg'))">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -36,8 +36,9 @@
     <meta name="twitter:site" content="@EcoleVirtuelleCi">
     <meta name="twitter:creator" content="@EcoleVirtuelleCi">
     <meta name="twitter:url" content="@yield('twitter:url', url()->current())">
-    <meta name="twitter:title" content="@yield('twitter:title', 'EVC - Formations Professionnelles en Ligne | Abidjan')">
-    <meta name="twitter:description" content="@yield('twitter:description', 'Design, Marketing Digital, IA. Formations certifiantes avec suivi personnalisé à Abidjan.')">
+    <meta name="twitter:title" content="@yield('twitter:title', 'EVC École Numérique Abidjan | Design Graphique & Motion Design Côte d\'Ivoire')">
+    <meta name="twitter:description" content="@yield('twitter:description', 'École virtuelle des créatifs à Abidjan. Adobe Photoshop, Motion Design, Community Management. Formations certifiées Côte d\'Ivoire.')">
+
     <meta name="twitter:image" content="@yield('twitter:image', asset('assets/img/hero-1.jpg'))">
 
     <!-- Mobile & PWA -->

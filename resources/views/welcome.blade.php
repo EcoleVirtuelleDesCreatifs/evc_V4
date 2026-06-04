@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'EVC - École Virtuelle des Créatifs | Formation Design Graphique & Digital à Abidjan')
-@section('description', 'École N°1 du digital en Côte d\'Ivoire. Formations certifiantes en Design Graphique, Community Management, Bureautique et IA. 95% de réussite. Inscriptions ouvertes à Abidjan.')
-@section('keywords', 'école virtuelle, formation design graphique Abidjan, formation community management, école digitale Côte d\'Ivoire, formation certifiante, Adobe Photoshop Abidjan, formation en ligne Afrique, école créatifs, EVC, formation bureautique, intelligence artificielle')
+@section('title', 'EVC - École Numérique Abidjan | Formation Design Graphique, Motion Design & Community Management')
+@section('description', 'École numérique N°1 à Abidjan. EVC, école virtuelle des créatifs : formations certifiées Adobe Photoshop, Motion Design, Community Management, Bureautique. 95% de réussite en Côte d\'Ivoire.')
+@section('keywords', 'école numérique Abidjan, ecole numérique, EVC, ecole virtuelle des créatifs, école virtuelle Abidjan, formation design graphique Abidjan, centre de formation Adobe Photoshop Abidjan, formation motion design Abidjan, école community management Abidjan, formation bureautique avancé Abidjan, école de formatique, école de communication visuelle Abidjan, ECV, ECAV, école de formation Abidjan, liste écoles informatique Abidjan')
 
 @section('content')
     @include('homepage._hero')

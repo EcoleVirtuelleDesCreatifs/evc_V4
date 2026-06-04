@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Rejoignez-nous - École Virtuelle des Créatifs')
-@section('description', 'Rejoignez l\'École Virtuelle des Créatifs en tant que collaborateur, partenaire ou formateur. Participez à la formation de la prochaine génération de créatifs en Côte d\'Ivoire.')
-@section('keywords', 'rejoindre evc, collaborateur evc, partenaire evc, devenir formateur, école virtuelle abidjan, emploi formation côte d\'ivoire')
+@section('title', 'Rejoignez l\'École Numérique EVC Abidjan | Formateur, Partenaire, Collaborateur')
+@section('description', 'Rejoignez l\'EVC, école numérique d\'Abidjan en tant que formateur, collaborateur ou partenaire. Participez à la formation de la prochaine génération de créatifs en Côte d\'Ivoire.')
+@section('keywords', 'rejoindre école numérique Abidjan, devenir formateur EVC, partenaire EVC, école virtuelle des créatifs, emploi formation Côte d\'Ivoire, collaborateur école digitale Abidjan')
 
 @push('styles')
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">

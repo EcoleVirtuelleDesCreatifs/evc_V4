@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Portfolio Étudiants EVC | Travaux Design Graphique & Identité Visuelle Abidjan')
-@section('description', 'Découvrez les créations exceptionnelles de nos étudiants : identités visuelles, logotypes, affiches, plaquettes. Portfolio des meilleurs projets de design graphique réalisés à l\'EVC Abidjan.')
-@section('keywords', 'portfolio étudiants, travaux design graphique, identité visuelle, logotype, affiche design, plaquette commerciale, projets étudiants EVC, création graphique Abidjan, portfolio design Côte d\'Ivoire')
+@section('title', 'Portfolio Étudiants École Numérique EVC | Travaux Design Graphique & Motion Design Abidjan')
+@section('description', 'Portfolio des étudiants de l\'EVC, école numérique d\'Abidjan : identités visuelles, logotypes, affiches, motion design. Meilleures créations graphiques de l\'école virtuelle des créatifs en Côte d\'Ivoire.')
+@section('keywords', 'portfolio étudiants école numérique Abidjan, travaux design graphique Abidjan, motion design Abidjan, identité visuelle, logotype, affiche design, EVC, école virtuelle des créatifs, création graphique Côte d\'Ivoire')
 
 @section('content')
 <!-- Hero Section -->
