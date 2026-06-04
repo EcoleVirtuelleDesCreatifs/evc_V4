@@ -108,6 +108,7 @@ Route::get('/evc/plaquettes-formations/{filename}', [HomepageController::class, 
 Route::post('/evc/plaquettes-formations/{filename}', [HomepageController::class, 'plaquetteDownload'])->where('filename', '.*')->name('plaquettes.formations.download.evc');
 Route::get('/travaux-etudiants', [HomepageController::class, 'travaux'])->name('travaux');
 Route::get('/laureats', [HomepageController::class, 'laureats'])->name('laureats');
+Route::get('/csrf-token', fn() => response()->json(['token' => csrf_token()]))->name('csrf.token');
 Route::get('/jury', [HomepageController::class, 'jury'])->name('jury');
 Route::get('/jury/evaluation', [JuryEvaluationController::class, 'create'])->name('jury.evaluation.create');
 Route::post('/jury/evaluation', [JuryEvaluationController::class, 'store'])->name('jury.evaluation.store');

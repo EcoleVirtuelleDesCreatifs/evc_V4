@@ -979,6 +979,24 @@
                 });
             });
 
+            /* Refresh CSRF token avant soumission (fix Safari ITP / session expirée) */
+            const evalForm = document.getElementById('evaluationForm');
+            if (evalForm) {
+                evalForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    try {
+                        const csrfRoute = window.location.pathname.startsWith('/evc/') ? '/csrf-token' : '/csrf-token';
+                        const res = await fetch(csrfRoute, { credentials: 'same-origin' });
+                        if (res.ok) {
+                            const json = await res.json();
+                            const csrfInput = evalForm.querySelector('input[name="_token"]');
+                            if (csrfInput && json.token) csrfInput.value = json.token;
+                        }
+                    } catch (_) {}
+                    evalForm.submit();
+                });
+            }
+
             updateTotals();
         }
     </script>
