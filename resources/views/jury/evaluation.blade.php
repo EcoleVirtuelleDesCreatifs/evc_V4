@@ -463,9 +463,10 @@
         }
 
         .alert {
-            margin: 22px 0;
-            padding: 16px 20px;
-            border-radius: 16px;
+            max-width: 1180px;
+            margin: 16px auto;
+            padding: 12px 20px;
+            border-radius: 12px;
             font-weight: 700;
         }
 
