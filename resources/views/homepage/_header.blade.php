@@ -476,7 +476,7 @@
 
 (function(){
     const flashBar = document.getElementById('flash-info-bar');
-    if (!flashBar || window.location.pathname !== '/') return;
+    if (!flashBar) return;
 
     let ticking = false;
 
