@@ -248,22 +248,22 @@
                     </div>
                     <div class="col-12 col-md-4">
                         <label class="f-label">Statut d'évaluation</label>
-                        <label class="toggle-wrap" for="is_active" style="width:100%;">
+                        <div class="toggle-wrap" style="width:100%;" onclick="var cb=document.getElementById('is_active');cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'));">
                             <input type="checkbox" id="is_active" name="is_active" value="1"
                                 {{ old('is_active', true) ? 'checked' : '' }}>
                             <span class="toggle-track"></span>
                             <span class="toggle-label">🗳️ Peut évaluer les groupes</span>
-                        </label>
+                        </div>
                         <div class="f-hint">Activer pour que ce membre accède au formulaire de notation</div>
                     </div>
                     <div class="col-12 col-md-4">
                         <label class="f-label">Visibilité publique</label>
-                        <label class="toggle-wrap" for="is_visible" style="width:100%;">
+                        <div class="toggle-wrap" style="width:100%;" onclick="var cb=document.getElementById('is_visible');cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'));">
                             <input type="checkbox" id="is_visible" name="is_visible" value="1"
                                 {{ old('is_visible', true) ? 'checked' : '' }}>
                             <span class="toggle-track"></span>
                             <span class="toggle-label">🌐 En ligne sur la page jury</span>
-                        </label>
+                        </div>
                         <div class="f-hint">Afficher ce profil sur la page publique des membres</div>
                     </div>
                 </div>
