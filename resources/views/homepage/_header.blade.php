@@ -260,41 +260,74 @@
     }
     @media (max-width: 640px) {
         #flash-info-bar {
-            height: 64px;
+            height: auto;
+            min-height: 80px;
             top: calc(var(--evc-topbar-height, 40px) + 68px);
         }
-        .flash-badge {
-            min-width: 64px;
-            padding: 0 10px;
-            gap: 4px;
+        #flash-info-bar > div {
+            flex-direction: row;
+            align-items: stretch;
+            padding: 0;
+            max-width: 100%;
         }
-        .flash-badge .ping-dot { display: none; }
+        .flash-badge {
+            min-width: 60px;
+            width: 60px;
+            padding: 12px 8px;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .flash-badge .ping-dot { width: 12px; height: 12px; }
+        .flash-badge .ping-dot span.dot { width: 8px; height: 8px; }
         .flash-badge-label { font-size: 8px; letter-spacing: 0.1em; }
         .flash-content-area {
-            padding: 0 8px 0 20px;
+            padding: 12px 10px 12px 24px;
+            height: auto;
+            min-height: 80px;
+            overflow: visible;
+            display: flex;
+            align-items: center;
         }
         .flash-item {
-            left: 20px;
-            right: 8px;
-            gap: 2px;
+            position: relative;
+            left: auto;
+            right: auto;
+            top: auto;
+            bottom: auto;
+            inset: unset;
+            width: 100%;
+            gap: 6px;
+            transition: none;
         }
-        .flash-item-icon { display: none; }
+        .flash-item.hidden-mobile {
+            display: none;
+        }
+        .flash-item-icon {
+            font-size: 10px;
+            gap: 6px;
+        }
         .flash-item-text {
-            font-size: 0.78rem;
+            font-size: 0.82rem;
             font-weight: 700;
-            line-height: 1.3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.45;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: unset;
         }
-        .flash-item-link { display: none; }
+        .flash-item-link {
+            display: inline-flex;
+            font-size: 11px;
+            padding: 4px 12px;
+        }
         .flash-dots {
-            padding: 0 8px;
-            flex-direction: row;
+            padding: 12px 10px 12px 4px;
+            flex-direction: column;
             gap: 5px;
             align-items: center;
+            justify-content: center;
             height: auto;
-            align-self: center;
+            align-self: stretch;
+            flex-shrink: 0;
         }
         .flash-dot {
             width: 5px;
@@ -364,7 +397,7 @@
                     if (!empty($c->actualite?->slug)) $url = route('actualite.show', $c->actualite->slug);
                     elseif (!empty($c->evenement?->slug)) $url = route('evenement.show', $c->evenement->slug);
                 @endphp
-                <div class="flash-item {{ $i === 0 ? '' : 'opacity-0' }}" style="{{ $i !== 0 ? 'transform:translateY(20px);' : '' }}" data-flash-index="{{ $i }}">
+                <div class="flash-item {{ $i === 0 ? '' : 'opacity-0 hidden-mobile' }}" style="{{ $i !== 0 ? 'transform:translateY(20px);' : '' }}" data-flash-index="{{ $i }}">
                     <div class="flash-item-icon">
                         <i class="fas fa-bolt"></i>
                         <span>Annonce</span>
@@ -395,7 +428,24 @@
     if (items.length < 2) return;
     let cur = 0, timer;
 
+    function isMobileFlash() {
+        return window.matchMedia('(max-width: 640px)').matches;
+    }
+
     function goTo(next) {
+        if (isMobileFlash()) {
+            items[cur].classList.add('hidden-mobile');
+            items[cur].style.opacity = '0';
+            items[cur].style.transform = 'translateY(0)';
+            dots[cur].classList.remove('active');
+            cur = next;
+            items[cur].classList.remove('hidden-mobile');
+            items[cur].style.opacity = '1';
+            items[cur].style.transform = 'translateY(0)';
+            dots[cur].classList.add('active');
+            return;
+        }
+
         items[cur].style.transition = 'opacity 0.7s ease, transform 0.7s ease';
         items[cur].style.opacity = '0';
         items[cur].style.transform = 'translateY(-20px)';
