@@ -1,8 +1,9 @@
 <!-- Hero Section -->
-<main id="hero-section" class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-[111px] sm:pt-[143px] pb-12 sm:pb-16 z-40">
+<main id="hero-section" class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-[260px] sm:pt-[300px] pb-12 sm:pb-16 z-40">
     @php
         $basePath = rtrim(request()->getBasePath(), '/');
     @endphp
+    {{-- Spacer pour compenser topbar(40) + header(90) + flash(150) = 280px --}}
     <div class="mx-auto max-w-7xl lg:grid lg:grid-cols-12 lg:gap-x-3 lg:px-8">
         <div class="px-6 lg:col-span-7 xl:col-span-6 text-center lg:text-left flex flex-col justify-center">
             <div class="relative z-10">

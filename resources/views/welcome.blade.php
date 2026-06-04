@@ -6,7 +6,6 @@
 
 @section('content')
     @include('homepage._hero')
-    @include('homepage._communique')
     @include('homepage._webtv_home')
     @include('homepage._travaux')
     @include('homepage._chiffres')

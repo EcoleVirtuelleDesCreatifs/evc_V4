@@ -98,6 +98,174 @@
 }
 </style>
 
+<!-- Flash Info Bar CSS -->
+<style>
+    #flash-info-bar {
+        position: fixed;
+        top: calc(var(--evc-topbar-height, 40px) + 90px);
+        left: 0;
+        width: 100%;
+        z-index: 49;
+        height: 150px;
+        background: linear-gradient(135deg, #0d1b2a 0%, #1b2838 40%, #0d1b2a 100%);
+        border-bottom: 2px solid rgba(255,107,0,0.4);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 2px 0 rgba(255,107,0,0.3);
+        overflow: hidden;
+    }
+    #flash-info-bar::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(circle at 1px 1px, rgba(255,107,0,0.06) 1px, transparent 0);
+        background-size: 28px 28px;
+        pointer-events: none;
+    }
+    .flash-badge {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-width: 130px;
+        height: 100%;
+        background: linear-gradient(180deg, #ff6b00 0%, #e65000 100%);
+        box-shadow: 4px 0 24px rgba(255,107,0,0.5);
+        position: relative;
+        flex-shrink: 0;
+        padding: 0 20px;
+    }
+    .flash-badge::after {
+        content: '';
+        position: absolute;
+        right: -18px;
+        top: 0;
+        bottom: 0;
+        width: 36px;
+        background: linear-gradient(90deg, #e65000, transparent);
+    }
+    .flash-badge .ping-dot {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+    }
+    .flash-badge .ping-dot span.ping {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.5);
+        animation: flashPing 1.2s cubic-bezier(0,0,0.2,1) infinite;
+    }
+    .flash-badge .ping-dot span.dot {
+        position: relative;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 8px rgba(255,255,255,0.8);
+    }
+    @keyframes flashPing {
+        75%, 100% { transform: scale(2); opacity: 0; }
+    }
+    .flash-badge-label {
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
+        color: #fff;
+        text-transform: uppercase;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        writing-mode: horizontal-tb;
+        text-align: center;
+        line-height: 1.2;
+    }
+    .flash-content-area {
+        flex: 1;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        padding: 0 24px 0 48px;
+        display: flex;
+        align-items: center;
+    }
+    .flash-item {
+        position: absolute;
+        left: 48px;
+        right: 24px;
+        top: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .flash-item-icon {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #ff9844;
+    }
+    .flash-item-icon i { font-size: 13px; }
+    .flash-item-text {
+        font-size: clamp(1rem, 2.2vw, 1.4rem);
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.35;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        letter-spacing: -0.01em;
+    }
+    .flash-item-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,107,0,0.18);
+        border: 1px solid rgba(255,107,0,0.4);
+        color: #ff9844;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        width: fit-content;
+        transition: background 0.2s;
+    }
+    .flash-item-link:hover { background: rgba(255,107,0,0.35); color: #fff; }
+    .flash-dots {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        justify-content: center;
+        padding: 0 16px;
+        height: 100%;
+        flex-shrink: 0;
+    }
+    .flash-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.25);
+        transition: background 0.3s, transform 0.3s;
+        cursor: pointer;
+    }
+    .flash-dot.active {
+        background: #ff6b00;
+        transform: scale(1.4);
+    }
+    @media (max-width: 640px) {
+        #flash-info-bar { height: 120px; }
+        .flash-badge { min-width: 80px; padding: 0 12px; }
+        .flash-badge-label { font-size: 9px; }
+        .flash-item-text { font-size: 0.95rem; }
+    }
+</style>
+
 <!-- Header -->
 <header id="main-header" class="bg-gradient-to-b fixed top-0 left-0 w-full z-50 transition-all duration-300">
     <nav class="mx-auto flex max-w-7xl items-center justify-between p-3 lg:px-8">
@@ -125,6 +293,93 @@
         </div>
     </nav>
 </header>
+
+<!-- Flash Info Bar -->
+<div id="flash-info-bar">
+    @php
+        $flashCommuniques = \App\Models\Communique::active()
+            ->with(['actualite:id,slug','evenement:id,slug'])
+            ->orderBy('order')->orderBy('created_at','desc')
+            ->get();
+        if ($flashCommuniques->isEmpty()) {
+            $flashCommuniques = collect([
+                (object)['content' => 'Rentrée 8è promo : 20 juin 2026 — Design Graphique & Community Management. 10 places disponibles.', 'actualite' => null, 'evenement' => null],
+                (object)['content' => 'Studio Creative 5 : Phase préparatoire (07 Mai – 07 Juin 2026) · Phase de présentation (13 Juin 2026).', 'actualite' => null, 'evenement' => null],
+                (object)['content' => 'Remise de Certifications : 20 juin à Abidjan en présentiel.', 'actualite' => null, 'evenement' => null],
+            ]);
+        }
+    @endphp
+    <div style="display:flex;height:100%;max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;">
+        {{-- Badge FLASH INFO --}}
+        <div class="flash-badge">
+            <div class="ping-dot">
+                <span class="ping"></span>
+                <span class="dot"></span>
+            </div>
+            <div class="flash-badge-label">FLASH<br>INFO</div>
+        </div>
+
+        {{-- Items --}}
+        <div class="flash-content-area">
+            @foreach($flashCommuniques as $i => $c)
+                @php
+                    $url = null;
+                    if (!empty($c->actualite?->slug)) $url = route('actualite.show', $c->actualite->slug);
+                    elseif (!empty($c->evenement?->slug)) $url = route('evenement.show', $c->evenement->slug);
+                @endphp
+                <div class="flash-item {{ $i === 0 ? '' : 'opacity-0' }}" style="{{ $i !== 0 ? 'transform:translateY(20px);' : '' }}" data-flash-index="{{ $i }}">
+                    <div class="flash-item-icon">
+                        <i class="fas fa-bolt"></i>
+                        <span>Annonce</span>
+                    </div>
+                    <div class="flash-item-text">{!! $c->content !!}</div>
+                    @if($url)
+                        <a href="{{ $url }}" class="flash-item-link">
+                            <i class="fas fa-arrow-right"></i> Lire l'annonce
+                        </a>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+
+        {{-- Dots navigation --}}
+        <div class="flash-dots">
+            @foreach($flashCommuniques as $i => $c)
+                <div class="flash-dot {{ $i === 0 ? 'active' : '' }}" data-flash-dot="{{ $i }}"></div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    const items = document.querySelectorAll('#flash-info-bar .flash-item');
+    const dots  = document.querySelectorAll('#flash-info-bar .flash-dot');
+    if (items.length < 2) return;
+    let cur = 0, timer;
+
+    function goTo(next) {
+        items[cur].style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+        items[cur].style.opacity = '0';
+        items[cur].style.transform = 'translateY(-20px)';
+        dots[cur].classList.remove('active');
+        cur = next;
+        items[cur].style.transition = 'none';
+        items[cur].style.transform = 'translateY(20px)';
+        items[cur].style.opacity = '0';
+        void items[cur].offsetWidth;
+        items[cur].style.transition = 'opacity 0.7s ease, transform 0.7s ease';
+        items[cur].style.opacity = '1';
+        items[cur].style.transform = 'translateY(0)';
+        dots[cur].classList.add('active');
+    }
+
+    function startTimer() { timer = setInterval(() => goTo((cur + 1) % items.length), 5000); }
+    startTimer();
+
+    dots.forEach((dot, i) => dot.addEventListener('click', () => { clearInterval(timer); goTo(i); startTimer(); }));
+})();
+</script>
 
 <!-- Mobile menu -->
 <div id="mobile-menu" class="lg:hidden hidden" role="dialog" aria-modal="true">
