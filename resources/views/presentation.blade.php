@@ -222,7 +222,7 @@
 
 @section('content')
 <!-- Hero Section -->
-<div class="hero-gradient pt-32 pb-20 sm:pt-40 sm:pb-28 relative">
+<div class="hero-gradient pt-64 pb-20 relative">
     <div class="mx-auto max-w-7xl px-6 lg:px-8 relative z-10">
         <div class="mx-auto max-w-4xl text-center" style="animation: fadeInUp 1s ease-out">
             <div class="inline-block mb-6">

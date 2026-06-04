@@ -6,7 +6,7 @@
 
 @section('content')
 <!-- Hero Section -->
-<div class="relative pt-32 sm:pt-40 lg:pt-48 pb-16 bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#034078]">
+<div class="relative pt-64 pb-16 bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#034078]">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-4xl text-center">
             <!-- Breadcrumb -->

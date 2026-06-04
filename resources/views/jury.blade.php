@@ -5,7 +5,7 @@
 
 @section('content')
     <!-- Page Jury -->
-    <div class="relative py-24 sm:py-32 overflow-hidden min-h-screen">
+    <div class="relative pt-64 pb-20 overflow-hidden min-h-screen">
 
         <div class="absolute inset-0 opacity-70" style="background: linear-gradient(135deg, #063E77 0%, #2071C3 50%, #3399ff 100%);"></div>
 

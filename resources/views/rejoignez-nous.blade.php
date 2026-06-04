@@ -17,7 +17,7 @@
         /* Hero Section */
         .hero-section {
             position: relative;
-            padding: 120px 0 60px;
+            padding: 250px 0 60px;
             text-align: center;
             color: white;
             overflow: hidden;
@@ -61,7 +61,7 @@
             padding: 40px 0 80px;
             position: relative;
         }
-        
+
         .cards-container .row.mt-4 {
             margin-top: 3rem !important;
         }

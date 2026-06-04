@@ -20,7 +20,7 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    
+
     body {
         background: var(--bg-dark);
         color: var(--text-primary);
@@ -32,7 +32,7 @@
         display: flex;
         align-items: center;
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        padding: 140px 20px 80px;
+        padding: 250px 20px 80px;
         position: relative;
         overflow: hidden;
     }
