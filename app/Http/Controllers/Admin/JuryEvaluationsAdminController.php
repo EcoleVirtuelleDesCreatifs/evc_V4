@@ -53,16 +53,19 @@ class JuryEvaluationsAdminController extends Controller
 
         $rankings = [];
         foreach ($categories as $categoryKey => $meta) {
-            $rankings[$categoryKey] = $evaluations->map(function ($evaluation) use ($categoryKey) {
-                $categoryScore = $evaluation->scores
-                    ->filter(fn($s) => $s->category_key === $categoryKey)
-                    ->sum(fn($s) => (int) $s->score);
+            $rankings[$categoryKey] = collect($allGroups)->map(function ($group) use ($evaluations, $categoryKey) {
+                $groupEvals = $evaluations->filter(fn($evaluation) => $evaluation->group_name === $group);
+                $count = $groupEvals->count();
+                $total = $groupEvals->sum(function ($evaluation) use ($categoryKey) {
+                    return $evaluation->scores
+                        ->filter(fn($score) => $score->category_key === $categoryKey)
+                        ->sum(fn($score) => (int) $score->score);
+                });
+
                 return [
-                    'group_name'     => $evaluation->group_name,
-                    'category_score' => $categoryScore,
-                    'total_score'    => (int) $evaluation->total_score,
-                    'jury_name'      => $evaluation->jury_name,
-                    'evaluation_date'=> $evaluation->evaluation_date,
+                    'group_name'     => $group,
+                    'category_score' => $count > 0 ? round($total / $count) : 0,
+                    'count'          => $count,
                 ];
             })
             ->sortByDesc('category_score')

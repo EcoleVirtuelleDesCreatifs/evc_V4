@@ -46,18 +46,22 @@ class JuryEvaluationController extends Controller
 
             $alreadyVoted = false;
             $votedGroup   = null;
-            $availableGroups = array_keys($this->groups());
+            $groups = array_keys($this->groups());
+            $availableGroups = $groups;
+            $evaluatedGroups = [];
 
             if (Schema::hasTable('jury_evaluations')) {
-                $existing = JuryEvaluation::query()
+                $evaluatedGroups = JuryEvaluation::query()
                     ->where('jury_member_id', $member->id)
                     ->where('status', 'submitted')
-                    ->first();
+                    ->pluck('group_name')
+                    ->all();
 
-                if ($existing) {
+                $availableGroups = array_values(array_diff($groups, $evaluatedGroups));
+
+                if (count($availableGroups) === 0) {
                     $alreadyVoted    = true;
-                    $votedGroup      = $existing->group_name;
-                    $availableGroups = [];
+                    $votedGroup      = implode(', ', $evaluatedGroups);
                 }
             }
 
@@ -66,8 +70,11 @@ class JuryEvaluationController extends Controller
                 'id'             => $member->id,
                 'name'           => $member->name,
                 'title'          => $member->title,
-                'already_voted'  => $alreadyVoted,
-                'voted_group'    => $votedGroup,
+                'already_voted'    => $alreadyVoted,
+                'voted_group'      => $votedGroup,
+                'evaluated_groups' => $evaluatedGroups,
+                'evaluated_count'  => count($evaluatedGroups),
+                'total_groups'     => count($groups),
                 'available_groups' => $availableGroups,
             ]);
         } catch (\Throwable $e) {
@@ -118,13 +125,14 @@ class JuryEvaluationController extends Controller
 
         if ($validated['status'] === 'submitted') {
             $alreadyEvaluated = JuryEvaluation::where('jury_member_id', $validated['jury_member_id'])
+                ->where('group_name', $validated['group_name'])
                 ->where('status', 'submitted')
                 ->first();
 
             if ($alreadyEvaluated) {
                 return back()
                     ->withInput()
-                    ->with('error', 'Vous avez déjà soumis une évaluation pour ' . $alreadyEvaluated->group_name . '. Chaque membre du jury ne peut noter qu\'un seul groupe.');
+                    ->with('error', 'Vous avez déjà soumis une évaluation pour ' . $alreadyEvaluated->group_name . '. Ce groupe ne peut plus être noté avec votre identifiant.');
             }
         }
 

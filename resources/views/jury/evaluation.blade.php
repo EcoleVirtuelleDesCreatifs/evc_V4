@@ -46,6 +46,7 @@
             .page {
                 padding-top: 240px;
             }
+
             .hero {
                 padding-top: 10px;
             }
@@ -651,22 +652,20 @@
         @endif
 
         {{-- Étape 1 : saisie identifiant --}}
-            <section class="card jury-info" id="juryLoginSection">
-                <h2 class="section-title">👤 Identification du jury</h2>
-                <div class="form-grid">
-                    <div class="field">
-                        <label for="jury_identifier_input">Votre identifiant unique</label>
-                        <input type="text" id="jury_identifier_input"
-                            placeholder="Ex : JURY-2024-XYZ"
-                            autocomplete="off"
-                            value="{{ old('jury_identifier') }}">
-                    </div>
-                    <div class="field" style="display:flex;align-items:flex-end;">
-                        <button type="button" id="juryLookupBtn" class="btn btn-primary" style="width:100%;">Valider</button>
-                    </div>
+        <section class="card jury-info" id="juryLoginSection">
+            <h2 class="section-title">👤 Identification du jury</h2>
+            <div class="form-grid">
+                <div class="field">
+                    <label for="jury_identifier_input">Votre identifiant unique</label>
+                    <input type="text" id="jury_identifier_input" placeholder="Ex : JURY-2024-XYZ" autocomplete="off"
+                        value="{{ old('jury_identifier') }}">
                 </div>
-                <div id="juryFeedback" class="mt-2" style="display:none;"></div>
-            </section>
+                <div class="field" style="display:flex;align-items:flex-end;">
+                    <button type="button" id="juryLookupBtn" class="btn btn-primary" style="width:100%;">Valider</button>
+                </div>
+            </div>
+            <div id="juryFeedback" class="mt-2" style="display:none;"></div>
+        </section>
 
         {{-- Étape 2 : formulaire complet (caché jusqu'à validation) --}}
         @php $oldIdentifier = old('jury_identifier'); @endphp
@@ -695,7 +694,7 @@
                             <select name="group_name" id="groupSelect" required></select>
                         </div>
                         <div id="allEvaluatedMsg" style="display:none;color:#f97316;font-weight:600;margin-top:0.5rem;">
-                            ✅ Vous avez déjà noté tous les groupes.
+                            ✅ Vous avez déjà noté tous les groupes. Merci pour votre participation.
                         </div>
                     </div>
                     <div class="card group-buttons" id="groupButtonsContainer"></div>
@@ -712,10 +711,11 @@
                                 <div class="score-pill">/80 points</div>
                             </div>
 
-                            @if(!empty($category['brief']))
-                            <div style="background:rgba(255,255,255,.04);border-left:3px solid var(--jury-primary);border-radius:0 8px 8px 0;padding:.6rem .9rem;margin-bottom:1rem;font-size:.78rem;color:#94a3b8;line-height:1.5;">
-                                📋 {{ $category['brief'] }}
-                            </div>
+                            @if (!empty($category['brief']))
+                                <div
+                                    style="background:rgba(255,255,255,.04);border-left:3px solid var(--jury-primary);border-radius:0 8px 8px 0;padding:.6rem .9rem;margin-bottom:1rem;font-size:.78rem;color:#94a3b8;line-height:1.5;">
+                                    📋 {{ $category['brief'] }}
+                                </div>
                             @endif
 
                             <div class="criteria">
@@ -754,7 +754,7 @@
 
                 <section class="bottom">
                     <div class="reminder">
-                        💡 Rappel important : veuillez évaluer les 5 groupes séparément pour chaque catégorie. Total actuel
+                        💡 Rappel important : les groupes déjà notés avec votre identifiant disparaissent automatiquement. Vous devez noter tous les groupes disponibles. Total actuel
                         :
                         <strong><span id="grandTotal">0</span> / 320</strong>
                     </div>
@@ -770,25 +770,25 @@
 
 @push('scripts')
     <script>
-        const LOOKUP_URL = window.location.pathname.startsWith('/evc/')
-            ? '/evc/jury/evaluation/lookup'
-            : '/jury/evaluation/lookup';
+        const LOOKUP_URL = window.location.pathname.startsWith('/evc/') ?
+            '/evc/jury/evaluation/lookup' :
+            '/jury/evaluation/lookup';
 
-        const identifierInput  = document.getElementById('jury_identifier_input');
-        const lookupBtn        = document.getElementById('juryLookupBtn');
-        const juryFeedback     = document.getElementById('juryFeedback');
-        const evaluationBody   = document.getElementById('evaluationBody');
+        const identifierInput = document.getElementById('jury_identifier_input');
+        const lookupBtn = document.getElementById('juryLookupBtn');
+        const juryFeedback = document.getElementById('juryFeedback');
+        const evaluationBody = document.getElementById('evaluationBody');
         const juryLoginSection = document.getElementById('juryLoginSection');
-        const juryNameDisplay  = document.getElementById('juryNameDisplay');
-        const juryIdentHidden  = document.getElementById('juryIdentifierHidden');
-        const groupSelect      = document.getElementById('groupSelect');
-        const groupBtnContainer= document.getElementById('groupButtonsContainer');
-        const allGroupKeys     = @json(array_keys($groups));
+        const juryNameDisplay = document.getElementById('juryNameDisplay');
+        const juryIdentHidden = document.getElementById('juryIdentifierHidden');
+        const groupSelect = document.getElementById('groupSelect');
+        const groupBtnContainer = document.getElementById('groupButtonsContainer');
+        const allGroupKeys = @json(array_keys($groups));
 
         function showFeedback(msg, ok) {
             juryFeedback.style.display = 'block';
-            juryFeedback.style.color   = ok ? '#22c55e' : '#ef4444';
-            juryFeedback.innerHTML     = msg;
+            juryFeedback.style.color = ok ? '#22c55e' : '#ef4444';
+            juryFeedback.innerHTML = msg;
         }
 
         function buildGroupUI(availableGroups) {
@@ -818,7 +818,8 @@
                     btn.textContent = '👥 ' + g;
                     btn.addEventListener('click', () => {
                         groupSelect.value = g;
-                        groupBtnContainer.querySelectorAll('.group-btn').forEach(b => b.classList.toggle('active', b.dataset.group === g));
+                        groupBtnContainer.querySelectorAll('.group-btn').forEach(b => b.classList.toggle(
+                            'active', b.dataset.group === g));
                     });
                     groupBtnContainer.appendChild(btn);
                 }
@@ -827,20 +828,26 @@
 
         async function doLookup() {
             const val = identifierInput ? identifierInput.value.trim() : '';
-            if (!val) { showFeedback('Veuillez saisir votre identifiant.', false); return; }
+            if (!val) {
+                showFeedback('Veuillez saisir votre identifiant.', false);
+                return;
+            }
 
             lookupBtn.disabled = true;
             lookupBtn.textContent = 'Vérification...';
 
             try {
-                const res  = await fetch(LOOKUP_URL + '?jury_identifier=' + encodeURIComponent(val), {
-                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                const res = await fetch(LOOKUP_URL + '?jury_identifier=' + encodeURIComponent(val), {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 });
 
                 let data;
                 try {
                     data = await res.json();
-                } catch(jsonErr) {
+                } catch (jsonErr) {
                     showFeedback('❌ Erreur serveur (réponse invalide). Contactez l\'administrateur.', false);
                     lookupBtn.disabled = false;
                     lookupBtn.textContent = 'Valider';
@@ -848,29 +855,33 @@
                 }
 
                 if (!res.ok) {
-                    showFeedback('❌ Erreur serveur (' + res.status + ')' + (data.debug ? ' : ' + data.debug : '') + '.', false);
+                    showFeedback('❌ Erreur serveur (' + res.status + ')' + (data.debug ? ' : ' + data.debug : '') + '.',
+                        false);
                     evaluationBody.style.display = 'none';
                 } else if (!data.found) {
-                    const msg = data.debug
-                        ? '❌ Erreur : ' + data.debug
-                        : '❌ Identifiant non reconnu. Vérifiez votre identifiant unique.';
+                    const msg = data.debug ?
+                        '❌ Erreur : ' + data.debug :
+                        '❌ Identifiant non reconnu. Vérifiez votre identifiant unique.';
                     showFeedback(msg, false);
                     evaluationBody.style.display = 'none';
                 } else if (data.already_voted) {
                     showFeedback(
-                        '✅ Bienvenue, ' + data.name + '. Vous avez déjà soumis votre évaluation pour <strong>' + data.voted_group + '</strong>. Merci pour votre participation !',
+                        '✅ Bienvenue, ' + data.name + '. Vous avez déjà noté tous les groupes. Merci pour votre participation !',
                         true
                     );
                     evaluationBody.style.display = 'none';
                 } else {
-                    showFeedback('✅ Bienvenue, ' + data.name + ' !', true);
+                    const progress = data.evaluated_count > 0
+                        ? ' Vous avez déjà noté ' + data.evaluated_count + '/' + data.total_groups + ' groupe(s).'
+                        : '';
+                    showFeedback('✅ Bienvenue, ' + data.name + ' !' + progress, true);
                     juryNameDisplay.textContent = data.name + (data.title ? ' — ' + data.title : '');
                     juryIdentHidden.value = val;
                     buildGroupUI(data.available_groups);
                     evaluationBody.style.display = 'block';
                     updateTotals();
                 }
-            } catch(e) {
+            } catch (e) {
                 showFeedback('❌ Erreur réseau : ' + e.message, false);
             }
 
@@ -879,14 +890,19 @@
         }
 
         if (lookupBtn) lookupBtn.addEventListener('click', doLookup);
-        if (identifierInput) identifierInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doLookup(); } });
+        if (identifierInput) identifierInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                doLookup();
+            }
+        });
 
-        @if(old('jury_identifier'))
-        document.addEventListener('DOMContentLoaded', () => doLookup());
+        @if (old('jury_identifier'))
+            document.addEventListener('DOMContentLoaded', () => doLookup());
         @endif
 
         const scoreInputs = document.querySelectorAll('.score-input');
-        const grandTotal  = document.getElementById('grandTotal');
+        const grandTotal = document.getElementById('grandTotal');
         const statusInput = document.getElementById('statusInput');
 
         if (grandTotal && statusInput) {

@@ -158,10 +158,10 @@
         <div class="icon">🏆</div>
         <h1>Merci pour votre évaluation</h1>
         <p>
-            Votre notation a bien été enregistrée. Vous pouvez maintenant revenir au formulaire pour noter un autre groupe ou retourner à la page des membres du jury.
+            Votre notation a bien été enregistrée. Vous pouvez maintenant revenir au formulaire pour noter les groupes restants ou retourner à la page des membres du jury.
         </p>
         <div class="actions">
-            <a href="{{ route('jury.evaluation.create') }}" class="btn btn-primary">Noter un autre groupe</a>
+            <a href="{{ route('jury.evaluation.create') }}" class="btn btn-primary">Noter les groupes restants</a>
             <a href="{{ route('jury') }}" class="btn btn-outline">Voir les membres du jury</a>
         </div>
     </section>
