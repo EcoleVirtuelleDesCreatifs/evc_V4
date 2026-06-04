@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class JuryMember extends Model
 {
@@ -36,7 +35,7 @@ class JuryMember extends Model
         }
 
         if (!empty($this->image_path)) {
-            return Storage::url($this->image_path);
+            return asset('storage/' . ltrim($this->image_path, '/'));
         }
 
         return asset('assets/img/default-avatar.png');
