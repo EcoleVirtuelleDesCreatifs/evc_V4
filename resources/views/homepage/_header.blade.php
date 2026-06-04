@@ -111,6 +111,13 @@
         border-bottom: 2px solid rgba(255,107,0,0.4);
         box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 2px 0 rgba(255,107,0,0.3);
         overflow: hidden;
+        transition: transform 0.35s ease, opacity 0.35s ease, visibility 0.35s ease;
+    }
+    #flash-info-bar.flash-info-hidden {
+        transform: translateY(-110%);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
     }
     #flash-info-bar::before {
         content: '';
@@ -465,6 +472,28 @@
     startTimer();
 
     dots.forEach((dot, i) => dot.addEventListener('click', () => { clearInterval(timer); goTo(i); startTimer(); }));
+})();
+
+(function(){
+    const flashBar = document.getElementById('flash-info-bar');
+    if (!flashBar || window.location.pathname !== '/') return;
+
+    let ticking = false;
+
+    function toggleFlashOnScroll() {
+        const shouldHide = window.scrollY > 120;
+        flashBar.classList.toggle('flash-info-hidden', shouldHide);
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(toggleFlashOnScroll);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    toggleFlashOnScroll();
 })();
 </script>
 
