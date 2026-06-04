@@ -58,7 +58,7 @@
 </style>
 
 <!-- Section Chaîne YouTube / Player WebTV -->
-<div class="bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#0a1128] pt-[200px] pb-8 md:pb-12">
+<div class="bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#0a1128] pt-[500px] pb-8 md:pb-12">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="text-center mb-8 md:mb-12 relative" data-aos="zoom-in" data-aos-duration="1000">
             <!-- Titre principal ultra-stylisé -->

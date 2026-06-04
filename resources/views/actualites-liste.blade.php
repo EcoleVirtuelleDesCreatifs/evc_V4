@@ -6,7 +6,7 @@
 
 @section('content')
 <!-- Hero Section -->
-<div class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-[200px] pb-16">
+<div class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-[500px] pb-16">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-4xl text-center">
             <!-- Breadcrumb -->

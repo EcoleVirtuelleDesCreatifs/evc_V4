@@ -4,7 +4,7 @@
 @section('description', 'Soutenez l\'École Virtuelle des Créatifs (EVC) en effectuant un don. Formulaire sécurisé et réponse rapide de notre équipe.')
 
 @section('content')
-<section class="relative pt-[200px] pb-16 sm:pt-[200px] sm:pb-20">
+<section class="relative pt-[500px] pb-16 sm:pt-[500px] sm:pb-20">
     <div class="absolute inset-0 opacity-30">
         <div class="absolute inset-0 bg-gradient-to-br from-[#0a1128] via-[#001f54] to-[#034078]"></div>
     </div>

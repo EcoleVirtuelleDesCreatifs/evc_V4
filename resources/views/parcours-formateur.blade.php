@@ -32,7 +32,7 @@
         display: flex;
         align-items: center;
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        padding: 200px 20px 80px;
+        padding: 500px 20px 80px;
         position: relative;
         overflow: hidden;
     }
