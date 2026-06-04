@@ -102,7 +102,7 @@
 <style>
     #flash-info-bar {
         position: fixed;
-        top: calc(var(--evc-topbar-height, 40px) + 90px);
+        top: calc(var(--evc-topbar-height, 40px) + 112px);
         left: 0;
         width: 100%;
         z-index: 49;
