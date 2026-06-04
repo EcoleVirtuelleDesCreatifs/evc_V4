@@ -418,5 +418,29 @@
             }
         })();
     </script>
+
+    <script>
+        /* ===== SAFARI FIX : maintien de session + refresh CSRF ===== */
+        (function() {
+            var CSRF_URL = '/csrf-token';
+
+            function refreshCsrf() {
+                fetch(CSRF_URL, { credentials: 'same-origin' })
+                    .then(function(r) { return r.ok ? r.json() : null; })
+                    .then(function(data) {
+                        if (!data || !data.token) return;
+                        var meta = document.querySelector('meta[name="csrf-token"]');
+                        if (meta) meta.setAttribute('content', data.token);
+                        document.querySelectorAll('input[name="_token"]').forEach(function(el) {
+                            el.value = data.token;
+                        });
+                    })
+                    .catch(function() {});
+            }
+
+            /* Heartbeat toutes les 8 minutes pour maintenir la session active */
+            setInterval(refreshCsrf, 8 * 60 * 1000);
+        })();
+    </script>
 </body>
 </html>

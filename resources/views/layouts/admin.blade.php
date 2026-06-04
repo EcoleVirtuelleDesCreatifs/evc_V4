@@ -813,5 +813,39 @@
             });
         })();
     </script>
+
+    <script>
+        /* ===== SAFARI FIX : maintien de session + refresh CSRF ===== */
+        (function() {
+            var CSRF_URL = '/csrf-token';
+
+            /* Met à jour le token CSRF dans la meta et tous les inputs _token de la page */
+            function refreshCsrf() {
+                fetch(CSRF_URL, { credentials: 'same-origin' })
+                    .then(function(r) { return r.ok ? r.json() : null; })
+                    .then(function(data) {
+                        if (!data || !data.token) return;
+                        var meta = document.querySelector('meta[name="csrf-token"]');
+                        if (meta) meta.setAttribute('content', data.token);
+                        document.querySelectorAll('input[name="_token"]').forEach(function(el) {
+                            el.value = data.token;
+                        });
+                    })
+                    .catch(function() {});
+            }
+
+            /* Heartbeat toutes les 8 minutes pour maintenir la session active */
+            setInterval(refreshCsrf, 8 * 60 * 1000);
+
+            /* Refresh immédiat avant toute soumission de formulaire */
+            document.addEventListener('submit', function(e) {
+                var form = e.target;
+                var tokenInput = form.querySelector('input[name="_token"]');
+                if (!tokenInput) return;
+                var meta = document.querySelector('meta[name="csrf-token"]');
+                if (meta) tokenInput.value = meta.getAttribute('content');
+            }, true);
+        })();
+    </script>
 </body>
 </html>
