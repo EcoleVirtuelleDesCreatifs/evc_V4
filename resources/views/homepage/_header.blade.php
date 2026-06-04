@@ -114,7 +114,7 @@
         transition: transform 0.35s ease, opacity 0.35s ease, visibility 0.35s ease;
     }
     #flash-info-bar.flash-info-hidden {
-        transform: translateY(-110%);
+        transform: translateY(0);
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
