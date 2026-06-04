@@ -84,18 +84,19 @@
         background:#0f172a; border:1px solid #334155;
         border-radius:8px; padding:.75rem 1rem; cursor:pointer;
     }
-    .toggle-wrap input[type=checkbox] { display:none; }
+    .toggle-wrap input[type=checkbox] { position:absolute; opacity:0; width:0; height:0; }
     .toggle-track {
         width:44px; height:24px; border-radius:12px;
-        background:#334155; position:relative; transition:background .2s; flex-shrink:0;
+        background:#334155; position:relative; transition:background .2s,transform .2s; flex-shrink:0;
+        cursor:pointer;
     }
     .toggle-track::after {
         content:''; position:absolute; top:3px; left:3px;
         width:18px; height:18px; border-radius:9px;
         background:#fff; transition:transform .2s;
     }
-    input[type=checkbox]:checked ~ .toggle-track { background:#22c55e; }
-    input[type=checkbox]:checked ~ .toggle-track::after { transform:translateX(20px); }
+    .toggle-track.on { background:#22c55e; }
+    .toggle-track.on::after { transform:translateX(20px); }
     .toggle-label { font-size:.875rem; color:#cbd5e1; font-weight:500; }
 
     .photo-drop {
@@ -320,12 +321,11 @@
     document.querySelectorAll('.toggle-wrap').forEach(wrap => {
         const cb    = wrap.querySelector('input[type=checkbox]');
         const track = wrap.querySelector('.toggle-track');
-        function sync() { track.style.background = cb.checked ? '#22c55e' : '#334155'; }
+        function sync() {
+            track.classList.toggle('on', cb.checked);
+        }
         sync();
         cb.addEventListener('change', sync);
-        wrap.addEventListener('click', (e) => {
-            if (e.target !== cb) { cb.checked = !cb.checked; sync(); }
-        });
     });
 
     /* ---- Aperçu photo ---- */
