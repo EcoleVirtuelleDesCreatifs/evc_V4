@@ -739,7 +739,7 @@
                             <div class="criteria">
                                 @foreach ($category['criteria'] as $criterionKey => $criterionLabel)
                                     @php
-                                        $oldScore = old("scores.{$categoryKey}.{$criterionKey}", 0);
+                                        $oldScore = old("scores.{$categoryKey}.{$criterionKey}", '');
                                     @endphp
                                     <div class="criterion">
                                         <span>{{ $criterionLabel }}</span>
@@ -749,8 +749,8 @@
                                         <div>
                                             <input type="number" inputmode="numeric" pattern="[0-9]*" class="score-input"
                                                 name="scores[{{ $categoryKey }}][{{ $criterionKey }}]"
-                                                value="{{ $oldScore }}" min="0" max="20" required>
-                                            <div class="note">{{ $oldScore }}/20</div>
+                                                value="{{ $oldScore }}" min="0" max="20" placeholder="0" required>
+                                            <div class="note">{{ $oldScore !== '' ? $oldScore : 0 }}/20</div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -950,9 +950,9 @@
                     let categoryTotal = 0;
 
                     card.querySelectorAll('.score-input').forEach((input) => {
-                        let value = Number(input.value || 0);
-                        value = Math.max(0, Math.min(20, value));
-                        input.value = value;
+                        const raw = input.value.trim();
+                        let value = raw === '' ? 0 : Math.max(0, Math.min(20, Number(raw)));
+                        if (raw !== '' && Number(raw) !== value) input.value = value;
                         categoryTotal += value;
 
                         const note = input.parentElement.querySelector('.note');
