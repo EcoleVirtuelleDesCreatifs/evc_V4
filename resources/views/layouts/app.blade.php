@@ -9,6 +9,15 @@
     <meta name="description" content="@yield('description', 'EVC, école numérique N°1 à Abidjan. Formations certifiantes en Design Graphique (Adobe Photoshop), Community Management, Motion Design, Bureautique. École virtuelle des créatifs en Côte d\'Ivoire. Inscriptions ouvertes !')">
     <meta name="keywords" content="@yield('keywords', 'école numérique Abidjan, ecole numérique, école virtuelle des créatifs, EVC, ecole virtuelle abidjan, formation design graphique Abidjan, centre de formation Adobe Photoshop Abidjan, formation motion design Abidjan, école de community management Abidjan, formation bureautique avancé Abidjan, école d\'infographie Abidjan, centre de formation professionnelle Abidjan, formation certifiante reconnue par l\'État, formation en ligne reconnue par l\'État, formation en ligne reconnue à l\'international, école de formatique, liste des écoles informatique Abidjan, école de communication visuelle Abidjan, école de formation Abidjan, ecole digitale Côte d\'Ivoire, ECV, ECAV')">
 
+    {{-- SEO Géographique : Communes d'Abidjan --}}
+    <meta name="geo.keywords" content="Cocody, Plateau, Marcory, Treichville, Adjamé, Yopougon, Koumassi, Port-Bouët, Attécoubé, Abobo, Anyama, Bingerville, Grand-Bassam, Songon, Dabou">
+
+    {{-- SEO Géographique : Villes Côte d'Ivoire --}}
+    <meta name="coverage" content="Worldwide">
+    <meta name="distribution" content="Global">
+    <meta name="target" content="all">
+    <meta name="city.keywords" content="Abidjan, Bouaké, Daloa, Yamoussoukro, Korhogo, Man, San-Pédro, Gagnoa, Abengourou, Divo, Agboville, Bondoukou, Duekoué, Odienné, Séguéla, Ferkessédougou, Touba, Danané, Guiglo, Tabou, Tiassalé, Adzopé, Bongouanou, Dimbokro, Issia, Lakota, Oumé, Soubré, Vavoua, Zuenoula">
+
     <meta name="author" content="EVC - École Virtuelle des Créatifs">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="googlebot" content="index, follow">
@@ -16,7 +25,7 @@
 
     <!-- Geo Tags -->
     <meta name="geo.region" content="CI-AB">
-    <meta name="geo.placename" content="Abidjan">
+    <meta name="geo.placename" content="Abidjan, Côte d'Ivoire">
     <meta name="geo.position" content="5.316667;-4.033333">
     <meta name="ICBM" content="5.316667, -4.033333">
 
@@ -124,10 +133,10 @@
         "@@context": "https://schema.org",
         "@@type": "EducationalOrganization",
         "name": "École Virtuelle des Créatifs",
-        "alternateName": "EVC",
-        "url": "http://127.0.0.1:8000",
-        "logo": "http://127.0.0.1:8000/assets/img/logo.png",
-        "description": "Première école virtuelle de Côte d'Ivoire spécialisée dans les formations créatives et digitales",
+        "alternateName": ["EVC", "ecole virtuelle des creatifs", "ECV", "ECAV", "École Numérique Abidjan"],
+        "url": "https://www.ecolevirtuelledescreatifs.com",
+        "logo": "https://www.ecolevirtuelledescreatifs.com/assets/img/logo.png",
+        "description": "École numérique N°1 à Abidjan. Formations certifiées en Design Graphique, Motion Design, Community Management, Bureautique. Formation en ligne reconnue à l'international.",
         "address": {
             "@@type": "PostalAddress",
             "streetAddress": "Abidjan",
@@ -140,11 +149,16 @@
             "latitude": "5.316667",
             "longitude": "-4.033333"
         },
+        "areaServed": [
+            "CI", "SN", "ML", "BF", "GN", "CM", "TG", "BJ", "NE", "CD", "CG", "GA", "MG", "MR", "TD", "DJ", "KM", "BI", "RW",
+            "FR", "BE", "CH", "CA", "US", "GB", "DE", "ES", "IT", "PT", "NL", "MA", "TN", "DZ", "EG", "NG", "GH", "ZA",
+            "Abidjan", "Cocody", "Plateau", "Marcory", "Treichville", "Adjamé", "Yopougon", "Koumassi", "Port-Bouët", "Attécoubé", "Abobo", "Anyama", "Bingerville", "Grand-Bassam", "Songon",
+            "Bouaké", "Daloa", "Yamoussoukro", "Korhogo", "Man", "San-Pédro", "Gagnoa", "Abengourou", "Divo", "Soubré", "Ferkessédougou"
+        ],
         "contactPoint": {
             "@@type": "ContactPoint",
-            "telephone": "+225-XX-XX-XX-XX",
             "contactType": "Admissions",
-            "areaServed": "CI",
+            "areaServed": "Worldwide",
             "availableLanguage": ["French"]
         },
         "sameAs": [
