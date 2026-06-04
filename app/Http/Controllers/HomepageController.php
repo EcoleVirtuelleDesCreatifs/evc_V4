@@ -49,7 +49,7 @@ class HomepageController extends Controller
         $homepageJuryMembers = collect();
         if (Schema::hasTable('jury_members')) {
             $homepageJuryMembers = JuryMember::query()
-                ->where('is_active', true)
+                ->where('is_visible', true)
                 ->orderBy('sort_order')
                 ->orderBy('name')
                 ->take(12)
@@ -844,7 +844,7 @@ class HomepageController extends Controller
         $juryMembers = collect();
         if (Schema::hasTable('jury_members')) {
             $juryMembers = JuryMember::query()
-                ->where('is_active', true)
+                ->where('is_visible', true)
                 ->orderBy('sort_order')
                 ->orderBy('name')
                 ->get();
