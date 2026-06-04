@@ -259,10 +259,47 @@
         transform: scale(1.4);
     }
     @media (max-width: 640px) {
-        #flash-info-bar { height: 120px; }
-        .flash-badge { min-width: 80px; padding: 0 12px; }
-        .flash-badge-label { font-size: 9px; }
-        .flash-item-text { font-size: 0.95rem; }
+        #flash-info-bar {
+            height: 64px;
+            top: calc(var(--evc-topbar-height, 40px) + 68px);
+        }
+        .flash-badge {
+            min-width: 64px;
+            padding: 0 10px;
+            gap: 4px;
+        }
+        .flash-badge .ping-dot { display: none; }
+        .flash-badge-label { font-size: 8px; letter-spacing: 0.1em; }
+        .flash-content-area {
+            padding: 0 8px 0 20px;
+        }
+        .flash-item {
+            left: 20px;
+            right: 8px;
+            gap: 2px;
+        }
+        .flash-item-icon { display: none; }
+        .flash-item-text {
+            font-size: 0.78rem;
+            font-weight: 700;
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .flash-item-link { display: none; }
+        .flash-dots {
+            padding: 0 8px;
+            flex-direction: row;
+            gap: 5px;
+            align-items: center;
+            height: auto;
+            align-self: center;
+        }
+        .flash-dot {
+            width: 5px;
+            height: 5px;
+        }
     }
 </style>
 
