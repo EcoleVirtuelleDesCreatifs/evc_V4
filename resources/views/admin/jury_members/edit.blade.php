@@ -193,11 +193,19 @@
             <div class="profile-card-body">
                 <div class="profile-meta">
                     <div class="profile-meta-row">
-                        <span class="profile-meta-label">Statut</span>
+                        <span class="profile-meta-label">🗳️ Évaluation</span>
                         @if($juryMember->is_active)
                             <span class="badge-active">Actif</span>
                         @else
                             <span class="badge-inactive">Inactif</span>
+                        @endif
+                    </div>
+                    <div class="profile-meta-row">
+                        <span class="profile-meta-label">🌐 En ligne</span>
+                        @if($juryMember->is_visible ?? true)
+                            <span class="badge-active">Visible</span>
+                        @else
+                            <span class="badge-inactive">Masqué</span>
                         @endif
                     </div>
                     @if($juryMember->country)
@@ -310,13 +318,25 @@
                                 value="{{ old('sort_order', $juryMember->sort_order) }}" min="0">
                             <div class="f-hint">Plus petit = affiché en premier</div>
                         </div>
-                        <div class="col-12 col-md-8" style="display:flex;align-items:flex-end;">
+                        <div class="col-12 col-md-4">
+                            <label class="f-label">Statut d'évaluation</label>
                             <label class="toggle-wrap" for="is_active">
                                 <input type="checkbox" id="is_active" name="is_active" value="1"
                                     {{ old('is_active', $juryMember->is_active) ? 'checked' : '' }}>
                                 <span class="toggle-track"></span>
-                                <span class="toggle-label">Afficher sur la page publique du jury</span>
+                                <span class="toggle-label">🗳️ Peut évaluer les groupes</span>
                             </label>
+                            <div class="f-hint">Activer pour que ce membre accède au formulaire de notation</div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="f-label">Visibilité publique</label>
+                            <label class="toggle-wrap" for="is_visible">
+                                <input type="checkbox" id="is_visible" name="is_visible" value="1"
+                                    {{ old('is_visible', $juryMember->is_visible ?? true) ? 'checked' : '' }}>
+                                <span class="toggle-track"></span>
+                                <span class="toggle-label">🌐 En ligne sur la page jury</span>
+                            </label>
+                            <div class="f-hint">Afficher ce profil sur la page publique des membres</div>
                         </div>
                     </div>
 

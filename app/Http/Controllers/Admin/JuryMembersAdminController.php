@@ -54,6 +54,7 @@ class JuryMembersAdminController extends Controller
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'image_url' => ['nullable', 'url', 'max:500'],
             'is_active' => ['nullable', 'boolean'],
+            'is_visible' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
@@ -70,7 +71,8 @@ class JuryMembersAdminController extends Controller
             'flag' => $validated['flag'] ?? null,
             'image_path' => $path,
             'image_url' => $validated['image_url'] ?? null,
-            'is_active' => (bool) ($validated['is_active'] ?? false),
+            'is_active' => (bool) ($validated['is_active'] ?? true),
+            'is_visible' => (bool) ($validated['is_visible'] ?? true),
             'sort_order' => (int) ($validated['sort_order'] ?? 0),
         ]);
 
@@ -99,6 +101,7 @@ class JuryMembersAdminController extends Controller
             'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
             'image_url' => ['nullable', 'url', 'max:500'],
             'is_active' => ['nullable', 'boolean'],
+            'is_visible' => ['nullable', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
@@ -116,8 +119,9 @@ class JuryMembersAdminController extends Controller
         $juryMember->country = $validated['country'] ?? null;
         $juryMember->flag = $validated['flag'] ?? null;
         $juryMember->image_url = $validated['image_url'] ?? null;
-        $juryMember->is_active = (bool) ($validated['is_active'] ?? false);
-        $juryMember->sort_order = (int) ($validated['sort_order'] ?? 0);
+        $juryMember->is_active  = (bool) ($validated['is_active'] ?? false);
+        $juryMember->is_visible  = (bool) ($validated['is_visible'] ?? false);
+        $juryMember->sort_order  = (int) ($validated['sort_order'] ?? 0);
         $juryMember->save();
 
         return redirect()

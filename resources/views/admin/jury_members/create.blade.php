@@ -245,13 +245,25 @@
                             value="{{ old('sort_order', 0) }}" min="0" placeholder="0">
                         <div class="f-hint">Plus petit = affiché en premier</div>
                     </div>
-                    <div class="col-12 col-md-8" style="display:flex;align-items:flex-end;">
+                    <div class="col-12 col-md-4">
+                        <label class="f-label">Statut d'évaluation</label>
                         <label class="toggle-wrap" for="is_active" style="width:100%;">
                             <input type="checkbox" id="is_active" name="is_active" value="1"
                                 {{ old('is_active', true) ? 'checked' : '' }}>
                             <span class="toggle-track"></span>
-                            <span class="toggle-label">Afficher sur la page publique du jury</span>
+                            <span class="toggle-label">🗳️ Peut évaluer les groupes</span>
                         </label>
+                        <div class="f-hint">Activer pour que ce membre accède au formulaire de notation</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="f-label">Visibilité publique</label>
+                        <label class="toggle-wrap" for="is_visible" style="width:100%;">
+                            <input type="checkbox" id="is_visible" name="is_visible" value="1"
+                                {{ old('is_visible', true) ? 'checked' : '' }}>
+                            <span class="toggle-track"></span>
+                            <span class="toggle-label">🌐 En ligne sur la page jury</span>
+                        </label>
+                        <div class="f-hint">Afficher ce profil sur la page publique des membres</div>
                     </div>
                 </div>
 
