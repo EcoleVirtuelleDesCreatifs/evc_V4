@@ -50,10 +50,19 @@ class JuryEvaluationController extends Controller
             $availableGroups = $groups;
             $evaluatedGroups = [];
 
+            $draftGroups = [];
+
             if (Schema::hasTable('jury_evaluations')) {
                 $evaluatedGroups = JuryEvaluation::query()
                     ->where('jury_member_id', $member->id)
                     ->where('status', 'submitted')
+                    ->pluck('group_name')
+                    ->all();
+
+                $draftGroups = JuryEvaluation::query()
+                    ->where('jury_member_id', $member->id)
+                    ->where('status', 'draft')
+                    ->whereNotIn('group_name', $evaluatedGroups)
                     ->pluck('group_name')
                     ->all();
 
@@ -66,16 +75,17 @@ class JuryEvaluationController extends Controller
             }
 
             return response()->json([
-                'found'          => true,
-                'id'             => $member->id,
-                'name'           => $member->name,
-                'title'          => $member->title,
+                'found'            => true,
+                'id'               => $member->id,
+                'name'             => $member->name,
+                'title'            => $member->title,
                 'already_voted'    => $alreadyVoted,
                 'voted_group'      => $votedGroup,
                 'evaluated_groups' => $evaluatedGroups,
                 'evaluated_count'  => count($evaluatedGroups),
                 'total_groups'     => count($groups),
                 'available_groups' => $availableGroups,
+                'draft_groups'     => $draftGroups,
             ]);
         } catch (\Throwable $e) {
             return response()->json([

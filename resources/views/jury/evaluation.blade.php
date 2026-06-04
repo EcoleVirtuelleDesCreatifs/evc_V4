@@ -211,6 +211,45 @@
             box-shadow: none;
         }
 
+        .group-btn.has-draft {
+            border-color: #f59e0b;
+            position: relative;
+        }
+        .group-btn.has-draft::after {
+            content: '✏️ Brouillon';
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            color: #f59e0b;
+            margin-top: 2px;
+        }
+
+        .draft-banner {
+            max-width: 1180px;
+            margin: 10px auto 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            background: rgba(245,158,11,.1);
+            border: 1px solid rgba(245,158,11,.35);
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #fbbf24;
+        }
+        .draft-banner strong { color: #fff; }
+        .draft-continue-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: linear-gradient(135deg,#f59e0b,#d97706);
+            color: #fff; font-weight: 700; font-size: 13px;
+            border: none; border-radius: 8px;
+            padding: 6px 14px; cursor: pointer;
+            text-decoration: none;
+            transition: opacity .2s;
+        }
+        .draft-continue-btn:hover { opacity: .88; }
+
         .evaluation-grid {
             max-width: 1180px;
             margin: 16px auto 0;
@@ -818,9 +857,14 @@
             juryFeedback.innerHTML = msg;
         }
 
-        function buildGroupUI(availableGroups) {
+        function buildGroupUI(availableGroups, draftGroups) {
+            draftGroups = draftGroups || [];
             groupSelect.innerHTML = '';
             if (groupBtnContainer) groupBtnContainer.innerHTML = '';
+
+            // Supprimer ancienne bannière brouillon
+            document.querySelectorAll('.draft-banner').forEach(el => el.remove());
+
             const allEvaluatedMsg = document.getElementById('allEvaluatedMsg');
 
             if (availableGroups.length === 0) {
@@ -840,17 +884,41 @@
                 if (groupBtnContainer) {
                     const btn = document.createElement('button');
                     btn.type = 'button';
-                    btn.className = 'group-btn' + (i === 0 ? ' active' : '');
+                    const hasDraft = draftGroups.includes(g);
+                    btn.className = 'group-btn' + (i === 0 ? ' active' : '') + (hasDraft ? ' has-draft' : '');
                     btn.dataset.group = g;
                     btn.textContent = '👥 ' + g;
                     btn.addEventListener('click', () => {
                         groupSelect.value = g;
                         groupBtnContainer.querySelectorAll('.group-btn').forEach(b => b.classList.toggle(
                             'active', b.dataset.group === g));
+                        renderDraftBanner(g, draftGroups);
                     });
                     groupBtnContainer.appendChild(btn);
                 }
             });
+
+            // Afficher bannière pour le groupe sélectionné par défaut
+            if (availableGroups.length > 0) renderDraftBanner(availableGroups[0], draftGroups);
+        }
+
+        function renderDraftBanner(group, draftGroups) {
+            document.querySelectorAll('.draft-banner').forEach(el => el.remove());
+            if (!draftGroups.includes(group)) return;
+
+            const banner = document.createElement('div');
+            banner.className = 'draft-banner';
+            banner.innerHTML =
+                '<span>✏️ Un <strong>brouillon</strong> a été enregistré pour <strong>' + group + '</strong>.</span>' +
+                '<button type="button" class="draft-continue-btn" onclick="scrollToForm()">▶ Continuer l\'évaluation du ' + group + '</button>';
+
+            const groupsArea = document.querySelector('.groups-area');
+            if (groupsArea) groupsArea.parentNode.insertBefore(banner, groupsArea.nextSibling);
+        }
+
+        function scrollToForm() {
+            const form = document.getElementById('evaluationBody');
+            if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         async function doLookup() {
@@ -914,7 +982,7 @@
                     showFeedback('✅ Bienvenue, ' + data.name + ' !' + progress, true);
                     juryNameDisplay.textContent = data.name + (data.title ? ' — ' + data.title : '');
                     juryIdentHidden.value = val;
-                    buildGroupUI(data.available_groups);
+                    buildGroupUI(data.available_groups, data.draft_groups || []);
                     evaluationBody.style.display = 'block';
                     updateTotals();
                 }
