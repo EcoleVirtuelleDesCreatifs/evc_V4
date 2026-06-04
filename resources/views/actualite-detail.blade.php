@@ -81,7 +81,7 @@
 
 @section('content')
 <!-- Hero Section avec Image de couverture -->
-<div class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-[300px] pb-10">
+<div class="relative bg-gradient-to-b from-[#000033] to-[#000066] pt-[200px] pb-10">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="mx-auto max-w-4xl">
             <!-- Breadcrumb -->
