@@ -21,6 +21,7 @@
 
         .page {
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             padding: 160px 20px 60px;
             background: var(--jury-bg-dark);
             color: var(--jury-text-primary);
@@ -44,7 +45,7 @@
 
         @media (max-width: 768px) {
             .page {
-                padding-top: 240px;
+                padding-top: 120px;
             }
 
             .hero {
@@ -54,13 +55,13 @@
 
         @media (max-width: 640px) {
             .page {
-                padding-top: 290px;
+                padding-top: 100px;
             }
         }
 
         @media (max-width: 400px) {
             .page {
-                padding-top: 310px;
+                padding-top: 90px;
             }
         }
 
@@ -163,11 +164,14 @@
             border: 1px solid var(--jury-border);
             border-radius: 8px;
             padding: 12px 16px;
-            font-size: 14px;
+            font-size: 16px; /* ≥16px évite le zoom automatique sur iOS/Safari */
             outline: none;
             background: var(--jury-bg-dark);
             color: var(--jury-text-primary);
             transition: all 0.2s;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
 
         .field input:focus,
@@ -312,10 +316,23 @@
             padding: 10px 12px;
             text-align: center;
             font-weight: 900;
-            font-size: 15px;
+            font-size: 16px; /* évite zoom iOS */
             outline: none;
             background: var(--jury-bg-card);
             color: var(--jury-text-primary);
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        /* Masquer les flèches natifs input number */
+        .score-input::-webkit-inner-spin-button,
+        .score-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .score-input[type=number] {
+            -moz-appearance: textfield;
         }
 
         .stars {
@@ -514,7 +531,7 @@
 
         @media (max-width: 600px) {
             .page {
-                padding: 115px 12px 36px;
+                padding: 90px 12px 36px;
             }
 
             .hero {
@@ -599,6 +616,7 @@
 
         @media (max-width: 380px) {
             .page {
+                padding-top: 80px;
                 padding-left: 10px;
                 padding-right: 10px;
             }
@@ -729,7 +747,7 @@
                                             data-stars-for="scores[{{ $categoryKey }}][{{ $criterionKey }}]">
                                             ☆☆☆☆☆</div>
                                         <div>
-                                            <input type="number" class="score-input"
+                                            <input type="number" inputmode="numeric" pattern="[0-9]*" class="score-input"
                                                 name="scores[{{ $categoryKey }}][{{ $criterionKey }}]"
                                                 value="{{ $oldScore }}" min="0" max="20" required>
                                             <div class="note">{{ $oldScore }}/20</div>
@@ -889,7 +907,13 @@
             lookupBtn.textContent = 'Valider';
         }
 
-        if (lookupBtn) lookupBtn.addEventListener('click', doLookup);
+        if (lookupBtn) {
+            lookupBtn.addEventListener('click', doLookup);
+            lookupBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                doLookup();
+            });
+        }
         if (identifierInput) identifierInput.addEventListener('keydown', e => {
             if (e.key === 'Enter') {
                 e.preventDefault();
