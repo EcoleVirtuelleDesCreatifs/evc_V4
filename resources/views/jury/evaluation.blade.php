@@ -28,13 +28,10 @@
         }
 
         .hero {
-            position: relative;
             text-align: center;
             max-width: 900px;
             margin: 0 auto 24px;
-            padding: 16px 20px 0;
-            background: transparent;
-            overflow: hidden;
+            padding: 0 20px;
         }
 
         @media (max-width: 1024px) {
@@ -65,51 +62,50 @@
             }
         }
 
-        .logo {
-            position: static;
-            display: inline-block;
-            padding: 4px 12px;
-            margin-bottom: 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 152, 0, 0.3);
-            background: rgba(255, 152, 0, 0.1);
-            color: var(--jury-primary);
-            box-shadow: 0 0 20px var(--jury-glow);
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 1.2;
-            letter-spacing: 0.5px;
+        .hero-breadcrumb {
+            display: flex; justify-content: center;
+            margin-bottom: 20px;
         }
-
-        .trophy {
-            display: none;
+        .hero-breadcrumb ol {
+            display: inline-flex; align-items: center; gap: 4px;
+            list-style: none; padding: 0; margin: 0;
         }
+        .hero-breadcrumb a {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 13px; font-weight: 500;
+            color: #94a3b8; text-decoration: none;
+            transition: color .2s;
+        }
+        .hero-breadcrumb a:hover { color: var(--jury-primary); }
+        .hero-breadcrumb svg { width:16px; height:16px; flex-shrink:0; }
+        .hero-breadcrumb .sep { color: #475569; }
+        .hero-breadcrumb .current { font-size:13px; color:#64748b; }
 
         h1 {
-            font-size: 30px;
-            font-weight: 700;
-            margin-bottom: 6px;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #fff;
             letter-spacing: -0.5px;
-            background: linear-gradient(135deg, var(--jury-primary) 0%, var(--jury-accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .subtitle {
-            font-size: 14px;
+            font-size: 15px;
             color: var(--jury-text-secondary);
             font-weight: 400;
-            margin-bottom: 8px;
+            margin-bottom: 16px;
         }
 
-        .intro {
-            max-width: 620px;
-            margin: 0 auto;
-            color: var(--jury-text-secondary);
-            font-size: 14px;
-            line-height: 1.5;
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 20px;
+            background: rgba(255,255,255,.07);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 99px;
+            color: #fff; font-size: 14px; font-weight: 600;
         }
+        .hero-badge svg { width:18px; height:18px; color: var(--jury-primary); flex-shrink:0; }
 
         .card {
             max-width: 1180px;
@@ -639,17 +635,29 @@
 
     <main class="page">
         <section class="hero">
-            <div class="logo">Studio<br>Creative 5</div>
+            {{-- Breadcrumb --}}
+            <nav class="hero-breadcrumb" aria-label="Breadcrumb">
+                <ol>
+                    <li>
+                        <a href="{{ url('/') }}">
+                            <svg fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                            Accueil
+                        </a>
+                    </li>
+                    <li class="sep">›</li>
+                    <li><a href="{{ url('/jury') }}">Jury</a></li>
+                    <li class="sep">›</li>
+                    <li><span class="current">Évaluation</span></li>
+                </ol>
+            </nav>
 
             <h1>Évaluation des Groupes</h1>
-            <div class="subtitle">Membres du jury</div>
+            <div class="subtitle">Notez chaque groupe selon les catégories — vos évaluations détermineront les distinctions officielles.</div>
 
-            <p class="intro">
-                Notez chaque groupe selon les catégories ci-dessous.<br>
-                Vos évaluations détermineront les distinctions officielles.
-            </p>
-
-            <div class="trophy">🏆</div>
+            <div class="hero-badge">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                Studio Creative 5 — Session d'évaluation officielle
+            </div>
         </section>
 
         @if (session('success'))
