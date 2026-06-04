@@ -17,7 +17,7 @@
         /* Hero Section */
         .hero-section {
             position: relative;
-            padding: 250px 0 60px;
+            padding: 250px 0 35px;
             text-align: center;
             color: white;
             overflow: hidden;
@@ -50,7 +50,7 @@
             font-size: 1.2rem;
             color: rgba(255, 255, 255, 0.9);
             max-width: 750px;
-            margin: 0 auto 3rem;
+            margin: 0 auto 1.5rem;
             line-height: 1.8;
             animation: fadeInUp 1s ease-out 0.2s both;
             font-weight: 300;
@@ -58,19 +58,27 @@
 
         /* Cards Container */
         .cards-container {
-            padding: 40px 0 80px;
+            padding: 25px 0 80px;
             position: relative;
         }
 
+        .cards-container .container {
+            max-width: 1180px;
+        }
+
+        .cards-container .row {
+            row-gap: 2rem;
+        }
+
         .cards-container .row.mt-4 {
-            margin-top: 3rem !important;
+            margin-top: 2rem !important;
         }
 
         .join-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 2.5rem 2rem;
+            padding: 2.25rem 1.75rem;
             text-align: center;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border: 2px solid rgba(255, 255, 255, 0.1);
@@ -293,16 +301,23 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .hero-section {
+                padding: 250px 0 25px;
+            }
+
             .hero-title {
                 font-size: 2.5rem;
+                margin-bottom: 1rem;
             }
 
             .hero-subtitle {
                 font-size: 1.1rem;
+                margin-bottom: 0.75rem;
             }
 
             .join-card {
-                margin-bottom: 2rem;
+                margin-bottom: 0;
+                padding: 2rem 1.5rem;
             }
 
             .back-button {
