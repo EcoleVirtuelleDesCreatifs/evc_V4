@@ -6,7 +6,7 @@
 @section('content')
 
     <!-- Header -->
-    <div class="bg-gradient-to-r from-[#0a1128] via-[#001f54] to-[#034078] pt-[250px] pb-24 sm:pb-32">
+    <div class="bg-gradient-to-r from-[#0a1128] via-[#001f54] to-[#034078] pt-[300px] pb-24 sm:pb-32">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
             <div class="mx-auto max-w-2xl text-center" data-aos="fade-up">
                 <h2 class="text-base font-semibold leading-7 evc-orange">Communauté</h2>

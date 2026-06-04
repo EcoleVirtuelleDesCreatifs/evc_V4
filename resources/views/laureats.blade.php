@@ -6,7 +6,7 @@
 
 @section('content')
 <!-- Hero Section Amélioré -->
-<div class="relative pt-[250px] pb-20 bg-gradient-to-br from-[#0a1128] via-[#001f54] to-[#034078] overflow-hidden">
+<div class="relative pt-[300px] pb-20 bg-gradient-to-br from-[#0a1128] via-[#001f54] to-[#034078] overflow-hidden">
     <!-- Effets de fond animés -->
     <div class="absolute inset-0 opacity-20">
         <div class="absolute inset-0" style="background-image: radial-gradient(circle at 2px 2px, rgba(255, 152, 0, 0.15) 1px, transparent 0); background-size: 40px 40px;"></div>

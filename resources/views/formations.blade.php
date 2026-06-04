@@ -118,7 +118,7 @@
 
 @section('content')
 <!-- Hero Section -->
-<div class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-[250px] pb-20 overflow-hidden">
+<div class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pt-[300px] pb-20 overflow-hidden">
     <!-- Effet de fond animé -->
     <div class="absolute inset-0 opacity-20">
         <div class="absolute top-20 left-10 w-96 h-96 bg-orange-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
