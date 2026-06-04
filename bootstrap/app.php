@@ -27,6 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'candidature',
             'evc/pre-registration',
             'evc/candidature',
+            // Routes jury : sécurité assurée par unique_identifier validé côté serveur
+            'jury/evaluation',
+            'evc/jury/evaluation',
         ]);
 
         $middleware->alias([
