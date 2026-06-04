@@ -183,22 +183,23 @@
 
         .groups-area {
             display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 25px;
+            grid-template-columns: 260px 1fr;
+            gap: 16px;
             max-width: 1180px;
             margin: 24px auto 0;
         }
 
         .group-buttons {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 10px;
         }
 
         .group-btn {
             border: 1px solid var(--jury-border);
             background: var(--jury-bg-dark);
-            padding: 18px;
+            padding: 8px 18px;
             border-radius: 12px;
             font-weight: 600;
             color: var(--jury-text-primary);
@@ -499,7 +500,7 @@
             }
 
             .group-buttons {
-                grid-template-columns: repeat(2, 1fr);
+                flex-direction: row;
             }
 
             .eval-head {
@@ -596,7 +597,7 @@
             }
 
             .group-buttons {
-                grid-template-columns: 1fr;
+                flex-direction: row;
             }
 
             .total {
@@ -626,7 +627,7 @@
             }
 
             .group-btn {
-                padding: 14px;
+                padding: 7px 14px;
                 font-size: 14px;
             }
 
