@@ -6,7 +6,7 @@
 @section('content')
 
 <!-- Hero Section -->
-<div class="bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#0a1128] pt-[250px] pb-16">
+<div class="bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#0a1128] pt-[150px] pb-16">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <!-- Breadcrumb -->
         <div class="mb-8" data-aos="fade-right">
