@@ -40,7 +40,7 @@ class JuryEvaluationsAdminController extends Controller
             'jury_favorite'             => ['label' => 'Prix Coup de Cœur du Jury',              'icon' => '❤️', 'color' => '#f43f5e'],
         ];
 
-        $allGroups = ['Groupe A', 'Groupe B', 'Groupe C', 'Groupe D', 'Groupe E'];
+        $allGroups = ['Groupe A', 'Groupe B', 'Groupe C', 'Groupe D'];
 
         $evaluations = JuryEvaluation::query()
             ->where('status', 'submitted')

@@ -214,7 +214,6 @@ class JuryEvaluationController extends Controller
             'Groupe B' => 'Groupe B',
             'Groupe C' => 'Groupe C',
             'Groupe D' => 'Groupe D',
-            'Groupe E' => 'Groupe E',
         ];
     }
 
