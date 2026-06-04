@@ -232,42 +232,71 @@
         :root { --evc-topbar-height: 40px; }
         #main-header { top: var(--evc-topbar-height) !important; }
 
-        @media (max-width: 640px) {
-            :root { --evc-topbar-height: 92px; }
+        @media (max-width: 768px) {
+            :root { --evc-topbar-height: 40px; }
         }
 
-        @keyframes evcTopbarMarquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        .evc-topbar-marquee {
+        .evc-topbar-link {
             display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: rgba(255,255,255,0.92);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-decoration: none;
+            padding: 3px 8px;
+            border-radius: 20px;
+            transition: background 0.18s, color 0.18s;
             white-space: nowrap;
-            animation: evcTopbarMarquee 120s linear infinite;
         }
-
-        .evc-topbar-partner-text {
+        .evc-topbar-link:hover {
+            background: rgba(0,0,0,0.18);
+            color: #fff;
+        }
+        .evc-topbar-link svg { flex-shrink: 0; }
+        .evc-topbar-sep {
+            width: 1px;
+            height: 14px;
+            background: rgba(255,255,255,0.25);
+            flex-shrink: 0;
+        }
+        .evc-topbar-don {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0,0,0,0.22);
+            border: 1px solid rgba(255,255,255,0.35);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            padding: 3px 12px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: background 0.18s;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
-
-        @media (max-width: 640px) {
-            .evc-topbar-partner-text {
-                white-space: normal;
-                overflow: visible;
-                text-overflow: clip;
-            }
+        .evc-topbar-don:hover {
+            background: rgba(0,0,0,0.4);
         }
-
-        .evc-topbar-flash {
-            transition: opacity 420ms cubic-bezier(0.22, 1, 0.36, 1);
-            opacity: 1;
+        .evc-topbar-email {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: rgba(255,255,255,0.75);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-decoration: none;
+            white-space: nowrap;
         }
-
-        .evc-topbar-flash.is-fading {
-            opacity: 0;
+        .evc-topbar-email:hover { color: #fff; }
+        @media (max-width: 900px) {
+            .evc-topbar-hide-sm { display: none !important; }
+        }
+        @media (max-width: 600px) {
+            .evc-topbar-hide-xs { display: none !important; }
         }
     </style>
 </head>
@@ -276,38 +305,51 @@
 
     @include('homepage._preloader')
 
-    <div class="fixed top-0 left-0 w-full z-[60] border-b border-white/20 bg-gradient-to-r from-[#ff6b00] via-[#ff9800] to-[#ff6b00]">
-        <div class="mx-auto max-w-7xl px-6 lg:px-8">
-            <div class="min-h-[40px] sm:h-[40px] py-1 sm:py-0 flex flex-col sm:flex-row sm:items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-extrabold tracking-wide text-white">
-                @if(!empty($activePartnerships) && $activePartnerships->count() > 0)
-                    <span class="w-full sm:w-auto text-center sm:text-left shrink-0 whitespace-nowrap">NOS PARTENAIRES OFFICIELS :</span>
-                    @php
-                        $topbarPartners = $activePartnerships->map(function ($p) {
-                            $subtitle = !empty($p->subtitle) ? ' ' . $p->subtitle : '';
-                            return [
-                                'text' => $p->prefix . ' ' . $p->name . $subtitle,
-                                'url' => route('partnerships.show', $p->slug),
-                            ];
-                        })->values();
+    <div class="fixed top-0 left-0 w-full z-[60] border-b border-white/10" style="background: linear-gradient(90deg, #0a0a0a 0%, #1a1a2e 40%, #16213e 70%, #0f3460 100%); height:40px;">
+        <div class="mx-auto max-w-7xl px-4 lg:px-8 h-full">
+            <div class="h-full flex items-center justify-between gap-2">
 
-                        $firstTopbarPartner = $topbarPartners->first();
-                    @endphp
+                {{-- Gauche : Email contact --}}
+                <a href="mailto:contact@ecolevirtuelledescreatifs.com" class="evc-topbar-email evc-topbar-hide-xs">
+                    <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                    contact@ecolevirtuelledescreatifs.com
+                </a>
 
-                    <div class="w-full flex items-center gap-2 sm:gap-3">
-                        <button type="button" id="topbar-partner-prev" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire précédent">‹</button>
+                {{-- Séparateur --}}
+                <div class="evc-topbar-sep evc-topbar-hide-xs"></div>
 
-                        <div class="flex-1 overflow-visible sm:overflow-hidden min-w-0 evc-topbar-flash" id="topbar-partners" data-topbar-partners='@json($topbarPartners)'>
-                            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0 items-center sm:items-stretch">
-                                <span id="topbar-partner-text" class="evc-topbar-partner-text flex-1 min-w-0">{{ $firstTopbarPartner['text'] ?? '' }}</span>
-                                <a id="topbar-partner-link" href="{{ $firstTopbarPartner['url'] ?? '#' }}" class="shrink-0 inline-flex items-center rounded-full bg-black/20 px-3 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30 whitespace-nowrap">En savoir plus</a>
-                            </div>
-                        </div>
+                {{-- Centre : Liens navigation --}}
+                <nav class="flex items-center gap-1">
+                    <a href="{{ route('actualites') }}" class="evc-topbar-link">
+                        <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z" clip-rule="evenodd"/><path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"/></svg>
+                        Actualités
+                    </a>
+                    <div class="evc-topbar-sep evc-topbar-hide-sm"></div>
+                    <a href="{{ route('evenements.all') }}" class="evc-topbar-link evc-topbar-hide-sm">
+                        <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                        Événements
+                    </a>
+                    <div class="evc-topbar-sep evc-topbar-hide-sm"></div>
+                    <a href="{{ route('activity-reports.index') }}" class="evc-topbar-link evc-topbar-hide-sm">
+                        <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clip-rule="evenodd"/></svg>
+                        Rapport d'activité
+                    </a>
+                    <div class="evc-topbar-sep"></div>
+                    <a href="{{ route('rejoignez-nous') }}" class="evc-topbar-link">
+                        <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+                        Contact
+                    </a>
+                </nav>
 
-                        <button type="button" id="topbar-partner-next" class="shrink-0 inline-flex items-center justify-center rounded-full bg-black/20 px-2 py-1 text-[11px] sm:text-xs font-black text-white ring-1 ring-inset ring-white/20 hover:bg-black/30" aria-label="Partenaire suivant">›</button>
-                    </div>
-                @else
-                    <div class="flex-1 text-center">Partenaire</div>
-                @endif
+                {{-- Séparateur --}}
+                <div class="evc-topbar-sep"></div>
+
+                {{-- Droite : Faire un don (CTA impactant) --}}
+                <a href="mailto:contact@ecolevirtuelledescreatifs.com?subject=Don%20EVC" class="evc-topbar-don">
+                    <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/></svg>
+                    ✨ FAIRE UN DON
+                </a>
+
             </div>
         </div>
     </div>
@@ -333,108 +375,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
     <script defer src="{{ asset('js/homepage.js') }}"></script>
     @stack('scripts')
-    <script>
-        (function () {
-            const container = document.getElementById('topbar-partners');
-            if (!container) return;
-
-            let items = [];
-            try {
-                items = JSON.parse(container.getAttribute('data-topbar-partners') || '[]');
-            } catch (e) {
-                items = [];
-            }
-            if (!Array.isArray(items) || items.length === 0) return;
-
-            const textEl = document.getElementById('topbar-partner-text');
-            const linkEl = document.getElementById('topbar-partner-link');
-            const prevBtn = document.getElementById('topbar-partner-prev');
-            const nextBtn = document.getElementById('topbar-partner-next');
-
-            let index = 0;
-            let isAnimating = false;
-
-            const swap = () => {
-                const item = items[index];
-                const text = item && item.text ? item.text : '';
-                const url = item && item.url ? item.url : '#';
-                if (textEl) textEl.textContent = text;
-                if (linkEl) linkEl.setAttribute('href', url);
-            };
-
-            const flashRender = () => {
-                if (isAnimating) return;
-                isAnimating = true;
-
-                const onFadeOutEnd = (e) => {
-                    if (e && e.propertyName && e.propertyName !== 'opacity') return;
-                    container.removeEventListener('transitionend', onFadeOutEnd);
-                    swap();
-                    container.classList.remove('is-fading');
-                    window.setTimeout(() => {
-                        isAnimating = false;
-                    }, 0);
-                };
-
-                container.addEventListener('transitionend', onFadeOutEnd);
-                container.classList.add('is-fading');
-                window.setTimeout(() => {
-                    container.removeEventListener('transitionend', onFadeOutEnd);
-                    swap();
-                    container.classList.remove('is-fading');
-                    isAnimating = false;
-                }, 600);
-            };
-
-            const prev = () => {
-                index = (index - 1 + items.length) % items.length;
-                flashRender();
-            };
-
-            const next = () => {
-                index = (index + 1) % items.length;
-                flashRender();
-            };
-
-            if (prevBtn) prevBtn.addEventListener('click', prev);
-            if (nextBtn) nextBtn.addEventListener('click', next);
-
-            flashRender();
-
-            if (items.length > 1) {
-                let timer = window.setInterval(next, 4000);
-
-                container.addEventListener('mouseenter', () => {
-                    if (timer) {
-                        window.clearInterval(timer);
-                        timer = null;
-                    }
-                });
-
-                container.addEventListener('mouseleave', () => {
-                    if (!timer) timer = window.setInterval(next, 4000);
-                });
-
-                if (prevBtn) {
-                    prevBtn.addEventListener('click', () => {
-                        if (timer) {
-                            window.clearInterval(timer);
-                            timer = window.setInterval(next, 4000);
-                        }
-                    });
-                }
-                if (nextBtn) {
-                    nextBtn.addEventListener('click', () => {
-                        if (timer) {
-                            window.clearInterval(timer);
-                            timer = window.setInterval(next, 4000);
-                        }
-                    });
-                }
-            }
-        })();
-    </script>
-
     <script>
         /* ===== SAFARI FIX : maintien de session + refresh CSRF ===== */
         (function() {
