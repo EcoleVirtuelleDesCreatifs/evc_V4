@@ -4,10 +4,12 @@
 
 @section('content')
 @php
-    $total   = $members->count();
-    $actifs  = $members->where('is_active', true)->count();
-    $voted   = $members->filter(fn($m) => $m->evaluations->isNotEmpty())->count();
-    $pending = $total - $voted;
+    $totalGroups = 4; // Groupe A, B, C, D
+    $total       = $members->count();
+    $actifs      = $members->where('is_active', true)->count();
+    $completed   = $members->filter(fn($m) => $m->evaluations->count() >= $totalGroups)->count();
+    $inProgress  = $members->filter(fn($m) => $m->evaluations->count() > 0 && $m->evaluations->count() < $totalGroups)->count();
+    $pending     = $members->filter(fn($m) => $m->evaluations->isEmpty())->count();
 @endphp
 <div class="container-fluid py-4">
 
@@ -56,8 +58,8 @@
             <div style="background:#1e293b;border:1px solid #334155;border-radius:12px;padding:1.1rem 1.3rem;display:flex;align-items:center;gap:.9rem;">
                 <div style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">🏅</div>
                 <div>
-                    <div style="font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Ont noté</div>
-                    <div style="font-size:1.5rem;font-weight:700;color:#f1f5f9;line-height:1;">{{ $voted }}</div>
+                    <div style="font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">Ont terminé</div>
+                    <div style="font-size:1.5rem;font-weight:700;color:#f1f5f9;line-height:1;">{{ $completed }}</div>
                 </div>
             </div>
         </div>
@@ -67,6 +69,7 @@
                 <div>
                     <div style="font-size:.7rem;color:#64748b;text-transform:uppercase;letter-spacing:.05em;">En attente</div>
                     <div style="font-size:1.5rem;font-weight:700;color:#f1f5f9;line-height:1;">{{ $pending }}</div>
+                    <div style="font-size:.65rem;color:#64748b;margin-top:1px;">{{ $inProgress }} en cours</div>
                 </div>
             </div>
         </div>
@@ -90,7 +93,7 @@
                         <th style="padding:.75rem 1.2rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:#64748b;font-weight:600;">Membre</th>
                         <th style="padding:.75rem 1.2rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:#64748b;font-weight:600;">Identifiant</th>
                         <th style="padding:.75rem 1.2rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:#64748b;font-weight:600;">Pays</th>
-                        <th style="padding:.75rem 1.2rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:#64748b;font-weight:600;">Groupe noté</th>
+                        <th style="padding:.75rem 1.2rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:#64748b;font-weight:600;">Groupes notés</th>
                         <th style="padding:.75rem 1.2rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:#64748b;font-weight:600;">Statut</th>
                         <th style="padding:.75rem 1.2rem;font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:#64748b;font-weight:600;text-align:right;">Actions</th>
                     </tr>
@@ -98,8 +101,9 @@
                 <tbody>
                     @forelse($members as $member)
                         @php
-                            $votedEval = $member->evaluations->first();
-                            $photoSrc  = null;
+                            $votedEvals = $member->evaluations;
+                            $evalCount  = $votedEvals->count();
+                            $photoSrc   = null;
                             if (!empty($member->image_url)) {
                                 $photoSrc = $member->image_url;
                             } elseif (!empty($member->image_path)) {
@@ -129,10 +133,19 @@
                                 @if($member->flag)<span style="margin-right:4px;">{{ $member->flag }}</span>@endif{{ $member->country ?: '—' }}
                             </td>
                             <td style="padding:.85rem 1.2rem;">
-                                @if($votedEval)
-                                    <span style="display:inline-flex;align-items:center;gap:5px;background:#14532d;color:#4ade80;border:1px solid #166534;border-radius:20px;padding:3px 10px;font-size:.78rem;font-weight:600;">
-                                        ✅ {{ $votedEval->group_name }}
-                                    </span>
+                                @if($evalCount > 0)
+                                    <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+                                        @foreach($votedEvals as $eval)
+                                            <span style="display:inline-flex;align-items:center;gap:4px;background:#14532d;color:#4ade80;border:1px solid #166534;border-radius:20px;padding:2px 8px;font-size:.72rem;font-weight:600;">
+                                                ✅ {{ $eval->group_name }}
+                                            </span>
+                                        @endforeach
+                                        @if($evalCount < $totalGroups)
+                                            <span style="font-size:.7rem;color:#f59e0b;font-style:italic;">{{ $evalCount }}/{{ $totalGroups }}</span>
+                                        @else
+                                            <span style="font-size:.7rem;color:#4ade80;font-weight:600;">✔ Complet</span>
+                                        @endif
+                                    </div>
                                 @else
                                     <span style="color:#475569;font-size:.82rem;font-style:italic;">Pas encore noté</span>
                                 @endif
