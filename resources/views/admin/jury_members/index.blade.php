@@ -226,12 +226,31 @@
                                 </td>
                                 <td style="padding:.85rem 1.2rem;text-align:right;white-space:nowrap;">
                                     @if (\Illuminate\Support\Facades\Route::has('admin.jury-members.evaluations.index'))
-                                        <a href="{{ route('admin.jury-members.evaluations.index', $member) }}"
-                                            class="btn btn-sm me-1"
-                                            style="background:#1e3a5f;color:#93c5fd;border:1px solid #1e40af;"
-                                            title="Évaluations">
-                                            <i class="fas fa-chart-bar"></i>
-                                        </a>
+                                        @if($evalCount >= $totalGroups)
+                                            {{-- Notation complète : bouton vert bien visible --}}
+                                            <a href="{{ route('admin.jury-members.evaluations.index', $member) }}"
+                                                class="btn btn-sm me-1"
+                                                style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;font-weight:600;font-size:.75rem;padding:.35rem .75rem;border-radius:6px;"
+                                                title="Voir les résultats de {{ $member->name }}">
+                                                <i class="fas fa-trophy me-1"></i> Résultats
+                                            </a>
+                                        @elseif($evalCount > 0)
+                                            {{-- En cours : icône orange discrète --}}
+                                            <a href="{{ route('admin.jury-members.evaluations.index', $member) }}"
+                                                class="btn btn-sm me-1"
+                                                style="background:#1e293b;color:#f59e0b;border:1px solid #78350f;"
+                                                title="Évaluations en cours ({{ $evalCount }}/{{ $totalGroups }})">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </a>
+                                        @else
+                                            {{-- Pas encore noté : icône grise --}}
+                                            <a href="{{ route('admin.jury-members.evaluations.index', $member) }}"
+                                                class="btn btn-sm me-1"
+                                                style="background:#1e293b;color:#475569;border:1px solid #334155;"
+                                                title="Aucune évaluation">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </a>
+                                        @endif
                                     @endif
                                     <a href="{{ route('admin.jury-members.edit', $member) }}"
                                         class="btn btn-sm btn-primary me-1" title="Modifier">
