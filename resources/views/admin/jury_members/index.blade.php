@@ -226,7 +226,7 @@
                                 </td>
                                 <td style="padding:.85rem 1.2rem;text-align:right;white-space:nowrap;">
                                     @if (\Illuminate\Support\Facades\Route::has('admin.jury-members.evaluations.index'))
-                                        @if($evalCount >= $totalGroups)
+                                        @if ($evalCount >= $totalGroups)
                                             {{-- Notation complète : bouton vert bien visible --}}
                                             <a href="{{ route('admin.jury-members.evaluations.index', $member) }}"
                                                 class="btn btn-sm me-1"
