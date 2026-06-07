@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JuryMember;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -133,11 +134,21 @@ class JuryMembersAdminController extends Controller
     {
         $this->ensureAllowed();
 
+        DB::transaction(function () use ($juryMember) {
+            $juryMember->evaluations()
+                ->with('scores')
+                ->get()
+                ->each(function ($evaluation) {
+                    $evaluation->scores()->delete();
+                    $evaluation->delete();
+                });
+
+            $juryMember->delete();
+        });
+
         if (!empty($juryMember->image_path)) {
             Storage::disk('public')->delete($juryMember->image_path);
         }
-
-        $juryMember->delete();
 
         return redirect()
             ->route('admin.jury-members.index')
