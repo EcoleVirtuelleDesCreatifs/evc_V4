@@ -45,11 +45,12 @@ class JuryEvaluationsAdminController extends Controller
         $evaluations = JuryEvaluation::query()
             ->where('status', 'submitted')
             ->whereIn('group_name', $allGroups)
+            ->whereHas('juryMember')
             ->with('scores')
             ->get();
 
         $totalEvaluations = $evaluations->count();
-        $totalJurors      = $evaluations->pluck('jury_name')->unique()->count();
+        $totalJurors      = $evaluations->pluck('jury_member_id')->unique()->count();
 
         $rankings = [];
         foreach ($categories as $categoryKey => $meta) {
