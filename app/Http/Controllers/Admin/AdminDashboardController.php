@@ -1041,6 +1041,7 @@ class AdminDashboardController extends Controller
     {
         $modules = $request->input('modules');
         $module = $request->input('module');
+        $formationId = $request->input('formation_id');
 
         $modulesToUse = [];
         if (is_array($modules)) {
@@ -1113,9 +1114,20 @@ class AdminDashboardController extends Controller
                 ->map(fn($id) => (int) $id)
                 ->flip();
 
-            $students = $students->map(function ($student) use ($userIdsWithProjects) {
+            $assignedUserIds = collect();
+            if (!empty($formationId) && is_numeric($formationId)) {
+                $assignedUserIds = DB::table('formation_user')
+                    ->where('formation_id', (int) $formationId)
+                    ->whereIn('user_id', $userIds)
+                    ->pluck('user_id')
+                    ->map(fn($id) => (int) $id)
+                    ->flip();
+            }
+
+            $students = $students->map(function ($student) use ($userIdsWithProjects, $assignedUserIds) {
                 $uid = (int) ($student->id ?? 0);
                 $student->has_projects = $uid > 0 && $userIdsWithProjects->has($uid);
+                $student->is_assigned = $uid > 0 && $assignedUserIds->has($uid);
                 return $student;
             });
 

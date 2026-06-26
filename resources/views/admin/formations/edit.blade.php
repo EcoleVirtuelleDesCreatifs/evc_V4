@@ -190,13 +190,17 @@
                     <div class="col-12 form-group">
                         <label for="student_ids">Sélectionner les étudiants <span class="text-danger">*</span></label>
                         <select class="form-select" id="student_ids" name="student_ids[]" multiple="multiple">
+                            @php
+                                $assignedStudentIds = $formation->students->pluck('id')->toArray();
+                            @endphp
                             @foreach($students as $student)
                                 <option value="{{ $student->id }}"
-                                    {{ in_array($student->id, old('student_ids', $formation->target_student_types ?? [])) ? 'selected' : '' }}>
+                                    {{ in_array($student->id, old('student_ids', $assignedStudentIds)) ? 'selected' : '' }}>
                                     {{ $student->name }}
                                 </option>
                             @endforeach
                         </select>
+                        <div id="assigned-students-summary" class="mt-2 small text-muted"></div>
                         <small class="text-muted">Maintenez Ctrl (Windows) ou Cmd (Mac) pour sélectionner plusieurs étudiants</small>
                     </div>
                 </div>
@@ -320,28 +324,47 @@ $(document).ready(function() {
         $.ajax({
             url: '{{ route("admin.api.students-by-module") }}',
             method: 'GET',
-            data: { modules: modules },
+            data: { modules: modules, formation_id: {{ $formation->id }} },
             success: function(response) {
                 if (response.success) {
                     // Vider le select
                     $('#student_ids').empty();
 
                     // Ajouter les étudiants du module
+                    let assignedCount = 0;
+                    let availableCount = 0;
                     if (response.students.length > 0) {
                         response.students.forEach(function(student) {
+                            const optionText = student.name + (student.is_assigned ? ' (déjà inscrit)' : '');
                             const option = $('<option></option>')
                                 .attr('value', student.id)
-                                .text(student.name);
+                                .text(optionText)
+                                .attr('data-is-assigned', student.is_assigned ? '1' : '0');
 
-                            // Sélectionner si dans les IDs pré-sélectionnés
-                            if (selectedIds.includes(student.id)) {
+                            // Sélectionner si déjà inscrit ou dans les IDs pré-sélectionnés
+                            if (student.is_assigned || selectedIds.includes(student.id)) {
                                 option.attr('selected', 'selected');
+                                assignedCount++;
+                            } else {
+                                availableCount++;
                             }
 
                             $('#student_ids').append(option);
                         });
                     } else {
                         $('#student_ids').append('<option value="">Aucun étudiant dans ce module</option>');
+                    }
+
+                    // Mettre à jour le résumé
+                    const summary = $('#assigned-students-summary');
+                    if (assignedCount > 0 || availableCount > 0) {
+                        summary.html(
+                            '<span class="text-info"><i class="fas fa-check-circle me-1"></i>' + assignedCount + ' étudiant(s) inscrit(s)</span>' +
+                            ' &middot; ' +
+                            '<span class="text-warning"><i class="fas fa-plus-circle me-1"></i>' + availableCount + ' étudiant(s) disponible(s)</span>'
+                        );
+                    } else {
+                        summary.html('');
                     }
 
                     $('#student_ids').trigger('change');
@@ -389,7 +412,7 @@ $(document).ready(function() {
 
     // Précharger les étudiants selon les modules déjà sélectionnés (édition)
     @php
-        $initialSelectedStudentIds = old('student_ids', $formation->target_student_types ?? []);
+        $initialSelectedStudentIds = old('student_ids', $formation->students->pluck('id')->toArray());
         if (!is_array($initialSelectedStudentIds)) { $initialSelectedStudentIds = []; }
     @endphp
     const initialSelectedStudentIds = @json($initialSelectedStudentIds);
