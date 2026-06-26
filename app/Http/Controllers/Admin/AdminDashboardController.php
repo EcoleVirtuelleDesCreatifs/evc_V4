@@ -5194,12 +5194,36 @@ class AdminDashboardController extends Controller
             ->select(
                 'students.*',
                 'users.email as user_email',
+                'users.status as user_status',
                 'pre_registrations.id as pre_registration_id',
                 'pre_registrations.choix_formation as choix_formation',
                 'pre_registrations.discount_amount as discount_amount',
                 'pre_registrations.created_at as pre_registered_at'
             )
-            ->where('students.status', 'active')
+            ->where(function ($q) {
+                // Compte étudiant actif
+                $q->whereNull('students.status')
+                  ->orWhere('students.status', '')
+                  ->orWhere('students.status', 'active');
+            })
+            ->where(function ($q) {
+                // Compte utilisateur actif (si la colonne existe)
+                if (Schema::hasColumn('users', 'status')) {
+                    $q->whereNull('users.status')
+                      ->orWhere('users.status', 'active');
+                } else {
+                    $q->whereRaw('1 = 1');
+                }
+            })
+            ->where(function ($q) {
+                // Compte non expiré (si la colonne existe)
+                if (Schema::hasColumn('students', 'expiration_date')) {
+                    $q->whereNull('students.expiration_date')
+                      ->orWhere('students.expiration_date', '>=', now()->toDateTimeString());
+                } else {
+                    $q->whereRaw('1 = 1');
+                }
+            })
             ->orderBy('students.created_at', 'desc')
             ->get();
 
