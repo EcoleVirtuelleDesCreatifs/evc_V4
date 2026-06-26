@@ -5194,7 +5194,6 @@ class AdminDashboardController extends Controller
             ->select(
                 'students.*',
                 'users.email as user_email',
-                'users.status as user_status',
                 'pre_registrations.id as pre_registration_id',
                 'pre_registrations.choix_formation as choix_formation',
                 'pre_registrations.discount_amount as discount_amount',
