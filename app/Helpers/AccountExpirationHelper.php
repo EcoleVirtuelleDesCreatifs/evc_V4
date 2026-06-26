@@ -72,7 +72,7 @@ class AccountExpirationHelper
     /**
      * Obtenir la durée par défaut selon le programme
      */
-    private static function getDefaultDurationMonths($program = null): int
+    public static function getDefaultDurationMonths($program = null): int
     {
         $durations = [
             'Design Graphique' => 4,

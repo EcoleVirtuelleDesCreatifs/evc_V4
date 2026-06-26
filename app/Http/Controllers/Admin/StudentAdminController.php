@@ -2194,10 +2194,12 @@ class StudentAdminController extends Controller
                         $studentUpdateData['program'] = $formationMap[$validated['formation_souhaitee']];
                     }
 
-                    $durationMonths = 4;
-                    if (in_array($validated['formation_souhaitee'], ['design_graphique_community_management', 'design_graphique_community_manager', 'design-graphique-community-manager'], true)) {
-                        $durationMonths = 7;
-                    }
+                    // Durée de la formation actuelle et de la nouvelle formation
+                    $currentProgram = $student->program ?? '';
+                    $currentDuration = \App\Helpers\AccountExpirationHelper::getDefaultDurationMonths($currentProgram);
+                    $newProgram = $formationMap[$validated['formation_souhaitee']] ?? $validated['formation_souhaitee'];
+                    $newDuration = \App\Helpers\AccountExpirationHelper::getDefaultDurationMonths($newProgram);
+                    $durationMonths = $newDuration;
 
                     // Gérer la date d'inscription
                     if (!empty($validated['registration_date'])) {
@@ -2215,11 +2217,31 @@ class StudentAdminController extends Controller
                         }
                     }
 
-                    // Gérer la date d'expiration
+                    // Gérer la date d'expiration dynamiquement
                     if (!empty($validated['expiration_date'])) {
+                        // L'admin a saisi une date manuellement : respecter sa saisie
                         $studentUpdateData['expiration_date'] = $validated['expiration_date'];
-                    } elseif (!empty($validated['registration_date'])) {
-                        $studentUpdateData['expiration_date'] = \Carbon\Carbon::parse($validated['registration_date'])->addMonths($durationMonths)->format('Y-m-d');
+                    } else {
+                        $now = \Carbon\Carbon::now();
+                        $existingExpiration = null;
+                        if (!empty($student->expiration_date)) {
+                            try {
+                                $existingExpiration = \Carbon\Carbon::parse($student->expiration_date);
+                            } catch (\Exception $e) {
+                                $existingExpiration = null;
+                            }
+                        }
+
+                        if ($existingExpiration && $existingExpiration->isFuture()) {
+                            // Compte actif : étendre la durée par la différence entre la nouvelle formation et l'ancienne
+                            $additionalMonths = max(0, $newDuration - $currentDuration);
+                            $newExpiration = $existingExpiration->copy()->addMonths($additionalMonths);
+                        } else {
+                            // Compte expiré ou sans date : repartir de maintenant avec la durée de la nouvelle formation
+                            $newExpiration = $now->copy()->addMonths($newDuration);
+                        }
+
+                        $studentUpdateData['expiration_date'] = $newExpiration->format('Y-m-d');
                     }
 
                     DB::table('students')
