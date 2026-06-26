@@ -5148,7 +5148,7 @@ class AdminDashboardController extends Controller
 
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
-            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
+            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->program ?: ($s->specialization ?: ($s->choix_formation ?? null)));
             $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
             $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $storedDiscountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
@@ -5248,7 +5248,7 @@ class AdminDashboardController extends Controller
 
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
-            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
+            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->program ?: ($s->specialization ?: ($s->choix_formation ?? null)));
             $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
             $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $storedDiscountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
@@ -5469,7 +5469,7 @@ class AdminDashboardController extends Controller
 
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
-            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->choix_formation ?: ($s->program ?? null));
+            $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->program ?: ($s->specialization ?: ($s->choix_formation ?? null)));
             $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
             $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $storedDiscountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
