@@ -815,17 +815,24 @@ class StudentAdminController extends Controller
         $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel(
             $student->program ?? ($student->specialization ?? ($preRegistration->choix_formation ?? null))
         );
-        $pricingDate = $preRegistration->created_at ?? ($student->created_at ?? null);
-        $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
-        $totalFactures = $expectedTotal;
 
+        // Récupérer les paiements d'abord pour déterminer la date de tarification applicable
+        $paiements = collect();
         if ($preRegistration && Schema::hasTable('payments')) {
             $paiements = DB::table('payments')
                 ->where('pre_registration_id', $preRegistration->id)
                 ->orderBy('installment_number', 'asc')
                 ->orderBy('created_at', 'desc')
                 ->get();
+        }
 
+        // Date de tarification : premier paiement > date de pré-inscription > date de création étudiant
+        $firstPaymentDate = optional($paiements->sortBy('created_at')->first())->created_at;
+        $pricingDate = $firstPaymentDate ?: ($preRegistration->created_at ?? ($student->created_at ?? null));
+        $expectedTotal = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
+        $totalFactures = $expectedTotal;
+
+        if ($preRegistration && $paiements->isNotEmpty()) {
             $paymentsTotal = (int) round((float) ($paiements->max('total_amount') ?? 0));
             $totalFactures = max($paymentsTotal, $expectedTotal);
 
