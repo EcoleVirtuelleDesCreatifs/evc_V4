@@ -1061,11 +1061,35 @@ class AdminDashboardController extends Controller
 
         try {
             $moduleMapping = [
-                'design_graphique' => ['Design Graphique', 'design_graphique'],
-                'community_management' => ['Community Management', 'community_management'],
-                'intelligence_artificielle' => ['Intelligence Artificielle', 'intelligence_artificielle'],
-                'gestion_informatique' => ['Gestion Informatique', 'gestion_informatique'],
-                'design_graphique_community_manager' => ['Design Graphique & Community Manager', 'design_graphique_community_manager'],
+                'design_graphique' => [
+                    'Design Graphique', 'design_graphique', 'design-graphique',
+                    'Design Graphique & Community Manager', 'Design Graphique & Community Management',
+                    'design_graphique_community_manager', 'design_graphique_community_management',
+                    'design-graphique-community-manager', 'design-graphique-community-management',
+                    'design-graphique-cm', 'Design Graphique CM', 'Design Graphique & CM',
+                ],
+                'community_management' => [
+                    'Community Management', 'community_management', 'community-management',
+                    'Community Manager', 'community_manager', 'community-manager',
+                    'CM', 'cm',
+                ],
+                'intelligence_artificielle' => [
+                    'Intelligence Artificielle', 'intelligence_artificielle', 'intelligence-artificielle',
+                    'Intelligence Artificiel', 'intelligence_artificiel', 'IA', 'ia', 'I.A.',
+                ],
+                'gestion_informatique' => [
+                    'Gestion Informatique', 'gestion_informatique', 'gestion-informatique',
+                    'Informatique', 'informatique', 'Gestion Info', 'gestion-info',
+                ],
+                'design_graphique_community_manager' => [
+                    'Design Graphique & Community Manager', 'Design Graphique & Community Management',
+                    'design_graphique_community_manager', 'design_graphique_community_management',
+                    'design-graphique-community-manager', 'design-graphique-community-management',
+                    'design-graphique-cm', 'Design Graphique CM', 'Design Graphique & CM',
+                    'Design Graphique', 'design_graphique', 'design-graphique',
+                    'Community Management', 'community_management', 'community-management',
+                    'Community Manager', 'community_manager', 'community-manager',
+                ],
             ];
 
             $allVariants = [];

@@ -330,6 +330,13 @@ $(document).ready(function() {
                     // Vider le select
                     $('#student_ids').empty();
 
+                    // Trier : inscrits en premier, puis non inscrits, alphabétiquement
+                    response.students.sort(function(a, b) {
+                        if (a.is_assigned && !b.is_assigned) return -1;
+                        if (!a.is_assigned && b.is_assigned) return 1;
+                        return a.name.localeCompare(b.name);
+                    });
+
                     // Ajouter les étudiants du module
                     let assignedCount = 0;
                     let availableCount = 0;
