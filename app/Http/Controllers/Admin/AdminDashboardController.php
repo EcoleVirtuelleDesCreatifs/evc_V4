@@ -1104,15 +1104,39 @@ class AdminDashboardController extends Controller
             })));
 
             // Récupérer les étudiants du module depuis la table students
-            $students = DB::table('students')
+            $studentsQuery = DB::table('students')
                 ->join('users', 'students.user_id', '=', 'users.id')
                 ->where(function ($query) use ($allVariants) {
                     foreach ($allVariants as $variant) {
                         $query->orWhere('students.program', $variant)
                             ->orWhere('students.specialization', $variant);
                     }
-                })
-                ->select(
+                });
+
+            // Exclure les comptes utilisateurs désactivés (si la colonne existe)
+            if (Schema::hasColumn('users', 'status')) {
+                $studentsQuery->where(function ($q) {
+                    $q->whereNull('users.status')
+                      ->orWhere('users.status', 'active');
+                });
+            }
+
+            // Exclure les comptes étudiants désactivés
+            $studentsQuery->where(function ($q) {
+                $q->whereNull('students.status')
+                  ->orWhere('students.status', '')
+                  ->orWhere('students.status', 'active');
+            });
+
+            // Exclure les comptes expirés (si la colonne existe)
+            if (Schema::hasColumn('students', 'expiration_date')) {
+                $studentsQuery->where(function ($q) {
+                    $q->whereNull('students.expiration_date')
+                      ->orWhere('students.expiration_date', '>=', now()->toDateTimeString());
+                });
+            }
+
+            $students = $studentsQuery->select(
                     'users.id',
                     DB::raw("CONCAT(students.first_name, ' ', students.last_name) as name"),
                     'users.email',
