@@ -184,13 +184,14 @@
             margin-bottom: 1.5rem;
             min-height: 70px;
             flex-grow: 0;
+            text-align: justify;
         }
 
         .card-features {
             list-style: none;
             padding: 0;
             margin: 1.5rem 0;
-            text-align: left;
+            text-align: justify;
             flex-grow: 1;
         }
 
@@ -202,6 +203,7 @@
             align-items: flex-start;
             gap: 1rem;
             line-height: 1.6;
+            text-align: justify;
         }
 
         .card-features li i {
