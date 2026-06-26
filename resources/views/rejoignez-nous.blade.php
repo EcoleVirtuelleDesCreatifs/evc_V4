@@ -63,7 +63,7 @@
         }
 
         .cards-container .container {
-            max-width: 1180px;
+            max-width: 1280px;
         }
 
         .cards-container .row {
@@ -407,10 +407,12 @@
     <!-- Cards Section -->
     <section class="cards-container">
         <div class="container">
-            <div class="row justify-content-center g-4 cards-row">
-                <!-- Collaborateur Card -->
-                <div class="col-lg-4 col-md-4">
-                    <div class="join-card card-collaborateur">
+            <div class="row">
+                <div class="col-lg-10">
+                    <div class="row g-4 cards-row">
+                        <!-- Collaborateur Card -->
+                        <div class="col-4">
+                            <div class="join-card card-collaborateur">
                         <div>
                             <div class="icon-circle">
                                 <i class="fas fa-handshake"></i>
@@ -445,8 +447,8 @@
                     </div>
                 </div>
 
-                <!-- Partenaire Card -->
-                <div class="col-lg-4 col-md-4">
+                        <!-- Partenaire Card -->
+                        <div class="col-4">
                     <div class="join-card card-partenaire">
                         <div>
                             <div class="icon-circle">
@@ -482,8 +484,8 @@
                     </div>
                 </div>
 
-                <!-- Formateur Card -->
-                <div class="col-lg-4 col-md-4">
+                        <!-- Formateur Card -->
+                        <div class="col-4">
                     <div class="join-card card-formateur">
                         <div>
                             <div class="icon-circle">
@@ -520,7 +522,9 @@
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</div>
+</section>
 
     <!-- Floating Particles -->
     <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
