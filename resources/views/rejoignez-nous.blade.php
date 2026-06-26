@@ -201,14 +201,14 @@
             margin-bottom: 1.5rem;
             min-height: 70px;
             flex-grow: 0;
-            text-align: justify;
+            text-align: center;
         }
 
         .card-features {
             list-style: none;
             padding: 0;
             margin: 1.5rem 0;
-            text-align: justify;
+            text-align: center;
             flex-grow: 1;
         }
 
@@ -217,10 +217,10 @@
             color: rgba(255, 255, 255, 0.9);
             font-size: 0.9rem;
             display: flex;
-            align-items: flex-start;
+            align-items: center;
+            justify-content: center;
             gap: 1rem;
             line-height: 1.6;
-            text-align: justify;
         }
 
         .card-features li i {
