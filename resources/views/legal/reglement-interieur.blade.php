@@ -189,8 +189,13 @@
                 <p>En cas de manquement grave ou répété, l'EVC se réserve le droit de refuser la délivrance du certificat, même si l'étudiant a suivi une partie des cours.</p>
             </div>
 
+            <div class="legal-section" id="critere-certification">
+                <h2>5. Critères d'éligibilité à la certification EVC</h2>
+                @include('legal.partials.criteres-certification')
+            </div>
+
             <div class="legal-section">
-                <h2>5. Inactivité, indisponibilité et exclusion</h2>
+                <h2>6. Inactivité, indisponibilité et exclusion</h2>
                 <p>Pour garantir l'efficacité de la formation, l'étudiant doit rester actif et disponible. Sauf cas de force majeure signalé et justifié, toute indisponibilité prolongée compromet la progression.</p>
                 <div class="legal-info-box">
                     <p><strong>Clause d'inactivité :</strong> si l'étudiant ne se rend pas disponible, ne répond pas et ne participe pas pendant une durée continue de <strong>2 mois</strong>, l'EVC peut procéder à une <strong>exclusion</strong> du programme.</p>
@@ -205,7 +210,7 @@
             </div>
 
             <div class="legal-section">
-                <h2>6. Plagiat, fraude et intégrité académique</h2>
+                <h2>7. Plagiat, fraude et intégrité académique</h2>
                 <p>Tout acte de fraude (plagiat, utilisation d'un travail d'autrui, duplication, falsification, usurpation) est interdit.</p>
                 <ul>
                     <li>Un travail plagié peut être automatiquement invalidé.</li>
@@ -214,7 +219,7 @@
             </div>
 
             <div class="legal-section">
-                <h2>7. Respect, conduite et communication</h2>
+                <h2>8. Respect, conduite et communication</h2>
                 <p>La communication avec les formateurs et l'équipe EVC doit rester professionnelle et respectueuse.</p>
                 <ul>
                     <li>Interdiction des propos insultants, menaçants ou discriminatoires.</li>
@@ -225,7 +230,7 @@
             </div>
 
             <div class="legal-section">
-                <h2>8. Organisation pédagogique (TP, projets, évaluations)</h2>
+                <h2>9. Organisation pédagogique (TP, projets, évaluations)</h2>
                 <p>Les TP et projets sont des éléments essentiels de la formation. L'étudiant doit :</p>
                 <ul>
                     <li>respecter les consignes pédagogiques et les formats demandés ;</li>
@@ -237,7 +242,7 @@
             </div>
 
             <div class="legal-section">
-                <h2>9. Suspension et réintégration</h2>
+                <h2>10. Suspension et réintégration</h2>
                 <p>Dans certains cas, l'EVC peut proposer une suspension temporaire (ex: raisons médicales, contraintes majeures) si l'étudiant en fait la demande et fournit un justificatif.</p>
                 <p>La réintégration peut être soumise à :</p>
                 <ul>
@@ -248,12 +253,12 @@
             </div>
 
             <div class="legal-section">
-                <h2>10. Modification du règlement</h2>
+                <h2>11. Modification du règlement</h2>
                 <p>L'EVC peut faire évoluer le présent règlement pour s'adapter à l'organisation interne, à la pédagogie et à la réglementation. Toute mise à jour est applicable dès sa publication sur le site.</p>
             </div>
 
             <div class="legal-section">
-                <h2>11. Contact</h2>
+                <h2>12. Contact</h2>
                 <p>Pour toute question concernant ce règlement intérieur, vous pouvez contacter l'EVC :</p>
                 <div class="legal-info-box">
                     <p><strong>Email :</strong> info@ecolevirtuelledescreatifs.com</p>
