@@ -71,11 +71,33 @@
         color: #cbd5e1;
         border-color: rgba(148, 163, 184, 0.5);
     }
+    .select2-container--default .select2-results__option {
+        color: #1e293b !important;
+    }
+    .select2-container--default .select2-results__option--highlighted {
+        background-color: #e2e8f0 !important;
+        color: #0f172a !important;
+    }
+    .select2-container--default .select2-results__option--highlighted .select2-student-badge.inscrit {
+        color: #047857;
+        border-color: #10b981;
+        background-color: rgba(16, 185, 129, 0.2);
+    }
+    .select2-container--default .select2-results__option--highlighted .select2-student-badge.non-inscrit {
+        color: #475569;
+        border-color: #94a3b8;
+        background-color: rgba(148, 163, 184, 0.2);
+    }
     .student-option-row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         width: 100%;
+    }
+    .student-option-meta {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-left: 0.5rem;
     }
 </style>
 @endpush
@@ -254,6 +276,7 @@
                                 @endphp
                                 <option value="{{ $student->id }}"
                                     data-is-assigned="{{ $isAssigned ? '1' : '0' }}"
+                                    data-module="{{ $student->program ?? ($student->specialization ?? '') }}"
                                     {{ $isAssigned ? 'selected' : '' }}>
                                     {{ $student->name }}
                                 </option>
@@ -365,9 +388,11 @@ $(document).ready(function() {
             const isAssigned = $(data.element).data('is-assigned') == '1';
             const badgeClass = isAssigned ? 'inscrit' : 'non-inscrit';
             const badgeText = isAssigned ? 'Inscrit' : 'Non inscrit';
+            const moduleText = $(data.element).data('module') || '';
+            const moduleHtml = moduleText ? '<span class="student-option-meta">(' + $('<div>').text(moduleText).html() + ')</span>' : '';
             return $(
                 '<div class="student-option-row">' +
-                    '<span>' + $('<div>').text(data.text).html() + '</span>' +
+                    '<span>' + $('<div>').text(data.text).html() + moduleHtml + '</span>' +
                     '<span class="select2-student-badge ' + badgeClass + '">' + badgeText + '</span>' +
                 '</div>'
             );
@@ -444,7 +469,8 @@ $(document).ready(function() {
                             const option = $('<option></option>')
                                 .attr('value', student.id)
                                 .text(student.name)
-                                .attr('data-is-assigned', student.is_assigned ? '1' : '0');
+                                .attr('data-is-assigned', student.is_assigned ? '1' : '0')
+                                .attr('data-module', student.program || student.specialization || '');
 
                             // Sélectionner si déjà inscrit ou dans les IDs pré-sélectionnés
                             if (student.is_assigned || selectedIds.includes(student.id)) {
