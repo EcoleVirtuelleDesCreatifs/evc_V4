@@ -22,6 +22,61 @@
         border-color: #10B981 !important;
         color: white !important;
     }
+
+    /* Select2 student badges */
+    .select2-student-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        margin-left: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    .select2-student-badge.inscrit {
+        background-color: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .select2-student-badge.non-inscrit {
+        background-color: rgba(148, 163, 184, 0.15);
+        color: #94a3b8;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+    }
+    .select2-container--default .select2-selection__choice {
+        background-color: #1e293b !important;
+        border-color: rgba(255, 255, 255, 0.1) !important;
+        color: #f1f5f9 !important;
+        padding: 0.25rem 0.75rem !important;
+        border-radius: 0.5rem !important;
+        font-size: 0.9rem !important;
+    }
+    .select2-container--default .select2-selection__choice.inscrit-choice {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.25)) !important;
+        border-color: rgba(16, 185, 129, 0.5) !important;
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.15);
+    }
+    .select2-results__option .select2-student-badge {
+        margin-left: auto;
+    }
+    .select2-results__option--highlighted .select2-student-badge.inscrit {
+        background-color: rgba(16, 185, 129, 0.25);
+        color: #34d399;
+        border-color: rgba(16, 185, 129, 0.5);
+    }
+    .select2-results__option--highlighted .select2-student-badge.non-inscrit {
+        background-color: rgba(148, 163, 184, 0.25);
+        color: #cbd5e1;
+        border-color: rgba(148, 163, 184, 0.5);
+    }
+    .student-option-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
 </style>
 @endpush
 
@@ -194,8 +249,12 @@
                                 $assignedStudentIds = $formation->students->pluck('id')->toArray();
                             @endphp
                             @foreach($students as $student)
+                                @php
+                                    $isAssigned = in_array($student->id, old('student_ids', $assignedStudentIds));
+                                @endphp
                                 <option value="{{ $student->id }}"
-                                    {{ in_array($student->id, old('student_ids', $assignedStudentIds)) ? 'selected' : '' }}>
+                                    data-is-assigned="{{ $isAssigned ? '1' : '0' }}"
+                                    {{ $isAssigned ? 'selected' : '' }}>
                                     {{ $student->name }}
                                 </option>
                             @endforeach
@@ -300,6 +359,31 @@ $(document).ready(function() {
         placeholder: 'Rechercher et sélectionner des étudiants...',
         allowClear: true,
         width: '100%',
+        closeOnSelect: false,
+        templateResult: function(data) {
+            if (!data.id) return data.text;
+            const isAssigned = $(data.element).data('is-assigned') == '1';
+            const badgeClass = isAssigned ? 'inscrit' : 'non-inscrit';
+            const badgeText = isAssigned ? 'Inscrit' : 'Non inscrit';
+            return $(
+                '<div class="student-option-row">' +
+                    '<span>' + $('<div>').text(data.text).html() + '</span>' +
+                    '<span class="select2-student-badge ' + badgeClass + '">' + badgeText + '</span>' +
+                '</div>'
+            );
+        },
+        templateSelection: function(data) {
+            if (!data.id) return data.text;
+            const isAssigned = $(data.element).data('is-assigned') == '1';
+            const badgeText = isAssigned ? 'Inscrit' : 'Non inscrit';
+            const badgeClass = isAssigned ? 'inscrit' : 'non-inscrit';
+            return $(
+                '<span>' + $('<div>').text(data.text).html() + ' <span class="select2-student-badge ' + badgeClass + '">' + badgeText + '</span></span>'
+            );
+        },
+        escapeMarkup: function(markup) {
+            return markup;
+        },
         language: {
             noResults: function() {
                 return 'Aucun étudiant trouvé';
@@ -309,6 +393,21 @@ $(document).ready(function() {
             }
         }
     });
+
+    // Appliquer la couleur verte aux tags des étudiants déjà inscrits
+    function styleSelectedStudentTags() {
+        const select2 = $('#student_ids').data('select2');
+        if (!select2) return;
+        select2.$selection.find('.select2-selection__choice').each(function() {
+            const choiceData = $(this).data('data');
+            if (!choiceData || !choiceData.element) return;
+            const isAssigned = $(choiceData.element).data('is-assigned') == '1';
+            $(this).toggleClass('inscrit-choice', isAssigned);
+        });
+    }
+
+    $('#student_ids').on('change', styleSelectedStudentTags);
+    styleSelectedStudentTags();
 
     // Fonction pour charger les étudiants selon le module sélectionné
     function loadStudentsByModule(modules, selectedIds = []) {
@@ -342,10 +441,9 @@ $(document).ready(function() {
                     let availableCount = 0;
                     if (response.students.length > 0) {
                         response.students.forEach(function(student) {
-                            const optionText = student.name + (student.is_assigned ? ' (déjà inscrit)' : '');
                             const option = $('<option></option>')
                                 .attr('value', student.id)
-                                .text(optionText)
+                                .text(student.name)
                                 .attr('data-is-assigned', student.is_assigned ? '1' : '0');
 
                             // Sélectionner si déjà inscrit ou dans les IDs pré-sélectionnés
@@ -375,6 +473,7 @@ $(document).ready(function() {
                     }
 
                     $('#student_ids').trigger('change');
+                    setTimeout(styleSelectedStudentTags, 0);
                 } else {
                     alert('Erreur lors du chargement des étudiants');
                 }
