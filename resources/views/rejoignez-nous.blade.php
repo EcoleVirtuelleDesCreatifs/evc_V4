@@ -392,7 +392,7 @@
         <div class="container">
             <div class="row justify-content-center g-4">
                 <!-- Collaborateur Card -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-4">
                     <div class="join-card card-collaborateur">
                         <div>
                             <div class="icon-circle">
@@ -429,7 +429,7 @@
                 </div>
 
                 <!-- Partenaire Card -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-4">
                     <div class="join-card card-partenaire">
                         <div>
                             <div class="icon-circle">
@@ -466,7 +466,7 @@
                 </div>
 
                 <!-- Formateur Card -->
-                <div class="col-lg-4 col-md-6">
+                <div class="col-lg-4 col-md-4">
                     <div class="join-card card-formateur">
                         <div>
                             <div class="icon-circle">
