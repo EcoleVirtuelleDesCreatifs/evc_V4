@@ -74,6 +74,23 @@
             margin-top: 2rem !important;
         }
 
+        .cards-row {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        @media (max-width: 767px) {
+            .cards-row {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 1rem;
+            }
+
+            .cards-row > [class*="col-"] {
+                min-width: 280px;
+            }
+        }
+
         .join-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(10px);
@@ -390,7 +407,7 @@
     <!-- Cards Section -->
     <section class="cards-container">
         <div class="container">
-            <div class="row justify-content-center g-4">
+            <div class="row justify-content-center g-4 cards-row">
                 <!-- Collaborateur Card -->
                 <div class="col-lg-4 col-md-4">
                     <div class="join-card card-collaborateur">
