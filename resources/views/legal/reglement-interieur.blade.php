@@ -252,13 +252,27 @@
                 </ul>
             </div>
 
+            <div class="legal-section" id="acces-post-formation">
+                <h2>11. Accès au compte MY EVC après la fin de formation</h2>
+                <p>À l'issue de sa formation, l'étudiant perd l'accès aux espaces de travail collaboratifs de l'EVC. Les droits d'accès suivants s'appliquent :</p>
+                <ul>
+                    <li><strong>Accès aux classes virtuelles de travail :</strong> l'étudiant n'aura plus accès aux différentes classes virtuelles de travail actives de l'EVC une fois sa formation terminée.</li>
+                    <li><strong>Accès au compte MY EVC :</strong> l'étudiant conserve un accès à son compte MY EVC, mais ce dernier ne sera plus mis à jour. Il s'agit d'un accès en lecture seule.</li>
+                    <li><strong>Consultation des anciens supports :</strong> l'étudiant pourra consulter et télécharger ses anciens supports de formation archivés dans son espace personnel.</li>
+                    <li><strong>Aucune publication possible :</strong> l'étudiant ne pourra plus publier de contenu, soumettre de travaux, ni interagir dans les espaces de classe virtuelle.</li>
+                </ul>
+                <div class="legal-info-box">
+                    <p><strong>Résumé :</strong> après la fin de formation, le compte MY EVC passe en mode <strong>lecture seule</strong>. L'accès aux classes virtuelles actives est révoqué, mais les anciens supports restent consultables.</p>
+                </div>
+            </div>
+
             <div class="legal-section">
-                <h2>11. Modification du règlement</h2>
+                <h2>12. Modification du règlement</h2>
                 <p>L'EVC peut faire évoluer le présent règlement pour s'adapter à l'organisation interne, à la pédagogie et à la réglementation. Toute mise à jour est applicable dès sa publication sur le site.</p>
             </div>
 
             <div class="legal-section">
-                <h2>12. Contact</h2>
+                <h2>13. Contact</h2>
                 <p>Pour toute question concernant ce règlement intérieur, vous pouvez contacter l'EVC :</p>
                 <div class="legal-info-box">
                     <p><strong>Email :</strong> info@ecolevirtuelledescreatifs.com</p>
