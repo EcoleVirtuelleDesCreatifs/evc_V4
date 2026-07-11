@@ -566,6 +566,13 @@
                                                     style="padding: 0.35rem 0.75rem;">
                                                     <i class="fas fa-eye"></i>
                                                 </button>
+                                                <button type="button"
+                                                    class="btn-sm {{ ($programme->status ?? 'draft') === 'published' ? 'btn-success' : 'btn-warning' }}"
+                                                    onclick="toggleProgrammeStatus({{ $programme->id }})"
+                                                    style="padding: 0.35rem 0.75rem;"
+                                                    title="{{ ($programme->status ?? 'draft') === 'published' ? 'Dépublier' : 'Publier' }}">
+                                                    <i class="fas {{ ($programme->status ?? 'draft') === 'published' ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+                                                </button>
                                                 <a href="{{ route('admin.programmes.edit', $programme->id) }}"
                                                     class="btn-toggle"
                                                     style="padding: 0.35rem 0.75rem; text-decoration: none;">
@@ -767,5 +774,37 @@
 
             applyFilters();
         });
+
+        function toggleProgrammeStatus(programmeId) {
+            const btn = event.target.closest('button');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            fetch(`{{ route('admin.programmes.toggleStatus', ':id') }}`.replace(':id', programmeId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    btn.className = `btn-sm ${data.status === 'published' ? 'btn-success' : 'btn-warning'}`;
+                    btn.title = data.status === 'published' ? 'Dépublier' : 'Publier';
+                    btn.innerHTML = `<i class="fas ${data.status === 'published' ? 'fa-eye-slash' : 'fa-eye'}"></i>`;
+                    alert(data.message);
+                } else {
+                    alert(data.message || 'Erreur lors du changement de statut');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erreur lors du changement de statut');
+            })
+            .finally(() => {
+                btn.disabled = false;
+            });
+        }
     </script>
 @endpush

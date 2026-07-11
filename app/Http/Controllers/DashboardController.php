@@ -4338,6 +4338,7 @@ class DashboardController extends Controller
 
         // Récupérer les programmes publiés par l'admin
         // Visible si :
+        // - status = 'published'
         // - formation = Toutes
         // - formation correspond à la formation de l'étudiant (mapping)
         // - OU ciblage spécifique via student_ids
@@ -4351,6 +4352,11 @@ class DashboardController extends Controller
 
                 if (!empty($student?->id) && Schema::hasColumn('programmes', 'student_ids')) {
                     $query->orWhereJsonContains('student_ids', (int) $student->id);
+                }
+            })
+            ->where(function ($query) {
+                if (Schema::hasColumn('programmes', 'status')) {
+                    $query->where('status', 'published');
                 }
             })
             ->orderBy('month_start', 'desc')

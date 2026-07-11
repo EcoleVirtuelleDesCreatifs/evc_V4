@@ -2193,6 +2193,9 @@ class AdminDashboardController extends Controller
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            if (Schema::hasColumn('programmes', 'status')) {
+                DB::table('programmes')->where('id', $programmeId)->update(['status' => 'draft']);
+            }
             if (!empty($programmeImagePath) && Schema::hasColumn('programmes', 'image')) {
                 DB::table('programmes')->where('id', $programmeId)->update(['image' => $programmeImagePath]);
             }
@@ -2264,6 +2267,9 @@ class AdminDashboardController extends Controller
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
+                if (Schema::hasColumn('programmes', 'status')) {
+                    DB::table('programmes')->where('id', $programmeId)->update(['status' => 'draft']);
+                }
                 if (!empty($programmeImagePath) && Schema::hasColumn('programmes', 'image')) {
                     DB::table('programmes')->where('id', $programmeId)->update(['image' => $programmeImagePath]);
                 }
@@ -2417,6 +2423,29 @@ class AdminDashboardController extends Controller
         }
 
         return redirect()->route('admin.programmes')->with('error', 'Programme introuvable.');
+    }
+
+    public function toggleProgrammeStatus($id)
+    {
+        $programme = DB::table('programmes')->where('id', (int) $id)->first();
+        if (!$programme) {
+            return response()->json(['success' => false, 'message' => 'Programme introuvable.'], 404);
+        }
+
+        if (!Schema::hasColumn('programmes', 'status')) {
+            return response()->json(['success' => false, 'message' => 'Le champ status n\'existe pas dans la table programmes.'], 400);
+        }
+
+        $currentStatus = $programme->status ?? 'draft';
+        $newStatus = $currentStatus === 'published' ? 'draft' : 'published';
+
+        DB::table('programmes')->where('id', $programme->id)->update(['status' => $newStatus]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $newStatus === 'published' ? 'Programme publié avec succès.' : 'Programme dépublié.',
+            'status' => $newStatus
+        ]);
     }
 
     public function editProgramme($id)

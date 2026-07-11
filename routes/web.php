@@ -1280,6 +1280,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/programmes/{id}/edit', [AdminDashboardController::class, 'editProgramme'])->whereNumber('id')->name('programmes.edit');
         Route::put('/programmes/{id}', [AdminDashboardController::class, 'updateProgramme'])->whereNumber('id')->name('programmes.update');
         Route::delete('/programmes/{id}', [AdminDashboardController::class, 'destroyProgramme'])->name('programmes.destroy');
+        Route::post('/programmes/{id}/toggle-status', [AdminDashboardController::class, 'toggleProgrammeStatus'])->name('programmes.toggleStatus');
 
         // Gestion des Projets
         Route::get('/projets/pending', [AdminDashboardController::class, 'projetsPending'])->name('projets.pending');
