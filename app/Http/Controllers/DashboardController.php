@@ -4329,12 +4329,16 @@ class DashboardController extends Controller
             }
         }
 
-        // Toujours inclure "Toutes"
-        $allowedFormations = array_values(array_unique(array_merge(['Toutes'], $studentFormationVariants)));
+        // Toujours inclure "Toutes" et nettoyer les valeurs null/vides
+        $allowedFormations = array_values(array_filter(array_unique(array_merge(['Toutes'], $studentFormationVariants)), function ($v) {
+            return !is_null($v) && (string) $v !== '';
+        }));
 
-        $allowedFormationsNormalized = array_values(array_unique(array_map(function ($v) {
+        $allowedFormationsNormalized = array_values(array_filter(array_unique(array_map(function ($v) {
             return strtolower(trim((string) $v));
-        }, array_merge($allowedFormations, ['toutes', 'toutes les formations', 'toute']))));
+        }, array_merge($allowedFormations, ['toutes', 'toutes les formations', 'toute']))), function ($v) {
+            return $v !== '';
+        }));
 
         // Récupérer les programmes publiés par l'admin
         // Visible si :
@@ -4342,18 +4346,26 @@ class DashboardController extends Controller
         // - formation = Toutes
         // - formation correspond à la formation de l'étudiant (mapping)
         // - OU ciblage spécifique via student_ids (formation='Ciblage', si champ existe)
+        $studentId = !empty($student?->id) ? (int) $student->id : null;
+        $hasStudentIdsColumn = Schema::hasColumn('programmes', 'student_ids');
+
         $programmes = DB::table('programmes')
-            ->where(function ($query) use ($allowedFormations, $allowedFormationsNormalized, $student) {
+            ->where(function ($query) use ($allowedFormations, $allowedFormationsNormalized, $studentId, $hasStudentIdsColumn) {
                 // Programmes par formation
-                $query->whereIn('formation', $allowedFormations);
+                if (!empty($allowedFormations)) {
+                    $query->whereIn('formation', $allowedFormations);
+                }
 
                 if (!empty($allowedFormationsNormalized)) {
                     $query->orWhereIn(DB::raw('LOWER(TRIM(formation))'), $allowedFormationsNormalized);
                 }
 
                 // Ciblage spécifique par étudiants (formation='Ciblage')
-                if (!empty($student?->id) && Schema::hasColumn('programmes', 'student_ids')) {
-                    $query->orWhereJsonContains('student_ids', (int) $student->id);
+                if ($studentId && $hasStudentIdsColumn) {
+                    $query->orWhereJsonContains('student_ids', $studentId);
+                    // Fallback: certains stockages JSON peuvent être au format string
+                    $query->orWhereRaw('LOWER(TRIM(student_ids)) LIKE ?', ['%"' . $studentId . '"%']);
+                    $query->orWhereRaw('student_ids LIKE ?', ['%"' . $studentId . '"%']);
                 }
             })
             ->where(function ($query) {
