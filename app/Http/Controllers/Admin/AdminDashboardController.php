@@ -2499,12 +2499,12 @@ class AdminDashboardController extends Controller
             'students' => 'required_if:recipients_mode,students|array|min:1',
             'students.*' => 'integer|exists:students,id',
 
-            'items' => 'required|array|min:1',
+            'items' => 'nullable|array',
             'items.*.id' => 'nullable|integer',
-            'items.*.thematique' => 'required|string|max:255',
-            'items.*.session_date' => 'required|date',
-            'items.*.session_time' => 'required|date_format:H:i',
-            'items.*.type_formation' => 'required|in:en_ligne,presentielle',
+            'items.*.thematique' => 'required_with:items|string|max:255',
+            'items.*.session_date' => 'required_with:items|date',
+            'items.*.session_time' => 'required_with:items|date_format:H:i',
+            'items.*.type_formation' => 'required_with:items|in:en_ligne,presentielle',
             'items.*.lieu' => 'required_if:items.*.type_formation,presentielle|nullable|string|max:255',
             'items.*.description' => 'nullable|string',
             'items.*.piece_jointe' => 'nullable|file|mimes:pdf,jpg,jpeg,png,doc,docx,ppt,pptx,xls,xlsx|max:51200',
@@ -2569,86 +2569,84 @@ class AdminDashboardController extends Controller
         }
 
         // Mettre à jour les séances
-        if (!Schema::hasTable('programme_items')) {
-            return redirect()->route('admin.programmes')->with('error', 'Table programme_items introuvable.');
-        }
+        if (!empty($validatedData['items']) && Schema::hasTable('programme_items')) {
+            $existingItemIds = DB::table('programme_items')
+                ->where('programme_id', $programme->id)
+                ->pluck('id')
+                ->map(fn($v) => (int) $v)
+                ->values()
+                ->all();
 
-        $existingItemIds = DB::table('programme_items')
-            ->where('programme_id', $programme->id)
-            ->pluck('id')
-            ->map(fn($v) => (int) $v)
-            ->values()
-            ->all();
+            $submittedItems = array_values($validatedData['items']);
+            $submittedIds = [];
 
-        $submittedItems = array_values($validatedData['items'] ?? []);
-        $submittedIds = [];
+            foreach ($submittedItems as $index => $item) {
+                $itemId = !empty($item['id']) ? (int) $item['id'] : null;
 
-        foreach ($submittedItems as $index => $item) {
-            $itemId = !empty($item['id']) ? (int) $item['id'] : null;
+                $filePath = null;
+                $fileMime = null;
+                $hasNewFile = $request->hasFile("items.$index.piece_jointe");
+                if ($hasNewFile) {
+                    $file = $request->file("items.$index.piece_jointe");
+                    $filePath = $file->store('programmes/items', 'public');
+                    $fileMime = $file->getMimeType();
+                }
 
-            $filePath = null;
-            $fileMime = null;
-            $hasNewFile = $request->hasFile("items.$index.piece_jointe");
-            if ($hasNewFile) {
-                $file = $request->file("items.$index.piece_jointe");
-                $filePath = $file->store('programmes/items', 'public');
-                $fileMime = $file->getMimeType();
+                if ($itemId && in_array($itemId, $existingItemIds, true)) {
+                    $submittedIds[] = $itemId;
+
+                    // Si nouvelle pièce jointe: supprimer l'ancienne
+                    if ($hasNewFile) {
+                        $existing = DB::table('programme_items')->where('id', $itemId)->first();
+                        if ($existing && !empty($existing->piece_jointe) && Storage::disk('public')->exists($existing->piece_jointe)) {
+                            Storage::disk('public')->delete($existing->piece_jointe);
+                        }
+                    }
+
+                    $updateData = [
+                        'thematique' => $item['thematique'],
+                        'session_date' => $item['session_date'],
+                        'session_time' => $item['session_time'],
+                        'type_formation' => $item['type_formation'],
+                        'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
+                        'description' => $item['description'] ?? null,
+                        'updated_at' => now(),
+                    ];
+                    if ($hasNewFile) {
+                        $updateData['piece_jointe'] = $filePath;
+                        $updateData['piece_jointe_mime'] = $fileMime;
+                    }
+
+                    DB::table('programme_items')->where('id', $itemId)->update($updateData);
+                } else {
+                    $newId = DB::table('programme_items')->insertGetId([
+                        'programme_id' => $programme->id,
+                        'thematique' => $item['thematique'],
+                        'session_date' => $item['session_date'],
+                        'session_time' => $item['session_time'],
+                        'type_formation' => $item['type_formation'],
+                        'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
+                        'description' => $item['description'] ?? null,
+                        'piece_jointe' => $filePath,
+                        'piece_jointe_mime' => $fileMime,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                    $submittedIds[] = (int) $newId;
+                }
             }
 
-            if ($itemId && in_array($itemId, $existingItemIds, true)) {
-                $submittedIds[] = $itemId;
-
-                // Si nouvelle pièce jointe: supprimer l'ancienne
-                if ($hasNewFile) {
-                    $existing = DB::table('programme_items')->where('id', $itemId)->first();
-                    if ($existing && !empty($existing->piece_jointe) && Storage::disk('public')->exists($existing->piece_jointe)) {
-                        Storage::disk('public')->delete($existing->piece_jointe);
+            // Supprimer les séances retirées du formulaire
+            $toDelete = array_values(array_diff($existingItemIds, $submittedIds));
+            if (!empty($toDelete)) {
+                $itemsToDelete = DB::table('programme_items')->whereIn('id', $toDelete)->get();
+                foreach ($itemsToDelete as $it) {
+                    if (!empty($it->piece_jointe) && Storage::disk('public')->exists($it->piece_jointe)) {
+                        Storage::disk('public')->delete($it->piece_jointe);
                     }
                 }
-
-                $updateData = [
-                    'thematique' => $item['thematique'],
-                    'session_date' => $item['session_date'],
-                    'session_time' => $item['session_time'],
-                    'type_formation' => $item['type_formation'],
-                    'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
-                    'description' => $item['description'] ?? null,
-                    'updated_at' => now(),
-                ];
-                if ($hasNewFile) {
-                    $updateData['piece_jointe'] = $filePath;
-                    $updateData['piece_jointe_mime'] = $fileMime;
-                }
-
-                DB::table('programme_items')->where('id', $itemId)->update($updateData);
-            } else {
-                $newId = DB::table('programme_items')->insertGetId([
-                    'programme_id' => $programme->id,
-                    'thematique' => $item['thematique'],
-                    'session_date' => $item['session_date'],
-                    'session_time' => $item['session_time'],
-                    'type_formation' => $item['type_formation'],
-                    'lieu' => ($item['type_formation'] ?? null) === 'presentielle' ? ($item['lieu'] ?? null) : null,
-                    'description' => $item['description'] ?? null,
-                    'piece_jointe' => $filePath,
-                    'piece_jointe_mime' => $fileMime,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                $submittedIds[] = (int) $newId;
+                DB::table('programme_items')->whereIn('id', $toDelete)->delete();
             }
-        }
-
-        // Supprimer les séances retirées du formulaire
-        $toDelete = array_values(array_diff($existingItemIds, $submittedIds));
-        if (!empty($toDelete)) {
-            $itemsToDelete = DB::table('programme_items')->whereIn('id', $toDelete)->get();
-            foreach ($itemsToDelete as $it) {
-                if (!empty($it->piece_jointe) && Storage::disk('public')->exists($it->piece_jointe)) {
-                    Storage::disk('public')->delete($it->piece_jointe);
-                }
-            }
-            DB::table('programme_items')->whereIn('id', $toDelete)->delete();
         }
 
         return redirect()->route('admin.programmes')->with('success', 'Programme mis à jour avec succès.');
