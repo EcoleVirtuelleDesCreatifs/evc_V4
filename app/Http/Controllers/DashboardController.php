@@ -4338,15 +4338,18 @@ class DashboardController extends Controller
 
         // Récupérer les programmes publiés par l'admin
         // Visible si :
-        // - status = 'published' OR NULL
+        // - status = 'published' OR NULL (si champ existe)
         // - formation = Toutes
         // - formation correspond à la formation de l'étudiant (mapping)
-        // - OU ciblage spécifique via student_ids
+        // - OU ciblage spécifique via student_ids (formation='Ciblage', si champ existe)
         \Log::info('programmeIndex - Student ID: ' . ($student->id ?? 'null') . ', Formation: ' . ($student->program ?? 'null'));
         \Log::info('programmeIndex - Allowed formations: ' . json_encode($allowedFormations));
+        \Log::info('programmeIndex - Has status column: ' . (Schema::hasColumn('programmes', 'status') ? 'yes' : 'no'));
+        \Log::info('programmeIndex - Has student_ids column: ' . (Schema::hasColumn('programmes', 'student_ids') ? 'yes' : 'no'));
 
         $programmes = DB::table('programmes')
             ->where(function ($query) use ($allowedFormations, $allowedFormationsNormalized, $student) {
+                // Programmes par formation
                 $query->whereIn('formation', $allowedFormations);
 
                 if (!empty($allowedFormationsNormalized)) {
@@ -4355,6 +4358,7 @@ class DashboardController extends Controller
 
                 // Ciblage spécifique par étudiants (formation='Ciblage')
                 if (!empty($student?->id) && Schema::hasColumn('programmes', 'student_ids')) {
+                    \Log::info('programmeIndex - Checking student_ids for student ' . $student->id);
                     $query->orWhereJsonContains('student_ids', (int) $student->id);
                 }
             })
