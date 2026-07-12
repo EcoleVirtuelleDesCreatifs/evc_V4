@@ -99,7 +99,7 @@
                             </label>
                             @if(!empty($programme->image))
                                 <div class="mb-2">
-                                    <a href="{{ \Illuminate\Support\Facades\Storage::url($programme->image) }}" target="_blank" class="btn btn-sm btn-secondary">
+                                    <a href="{{ asset('storage/' . ltrim($programme->image, '/')) }}" target="_blank" class="btn btn-sm btn-secondary">
                                         <i class="fas fa-image me-1"></i>
                                         Voir l’image actuelle
                                     </a>
@@ -129,7 +129,7 @@
                             </label>
                             @if(!empty($programme->fichier_pdf))
                                 <div class="mb-2">
-                                    <a href="{{ \Illuminate\Support\Facades\Storage::url($programme->fichier_pdf) }}" target="_blank" class="btn btn-sm btn-secondary">
+                                    <a href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" target="_blank" class="btn btn-sm btn-secondary">
                                         <i class="fas fa-file-pdf me-1"></i>
                                         Télécharger le PDF actuel
                                     </a>

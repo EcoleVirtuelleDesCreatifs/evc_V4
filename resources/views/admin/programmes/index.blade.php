@@ -502,7 +502,7 @@
                                         $programmeImageUrl = null;
                                         try {
                                             if (!empty($programme->image)) {
-                                                $programmeImageUrl = \Illuminate\Support\Facades\Storage::url($programme->image);
+                                                $programmeImageUrl = asset('storage/' . ltrim($programme->image, '/'));
                                             }
                                         } catch (\Throwable $e) {
                                             $programmeImageUrl = null;
@@ -523,7 +523,7 @@
                                         $pdfUrl = null;
                                         try {
                                             if (!empty($programme->fichier_pdf)) {
-                                                $pdfUrl = \App\Models\MediaUrl::fromPath($programme->fichier_pdf);
+                                                $pdfUrl = asset('storage/' . ltrim($programme->fichier_pdf, '/'));
                                             }
                                         } catch (\Throwable $e) {
                                             $pdfUrl = null;
@@ -707,9 +707,7 @@
                                                                     <td>
                                                                         @if (!empty($it->piece_jointe))
                                                                             @php
-                                                                                $url = \App\Models\MediaUrl::fromPath(
-                                                                                    $it->piece_jointe,
-                                                                                );
+                                                                                $url = asset('storage/' . ltrim($it->piece_jointe, '/'));
                                                                             @endphp
                                                                             <a href="{{ $url }}" target="_blank"
                                                                                 class="btn-download"

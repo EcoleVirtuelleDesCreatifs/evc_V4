@@ -104,7 +104,7 @@
                         $programmeImageUrl = null;
                         try {
                             if (!empty($programme->image)) {
-                                $programmeImageUrl = \Illuminate\Support\Facades\Storage::url($programme->image);
+                                $programmeImageUrl = asset('storage/' . ltrim($programme->image, '/'));
                             }
                         } catch (\Throwable $e) {
                             $programmeImageUrl = null;
@@ -190,7 +190,7 @@
 
                             <div class="programme-card-actions">
                                 @if(!empty($programme->fichier_pdf))
-                                    <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}">
+                                    <a class="btn btn-sm btn-primary" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}">
                                         <i class="fas fa-eye me-1"></i> PDF
                                     </a>
                                 @else
@@ -314,7 +314,7 @@
 
                                         @if(!empty($programme->fichier_pdf))
                                             <div class="mb-3">
-                                                <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}">
+                                                <a class="btn btn-sm btn-primary" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}">
                                                     <i class="fas fa-file-pdf me-1"></i>
                                                     Télécharger le programme (PDF)
                                                 </a>
@@ -370,7 +370,7 @@
                                                                 </span>
                                                             @endif
                                                             @if(!empty($downloadPath))
-                                                                <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($downloadPath) }}">
+                                                                <a class="btn btn-sm btn-primary" target="_blank" href="{{ asset('storage/' . ltrim($downloadPath, '/')) }}">
                                                                     <i class="fas fa-download me-1"></i>
                                                                     Télécharger
                                                                 </a>
@@ -458,7 +458,7 @@
                                         $downloadPath = $item->piece_jointe ?? null;
                                     @endphp
                                     @if(!empty($downloadPath))
-                                        <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($downloadPath) }}">
+                                        <a class="btn btn-sm btn-primary" target="_blank" href="{{ asset('storage/' . ltrim($downloadPath, '/')) }}">
                                             <i class="fas fa-download me-1"></i>
                                             Télécharger
                                         </a>
