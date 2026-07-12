@@ -184,11 +184,6 @@
                                                 <span>En ligne</span>
                                             @endif
                                         </div>
-                                    @else
-                                        <div class="programme-agenda-item programme-agenda-muted">
-                                            <i class="fas fa-bolt"></i>
-                                            <span>Aucune séance à venir</span>
-                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -196,7 +191,7 @@
                             <div class="programme-card-actions">
                                 @if(!empty($programme->fichier_pdf))
                                     <a class="btn btn-sm btn-primary" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}">
-                                        Télécharger
+                                        <i class="fas fa-eye me-1"></i> PDF
                                     </a>
                                 @else
                                     <span class="btn btn-sm btn-secondary disabled">PDF indisponible</span>
