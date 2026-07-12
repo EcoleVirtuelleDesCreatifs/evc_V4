@@ -361,8 +361,11 @@
                             if (!is_array($oldFormations)) {
                                 $oldFormations = $oldFormations ? [$oldFormations] : [];
                             }
-                            if (empty($oldFormations)) {
+                            if (empty($oldFormations) && !$isTargeted) {
                                 $oldFormations = [$programme->formation];
+                            }
+                            if ($isTargeted) {
+                                $oldFormations = [];
                             }
                         @endphp
 
