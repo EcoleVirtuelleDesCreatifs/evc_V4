@@ -2194,7 +2194,7 @@ class AdminDashboardController extends Controller
                 'updated_at' => now(),
             ]);
             if (Schema::hasColumn('programmes', 'status')) {
-                DB::table('programmes')->where('id', $programmeId)->update(['status' => 'draft']);
+                DB::table('programmes')->where('id', $programmeId)->update(['status' => 'published']);
             }
             if (!empty($programmeImagePath) && Schema::hasColumn('programmes', 'image')) {
                 DB::table('programmes')->where('id', $programmeId)->update(['image' => $programmeImagePath]);
