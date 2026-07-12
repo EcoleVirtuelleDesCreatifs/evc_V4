@@ -486,6 +486,7 @@
                                 <tr>
                                     <th style="min-width: 120px;">Période (Mois)</th>
                                     <th style="min-width: 200px;">Titre programme</th>
+                                    <th>Image</th>
                                     <th>Document</th>
                                     <th>Formation destinataire</th>
                                     <th>Actions</th>
@@ -500,8 +501,8 @@
 
                                         $programmeImageUrl = null;
                                         try {
-                                            if (property_exists($programme, 'image') && !empty($programme->image)) {
-                                                $programmeImageUrl = \App\Models\MediaUrl::fromPath($programme->image);
+                                            if (!empty($programme->image)) {
+                                                $programmeImageUrl = \Illuminate\Support\Facades\Storage::url($programme->image);
                                             }
                                         } catch (\Throwable $e) {
                                             $programmeImageUrl = null;
@@ -544,6 +545,13 @@
                                             @if (!empty($programme->description))
                                                 <div style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.25rem;">
                                                     {{ \Illuminate\Support\Str::limit($programme->description, 80) }}</div>
+                                            @endif
+                                        </td>
+                                        <td style="padding: 1rem; vertical-align: middle;">
+                                            @if (!empty($programmeImageUrl))
+                                                <img src="{{ $programmeImageUrl }}" alt="Image de couverture" style="width: 80px; height: 60px; object-fit: cover; border-radius: 8px;">
+                                            @else
+                                                <span style="color: #64748b;">—</span>
                                             @endif
                                         </td>
                                         <td style="padding: 1rem; vertical-align: middle;">

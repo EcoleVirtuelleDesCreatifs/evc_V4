@@ -75,11 +75,15 @@
                             <label for="image" class="form-label">
                                 Image d’illustration (optionnel)
                             </label>
+                            <div id="imagePreview" class="mb-2" style="display: none;">
+                                <img src="" alt="Aperçu" style="max-width: 200px; max-height: 150px; border-radius: 8px; object-fit: cover;">
+                            </div>
                             <input type="file"
                                    class="form-control @error('image') is-invalid @enderror"
                                    id="image"
                                    name="image"
-                                   accept="image/*">
+                                   accept="image/*"
+                                   onchange="previewImage(this)">
                             @error('image')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -88,6 +92,26 @@
                                 Formats: JPG, PNG, WEBP • Taille max: 5 Mo
                             </small>
                         </div>
+
+                        @push('scripts')
+                        <script>
+                            function previewImage(input) {
+                                const preview = document.getElementById('imagePreview');
+                                const img = preview.querySelector('img');
+                                if (input.files && input.files[0]) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        img.src = e.target.result;
+                                        preview.style.display = 'block';
+                                    }
+                                    reader.readAsDataURL(input.files[0]);
+                                } else {
+                                    img.src = '';
+                                    preview.style.display = 'none';
+                                }
+                            }
+                        </script>
+                        @endpush
 
                         <div class="form-group mb-4">
                             <label for="programme_pdf" class="form-label">
