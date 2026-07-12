@@ -4356,7 +4356,10 @@ class DashboardController extends Controller
             })
             ->where(function ($query) {
                 if (Schema::hasColumn('programmes', 'status')) {
-                    $query->where('status', 'published');
+                    $query->where(function ($q) {
+                        $q->where('status', 'published')
+                          ->orWhereNull('status');
+                    });
                 }
             })
             ->orderBy('month_start', 'desc')
