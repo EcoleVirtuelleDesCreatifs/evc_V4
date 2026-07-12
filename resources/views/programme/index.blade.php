@@ -103,8 +103,8 @@
                         $pStatusBadge = $pStatus === 'en_cours' ? 'badge-warning' : ($pStatus === 'terminee' ? 'badge-success' : 'badge-info');
                         $programmeImageUrl = null;
                         try {
-                            if (property_exists($programme, 'image') && !empty($programme->image)) {
-                                $programmeImageUrl = \App\Models\MediaUrl::fromPath($programme->image);
+                            if (!empty($programme->image)) {
+                                $programmeImageUrl = \Illuminate\Support\Facades\Storage::url($programme->image);
                             }
                         } catch (\Throwable $e) {
                             $programmeImageUrl = null;
