@@ -4337,14 +4337,25 @@ class DashboardController extends Controller
         }, array_merge($allowedFormations, ['toutes', 'toutes les formations', 'toute']))));
 
         // Récupérer les programmes publiés par l'admin
-        // TEMPORAIRE: Suppression des filtres pour tester
-        \Log::info('programmeIndex - Student ID: ' . ($student->id ?? 'null') . ', Formation: ' . ($student->program ?? 'null'));
-        \Log::info('programmeIndex - Allowed formations: ' . json_encode($allowedFormations));
-        \Log::info('programmeIndex - Has status column: ' . (Schema::hasColumn('programmes', 'status') ? 'yes' : 'no'));
-        \Log::info('programmeIndex - Has student_ids column: ' . (Schema::hasColumn('programmes', 'student_ids') ? 'yes' : 'no'));
-        \Log::info('programmeIndex - TEMPORAIRE: Tous les programmes sans filtres');
-
+        // Visible si :
+        // - status = 'published' OR NULL (si champ existe)
+        // - formation = Toutes
+        // - formation correspond à la formation de l'étudiant (mapping)
+        // - OU ciblage spécifique via student_ids (formation='Ciblage', si champ existe)
         $programmes = DB::table('programmes')
+            ->where(function ($query) use ($allowedFormations, $allowedFormationsNormalized, $student) {
+                // Programmes par formation
+                $query->whereIn('formation', $allowedFormations);
+
+                if (!empty($allowedFormationsNormalized)) {
+                    $query->orWhereIn(DB::raw('LOWER(TRIM(formation))'), $allowedFormationsNormalized);
+                }
+
+                // Ciblage spécifique par étudiants (formation='Ciblage')
+                if (!empty($student?->id) && Schema::hasColumn('programmes', 'student_ids')) {
+                    $query->orWhereJsonContains('student_ids', (int) $student->id);
+                }
+            })
             ->where(function ($query) {
                 if (Schema::hasColumn('programmes', 'status')) {
                     $query->where(function ($q) {
@@ -4356,11 +4367,6 @@ class DashboardController extends Controller
             ->orderBy('month_start', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
-
-        \Log::info('programmeIndex - Programmes found: ' . $programmes->count());
-        foreach ($programmes as $prog) {
-            \Log::info('programmeIndex - Programme: ' . $prog->titre . ', Formation: ' . $prog->formation . ', Status: ' . ($prog->status ?? 'null') . ', Student IDs: ' . ($prog->student_ids ?? 'null'));
-        }
 
         $programmeIds = $programmes->pluck('id')->filter()->values();
 
