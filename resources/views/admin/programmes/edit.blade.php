@@ -105,11 +105,15 @@
                                     </a>
                                 </div>
                             @endif
+                            <div id="imagePreview" class="mb-2" style="display: none;">
+                                <img src="" alt="Aperçu" style="max-width: 200px; max-height: 150px; border-radius: 8px; object-fit: cover;">
+                            </div>
                             <input type="file"
                                    class="form-control @error('image') is-invalid @enderror"
                                    id="image"
                                    name="image"
-                                   accept="image/*">
+                                   accept="image/*"
+                                   onchange="previewImage(this)">
                             @error('image')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -125,7 +129,7 @@
                             </label>
                             @if(!empty($programme->fichier_pdf))
                                 <div class="mb-2">
-                                    <a href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}" target="_blank" class="btn btn-sm btn-secondary">
+                                    <a href="{{ \Illuminate\Support\Facades\Storage::url($programme->fichier_pdf) }}" target="_blank" class="btn btn-sm btn-secondary">
                                         <i class="fas fa-file-pdf me-1"></i>
                                         Télécharger le PDF actuel
                                     </a>
@@ -640,6 +644,21 @@ if (formationSelect) {
             });
         }
     });
+}
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    const img = preview.querySelector('img');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        img.src = '';
+        preview.style.display = 'none';
+    }
 }
 </script>
 @endpush

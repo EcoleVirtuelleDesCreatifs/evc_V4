@@ -2490,7 +2490,7 @@ class AdminDashboardController extends Controller
         $validatedData = $request->validate([
             'titre' => 'required|string|max:255',
             'month_start' => 'required|date_format:Y-m',
-            'image' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:51200',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp,gif|max:51200',
             'fichier_pdf' => 'nullable|file|mimes:pdf|max:51200',
             'recipients_mode' => 'required|in:formation,students',
             'formation' => 'required_if:recipients_mode,formation|array|min:1',
