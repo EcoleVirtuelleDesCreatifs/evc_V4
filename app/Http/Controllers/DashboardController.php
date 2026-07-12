@@ -4338,10 +4338,13 @@ class DashboardController extends Controller
 
         // Récupérer les programmes publiés par l'admin
         // Visible si :
-        // - status = 'published'
+        // - status = 'published' OR NULL
         // - formation = Toutes
         // - formation correspond à la formation de l'étudiant (mapping)
         // - OU ciblage spécifique via student_ids
+        \Log::info('programmeIndex - Student ID: ' . ($student->id ?? 'null') . ', Formation: ' . ($student->program ?? 'null'));
+        \Log::info('programmeIndex - Allowed formations: ' . json_encode($allowedFormations));
+
         $programmes = DB::table('programmes')
             ->where(function ($query) use ($allowedFormations, $allowedFormationsNormalized, $student) {
                 $query->whereIn('formation', $allowedFormations);
@@ -4350,6 +4353,7 @@ class DashboardController extends Controller
                     $query->orWhereIn(DB::raw('LOWER(TRIM(formation))'), $allowedFormationsNormalized);
                 }
 
+                // Ciblage spécifique par étudiants (formation='Ciblage')
                 if (!empty($student?->id) && Schema::hasColumn('programmes', 'student_ids')) {
                     $query->orWhereJsonContains('student_ids', (int) $student->id);
                 }
@@ -4365,6 +4369,11 @@ class DashboardController extends Controller
             ->orderBy('month_start', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
+
+        \Log::info('programmeIndex - Programmes found: ' . $programmes->count());
+        foreach ($programmes as $prog) {
+            \Log::info('programmeIndex - Programme: ' . $prog->titre . ', Formation: ' . $prog->formation . ', Status: ' . ($prog->status ?? 'null') . ', Student IDs: ' . ($prog->student_ids ?? 'null'));
+        }
 
         $programmeIds = $programmes->pluck('id')->filter()->values();
 
