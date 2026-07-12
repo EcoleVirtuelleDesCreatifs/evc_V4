@@ -2524,17 +2524,14 @@ class AdminDashboardController extends Controller
             $programmePdfPath = $newPath;
         }
 
-        $programmeImagePath = null;
-        if (Schema::hasColumn('programmes', 'image')) {
-            $programmeImagePath = $programme->image ?? null;
-            if ($request->hasFile('image')) {
-                $img = $request->file('image');
-                $newImgPath = $img->store('programmes/images', 'public');
-                if (!empty($programmeImagePath) && Storage::disk('public')->exists($programmeImagePath)) {
-                    Storage::disk('public')->delete($programmeImagePath);
-                }
-                $programmeImagePath = $newImgPath;
+        $programmeImagePath = $programme->image ?? null;
+        if ($request->hasFile('image')) {
+            $img = $request->file('image');
+            $newImgPath = $img->store('programmes/images', 'public');
+            if (!empty($programmeImagePath) && Storage::disk('public')->exists($programmeImagePath)) {
+                Storage::disk('public')->delete($programmeImagePath);
             }
+            $programmeImagePath = $newImgPath;
         }
 
         $formationValue = 'Ciblage';
@@ -2555,7 +2552,7 @@ class AdminDashboardController extends Controller
             $formationValue = $formations[0] ?? 'Toutes';
         }
 
-        DB::table('programmes')->where('id', $programme->id)->update([
+        $updateData = [
             'titre' => $validatedData['titre'],
             'month_start' => $monthStart,
             'formation' => $formationValue,
@@ -2563,10 +2560,13 @@ class AdminDashboardController extends Controller
             'fichier_pdf' => $programmePdfPath,
             'student_ids' => $studentIdsJson,
             'updated_at' => now(),
-        ]);
+        ];
+
         if (Schema::hasColumn('programmes', 'image')) {
-            DB::table('programmes')->where('id', $programme->id)->update(['image' => $programmeImagePath]);
+            $updateData['image'] = $programmeImagePath;
         }
+
+        DB::table('programmes')->where('id', $programme->id)->update($updateData);
 
         // Mettre à jour les séances
         if (!empty($validatedData['items']) && Schema::hasTable('programme_items')) {
