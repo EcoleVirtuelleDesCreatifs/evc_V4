@@ -97,9 +97,9 @@
                             <label for="image" class="form-label">
                                 Image d’illustration (optionnel)
                             </label>
-                            @if(property_exists($programme, 'image') && !empty($programme->image))
+                            @if(!empty($programme->image))
                                 <div class="mb-2">
-                                    <a href="{{ \App\Models\MediaUrl::fromPath($programme->image) }}" target="_blank" class="btn btn-sm btn-secondary">
+                                    <a href="{{ \Illuminate\Support\Facades\Storage::url($programme->image) }}" target="_blank" class="btn btn-sm btn-secondary">
                                         <i class="fas fa-image me-1"></i>
                                         Voir l’image actuelle
                                     </a>
