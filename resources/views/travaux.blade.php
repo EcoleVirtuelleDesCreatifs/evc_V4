@@ -4,6 +4,14 @@
 @section('description', 'Portfolio des étudiants de l\'EVC, école numérique d\'Abidjan : identités visuelles, logotypes, affiches, motion design. Meilleures créations graphiques de l\'école virtuelle des créatifs en Côte d\'Ivoire.')
 @section('keywords', 'portfolio étudiants école numérique Abidjan, travaux design graphique Abidjan, motion design Abidjan, identité visuelle, logotype, affiche design, EVC, école virtuelle des créatifs, création graphique Côte d\'Ivoire')
 
+@push('styles')
+<style>
+    .pt-\[500px\] {
+        padding-top: 390px;
+    }
+</style>
+@endpush
+
 @section('content')
 <!-- Hero Section -->
 <div class="relative pt-[500px] pb-16 bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#034078]">
