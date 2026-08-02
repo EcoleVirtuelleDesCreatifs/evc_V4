@@ -42,7 +42,6 @@
         position: relative;
         overflow: hidden;
         border-radius: 50px !important;
-        padding: 0.75rem 2rem !important;
         font-weight: 700 !important;
         font-size: 1rem !important;
         background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%) !important;
