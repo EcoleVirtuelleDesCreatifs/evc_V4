@@ -46,9 +46,6 @@
         font-size: 1rem !important;
         background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%) !important;
         border: 3px solid rgba(255, 255, 255, 0.2) !important;
-        box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4),
-            0 4px 15px rgba(255, 152, 0, 0.3),
-            inset 0 -3px 8px rgba(0, 0, 0, 0.2);
         animation: float-bounce 3s ease-in-out infinite, glow-pulse 2s ease-in-out infinite;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -83,9 +80,6 @@
 
     .preinscription-btn:hover {
         transform: translateY(-4px) scale(1.05) !important;
-        box-shadow: 0 15px 40px rgba(255, 152, 0, 0.6),
-            0 8px 25px rgba(255, 152, 0, 0.5),
-            inset 0 -3px 8px rgba(0, 0, 0, 0.3) !important;
         border-color: rgba(255, 255, 255, 0.4) !important;
     }
 
@@ -96,9 +90,6 @@
 
     .preinscription-btn:active {
         transform: translateY(-2px) scale(1.02) !important;
-        box-shadow: 0 8px 20px rgba(255, 152, 0, 0.5),
-            0 4px 12px rgba(255, 152, 0, 0.4),
-            inset 0 -2px 6px rgba(0, 0, 0, 0.3) !important;
     }
 
     @media (min-width: 1024px) {
