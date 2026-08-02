@@ -594,7 +594,7 @@
             <a href="{{ url('/') }}" class="-m-1.5 p-1.5">
                 <img class="h-16 w-auto" src="{{ asset('assets/img/logo_evc.png') }}" alt="EVC Logo" decoding="async">
             </a>
-            <button type="button" id="mobile-menu-close-button" class="-m-2.5 rounded-md p-2.5 text-gray-400">
+            <button type="button" id="mobile-menu-close-button" class="-m-2.5 rounded-md p-2.5 text-white">
                 <span class="sr-only">Fermer le menu</span>
                 <i class="fas fa-times text-2xl"></i>
             </button>
