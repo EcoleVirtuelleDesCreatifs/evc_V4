@@ -83,13 +83,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const header = document.getElementById('main-header');
         if (!header) return;
 
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                header.classList.add('bg-gray-900/90', 'backdrop-blur-lg');
-            } else {
-                header.classList.remove('bg-gray-900/90', 'backdrop-blur-lg');
-            }
-        });
+        // Header stays white on scroll - no dark overlay
+        // window.addEventListener('scroll', () => {
+        //     if (window.scrollY > 50) {
+        //         header.classList.add('bg-gray-900/90', 'backdrop-blur-lg');
+        //     } else {
+        //         header.classList.remove('bg-gray-900/90', 'backdrop-blur-lg');
+        //     }
+        // });
     } catch (e) {
         console.error('Header Scroll Error:', e);
     }
