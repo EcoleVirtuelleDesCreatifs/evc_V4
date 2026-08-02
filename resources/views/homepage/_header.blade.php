@@ -442,27 +442,6 @@
             ->orderBy('order')
             ->orderBy('created_at', 'desc')
             ->get();
-        if ($flashCommuniques->isEmpty()) {
-            $flashCommuniques = collect([
-                (object) [
-                    'content' =>
-                        'Rentrée 8è promo : 20 juin 2026 — Design Graphique & Community Management. 10 places disponibles.',
-                    'actualite' => null,
-                    'evenement' => null,
-                ],
-                (object) [
-                    'content' =>
-                        'Studio Creative 5 : Phase préparatoire (07 Mai – 07 Juin 2026) · Phase de présentation (13 Juin 2026).',
-                    'actualite' => null,
-                    'evenement' => null,
-                ],
-                (object) [
-                    'content' => 'Remise de Certifications : 20 juin à Abidjan en présentiel.',
-                    'actualite' => null,
-                    'evenement' => null,
-                ],
-            ]);
-        }
     @endphp
     <div style="display:flex;height:100%;max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;">
         {{-- Badge FLASH INFO --}}
