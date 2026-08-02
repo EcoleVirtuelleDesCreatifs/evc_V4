@@ -100,6 +100,12 @@
             0 4px 12px rgba(255, 152, 0, 0.4),
             inset 0 -2px 6px rgba(0, 0, 0, 0.3) !important;
     }
+
+    @media (min-width: 1024px) {
+        .logo-desktop {
+            height: 6rem;
+        }
+    }
 </style>
 
 <!-- Flash Info Bar CSS -->
@@ -404,7 +410,7 @@
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-3 py-1 lg:px-8 lg:py-0" style="min-height:90px;">
         <div class="flex lg:flex-1">
             <a href="{{ url('/') }}">
-                <img class="h-16 lg:h-20 w-auto transition-all duration-300" src="{{ asset('assets/img/logo_evc.png') }}"
+                <img class="h-16 logo-desktop w-auto transition-all duration-300" src="{{ asset('assets/img/logo_evc.png') }}"
                     alt="EVC Logo" decoding="async" fetchpriority="high">
             </a>
         </div>
