@@ -107,10 +107,10 @@
         left: 0;
         width: 100%;
         z-index: 49;
-        height: 120px;
-        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        height: 150px;
+        background: linear-gradient(135deg, #0d1b2a 0%, #1b2838 40%, #0d1b2a 100%);
+        border-bottom: 2px solid rgba(255, 107, 0, 0.4);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 0 rgba(255, 107, 0, 0.3);
         overflow: hidden;
         transition: transform 0.35s ease, opacity 0.35s ease, visibility 0.35s ease;
     }
@@ -122,45 +122,70 @@
         pointer-events: none;
     }
 
+    #flash-info-bar::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(circle at 1px 1px, rgba(255, 107, 0, 0.06) 1px, transparent 0);
+        background-size: 28px 28px;
+        pointer-events: none;
+    }
+
     .flash-badge {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 6px;
-        min-width: 100px;
+        gap: 8px;
+        min-width: 130px;
         height: 100%;
-        background: linear-gradient(135deg, #ff6b00 0%, #f97316 100%);
+        background: linear-gradient(180deg, #ff6b00 0%, #e65000 100%);
+        box-shadow: 4px 0 24px rgba(255, 107, 0, 0.5);
         position: relative;
         flex-shrink: 0;
-        padding: 0 16px;
+        padding: 0 20px;
     }
 
-    .flash-badge .pulse-ring {
-        width: 24px;
-        height: 24px;
-        position: relative;
-    }
-
-    .flash-badge .pulse-ring::before,
-    .flash-badge .pulse-ring::after {
+    .flash-badge::after {
         content: '';
         position: absolute;
-        inset: 0;
+        right: -18px;
+        top: 0;
+        bottom: 0;
+        width: 36px;
+        background: linear-gradient(90deg, #e65000, transparent);
+    }
+
+    .flash-badge .ping-dot {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+    }
+
+    .flash-badge .ping-dot span.ping {
+        position: absolute;
+        width: 100%;
+        height: 100%;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.4);
-        animation: pulse 2s ease-out infinite;
+        background: rgba(255, 255, 255, 0.5);
+        animation: flashPing 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
     }
 
-    .flash-badge .pulse-ring::after {
-        animation-delay: 1s;
+    .flash-badge .ping-dot span.dot {
+        position: relative;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
     }
 
-    @keyframes pulse {
-        0% {
-            transform: scale(1);
-            opacity: 1;
-        }
+    @keyframes flashPing {
+
+        75%,
         100% {
             transform: scale(2);
             opacity: 0;
@@ -168,13 +193,15 @@
     }
 
     .flash-badge-label {
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.2em;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.18em;
         color: #fff;
         text-transform: uppercase;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        writing-mode: horizontal-tb;
         text-align: center;
-        line-height: 1.1;
+        line-height: 1.2;
     }
 
     .flash-content-area {
@@ -182,67 +209,73 @@
         height: 100%;
         position: relative;
         overflow: hidden;
-        padding: 0 20px 0 20px;
+        padding: 0 24px 0 48px;
         display: flex;
         align-items: center;
     }
 
     .flash-item {
         position: absolute;
-        left: 20px;
-        right: 20px;
+        left: 48px;
+        right: 24px;
         top: 0;
         bottom: 0;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 8px;
-        transition: opacity 0.5s ease, transform 0.5s ease;
+        gap: 10px;
+        transition: opacity 0.7s ease, transform 0.7s ease;
     }
 
     .flash-item-icon {
         display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 10px;
-        font-weight: 600;
-        letter-spacing: 0.15em;
+        gap: 10px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
         text-transform: uppercase;
-        color: #f97316;
+        color: #ff9844;
     }
 
     .flash-item-icon i {
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .flash-item-text {
-        font-size: clamp(0.95rem, 2vw, 1.25rem);
-        font-weight: 600;
-        color: #1e293b;
-        line-height: 1.4;
+        font-size: clamp(1rem, 2.2vw, 1.4rem);
+        font-weight: 800;
+        color: #fff;
+        line-height: 1.35;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         letter-spacing: -0.01em;
     }
 
     .flash-item-link {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        color: #f97316;
+        gap: 8px;
+        background: rgba(255, 107, 0, 0.18);
+        border: 1px solid rgba(255, 107, 0, 0.4);
+        color: #ff9844;
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 700;
+        padding: 5px 16px;
+        border-radius: 20px;
         text-decoration: none;
         width: fit-content;
-        transition: color 0.2s;
+        transition: background 0.2s;
     }
 
     .flash-item-link:hover {
-        color: #ea580c;
+        background: rgba(255, 107, 0, 0.35);
+        color: #fff;
     }
 
     .flash-dots {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
         justify-content: center;
         padding: 0 16px;
         height: 100%;
@@ -250,27 +283,23 @@
     }
 
     .flash-dot {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
-        background: rgba(148, 163, 184, 0.4);
-        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.25);
+        transition: background 0.3s, transform 0.3s;
         cursor: pointer;
     }
 
     .flash-dot.active {
-        background: #f97316;
-        transform: scale(1.25);
-    }
-
-    .flash-dot:hover {
-        background: rgba(249, 115, 22, 0.6);
+        background: #ff6b00;
+        transform: scale(1.4);
     }
 
     @media (max-width: 640px) {
         #flash-info-bar {
             height: auto;
-            min-height: 90px;
+            min-height: 80px;
             top: 100px;
         }
 
@@ -282,16 +311,21 @@
         }
 
         .flash-badge {
-            min-width: 70px;
-            width: 70px;
-            padding: 10px 8px;
+            min-width: 60px;
+            width: 60px;
+            padding: 12px 8px;
             gap: 4px;
             flex-shrink: 0;
         }
 
-        .flash-badge .pulse-ring {
-            width: 18px;
-            height: 18px;
+        .flash-badge .ping-dot {
+            width: 12px;
+            height: 12px;
+        }
+
+        .flash-badge .ping-dot span.dot {
+            width: 8px;
+            height: 8px;
         }
 
         .flash-badge-label {
@@ -433,7 +467,10 @@
     <div style="display:flex;height:100%;max-width:1280px;margin:0 auto;padding:0 1.5rem;position:relative;">
         {{-- Badge FLASH INFO --}}
         <div class="flash-badge">
-            <div class="pulse-ring"></div>
+            <div class="ping-dot">
+                <span class="ping"></span>
+                <span class="dot"></span>
+            </div>
             <div class="flash-badge-label">FLASH<br>INFO</div>
         </div>
 
