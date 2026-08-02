@@ -401,7 +401,7 @@
 </style>
 
 <!-- Header -->
-<header id="main-header" class="bg-gradient-to-b fixed top-0 left-0 w-full z-50 transition-all duration-300">
+<header id="main-header" class="bg-white fixed top-0 left-0 w-full z-50 transition-all duration-300 shadow-sm">
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-3 py-1 lg:px-8 lg:py-0" style="min-height:90px;">
         <div class="flex lg:flex-1">
             <a href="{{ url('/') }}">
@@ -411,20 +411,20 @@
         </div>
         <div class="flex lg:hidden">
             <button type="button" id="mobile-menu-open-button"
-                class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-400">
+                class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-900">
                 <span class="sr-only">Ouvrir le menu principal</span>
                 <i class="fas fa-bars text-2xl"></i>
             </button>
         </div>
         <div class="hidden lg:flex lg:gap-x-12">
             <a href="{{ route('presentation') }}"
-                class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Présentation</a>
+                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Présentation</a>
             <a href="{{ route('formations') }}"
-                class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Nos Formations</a>
+                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Nos Formations</a>
             <a href="{{ route('travaux') }}"
-                class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition">Travaux Étudiants</a>
+                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Travaux Étudiants</a>
             <a href="{{ route('laureats') }}"
-                class="text-sm font-semibold leading-6 text-gray-300 hover:text-white transition mr-4 lg:mr-8">Nos
+                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition mr-4 lg:mr-8">Nos
                 Lauréats</a>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-6">
