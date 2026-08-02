@@ -623,7 +623,7 @@
                         Étudiants</a>
                     <a href="{{ route('laureats') }}"
                         class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos
-                    Lauréats</a>
+                        Lauréats</a>
 
                 </div>
                 <div class="py-6">
