@@ -112,7 +112,7 @@
 <style>
     #flash-info-bar {
         position: fixed;
-        top: 90px;
+        top: 100px;
         left: 0;
         width: 100%;
         z-index: 49;
@@ -309,7 +309,7 @@
         #flash-info-bar {
             height: auto;
             min-height: 80px;
-            top: 90px;
+            top: 100px;
         }
 
         #flash-info-bar>div {
