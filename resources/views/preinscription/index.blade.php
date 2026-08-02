@@ -629,181 +629,40 @@
                             <p>Direction des Études et de Régulation Pédagogique</p>
                         </div>
 
-                        <!-- Initial State -->
-                        <div id="eligibilityInitial">
-                            <div class="eligibility-subtitle">
-                                Vous disposez de 1 heure pour compléter ce diagnostic obligatoire.
-                                Répondez avec précision : vos réponses seront analysées par l'équipe pédagogique EVC.
-                            </div>
-                            <button type="button" class="start-test-btn" id="startTestBtn">
-                                <i class="fas fa-clipboard-check mr-2"></i>Commencer le Test
-                            </button>
+                        <div class="eligibility-subtitle" style="margin-bottom: 24px;">
+                            Processus d'inscription en 3 étapes
                         </div>
 
-                        <!-- Test Form -->
-                        <div id="eligibilityTest" class="hidden">
-                            <div class="timer-container">
-                                <div class="timer-label">Temps restant</div>
-                                <div class="timer-display" id="timerDisplay">60:00</div>
+                        <div class="eligibility-form">
+                            <div class="eligibility-question">
+                                <h3><i class="fas fa-clipboard-check mr-2" style="color: #ff9800;"></i>Étape 1 : Diagnostic d'éligibilité</h3>
+                                <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">
+                                    Vous disposerez de 1 heure pour compléter ce diagnostic obligatoire.
+                                    Répondez avec précision : vos réponses seront analysées par l'équipe pédagogique EVC
+                                    pour évaluer votre profil et vous orienter vers la formation adaptée.
+                                </p>
                             </div>
 
-                            <form id="eligibilityForm" class="eligibility-form">
-                                @csrf
+                            <div class="eligibility-question">
+                                <h3><i class="fas fa-file-alt mr-2" style="color: #ff9800;"></i>Étape 2 : Formulaire de pré-inscription</h3>
+                                <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">
+                                    Complétez le formulaire avec vos informations personnelles et choisissez votre formation.
+                                    Un dépôt de dossier sera requis pour finaliser votre inscription.
+                                </p>
+                            </div>
 
-                                <div class="eligibility-question">
-                                    <h3>1. Quel est votre niveau d'éducation actuel ?</h3>
-                                    <div class="eligibility-options">
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="education" id="edu1" value="bac" required>
-                                            <label for="edu1">Baccalauréat ou équivalent</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="education" id="edu2" value="licence">
-                                            <label for="edu2">Licence (Bac+3)</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="education" id="edu3" value="master">
-                                            <label for="edu3">Master ou supérieur</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="education" id="edu4" value="autre">
-                                            <label for="edu4">Autre</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="eligibility-question">
-                                    <h3>2. Avez-vous déjà suivi une formation en design ou en digital ?</h3>
-                                    <div class="eligibility-options">
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="experience" id="exp1" value="oui" required>
-                                            <label for="exp1">Oui, j'ai une expérience ou une formation</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="experience" id="exp2" value="non">
-                                            <label for="exp2">Non, je débute</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="eligibility-question">
-                                    <h3>3. Quelle formation vous intéresse le plus ?</h3>
-                                    <div class="eligibility-options">
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="formation_interest" id="form1" value="design-graphique" required>
-                                            <label for="form1">Design Graphique</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="formation_interest" id="form2" value="community-management">
-                                            <label for="form2">Community Management</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="formation_interest" id="form3" value="gestion-informatique">
-                                            <label for="form3">Gestion Informatique</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="eligibility-question">
-                                    <h3>4. Quelle est votre motivation pour rejoindre EVC ?</h3>
-                                    <div class="eligibility-options">
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="motivation" id="mot1" value="carriere" required>
-                                            <label for="mot1">Développer une carrière professionnelle</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="motivation" id="mot2" value="competence">
-                                            <label for="mot2">Acquérir de nouvelles compétences</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="motivation" id="mot3" value="entrepreneuriat">
-                                            <label for="mot3">Lancer mon propre projet/entreprise</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="motivation" id="mot4" value="autre">
-                                            <label for="mot4">Autre raison</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="eligibility-question">
-                                    <h3>5. Disposez-vous d'un ordinateur personnel pour suivre les formations ?</h3>
-                                    <div class="eligibility-options">
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="equipment" id="equip1" value="oui" required>
-                                            <label for="equip1">Oui, j'ai un ordinateur</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="equipment" id="equip2" value="non">
-                                            <label for="equip2">Non, je prévois d'en acquérir un</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="equipment" id="equip3" value="partage">
-                                            <label for="equip3">Je peux en partager un</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="eligibility-question">
-                                    <h3>6. Combien de temps pouvez-vous consacrer par semaine à votre formation ?</h3>
-                                    <div class="eligibility-options">
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="time_availability" id="time1" value="5-10" required>
-                                            <label for="time1">5 à 10 heures</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="time_availability" id="time2" value="10-15">
-                                            <label for="time2">10 à 15 heures</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="time_availability" id="time3" value="15-20">
-                                            <label for="time3">15 à 20 heures</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="time_availability" id="time4" value="20+">
-                                            <label for="time4">Plus de 20 heures</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="eligibility-question">
-                                    <h3>7. Comment avez-vous connu EVC ?</h3>
-                                    <div class="eligibility-options">
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="source" id="src1" value="reseaux" required>
-                                            <label for="src1">Réseaux sociaux (Facebook, Instagram, LinkedIn)</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="source" id="src2" value="bouche">
-                                            <label for="src2">Bouche-à-oreille</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="source" id="src3" value="google">
-                                            <label for="src3">Recherche Google</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="source" id="src4" value="evenement">
-                                            <label for="src4">Événement ou salon</label>
-                                        </div>
-                                        <div class="eligibility-option">
-                                            <input type="radio" name="source" id="src5" value="autre">
-                                            <label for="src5">Autre</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button type="submit" class="submit-test-btn" id="submitTestBtn">
-                                    <i class="fas fa-paper-plane mr-2"></i>Soumettre le Diagnostic
-                                </button>
-                            </form>
+                            <div class="eligibility-question" style="border-bottom: none;">
+                                <h3><i class="fas fa-check-circle mr-2" style="color: #ff9800;"></i>Étape 3 : Validation finale</h3>
+                                <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">
+                                    L'équipe pédagogique examinera votre dossier. Vous recevrez une confirmation
+                                    et les instructions pour le paiement de votre formation.
+                                </p>
+                            </div>
                         </div>
 
-                        <!-- Completed State -->
-                        <div id="eligibilityCompleted" class="test-completed hidden">
-                            <h3><i class="fas fa-check-circle mr-2"></i>Diagnostic Complété</h3>
-                            <p>Votre test d'éligibilité a été soumis avec succès. L'équipe pédagogique EVC analysera vos réponses.</p>
-                            <p style="margin-top: 12px; color: #10b981; font-weight: 600;">Vous pouvez maintenant procéder à votre pré-inscription.</p>
-                        </div>
+                        <button type="button" class="start-test-btn" onclick="document.querySelector('.form-card').scrollIntoView({behavior: 'smooth'})">
+                            <i class="fas fa-edit mr-2"></i>Préinscription
+                        </button>
                     </div>
 
                     <!-- Form -->
@@ -879,101 +738,6 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Eligibility Test Functionality
-    const eligibilitySection = document.getElementById('eligibilitySection');
-    const eligibilityInitial = document.getElementById('eligibilityInitial');
-    const eligibilityTest = document.getElementById('eligibilityTest');
-    const eligibilityCompleted = document.getElementById('eligibilityCompleted');
-    const startTestBtn = document.getElementById('startTestBtn');
-    const eligibilityForm = document.getElementById('eligibilityForm');
-    const timerDisplay = document.getElementById('timerDisplay');
-
-    let timerInterval;
-    let timeRemaining = 60 * 60; // 1 hour in seconds
-
-    // Start Test
-    startTestBtn.addEventListener('click', function() {
-        eligibilityInitial.classList.add('hidden');
-        eligibilityTest.classList.remove('hidden');
-        startTimer();
-    });
-
-    // Timer Function
-    function startTimer() {
-        updateTimerDisplay();
-        timerInterval = setInterval(function() {
-            timeRemaining--;
-            updateTimerDisplay();
-
-            if (timeRemaining <= 0) {
-                clearInterval(timerInterval);
-                timerDisplay.classList.add('timer-warning');
-                timerDisplay.textContent = '00:00';
-                // Optionally auto-submit or disable form
-                submitTestBtn.disabled = true;
-            } else if (timeRemaining <= 300) { // 5 minutes warning
-                timerDisplay.classList.add('timer-warning');
-            }
-        }, 1000);
-    }
-
-    function updateTimerDisplay() {
-        const hours = Math.floor(timeRemaining / 3600);
-        const minutes = Math.floor((timeRemaining % 3600) / 60);
-        const seconds = timeRemaining % 60;
-
-        const displayHours = hours.toString().padStart(2, '0');
-        const displayMinutes = minutes.toString().padStart(2, '0');
-        const displaySeconds = seconds.toString().padStart(2, '0');
-
-        timerDisplay.textContent = `${displayHours}:${displayMinutes}:${displaySeconds}`;
-    }
-
-    // Submit Eligibility Test
-    eligibilityForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        // Validate form
-        const formData = new FormData(eligibilityForm);
-        let isValid = true;
-
-        // Check all radio groups
-        const radioGroups = ['education', 'experience', 'formation_interest', 'motivation', 'equipment', 'time_availability', 'source'];
-        radioGroups.forEach(group => {
-            const selected = formData.get(group);
-            if (!selected) {
-                isValid = false;
-            }
-        });
-
-        if (!isValid) {
-            alert('Veuillez répondre à toutes les questions avant de soumettre.');
-            return;
-        }
-
-        // Show loading state
-        const submitTestBtn = document.getElementById('submitTestBtn');
-        submitTestBtn.disabled = true;
-        submitTestBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Envoi en cours...';
-
-        // Simulate submission (in real implementation, send to server)
-        setTimeout(function() {
-            clearInterval(timerInterval);
-            eligibilityTest.classList.add('hidden');
-            eligibilityCompleted.classList.remove('hidden');
-
-            // Store test completion in localStorage
-            localStorage.setItem('evc_eligibility_test_completed', 'true');
-            localStorage.setItem('evc_eligibility_test_data', JSON.stringify(Object.fromEntries(formData)));
-        }, 1500);
-    });
-
-    // Check if test was already completed
-    if (localStorage.getItem('evc_eligibility_test_completed') === 'true') {
-        eligibilityInitial.classList.add('hidden');
-        eligibilityCompleted.classList.remove('hidden');
-    }
-
     // Main Form Functionality
     const form = document.getElementById('preinscriptionForm');
     const submitBtn = form ? form.querySelector('.submit-btn') : null;
