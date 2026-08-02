@@ -7,7 +7,7 @@
 @push('styles')
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    :root {
+    #preinscription-page {
         --primary: #ff9800;
         --primary-dark: #f57c00;
         --primary-gradient: linear-gradient(135deg, #ff9800 0%, #fb8c00 100%);
@@ -20,34 +20,23 @@
         --glow-orange: rgba(255, 152, 0, 0.3);
     }
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        background: var(--bg-dark);
-        font-family: 'Inter', sans-serif;
-        color: var(--text-primary);
-        line-height: 1.6;
-    }
-
-    .page-container {
+    #preinscription-page .page-container {
         min-height: 100vh;
-        padding: 160px 20px 60px;
+        padding: 180px 20px 60px;
         max-width: 1400px;
         margin: 0 auto;
+        position: relative;
+        z-index: 1;
     }
 
     /* Header */
-    .header {
+    #preinscription-page .header {
         text-align: center;
         margin-bottom: 60px;
         padding-top: 60px;
     }
 
-    .header-badge {
+    #preinscription-page .header-badge {
         display: inline-block;
         padding: 6px 16px;
         background: rgba(255, 152, 0, 0.1);
@@ -61,7 +50,7 @@
         box-shadow: 0 0 20px var(--glow-orange);
     }
 
-    .header h1 {
+    #preinscription-page .header h1 {
         font-size: 48px;
         font-weight: 700;
         margin-bottom: 16px;
@@ -72,7 +61,7 @@
         background-clip: text;
     }
 
-    .header p {
+    #preinscription-page .header p {
         font-size: 18px;
         color: var(--text-secondary);
         max-width: 600px;
@@ -81,45 +70,45 @@
     }
 
     /* Content Grid */
-    .content-grid {
+    #preinscription-page .content-grid {
         max-width: 100%;
     }
 
     /* Form Card */
-    .form-card {
+    #preinscription-page .form-card {
         background: var(--bg-card);
         border: 1px solid var(--border);
         border-radius: 12px;
         padding: 40px;
     }
 
-    .form-header {
+    #preinscription-page .form-header {
         margin-bottom: 32px;
     }
 
-    .form-header h2 {
+    #preinscription-page .form-header h2 {
         font-size: 24px;
         font-weight: 700;
         margin-bottom: 8px;
     }
 
-    .form-header p {
+    #preinscription-page .form-header p {
         font-size: 14px;
         color: var(--text-secondary);
     }
 
-    .form-row {
+    #preinscription-page .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 20px;
         margin-bottom: 20px;
     }
 
-    .form-group {
+    #preinscription-page .form-group {
         margin-bottom: 20px;
     }
 
-    .form-label {
+    #preinscription-page .form-label {
         display: block;
         font-size: 14px;
         font-weight: 500;
@@ -127,12 +116,12 @@
         color: var(--text-primary);
     }
 
-    .required {
+    #preinscription-page .required {
         color: var(--primary);
     }
 
-    .form-control,
-    .form-select {
+    #preinscription-page .form-control,
+    #preinscription-page .form-select {
         width: 100%;
         padding: 12px 16px;
         background: var(--bg-dark);
@@ -144,28 +133,28 @@
         transition: all 0.2s;
     }
 
-    .form-control:focus,
-    .form-select:focus {
+    #preinscription-page .form-control:focus,
+    #preinscription-page .form-select:focus {
         outline: none;
         border-color: var(--primary);
         background: var(--bg-dark);
     }
 
-    .form-control::placeholder {
+    #preinscription-page .form-control::placeholder {
         color: var(--text-secondary);
     }
 
-    textarea.form-control {
+    #preinscription-page textarea.form-control {
         min-height: 120px;
         resize: vertical;
     }
 
-    .form-select option {
+    #preinscription-page .form-select option {
         background: var(--bg-dark);
     }
 
     /* File Upload */
-    .file-upload {
+    #preinscription-page .file-upload {
         position: relative;
         border: 2px dashed var(--border);
         border-radius: 8px;
@@ -176,17 +165,17 @@
         transition: all 0.2s;
     }
 
-    .file-upload:hover {
+    #preinscription-page .file-upload:hover {
         border-color: var(--primary);
         background: rgba(156, 39, 176, 0.05);
     }
 
-    .file-upload.drag-over {
+    #preinscription-page .file-upload.drag-over {
         border-color: var(--primary);
         background: rgba(156, 39, 176, 0.1);
     }
 
-    .file-upload input {
+    #preinscription-page .file-upload input {
         position: absolute;
         width: 100%;
         height: 100%;
@@ -196,25 +185,25 @@
         cursor: pointer;
     }
 
-    .file-upload-icon {
+    #preinscription-page .file-upload-icon {
         font-size: 32px;
         color: var(--primary);
         margin-bottom: 12px;
     }
 
-    .file-upload-text {
+    #preinscription-page .file-upload-text {
         font-size: 14px;
         color: var(--text-primary);
         font-weight: 500;
         margin-bottom: 4px;
     }
 
-    .file-upload-hint {
+    #preinscription-page .file-upload-hint {
         font-size: 13px;
         color: var(--text-secondary);
     }
 
-    .file-name {
+    #preinscription-page .file-name {
         margin-top: 12px;
         padding: 8px 12px;
         background: rgba(34, 197, 94, 0.1);
@@ -225,12 +214,12 @@
         display: none;
     }
 
-    .file-name.show {
+    #preinscription-page .file-name.show {
         display: block;
     }
 
     /* Submit Button */
-    .submit-btn {
+    #preinscription-page .submit-btn {
         width: 100%;
         padding: 14px 24px;
         background: var(--primary);
@@ -247,17 +236,17 @@
         gap: 8px;
     }
 
-    .submit-btn:hover {
+    #preinscription-page .submit-btn:hover {
         background: var(--primary-dark);
         transform: translateY(-2px);
     }
 
-    .submit-btn:active {
+    #preinscription-page .submit-btn:active {
         transform: translateY(0);
     }
 
     /* Alert */
-    .alert-success {
+    #preinscription-page .alert-success {
         background: rgba(34, 197, 94, 0.1);
         border: 1px solid rgba(34, 197, 94, 0.3);
         border-radius: 8px;
@@ -270,7 +259,7 @@
         font-size: 14px;
     }
 
-    .alert-error {
+    #preinscription-page .alert-error {
         background: rgba(239, 68, 68, 0.1);
         border: 1px solid rgba(239, 68, 68, 0.3);
         border-radius: 8px;
@@ -283,20 +272,20 @@
         font-size: 14px;
     }
 
-    .error-text {
+    #preinscription-page .error-text {
         color: #ef4444;
         font-size: 12px;
         margin-top: 4px;
         display: block;
     }
 
-    .form-control.error,
-    .form-select.error {
+    #preinscription-page .form-control.error,
+    #preinscription-page .form-select.error {
         border-color: #ef4444;
     }
 
     /* Loading Overlay */
-    .loading-overlay {
+    #preinscription-page .loading-overlay {
         position: fixed;
         top: 0;
         left: 0;
@@ -310,15 +299,15 @@
         backdrop-filter: blur(5px);
     }
 
-    .loading-overlay.active {
+    #preinscription-page .loading-overlay.active {
         display: flex;
     }
 
-    .loader-container {
+    #preinscription-page .loader-container {
         text-align: center;
     }
 
-    .loader {
+    #preinscription-page .loader {
         width: 60px;
         height: 60px;
         border: 4px solid rgba(255, 152, 0, 0.2);
@@ -333,26 +322,26 @@
         100% { transform: rotate(360deg); }
     }
 
-    .loader-text {
+    #preinscription-page .loader-text {
         color: #ff9800;
         font-size: 16px;
         font-weight: 600;
         margin-top: 10px;
     }
 
-    .loader-subtext {
+    #preinscription-page .loader-subtext {
         color: #94a3b8;
         font-size: 14px;
         margin-top: 8px;
     }
 
-    .submit-btn.loading {
+    #preinscription-page .submit-btn.loading {
         opacity: 0.7;
         cursor: not-allowed;
         pointer-events: none;
     }
 
-    .submit-btn.loading i {
+    #preinscription-page .submit-btn.loading i {
         animation: pulse 1.5s ease-in-out infinite;
     }
 
@@ -362,7 +351,7 @@
     }
 
     /* Eligibility Test Section */
-    .eligibility-section {
+    #preinscription-page .eligibility-section {
         background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
         border: 2px solid rgba(255, 152, 0, 0.3);
         border-radius: 16px;
@@ -372,7 +361,7 @@
         overflow: hidden;
     }
 
-    .eligibility-section::before {
+    #preinscription-page .eligibility-section::before {
         content: '';
         position: absolute;
         top: 0;
@@ -389,24 +378,24 @@
         100% { background-position: 200% 0; }
     }
 
-    .eligibility-header {
+    #preinscription-page .eligibility-header {
         text-align: center;
         margin-bottom: 24px;
     }
 
-    .eligibility-header h2 {
+    #preinscription-page .eligibility-header h2 {
         font-size: 28px;
         font-weight: 700;
         color: #ff9800;
         margin-bottom: 12px;
     }
 
-    .eligibility-header p {
+    #preinscription-page .eligibility-header p {
         color: #94a3b8;
         font-size: 16px;
     }
 
-    .eligibility-subtitle {
+    #preinscription-page .eligibility-subtitle {
         text-align: center;
         color: #f1f5f9;
         font-size: 18px;
@@ -414,7 +403,7 @@
         margin-bottom: 16px;
     }
 
-    .timer-container {
+    #preinscription-page .timer-container {
         background: rgba(255, 152, 0, 0.1);
         border: 2px solid #ff9800;
         border-radius: 12px;
@@ -423,55 +412,55 @@
         margin-bottom: 24px;
     }
 
-    .timer-label {
+    #preinscription-page .timer-label {
         color: #94a3b8;
         font-size: 14px;
         margin-bottom: 8px;
     }
 
-    .timer-display {
+    #preinscription-page .timer-display {
         font-size: 48px;
         font-weight: 900;
         color: #ff9800;
         font-family: 'Courier New', monospace;
     }
 
-    .timer-warning {
+    #preinscription-page .timer-warning {
         color: #ef4444;
     }
 
-    .eligibility-form {
+    #preinscription-page .eligibility-form {
         background: rgba(15, 23, 42, 0.5);
         border-radius: 12px;
         padding: 24px;
     }
 
-    .eligibility-question {
+    #preinscription-page .eligibility-question {
         margin-bottom: 24px;
         padding-bottom: 24px;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    .eligibility-question:last-child {
+    #preinscription-page .eligibility-question:last-child {
         border-bottom: none;
         margin-bottom: 0;
         padding-bottom: 0;
     }
 
-    .eligibility-question h3 {
+    #preinscription-page .eligibility-question h3 {
         color: #f1f5f9;
         font-size: 16px;
         font-weight: 600;
         margin-bottom: 12px;
     }
 
-    .eligibility-options {
+    #preinscription-page .eligibility-options {
         display: flex;
         flex-direction: column;
         gap: 12px;
     }
 
-    .eligibility-option {
+    #preinscription-page .eligibility-option {
         display: flex;
         align-items: center;
         padding: 12px 16px;
@@ -605,6 +594,7 @@
 @endpush
 
 @section('content')
+<div id="preinscription-page">
 <div class="page-container">
     <div class="container">
         <!-- Header -->
@@ -732,6 +722,7 @@
         <div class="loader-text">Envoi en cours...</div>
         <div class="loader-subtext">Veuillez patienter</div>
     </div>
+</div>
 </div>
 @endsection
 
