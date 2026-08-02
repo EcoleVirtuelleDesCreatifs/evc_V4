@@ -6,6 +6,15 @@
 
 @push('styles')
 <style>
+    :root {
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --accent: #ffb74d;
+        --border: #334155;
+        --primary: #ff9800;
+        --primary-gradient: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
+    }
+
     .evc-preinscription {
         background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
         min-height: 100vh;
@@ -196,6 +205,96 @@
         margin-top: 4px;
     }
 
+    /* Form Elements */
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+    }
+
+    .required {
+        color: #ff9800;
+    }
+
+    .form-control,
+    .form-select {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        font-family: inherit;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        outline: none;
+        border-color: #ff9800;
+        background: rgba(15, 23, 42, 0.9);
+    }
+
+    .form-control::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .form-control.error,
+    .form-select.error {
+        border-color: #ef4444;
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-select option {
+        background: #1e293b;
+        color: #f1f5f9;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 16px 32px;
+        background: var(--primary-gradient);
+        border: none;
+        border-radius: 12px;
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(255, 152, 0, 0.4);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
     @media (max-width: 768px) {
         .evc-preinscription {
             padding-top: 100px;
@@ -214,6 +313,10 @@
 
         .evc-step-icon {
             margin: 0 auto;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
         }
     }
 </style>
