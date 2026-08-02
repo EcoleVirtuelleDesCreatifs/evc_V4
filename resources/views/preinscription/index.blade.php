@@ -635,19 +635,19 @@
 
                         <div class="eligibility-form">
                             <div class="eligibility-question">
-                                <h3><i class="fas fa-clipboard-check mr-2" style="color: #ff9800;"></i>Étape 1 : Diagnostic d'éligibilité</h3>
+                                <h3><i class="fas fa-file-alt mr-2" style="color: #ff9800;"></i>Étape 1 : Préinscription</h3>
                                 <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">
-                                    Vous disposerez de 1 heure pour compléter ce diagnostic obligatoire.
-                                    Répondez avec précision : vos réponses seront analysées par l'équipe pédagogique EVC
-                                    pour évaluer votre profil et vous orienter vers la formation adaptée.
+                                    Complétez le formulaire avec vos informations personnelles et choisissez votre formation.
+                                    Un dépôt de dossier sera requis pour finaliser votre inscription.
                                 </p>
                             </div>
 
                             <div class="eligibility-question">
-                                <h3><i class="fas fa-file-alt mr-2" style="color: #ff9800;"></i>Étape 2 : Formulaire de pré-inscription</h3>
+                                <h3><i class="fas fa-clipboard-check mr-2" style="color: #ff9800;"></i>Étape 2 : Diagnostic d'éligibilité</h3>
                                 <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">
-                                    Complétez le formulaire avec vos informations personnelles et choisissez votre formation.
-                                    Un dépôt de dossier sera requis pour finaliser votre inscription.
+                                    Vous disposerez de 1 heure pour compléter ce diagnostic obligatoire.
+                                    Répondez avec précision : vos réponses seront analysées par l'équipe pédagogique EVC
+                                    pour évaluer votre profil et vous orienter vers la formation adaptée.
                                 </p>
                             </div>
 
