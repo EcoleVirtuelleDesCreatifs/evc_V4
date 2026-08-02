@@ -6,177 +6,295 @@
 
 @push('styles')
 <style>
-    .preinscription-container {
-        background: #0f172a;
+    .evc-preinscription {
+        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
         min-height: 100vh;
-        padding: 120px 20px 60px;
+        padding-top: 140px;
+        padding-bottom: 80px;
     }
 
-    .preinscription-header {
+    .evc-hero {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 60px;
+        padding: 0 20px;
     }
 
-    .preinscription-header h1 {
-        color: #f1f5f9;
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
+    .evc-hero h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 800;
+        background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 16px;
+        letter-spacing: -0.02em;
     }
 
-    .preinscription-header p {
+    .evc-hero p {
+        font-size: clamp(1rem, 2vw, 1.125rem);
         color: #94a3b8;
-        font-size: 1.125rem;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
     }
 
-    .preinscription-card {
-        background: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 12px;
-        padding: 40px;
+    .evc-steps {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(255, 152, 0, 0.2);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 40px;
+        backdrop-filter: blur(10px);
+    }
+
+    .evc-steps-header {
+        text-align: center;
         margin-bottom: 32px;
     }
 
-    .preinscription-card h2 {
-        color: #f1f5f9;
+    .evc-steps-header h2 {
+        color: #ff9800;
         font-size: 1.5rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
+        margin-bottom: 8px;
     }
 
-    .preinscription-card p {
+    .evc-steps-header p {
         color: #94a3b8;
         font-size: 0.875rem;
     }
 
-    .eligibility-section {
-        background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
-        border: 2px solid rgba(255, 152, 0, 0.3);
-        border-radius: 16px;
-        padding: 32px;
-        margin-bottom: 32px;
+    .evc-step {
+        display: flex;
+        gap: 16px;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.5);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
     }
 
-    .eligibility-header {
-        text-align: center;
-        margin-bottom: 24px;
+    .evc-step:hover {
+        background: rgba(255, 152, 0, 0.05);
+        transform: translateX(4px);
     }
 
-    .eligibility-header h2 {
-        color: #ff9800;
-        font-size: 1.75rem;
-        font-weight: 700;
-        margin-bottom: 0.75rem;
+    .evc-step:last-child {
+        margin-bottom: 0;
     }
 
-    .eligibility-header p {
-        color: #94a3b8;
-        font-size: 1rem;
+    .evc-step-icon {
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        color: #0f172a;
     }
 
-    .eligibility-step {
-        margin-bottom: 24px;
-        padding-bottom: 24px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .eligibility-step:last-child {
-        border-bottom: none;
-    }
-
-    .eligibility-step h3 {
+    .evc-step-content h3 {
         color: #f1f5f9;
         font-size: 1rem;
         font-weight: 600;
-        margin-bottom: 0.5rem;
+        margin-bottom: 4px;
     }
 
-    .eligibility-step p {
+    .evc-step-content p {
         color: #94a3b8;
         font-size: 0.875rem;
+        line-height: 1.5;
     }
 
-    .preinscription-btn {
-        width: 100%;
+    .evc-cta {
+        text-align: center;
+        margin-top: 24px;
+    }
+
+    .evc-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
         padding: 16px 32px;
         background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
         border: none;
         border-radius: 12px;
         color: #0f172a;
-        font-size: 1.125rem;
+        font-size: 1rem;
         font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 20px rgba(255, 152, 0, 0.3);
     }
 
-    .preinscription-btn:hover {
+    .evc-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(255, 152, 0, 0.3);
+        box-shadow: 0 8px 30px rgba(255, 152, 0, 0.4);
+    }
+
+    .evc-form-card {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 40px;
+        backdrop-filter: blur(10px);
+    }
+
+    .evc-form-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .evc-form-header h2 {
+        color: #f1f5f9;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .evc-form-header p {
+        color: #94a3b8;
+        font-size: 0.875rem;
+    }
+
+    .evc-alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+
+    .evc-alert-success {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: #22c55e;
+    }
+
+    .evc-alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #ef4444;
+    }
+
+    .evc-alert i {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .evc-alert ul {
+        margin: 8px 0 0 20px;
+        padding: 0;
+    }
+
+    .evc-alert li {
+        margin-top: 4px;
+    }
+
+    @media (max-width: 768px) {
+        .evc-preinscription {
+            padding-top: 100px;
+            padding-bottom: 40px;
+        }
+
+        .evc-steps,
+        .evc-form-card {
+            padding: 24px;
+        }
+
+        .evc-step {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .evc-step-icon {
+            margin: 0 auto;
+        }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="preinscription-container">
-    <div class="container py-5">
-        <!-- Header -->
-        <div class="preinscription-header">
-            <h1>Pré-inscription</h1>
-            <p>Transformez votre passion en carrière. Remplissez le formulaire ci-dessous pour démarrer votre parcours à l'EVC.</p>
+<div class="evc-preinscription">
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="evc-hero">
+            <h1>Commencez votre parcours créatif</h1>
+            <p>Rejoignez l'École Virtuelle des Créatifs et transformez votre passion en une carrière professionnelle.</p>
         </div>
 
-        <!-- Content -->
-        <div class="row">
-            <div class="col-lg-8 offset-lg-2">
-                <!-- Eligibility Section -->
-                <div class="eligibility-section">
-                    <div class="eligibility-header">
-                        <h2>Test d'Éligibilité</h2>
+        <!-- Steps Section -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="evc-steps">
+                    <div class="evc-steps-header">
+                        <h2>Processus d'inscription</h2>
                         <p>Direction des Études et de Régulation Pédagogique</p>
                     </div>
 
-                    <div style="text-align: center; color: #f1f5f9; font-size: 1.125rem; font-weight: 600; margin-bottom: 24px;">
-                        Processus d'inscription en 3 étapes
+                    <div class="evc-step">
+                        <div class="evc-step-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="evc-step-content">
+                            <h3>Étape 1 : Préinscription</h3>
+                            <p>Complétez le formulaire avec vos informations personnelles et choisissez votre formation. Un dépôt de dossier sera requis pour finaliser votre inscription.</p>
+                        </div>
                     </div>
 
-                    <div class="eligibility-step">
-                        <h3><i class="fas fa-file-alt mr-2" style="color: #ff9800;"></i>Étape 1 : Préinscription</h3>
-                        <p>Complétez le formulaire avec vos informations personnelles et choisissez votre formation. Un dépôt de dossier sera requis pour finaliser votre inscription.</p>
+                    <div class="evc-step">
+                        <div class="evc-step-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div class="evc-step-content">
+                            <h3>Étape 2 : Diagnostic d'éligibilité</h3>
+                            <p>Vous disposerez de 1 heure pour compléter ce diagnostic obligatoire. Répondez avec précision : vos réponses seront analysées par l'équipe pédagogique EVC pour évaluer votre profil.</p>
+                        </div>
                     </div>
 
-                    <div class="eligibility-step">
-                        <h3><i class="fas fa-clipboard-check mr-2" style="color: #ff9800;"></i>Étape 2 : Diagnostic d'éligibilité</h3>
-                        <p>Vous disposerez de 1 heure pour compléter ce diagnostic obligatoire. Répondez avec précision : vos réponses seront analysées par l'équipe pédagogique EVC pour évaluer votre profil et vous orienter vers la formation adaptée.</p>
+                    <div class="evc-step">
+                        <div class="evc-step-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="evc-step-content">
+                            <h3>Étape 3 : Validation finale</h3>
+                            <p>L'équipe pédagogique examinera votre dossier. Vous recevrez une confirmation et les instructions pour le paiement de votre formation.</p>
+                        </div>
                     </div>
 
-                    <div class="eligibility-step">
-                        <h3><i class="fas fa-check-circle mr-2" style="color: #ff9800;"></i>Étape 3 : Validation finale</h3>
-                        <p>L'équipe pédagogique examinera votre dossier. Vous recevrez une confirmation et les instructions pour le paiement de votre formation.</p>
+                    <div class="evc-cta">
+                        <button type="button" class="evc-btn" onclick="document.querySelector('.evc-form-card').scrollIntoView({behavior: 'smooth'})">
+                            <i class="fas fa-edit"></i>
+                            Commencer ma préinscription
+                        </button>
                     </div>
-
-                    <button type="button" class="preinscription-btn" onclick="document.querySelector('.preinscription-card').scrollIntoView({behavior: 'smooth'})">
-                        <i class="fas fa-edit mr-2"></i>Préinscription
-                    </button>
                 </div>
 
-                <!-- Form Card -->
-                <div class="preinscription-card">
-                    <h2>Formulaire de pré-inscription</h2>
-                    <p>Remplissez soigneusement le formulaire. Tous les champs sont obligatoires.</p>
+                <!-- Form Section -->
+                <div class="evc-form-card">
+                    <div class="evc-form-header">
+                        <h2>Formulaire de pré-inscription</h2>
+                        <p>Tous les champs sont obligatoires</p>
+                    </div>
 
                     @if(session('success'))
-                        <div class="alert-success">
+                        <div class="evc-alert evc-alert-success">
                             <i class="fas fa-check-circle"></i>
-                            {{ session('success') }}
+                            <div>{{ session('success') }}</div>
                         </div>
                     @endif
 
                     @if($errors->any())
-                        <div class="alert-error">
+                        <div class="evc-alert evc-alert-error">
                             <i class="fas fa-exclamation-circle"></i>
                             <div>
                                 <strong>Erreur :</strong> Veuillez corriger les champs suivants.
-                                <ul style="margin-top: 10px; padding-left: 20px;">
+                                <ul>
                                     @foreach($errors->all() as $error)
                                         <li>{{ $error }}</li>
                                     @endforeach
