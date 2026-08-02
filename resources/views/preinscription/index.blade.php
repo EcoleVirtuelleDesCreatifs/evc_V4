@@ -505,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const prices = {
         'design-graphique': { name: 'Design Graphique', amount: '185.000 FCFA' },
         'community-manager': { name: 'Community Management', amount: '165.000 FCFA' },
-        'gestion-informatique': { name: 'Gestion Informatique', amount: '150.000 FCFA' },
+        'gestion-informatique': { name: 'Gestion Informatique', amount: '265.000 FCFA' },
     };
 
     const openPriceModal = (value) => {
