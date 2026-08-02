@@ -405,7 +405,7 @@
     <nav class="mx-auto flex max-w-7xl items-center justify-between px-3 py-1 lg:px-8 lg:py-0" style="min-height:90px;">
         <div class="flex lg:flex-1">
             <a href="{{ url('/') }}">
-                <img class="h-16 lg:h-20 w-auto transition-all duration-300" src="{{ asset('assets/img/logo.png') }}"
+                <img class="h-16 lg:h-20 w-auto transition-all duration-300" src="{{ asset('assets/img/logo_evc.png') }}"
                     alt="EVC Logo" decoding="async" fetchpriority="high">
             </a>
         </div>
@@ -600,7 +600,7 @@
         class="fixed inset-y-0 right-0 z-[9999] w-full overflow-y-auto bg-gradient-to-b from-[#000033] to-[#000066] px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-white/10">
         <div class="flex items-center justify-between">
             <a href="{{ url('/') }}" class="-m-1.5 p-1.5">
-                <img class="h-16 w-auto" src="{{ asset('assets/img/logo.png') }}" alt="EVC Logo" decoding="async">
+                <img class="h-16 w-auto" src="{{ asset('assets/img/logo_evc.png') }}" alt="EVC Logo" decoding="async">
             </a>
             <button type="button" id="mobile-menu-close-button" class="-m-2.5 rounded-md p-2.5 text-gray-400">
                 <span class="sr-only">Fermer le menu</span>
