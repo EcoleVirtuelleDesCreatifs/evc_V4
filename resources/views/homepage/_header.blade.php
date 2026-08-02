@@ -514,7 +514,7 @@
     (function() {
         const items = document.querySelectorAll('#flash-info-bar .flash-item');
         const dots = document.querySelectorAll('#flash-info-bar .flash-dot');
-        if (items.length < 2) return;
+        if (items.length === 0) return;
         let cur = 0,
             timer;
 
@@ -523,6 +523,16 @@
         }
 
         function goTo(next) {
+            if (items.length === 1) {
+                // Single item: just pulse opacity
+                items[0].style.transition = 'opacity 0.7s ease';
+                items[0].style.opacity = '0.5';
+                setTimeout(() => {
+                    items[0].style.opacity = '1';
+                }, 700);
+                return;
+            }
+
             if (isMobileFlash()) {
                 items[cur].classList.add('hidden-mobile');
                 items[cur].style.opacity = '0';
