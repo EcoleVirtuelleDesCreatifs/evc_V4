@@ -414,7 +414,7 @@
         </div>
         <div class="hidden lg:flex lg:gap-x-12">
             <a href="{{ route('presentation') }}"
-                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Présentation</a>
+                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Pourquoi EVC ?</a>
             <a href="{{ route('formations') }}"
                 class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Nos Formations</a>
             <a href="{{ route('travaux') }}"
@@ -608,7 +608,7 @@
                         <i class="fas fa-edit mr-2"></i>Préinscription
                     </a>
                     <a href="{{ route('presentation') }}"
-                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Présentation</a>
+                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Pourquoi EVC ?</a>
                     <a href="{{ route('formations') }}"
                         class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos
                         Formations</a>
