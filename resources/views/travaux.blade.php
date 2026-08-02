@@ -7,14 +7,14 @@
 @push('styles')
 <style>
     .pt-\[500px\] {
-        padding-top: 390px;
+        padding-top: 390px !important;
     }
 </style>
 @endpush
 
 @section('content')
 <!-- Hero Section -->
-<div class="relative pt-[500px] pb-16 bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#034078]">
+<div class="relative pb-16 bg-gradient-to-b from-[#0a1128] via-[#001f54] to-[#034078]" style="padding-top: 390px;">
     <div class="mx-auto max-w-7xl px-6 lg:px-8">
         <div class="mx-auto max-w-4xl text-center">
             <!-- Breadcrumb -->
