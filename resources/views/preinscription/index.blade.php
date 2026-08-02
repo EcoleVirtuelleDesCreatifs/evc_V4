@@ -4,99 +4,191 @@
 @section('description', 'Inscrivez-vous à l\'École Virtuelle des Créatifs et transformez votre passion en carrière')
 @section('keywords', 'inscription evc, école virtuelle abidjan, formation design graphique')
 
+@push('styles')
+<style>
+    .preinscription-container {
+        background: #0f172a;
+        min-height: 100vh;
+        padding: 120px 20px 60px;
+    }
+
+    .preinscription-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .preinscription-header h1 {
+        color: #f1f5f9;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .preinscription-header p {
+        color: #94a3b8;
+        font-size: 1.125rem;
+    }
+
+    .preinscription-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 40px;
+        margin-bottom: 32px;
+    }
+
+    .preinscription-card h2 {
+        color: #f1f5f9;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .preinscription-card p {
+        color: #94a3b8;
+        font-size: 0.875rem;
+    }
+
+    .eligibility-section {
+        background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+        border: 2px solid rgba(255, 152, 0, 0.3);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 32px;
+    }
+
+    .eligibility-header {
+        text-align: center;
+        margin-bottom: 24px;
+    }
+
+    .eligibility-header h2 {
+        color: #ff9800;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    .eligibility-header p {
+        color: #94a3b8;
+        font-size: 1rem;
+    }
+
+    .eligibility-step {
+        margin-bottom: 24px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .eligibility-step:last-child {
+        border-bottom: none;
+    }
+
+    .eligibility-step h3 {
+        color: #f1f5f9;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .eligibility-step p {
+        color: #94a3b8;
+        font-size: 0.875rem;
+    }
+
+    .preinscription-btn {
+        width: 100%;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
+        border: none;
+        border-radius: 12px;
+        color: #0f172a;
+        font-size: 1.125rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .preinscription-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255, 152, 0, 0.3);
+    }
+</style>
+@endpush
+
 @section('content')
-<div class="container py-5">
+<div class="preinscription-container">
+    <div class="container py-5">
         <!-- Header -->
-        <div class="row">
-            <div class="col-lg-8 offset-lg-2">
-                <div class="header">
-                    <span class="header-badge">REJOIGNEZ-NOUS</span>
-                    <h1>Pré-inscription</h1>
-                    <p>Transformez votre passion en carrière. Remplissez le formulaire ci-dessous pour démarrer votre parcours à l'EVC.</p>
-                </div>
-            </div>
+        <div class="preinscription-header">
+            <h1>Pré-inscription</h1>
+            <p>Transformez votre passion en carrière. Remplissez le formulaire ci-dessous pour démarrer votre parcours à l'EVC.</p>
         </div>
 
         <!-- Content -->
         <div class="row">
             <div class="col-lg-8 offset-lg-2">
-                <div class="content-grid">
-                    <!-- Eligibility Test Section -->
-                    <div class="eligibility-section" id="eligibilitySection">
-                        <div class="eligibility-header">
-                            <h2>Test d'Éligibilité</h2>
-                            <p>Direction des Études et de Régulation Pédagogique</p>
-                        </div>
-
-                        <div class="eligibility-subtitle" style="margin-bottom: 24px;">
-                            Processus d'inscription en 3 étapes
-                        </div>
-
-                        <div class="eligibility-form">
-                            <div class="eligibility-question">
-                                <h3><i class="fas fa-file-alt mr-2" style="color: #ff9800;"></i>Étape 1 : Préinscription</h3>
-                                <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">
-                                    Complétez le formulaire avec vos informations personnelles et choisissez votre formation.
-                                    Un dépôt de dossier sera requis pour finaliser votre inscription.
-                                </p>
-                            </div>
-
-                            <div class="eligibility-question">
-                                <h3><i class="fas fa-clipboard-check mr-2" style="color: #ff9800;"></i>Étape 2 : Diagnostic d'éligibilité</h3>
-                                <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">
-                                    Vous disposerez de 1 heure pour compléter ce diagnostic obligatoire.
-                                    Répondez avec précision : vos réponses seront analysées par l'équipe pédagogique EVC
-                                    pour évaluer votre profil et vous orienter vers la formation adaptée.
-                                </p>
-                            </div>
-
-                            <div class="eligibility-question" style="border-bottom: none;">
-                                <h3><i class="fas fa-check-circle mr-2" style="color: #ff9800;"></i>Étape 3 : Validation finale</h3>
-                                <p style="color: #94a3b8; font-size: 14px; margin-top: 8px;">
-                                    L'équipe pédagogique examinera votre dossier. Vous recevrez une confirmation
-                                    et les instructions pour le paiement de votre formation.
-                                </p>
-                            </div>
-                        </div>
-
-                        <button type="button" class="start-test-btn" onclick="document.querySelector('.form-card').scrollIntoView({behavior: 'smooth'})">
-                            <i class="fas fa-edit mr-2"></i>Préinscription
-                        </button>
+                <!-- Eligibility Section -->
+                <div class="eligibility-section">
+                    <div class="eligibility-header">
+                        <h2>Test d'Éligibilité</h2>
+                        <p>Direction des Études et de Régulation Pédagogique</p>
                     </div>
 
-                    <!-- Form -->
-                    <div class="form-card">
-                        <div class="form-header">
-                            <h2>Formulaire de pré-inscription</h2>
-                            <p>Remplissez soigneusement le formulaire. Tous les champs sont obligatoires.</p>
-                        </div>
-
-                        @if(session('success'))
-                            <div class="alert-success">
-                                <i class="fas fa-check-circle"></i>
-                                {{ session('success') }}
-                            </div>
-                        @endif
-
-                        @if($errors->any())
-                            <div class="alert-error">
-                                <i class="fas fa-exclamation-circle"></i>
-                                <div>
-                                    <strong>Erreur :</strong> Veuillez corriger les champs suivants.
-                                    <ul style="margin-top: 10px; padding-left: 20px;">
-                                        @foreach($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
-                        @endif
-
-                        <form action="/candidature" method="POST" enctype="multipart/form-data" id="preinscriptionForm">
-                            @csrf
-                            @include('preinscription._form_fields_new')
-                        </form>
+                    <div style="text-align: center; color: #f1f5f9; font-size: 1.125rem; font-weight: 600; margin-bottom: 24px;">
+                        Processus d'inscription en 3 étapes
                     </div>
+
+                    <div class="eligibility-step">
+                        <h3><i class="fas fa-file-alt mr-2" style="color: #ff9800;"></i>Étape 1 : Préinscription</h3>
+                        <p>Complétez le formulaire avec vos informations personnelles et choisissez votre formation. Un dépôt de dossier sera requis pour finaliser votre inscription.</p>
+                    </div>
+
+                    <div class="eligibility-step">
+                        <h3><i class="fas fa-clipboard-check mr-2" style="color: #ff9800;"></i>Étape 2 : Diagnostic d'éligibilité</h3>
+                        <p>Vous disposerez de 1 heure pour compléter ce diagnostic obligatoire. Répondez avec précision : vos réponses seront analysées par l'équipe pédagogique EVC pour évaluer votre profil et vous orienter vers la formation adaptée.</p>
+                    </div>
+
+                    <div class="eligibility-step">
+                        <h3><i class="fas fa-check-circle mr-2" style="color: #ff9800;"></i>Étape 3 : Validation finale</h3>
+                        <p>L'équipe pédagogique examinera votre dossier. Vous recevrez une confirmation et les instructions pour le paiement de votre formation.</p>
+                    </div>
+
+                    <button type="button" class="preinscription-btn" onclick="document.querySelector('.preinscription-card').scrollIntoView({behavior: 'smooth'})">
+                        <i class="fas fa-edit mr-2"></i>Préinscription
+                    </button>
+                </div>
+
+                <!-- Form Card -->
+                <div class="preinscription-card">
+                    <h2>Formulaire de pré-inscription</h2>
+                    <p>Remplissez soigneusement le formulaire. Tous les champs sont obligatoires.</p>
+
+                    @if(session('success'))
+                        <div class="alert-success">
+                            <i class="fas fa-check-circle"></i>
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    @if($errors->any())
+                        <div class="alert-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div>
+                                <strong>Erreur :</strong> Veuillez corriger les champs suivants.
+                                <ul style="margin-top: 10px; padding-left: 20px;">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        </div>
+                    @endif
+
+                    <form action="/candidature" method="POST" enctype="multipart/form-data" id="preinscriptionForm">
+                        @csrf
+                        @include('preinscription._form_fields_new')
+                    </form>
                 </div>
             </div>
         </div>
