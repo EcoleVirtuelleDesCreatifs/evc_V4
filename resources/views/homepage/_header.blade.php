@@ -435,7 +435,7 @@
             <a href="{{ route('laureats') }}"
                 class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Lauréats</a>
         </div>
-        <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-6">
+        <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-8 ml-8">
             <a href="{{ route('preinscription.start') }}"
                 class="preinscription-btn whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 shadow transition">Intégrer EVC</a>
 
