@@ -1,5 +1,18 @@
 <!-- Animation CSS pour le bouton Préinscription -->
 <style>
+    /* Forcer le header à rester toujours blanc */
+    #main-header {
+        background-color: #ffffff !important;
+        background-image: none !important;
+    }
+
+    /* Empêcher les classes dark de s'appliquer */
+    #main-header.bg-gray-900\/90,
+    #main-header.backdrop-blur-lg {
+        background-color: #ffffff !important;
+        backdrop-filter: none !important;
+    }
+
     @keyframes float-bounce {
 
         0%,
