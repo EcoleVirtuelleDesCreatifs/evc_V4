@@ -411,7 +411,7 @@
 
 <!-- Header -->
 <header id="main-header" class="bg-white fixed top-0 left-0 w-full z-50 shadow-sm">
-    <nav class="mx-auto flex max-w-7xl items-center justify-between px-3 py-1 lg:px-8 lg:py-0" style="min-height:90px;">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-3 py-1 lg:px-8 lg:py-0" style="min-height:70px;">
         <div class="flex lg:flex-1">
             <a href="{{ url('/') }}">
                 <img class="h-16 logo-desktop w-auto transition-all duration-300" src="{{ asset('assets/img/logo_evc.png') }}"
