@@ -545,14 +545,10 @@
                             </div>
 
                             <!-- Sélection étudiants spécifiques -->
-                            <div class="form-group" id="studentsSelectContainer">
+                            <div class="form-group" id="studentsSelectContainer" style="display: none;">
                                 <label for="students">
                                     Sélectionner les étudiants spécifiques (optionnel)
                                 </label>
-                                <small class="text-muted d-block mb-2" style="color: #94a3b8 !important;">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Laissez vide pour envoyer à tous les étudiants des formations sélectionnées
-                                </small>
                                 <select class="form-select"
                                         id="students"
                                         name="students[]"
@@ -805,14 +801,9 @@ formationSelect.addEventListener('change', function() {
     const selectedSpecificFormations = selectedFormations.filter(v => v !== 'all');
 
     if (hasAll) {
-        // Ne plus cacher le sélecteur d'étudiants - laisser l'admin choisir
+        studentsSelectContainer.style.display = 'none';
+        // Laisser les étudiants sélectionnés intacts uniquement si on repasse sur 'all'
         recipientsCount.textContent = `Tous les étudiants (${stats['all']} étudiants)`;
-
-        // Filtrer pour montrer tous les étudiants quand "all" est sélectionné
-        const options = studentsSelect.querySelectorAll('option');
-        options.forEach(option => {
-            option.style.display = 'block';
-        });
         return;
     }
 
@@ -834,7 +825,7 @@ formationSelect.addEventListener('change', function() {
 
         updateRecipientsCount();
     } else {
-        studentsSelectContainer.style.display = 'block';
+        studentsSelectContainer.style.display = 'none';
         recipientsCount.textContent = 'Sélectionnez une formation';
     }
 });
@@ -865,8 +856,6 @@ function updateRecipientsCount() {
         } else {
             recipientsCount.textContent = `Étudiants des formations sélectionnées (${total} étudiants)`;
         }
-    } else {
-        recipientsCount.textContent = 'Sélectionnez une formation ou des étudiants';
     }
 }
 

@@ -143,23 +143,6 @@ class ProjectController extends Controller
             return $student;
         });
 
-        // Compter les projets par étudiant
-        $studentProjectCounts = DB::table('projects')
-            ->leftJoin('users', 'projects.user_id', '=', 'users.id')
-            ->leftJoin('students', 'users.id', '=', 'students.user_id')
-            ->select('students.id', DB::raw('COUNT(projects.id) as project_count'))
-            ->groupBy('students.id')
-            ->pluck('project_count', 'id');
-
-        // Séparer les étudiants avec et sans projets
-        $studentsWithoutProjects = $students->filter(function ($student) use ($studentProjectCounts) {
-            return !isset($studentProjectCounts[$student->id]) || $studentProjectCounts[$student->id] == 0;
-        })->values();
-
-        $studentsWithProjects = $students->filter(function ($student) use ($studentProjectCounts) {
-            return isset($studentProjectCounts[$student->id]) && $studentProjectCounts[$student->id] > 0;
-        })->values();
-
         // Stats globales (pour les cards en haut du formulaire)
         $stats = [
             'total_students' => $students->count(),
@@ -169,7 +152,6 @@ class ProjectController extends Controller
             'gestion_informatique' => $students->where('program_normalized', 'Gestion Informatique')->count(),
             'intelligence_artificielle' => $students->where('program_normalized', 'Intelligence Artificielle')->count(),
             'sans_formation' => $students->where('program_normalized', 'Sans formation')->count(),
-            'zero_projects' => $studentsWithoutProjects->count(),
         ];
 
         // Filtrer la liste affichée: Design Graphique + double cursus Design & Community
@@ -180,8 +162,6 @@ class ProjectController extends Controller
         return view('admin.projets.to-send', [
             'students' => $filteredStudents,
             'all_students' => $filteredStudents,
-            'studentsWithoutProjects' => $studentsWithoutProjects,
-            'studentsWithProjects' => $studentsWithProjects,
             'stats' => $stats,
             'defaultFormation' => 'Design Graphique',
         ]);
@@ -550,23 +530,6 @@ class ProjectController extends Controller
             return $student;
         });
 
-        // Compter les projets par étudiant
-        $studentProjectCounts = DB::table('projects')
-            ->leftJoin('users', 'projects.user_id', '=', 'users.id')
-            ->leftJoin('students', 'users.id', '=', 'students.user_id')
-            ->select('students.id', DB::raw('COUNT(projects.id) as project_count'))
-            ->groupBy('students.id')
-            ->pluck('project_count', 'id');
-
-        // Séparer les étudiants avec et sans projets
-        $studentsWithoutProjects = $students->filter(function ($student) use ($studentProjectCounts) {
-            return !isset($studentProjectCounts[$student->id]) || $studentProjectCounts[$student->id] == 0;
-        })->values();
-
-        $studentsWithProjects = $students->filter(function ($student) use ($studentProjectCounts) {
-            return isset($studentProjectCounts[$student->id]) && $studentProjectCounts[$student->id] > 0;
-        })->values();
-
         // Stats globales (pour les cards en haut du formulaire)
         $stats = [
             'total_students' => $students->count(),
@@ -576,7 +539,6 @@ class ProjectController extends Controller
             'gestion_informatique' => $students->where('program_normalized', 'Gestion Informatique')->count(),
             'intelligence_artificielle' => $students->where('program_normalized', 'Intelligence Artificielle')->count(),
             'sans_formation' => $students->where('program_normalized', 'Sans formation')->count(),
-            'zero_projects' => $studentsWithoutProjects->count(),
         ];
 
         // Filtrer la liste affichée: Community Management uniquement (sans Design Graphique)
@@ -587,8 +549,6 @@ class ProjectController extends Controller
         return view('admin.projets.to-send', [
             'students' => $filteredStudents,
             'all_students' => $filteredStudents,
-            'studentsWithoutProjects' => $studentsWithoutProjects,
-            'studentsWithProjects' => $studentsWithProjects,
             'stats' => $stats,
             'defaultFormation' => 'Community Management',
         ]);
