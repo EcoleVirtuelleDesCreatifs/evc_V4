@@ -333,7 +333,7 @@
 
         <!-- Steps Section -->
         <div class="row justify-content-center">
-            <div class="col-lg-8">
+            <div class="col-8">
                 <div class="evc-steps">
                     <div class="evc-steps-header">
                         <h2>Processus d'inscription</h2>
