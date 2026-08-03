@@ -6,443 +6,623 @@
 
 @push('styles')
 <style>
-    :root {
+    .preinscription-wrapper {
+        --primary: #ff9800;
+        --primary-dark: #f57c00;
+        --primary-light: #ffb74d;
+        --bg-dark: #0f172a;
+        --bg-card: #1e293b;
         --text-primary: #f1f5f9;
         --text-secondary: #94a3b8;
-        --accent: #ffb74d;
         --border: #334155;
-        --primary: #ff9800;
-        --primary-gradient: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
+        --success: #22c55e;
+        --error: #ef4444;
     }
 
-    .evc-preinscription {
-        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+    .preinscription-container {
+        background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f2e 50%, var(--bg-dark) 100%);
         min-height: 100vh;
-        padding-top: 140px;
-        padding-bottom: 80px;
+        padding: 120px 20px 80px;
+        position: relative;
+        overflow: hidden;
     }
 
-    .evc-hero {
+    .preinscription-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle at 30% 30%, rgba(255, 152, 0, 0.08) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .preinscription-container::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        right: -30%;
+        width: 150%;
+        height: 150%;
+        background: radial-gradient(circle at 70% 70%, rgba(255, 183, 77, 0.05) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    .hero-section {
         text-align: center;
-        margin-bottom: 60px;
-        padding: 0 20px;
+        margin-bottom: 48px;
+        position: relative;
+        z-index: 1;
     }
 
-    .evc-hero h1 {
-        font-size: clamp(2rem, 5vw, 3rem);
-        font-weight: 800;
-        background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 20px;
+        background: rgba(255, 152, 0, 0.1);
+        border: 1px solid rgba(255, 152, 0, 0.3);
+        border-radius: 50px;
+        color: var(--primary);
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-bottom: 24px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .hero-title {
+        font-size: clamp(2.25rem, 5vw, 3.5rem);
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--primary) 100%);
+        background-size: 200% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         margin-bottom: 16px;
         letter-spacing: -0.02em;
+        animation: shimmer 3s linear infinite;
     }
 
-    .evc-hero p {
-        font-size: clamp(1rem, 2vw, 1.125rem);
-        color: #94a3b8;
-        max-width: 600px;
+    @keyframes shimmer {
+        0% { background-position: 0% center; }
+        100% { background-position: 200% center; }
+    }
+
+    .hero-subtitle {
+        font-size: clamp(1rem, 2vw, 1.25rem);
+        color: var(--text-secondary);
+        max-width: 700px;
         margin: 0 auto;
-        line-height: 1.6;
+        line-height: 1.7;
+        font-weight: 400;
     }
 
-    .evc-steps {
-        background: rgba(30, 41, 59, 0.5);
-        border: 1px solid rgba(255, 152, 0, 0.2);
-        border-radius: 16px;
-        padding: 32px;
-        margin-bottom: 40px;
-        backdrop-filter: blur(10px);
+    .steps-card {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(255, 152, 0, 0.15);
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 32px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 1;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .evc-steps-header {
+    .steps-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 48px rgba(255, 152, 0, 0.15);
+    }
+
+    .steps-header {
         text-align: center;
         margin-bottom: 32px;
     }
 
-    .evc-steps-header h2 {
-        color: #ff9800;
-        font-size: 1.5rem;
-        font-weight: 700;
+    .steps-header h2 {
+        color: var(--primary);
+        font-size: 1.75rem;
+        font-weight: 800;
         margin-bottom: 8px;
+        letter-spacing: -0.01em;
     }
 
-    .evc-steps-header p {
-        color: #94a3b8;
-        font-size: 0.875rem;
+    .steps-header p {
+        color: var(--text-secondary);
+        font-size: 0.9375rem;
+        font-weight: 500;
     }
 
-    .evc-step {
+    .step-item {
         display: flex;
-        gap: 16px;
-        padding: 20px;
-        background: rgba(15, 23, 42, 0.5);
-        border-radius: 12px;
+        gap: 20px;
+        padding: 24px;
+        background: rgba(15, 23, 42, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
         margin-bottom: 16px;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
     }
 
-    .evc-step:hover {
+    .step-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .step-item:hover {
         background: rgba(255, 152, 0, 0.05);
-        transform: translateX(4px);
+        border-color: rgba(255, 152, 0, 0.2);
+        transform: translateX(8px);
     }
 
-    .evc-step:last-child {
+    .step-item:hover::before {
+        opacity: 1;
+    }
+
+    .step-item:last-child {
         margin-bottom: 0;
     }
 
-    .evc-step-icon {
+    .step-number {
         flex-shrink: 0;
-        width: 48px;
-        height: 48px;
-        background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
-        border-radius: 12px;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
-        color: #0f172a;
-    }
-
-    .evc-step-content h3 {
-        color: #f1f5f9;
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .evc-step-content p {
-        color: #94a3b8;
-        font-size: 0.875rem;
-        line-height: 1.5;
-    }
-
-    .evc-cta {
-        text-align: center;
-        margin-top: 24px;
-    }
-
-    .evc-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 16px 32px;
-        background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%);
-        border: none;
-        border-radius: 12px;
-        color: #0f172a;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 20px rgba(255, 152, 0, 0.3);
-    }
-
-    .evc-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(255, 152, 0, 0.4);
-    }
-
-    .evc-form-card {
-        background: rgba(30, 41, 59, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 40px;
-        backdrop-filter: blur(10px);
-    }
-
-    .evc-form-header {
-        text-align: center;
-        margin-bottom: 32px;
-    }
-
-    .evc-form-header h2 {
-        color: #f1f5f9;
         font-size: 1.5rem;
+        font-weight: 900;
+        color: #0f172a;
+        box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
+    }
+
+    .step-content h3 {
+        color: var(--text-primary);
+        font-size: 1.125rem;
         font-weight: 700;
         margin-bottom: 8px;
+        letter-spacing: -0.01em;
     }
 
-    .evc-form-header p {
-        color: #94a3b8;
-        font-size: 0.875rem;
+    .step-content p {
+        color: var(--text-secondary);
+        font-size: 0.9375rem;
+        line-height: 1.6;
+        margin: 0;
     }
 
-    .evc-alert {
+    .cta-section {
+        text-align: center;
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .cta-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 18px 40px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 16px;
+        color: #0f172a;
+        font-size: 1.0625rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 24px rgba(255, 152, 0, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .cta-button:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 12px 40px rgba(255, 152, 0, 0.5);
+    }
+
+    .cta-button:active {
+        transform: translateY(-2px) scale(1);
+    }
+
+    .form-card {
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 48px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 1;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .form-header h2 {
+        color: var(--text-primary);
+        font-size: 1.875rem;
+        font-weight: 800;
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+    }
+
+    .form-header p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .alert-box {
         display: flex;
         align-items: flex-start;
-        gap: 12px;
-        padding: 16px;
-        border-radius: 12px;
-        margin-bottom: 24px;
+        gap: 16px;
+        padding: 20px;
+        border-radius: 16px;
+        margin-bottom: 32px;
+        border-left: 4px solid;
     }
 
-    .evc-alert-success {
+    .alert-box.success {
         background: rgba(34, 197, 94, 0.1);
-        border: 1px solid rgba(34, 197, 94, 0.3);
-        color: #22c55e;
+        border-left-color: var(--success);
+        color: var(--success);
     }
 
-    .evc-alert-error {
+    .alert-box.error {
         background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        color: #ef4444;
+        border-left-color: var(--error);
+        color: var(--error);
     }
 
-    .evc-alert i {
-        font-size: 1.25rem;
+    .alert-box i {
+        font-size: 1.5rem;
         flex-shrink: 0;
         margin-top: 2px;
     }
 
-    .evc-alert ul {
-        margin: 8px 0 0 20px;
+    .alert-box ul {
+        margin: 8px 0 0 24px;
         padding: 0;
     }
 
-    .evc-alert li {
-        margin-top: 4px;
+    .alert-box li {
+        margin-top: 6px;
+        font-weight: 500;
     }
 
     /* Form Elements */
-    .form-row {
+    .form-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
         margin-bottom: 0;
     }
 
-    .form-group {
-        margin-bottom: 20px;
+    .form-field {
+        margin-bottom: 24px;
     }
 
     .form-label {
         display: block;
-        font-size: 0.875rem;
-        font-weight: 500;
-        margin-bottom: 8px;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        margin-bottom: 10px;
         color: var(--text-primary);
+        letter-spacing: 0.01em;
     }
 
-    .required {
-        color: #ff9800;
+    .form-label .required {
+        color: var(--primary);
+        margin-left: 2px;
     }
 
-    .form-control,
+    .form-input,
     .form-select {
         width: 100%;
-        padding: 12px 16px;
+        padding: 14px 20px;
         background: rgba(15, 23, 42, 0.8);
-        border: 1px solid var(--border);
-        border-radius: 8px;
+        border: 2px solid var(--border);
+        border-radius: 12px;
         color: var(--text-primary);
-        font-size: 0.875rem;
+        font-size: 1rem;
         font-family: inherit;
-        transition: all 0.2s;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 500;
     }
 
-    .form-control:focus,
+    .form-input:focus,
     .form-select:focus {
         outline: none;
-        border-color: #ff9800;
-        background: rgba(15, 23, 42, 0.9);
+        border-color: var(--primary);
+        background: rgba(15, 23, 42, 0.95);
+        box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.1);
     }
 
-    .form-control::placeholder {
+    .form-input::placeholder {
         color: var(--text-secondary);
+        font-weight: 400;
     }
 
-    .form-control.error,
+    .form-input.error,
     .form-select.error {
-        border-color: #ef4444;
+        border-color: var(--error);
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
     }
 
-    textarea.form-control {
-        min-height: 120px;
+    textarea.form-input {
+        min-height: 140px;
         resize: vertical;
+        line-height: 1.6;
     }
 
     .form-select option {
         background: #1e293b;
-        color: #f1f5f9;
+        color: var(--text-primary);
+        padding: 12px;
     }
 
-    .submit-btn {
+    .submit-button {
         width: 100%;
-        padding: 16px 32px;
-        background: var(--primary-gradient);
+        padding: 20px 40px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border: none;
-        border-radius: 12px;
+        border-radius: 16px;
         color: #0f172a;
-        font-size: 1rem;
-        font-weight: 700;
+        font-size: 1.125rem;
+        font-weight: 800;
         cursor: pointer;
-        transition: all 0.3s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 12px;
+        box-shadow: 0 8px 24px rgba(255, 152, 0, 0.4);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
-    .submit-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(255, 152, 0, 0.4);
+    .submit-button:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(255, 152, 0, 0.5);
     }
 
-    .submit-btn:disabled {
-        opacity: 0.7;
+    .submit-button:disabled {
+        opacity: 0.6;
         cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Modal */
+    .price-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        padding: 20px;
+    }
+
+    .price-modal.active {
+        display: flex;
+    }
+
+    .price-modal-content {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 32px;
+        max-width: 480px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Loading */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.95);
+        backdrop-filter: blur(10px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 99998;
+    }
+
+    .loading-overlay.active {
+        display: flex;
+    }
+
+    .loader {
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(255, 152, 0, 0.2);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .preinscription-container {
+            padding: 100px 20px 60px;
+        }
+
+        .steps-card,
+        .form-card {
+            padding: 32px;
+        }
     }
 
     @media (max-width: 768px) {
-        .evc-preinscription {
-            padding-top: 100px;
-            padding-bottom: 40px;
+        .form-grid {
+            grid-template-columns: 1fr;
         }
 
-        .evc-steps,
-        .evc-form-card {
-            padding: 24px;
-        }
-
-        .evc-step {
+        .step-item {
             flex-direction: column;
             text-align: center;
+            padding: 20px;
         }
 
-        .evc-step-icon {
+        .step-item:hover {
+            transform: translateY(-4px);
+        }
+
+        .step-number {
             margin: 0 auto;
-        }
-
-        .form-row {
-            grid-template-columns: 1fr;
         }
     }
 </style>
 @endpush
 
 @section('content')
-<div class="evc-preinscription">
-    <div class="container">
-        <!-- Hero Section -->
-        <div class="evc-hero">
-            <h1>Commencez votre parcours créatif</h1>
-            <p>Rejoignez l'École Virtuelle des Créatifs et transformez votre passion en une carrière professionnelle.</p>
-        </div>
-
-        <!-- Steps Section -->
-        <div class="row justify-content-center">
-            <div class="col-8">
-                <div class="evc-steps">
-                    <div class="evc-steps-header">
-                        <h2>Processus d'inscription</h2>
-                        <p>Direction des Études et de Régulation Pédagogique</p>
-                    </div>
-
-                    <div class="evc-step">
-                        <div class="evc-step-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="evc-step-content">
-                            <h3>Étape 1 : Préinscription</h3>
-                            <p>Complétez le formulaire avec vos informations personnelles et choisissez votre formation. Un dépôt de dossier sera requis pour finaliser votre inscription.</p>
-                        </div>
-                    </div>
-
-                    <div class="evc-step">
-                        <div class="evc-step-icon">
-                            <i class="fas fa-clipboard-check"></i>
-                        </div>
-                        <div class="evc-step-content">
-                            <h3>Étape 2 : Diagnostic d'éligibilité</h3>
-                            <p>Vous disposerez de 1 heure pour compléter ce diagnostic obligatoire. Répondez avec précision : vos réponses seront analysées par l'équipe pédagogique EVC pour évaluer votre profil.</p>
-                        </div>
-                    </div>
-
-                    <div class="evc-step">
-                        <div class="evc-step-icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="evc-step-content">
-                            <h3>Étape 3 : Validation finale</h3>
-                            <p>L'équipe pédagogique examinera votre dossier. Vous recevrez une confirmation et les instructions pour le paiement de votre formation.</p>
-                        </div>
-                    </div>
-
-                    <div class="evc-cta">
-                        <button type="button" class="evc-btn" onclick="document.querySelector('.evc-form-card').scrollIntoView({behavior: 'smooth'})">
-                            <i class="fas fa-edit"></i>
-                            Commencer ma préinscription
-                        </button>
-                    </div>
+<div class="preinscription-wrapper">
+    <div class="preinscription-container">
+        <div class="container">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="hero-badge">
+                    <i class="fas fa-rocket"></i>
+                    Devenez créatif
                 </div>
+                <h1 class="hero-title">Transformez votre passion en carrière</h1>
+                <p class="hero-subtitle">Rejoignez l'École Virtuelle des Créatifs et lancez-vous dans une aventure créative unique en Afrique de l'Ouest.</p>
+            </div>
 
-                <!-- Form Section -->
-                <div class="evc-form-card">
-                    <div class="evc-form-header">
-                        <h2>Formulaire de pré-inscription</h2>
-                        <p>Tous les champs sont obligatoires</p>
-                    </div>
-
-                    @if(session('success'))
-                        <div class="evc-alert evc-alert-success">
-                            <i class="fas fa-check-circle"></i>
-                            <div>{{ session('success') }}</div>
+            <!-- Steps Section -->
+            <div class="row justify-content-center">
+                <div class="col-8">
+                    <div class="steps-card">
+                        <div class="steps-header">
+                            <h2>Votre parcours en 3 étapes</h2>
+                            <p>Processus d'inscription simplifié</p>
                         </div>
-                    @endif
 
-                    @if($errors->any())
-                        <div class="evc-alert evc-alert-error">
-                            <i class="fas fa-exclamation-circle"></i>
-                            <div>
-                                <strong>Erreur :</strong> Veuillez corriger les champs suivants.
-                                <ul>
-                                    @foreach($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3>Préinscription</h3>
+                                <p>Remplissez le formulaire avec vos informations et choisissez votre formation. Un dépôt de dossier sera requis.</p>
                             </div>
                         </div>
-                    @endif
 
-                    <form action="/candidature" method="POST" enctype="multipart/form-data" id="preinscriptionForm">
-                        @csrf
-                        @include('preinscription._form_fields_new')
-                    </form>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3>Diagnostic d'éligibilité</h3>
+                                <p>Complétez le diagnostic d'une heure. Nos experts analyseront votre profil pour vous orienter vers la formation idéale.</p>
+                            </div>
+                        </div>
+
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h3>Validation finale</h3>
+                                <p>L'équipe pédagogique examinera votre dossier. Vous recevrez une confirmation et les instructions de paiement.</p>
+                            </div>
+                        </div>
+
+                        <div class="cta-section">
+                            <button type="button" class="cta-button" onclick="document.querySelector('.form-card').scrollIntoView({behavior: 'smooth'})">
+                                <i class="fas fa-pen-fancy"></i>
+                                Commencer maintenant
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Form Section -->
+                    <div class="form-card">
+                        <div class="form-header">
+                            <h2>Formulaire de pré-inscription</h2>
+                            <p>Tous les champs sont obligatoires</p>
+                        </div>
+
+                        @if(session('success'))
+                            <div class="alert-box success">
+                                <i class="fas fa-check-circle"></i>
+                                <div>{{ session('success') }}</div>
+                            </div>
+                        @endif
+
+                        @if($errors->any())
+                            <div class="alert-box error">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div>
+                                    <strong>Erreur :</strong> Veuillez corriger les champs suivants.
+                                    <ul>
+                                        @foreach($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        @endif
+
+                        <form action="/candidature" method="POST" enctype="multipart/form-data" id="preinscriptionForm">
+                            @csrf
+                            @include('preinscription._form_fields_new')
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div id="programme-price-modal" class="loading-overlay" style="display:none; z-index: 99999;">
-    <div class="loader-container" style="max-width: 520px; width: calc(100% - 40px);">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap: 12px;">
-            <div style="font-weight: 800; font-size: 18px; color: var(--text-primary);">Confirmer la formation</div>
-            <button type="button" id="programme-price-close" aria-label="Fermer" style="background: transparent; border: 0; color: var(--text-secondary); font-size: 20px; line-height: 1; padding: 6px; cursor: pointer;">&times;</button>
+<!-- Price Modal -->
+<div class="price-modal" id="programme-price-modal">
+    <div class="price-modal-content">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 20px;">
+            <div style="font-weight: 800; font-size: 1.125rem; color: var(--text-primary);">Confirmer la formation</div>
+            <button type="button" id="programme-price-close" style="background: transparent; border: 0; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; padding: 8px;">&times;</button>
         </div>
-        <div style="margin-top: 14px; text-align: left;">
-            <div style="color: var(--text-secondary); font-size: 14px;">Formation sélectionnée</div>
-            <div id="programme-price-name" style="color: var(--text-primary); font-size: 18px; font-weight: 800; margin-top: 4px;"></div>
-
-            <div style="color: var(--text-secondary); font-size: 14px; margin-top: 14px;">Prix de la formation</div>
-            <div id="programme-price-amount" style="color: var(--primary); font-size: 26px; font-weight: 900; margin-top: 4px;"></div>
-
-            <div style="margin-top: 18px; display:flex; gap: 12px; justify-content:flex-end; flex-wrap: wrap;">
-                <button type="button" id="programme-price-cancel" style="padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: var(--text-primary); font-weight: 700;">Annuler</button>
-                <button type="button" id="programme-price-confirm" style="padding: 10px 14px; border-radius: 10px; border: 0; background: var(--primary-gradient); color: #111827; font-weight: 900;">Confirmer</button>
-            </div>
+        <div style="color: var(--text-secondary); font-size: 0.9375rem; margin-bottom: 8px;">Formation sélectionnée</div>
+        <div id="programme-price-name" style="color: var(--text-primary); font-size: 1.25rem; font-weight: 800; margin-bottom: 20px;"></div>
+        <div style="color: var(--text-secondary); font-size: 0.9375rem; margin-bottom: 8px;">Prix de la formation</div>
+        <div id="programme-price-amount" style="color: var(--primary); font-size: 2rem; font-weight: 900; margin-bottom: 24px;"></div>
+        <div style="display:flex; gap: 12px; justify-content:flex-end;">
+            <button type="button" id="programme-price-cancel" style="padding: 12px 24px; border-radius: 12px; border: 2px solid var(--border); background: transparent; color: var(--text-primary); font-weight: 700; cursor: pointer;">Annuler</button>
+            <button type="button" id="programme-price-confirm" style="padding: 12px 24px; border-radius: 12px; border: 0; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #0f172a; font-weight: 800; cursor: pointer;">Confirmer</button>
         </div>
     </div>
 </div>
 
 <!-- Loading Overlay -->
 <div class="loading-overlay" id="loadingOverlay">
-    <div class="loader-container">
+    <div style="text-align: center;">
         <div class="loader"></div>
-        <div class="loader-text">Envoi en cours...</div>
-        <div class="loader-subtext">Veuillez patienter</div>
+        <div style="color: var(--primary); font-size: 1.125rem; font-weight: 700; margin-top: 20px;">Envoi en cours...</div>
+        <div style="color: var(--text-secondary); font-size: 0.9375rem; margin-top: 8px;">Veuillez patienter</div>
     </div>
 </div>
 @endsection
@@ -450,7 +630,6 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Main Form Functionality
     const form = document.getElementById('preinscriptionForm');
     const submitBtn = form ? form.querySelector('.submit-btn') : null;
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -479,14 +658,12 @@ document.addEventListener('DOMContentLoaded', function() {
         pendingProgrammeValue = value;
         priceName.textContent = entry.name;
         priceAmount.textContent = entry.amount;
-        priceModal.style.display = 'flex';
         priceModal.classList.add('active');
     };
 
     const closePriceModal = () => {
         if (!priceModal) return;
         priceModal.classList.remove('active');
-        priceModal.style.display = 'none';
         pendingProgrammeValue = '';
     };
 
@@ -532,32 +709,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Marquer les champs avec erreurs de validation
     @if($errors->any())
         const errorFields = @json($errors->keys());
         errorFields.forEach(function(fieldName) {
             const field = document.querySelector('[name="' + fieldName + '"]');
             if (field) {
                 field.classList.add('error');
-                // Retirer la classe error quand l'utilisateur modifie le champ
-                field.addEventListener('input', function() {
-                    this.classList.remove('error');
-                });
-                field.addEventListener('change', function() {
-                    this.classList.remove('error');
-                });
+                field.addEventListener('input', function() { this.classList.remove('error'); });
+                field.addEventListener('change', function() { this.classList.remove('error'); });
             }
         });
 
-        // Scroll vers la première erreur
-        const firstError = document.querySelector('.form-control.error, .form-select.error');
+        const firstError = document.querySelector('.form-input.error, .form-select.error');
         if (firstError) {
             firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             setTimeout(() => firstError.focus(), 500);
         }
     @endif
 
-    // Gestion du loader lors de la soumission
     if (form && submitBtn && loadingOverlay) {
         form.addEventListener('submit', function(e) {
             const photoInput = form.querySelector('input[name="photo_profil"]');
@@ -573,7 +742,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (form.checkValidity()) {
                 loadingOverlay.classList.add('active');
-                submitBtn.classList.add('loading');
                 submitBtn.disabled = true;
                 const btnText = submitBtn.querySelector('span');
                 if (btnText) {
