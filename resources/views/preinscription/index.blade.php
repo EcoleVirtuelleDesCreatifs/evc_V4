@@ -28,6 +28,11 @@
         overflow-x: hidden;
     }
 
+    .pi-content-wrapper {
+        max-width: 860px;
+        margin: 0 auto;
+    }
+
     .pi-container::before {
         content: '';
         position: absolute;
@@ -574,7 +579,7 @@
 
             <!-- Steps Section -->
             <div class="row justify-content-center">
-                <div class="col-7">
+                <div class="col-8 pi-content-wrapper">
                     <div class="pi-steps">
                         <div class="pi-steps-header">
                             <h2>Votre parcours en 3 étapes</h2>
