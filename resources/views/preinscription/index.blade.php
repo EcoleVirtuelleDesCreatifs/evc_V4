@@ -67,7 +67,7 @@
 
     .pi-hero {
         text-align: center;
-        margin-bottom: 60px;
+        margin-bottom: 40px;
         position: relative;
         z-index: 1;
     }
@@ -76,30 +76,37 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 24px;
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(255, 107, 53, 0.1) 100%);
-        border: 1px solid rgba(255, 107, 53, 0.3);
+        padding: 10px 28px;
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.25) 0%, rgba(255, 107, 53, 0.15) 100%);
+        border: 2px solid rgba(255, 107, 53, 0.4);
         border-radius: 50px;
         color: var(--primary);
         font-size: 0.875rem;
-        font-weight: 700;
-        margin-bottom: 24px;
+        font-weight: 800;
+        margin-bottom: 28px;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.12em;
         backdrop-filter: blur(10px);
+        box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2);
+        animation: pulse-badge 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-badge {
+        0%, 100% { box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2); }
+        50% { box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4); }
     }
 
     .pi-title {
-        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-size: clamp(2.25rem, 5vw, 3.5rem);
         font-weight: 900;
         background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%);
         background-size: 300% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
         letter-spacing: -0.03em;
-        line-height: 1.1;
+        line-height: 1.15;
         animation: gradient-shift 5s ease infinite;
     }
 
@@ -109,12 +116,34 @@
     }
 
     .pi-subtitle {
-        font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+        font-size: clamp(1rem, 2vw, 1.25rem);
         color: var(--text-secondary);
-        max-width: 800px;
-        margin: 0 auto;
-        line-height: 1.8;
+        max-width: 700px;
+        margin: 0 auto 24px;
+        line-height: 1.7;
         font-weight: 400;
+    }
+
+    .pi-trust-indicators {
+        display: flex;
+        justify-content: center;
+        gap: 32px;
+        margin-top: 32px;
+        flex-wrap: wrap;
+    }
+
+    .pi-trust-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+        font-size: 0.9375rem;
+        font-weight: 600;
+    }
+
+    .pi-trust-item i {
+        color: var(--success);
+        font-size: 1.125rem;
     }
 
     .pi-steps {
@@ -122,12 +151,25 @@
         border: 1px solid rgba(255, 107, 53, 0.2);
         border-radius: 24px;
         padding: 48px;
-        margin-bottom: 40px;
+        margin-bottom: 32px;
         backdrop-filter: blur(30px);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
         position: relative;
         z-index: 1;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+
+    .pi-steps::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%);
+        background-size: 200% auto;
+        animation: gradient-shift 3s linear infinite;
     }
 
     .pi-steps:hover {
@@ -207,6 +249,24 @@
         color: #ffffff;
         box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);
         transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .pi-step-number::after {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        right: -4px;
+        bottom: -4px;
+        border: 2px solid rgba(255, 107, 53, 0.3);
+        border-radius: 24px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .pi-step:hover .pi-step-number::after {
+        opacity: 1;
     }
 
     .pi-step:hover .pi-step-number {
@@ -230,7 +290,7 @@
 
     .pi-cta {
         text-align: center;
-        margin-top: 40px;
+        margin-top: 36px;
         padding-top: 32px;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -288,6 +348,19 @@
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
         position: relative;
         z-index: 1;
+        overflow: hidden;
+    }
+
+    .pi-form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%);
+        background-size: 200% auto;
+        animation: gradient-shift 3s linear infinite;
     }
 
     .pi-form-header {
@@ -575,6 +648,20 @@
                 </div>
                 <h1 class="pi-title">Transformez votre passion en carrière professionnelle</h1>
                 <p class="pi-subtitle">Rejoignez l'École Virtuelle des Créatifs et lancez-vous dans une aventure créative unique en Afrique de l'Ouest. Formations certifiées Adobe, experts du design digital.</p>
+                <div class="pi-trust-indicators">
+                    <div class="pi-trust-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>95% de réussite</span>
+                    </div>
+                    <div class="pi-trust-item">
+                        <i class="fas fa-certificate"></i>
+                        <span>Certifications Adobe</span>
+                    </div>
+                    <div class="pi-trust-item">
+                        <i class="fas fa-users"></i>
+                        <span>+5000 étudiants</span>
+                    </div>
+                </div>
             </div>
 
             <!-- Steps Section -->
