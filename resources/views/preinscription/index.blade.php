@@ -6,418 +6,471 @@
 
 @push('styles')
 <style>
-    .preinscription-wrapper {
-        --primary: #ff9800;
-        --primary-dark: #f57c00;
-        --primary-light: #ffb74d;
-        --bg-dark: #0f172a;
-        --bg-card: #1e293b;
-        --text-primary: #f1f5f9;
-        --text-secondary: #94a3b8;
-        --border: #334155;
-        --success: #22c55e;
-        --error: #ef4444;
+    .pi-wrapper {
+        --primary: #ff6b35;
+        --primary-dark: #e55a2b;
+        --primary-light: #ff8c5a;
+        --accent: #00d4ff;
+        --bg-dark: #0a0e27;
+        --bg-card: #151a3d;
+        --text-primary: #ffffff;
+        --text-secondary: #a0aec0;
+        --border: #2d3748;
+        --success: #00d4aa;
+        --error: #ff4757;
     }
 
-    .preinscription-container {
-        background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f2e 50%, var(--bg-dark) 100%);
+    .pi-container {
+        background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f4e 50%, #0d1333 100%);
         min-height: 100vh;
-        padding: 120px 20px 80px;
+        padding: 100px 20px 60px;
         position: relative;
-        overflow: hidden;
+        overflow-x: hidden;
     }
 
-    .preinscription-container::before {
+    .pi-container::before {
         content: '';
         position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle at 30% 30%, rgba(255, 152, 0, 0.08) 0%, transparent 50%);
+        top: -20%;
+        right: -10%;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255, 107, 53, 0.15) 0%, transparent 70%);
+        border-radius: 50%;
         pointer-events: none;
+        animation: float 20s ease-in-out infinite;
     }
 
-    .preinscription-container::after {
+    .pi-container::after {
         content: '';
         position: absolute;
-        bottom: -30%;
-        right: -30%;
-        width: 150%;
-        height: 150%;
-        background: radial-gradient(circle at 70% 70%, rgba(255, 183, 77, 0.05) 0%, transparent 50%);
+        bottom: -20%;
+        left: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
         pointer-events: none;
+        animation: float 25s ease-in-out infinite reverse;
     }
 
-    .hero-section {
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(30px, -30px) rotate(5deg); }
+        66% { transform: translate(-20px, 20px) rotate(-5deg); }
+    }
+
+    .pi-hero {
         text-align: center;
-        margin-bottom: 48px;
+        margin-bottom: 60px;
         position: relative;
         z-index: 1;
     }
 
-    .hero-badge {
+    .pi-badge {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 20px;
-        background: rgba(255, 152, 0, 0.1);
-        border: 1px solid rgba(255, 152, 0, 0.3);
+        padding: 8px 24px;
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(255, 107, 53, 0.1) 100%);
+        border: 1px solid rgba(255, 107, 53, 0.3);
         border-radius: 50px;
         color: var(--primary);
         font-size: 0.875rem;
-        font-weight: 600;
+        font-weight: 700;
         margin-bottom: 24px;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.1em;
+        backdrop-filter: blur(10px);
     }
 
-    .hero-title {
-        font-size: clamp(2.25rem, 5vw, 3.5rem);
+    .pi-title {
+        font-size: clamp(2.5rem, 6vw, 4rem);
         font-weight: 900;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--primary) 100%);
-        background-size: 200% auto;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%);
+        background-size: 300% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 16px;
-        letter-spacing: -0.02em;
-        animation: shimmer 3s linear infinite;
+        margin-bottom: 20px;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        animation: gradient-shift 5s ease infinite;
     }
 
-    @keyframes shimmer {
-        0% { background-position: 0% center; }
-        100% { background-position: 200% center; }
+    @keyframes gradient-shift {
+        0%, 100% { background-position: 0% center; }
+        50% { background-position: 100% center; }
     }
 
-    .hero-subtitle {
-        font-size: clamp(1rem, 2vw, 1.25rem);
+    .pi-subtitle {
+        font-size: clamp(1.125rem, 2.5vw, 1.5rem);
         color: var(--text-secondary);
-        max-width: 700px;
+        max-width: 800px;
         margin: 0 auto;
-        line-height: 1.7;
+        line-height: 1.8;
         font-weight: 400;
     }
 
-    .steps-card {
-        background: rgba(30, 41, 59, 0.6);
-        border: 1px solid rgba(255, 152, 0, 0.15);
-        border-radius: 20px;
-        padding: 40px;
-        margin-bottom: 32px;
-        backdrop-filter: blur(20px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        position: relative;
-        z-index: 1;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .steps-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 48px rgba(255, 152, 0, 0.15);
-    }
-
-    .steps-header {
-        text-align: center;
-        margin-bottom: 32px;
-    }
-
-    .steps-header h2 {
-        color: var(--primary);
-        font-size: 1.75rem;
-        font-weight: 800;
-        margin-bottom: 8px;
-        letter-spacing: -0.01em;
-    }
-
-    .steps-header p {
-        color: var(--text-secondary);
-        font-size: 0.9375rem;
-        font-weight: 500;
-    }
-
-    .step-item {
-        display: flex;
-        gap: 20px;
-        padding: 24px;
-        background: rgba(15, 23, 42, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 16px;
-        margin-bottom: 16px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .step-item::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 4px;
-        height: 100%;
-        background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .step-item:hover {
-        background: rgba(255, 152, 0, 0.05);
-        border-color: rgba(255, 152, 0, 0.2);
-        transform: translateX(8px);
-    }
-
-    .step-item:hover::before {
-        opacity: 1;
-    }
-
-    .step-item:last-child {
-        margin-bottom: 0;
-    }
-
-    .step-number {
-        flex-shrink: 0;
-        width: 56px;
-        height: 56px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: #0f172a;
-        box-shadow: 0 4px 16px rgba(255, 152, 0, 0.4);
-    }
-
-    .step-content h3 {
-        color: var(--text-primary);
-        font-size: 1.125rem;
-        font-weight: 700;
-        margin-bottom: 8px;
-        letter-spacing: -0.01em;
-    }
-
-    .step-content p {
-        color: var(--text-secondary);
-        font-size: 0.9375rem;
-        line-height: 1.6;
-        margin: 0;
-    }
-
-    .cta-section {
-        text-align: center;
-        margin-top: 32px;
-        padding-top: 24px;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .cta-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        padding: 18px 40px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        border: none;
-        border-radius: 16px;
-        color: #0f172a;
-        font-size: 1.0625rem;
-        font-weight: 800;
-        cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 8px 24px rgba(255, 152, 0, 0.4);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    .cta-button:hover {
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 12px 40px rgba(255, 152, 0, 0.5);
-    }
-
-    .cta-button:active {
-        transform: translateY(-2px) scale(1);
-    }
-
-    .form-card {
-        background: rgba(30, 41, 59, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
+    .pi-steps {
+        background: rgba(21, 26, 61, 0.8);
+        border: 1px solid rgba(255, 107, 53, 0.2);
+        border-radius: 24px;
         padding: 48px;
-        backdrop-filter: blur(20px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        margin-bottom: 40px;
+        backdrop-filter: blur(30px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
         position: relative;
         z-index: 1;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .form-header {
+    .pi-steps:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 30px 80px rgba(255, 107, 53, 0.2), 0 0 0 1px rgba(255, 107, 53, 0.3);
+    }
+
+    .pi-steps-header {
         text-align: center;
         margin-bottom: 40px;
     }
 
-    .form-header h2 {
-        color: var(--text-primary);
-        font-size: 1.875rem;
-        font-weight: 800;
+    .pi-steps-header h2 {
+        color: var(--primary);
+        font-size: 2rem;
+        font-weight: 900;
         margin-bottom: 12px;
         letter-spacing: -0.02em;
     }
 
-    .form-header p {
+    .pi-steps-header p {
         color: var(--text-secondary);
         font-size: 1rem;
         font-weight: 500;
     }
 
-    .alert-box {
+    .pi-step {
+        display: flex;
+        gap: 24px;
+        padding: 28px;
+        background: linear-gradient(135deg, rgba(10, 14, 39, 0.6) 0%, rgba(21, 26, 61, 0.4) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        margin-bottom: 20px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pi-step::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        background: linear-gradient(180deg, var(--primary) 0%, var(--accent) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .pi-step:hover {
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+        border-color: rgba(255, 107, 53, 0.3);
+        transform: translateX(12px);
+    }
+
+    .pi-step:hover::before {
+        opacity: 1;
+    }
+
+    .pi-step:last-child {
+        margin-bottom: 0;
+    }
+
+    .pi-step-number {
+        flex-shrink: 0;
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: #ffffff;
+        box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .pi-step:hover .pi-step-number {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    .pi-step-content h3 {
+        color: var(--text-primary);
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+        letter-spacing: -0.01em;
+    }
+
+    .pi-step-content p {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .pi-cta {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 32px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .pi-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 48px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 20px;
+        color: #ffffff;
+        font-size: 1.125rem;
+        font-weight: 900;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 12px 40px rgba(255, 107, 53, 0.5);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .pi-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .pi-button:hover::before {
+        left: 100%;
+    }
+
+    .pi-button:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 20px 60px rgba(255, 107, 53, 0.6);
+    }
+
+    .pi-button:active {
+        transform: translateY(-3px) scale(1);
+    }
+
+    .pi-form-card {
+        background: rgba(21, 26, 61, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 56px;
+        backdrop-filter: blur(30px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
+        position: relative;
+        z-index: 1;
+    }
+
+    .pi-form-header {
+        text-align: center;
+        margin-bottom: 48px;
+    }
+
+    .pi-form-header h2 {
+        color: var(--text-primary);
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+    }
+
+    .pi-form-header p {
+        color: var(--text-secondary);
+        font-size: 1.0625rem;
+        font-weight: 500;
+    }
+
+    .pi-alert {
         display: flex;
         align-items: flex-start;
         gap: 16px;
-        padding: 20px;
-        border-radius: 16px;
-        margin-bottom: 32px;
-        border-left: 4px solid;
+        padding: 24px;
+        border-radius: 20px;
+        margin-bottom: 40px;
+        border-left: 5px solid;
+        backdrop-filter: blur(10px);
     }
 
-    .alert-box.success {
-        background: rgba(34, 197, 94, 0.1);
+    .pi-alert.success {
+        background: rgba(0, 212, 170, 0.1);
         border-left-color: var(--success);
         color: var(--success);
     }
 
-    .alert-box.error {
-        background: rgba(239, 68, 68, 0.1);
+    .pi-alert.error {
+        background: rgba(255, 71, 87, 0.1);
         border-left-color: var(--error);
         color: var(--error);
     }
 
-    .alert-box i {
+    .pi-alert i {
         font-size: 1.5rem;
         flex-shrink: 0;
         margin-top: 2px;
     }
 
-    .alert-box ul {
-        margin: 8px 0 0 24px;
+    .pi-alert ul {
+        margin: 10px 0 0 24px;
         padding: 0;
     }
 
-    .alert-box li {
-        margin-top: 6px;
-        font-weight: 500;
+    .pi-alert li {
+        margin-top: 8px;
+        font-weight: 600;
     }
 
     /* Form Elements */
-    .form-grid {
+    .pi-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
+        gap: 28px;
         margin-bottom: 0;
     }
 
-    .form-field {
-        margin-bottom: 24px;
+    .pi-field {
+        margin-bottom: 28px;
     }
 
-    .form-label {
+    .pi-label {
         display: block;
-        font-size: 0.9375rem;
-        font-weight: 600;
-        margin-bottom: 10px;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 12px;
         color: var(--text-primary);
-        letter-spacing: 0.01em;
+        letter-spacing: 0.02em;
     }
 
-    .form-label .required {
+    .pi-label .required {
         color: var(--primary);
-        margin-left: 2px;
+        margin-left: 4px;
     }
 
-    .form-input,
-    .form-select {
+    .pi-input,
+    .pi-select {
         width: 100%;
-        padding: 14px 20px;
-        background: rgba(15, 23, 42, 0.8);
+        padding: 16px 24px;
+        background: rgba(10, 14, 39, 0.8);
         border: 2px solid var(--border);
-        border-radius: 12px;
+        border-radius: 16px;
         color: var(--text-primary);
         font-size: 1rem;
         font-family: inherit;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-weight: 500;
     }
 
-    .form-input:focus,
-    .form-select:focus {
+    .pi-input:focus,
+    .pi-select:focus {
         outline: none;
         border-color: var(--primary);
-        background: rgba(15, 23, 42, 0.95);
-        box-shadow: 0 0 0 4px rgba(255, 152, 0, 0.1);
+        background: rgba(10, 14, 39, 0.95);
+        box-shadow: 0 0 0 5px rgba(255, 107, 53, 0.15);
     }
 
-    .form-input::placeholder {
+    .pi-input::placeholder {
         color: var(--text-secondary);
         font-weight: 400;
     }
 
-    .form-input.error,
-    .form-select.error {
+    .pi-input.error,
+    .pi-select.error {
         border-color: var(--error);
-        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+        box-shadow: 0 0 0 5px rgba(255, 71, 87, 0.15);
     }
 
-    textarea.form-input {
-        min-height: 140px;
+    textarea.pi-input {
+        min-height: 150px;
         resize: vertical;
-        line-height: 1.6;
+        line-height: 1.7;
     }
 
-    .form-select option {
-        background: #1e293b;
+    .pi-select option {
+        background: #1a1f4e;
         color: var(--text-primary);
-        padding: 12px;
+        padding: 16px;
     }
 
-    .submit-button {
+    .pi-submit {
         width: 100%;
-        padding: 20px 40px;
+        padding: 24px 48px;
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border: none;
-        border-radius: 16px;
-        color: #0f172a;
-        font-size: 1.125rem;
-        font-weight: 800;
+        border-radius: 20px;
+        color: #ffffff;
+        font-size: 1.25rem;
+        font-weight: 900;
         cursor: pointer;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 12px;
-        box-shadow: 0 8px 24px rgba(255, 152, 0, 0.4);
+        box-shadow: 0 12px 40px rgba(255, 107, 53, 0.5);
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.08em;
+        position: relative;
+        overflow: hidden;
     }
 
-    .submit-button:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 40px rgba(255, 152, 0, 0.5);
+    .pi-submit::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
     }
 
-    .submit-button:disabled {
+    .pi-submit:hover::before {
+        left: 100%;
+    }
+
+    .pi-submit:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 20px 60px rgba(255, 107, 53, 0.6);
+    }
+
+    .pi-submit:disabled {
         opacity: 0.6;
         cursor: not-allowed;
         transform: none;
     }
 
     /* Modal */
-    .price-modal {
+    .pi-modal {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(10px);
+        background: rgba(10, 14, 39, 0.95);
+        backdrop-filter: blur(15px);
         display: none;
         align-items: center;
         justify-content: center;
@@ -425,43 +478,43 @@
         padding: 20px;
     }
 
-    .price-modal.active {
+    .pi-modal.active {
         display: flex;
     }
 
-    .price-modal-content {
+    .pi-modal-content {
         background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 32px;
-        max-width: 480px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 40px;
+        max-width: 500px;
         width: 100%;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
     }
 
     /* Loading */
-    .loading-overlay {
+    .pi-loading {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(15, 23, 42, 0.95);
-        backdrop-filter: blur(10px);
+        background: rgba(10, 14, 39, 0.95);
+        backdrop-filter: blur(15px);
         display: none;
         align-items: center;
         justify-content: center;
         z-index: 99998;
     }
 
-    .loading-overlay.active {
+    .pi-loading.active {
         display: flex;
     }
 
-    .loader {
-        width: 60px;
-        height: 60px;
-        border: 4px solid rgba(255, 152, 0, 0.2);
+    .pi-loader {
+        width: 70px;
+        height: 70px;
+        border: 5px solid rgba(255, 107, 53, 0.2);
         border-top-color: var(--primary);
         border-radius: 50%;
         animation: spin 1s linear infinite;
@@ -473,32 +526,32 @@
 
     /* Responsive */
     @media (max-width: 1024px) {
-        .preinscription-container {
-            padding: 100px 20px 60px;
+        .pi-container {
+            padding: 80px 20px 40px;
         }
 
-        .steps-card,
-        .form-card {
-            padding: 32px;
+        .pi-steps,
+        .pi-form-card {
+            padding: 36px;
         }
     }
 
     @media (max-width: 768px) {
-        .form-grid {
+        .pi-grid {
             grid-template-columns: 1fr;
         }
 
-        .step-item {
+        .pi-step {
             flex-direction: column;
             text-align: center;
-            padding: 20px;
+            padding: 24px;
         }
 
-        .step-item:hover {
-            transform: translateY(-4px);
+        .pi-step:hover {
+            transform: translateY(-6px);
         }
 
-        .step-number {
+        .pi-step-number {
             margin: 0 auto;
         }
     }
@@ -506,54 +559,54 @@
 @endpush
 
 @section('content')
-<div class="preinscription-wrapper">
-    <div class="preinscription-container">
+<div class="pi-wrapper">
+    <div class="pi-container">
         <div class="container">
             <!-- Hero Section -->
-            <div class="hero-section">
-                <div class="hero-badge">
+            <div class="pi-hero">
+                <div class="pi-badge">
                     <i class="fas fa-rocket"></i>
                     Devenez créatif
                 </div>
-                <h1 class="hero-title">Transformez votre passion en carrière</h1>
-                <p class="hero-subtitle">Rejoignez l'École Virtuelle des Créatifs et lancez-vous dans une aventure créative unique en Afrique de l'Ouest.</p>
+                <h1 class="pi-title">Transformez votre passion en carrière professionnelle</h1>
+                <p class="pi-subtitle">Rejoignez l'École Virtuelle des Créatifs et lancez-vous dans une aventure créative unique en Afrique de l'Ouest. Formations certifiées Adobe, experts du design digital.</p>
             </div>
 
             <!-- Steps Section -->
             <div class="row justify-content-center">
                 <div class="col-7">
-                    <div class="steps-card">
-                        <div class="steps-header">
+                    <div class="pi-steps">
+                        <div class="pi-steps-header">
                             <h2>Votre parcours en 3 étapes</h2>
-                            <p>Processus d'inscription simplifié</p>
+                            <p>Processus d'inscription simplifié et rapide</p>
                         </div>
 
-                        <div class="step-item">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
+                        <div class="pi-step">
+                            <div class="pi-step-number">1</div>
+                            <div class="pi-step-content">
                                 <h3>Préinscription</h3>
-                                <p>Remplissez le formulaire avec vos informations et choisissez votre formation. Un dépôt de dossier sera requis.</p>
+                                <p>Remplissez le formulaire avec vos informations personnelles et choisissez votre formation. Un dépôt de dossier sera requis pour finaliser votre inscription.</p>
                             </div>
                         </div>
 
-                        <div class="step-item">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
+                        <div class="pi-step">
+                            <div class="pi-step-number">2</div>
+                            <div class="pi-step-content">
                                 <h3>Diagnostic d'éligibilité</h3>
-                                <p>Complétez le diagnostic d'une heure. Nos experts analyseront votre profil pour vous orienter vers la formation idéale.</p>
+                                <p>Complétez le diagnostic d'une heure. Nos experts analyseront votre profil pour vous orienter vers la formation idéale adaptée à vos ambitions.</p>
                             </div>
                         </div>
 
-                        <div class="step-item">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
+                        <div class="pi-step">
+                            <div class="pi-step-number">3</div>
+                            <div class="pi-step-content">
                                 <h3>Validation finale</h3>
-                                <p>L'équipe pédagogique examinera votre dossier. Vous recevrez une confirmation et les instructions de paiement.</p>
+                                <p>L'équipe pédagogique examinera votre dossier. Vous recevrez une confirmation et les instructions de paiement pour débuter votre formation.</p>
                             </div>
                         </div>
 
-                        <div class="cta-section">
-                            <button type="button" class="cta-button" onclick="document.querySelector('.form-card').scrollIntoView({behavior: 'smooth'})">
+                        <div class="pi-cta">
+                            <button type="button" class="pi-button" onclick="document.querySelector('.pi-form-card').scrollIntoView({behavior: 'smooth'})">
                                 <i class="fas fa-pen-fancy"></i>
                                 Commencer maintenant
                             </button>
@@ -561,21 +614,21 @@
                     </div>
 
                     <!-- Form Section -->
-                    <div class="form-card">
-                        <div class="form-header">
+                    <div class="pi-form-card">
+                        <div class="pi-form-header">
                             <h2>Formulaire de pré-inscription</h2>
                             <p>Tous les champs sont obligatoires</p>
                         </div>
 
                         @if(session('success'))
-                            <div class="alert-box success">
+                            <div class="pi-alert success">
                                 <i class="fas fa-check-circle"></i>
                                 <div>{{ session('success') }}</div>
                             </div>
                         @endif
 
                         @if($errors->any())
-                            <div class="alert-box error">
+                            <div class="pi-alert error">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <div>
                                     <strong>Erreur :</strong> Veuillez corriger les champs suivants.
@@ -600,29 +653,29 @@
 </div>
 
 <!-- Price Modal -->
-<div class="price-modal" id="programme-price-modal">
-    <div class="price-modal-content">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 20px;">
-            <div style="font-weight: 800; font-size: 1.125rem; color: var(--text-primary);">Confirmer la formation</div>
+<div class="pi-modal" id="programme-price-modal">
+    <div class="pi-modal-content">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 24px;">
+            <div style="font-weight: 900; font-size: 1.25rem; color: var(--text-primary);">Confirmer la formation</div>
             <button type="button" id="programme-price-close" style="background: transparent; border: 0; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; padding: 8px;">&times;</button>
         </div>
-        <div style="color: var(--text-secondary); font-size: 0.9375rem; margin-bottom: 8px;">Formation sélectionnée</div>
-        <div id="programme-price-name" style="color: var(--text-primary); font-size: 1.25rem; font-weight: 800; margin-bottom: 20px;"></div>
-        <div style="color: var(--text-secondary); font-size: 0.9375rem; margin-bottom: 8px;">Prix de la formation</div>
-        <div id="programme-price-amount" style="color: var(--primary); font-size: 2rem; font-weight: 900; margin-bottom: 24px;"></div>
-        <div style="display:flex; gap: 12px; justify-content:flex-end;">
-            <button type="button" id="programme-price-cancel" style="padding: 12px 24px; border-radius: 12px; border: 2px solid var(--border); background: transparent; color: var(--text-primary); font-weight: 700; cursor: pointer;">Annuler</button>
-            <button type="button" id="programme-price-confirm" style="padding: 12px 24px; border-radius: 12px; border: 0; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #0f172a; font-weight: 800; cursor: pointer;">Confirmer</button>
+        <div style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 10px;">Formation sélectionnée</div>
+        <div id="programme-price-name" style="color: var(--text-primary); font-size: 1.375rem; font-weight: 900; margin-bottom: 24px;"></div>
+        <div style="color: var(--text-secondary); font-size: 1rem; margin-bottom: 10px;">Prix de la formation</div>
+        <div id="programme-price-amount" style="color: var(--primary); font-size: 2.25rem; font-weight: 900; margin-bottom: 28px;"></div>
+        <div style="display:flex; gap: 16px; justify-content:flex-end;">
+            <button type="button" id="programme-price-cancel" style="padding: 14px 28px; border-radius: 16px; border: 2px solid var(--border); background: transparent; color: var(--text-primary); font-weight: 700; cursor: pointer;">Annuler</button>
+            <button type="button" id="programme-price-confirm" style="padding: 14px 28px; border-radius: 16px; border: 0; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #ffffff; font-weight: 900; cursor: pointer;">Confirmer</button>
         </div>
     </div>
 </div>
 
 <!-- Loading Overlay -->
-<div class="loading-overlay" id="loadingOverlay">
+<div class="pi-loading" id="loadingOverlay">
     <div style="text-align: center;">
-        <div class="loader"></div>
-        <div style="color: var(--primary); font-size: 1.125rem; font-weight: 700; margin-top: 20px;">Envoi en cours...</div>
-        <div style="color: var(--text-secondary); font-size: 0.9375rem; margin-top: 8px;">Veuillez patienter</div>
+        <div class="pi-loader"></div>
+        <div style="color: var(--primary); font-size: 1.25rem; font-weight: 700; margin-top: 24px;">Envoi en cours...</div>
+        <div style="color: var(--text-secondary); font-size: 1rem; margin-top: 10px;">Veuillez patienter</div>
     </div>
 </div>
 @endsection
@@ -720,7 +773,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        const firstError = document.querySelector('.form-input.error, .form-select.error');
+        const firstError = document.querySelector('.pi-input.error, .pi-select.error');
         if (firstError) {
             firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             setTimeout(() => firstError.focus(), 500);

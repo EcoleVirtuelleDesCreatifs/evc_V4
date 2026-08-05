@@ -3,46 +3,46 @@
     Informations personnelles
 </h3>
 
-<div class="form-grid">
-    <div class="form-field">
-        <label class="form-label">Nom complet <span class="required">*</span></label>
-        <input type="text" name="nom_complet" class="form-input" placeholder="Votre nom complet" value="{{ old('nom_complet') }}" required>
+<div class="pi-grid">
+    <div class="pi-field">
+        <label class="pi-label">Nom complet <span class="required">*</span></label>
+        <input type="text" name="nom_complet" class="pi-input" placeholder="Votre nom complet" value="{{ old('nom_complet') }}" required>
     </div>
-    <div class="form-field">
-        <label class="form-label">Prénom <span class="required">*</span></label>
-        <input type="text" name="prenom" class="form-input" placeholder="Votre prénom" value="{{ old('prenom') }}" required>
-    </div>
-</div>
-
-<div class="form-grid">
-    <div class="form-field">
-        <label class="form-label">Âge <span class="required">*</span></label>
-        <input type="number" name="age" min="10" max="100" class="form-input" placeholder="Votre âge" value="{{ old('age') }}" required>
-    </div>
-    <div class="form-field">
-        <label class="form-label">Date de naissance <span class="required">*</span></label>
-        <input type="date" name="date_naissance" class="form-input" value="{{ old('date_naissance') }}" required>
+    <div class="pi-field">
+        <label class="pi-label">Prénom <span class="required">*</span></label>
+        <input type="text" name="prenom" class="pi-input" placeholder="Votre prénom" value="{{ old('prenom') }}" required>
     </div>
 </div>
 
-<div class="form-grid">
-    <div class="form-field">
-        <label class="form-label">Sexe <span class="required">*</span></label>
-        <select name="sexe" class="form-select" required>
+<div class="pi-grid">
+    <div class="pi-field">
+        <label class="pi-label">Âge <span class="required">*</span></label>
+        <input type="number" name="age" min="10" max="100" class="pi-input" placeholder="Votre âge" value="{{ old('age') }}" required>
+    </div>
+    <div class="pi-field">
+        <label class="pi-label">Date de naissance <span class="required">*</span></label>
+        <input type="date" name="date_naissance" class="pi-input" value="{{ old('date_naissance') }}" required>
+    </div>
+</div>
+
+<div class="pi-grid">
+    <div class="pi-field">
+        <label class="pi-label">Sexe <span class="required">*</span></label>
+        <select name="sexe" class="pi-select" required>
             <option value="">Sélectionnez</option>
             <option value="M" {{ old('sexe') === 'M' ? 'selected' : '' }}>Masculin</option>
             <option value="F" {{ old('sexe') === 'F' ? 'selected' : '' }}>Féminin</option>
         </select>
     </div>
-    <div class="form-field">
-        <label class="form-label">Nationalité <span class="required">*</span></label>
-        <input type="text" name="nationalite" class="form-input" placeholder="Ex: Ivoirienne" value="{{ old('nationalite') }}" required>
+    <div class="pi-field">
+        <label class="pi-label">Nationalité <span class="required">*</span></label>
+        <input type="text" name="nationalite" class="pi-input" placeholder="Ex: Ivoirienne" value="{{ old('nationalite') }}" required>
     </div>
 </div>
 
-<div class="form-field">
-    <label class="form-label">Photo de profil <span class="required">*</span></label>
-    <input type="file" name="photo_profil" accept="image/*" class="form-input" required>
+<div class="pi-field">
+    <label class="pi-label">Photo de profil <span class="required">*</span></label>
+    <input type="file" name="photo_profil" accept="image/*" class="pi-input" required>
 </div>
 
 <h3 style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 32px 0 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 10px;">
@@ -50,20 +50,20 @@
     Coordonnées
 </h3>
 
-<div class="form-grid">
-    <div class="form-field">
-        <label class="form-label">Email <span class="required">*</span></label>
-        <input type="email" name="email" class="form-input" placeholder="votre@email.com" value="{{ old('email') }}" required>
+<div class="pi-grid">
+    <div class="pi-field">
+        <label class="pi-label">Email <span class="required">*</span></label>
+        <input type="email" name="email" class="pi-input" placeholder="votre@email.com" value="{{ old('email') }}" required>
     </div>
-    <div class="form-field">
-        <label class="form-label">Numéro WhatsApp <span class="required">*</span></label>
-        <input type="tel" name="whatsapp" class="form-input" placeholder="+225 XX XX XX XX" value="{{ old('whatsapp') }}" required>
+    <div class="pi-field">
+        <label class="pi-label">Numéro WhatsApp <span class="required">*</span></label>
+        <input type="tel" name="whatsapp" class="pi-input" placeholder="+225 XX XX XX XX" value="{{ old('whatsapp') }}" required>
     </div>
 </div>
 
-<div class="form-field">
-    <label class="form-label">Ville / Pays de résidence <span class="required">*</span></label>
-    <input type="text" name="ville_pays" class="form-input" placeholder="Ex: Abidjan, Côte d'Ivoire" value="{{ old('ville_pays') }}" required>
+<div class="pi-field">
+    <label class="pi-label">Ville / Pays de résidence <span class="required">*</span></label>
+    <input type="text" name="ville_pays" class="pi-input" placeholder="Ex: Abidjan, Côte d'Ivoire" value="{{ old('ville_pays') }}" required>
 </div>
 
 <h3 style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 32px 0 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 10px;">
@@ -71,10 +71,10 @@
     Informations académiques & professionnelles
 </h3>
 
-<div class="form-grid">
-    <div class="form-field">
-        <label class="form-label">Niveau d'étude <span class="required">*</span></label>
-        <select name="niveau_etude" class="form-select" required>
+<div class="pi-grid">
+    <div class="pi-field">
+        <label class="pi-label">Niveau d'étude <span class="required">*</span></label>
+        <select name="niveau_etude" class="pi-select" required>
             <option value="">Sélectionnez</option>
             @php $niv = old('niveau_etude'); @endphp
             <option {{ ($niv==='Collège') ? 'selected' : '' }}>Collège</option>
@@ -86,15 +86,15 @@
             <option {{ ($niv==='Doctorat') ? 'selected' : '' }}>Doctorat</option>
         </select>
     </div>
-    <div class="form-field">
-        <label class="form-label">Domaine d'étude ou spécialité <span class="required">*</span></label>
-        <input type="text" name="domaine_etude" class="form-input" placeholder="Ex: Informatique, Commerce, etc." value="{{ old('domaine_etude') }}" required>
+    <div class="pi-field">
+        <label class="pi-label">Domaine d'étude ou spécialité <span class="required">*</span></label>
+        <input type="text" name="domaine_etude" class="pi-input" placeholder="Ex: Informatique, Commerce, etc." value="{{ old('domaine_etude') }}" required>
     </div>
 </div>
 
-<div class="form-field">
-    <label class="form-label">Compétences déjà acquises <span class="required">*</span></label>
-    <textarea name="competences" class="form-input" placeholder="Décrivez vos compétences actuelles..." required>{{ old('competences') }}</textarea>
+<div class="pi-field">
+    <label class="pi-label">Compétences déjà acquises <span class="required">*</span></label>
+    <textarea name="competences" class="pi-input" placeholder="Décrivez vos compétences actuelles..." required>{{ old('competences') }}</textarea>
 </div>
 
 <h3 style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin: 32px 0 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 10px;">
@@ -102,10 +102,10 @@
     Formation demandée
 </h3>
 
-<div class="form-grid">
-    <div class="form-field">
-        <label class="form-label">Programme souhaité <span class="required">*</span></label>
-        <select name="programme" class="form-select" required>
+<div class="pi-grid">
+    <div class="pi-field">
+        <label class="pi-label">Programme souhaité <span class="required">*</span></label>
+        <select name="programme" class="pi-select" required>
             <option value="">Sélectionnez</option>
             @php $prog = old('programme'); @endphp
             <option value="design-graphique" {{ ($prog==='design-graphique') ? 'selected' : '' }}>Design Graphique</option>
@@ -113,9 +113,9 @@
             <option value="gestion-informatique" {{ ($prog==='gestion-informatique') ? 'selected' : '' }}>Gestion Informatique</option>
         </select>
     </div>
-    <div class="form-field">
-        <label class="form-label">Niveau actuel pour cette formation <span class="required">*</span></label>
-        <select name="niveau_formation" class="form-select" required>
+    <div class="pi-field">
+        <label class="pi-label">Niveau actuel pour cette formation <span class="required">*</span></label>
+        <select name="niveau_formation" class="pi-select" required>
             <option value="">Sélectionnez</option>
             @php $nivf = old('niveau_formation'); @endphp
             <option {{ ($nivf==='Aucune notion') ? 'selected' : '' }}>Aucune notion</option>
@@ -125,21 +125,21 @@
     </div>
 </div>
 
-<div class="form-field">
-    <label class="form-label">Motivation pour la formation <span class="required">*</span></label>
-    <textarea name="motivation" class="form-input" placeholder="Parlez-nous de votre motivation..." required>{{ old('motivation') }}</textarea>
+<div class="pi-field">
+    <label class="pi-label">Motivation pour la formation <span class="required">*</span></label>
+    <textarea name="motivation" class="pi-input" placeholder="Parlez-nous de votre motivation..." required>{{ old('motivation') }}</textarea>
 </div>
 
-<div class="form-grid">
-    <div class="form-field">
-        <label class="form-label">Date à laquelle vous souhaitez procéder au paiement <span class="required">*</span></label>
-        <input type="date" name="date_inscription_souhaitee" class="form-input" value="{{ old('date_inscription_souhaitee') }}" required>
+<div class="pi-grid">
+    <div class="pi-field">
+        <label class="pi-label">Date à laquelle vous souhaitez procéder au paiement <span class="required">*</span></label>
+        <input type="date" name="date_inscription_souhaitee" class="pi-input" value="{{ old('date_inscription_souhaitee') }}" required>
     </div>
 </div>
 
-<div class="form-field">
-    <label class="form-label">Comment avez-vous connu l'EVC ? <span class="required">*</span></label>
-    <select name="origine" class="form-select" required>
+<div class="pi-field">
+    <label class="pi-label">Comment avez-vous connu l'EVC ? <span class="required">*</span></label>
+    <select name="origine" class="pi-select" required>
         <option value="">Sélectionnez</option>
         @php $orig = old('origine'); @endphp
         <option {{ ($orig==='Réseaux sociaux') ? 'selected' : '' }}>Réseaux sociaux</option>
@@ -154,19 +154,19 @@
     Équipements disponibles
 </h3>
 
-<div class="form-grid">
-    <div class="form-field">
-        <label class="form-label">Avez-vous un ordinateur ? <span class="required">*</span></label>
-        <select name="ordinateur" class="form-select" required>
+<div class="pi-grid">
+    <div class="pi-field">
+        <label class="pi-label">Avez-vous un ordinateur ? <span class="required">*</span></label>
+        <select name="ordinateur" class="pi-select" required>
             <option value="">Sélectionnez</option>
             @php $ordi = old('ordinateur'); @endphp
             <option {{ ($ordi==='Oui') ? 'selected' : '' }}>Oui</option>
             <option {{ ($ordi==='Non') ? 'selected' : '' }}>Non</option>
         </select>
     </div>
-    <div class="form-field">
-        <label class="form-label">Avez-vous un smartphone ? <span class="required">*</span></label>
-        <select name="smartphone" class="form-select" required>
+    <div class="pi-field">
+        <label class="pi-label">Avez-vous un smartphone ? <span class="required">*</span></label>
+        <select name="smartphone" class="pi-select" required>
             <option value="">Sélectionnez</option>
             @php $sp = old('smartphone'); @endphp
             <option {{ ($sp==='Oui') ? 'selected' : '' }}>Oui</option>
@@ -175,9 +175,9 @@
     </div>
 </div>
 
-<div class="form-field">
-    <label class="form-label">Disponibilités <span class="required">*</span></label>
-    <select name="disponibilite" class="form-select" required>
+<div class="pi-field">
+    <label class="pi-label">Disponibilités <span class="required">*</span></label>
+    <select name="disponibilite" class="pi-select" required>
         <option value="">Sélectionnez</option>
         @php $disp = old('disponibilite'); @endphp
         <option value="semaine_soir" {{ ($disp==='semaine_soir') ? 'selected' : '' }}>Semaine (soir)</option>
@@ -191,21 +191,21 @@
     Validation
 </h3>
 
-<div class="form-field">
+<div class="pi-field">
     <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
         <input type="checkbox" name="veracite" {{ old('veracite') ? 'checked' : '' }} required style="margin-top: 4px;">
         <span style="color: var(--text-secondary); font-size: 14px;">Je certifie que les informations fournies sont exactes.</span>
     </label>
 </div>
 
-<div class="form-field">
+<div class="pi-field">
     <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer;">
         <input type="checkbox" name="consentement" {{ old('consentement') ? 'checked' : '' }} required style="margin-top: 4px;">
         <span style="color: var(--text-secondary); font-size: 14px;">J'accepte que mes données soient utilisées dans le cadre du processus de candidature.</span>
     </label>
 </div>
 
-<button type="submit" class="submit-button">
+<button type="submit" class="pi-submit">
     <i class="fas fa-paper-plane"></i>
     <span>Soumettre ma candidature</span>
 </button>
