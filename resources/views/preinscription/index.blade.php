@@ -521,7 +521,7 @@
 
             <!-- Steps Section -->
             <div class="row justify-content-center">
-                <div class="col-6">
+                <div class="col-7">
                     <div class="steps-card">
                         <div class="steps-header">
                             <h2>Votre parcours en 3 étapes</h2>
