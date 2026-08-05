@@ -436,6 +436,8 @@
                 class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Lauréats</a>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-8 ml-8">
+            <a href="{{ route('preinscription.start') }}"
+                class="whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 shadow transition">Je m'inscris</a>
             <a href="{{ route('login') }}" target="_blank"
                 class="whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 shadow transition">Mon Espace My EVC</a>
         </div>
@@ -620,6 +622,11 @@
                         class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Lauréats</a>
                 </div>
                 <div class="py-6">
+                    <a href="{{ route('preinscription.start') }}"
+                        class="-mx-3 block rounded-full py-3 px-6 text-base font-bold leading-7 text-white text-center mb-4"
+                        style="background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%); box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4), 0 4px 15px rgba(255, 152, 0, 0.3); border: 2px solid rgba(255, 255, 255, 0.2);">
+                        <i class="fas fa-edit mr-2"></i>Je m'inscris
+                    </a>
                     <a href="{{ route('login') }}" target="_blank"
                         class="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6 text-white hover:bg-gray-800">Mon Espace My EVC</a>
                 </div>
