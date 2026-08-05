@@ -29,7 +29,7 @@
 
     .admissions-hero {
         text-align: center;
-        margin-top: 60px;
+        margin-top: 120px;
         margin-bottom: 40px;
         position: relative;
         z-index: 1;
