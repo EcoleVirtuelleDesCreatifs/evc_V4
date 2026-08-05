@@ -432,10 +432,10 @@
                 class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Nos formations</a>
             <a href="{{ route('travaux') }}"
                 class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Projets Étudiants</a>
+            <a href="{{ route('laureats') }}"
+                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Nos Lauréats</a>
             <a href="{{ route('admissions') }}"
                 class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Admissions</a>
-            <a href="{{ route('laureats') }}"
-                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Lauréats</a>
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-8 ml-8">
             <a href="{{ route('preinscription.start') }}"
@@ -620,10 +620,10 @@
                         class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos formations</a>
                     <a href="{{ route('travaux') }}"
                         class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Projets Étudiants</a>
+                    <a href="{{ route('laureats') }}"
+                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos Lauréats</a>
                     <a href="{{ route('admissions') }}"
                         class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Admissions</a>
-                    <a href="{{ route('laureats') }}"
-                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Lauréats</a>
                 </div>
                 <div class="py-6">
                     <a href="{{ route('preinscription.start') }}"
