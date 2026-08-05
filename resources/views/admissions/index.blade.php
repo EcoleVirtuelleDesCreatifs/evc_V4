@@ -9,69 +9,41 @@
     .admissions-wrapper {
         --primary: #ff6b35;
         --primary-dark: #e55a2b;
-        --primary-light: #ff8c5a;
         --accent: #00d4ff;
         --bg-dark: #0a0e27;
         --bg-card: #151a3d;
         --text-primary: #ffffff;
         --text-secondary: #a0aec0;
         --border: #2d3748;
-        --success: #00d4aa;
     }
 
     .admissions-container {
         background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f4e 50%, #0d1333 100%);
         min-height: 100vh;
-        padding: 140px 20px 80px;
+        padding: 120px 20px 60px;
         position: relative;
-        overflow-x: hidden;
     }
 
     .admissions-hero {
         text-align: center;
-        margin-top: 180px;
-        margin-bottom: 40px;
-        position: relative;
-        z-index: 1;
-    }
-
-    .admissions-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 28px;
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.25) 0%, rgba(255, 107, 53, 0.15) 100%);
-        border: 2px solid rgba(255, 107, 53, 0.4);
-        border-radius: 50px;
-        color: var(--primary);
-        font-size: 0.875rem;
-        font-weight: 800;
-        margin-bottom: 28px;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2);
+        margin-bottom: 32px;
     }
 
     .admissions-title {
-        font-size: clamp(2.5rem, 6vw, 4rem);
-        font-weight: 900;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%);
-        background-size: 300% auto;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin-bottom: 20px;
-        letter-spacing: -0.03em;
-        line-height: 1.1;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
     }
 
     .admissions-subtitle {
-        font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+        font-size: clamp(1rem, 2vw, 1.125rem);
         color: var(--text-secondary);
-        max-width: 800px;
+        max-width: 700px;
         margin: 0 auto;
-        line-height: 1.8;
+        line-height: 1.6;
         font-weight: 400;
     }
 
@@ -81,101 +53,78 @@
     }
 
     .admissions-section {
-        background: rgba(21, 26, 61, 0.8);
-        border: 1px solid rgba(255, 107, 53, 0.2);
-        border-radius: 24px;
-        padding: 48px;
-        margin-bottom: 40px;
-        backdrop-filter: blur(30px);
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-        position: relative;
-        z-index: 1;
-        overflow: hidden;
-    }
-
-    .admissions-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%);
-        background-size: 200% auto;
-        animation: gradient-shift 3s linear infinite;
-    }
-
-    @keyframes gradient-shift {
-        0%, 100% { background-position: 0% center; }
-        50% { background-position: 100% center; }
+        background: rgba(21, 26, 61, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 24px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
     .admissions-section-header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 24px;
     }
 
     .admissions-section-header h2 {
         color: var(--primary);
-        font-size: 2rem;
-        font-weight: 900;
-        margin-bottom: 12px;
-        letter-spacing: -0.02em;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: -0.01em;
     }
 
     .admissions-section-header p {
         color: var(--text-secondary);
-        font-size: 1rem;
-        font-weight: 500;
+        font-size: 0.9375rem;
+        font-weight: 400;
     }
 
     .admissions-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
+        gap: 16px;
         margin-bottom: 0;
     }
 
     .admissions-item {
-        background: linear-gradient(135deg, rgba(10, 14, 39, 0.6) 0%, rgba(21, 26, 61, 0.4) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        padding: 28px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        background: rgba(10, 14, 39, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
     }
 
     .admissions-item:hover {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
-        border-color: rgba(255, 107, 53, 0.3);
-        transform: translateY(-4px);
+        background: rgba(255, 107, 53, 0.08);
+        border-color: rgba(255, 107, 53, 0.2);
     }
 
     .admissions-item-icon {
-        width: 56px;
-        height: 56px;
+        width: 40px;
+        height: 40px;
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        border-radius: 16px;
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.125rem;
         color: #ffffff;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);
+        margin-bottom: 12px;
     }
 
     .admissions-item h3 {
         color: var(--text-primary);
-        font-size: 1.25rem;
-        font-weight: 800;
-        margin-bottom: 12px;
-        letter-spacing: -0.01em;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
     }
 
     .admissions-item p {
         color: var(--text-secondary);
-        font-size: 1rem;
-        line-height: 1.7;
+        font-size: 0.875rem;
+        line-height: 1.5;
         margin: 0;
     }
 
@@ -188,19 +137,18 @@
     .admissions-list li {
         display: flex;
         align-items: flex-start;
-        gap: 16px;
-        padding: 20px;
-        background: linear-gradient(135deg, rgba(10, 14, 39, 0.6) 0%, rgba(21, 26, 61, 0.4) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        margin-bottom: 16px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        gap: 12px;
+        padding: 16px;
+        background: rgba(10, 14, 39, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
     }
 
     .admissions-list li:hover {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
-        border-color: rgba(255, 107, 53, 0.3);
-        transform: translateX(8px);
+        background: rgba(255, 107, 53, 0.08);
+        border-color: rgba(255, 107, 53, 0.2);
     }
 
     .admissions-list li:last-child {
@@ -209,104 +157,99 @@
 
     .admissions-list-icon {
         flex-shrink: 0;
-        width: 48px;
-        height: 48px;
+        width: 36px;
+        height: 36px;
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        border-radius: 12px;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.25rem;
+        font-size: 1rem;
         color: #ffffff;
-        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
     }
 
     .admissions-list-content h4 {
         color: var(--text-primary);
-        font-size: 1.125rem;
-        font-weight: 800;
-        margin-bottom: 8px;
-        letter-spacing: -0.01em;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        margin-bottom: 6px;
     }
 
     .admissions-list-content p {
         color: var(--text-secondary);
-        font-size: 0.9375rem;
-        line-height: 1.6;
+        font-size: 0.875rem;
+        line-height: 1.5;
         margin: 0;
     }
 
     .admissions-price {
         text-align: center;
-        padding: 32px;
-        background: linear-gradient(135deg, rgba(10, 14, 39, 0.6) 0%, rgba(21, 26, 61, 0.4) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        margin-bottom: 20px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        padding: 24px;
+        background: rgba(10, 14, 39, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        transition: all 0.3s ease;
     }
 
     .admissions-price:hover {
-        background: linear-gradient(135deg, rgba(255, 107, 53, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
-        border-color: rgba(255, 107, 53, 0.3);
-        transform: translateY(-4px);
+        background: rgba(255, 107, 53, 0.08);
+        border-color: rgba(255, 107, 53, 0.2);
     }
 
     .admissions-price-amount {
-        font-size: 2.5rem;
-        font-weight: 900;
+        font-size: 1.75rem;
+        font-weight: 700;
         color: var(--primary);
-        margin-bottom: 8px;
+        margin-bottom: 6px;
     }
 
     .admissions-price-label {
         color: var(--text-secondary);
-        font-size: 1rem;
-        font-weight: 500;
+        font-size: 0.875rem;
+        font-weight: 400;
     }
 
     .admissions-cta {
         text-align: center;
-        margin-top: 40px;
-        padding-top: 32px;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        margin-top: 32px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .admissions-button {
         display: inline-flex;
         align-items: center;
-        gap: 12px;
-        padding: 20px 48px;
+        gap: 8px;
+        padding: 16px 40px;
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border: none;
-        border-radius: 20px;
+        border-radius: 12px;
         color: #ffffff;
-        font-size: 1.125rem;
-        font-weight: 900;
+        font-size: 1rem;
+        font-weight: 600;
         cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 12px 40px rgba(255, 107, 53, 0.5);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
         text-decoration: none;
     }
 
     .admissions-button:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 60px rgba(255, 107, 53, 0.6);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(255, 107, 53, 0.5);
     }
 
     /* FAQ */
     .admissions-faq-item {
-        background: linear-gradient(135deg, rgba(10, 14, 39, 0.6) 0%, rgba(21, 26, 61, 0.4) 100%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        margin-bottom: 16px;
+        background: rgba(10, 14, 39, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        margin-bottom: 12px;
         overflow: hidden;
     }
 
     .admissions-faq-question {
-        padding: 20px 24px;
+        padding: 16px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -320,17 +263,16 @@
 
     .admissions-faq-question h4 {
         color: var(--text-primary);
-        font-size: 1.0625rem;
-        font-weight: 700;
+        font-size: 0.9375rem;
+        font-weight: 600;
         margin: 0;
-        letter-spacing: -0.01em;
     }
 
     .admissions-faq-answer {
-        padding: 0 24px 20px;
+        padding: 0 20px 16px;
         color: var(--text-secondary);
-        font-size: 0.9375rem;
-        line-height: 1.7;
+        font-size: 0.875rem;
+        line-height: 1.6;
         display: none;
     }
 
@@ -345,7 +287,7 @@
         }
 
         .admissions-section {
-            padding: 32px;
+            padding: 24px;
         }
     }
 </style>
@@ -357,12 +299,8 @@
         <div class="container">
             <!-- Hero Section -->
             <div class="admissions-hero">
-                <div class="admissions-badge">
-                    <i class="fas fa-graduation-cap"></i>
-                    Rejoignez-nous
-                </div>
                 <h1 class="admissions-title">Admissions</h1>
-                <p class="admissions-subtitle">Toutes les informations pour intégrer l'École Virtuelle des Créatifs et lancer votre carrière créative.</p>
+                <p class="admissions-subtitle">Toutes les informations pour intégrer l'École Virtuelle des Créatifs.</p>
             </div>
 
             <div class="admissions-content">
