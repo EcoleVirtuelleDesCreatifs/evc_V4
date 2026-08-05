@@ -441,7 +441,7 @@
             <a href="{{ route('preinscription.start') }}"
                 class="whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 shadow transition">Je m'inscris</a>
             <a href="{{ route('login') }}" target="_blank"
-                class="whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 shadow transition">Mon Espace My EVC</a>
+                class="whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 shadow transition">MY EVC</a>
         </div>
     </nav>
 </header>
@@ -632,7 +632,7 @@
                         <i class="fas fa-edit mr-2"></i>Je m'inscris
                     </a>
                     <a href="{{ route('login') }}" target="_blank"
-                        class="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6 text-white hover:bg-gray-800">Mon Espace My EVC</a>
+                        class="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6 text-white hover:bg-gray-800">MY EVC</a>
                 </div>
             </div>
         </div>
