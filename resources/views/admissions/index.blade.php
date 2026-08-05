@@ -22,14 +22,14 @@
     .admissions-container {
         background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f4e 50%, #0d1333 100%);
         min-height: 100vh;
-        padding: 100px 20px 80px;
+        padding: 140px 20px 80px;
         position: relative;
         overflow-x: hidden;
     }
 
     .admissions-hero {
         text-align: center;
-        margin-bottom: 80px;
+        margin-bottom: 40px;
         position: relative;
         z-index: 1;
     }
