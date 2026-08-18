@@ -80,6 +80,14 @@ Route::get('/evc-store', function () {
         ->header('Expires', '0');
 })->name('evc.store');
 
+Route::get('/studio-creative', function () {
+    return response()
+        ->view('studio-creative.index')
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+})->name('studio.creative');
+
 Route::get('/test-eligibilite-saop', [SaopEligibilityTestController::class, 'index'])->name('eligibilite.saop');
 Route::post('/test-eligibilite-saop', [SaopEligibilityTestController::class, 'store'])->name('eligibilite.saop.store');
 Route::post('/pre-registration', [HomepageController::class, 'store'])->name('pre-registration.store');

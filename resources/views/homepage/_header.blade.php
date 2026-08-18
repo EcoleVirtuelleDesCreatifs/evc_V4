@@ -77,6 +77,70 @@
         background-color: rgba(255, 107, 53, 0.1);
     }
 
+    .evc-nav-item {
+        position: relative;
+    }
+
+    .evc-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        margin-top: 0.5rem;
+        min-width: 220px;
+        background: rgba(255, 255, 255, 0.98);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 1rem;
+        padding: 0.5rem;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.25s ease;
+        z-index: 50;
+    }
+
+    .evc-nav-item:hover .evc-dropdown,
+    .evc-nav-item:focus-within .evc-dropdown {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .evc-dropdown-link {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.625rem 1rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1f2937;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    .evc-dropdown-link:hover {
+        color: #ff6b35;
+        background-color: rgba(255, 107, 53, 0.08);
+    }
+
+    .evc-dropdown-link i {
+        width: 18px;
+        text-align: center;
+        color: #ff6b35;
+        font-size: 0.875rem;
+    }
+
+    .evc-nav-item > .evc-nav-link .fa-chevron-down {
+        font-size: 0.625rem;
+        margin-left: 0.25rem;
+        transition: transform 0.25s ease;
+    }
+
+    .evc-nav-item:hover > .evc-nav-link .fa-chevron-down {
+        transform: rotate(180deg);
+    }
+
     .evc-actions {
         display: none;
         align-items: center;
@@ -470,8 +534,15 @@
             <a href="{{ route('presentation') }}" class="evc-nav-link">Pourquoi EVC ?</a>
             <a href="{{ route('formations') }}" class="evc-nav-link">Nos formations</a>
             <a href="{{ route('travaux') }}" class="evc-nav-link">Projets Étudiants</a>
-            <a href="{{ route('laureats') }}" class="evc-nav-link">Nos Lauréats</a>
-            <a href="{{ route('admissions') }}" class="evc-nav-link">Admissions</a>
+            <div class="evc-nav-item">
+                <a href="{{ route('admissions') }}" class="evc-nav-link">
+                    Admissions <i class="fas fa-chevron-down"></i>
+                </a>
+                <div class="evc-dropdown">
+                    <a href="{{ route('laureats') }}" class="evc-dropdown-link"><i class="fas fa-trophy"></i> Nos lauréats</a>
+                    <a href="{{ route('studio.creative') }}" class="evc-dropdown-link"><i class="fas fa-paint-brush"></i> Studio Creative</a>
+                </div>
+            </div>
             <a href="{{ route('evc.store') }}" class="evc-nav-link">EVC STORE</a>
         </nav>
 
@@ -757,8 +828,14 @@
                 <a href="{{ route('presentation') }}" class="mobile-menu-link"><i class="fas fa-question-circle"></i> Pourquoi EVC ?</a>
                 <a href="{{ route('formations') }}" class="mobile-menu-link"><i class="fas fa-graduation-cap"></i> Nos formations</a>
                 <a href="{{ route('travaux') }}" class="mobile-menu-link"><i class="fas fa-project-diagram"></i> Projets Étudiants</a>
-                <a href="{{ route('laureats') }}" class="mobile-menu-link"><i class="fas fa-trophy"></i> Nos Lauréats</a>
-                <a href="{{ route('admissions') }}" class="mobile-menu-link"><i class="fas fa-door-open"></i> Admissions</a>
+                <div class="mobile-menu-link mobile-menu-group-toggle" style="cursor: pointer;" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                    <i class="fas fa-door-open"></i> Admissions <i class="fas fa-chevron-down ml-auto"></i>
+                </div>
+                <div class="hidden pl-8 space-y-2 pb-2">
+                    <a href="{{ route('admissions') }}" class="mobile-menu-link text-sm"><i class="fas fa-info-circle"></i> Admissions</a>
+                    <a href="{{ route('laureats') }}" class="mobile-menu-link text-sm"><i class="fas fa-trophy"></i> Nos lauréats</a>
+                    <a href="{{ route('studio.creative') }}" class="mobile-menu-link text-sm"><i class="fas fa-paint-brush"></i> Studio Creative</a>
+                </div>
                 <a href="{{ route('evc.store') }}" class="mobile-menu-link"><i class="fas fa-store"></i> EVC STORE</a>
             </nav>
             <div class="mt-8 pt-6 border-t border-white/10 space-y-4">
