@@ -1,108 +1,158 @@
-<!-- Animation CSS pour le bouton Préinscription -->
+<!-- Header & Navigation Styles -->
 <style>
-    /* Forcer le header à rester toujours blanc */
+    /* Header moderne et épuré */
     #main-header {
-        background-color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.98) !important;
         background-image: none !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 20px rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
 
     /* Empêcher les classes dark de s'appliquer */
     #main-header.bg-gray-900\/90,
     #main-header.backdrop-blur-lg {
-        background-color: #ffffff !important;
+        background-color: rgba(255, 255, 255, 0.98) !important;
         backdrop-filter: none !important;
     }
 
-    @keyframes float-bounce {
+    .evc-header {
+        min-height: 72px;
+        padding: 0.75rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        max-width: 1280px;
+        margin: 0 auto;
+        gap: 1.5rem;
+    }
 
-        0%,
-        100% {
-            transform: translateY(0px);
+    .evc-logo {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .evc-logo img {
+        height: 3.5rem;
+        width: auto;
+        transition: transform 0.3s ease;
+    }
+
+    .evc-logo:hover img {
+        transform: scale(1.03);
+    }
+
+    .evc-nav {
+        display: none;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    @media (min-width: 1024px) {
+        .evc-nav {
+            display: flex;
+            flex: 1;
+            justify-content: center;
         }
+    }
 
-        50% {
-            transform: translateY(-8px);
+    .evc-nav-link {
+        padding: 0.625rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #1f2937;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        white-space: nowrap;
+    }
+
+    .evc-nav-link:hover {
+        color: #ff6b35;
+        background-color: rgba(255, 107, 53, 0.08);
+    }
+
+    .evc-nav-link.active {
+        color: #ff6b35;
+        background-color: rgba(255, 107, 53, 0.1);
+    }
+
+    .evc-actions {
+        display: none;
+        align-items: center;
+        gap: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 1024px) {
+        .evc-actions {
+            display: flex;
         }
     }
 
-    @keyframes glow-pulse {
+    .evc-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.625rem 1.25rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        white-space: nowrap;
+    }
 
-        0%,
-        100% {
-            box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4),
-                0 4px 15px rgba(255, 152, 0, 0.3),
-                inset 0 -3px 8px rgba(0, 0, 0, 0.2);
+    .evc-btn-primary {
+        background: linear-gradient(135deg, #ff7a42 0%, #ff6b35 100%);
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(255, 107, 53, 0.35);
+    }
+
+    .evc-btn-primary:hover {
+        background: linear-gradient(135deg, #ff8c5a 0%, #ff7a42 100%);
+        box-shadow: 0 6px 20px rgba(255, 107, 53, 0.45);
+        transform: translateY(-1px);
+    }
+
+    .evc-btn-secondary {
+        background: #ffffff;
+        color: #1f2937;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .evc-btn-secondary:hover {
+        background: #f8fafc;
+        border-color: #ff6b35;
+        color: #ff6b35;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .evc-mobile-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: 0.75rem;
+        color: #1f2937;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .evc-mobile-toggle:hover {
+        background: rgba(255, 107, 53, 0.08);
+        color: #ff6b35;
+        border-color: rgba(255, 107, 53, 0.3);
+    }
+
+    @media (min-width: 1024px) {
+        .evc-mobile-toggle {
+            display: none;
         }
-
-        50% {
-            box-shadow: 0 12px 35px rgba(255, 152, 0, 0.6),
-                0 6px 20px rgba(255, 152, 0, 0.5),
-                inset 0 -3px 8px rgba(0, 0, 0, 0.2);
-        }
-    }
-
-    @keyframes shimmer {
-        0% {
-            background-position: -200% center;
-        }
-
-        100% {
-            background-position: 200% center;
-        }
-    }
-
-    .preinscription-btn {
-        position: relative;
-        overflow: hidden;
-        border-radius: 50px !important;
-        font-weight: 700 !important;
-        font-size: 1rem !important;
-        background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%) !important;
-        border: 3px solid rgba(255, 255, 255, 0.2) !important;
-        animation: float-bounce 3s ease-in-out infinite, glow-pulse 2s ease-in-out infinite;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .preinscription-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg,
-                transparent,
-                rgba(255, 255, 255, 0.4),
-                transparent);
-        animation: shimmer 3s infinite;
-    }
-
-    .preinscription-btn::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-    }
-
-    .preinscription-btn:hover {
-        transform: translateY(-4px) scale(1.05) !important;
-        border-color: rgba(255, 255, 255, 0.4) !important;
-    }
-
-    .preinscription-btn:hover::after {
-        width: 300px;
-        height: 300px;
-    }
-
-    .preinscription-btn:active {
-        transform: translateY(-2px) scale(1.02) !important;
     }
 
     @media (min-width: 1024px) {
@@ -410,42 +460,37 @@
 </style>
 
 <!-- Header -->
-<header id="main-header" class="bg-white fixed top-0 left-0 w-full z-50 shadow-sm">
-    <nav class="mx-auto flex max-w-7xl items-center justify-between px-3 py-1 lg:px-8 lg:py-0" style="min-height:70px;">
-        <div class="flex lg:flex-1">
-            <a href="{{ url('/') }}">
-                <img class="h-16 logo-desktop w-auto transition-all duration-300" src="{{ asset('assets/img/logo_evc.png') }}"
-                    alt="EVC Logo" decoding="async" fetchpriority="high">
+<header id="main-header" class="fixed top-0 left-0 w-full z-50">
+    <div class="evc-header">
+        <a href="{{ url('/') }}" class="evc-logo">
+            <img class="logo-desktop" src="{{ asset('assets/img/logo_evc.png') }}" alt="EVC Logo" decoding="async" fetchpriority="high">
+        </a>
+
+        <nav class="evc-nav">
+            <a href="{{ route('presentation') }}" class="evc-nav-link">Pourquoi EVC ?</a>
+            <a href="{{ route('formations') }}" class="evc-nav-link">Nos formations</a>
+            <a href="{{ route('travaux') }}" class="evc-nav-link">Projets Étudiants</a>
+            <a href="{{ route('laureats') }}" class="evc-nav-link">Nos Lauréats</a>
+            <a href="{{ route('admissions') }}" class="evc-nav-link">Admissions</a>
+            <a href="{{ route('evc.store') }}" class="evc-nav-link">EVC STORE</a>
+        </nav>
+
+        <div class="evc-actions">
+            <a href="{{ route('preinscription.start') }}" class="evc-btn evc-btn-primary">
+                <i class="fas fa-user-plus"></i>
+                Je m'inscris
+            </a>
+            <a href="{{ route('login') }}" target="_blank" class="evc-btn evc-btn-secondary">
+                <i class="fas fa-user"></i>
+                MY EVC
             </a>
         </div>
-        <div class="flex lg:hidden">
-            <button type="button" id="mobile-menu-open-button"
-                class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-900">
-                <span class="sr-only">Ouvrir le menu principal</span>
-                <i class="fas fa-bars text-2xl"></i>
-            </button>
-        </div>
-        <div class="hidden lg:flex lg:gap-x-12">
-            <a href="{{ route('presentation') }}"
-                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Pourquoi EVC ?</a>
-            <a href="{{ route('formations') }}"
-                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Nos formations</a>
-            <a href="{{ route('travaux') }}"
-                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Projets Étudiants</a>
-            <a href="{{ route('laureats') }}"
-                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Nos Lauréats</a>
-            <a href="{{ route('admissions') }}"
-                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">Admissions</a>
-            <a href="{{ route('evc.store') }}"
-                class="text-sm font-semibold leading-6 text-gray-900 hover:text-gray-700 transition">EVC STORE</a>
-        </div>
-        <div class="hidden lg:flex lg:flex-1 lg:justify-end lg:items-center gap-x-8 ml-8">
-            <a href="{{ route('preinscription.start') }}"
-                class="whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-400 hover:to-amber-300 shadow transition">Je m'inscris</a>
-            <a href="{{ route('login') }}" target="_blank"
-                class="whitespace-nowrap inline-flex items-center px-4 py-2 rounded-full text-white font-semibold bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-600 hover:to-blue-800 shadow transition">MY EVC</a>
-        </div>
-    </nav>
+
+        <button type="button" id="mobile-menu-open-button" class="evc-mobile-toggle">
+            <span class="sr-only">Ouvrir le menu</span>
+            <i class="fas fa-bars text-lg"></i>
+        </button>
+    </div>
 </header>
 
 <!-- Flash Info Bar -->
@@ -599,45 +644,130 @@
 
 </script>
 
+<!-- Mobile Menu Styles -->
+<style>
+    #mobile-menu .mobile-menu-panel {
+        background: linear-gradient(180deg, #0d1333 0%, #151a3d 100%);
+        border-left: 1px solid rgba(255, 107, 53, 0.15);
+        box-shadow: -8px 0 40px rgba(0, 0, 0, 0.4);
+    }
+
+    #mobile-menu .mobile-menu-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        border-radius: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #ffffff;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    #mobile-menu .mobile-menu-link:hover,
+    #mobile-menu .mobile-menu-link:active {
+        background: rgba(255, 107, 53, 0.12);
+        color: #ff8c5a;
+    }
+
+    #mobile-menu .mobile-menu-link i {
+        width: 24px;
+        text-align: center;
+        color: #ff6b35;
+    }
+
+    #mobile-menu .mobile-menu-close {
+        width: 2.75rem;
+        height: 2.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        color: #1f2937;
+        background: #ffffff;
+        border: none;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    #mobile-menu .mobile-menu-close:hover {
+        background: rgba(255, 107, 53, 0.1);
+        color: #ff6b35;
+    }
+
+    #mobile-menu .mobile-menu-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+        border-radius: 9999px;
+        background: linear-gradient(135deg, #ff7a42 0%, #ff6b35 100%);
+        color: #ffffff;
+        font-weight: 700;
+        text-align: center;
+        text-decoration: none;
+        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.35);
+        transition: all 0.25s ease;
+    }
+
+    #mobile-menu .mobile-menu-cta:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(255, 107, 53, 0.45);
+    }
+
+    #mobile-menu .mobile-menu-secondary {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.875rem 1.5rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.25s ease;
+    }
+
+    #mobile-menu .mobile-menu-secondary:hover {
+        background: rgba(255, 107, 53, 0.12);
+        border-color: rgba(255, 107, 53, 0.3);
+    }
+</style>
+
 <!-- Mobile menu -->
 <div id="mobile-menu" class="lg:hidden hidden" role="dialog" aria-modal="true">
-    <div class="fixed inset-0 z-[9998] bg-black/30" aria-hidden="true"></div>
-    <div
-        class="fixed inset-y-0 right-0 z-[9999] w-full overflow-y-auto bg-gradient-to-b from-[#000033] to-[#000066] px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-white/10">
+    <div class="fixed inset-0 z-[9998] bg-black/40" aria-hidden="true"></div>
+    <div class="mobile-menu-panel fixed inset-y-0 right-0 z-[9999] w-full overflow-y-auto px-6 py-6 sm:max-w-sm">
         <div class="flex items-center justify-between">
             <a href="{{ url('/') }}" class="-m-1.5 p-1.5">
-                <img class="h-16 w-auto" src="{{ asset('assets/img/logo_evc.png') }}" alt="EVC Logo" decoding="async">
+                <img class="h-12 w-auto" src="{{ asset('assets/img/logo_evc.png') }}" alt="EVC Logo" decoding="async">
             </a>
-            <button type="button" id="mobile-menu-close-button" class="-m-2.5 rounded-md p-2.5 text-white">
+            <button type="button" id="mobile-menu-close-button" class="mobile-menu-close">
                 <span class="sr-only">Fermer le menu</span>
-                <i class="fas fa-times text-2xl"></i>
+                <i class="fas fa-times text-lg"></i>
             </button>
         </div>
-        <div class="mt-6 flow-root">
-            <div class="-my-6 divide-y divide-gray-500/25">
-                <div class="space-y-2 py-6">
-                    <a href="{{ route('presentation') }}"
-                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Pourquoi EVC ?</a>
-                    <a href="{{ route('formations') }}"
-                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos formations</a>
-                    <a href="{{ route('travaux') }}"
-                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Projets Étudiants</a>
-                    <a href="{{ route('laureats') }}"
-                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Nos Lauréats</a>
-                    <a href="{{ route('admissions') }}"
-                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">Admissions</a>
-                    <a href="{{ route('evc.store') }}"
-                        class="-mx-3 block rounded-lg py-2 px-3 text-base font-semibold leading-7 text-white hover:bg-gray-800">EVC STORE</a>
-                </div>
-                <div class="py-6">
-                    <a href="{{ route('preinscription.start') }}"
-                        class="-mx-3 block rounded-full py-3 px-6 text-base font-bold leading-7 text-white text-center mb-4"
-                        style="background: linear-gradient(135deg, #ff9800 0%, #ff6b00 100%); box-shadow: 0 8px 25px rgba(255, 152, 0, 0.4), 0 4px 15px rgba(255, 152, 0, 0.3); border: 2px solid rgba(255, 255, 255, 0.2);">
-                        <i class="fas fa-edit mr-2"></i>Je m'inscris
-                    </a>
-                    <a href="{{ route('login') }}" target="_blank"
-                        class="-mx-3 block rounded-lg py-2.5 px-3 text-base font-semibold leading-6 text-white hover:bg-gray-800">MY EVC</a>
-                </div>
+        <div class="mt-8">
+            <nav class="space-y-2">
+                <a href="{{ route('presentation') }}" class="mobile-menu-link"><i class="fas fa-question-circle"></i> Pourquoi EVC ?</a>
+                <a href="{{ route('formations') }}" class="mobile-menu-link"><i class="fas fa-graduation-cap"></i> Nos formations</a>
+                <a href="{{ route('travaux') }}" class="mobile-menu-link"><i class="fas fa-project-diagram"></i> Projets Étudiants</a>
+                <a href="{{ route('laureats') }}" class="mobile-menu-link"><i class="fas fa-trophy"></i> Nos Lauréats</a>
+                <a href="{{ route('admissions') }}" class="mobile-menu-link"><i class="fas fa-door-open"></i> Admissions</a>
+                <a href="{{ route('evc.store') }}" class="mobile-menu-link"><i class="fas fa-store"></i> EVC STORE</a>
+            </nav>
+            <div class="mt-8 pt-6 border-t border-white/10 space-y-4">
+                <a href="{{ route('preinscription.start') }}" class="mobile-menu-cta">
+                    <i class="fas fa-user-plus"></i> Je m'inscris
+                </a>
+                <a href="{{ route('login') }}" target="_blank" class="mobile-menu-secondary">
+                    <i class="fas fa-user"></i> MY EVC
+                </a>
             </div>
         </div>
     </div>
