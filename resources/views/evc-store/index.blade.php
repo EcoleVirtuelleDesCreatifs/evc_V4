@@ -6,6 +6,10 @@
 
 @push('styles')
 <style>
+    html {
+        scroll-behavior: smooth;
+    }
+
     .store-wrapper {
         --primary: #ff6b35;
         --primary-dark: #e55a2b;
@@ -130,6 +134,20 @@
         transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.45s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .store-product:hover {
@@ -406,24 +424,43 @@
 
     .store-toast {
         position: fixed;
-        bottom: 24px;
+        top: 50%;
         left: 50%;
-        transform: translateX(-50%) translateY(100px);
-        background: rgba(21, 26, 61, 0.95);
+        transform: translate(-50%, -50%) scale(0.9);
+        background: rgba(13, 19, 51, 0.98);
         border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 14px 24px;
+        border-radius: 16px;
+        padding: 22px 32px;
         color: #ffffff;
-        font-weight: 600;
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-        z-index: 10000;
+        font-weight: 700;
+        font-size: 1.0625rem;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+        z-index: 10001;
         opacity: 0;
-        transition: all 0.35s ease;
+        visibility: hidden;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 280px;
+        max-width: 90%;
+        text-align: center;
+        justify-content: center;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .store-toast.store-toast-warning {
+        border-color: rgba(255, 107, 53, 0.5);
+        box-shadow: 0 25px 60px rgba(255, 107, 53, 0.25);
+    }
+
+    .store-toast i {
+        font-size: 1.25rem;
     }
 
     .store-toast.active {
-        transform: translateX(-50%) translateY(0);
+        transform: translate(-50%, -50%) scale(1);
         opacity: 1;
+        visibility: visible;
     }
 
     .store-order-modal {
@@ -465,6 +502,14 @@
         overflow-y: auto;
         box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
         padding: 36px;
+        transform: scale(0.95);
+        opacity: 0;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .store-order-modal.active .store-order-content {
+        transform: scale(1);
+        opacity: 1;
     }
 
     .store-order-header {
@@ -603,6 +648,18 @@
     .store-order-submit:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+    }
+
+    .store-order-submit:disabled,
+    .store-order-submit.loading {
+        opacity: 0.85;
+        cursor: wait;
+        transform: none;
+    }
+
+    .store-order-submit:disabled i,
+    .store-order-submit.loading i {
+        animation: spin 0.8s linear infinite;
     }
 
     @media (max-width: 1024px) {
@@ -852,9 +909,11 @@
             updateCartUI();
         }
 
-        function showToast(message) {
+        function showToast(message, type = 'success') {
             const toast = document.getElementById('store-toast');
-            toast.textContent = message;
+            const icon = type === 'warning' ? 'fa-exclamation-circle' : 'fa-check-circle';
+            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            toast.className = 'store-toast' + (type === 'warning' ? ' store-toast-warning' : '');
             toast.classList.add('active');
             setTimeout(() => toast.classList.remove('active'), 2500);
         }
@@ -904,7 +963,7 @@
         document.getElementById('cart-checkout').addEventListener('click', function(e) {
             e.preventDefault();
             if (cart.length === 0) {
-                showToast('Votre panier est vide');
+                showToast('Votre panier est vide', 'warning');
             } else {
                 openOrderModal();
             }
@@ -938,32 +997,44 @@
             const lieu = document.getElementById('order-lieu').value.trim();
 
             if (!nom || !prenoms || !numero || !lieu) {
-                showToast('Veuillez remplir tous les champs obligatoires');
+                showToast('Veuillez remplir tous les champs obligatoires', 'warning');
                 return;
             }
 
-            const autre = document.getElementById('order-autre').value.trim();
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const submitBtn = this.querySelector('.store-order-submit');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Envoi en cours...';
 
-            const order = {
-                nom: nom,
-                prenoms: prenoms,
-                numero: numero,
-                lieu: lieu,
-                autre: autre,
-                items: cart,
-                total: total,
-                date: new Date().toISOString()
-            };
+            setTimeout(() => {
+                const autre = document.getElementById('order-autre').value.trim();
+                const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-            console.log('Commande reçue :', order);
-            localStorage.setItem('evc_last_order', JSON.stringify(order));
+                const order = {
+                    nom: nom,
+                    prenoms: prenoms,
+                    numero: numero,
+                    lieu: lieu,
+                    autre: autre,
+                    items: cart,
+                    total: total,
+                    date: new Date().toISOString()
+                };
 
-            cart = [];
-            updateCartUI();
-            closeOrderModal();
-            showToast('Commande envoyée avec succès');
-            this.reset();
+                console.log('Commande reçue :', order);
+                localStorage.setItem('evc_last_order', JSON.stringify(order));
+
+                cart = [];
+                updateCartUI();
+                closeOrderModal();
+                showToast('Commande envoyée avec succès');
+                this.reset();
+
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('loading');
+                submitBtn.innerHTML = originalText;
+            }, 800);
         });
 
         renderProducts('all');
