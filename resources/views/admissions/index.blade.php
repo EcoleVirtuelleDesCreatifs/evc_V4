@@ -20,7 +20,7 @@
     .admissions-container {
         background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f4e 50%, #0d1333 100%);
         min-height: 100vh;
-        padding: 120px 20px 60px;
+        padding: 280px 20px 60px;
         position: relative;
     }
 
@@ -282,6 +282,10 @@
 
     /* Responsive */
     @media (max-width: 768px) {
+        .admissions-container {
+            padding: 180px 20px 60px;
+        }
+
         .admissions-grid {
             grid-template-columns: 1fr;
         }
