@@ -426,6 +426,185 @@
         opacity: 1;
     }
 
+    .store-order-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10001;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.35s ease;
+    }
+
+    .store-order-modal.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .store-order-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(8px);
+    }
+
+    .store-order-content {
+        position: relative;
+        background: rgba(13, 19, 51, 0.98);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        width: 100%;
+        max-width: 520px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        padding: 36px;
+    }
+
+    .store-order-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .store-order-header h3 {
+        color: var(--text-primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .store-order-close {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+    }
+
+    .store-order-close:hover {
+        background: var(--primary);
+        color: #ffffff;
+    }
+
+    .store-order-summary {
+        background: rgba(21, 26, 61, 0.6);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+
+    .store-order-summary h4 {
+        color: var(--primary);
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .store-order-summary ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 12px;
+    }
+
+    .store-order-summary li {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .store-order-summary li:last-child {
+        border-bottom: none;
+    }
+
+    .store-order-summary .store-order-total {
+        color: var(--text-primary);
+        font-weight: 700;
+        text-align: right;
+        font-size: 1.0625rem;
+    }
+
+    .store-order-field {
+        margin-bottom: 20px;
+    }
+
+    .store-order-field label {
+        display: block;
+        color: var(--text-primary);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .store-order-field label span {
+        color: var(--primary);
+        margin-left: 2px;
+    }
+
+    .store-order-input,
+    .store-order-textarea {
+        width: 100%;
+        padding: 14px 18px;
+        background: rgba(10, 14, 39, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: var(--text-primary);
+        font-size: 0.9375rem;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .store-order-input:focus,
+    .store-order-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15);
+    }
+
+    .store-order-textarea {
+        min-height: 100px;
+        resize: vertical;
+        line-height: 1.6;
+    }
+
+    .store-order-submit {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border: none;
+        border-radius: 12px;
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .store-order-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+    }
+
     @media (max-width: 1024px) {
         .store-grid {
             grid-template-columns: repeat(3, 1fr);
@@ -513,6 +692,52 @@
                 <i class="fas fa-shopping-bag"></i>
                 Commander
             </a>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div class="store-order-modal" id="order-modal" role="dialog" aria-modal="true">
+        <div class="store-order-overlay" id="order-overlay"></div>
+        <div class="store-order-content">
+            <div class="store-order-header">
+                <h3>Finaliser ma commande</h3>
+                <button class="store-order-close" id="order-close" aria-label="Fermer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="store-order-summary">
+                <h4>Récapitulatif</h4>
+                <ul id="order-items"></ul>
+                <div class="store-order-total" id="order-total">Total : 0 FCFA</div>
+            </div>
+
+            <form id="order-form" novalidate>
+                <div class="store-order-field">
+                    <label for="order-nom">Nom <span>*</span></label>
+                    <input type="text" id="order-nom" name="nom" class="store-order-input" required>
+                </div>
+                <div class="store-order-field">
+                    <label for="order-prenoms">Prénoms <span>*</span></label>
+                    <input type="text" id="order-prenoms" name="prenoms" class="store-order-input" required>
+                </div>
+                <div class="store-order-field">
+                    <label for="order-numero">Numéro de téléphone <span>*</span></label>
+                    <input type="tel" id="order-numero" name="numero" class="store-order-input" required>
+                </div>
+                <div class="store-order-field">
+                    <label for="order-lieu">Lieu de livraison <span>*</span></label>
+                    <input type="text" id="order-lieu" name="lieu" class="store-order-input" required>
+                </div>
+                <div class="store-order-field">
+                    <label for="order-autre">Autres informations</label>
+                    <textarea id="order-autre" name="autre" class="store-order-textarea" placeholder="Instructions complémentaires..."></textarea>
+                </div>
+                <button type="submit" class="store-order-submit">
+                    <i class="fas fa-paper-plane"></i>
+                    Envoyer ma commande
+                </button>
+            </form>
         </div>
     </div>
 
@@ -619,7 +844,7 @@
             }
             updateCartUI();
             showToast(`${product.name} ajouté au panier`);
-            if (open) openCart();
+            if (open) openOrderModal();
         }
 
         function removeFromCart(id) {
@@ -676,12 +901,69 @@
             removeFromCart(parseInt(item.dataset.id));
         });
 
-        document.getElementById('cart-checkout').addEventListener('click', function() {
+        document.getElementById('cart-checkout').addEventListener('click', function(e) {
+            e.preventDefault();
             if (cart.length === 0) {
                 showToast('Votre panier est vide');
             } else {
-                localStorage.setItem('evc_cart', JSON.stringify(cart));
+                openOrderModal();
             }
+        });
+
+        function openOrderModal() {
+            closeCart();
+            const orderItems = document.getElementById('order-items');
+            orderItems.innerHTML = cart.map(item => `
+                <li><span>${item.name} x${item.qty}</span><span>${formatPrice(item.price * item.qty)}</span></li>
+            `).join('');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            document.getElementById('order-total').textContent = 'Total : ' + formatPrice(total);
+            document.getElementById('order-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeOrderModal() {
+            document.getElementById('order-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('order-close').addEventListener('click', closeOrderModal);
+        document.getElementById('order-overlay').addEventListener('click', closeOrderModal);
+
+        document.getElementById('order-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nom = document.getElementById('order-nom').value.trim();
+            const prenoms = document.getElementById('order-prenoms').value.trim();
+            const numero = document.getElementById('order-numero').value.trim();
+            const lieu = document.getElementById('order-lieu').value.trim();
+
+            if (!nom || !prenoms || !numero || !lieu) {
+                showToast('Veuillez remplir tous les champs obligatoires');
+                return;
+            }
+
+            const autre = document.getElementById('order-autre').value.trim();
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            const order = {
+                nom: nom,
+                prenoms: prenoms,
+                numero: numero,
+                lieu: lieu,
+                autre: autre,
+                items: cart,
+                total: total,
+                date: new Date().toISOString()
+            };
+
+            console.log('Commande reçue :', order);
+            localStorage.setItem('evc_last_order', JSON.stringify(order));
+
+            cart = [];
+            updateCartUI();
+            closeOrderModal();
+            showToast('Commande envoyée avec succès');
+            this.reset();
         });
 
         renderProducts('all');
