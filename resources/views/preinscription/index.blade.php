@@ -646,7 +646,6 @@
                     <i class="fas fa-rocket"></i>
                     Devenez créatif
                 </div>
-                <h1 class="pi-title">Transformez votre passion en carrière professionnelle</h1>
                 <p class="pi-subtitle">Rejoignez l'École Virtuelle des Créatifs et lancez-vous dans une aventure créative unique en Afrique de l'Ouest. Formations certifiées Adobe, experts du design digital.</p>
                 <div class="pi-trust-indicators">
                     <div class="pi-trust-item">
