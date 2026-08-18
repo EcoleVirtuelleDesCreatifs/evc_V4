@@ -67,7 +67,7 @@
 
     .pi-hero {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 20px;
         position: relative;
         z-index: 1;
     }
@@ -75,17 +75,17 @@
     .pi-badge {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 10px 28px;
+        gap: 6px;
+        padding: 8px 20px;
         background: linear-gradient(135deg, rgba(255, 107, 53, 0.25) 0%, rgba(255, 107, 53, 0.15) 100%);
-        border: 2px solid rgba(255, 107, 53, 0.4);
+        border: 1px solid rgba(255, 107, 53, 0.4);
         border-radius: 50px;
         color: var(--primary);
-        font-size: 0.875rem;
-        font-weight: 800;
-        margin-bottom: 28px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        margin-bottom: 16px;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.1em;
         backdrop-filter: blur(10px);
         box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2);
         animation: pulse-badge 2s ease-in-out infinite;
@@ -97,16 +97,16 @@
     }
 
     .pi-title {
-        font-size: clamp(2.25rem, 5vw, 3.5rem);
-        font-weight: 900;
+        font-size: clamp(1.875rem, 3.5vw, 2.75rem);
+        font-weight: 800;
         background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--primary) 100%);
         background-size: 300% auto;
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        margin-bottom: 16px;
-        letter-spacing: -0.03em;
-        line-height: 1.15;
+        margin-bottom: 12px;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
         animation: gradient-shift 5s ease infinite;
     }
 
@@ -116,42 +116,42 @@
     }
 
     .pi-subtitle {
-        font-size: clamp(1rem, 2vw, 1.25rem);
+        font-size: clamp(0.9375rem, 1.8vw, 1.0625rem);
         color: var(--text-secondary);
-        max-width: 700px;
-        margin: 0 auto 24px;
-        line-height: 1.7;
+        max-width: 600px;
+        margin: 0 auto 12px;
+        line-height: 1.6;
         font-weight: 400;
     }
 
     .pi-trust-indicators {
         display: flex;
         justify-content: center;
-        gap: 32px;
-        margin-top: 32px;
+        gap: 20px;
+        margin-top: 16px;
         flex-wrap: wrap;
     }
 
     .pi-trust-item {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         color: var(--text-secondary);
-        font-size: 0.9375rem;
-        font-weight: 600;
+        font-size: 0.875rem;
+        font-weight: 500;
     }
 
     .pi-trust-item i {
         color: var(--success);
-        font-size: 1.125rem;
+        font-size: 1rem;
     }
 
     .pi-steps {
         background: rgba(21, 26, 61, 0.8);
         border: 1px solid rgba(255, 107, 53, 0.2);
-        border-radius: 24px;
-        padding: 48px;
-        margin-bottom: 32px;
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 24px;
         backdrop-filter: blur(30px);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
         position: relative;
@@ -179,31 +179,31 @@
 
     .pi-steps-header {
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 24px;
     }
 
     .pi-steps-header h2 {
         color: var(--primary);
-        font-size: 2rem;
-        font-weight: 900;
-        margin-bottom: 12px;
+        font-size: 1.625rem;
+        font-weight: 800;
+        margin-bottom: 8px;
         letter-spacing: -0.02em;
     }
 
     .pi-steps-header p {
         color: var(--text-secondary);
-        font-size: 1rem;
-        font-weight: 500;
+        font-size: 0.9375rem;
+        font-weight: 400;
     }
 
     .pi-step {
         display: flex;
-        gap: 24px;
-        padding: 28px;
+        gap: 16px;
+        padding: 20px;
         background: linear-gradient(135deg, rgba(10, 14, 39, 0.6) 0%, rgba(21, 26, 61, 0.4) 100%);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 20px;
-        margin-bottom: 20px;
+        border-radius: 16px;
+        margin-bottom: 12px;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
@@ -237,14 +237,14 @@
 
     .pi-step-number {
         flex-shrink: 0;
-        width: 64px;
-        height: 64px;
+        width: 48px;
+        height: 48px;
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-        border-radius: 20px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.75rem;
+        font-size: 1.375rem;
         font-weight: 900;
         color: #ffffff;
         box-shadow: 0 8px 32px rgba(255, 107, 53, 0.4);
@@ -260,7 +260,7 @@
         right: -4px;
         bottom: -4px;
         border: 2px solid rgba(255, 107, 53, 0.3);
-        border-radius: 24px;
+        border-radius: 18px;
         opacity: 0;
         transition: opacity 0.3s ease;
     }
@@ -275,16 +275,16 @@
 
     .pi-step-content h3 {
         color: var(--text-primary);
-        font-size: 1.25rem;
-        font-weight: 800;
-        margin-bottom: 10px;
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: 6px;
         letter-spacing: -0.01em;
     }
 
     .pi-step-content p {
         color: var(--text-secondary);
-        font-size: 1rem;
-        line-height: 1.7;
+        font-size: 0.9375rem;
+        line-height: 1.6;
         margin: 0;
     }
 
@@ -298,19 +298,19 @@
     .pi-button {
         display: inline-flex;
         align-items: center;
-        gap: 12px;
-        padding: 20px 48px;
+        gap: 8px;
+        padding: 16px 40px;
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border: none;
-        border-radius: 20px;
+        border-radius: 16px;
         color: #ffffff;
-        font-size: 1.125rem;
-        font-weight: 900;
+        font-size: 1rem;
+        font-weight: 700;
         cursor: pointer;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 12px 40px rgba(255, 107, 53, 0.5);
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.05em;
         position: relative;
         overflow: hidden;
     }
@@ -342,8 +342,8 @@
     .pi-form-card {
         background: rgba(21, 26, 61, 0.9);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
-        padding: 56px;
+        border-radius: 20px;
+        padding: 36px;
         backdrop-filter: blur(30px);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
         position: relative;
@@ -365,21 +365,21 @@
 
     .pi-form-header {
         text-align: center;
-        margin-bottom: 48px;
+        margin-bottom: 32px;
     }
 
     .pi-form-header h2 {
         color: var(--text-primary);
-        font-size: 2rem;
-        font-weight: 900;
-        margin-bottom: 12px;
+        font-size: 1.625rem;
+        font-weight: 800;
+        margin-bottom: 8px;
         letter-spacing: -0.02em;
     }
 
     .pi-form-header p {
         color: var(--text-secondary);
-        font-size: 1.0625rem;
-        font-weight: 500;
+        font-size: 0.9375rem;
+        font-weight: 400;
     }
 
     .pi-alert {
@@ -450,12 +450,12 @@
     .pi-input,
     .pi-select {
         width: 100%;
-        padding: 16px 24px;
+        padding: 14px 20px;
         background: rgba(10, 14, 39, 0.8);
         border: 2px solid var(--border);
-        border-radius: 16px;
+        border-radius: 14px;
         color: var(--text-primary);
-        font-size: 1rem;
+        font-size: 0.9375rem;
         font-family: inherit;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         font-weight: 500;
@@ -466,7 +466,7 @@
         outline: none;
         border-color: var(--primary);
         background: rgba(10, 14, 39, 0.95);
-        box-shadow: 0 0 0 5px rgba(255, 107, 53, 0.15);
+        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.15);
     }
 
     .pi-input::placeholder {
@@ -477,13 +477,13 @@
     .pi-input.error,
     .pi-select.error {
         border-color: var(--error);
-        box-shadow: 0 0 0 5px rgba(255, 71, 87, 0.15);
+        box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.15);
     }
 
     textarea.pi-input {
-        min-height: 150px;
+        min-height: 120px;
         resize: vertical;
-        line-height: 1.7;
+        line-height: 1.6;
     }
 
     .pi-select option {
@@ -494,22 +494,22 @@
 
     .pi-submit {
         width: 100%;
-        padding: 24px 48px;
+        padding: 18px 36px;
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         border: none;
-        border-radius: 20px;
+        border-radius: 16px;
         color: #ffffff;
-        font-size: 1.25rem;
-        font-weight: 900;
+        font-size: 1rem;
+        font-weight: 700;
         cursor: pointer;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 12px;
+        gap: 8px;
         box-shadow: 0 12px 40px rgba(255, 107, 53, 0.5);
         text-transform: uppercase;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.05em;
         position: relative;
         overflow: hidden;
     }
