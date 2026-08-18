@@ -33,9 +33,15 @@
     }
 
     .evc-logo img {
-        height: 3.5rem;
+        height: 4.5rem;
         width: auto;
         transition: transform 0.3s ease;
+    }
+
+    @media (min-width: 1024px) {
+        .evc-logo img {
+            height: 5.5rem;
+        }
     }
 
     .evc-logo:hover img {
