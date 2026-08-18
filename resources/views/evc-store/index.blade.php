@@ -48,9 +48,9 @@
 
     .store-cart-toggle {
         position: fixed;
-        top: 140px;
+        top: 300px;
         right: 20px;
-        z-index: 40;
+        z-index: 60;
         width: 54px;
         height: 54px;
         background: rgba(21, 26, 61, 0.9);
