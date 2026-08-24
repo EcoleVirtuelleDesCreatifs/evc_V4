@@ -930,10 +930,10 @@
                 <span>Total</span>
                 <span id="cart-total">0 FCFA</span>
             </div>
-            <a href="{{ route('preinscription.start') }}" class="store-cart-checkout" id="cart-checkout">
+            <button type="button" class="store-cart-checkout" id="cart-checkout">
                 <i class="fas fa-shopping-bag"></i>
                 Commander
-            </a>
+            </button>
         </div>
     </div>
 
