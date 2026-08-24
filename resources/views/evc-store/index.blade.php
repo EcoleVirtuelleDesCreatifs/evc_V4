@@ -449,9 +449,22 @@
         transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    .store-toast.store-toast-success {
+        border-color: rgba(34, 197, 94, 0.6);
+        box-shadow: 0 25px 60px rgba(34, 197, 94, 0.25), 0 0 40px rgba(34, 197, 94, 0.15);
+    }
+
+    .store-toast.store-toast-success i {
+        color: #22c55e;
+    }
+
     .store-toast.store-toast-warning {
-        border-color: rgba(255, 107, 53, 0.5);
-        box-shadow: 0 25px 60px rgba(255, 107, 53, 0.25);
+        border-color: rgba(255, 107, 53, 0.6);
+        box-shadow: 0 25px 60px rgba(255, 107, 53, 0.3), 0 0 40px rgba(255, 107, 53, 0.15);
+    }
+
+    .store-toast.store-toast-warning i {
+        color: #ff6b35;
     }
 
     .store-toast i {
@@ -914,7 +927,7 @@
             const toast = document.getElementById('store-toast');
             const icon = type === 'warning' ? 'fa-exclamation-circle' : 'fa-check-circle';
             toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-            toast.className = 'store-toast' + (type === 'warning' ? ' store-toast-warning' : '');
+            toast.className = 'store-toast store-toast-' + type;
             toast.classList.add('active');
             setTimeout(() => toast.classList.remove('active'), 2500);
         }
