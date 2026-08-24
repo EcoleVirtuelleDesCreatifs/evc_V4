@@ -49,6 +49,32 @@ class BoutiqueController extends Controller
     }
 
     /**
+     * Formulaire de création d'une catégorie.
+     */
+    public function createCategory()
+    {
+        return view('admin.boutique.categories.create');
+    }
+
+    /**
+     * Enregistrement d'une catégorie.
+     */
+    public function storeCategory(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:product_categories,name',
+        ]);
+
+        ProductCategory::create([
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+            'is_active' => $request->boolean('is_active', true),
+        ]);
+
+        return redirect()->route('admin.boutique.index')->with('success', 'Catégorie créée avec succès.');
+    }
+
+    /**
      * Formulaire de création d'un produit.
      */
     public function create()

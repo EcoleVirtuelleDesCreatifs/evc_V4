@@ -78,6 +78,9 @@
             <a href="{{ route('admin.boutique.orders') }}" class="btn btn-primary">
                 <i class="fas fa-shopping-bag me-2"></i>Commandes
             </a>
+            <a href="{{ route('admin.boutique.categories.create') }}" class="btn btn-warning">
+                <i class="fas fa-folder-plus me-2"></i>Ajouter une catégorie
+            </a>
             <a href="{{ route('admin.boutique.create') }}" class="btn btn-success">
                 <i class="fas fa-plus me-2"></i>Ajouter un produit
             </a>

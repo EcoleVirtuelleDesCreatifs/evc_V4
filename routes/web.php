@@ -934,6 +934,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/boutique/produits/{product}/edit', [\App\Http\Controllers\Admin\BoutiqueController::class, 'edit'])->name('boutique.edit');
         Route::put('/boutique/produits/{product}', [\App\Http\Controllers\Admin\BoutiqueController::class, 'update'])->name('boutique.update');
         Route::delete('/boutique/produits/{product}', [\App\Http\Controllers\Admin\BoutiqueController::class, 'destroy'])->name('boutique.destroy');
+        Route::get('/boutique/categories/create', [\App\Http\Controllers\Admin\BoutiqueController::class, 'createCategory'])->name('boutique.categories.create');
+        Route::post('/boutique/categories', [\App\Http\Controllers\Admin\BoutiqueController::class, 'storeCategory'])->name('boutique.categories.store');
 
         Route::get('/partnerships', [PartnershipsAdminController::class, 'index'])->name('partnerships.index');
         Route::get('/partnerships/create', [PartnershipsAdminController::class, 'create'])->name('partnerships.create');
