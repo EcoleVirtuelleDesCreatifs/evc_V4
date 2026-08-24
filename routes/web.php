@@ -1512,7 +1512,6 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/webtv/videos/update-order', [App\Http\Controllers\Admin\WebtvVideoController::class, 'updateOrder'])->name('webtv.videos.update-order');
 
         // Routes héritées (compatibilité)
-        Route::get('/etudiants', [AdminDashboardController::class, 'users'])->name('etudiants.legacy');
         Route::get('/documents', [AdminDashboardController::class, 'documents'])->name('documents.legacy');
     });
 });
