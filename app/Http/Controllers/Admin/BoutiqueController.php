@@ -95,16 +95,23 @@ class BoutiqueController extends Controller
             'price' => 'required|integer|min:0',
             'delivery_mode' => 'required|in:deposit,cash_on_delivery',
             'category_id' => 'required|exists:product_categories,id',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'is_active' => 'boolean',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', true);
 
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $imagePaths[] = $file->store('products', 'public');
+            }
         }
+
+        $validated['images'] = $imagePaths;
+        $validated['image'] = $imagePaths[0] ?? null;
 
         Product::create($validated);
 
@@ -132,19 +139,33 @@ class BoutiqueController extends Controller
             'price' => 'required|integer|min:0',
             'delivery_mode' => 'required|in:deposit,cash_on_delivery',
             'category_id' => 'required|exists:product_categories,id',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'is_active' => 'boolean',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', false);
 
-        if ($request->hasFile('image')) {
-            if ($product->image) {
-                Storage::disk('public')->delete($product->image);
+        $images = $product->images ?? [];
+
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $images[] = $file->store('products', 'public');
             }
-            $validated['image'] = $request->file('image')->store('products', 'public');
         }
+
+        if ($request->filled('remove_images')) {
+            foreach ($request->input('remove_images') as $path) {
+                if (in_array($path, $images)) {
+                    Storage::disk('public')->delete($path);
+                    $images = array_values(array_diff($images, [$path]));
+                }
+            }
+        }
+
+        $validated['images'] = $images;
+        $validated['image'] = $images[0] ?? null;
 
         $product->update($validated);
 
@@ -156,7 +177,11 @@ class BoutiqueController extends Controller
      */
     public function destroy(Product $product)
     {
-        if ($product->image) {
+        foreach ($product->images ?? [] as $img) {
+            Storage::disk('public')->delete($img);
+        }
+
+        if ($product->image && !in_array($product->image, $product->images ?? [])) {
             Storage::disk('public')->delete($product->image);
         }
 

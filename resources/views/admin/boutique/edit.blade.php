@@ -83,14 +83,23 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="image" class="form-label text-white">Image</label>
-                            @if($product->image)
-                                <div class="mb-2">
-                                    <img src="{{ \App\Models\MediaUrl::fromPath($product->image) }}" alt="{{ $product->title }}" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                            <label class="form-label text-white">Images du carousel</label>
+                            @if(!empty($product->images))
+                                <div class="mb-2 d-flex flex-wrap gap-2">
+                                    @foreach($product->images as $img)
+                                        <div class="text-center">
+                                            <img src="{{ \App\Models\MediaUrl::fromPath($img) }}" alt="{{ $product->title }}" class="rounded" style="width: 80px; height: 80px; object-fit: cover;">
+                                            <div class="form-check mt-1">
+                                                <input type="checkbox" name="remove_images[]" value="{{ $img }}" class="form-check-input" id="remove-img-{{ $loop->index }}">
+                                                <label class="form-check-label text-white-50" for="remove-img-{{ $loop->index }}" style="font-size: 0.7rem;">Supprimer</label>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             @endif
-                            <input type="file" name="image" id="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
-                            @error('image')
+                            <input type="file" name="images[]" id="images" class="form-control @error('images.*') is-invalid @enderror" accept="image/*" multiple>
+                            <div class="form-text text-white-50">Ajoutez une ou plusieurs images. Cochez pour supprimer celles existantes.</div>
+                            @error('images.*')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

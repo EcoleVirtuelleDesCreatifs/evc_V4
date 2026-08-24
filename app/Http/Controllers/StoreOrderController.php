@@ -20,6 +20,7 @@ class StoreOrderController extends Controller
                 'id' => $product->id,
                 'category' => $product->category->slug ?? '',
                 'image_url' => MediaUrl::fromPath($product->image),
+                'images' => collect($product->images ?? [])->map(fn($img) => MediaUrl::fromPath($img))->filter()->values()->all(),
                 'name' => $product->title,
                 'desc' => $product->summary ?: $product->description,
                 'description' => $product->description,

@@ -816,6 +816,63 @@
         line-height: 1.65;
         margin-bottom: 24px;
     }
+
+    .product-carousel {
+        position: relative;
+        text-align: center;
+    }
+
+    .product-carousel-main img {
+        width: 100%;
+        height: auto;
+        max-height: 360px;
+        display: block;
+        object-fit: contain;
+    }
+
+    .product-carousel-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        color: #ffffff;
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .product-carousel-nav.prev {
+        left: 12px;
+    }
+
+    .product-carousel-nav.next {
+        right: 12px;
+    }
+
+    .product-carousel-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .product-carousel-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255, 255, 255, 0.4);
+        cursor: pointer;
+    }
+
+    .product-carousel-dot.active {
+        background: var(--primary);
+    }
 </style>
 @endpush
 
@@ -1212,9 +1269,41 @@
             document.getElementById('product-modal-price').textContent = formatPrice(product.price);
             document.getElementById('product-modal-desc').innerHTML = product.description || product.desc || '';
             const imageContainer = document.getElementById('product-modal-image');
-            imageContainer.innerHTML = product.image_url
-                ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:auto;display:block;max-height:360px;object-fit:contain;">`
-                : `<div style="padding:70px 0;text-align:center;"><i class="fas fa-image" style="font-size:5rem;color:var(--primary);"></i></div>`;
+            const images = product.images && product.images.length ? product.images : (product.image_url ? [product.image_url] : []);
+            let currentImage = 0;
+
+            function showImage(index) {
+                if (images.length === 0) return;
+                currentImage = (index + images.length) % images.length;
+                const img = imageContainer.querySelector('.product-carousel-main img');
+                if (img) img.src = images[currentImage];
+                imageContainer.querySelectorAll('.product-carousel-dot').forEach((dot, i) => dot.classList.toggle('active', i === currentImage));
+            }
+
+            if (images.length === 0) {
+                imageContainer.innerHTML = `<div style="padding:70px 0;text-align:center;"><i class="fas fa-image" style="font-size:5rem;color:var(--primary);"></i></div>`;
+            } else if (images.length === 1) {
+                imageContainer.innerHTML = `<div class="product-carousel"><img src="${images[0]}" alt="${product.name}" style="width:100%;height:auto;display:block;max-height:360px;object-fit:contain;"></div>`;
+            } else {
+                imageContainer.innerHTML = `
+                    <div class="product-carousel">
+                        <div class="product-carousel-main">
+                            <img src="${images[0]}" alt="${product.name}">
+                        </div>
+                        <button class="product-carousel-nav prev" aria-label="Image précédente"><i class="fas fa-chevron-left"></i></button>
+                        <button class="product-carousel-nav next" aria-label="Image suivante"><i class="fas fa-chevron-right"></i></button>
+                        <div class="product-carousel-dots">
+                            ${images.map((_, i) => `<button class="product-carousel-dot ${i === 0 ? 'active' : ''}" data-index="${i}" aria-label="Image ${i + 1}"></button>`).join('')}
+                        </div>
+                    </div>
+                `;
+                imageContainer.querySelector('.product-carousel-nav.prev').addEventListener('click', () => showImage(currentImage - 1));
+                imageContainer.querySelector('.product-carousel-nav.next').addEventListener('click', () => showImage(currentImage + 1));
+                imageContainer.querySelectorAll('.product-carousel-dot').forEach(dot => {
+                    dot.addEventListener('click', () => showImage(parseInt(dot.dataset.index)));
+                });
+            }
+
             document.getElementById('product-modal-buy').onclick = () => { closeProductModal(); addToCart(product.id, true); };
             document.getElementById('product-modal-add').onclick = () => addToCart(product.id);
             document.getElementById('product-modal').classList.add('active');

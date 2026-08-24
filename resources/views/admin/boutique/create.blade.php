@@ -82,9 +82,10 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="image" class="form-label text-white">Image</label>
-                            <input type="file" name="image" id="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">
-                            @error('image')
+                            <label for="images" class="form-label text-white">Images du carousel</label>
+                            <input type="file" name="images[]" id="images" class="form-control @error('images.*') is-invalid @enderror" accept="image/*" multiple>
+                            <div class="form-text text-white-50">Sélectionnez une ou plusieurs images. La première sera l'image principale.</div>
+                            @error('images.*')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
