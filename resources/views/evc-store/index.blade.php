@@ -192,18 +192,42 @@
 
     .store-product h3 {
         color: var(--text-primary);
-        font-size: 1.0625rem;
-        font-weight: 700;
-        margin-bottom: 8px;
-        line-height: 1.3;
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 10px;
+        line-height: 1.25;
     }
 
-    .store-product p {
+    .store-product .product-desc {
         color: var(--text-secondary);
-        font-size: 0.875rem;
-        line-height: 1.5;
-        margin: 0 0 16px;
-        flex: 1;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        margin: 0 0 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .store-product .product-desc.expanded {
+        -webkit-line-clamp: unset;
+        overflow-y: auto;
+        max-height: 240px;
+    }
+
+    .product-desc-toggle {
+        color: var(--primary);
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 0.8rem;
+        margin-bottom: 16px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .product-desc-toggle:hover {
+        text-decoration: underline;
     }
 
     .store-product-price {
@@ -864,7 +888,7 @@
                     </div>
                     <div class="store-product-body">
                         <h3>${product.name}</h3>
-                        <p>${product.desc}</p>
+                        ${product.desc ? `<p class="product-desc">${product.desc}</p><span class="product-desc-toggle"><i class="fas fa-chevron-down"></i> Voir plus</span>` : ''}
                         <div class="store-product-price">${formatPrice(product.price)}</div>
                         <div class="store-product-actions">
                             <button class="store-product-buy" data-id="${product.id}">
@@ -949,6 +973,16 @@
         }
 
         document.getElementById('product-grid').addEventListener('click', function(e) {
+            const toggle = e.target.closest('.product-desc-toggle');
+            if (toggle) {
+                e.stopPropagation();
+                const p = toggle.previousElementSibling;
+                p.classList.toggle('expanded');
+                toggle.innerHTML = p.classList.contains('expanded')
+                    ? '<i class="fas fa-chevron-up"></i> Voir moins'
+                    : '<i class="fas fa-chevron-down"></i> Voir plus';
+                return;
+            }
             const btn = e.target.closest('button');
             if (!btn) return;
             const id = parseInt(btn.dataset.id);
