@@ -20,9 +20,8 @@
                 <span class="text-orange-400 font-semibold text-sm">Success Stories</span>
             </div>
 
-            <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight" data-aos="fade-up">
-                Passez du Rêve<br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">à la Réalité</span>
+            <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight" data-aos="fade-up">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">NOS LAUREATS</span>
             </h1>
             <p class="text-xl md:text-2xl text-gray-300 mb-8" data-aos="fade-up" data-aos-delay="100">
                 Il est des moments qui marquent une vie d’étudiant. Des instants où la théorie s’efface pour laisser place à l’audace, à la création et à la réalité du métier.
