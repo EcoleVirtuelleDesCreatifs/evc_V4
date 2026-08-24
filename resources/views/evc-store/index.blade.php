@@ -37,6 +37,7 @@
         font-size: clamp(2rem, 4vw, 3rem);
         font-weight: 700;
         color: var(--primary);
+        margin-top: 60px;
         margin-bottom: 12px;
         letter-spacing: -0.02em;
         line-height: 1.2;
