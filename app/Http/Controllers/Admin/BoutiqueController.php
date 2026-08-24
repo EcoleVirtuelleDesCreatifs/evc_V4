@@ -26,7 +26,9 @@ class BoutiqueController extends Controller
             'orders' => StoreOrder::count(),
         ];
 
-        return view('admin.boutique.products', compact('products', 'stats'));
+        $categories = ProductCategory::withCount('products')->orderBy('name')->get();
+
+        return view('admin.boutique.products', compact('products', 'stats', 'categories'));
     }
 
     /**
