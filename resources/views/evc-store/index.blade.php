@@ -859,7 +859,7 @@
                 card.dataset.category = product.category;
                 card.innerHTML = `
                     <div class="store-product-image">
-                        ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;">` : `<i class="fas fa-image" style="font-size:4rem;color:var(--primary);"></i>`}
+                        ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:contain;">` : `<i class="fas fa-image" style="font-size:4rem;color:var(--primary);"></i>`}
                         <span class="store-product-category">${categoryLabels[product.category] || 'Non classé'}</span>
                     </div>
                     <div class="store-product-body">
