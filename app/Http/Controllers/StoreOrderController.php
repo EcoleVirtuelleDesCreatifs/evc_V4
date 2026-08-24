@@ -22,6 +22,7 @@ class StoreOrderController extends Controller
                 'image_url' => MediaUrl::fromPath($product->image),
                 'name' => $product->title,
                 'desc' => $product->summary ?: $product->description,
+                'description' => $product->description,
                 'price' => $product->price,
             ];
         });

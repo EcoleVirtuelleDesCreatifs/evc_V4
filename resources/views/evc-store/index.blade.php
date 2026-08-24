@@ -754,6 +754,68 @@
             grid-template-columns: 1fr;
         }
     }
+
+    .store-search {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 560px;
+        margin: 0 auto 28px;
+        padding: 12px 18px;
+        background: rgba(21, 26, 61, 0.7);
+        border: 1px solid var(--border);
+        border-radius: 9999px;
+        color: var(--text-secondary);
+    }
+
+    .store-search input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        outline: none;
+    }
+
+    .store-search input::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    .product-image {
+        width: 100%;
+        height: auto;
+        max-height: 220px;
+        display: block;
+        object-fit: contain;
+    }
+
+    .product-quick-view {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.95rem;
+        border: none;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .store-product-image:hover .product-quick-view {
+        opacity: 1;
+    }
+
+    .product-modal-desc {
+        color: var(--text-secondary);
+        line-height: 1.65;
+        margin-bottom: 24px;
+    }
 </style>
 @endpush
 
@@ -772,6 +834,12 @@
                 <i class="fas fa-shopping-bag"></i>
                 <span class="store-cart-count" id="cart-count">0</span>
             </button>
+
+            <!-- Search -->
+            <div class="store-search">
+                <i class="fas fa-search"></i>
+                <input type="search" id="product-search" placeholder="Rechercher un produit..." autocomplete="off">
+            </div>
 
             <!-- Categories -->
             <div class="store-categories" id="category-filters">
@@ -858,6 +926,30 @@
         </div>
     </div>
 
+    <!-- Product Modal -->
+    <div class="store-order-modal" id="product-modal" role="dialog" aria-modal="true">
+        <div class="store-order-overlay" id="product-modal-overlay"></div>
+        <div class="store-order-content" style="max-width: 680px;">
+            <div class="store-order-header">
+                <h3 id="product-modal-title">Fiche produit</h3>
+                <button class="store-order-close" id="product-modal-close" aria-label="Fermer">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="product-modal-image" style="margin-bottom: 20px; border-radius: 16px; overflow: hidden; background: rgba(21,26,61,0.6);"></div>
+            <div class="store-order-total" id="product-modal-price" style="margin-bottom: 12px; text-align: left; color: var(--primary); font-size: 1.35rem;">0 FCFA</div>
+            <div class="product-modal-desc" id="product-modal-desc"></div>
+            <div style="display: flex; gap: 12px;">
+                <button class="store-product-buy" id="product-modal-buy" style="flex: 1;">
+                    <i class="fas fa-shopping-bag"></i> Commander
+                </button>
+                <button class="store-product-add" id="product-modal-add" style="flex: 1;">
+                    <i class="fas fa-cart-plus"></i> Ajouter au panier
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast -->
     <div class="store-toast" id="store-toast"></div>
 </div>
@@ -873,29 +965,37 @@
             return new Intl.NumberFormat('fr-FR').format(price) + ' FCFA';
         }
 
-        function renderProducts(filter) {
+        let currentFilter = 'all';
+
+        function renderProducts(filter, query = '') {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
+            const q = query.toLowerCase().trim();
             products.forEach(product => {
                 if (filter !== 'all' && product.category !== filter) return;
+                const matchesSearch = !q || product.name.toLowerCase().includes(q) || (product.desc && product.desc.toLowerCase().includes(q));
+                if (!matchesSearch) return;
                 const card = document.createElement('div');
                 card.className = 'store-product';
                 card.dataset.category = product.category;
                 card.innerHTML = `
                     <div class="store-product-image" style="height:auto;">
-                        ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:auto;display:block;">` : `<i class="fas fa-image" style="font-size:4rem;color:var(--primary);"></i>`}
+                        ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" class="product-image">` : `<i class="fas fa-image" style="font-size:4rem;color:var(--primary); padding: 40px 0; display:block; text-align:center;"></i>`}
                         <span class="store-product-category">${categoryLabels[product.category] || 'Non classé'}</span>
+                        <button class="product-quick-view" data-id="${product.id}">
+                            <i class="fas fa-eye"></i> Voir la fiche
+                        </button>
                     </div>
                     <div class="store-product-body">
                         <h3>${product.name}</h3>
-                        ${product.desc ? `<p class="product-desc">${product.desc}</p><span class="product-desc-toggle"><i class="fas fa-chevron-down"></i> Voir plus</span>` : ''}
                         <div class="store-product-price">${formatPrice(product.price)}</div>
+                        ${product.desc ? `<div class="product-desc">${product.desc}</div>` : ''}
                         <div class="store-product-actions">
                             <button class="store-product-buy" data-id="${product.id}">
                                 <i class="fas fa-shopping-bag"></i> Commander
                             </button>
                             <button class="store-product-add" data-id="${product.id}">
-                                <i class="fas fa-cart-plus"></i> Ajouter au panier
+                                <i class="fas fa-cart-plus"></i> Panier
                             </button>
                         </div>
                     </div>
@@ -973,14 +1073,10 @@
         }
 
         document.getElementById('product-grid').addEventListener('click', function(e) {
-            const toggle = e.target.closest('.product-desc-toggle');
-            if (toggle) {
+            const quickView = e.target.closest('.product-quick-view');
+            if (quickView) {
                 e.stopPropagation();
-                const p = toggle.previousElementSibling;
-                p.classList.toggle('expanded');
-                toggle.innerHTML = p.classList.contains('expanded')
-                    ? '<i class="fas fa-chevron-up"></i> Voir moins'
-                    : '<i class="fas fa-chevron-down"></i> Voir plus';
+                openProductModal(parseInt(quickView.dataset.id));
                 return;
             }
             const btn = e.target.closest('button');
@@ -998,7 +1094,8 @@
             if (!btn) return;
             document.querySelectorAll('.store-category').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
-            renderProducts(btn.dataset.category);
+            currentFilter = btn.dataset.category;
+            renderProducts(currentFilter, document.getElementById('product-search').value);
         });
 
         document.getElementById('cart-toggle').addEventListener('click', openCart);
@@ -1106,6 +1203,34 @@
                 submitBtn.classList.remove('loading');
                 submitBtn.innerHTML = originalText;
             });
+        });
+
+        function openProductModal(id) {
+            const product = products.find(p => p.id === id);
+            if (!product) return;
+            document.getElementById('product-modal-title').textContent = product.name;
+            document.getElementById('product-modal-price').textContent = formatPrice(product.price);
+            document.getElementById('product-modal-desc').innerHTML = product.description || product.desc || '';
+            const imageContainer = document.getElementById('product-modal-image');
+            imageContainer.innerHTML = product.image_url
+                ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:auto;display:block;max-height:360px;object-fit:contain;">`
+                : `<div style="padding:70px 0;text-align:center;"><i class="fas fa-image" style="font-size:5rem;color:var(--primary);"></i></div>`;
+            document.getElementById('product-modal-buy').onclick = () => { closeProductModal(); addToCart(product.id, true); };
+            document.getElementById('product-modal-add').onclick = () => addToCart(product.id);
+            document.getElementById('product-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('product-modal-close').addEventListener('click', closeProductModal);
+        document.getElementById('product-modal-overlay').addEventListener('click', closeProductModal);
+
+        document.getElementById('product-search').addEventListener('input', function(e) {
+            renderProducts(currentFilter, e.target.value);
         });
 
         renderProducts('all');
