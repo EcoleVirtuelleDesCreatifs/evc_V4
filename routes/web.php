@@ -927,6 +927,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
 
+        Route::get('/boutique', [\App\Http\Controllers\Admin\BoutiqueController::class, 'index'])->name('boutique.index');
+
         Route::get('/partnerships', [PartnershipsAdminController::class, 'index'])->name('partnerships.index');
         Route::get('/partnerships/create', [PartnershipsAdminController::class, 'create'])->name('partnerships.create');
         Route::post('/partnerships', [PartnershipsAdminController::class, 'store'])->name('partnerships.store');

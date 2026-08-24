@@ -635,6 +635,20 @@
                         </a>
                     </li>
                     @endif
+
+                    @if(in_array(session('admin_role'), ['super_admin', 'manager']))
+                    <!-- Gestion de la Boutique -->
+                    <li class="nav-section-title">
+                        <i class="fas fa-store me-2"></i>GESTION DE LA BOUTIQUE
+                    </li>
+
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.boutique.index') }}" class="admin-nav-link {{ request()->routeIs('admin.boutique.*') ? 'active' : '' }}">
+                            <i class="fas fa-shopping-bag"></i>
+                            Boutique
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </nav>
         </aside>
