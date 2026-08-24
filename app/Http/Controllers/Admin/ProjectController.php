@@ -27,7 +27,10 @@ class ProjectController extends Controller
             });
 
         $stats = [
-            'total' => (clone $designQuery)->count() + (clone $tpQuery)->count() + DB::table('projects')->leftJoin('users', 'projects.user_id', '=', 'users.id')->leftJoin('students', 'users.id', '=', 'students.user_id')->where(function ($q) { $normalizedProgramSql = "REPLACE(REPLACE(REPLACE(REPLACE(LOWER(COALESCE(students.program, '')), ' ', ''), '-', ''), '_', ''), '/', '')"; $q->whereRaw($normalizedProgramSql . " LIKE ?", ['%design%'])->whereRaw($normalizedProgramSql . " LIKE ?", ['%graph%'])->whereRaw($normalizedProgramSql . " NOT LIKE ?", ['%community%']); })->count(),
+            'total' => (clone $designQuery)->count() + (clone $tpQuery)->count() + DB::table('projects')->leftJoin('users', 'projects.user_id', '=', 'users.id')->leftJoin('students', 'users.id', '=', 'students.user_id')->where(function ($q) {
+                $normalizedProgramSql = "REPLACE(REPLACE(REPLACE(REPLACE(LOWER(COALESCE(students.program, '')), ' ', ''), '-', ''), '_', ''), '/', '')";
+                $q->whereRaw($normalizedProgramSql . " LIKE ?", ['%design%'])->whereRaw($normalizedProgramSql . " LIKE ?", ['%graph%'])->whereRaw($normalizedProgramSql . " NOT LIKE ?", ['%community%']);
+            })->count(),
             'pending' => (clone $designQuery)->whereIn('status', ['pending', 'active'])->count() + (clone $tpQuery)->where('status', 'pending')->count(),
             // Compat UI (vue admin.projects.index affiche aussi une card "À envoyer")
             'to_send' => (clone $tpQuery)->where('status', 'to_send')->count(),
@@ -334,7 +337,10 @@ class ProjectController extends Controller
         }
 
         $stats = [
-            'total' => (clone $designQuery)->count() + (clone $tpQuery)->count() + DB::table('projects')->leftJoin('users', 'projects.user_id', '=', 'users.id')->leftJoin('students', 'users.id', '=', 'students.user_id')->where(function ($q) { $normalizedProgramSql = "REPLACE(REPLACE(REPLACE(REPLACE(LOWER(COALESCE(students.program, '')), ' ', ''), '-', ''), '_', ''), '/', '')"; $q->whereRaw($normalizedProgramSql . " LIKE ?", ['%design%'])->whereRaw($normalizedProgramSql . " LIKE ?", ['%graph%'])->whereRaw($normalizedProgramSql . " NOT LIKE ?", ['%community%']); })->count(),
+            'total' => (clone $designQuery)->count() + (clone $tpQuery)->count() + DB::table('projects')->leftJoin('users', 'projects.user_id', '=', 'users.id')->leftJoin('students', 'users.id', '=', 'students.user_id')->where(function ($q) {
+                $normalizedProgramSql = "REPLACE(REPLACE(REPLACE(REPLACE(LOWER(COALESCE(students.program, '')), ' ', ''), '-', ''), '_', ''), '/', '')";
+                $q->whereRaw($normalizedProgramSql . " LIKE ?", ['%design%'])->whereRaw($normalizedProgramSql . " LIKE ?", ['%graph%'])->whereRaw($normalizedProgramSql . " NOT LIKE ?", ['%community%']);
+            })->count(),
             'pending' => (clone $designQuery)->whereIn('status', ['pending', 'active'])->count() + (clone $tpQuery)->where('status', 'pending')->count(),
             'to_send' => (clone $tpQuery)->where('status', 'to_send')->count(),
             'validated' => (clone $designQuery)->where('status', 'validated')->count() + (clone $tpQuery)->where('status', 'validated')->count(),
@@ -819,17 +825,17 @@ class ProjectController extends Controller
         $stats = [
             'total' => (clone $baseQueryAssignments)->count() + (clone $baseQueryTp)->count() + (clone $baseQueryDesign)->count() + (clone $baseQueryProjects)->count(),
             'pending' => (clone $baseQueryAssignments)->whereIn('tp_assignments.status', ['pending', 'submitted'])->count()
-                       + (clone $baseQueryTp)->where('tp.status', 'pending')->count()
-                       + (clone $baseQueryDesign)->whereNotIn('design_projects.status', ['validated', 'valide', 'termine', 'completed', 'cancelled'])->count()
-                       + (clone $baseQueryProjects)->where('projects.status', 'termine')->count(),
+                + (clone $baseQueryTp)->where('tp.status', 'pending')->count()
+                + (clone $baseQueryDesign)->whereNotIn('design_projects.status', ['validated', 'valide', 'termine', 'completed', 'cancelled'])->count()
+                + (clone $baseQueryProjects)->where('projects.status', 'termine')->count(),
             'validated' => (clone $baseQueryAssignments)->where('tp_assignments.status', 'validated')->count()
-                         + (clone $baseQueryTp)->where('tp.status', 'validated')->count()
-                         + (clone $baseQueryDesign)->whereIn('design_projects.status', ['validated', 'valide', 'termine', 'completed'])->count()
-                         + (clone $baseQueryProjects)->whereIn('projects.status', ['valide', 'validated'])->count(),
+                + (clone $baseQueryTp)->where('tp.status', 'validated')->count()
+                + (clone $baseQueryDesign)->whereIn('design_projects.status', ['validated', 'valide', 'termine', 'completed'])->count()
+                + (clone $baseQueryProjects)->whereIn('projects.status', ['valide', 'validated'])->count(),
             'rejected' => (clone $baseQueryAssignments)->where('tp_assignments.status', 'rejected')->count()
-                        + (clone $baseQueryTp)->where('tp.status', 'rejected')->count()
-                        + (clone $baseQueryDesign)->whereIn('design_projects.status', ['rejected', 'rejete'])->count()
-                        + (clone $baseQueryProjects)->whereIn('projects.status', ['rejete', 'rejected'])->count(),
+                + (clone $baseQueryTp)->where('tp.status', 'rejected')->count()
+                + (clone $baseQueryDesign)->whereIn('design_projects.status', ['rejected', 'rejete'])->count()
+                + (clone $baseQueryProjects)->whereIn('projects.status', ['rejete', 'rejected'])->count(),
         ];
 
         // 6. Paginer manuellement
