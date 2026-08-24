@@ -11,7 +11,11 @@ class DonationController extends Controller
 {
     public function index()
     {
-        return view('donation.index');
+        return response()
+            ->view('donation.index')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     public function submit(Request $request)
