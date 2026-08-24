@@ -40,7 +40,8 @@ class MediaUrl
 
         try {
             $req = request();
-            $base = rtrim($req->getSchemeAndHttpHost() . $req->getBaseUrl(), '/');
+            $schemeAndHost = str_ireplace('://www.', '://', $req->getSchemeAndHttpHost());
+            $base = rtrim($schemeAndHost . $req->getBaseUrl(), '/');
             return $base . '/storage/app/public/' . $encodedPath;
         } catch (\Throwable $e) {
             if (app()->environment('production')) {
