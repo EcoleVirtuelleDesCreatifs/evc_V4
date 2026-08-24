@@ -47,7 +47,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <div class="lg:col-span-3 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 sm:p-8">
-                <form method="POST" action="{{ route('donation.submit') }}" class="space-y-5">
+                <form method="POST" action="{{ route('donation.submit', [], false) }}" class="space-y-5">
                     @csrf
 
                     <div>

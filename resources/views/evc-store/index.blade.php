@@ -1171,7 +1171,7 @@
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-            fetch('{{ route('evc.store.order') }}', {
+            fetch('{{ route('evc.store.order', [], false) }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
