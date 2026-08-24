@@ -337,6 +337,148 @@
                         'flag' => '🇳🇬',
                         'image' => 'Adaeze-Chukwu-Creative-Designer-Nigeria.jpg'
                     ],
+                    [
+                        'name' => 'Elie Foua Bi',
+                        'title' => 'Directeur Artistique',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Elie-Foua-Bi-Directeur-Artistique-Cote-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Doris Dagri',
+                        'title' => 'Graphiste Senior',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Doris-Dagri-Graphiste-Senior-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Jean Michel',
+                        'title' => 'Créateur d\'expérience 360',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Jean-Michel-Createur-d-experience-360-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Délima Aby',
+                        'title' => 'Infographiste senior',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Delima-Aby-Infographiste-senior-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Frank Ouedraogo',
+                        'title' => 'Graphiste',
+                        'country' => 'Burkina Faso',
+                        'flag' => '🇧🇫',
+                        'image' => 'Frank-Ouedraogo-Graphiste-Burkina-Faso.jpg'
+                    ],
+                    [
+                        'name' => 'Alban M\'Lan',
+                        'title' => 'Chef d\'Entreprise',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Alban-M-Lan-Chef-d-Entreprise-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Abdoul Latif',
+                        'title' => 'Senior Graphiste',
+                        'country' => 'Burkina Faso',
+                        'flag' => '🇧🇫',
+                        'image' => 'Abdoul-Latif-Senior-Graphiste-Burkina-Faso.jpg'
+                    ],
+                    [
+                        'name' => 'Lydie Wendkuuni',
+                        'title' => 'Graphic Designer',
+                        'country' => 'Burkina Faso',
+                        'flag' => '🇧🇫',
+                        'image' => 'Lydie-Wendkuuni-Graphic-Designer-Burkina-Faso.jpg'
+                    ],
+                    [
+                        'name' => 'Armel ABÉ',
+                        'title' => 'Graphiste Photographe',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Armel-ABE-Graphiste-Photographe-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Bernice Alikpa',
+                        'title' => 'Graphiste Designer Senior',
+                        'country' => 'Bénin',
+                        'flag' => '🇧🇯',
+                        'image' => 'Bernice-Alikpa-Graphiste-designer-Senior-Benin.jpg'
+                    ],
+                    [
+                        'name' => 'Check Maiga',
+                        'title' => 'Graphiste Imprimeur',
+                        'country' => 'Burkina Faso',
+                        'flag' => '🇧🇫',
+                        'image' => 'Check-Maiga-Graphiste-Imprimeur-Burkina-Faso.jpg'
+                    ],
+                    [
+                        'name' => 'Cissé Moctar',
+                        'title' => 'Journaliste Bilingue',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Cisse-Moctar-Journaliste-Bilinge-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Désiré Ganh',
+                        'title' => 'Professeur en Design Graphic',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Desire-Ganh-Professeur-en-Design-Graphic-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Eugène Ndiolène',
+                        'title' => 'Brand Identity Designer',
+                        'country' => 'Sénégal',
+                        'flag' => '🇸🇳',
+                        'image' => 'Eugene-Ndiolene-Brand-Identity-Designer-Senegal.jpg'
+                    ],
+                    [
+                        'name' => 'Ingrid Zaté',
+                        'title' => 'Graphic Designer',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Ingrid-Zate-Graphic-Designer-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'K Steven Lanyan',
+                        'title' => 'Graphiste Designer',
+                        'country' => 'Bénin',
+                        'flag' => '🇧🇯',
+                        'image' => 'K-Steven-Lanyan-Graphiste-Designer-Benin.jpg'
+                    ],
+                    [
+                        'name' => 'Somey Amegnibo',
+                        'title' => 'Designer Créateur de Contenus',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Somey-Amegnibo-Designer-Createur-de-Contenus-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Sylla Rokia',
+                        'title' => 'Journaliste Professionnelle',
+                        'country' => 'Côte d\'Ivoire',
+                        'flag' => '🇨🇮',
+                        'image' => 'Sylla-Rokia-Journaliste-Professionnelle-Cote-d-Ivoire.jpg'
+                    ],
+                    [
+                        'name' => 'Wei Zhang',
+                        'title' => 'Expert Digital Innovation',
+                        'country' => 'Chine',
+                        'flag' => '🇨🇳',
+                        'image' => 'https://randomuser.me/api/portraits/men/11.jpg',
+                        'is_external' => true
+                    ],
+                    [
+                        'name' => 'Omar Al-Fayed',
+                        'title' => 'Senior Art Director',
+                        'country' => 'Arabie Saoudite',
+                        'flag' => '🇸🇦',
+                        'image' => 'https://randomuser.me/api/portraits/men/32.jpg',
+                        'is_external' => true
+                    ],
                 ];
             @endphp
 
@@ -351,7 +493,7 @@
                     <!-- Avatar -->
                     <div class="relative mx-auto mb-6">
                         <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white/10 group-hover:border-orange-500/50 transition-all duration-300">
-                            <img src="{{ asset('assets/img/membre_du_jury/' . $member['image']) }}"
+                            <img src="{{ (isset($member['is_external']) && $member['is_external']) ? $member['image'] : asset('assets/img/membre_du_jury/' . $member['image']) }}"
                                  alt="{{ $member['name'] }}"
                                  class="w-full h-full object-cover object-top">
                         </div>
