@@ -752,11 +752,9 @@
             <!-- Categories -->
             <div class="store-categories" id="category-filters">
                 <button class="store-category active" data-category="all">Tous</button>
-                <button class="store-category" data-category="livres">Livres</button>
-                <button class="store-category" data-category="accessoires">Accessoires</button>
-                <button class="store-category" data-category="ressources">Ressources pédagogiques</button>
-                <button class="store-category" data-category="produits">Produits EVC</button>
-                <button class="store-category" data-category="editions">Éditions limitées</button>
+                @foreach($categories as $category)
+                    <button class="store-category" data-category="{{ $category->slug }}">{{ $category->name }}</button>
+                @endforeach
             </div>
 
             <!-- Product Grid -->
@@ -842,26 +840,8 @@
 
 <script>
     (function() {
-        const products = [
-            { id: 1, category: 'livres', icon: 'fa-book-open', name: 'Fondamentaux du Design', desc: 'Le guide complet pour débuter en design graphique.', price: 15000 },
-            { id: 2, category: 'livres', icon: 'fa-palette', name: 'Adobe pour Tous', desc: 'Maîtrisez Photoshop, Illustrator et InDesign.', price: 22000 },
-            { id: 3, category: 'accessoires', icon: 'fa-shopping-bag', name: 'Tote Bag EVC', desc: '100% coton, design créatif.', price: 5000 },
-            { id: 4, category: 'accessoires', icon: 'fa-mug-hot', name: 'Mug EVC', desc: 'Édition limitée créative.', price: 4500 },
-            { id: 5, category: 'ressources', icon: 'fa-file-video', name: 'Pack Vidéos Tutoriels', desc: '+50 tutoriels design et IA.', price: 18000 },
-            { id: 6, category: 'ressources', icon: 'fa-file-download', name: 'Templates EVC', desc: 'Maquettes, mockups et templates.', price: 12000 },
-            { id: 7, category: 'produits', icon: 'fa-tshirt', name: 'T-shirt EVC', desc: 'Design exclusif, plusieurs tailles.', price: 8000 },
-            { id: 8, category: 'produits', icon: 'fa-sticky-note', name: 'Kit Créatif EVC', desc: 'Carnet, stylo et stickers.', price: 6500 },
-            { id: 9, category: 'editions', icon: 'fa-award', name: 'Affiche Lauréats 2024', desc: 'Impression haute qualité, numérotée.', price: 25000 },
-            { id: 10, category: 'editions', icon: 'fa-certificate', name: 'Box Collector EVC', desc: 'Disponible en 100 exemplaires.', price: 50000 }
-        ];
-
-        const categoryLabels = {
-            livres: 'Livres',
-            accessoires: 'Accessoires',
-            ressources: 'Ressources',
-            produits: 'Produits EVC',
-            editions: 'Éditions limitées'
-        };
+        const products = @json($productsForJs);
+        const categoryLabels = @json($categories->pluck('name', 'slug')->put('all', 'Tous')->toArray());
 
         let cart = JSON.parse(localStorage.getItem('evc_cart') || '[]');
 
@@ -879,8 +859,8 @@
                 card.dataset.category = product.category;
                 card.innerHTML = `
                     <div class="store-product-image">
-                        <i class="fas ${product.icon}"></i>
-                        <span class="store-product-category">${categoryLabels[product.category]}</span>
+                        ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" style="width:100%;height:100%;object-fit:cover;">` : `<i class="fas fa-image" style="font-size:4rem;color:var(--primary);"></i>`}
+                        <span class="store-product-category">${categoryLabels[product.category] || 'Non classé'}</span>
                     </div>
                     <div class="store-product-body">
                         <h3>${product.name}</h3>
