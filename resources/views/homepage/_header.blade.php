@@ -236,7 +236,7 @@
 <style>
     #flash-info-bar {
         position: fixed;
-        top: 130px;
+        top: 150px;
         left: 0;
         width: 100%;
         z-index: 49;
