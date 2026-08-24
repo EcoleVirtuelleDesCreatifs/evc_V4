@@ -425,54 +425,78 @@
 
     .store-toast {
         position: fixed;
-        top: 50%;
+        top: 35%;
         left: 50%;
-        transform: translate(-50%, -50%) scale(0.9);
+        transform: translate(-50%, -50%) scale(0.85) perspective(800px) rotateX(-12deg);
+        width: 100%;
+        max-width: 1100px;
+        height: 161px;
         background: rgba(13, 19, 51, 0.98);
         border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 22px 32px;
+        border-radius: 28px;
+        padding: 0 60px;
         color: #ffffff;
         font-weight: 700;
-        font-size: 1.0625rem;
-        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+        font-size: 1.75rem;
+        box-shadow: 0 35px 90px rgba(0, 0, 0, 0.65);
         z-index: 10001;
         opacity: 0;
         visibility: hidden;
         display: flex;
         align-items: center;
-        gap: 12px;
-        min-width: 280px;
-        max-width: 90%;
-        text-align: center;
-        justify-content: center;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        gap: 24px;
+        text-align: left;
+        justify-content: flex-start;
+        overflow: hidden;
+        transition: all 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .store-toast i {
+        font-size: 2.5rem;
+    }
+
+    .store-toast-message {
+        flex: 1;
+    }
+
+    .store-toast-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 8px;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.25);
+    }
+
+    .store-toast.active .store-toast-progress {
+        width: 0%;
+        transition: width 2500ms linear;
     }
 
     .store-toast.store-toast-success {
         border-color: rgba(34, 197, 94, 0.6);
-        box-shadow: 0 25px 60px rgba(34, 197, 94, 0.25), 0 0 40px rgba(34, 197, 94, 0.15);
+        box-shadow: 0 35px 90px rgba(34, 197, 94, 0.25), 0 0 60px rgba(34, 197, 94, 0.15);
     }
 
-    .store-toast.store-toast-success i {
+    .store-toast.store-toast-success i,
+    .store-toast.store-toast-success .store-toast-progress {
         color: #22c55e;
+        background: #22c55e;
     }
 
     .store-toast.store-toast-warning {
         border-color: rgba(255, 107, 53, 0.6);
-        box-shadow: 0 25px 60px rgba(255, 107, 53, 0.3), 0 0 40px rgba(255, 107, 53, 0.15);
+        box-shadow: 0 35px 90px rgba(255, 107, 53, 0.3), 0 0 60px rgba(255, 107, 53, 0.15);
     }
 
-    .store-toast.store-toast-warning i {
+    .store-toast.store-toast-warning i,
+    .store-toast.store-toast-warning .store-toast-progress {
         color: #ff6b35;
-    }
-
-    .store-toast i {
-        font-size: 1.25rem;
+        background: #ff6b35;
     }
 
     .store-toast.active {
-        transform: translate(-50%, -50%) scale(1);
+        transform: translate(-50%, -50%) scale(1) perspective(800px) rotateX(0deg);
         opacity: 1;
         visibility: visible;
     }
@@ -926,7 +950,7 @@
         function showToast(message, type = 'success') {
             const toast = document.getElementById('store-toast');
             const icon = type === 'warning' ? 'fa-exclamation-circle' : 'fa-check-circle';
-            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+            toast.innerHTML = `<i class="fas ${icon}"></i><span class="store-toast-message">${message}</span><span class="store-toast-progress"></span>`;
             toast.className = 'store-toast store-toast-' + type;
             toast.classList.add('active');
             setTimeout(() => toast.classList.remove('active'), 2500);
