@@ -34,6 +34,15 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="mb-8 rounded-2xl border border-red-400/30 bg-red-500/10 px-6 py-4 text-red-200">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-exclamation-circle mt-1"></i>
+                    <div class="font-semibold">{{ session('error') }}</div>
+                </div>
+            </div>
+        @endif
+
         @if($errors->any())
             <div class="mb-8 rounded-2xl border border-red-400/30 bg-red-500/10 px-6 py-4 text-red-200">
                 <div class="font-semibold mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Veuillez corriger les erreurs suivantes :</div>
