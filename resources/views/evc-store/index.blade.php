@@ -1007,34 +1007,53 @@
             submitBtn.classList.add('loading');
             submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Envoi en cours...';
 
-            setTimeout(() => {
-                const autre = document.getElementById('order-autre').value.trim();
-                const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const autre = document.getElementById('order-autre').value.trim();
+            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
 
-                const order = {
-                    nom: nom,
-                    prenoms: prenoms,
-                    numero: numero,
-                    lieu: lieu,
-                    autre: autre,
-                    items: cart,
-                    total: total,
-                    date: new Date().toISOString()
-                };
+            const order = {
+                nom: nom,
+                prenoms: prenoms,
+                numero: numero,
+                lieu: lieu,
+                autre: autre,
+                items: cart,
+                total: total
+            };
 
-                console.log('Commande reçue :', order);
-                localStorage.setItem('evc_last_order', JSON.stringify(order));
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-                cart = [];
-                updateCartUI();
-                closeOrderModal();
-                showToast('Commande envoyée avec succès');
-                this.reset();
-
+            fetch('{{ route('evc.store.order') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(order)
+            })
+            .then(response => response.json().then(data => ({ status: response.status, ok: response.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok && data.success) {
+                    console.log('Commande enregistrée :', data.order);
+                    cart = [];
+                    updateCartUI();
+                    closeOrderModal();
+                    showToast('Commande envoyée avec succès');
+                    this.reset();
+                } else {
+                    const message = data.message || 'Erreur lors de l\'envoi de la commande';
+                    showToast(message, 'warning');
+                }
+            })
+            .catch(err => {
+                console.error('Erreur commande :', err);
+                showToast('Erreur réseau, veuillez réessayer', 'warning');
+            })
+            .finally(() => {
                 submitBtn.disabled = false;
                 submitBtn.classList.remove('loading');
                 submitBtn.innerHTML = originalText;
-            }, 800);
+            });
         });
 
         renderProducts('all');

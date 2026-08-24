@@ -80,6 +80,8 @@ Route::get('/evc-store', function () {
         ->header('Expires', '0');
 })->name('evc.store');
 
+Route::post('/evc-store/order', [App\Http\Controllers\StoreOrderController::class, 'store'])->name('evc.store.order');
+
 Route::get('/studio-creative', function () {
     return response()
         ->view('studio-creative.index')
