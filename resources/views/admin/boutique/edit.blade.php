@@ -86,7 +86,7 @@
                             <label for="image" class="form-label text-white">Image</label>
                             @if($product->image)
                                 <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->title }}" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                                    <img src="{{ \App\Models\MediaUrl::fromPath($product->image) }}" alt="{{ $product->title }}" class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
                                 </div>
                             @endif
                             <input type="file" name="image" id="image" class="form-control @error('image') is-invalid @enderror" accept="image/*">

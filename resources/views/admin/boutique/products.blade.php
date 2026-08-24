@@ -220,7 +220,7 @@
                             <tr class="product-row" data-category="{{ $product->category->slug ?? '' }}">
                                 <td>
                                     @if($product->image)
-                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->title }}" width="60" class="rounded shadow-sm">
+                                        <img src="{{ \App\Models\MediaUrl::fromPath($product->image) }}" alt="{{ $product->title }}" width="60" class="rounded shadow-sm">
                                     @else
                                         <div style="width: 60px; height: 40px; background-color: #334155;" class="rounded shadow-sm d-flex align-items-center justify-content-center">
                                             <i class="fas fa-image text-muted"></i>

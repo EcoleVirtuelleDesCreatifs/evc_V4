@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MediaUrl;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\StoreOrder;
@@ -18,7 +19,7 @@ class StoreOrderController extends Controller
             return [
                 'id' => $product->id,
                 'category' => $product->category->slug ?? '',
-                'image_url' => $product->image ? asset('storage/' . $product->image) : null,
+                'image_url' => MediaUrl::fromPath($product->image),
                 'name' => $product->title,
                 'desc' => $product->summary ?: $product->description,
                 'price' => $product->price,
