@@ -1471,7 +1471,7 @@
             }
 
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const delivery = cart.reduce((sum, item) => sum + ((item.delivery_cost || 0) * item.qty), 0);
+            const delivery = cart.length ? Math.max(0, ...cart.map(item => item.delivery_cost || 0)) : 0;
             const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
             const total = subtotal + delivery - discount;
 
@@ -1650,7 +1650,7 @@
         function recalcOrderTotal() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const isPickup = document.querySelector('input[name="delivery_mode"]:checked')?.value === 'pickup';
-            const delivery = isPickup ? 0 : cart.reduce((sum, item) => sum + ((item.delivery_cost || 0) * item.qty), 0);
+            const delivery = isPickup ? 0 : (cart.length ? Math.max(0, ...cart.map(item => item.delivery_cost || 0)) : 0);
             const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
             const total = subtotal + delivery - discount;
 
@@ -1665,7 +1665,7 @@
             closeCart();
             const orderItems = document.getElementById('order-items');
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const delivery = cart.reduce((sum, item) => sum + ((item.delivery_cost || 0) * item.qty), 0);
+            const delivery = cart.length ? Math.max(0, ...cart.map(item => item.delivery_cost || 0)) : 0;
             const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
             const total = subtotal + delivery - discount;
 

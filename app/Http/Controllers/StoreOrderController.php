@@ -101,7 +101,7 @@ class StoreOrderController extends Controller
         $subtotal = collect($validated['items'])->sum(fn($item) => ($item['price'] ?? 0) * ($item['qty'] ?? 1));
         $deliveryCost = $validated['delivery_mode'] === 'pickup'
             ? 0
-            : collect($validated['items'])->sum(fn($item) => ($item['delivery_cost'] ?? 0) * ($item['qty'] ?? 1));
+            : (collect($validated['items'])->max(fn($item) => $item['delivery_cost'] ?? 0) ?? 0);
 
         $discount = 0;
         $promo = null;
