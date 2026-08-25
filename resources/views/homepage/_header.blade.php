@@ -433,7 +433,7 @@
         #flash-info-bar {
             height: auto;
             min-height: 80px;
-            top: 130px;
+            top: 170px;
         }
 
         #flash-info-bar>div {
