@@ -53,12 +53,13 @@
         vertical-align: baseline;
         border-radius: .25rem;
     }
-    .status-badge.pending { background-color: #ffc107; color: #000; }
+    .status-badge.payment_pending { background-color: #ffc107; color: #000; }
+    .status-badge.payment_confirmed { background-color: #0d6efd; }
+    .status-badge.preparing { background-color: #fd7e14; }
+    .status-badge.ready_for_pickup { background-color: #6f42c1; }
+    .status-badge.in_delivery { background-color: #0dcaf0; color: #000; }
     .status-badge.delivered { background-color: #198754; }
-    .status-badge.refused { background-color: #dc3545; }
     .status-badge.cancelled { background-color: #6c757d; }
-    .status-badge.rescheduled { background-color: #0dcaf0; color: #000; }
-    .status-badge.completed { background-color: #198754; }
 
     .status-filter-card {
         cursor: pointer;
@@ -229,7 +230,16 @@
                                 <td><strong>{{ number_format($order->total, 0, ',', ' ') }} FCFA</strong></td>
                                 <td>
                                     <span class="status-badge {{ $order->status }}">
-                                        {{ match($order->status) { 'pending' => 'En attente', 'delivered' => 'Livré', 'refused' => 'Refusé', 'cancelled' => 'Annulé', 'rescheduled' => 'Reprogrammer', default => ucfirst($order->status) } }}
+                                        {{ match($order->status) {
+                                            'payment_pending' => 'En attente de paiement',
+                                            'payment_confirmed' => 'Paiement confirmé',
+                                            'preparing' => 'En préparation',
+                                            'ready_for_pickup' => 'Prête pour retrait',
+                                            'in_delivery' => 'En livraison',
+                                            'delivered' => 'Livrée',
+                                            'cancelled' => 'Annulée',
+                                            default => ucfirst($order->status),
+                                        } }}
                                     </span>
                                 </td>
                                 <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
@@ -237,18 +247,15 @@
                                 <td>
                                     <form action="{{ route('admin.boutique.orders.status', $order) }}" method="POST" class="d-flex gap-1">
                                         @csrf
-                                        <button type="submit" name="status" value="delivered" class="btn btn-sm btn-success" title="Marquer comme livré">
-                                            <i class="fas fa-check"></i> Livré
-                                        </button>
-                                        <button type="submit" name="status" value="refused" class="btn btn-sm btn-danger" title="Marquer comme refusé">
-                                            <i class="fas fa-times"></i> Refusé
-                                        </button>
-                                        <button type="submit" name="status" value="cancelled" class="btn btn-sm btn-warning" title="Marquer comme annulé">
-                                            <i class="fas fa-ban"></i> Annulé
-                                        </button>
-                                        <button type="submit" name="status" value="rescheduled" class="btn btn-sm btn-info" title="Reprogrammer">
-                                            <i class="fas fa-clock"></i> Reprogrammer
-                                        </button>
+                                        <select name="status" class="form-select form-select-sm w-auto" style="min-width: 180px;" onchange="this.form.submit()">
+                                            <option value="payment_pending" {{ $order->status === 'payment_pending' ? 'selected' : '' }}>En attente de paiement</option>
+                                            <option value="payment_confirmed" {{ $order->status === 'payment_confirmed' ? 'selected' : '' }}>Paiement confirmé</option>
+                                            <option value="preparing" {{ $order->status === 'preparing' ? 'selected' : '' }}>En préparation</option>
+                                            <option value="ready_for_pickup" {{ $order->status === 'ready_for_pickup' ? 'selected' : '' }}>Prête pour retrait</option>
+                                            <option value="in_delivery" {{ $order->status === 'in_delivery' ? 'selected' : '' }}>En livraison</option>
+                                            <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Livrée</option>
+                                            <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Annulée</option>
+                                        </select>
                                     </form>
                                 </td>
                             </tr>

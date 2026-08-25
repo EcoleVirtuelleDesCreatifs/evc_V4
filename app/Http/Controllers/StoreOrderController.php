@@ -60,7 +60,12 @@ class StoreOrderController extends Controller
             'total' => 'required|integer',
         ]);
 
+        $validated['user_id'] = auth()->id();
+        $validated['status'] = 'payment_pending';
+
         $order = StoreOrder::create($validated);
+        $order->order_number = 'EVC-' . str_pad($order->id, 6, '0', STR_PAD_LEFT);
+        $order->save();
 
         return response()->json([
             'success' => true,
@@ -83,5 +88,14 @@ class StoreOrderController extends Controller
         ]);
 
         return response()->json(['success' => true]);
+    }
+
+    public function myOrders()
+    {
+        $orders = StoreOrder::where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('evc-store.my-orders', compact('orders'));
     }
 }

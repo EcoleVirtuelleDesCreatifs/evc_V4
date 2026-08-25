@@ -77,6 +77,10 @@ Route::get('/evc-store', [App\Http\Controllers\StoreOrderController::class, 'ind
 Route::post('/evc-store/order', [App\Http\Controllers\StoreOrderController::class, 'store'])->name('evc.store.order');
 Route::get('/evc-store/track/{product}', [App\Http\Controllers\StoreOrderController::class, 'trackProduct'])->name('evc.store.track');
 
+Route::middleware('auth')->group(function () {
+    Route::get('/mes-commandes', [App\Http\Controllers\StoreOrderController::class, 'myOrders'])->name('store.my.orders');
+});
+
 Route::get('/studio-creative', function () {
     return response()
         ->view('studio-creative.index')

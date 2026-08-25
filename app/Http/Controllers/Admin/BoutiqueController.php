@@ -60,7 +60,7 @@ class BoutiqueController extends Controller
      */
     public function updateOrderStatus(Request $request, StoreOrder $order)
     {
-        $allowed = ['pending', 'delivered', 'refused', 'cancelled', 'rescheduled'];
+        $allowed = ['payment_pending', 'payment_confirmed', 'preparing', 'ready_for_pickup', 'in_delivery', 'delivered', 'cancelled'];
         $status = $request->input('status');
 
         if (!in_array($status, $allowed, true)) {
