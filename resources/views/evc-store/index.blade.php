@@ -539,6 +539,66 @@
         box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
     }
 
+    .cart-promo {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .cart-promo input {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        outline: none;
+    }
+
+    .cart-promo input::placeholder {
+        color: var(--text-secondary);
+    }
+
+    .cart-summary-row {
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+
+    .cart-summary-row.discount {
+        color: #20c997;
+    }
+
+    .store-cart-item-qty {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+        margin-right: 12px;
+    }
+
+    .store-cart-item-qty span {
+        color: var(--text-primary);
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .qty-btn {
+        width: 28px;
+        height: 28px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
     .store-toast {
         position: fixed;
         top: 35%;
@@ -730,6 +790,16 @@
 
     .store-order-summary li:last-child {
         border-bottom: none;
+    }
+
+    .store-order-summary li.order-delivery,
+    .store-order-summary li.order-promo {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+    .store-order-summary li.order-promo {
+        color: #20c997;
     }
 
     .store-order-summary .store-order-total {
@@ -1142,6 +1212,13 @@
             <div class="store-cart-empty">Votre panier est vide</div>
         </div>
         <div class="store-cart-footer">
+            <div class="cart-promo">
+                <input type="text" id="cart-promo-code" placeholder="Code promo" maxlength="50">
+                <button type="button" id="cart-promo-apply" class="filter-btn">Appliquer</button>
+            </div>
+            <div class="cart-summary-row"><span>Sous-total</span><span id="cart-subtotal">0 FCFA</span></div>
+            <div class="cart-summary-row"><span>Livraison</span><span id="cart-delivery">0 FCFA</span></div>
+            <div class="cart-summary-row discount"><span>Remise</span><span id="cart-discount">-0 FCFA</span></div>
             <div class="store-cart-total">
                 <span>Total</span>
                 <span id="cart-total">0 FCFA</span>
@@ -1317,10 +1394,15 @@
                 itemsContainer.innerHTML = '<div class="store-cart-empty">Votre panier est vide</div>';
             } else {
                 itemsContainer.innerHTML = cart.map(item => `
-                    <div class="store-cart-item" data-id="${item.id}">
+                    <div class="store-cart-item" data-id="${item.id}" data-variant="${item.variant || ''}">
                         <div class="store-cart-item-info">
                             <div class="store-cart-item-title">${item.name}</div>
                             <div class="store-cart-item-price">${formatPrice(item.price)} x ${item.qty}</div>
+                        </div>
+                        <div class="store-cart-item-qty">
+                            <button class="qty-btn" data-action="minus"><i class="fas fa-minus"></i></button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn" data-action="plus"><i class="fas fa-plus"></i></button>
                         </div>
                         <button class="store-cart-item-remove" aria-label="Retirer ${item.name}">
                             <i class="fas fa-trash"></i>
@@ -1329,7 +1411,14 @@
                 `).join('');
             }
 
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const delivery = cart.reduce((sum, item) => sum + ((item.delivery_cost || 0) * item.qty), 0);
+            const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
+            const total = subtotal + delivery - discount;
+
+            document.getElementById('cart-subtotal').textContent = formatPrice(subtotal);
+            document.getElementById('cart-delivery').textContent = formatPrice(delivery);
+            document.getElementById('cart-discount').textContent = '-' + formatPrice(discount);
             document.getElementById('cart-total').textContent = formatPrice(total);
             localStorage.setItem('evc_cart', JSON.stringify(cart));
         }
@@ -1352,15 +1441,64 @@
             if (existing) {
                 existing.qty += 1;
             } else {
-                cart.push({ id: product.id, name: fullName, price: product.price, qty: 1, variant: variantName });
+                cart.push({ id: product.id, name: fullName, price: product.price, delivery_cost: product.delivery_cost ?? 0, qty: 1, variant: variantName });
             }
             updateCartUI();
             showToast(`${fullName} ajouté au panier`);
             if (open) openOrderModal();
         }
 
-        function removeFromCart(id) {
-            cart = cart.filter(item => item.id !== id);
+        function removeFromCart(id, variant) {
+            cart = cart.filter(item => !(item.id === id && item.variant === variant));
+            updateCartUI();
+        }
+
+        function changeQty(id, variant, delta) {
+            const item = cart.find(item => item.id === id && item.variant === variant);
+            if (!item) return;
+            const product = products.find(p => p.id === id);
+            const newQty = item.qty + delta;
+            if (newQty < 1) {
+                removeFromCart(id, variant);
+                return;
+            }
+            if (product && newQty > product.stock) {
+                showToast(`Stock insuffisant pour ${item.name}`, 'warning');
+                return;
+            }
+            item.qty = newQty;
+            updateCartUI();
+        }
+
+        async function applyPromo() {
+            const input = document.getElementById('cart-promo-code');
+            const code = input.value.trim();
+            if (!code) {
+                showToast('Saisissez un code promo', 'warning');
+                return;
+            }
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            try {
+                const res = await fetch('{{ route('evc.store.promo') }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: JSON.stringify({ code, subtotal })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('evc_cart_promo', code);
+                    localStorage.setItem('evc_cart_discount', data.discount);
+                    showToast(`Code promo appliqué : -${formatPrice(data.discount)}`);
+                } else {
+                    localStorage.removeItem('evc_cart_promo');
+                    localStorage.setItem('evc_cart_discount', '0');
+                    showToast(data.message || 'Code promo invalide', 'warning');
+                }
+            } catch (e) {
+                localStorage.removeItem('evc_cart_promo');
+                localStorage.setItem('evc_cart_discount', '0');
+                showToast('Erreur de vérification', 'warning');
+            }
             updateCartUI();
         }
 
@@ -1427,11 +1565,19 @@
         document.getElementById('cart-overlay').addEventListener('click', closeCart);
 
         document.getElementById('cart-items').addEventListener('click', function(e) {
-            const btn = e.target.closest('.store-cart-item-remove');
+            const btn = e.target.closest('button');
             if (!btn) return;
             const item = btn.closest('.store-cart-item');
-            removeFromCart(parseInt(item.dataset.id));
+            const id = parseInt(item.dataset.id);
+            const variant = item.dataset.variant || null;
+            if (btn.classList.contains('store-cart-item-remove')) {
+                removeFromCart(id, variant);
+            } else if (btn.classList.contains('qty-btn')) {
+                changeQty(id, variant, btn.dataset.action === 'plus' ? 1 : -1);
+            }
         });
+
+        document.getElementById('cart-promo-apply').addEventListener('click', applyPromo);
 
         document.getElementById('cart-checkout').addEventListener('click', function(e) {
             e.preventDefault();
@@ -1445,10 +1591,25 @@
         function openOrderModal() {
             closeCart();
             const orderItems = document.getElementById('order-items');
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const delivery = cart.reduce((sum, item) => sum + ((item.delivery_cost || 0) * item.qty), 0);
+            const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
+            const total = subtotal + delivery - discount;
+
             orderItems.innerHTML = cart.map(item => `
                 <li><span>${item.name} x${item.qty}</span><span>${formatPrice(item.price * item.qty)}</span></li>
             `).join('');
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+
+            const promoCode = localStorage.getItem('evc_cart_promo') || '';
+            const promoHtml = discount > 0
+                ? `<li class="order-promo"><span>Code promo ${promoCode}</span><span>-${formatPrice(discount)}</span></li>`
+                : '';
+
+            orderItems.insertAdjacentHTML('beforeend', `
+                <li class="order-delivery"><span>Livraison</span><span>${formatPrice(delivery)}</span></li>
+                ${promoHtml}
+            `);
+
             document.getElementById('order-total').textContent = 'Total : ' + formatPrice(total);
             document.getElementById('order-modal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -1481,7 +1642,11 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Envoi en cours...';
 
             const autre = document.getElementById('order-autre').value.trim();
-            const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const delivery = cart.reduce((sum, item) => sum + ((item.delivery_cost || 0) * item.qty), 0);
+            const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
+            const total = subtotal + delivery - discount;
+            const promoCode = localStorage.getItem('evc_cart_promo') || null;
 
             const order = {
                 nom: nom,
@@ -1490,6 +1655,7 @@
                 lieu: lieu,
                 autre: autre,
                 items: cart,
+                promo_code: promoCode,
                 total: total
             };
 

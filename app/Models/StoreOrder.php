@@ -17,6 +17,11 @@ class StoreOrder extends Model
         'lieu',
         'autre',
         'items',
+        'subtotal',
+        'delivery_cost',
+        'discount',
+        'promo_code',
+        'final_total',
         'total',
         'status',
     ];
@@ -24,6 +29,11 @@ class StoreOrder extends Model
     protected $casts = [
         'items' => 'array',
         'user_id' => 'integer',
+        'subtotal' => 'integer',
+        'delivery_cost' => 'integer',
+        'discount' => 'integer',
+        'final_total' => 'integer',
+        'total' => 'integer',
     ];
 
     public function user()
