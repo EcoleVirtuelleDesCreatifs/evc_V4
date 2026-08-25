@@ -1792,7 +1792,7 @@
             if (!product) return;
             fetch(`/evc-store/track/${id}`).catch(() => {});
             document.getElementById('product-modal-title').textContent = product.name;
-            document.getElementById('product-modal-price').textContent = (product.is_promotion ? `<span style="text-decoration:line-through;opacity:.6;margin-right:8px;">${formatPrice(product.old_price)}</span>` : '') + formatPrice(product.price);
+            document.getElementById('product-modal-price').innerHTML = (product.is_promotion ? `<span style="text-decoration:line-through;opacity:.6;margin-right:8px;">${formatPrice(product.old_price)}</span>` : '') + formatPrice(product.price);
             document.getElementById('product-modal-desc').innerHTML = product.description || product.desc || '';
 
             const stockLabel = product.stock_status === 'en_stock' ? 'En stock' : product.stock_status === 'stock_limite' ? 'Stock limité' : 'Rupture';
