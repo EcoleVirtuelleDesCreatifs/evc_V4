@@ -802,6 +802,12 @@
         color: #20c997;
     }
 
+    .store-order-summary li.order-seller a {
+        color: #4fc3f7;
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+
     .store-order-summary .store-order-total {
         color: var(--text-primary);
         font-weight: 700;
@@ -1494,7 +1500,7 @@
             if (existing) {
                 existing.qty += 1;
             } else {
-                cart.push({ id: product.id, name: fullName, price: product.price, delivery_cost: product.delivery_cost ?? 0, qty: 1, variant: variantName });
+                cart.push({ id: product.id, name: fullName, price: product.price, delivery_cost: product.delivery_cost ?? 0, email: product.email, qty: 1, variant: variantName });
             }
             updateCartUI();
             showToast(`${fullName} ajouté au panier`);
@@ -1672,9 +1678,15 @@
                 ? `<li class="order-promo"><span>Code promo ${promoCode}</span><span>-${formatPrice(discount)}</span></li>`
                 : '';
 
+            const sellerEmails = [...new Set(cart.map(item => item.email).filter(Boolean))];
+            const sellerHtml = sellerEmails.length
+                ? `<li class="order-seller"><span>Contact vendeur</span><span class="d-flex flex-column">${sellerEmails.map(e => `<a href="mailto:${e}">${e}</a>`).join('')}</span></li>`
+                : '';
+
             orderItems.insertAdjacentHTML('beforeend', `
                 <li class="order-delivery"><span>Livraison</span><span>${formatPrice(delivery)}</span></li>
                 ${promoHtml}
+                ${sellerHtml}
             `);
 
             document.getElementById('order-total').textContent = 'Total : ' + formatPrice(total);

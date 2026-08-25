@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MediaUrl;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use Illuminate\Support\Facades\Mail;
 use App\Models\PromoCode;
 use App\Models\StoreOrder;
 use App\Models\Visit;
@@ -54,6 +55,7 @@ class StoreOrderController extends Controller
                 'price' => $product->price,
                 'old_price' => $product->old_price,
                 'delivery_cost' => $product->delivery_cost,
+                'email' => $product->email,
                 'stock' => $product->stock,
                 'stock_status' => $product->stock_status,
                 'is_promotion' => $product->is_promotion,
@@ -130,6 +132,27 @@ class StoreOrderController extends Controller
         $order = StoreOrder::create($validated);
         $order->order_number = 'EVC-' . str_pad($order->id, 6, '0', STR_PAD_LEFT);
         $order->save();
+
+        // Notifier les vendeurs par email
+        $productIds = collect($validated['items'])->pluck('id')->unique()->all();
+        $emails = Product::whereIn('id', $productIds)->whereNotNull('email')->pluck('email')->unique()->all();
+
+        foreach ($emails as $email) {
+            Mail::to($email)->send(new class($order) extends \Illuminate\Mail\Mailable {
+                public StoreOrder $order;
+
+                public function __construct(StoreOrder $order)
+                {
+                    $this->order = $order;
+                }
+
+                public function build()
+                {
+                    return $this->subject('Nouvelle commande EVC Store - ' . $this->order->order_number)
+                                ->view('emails.store-order', ['order' => $this->order]);
+                }
+            });
+        }
 
         return response()->json([
             'success' => true,
