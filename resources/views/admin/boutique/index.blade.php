@@ -203,33 +203,40 @@
                             <th>Client</th>
                             <th>Contact</th>
                             <th>Adresse</th>
-                            <th>Mode</th>
-                            <th>Paiement</th>
-                            <th>Articles</th>
-                            <th>Total</th>
+                            <th>Article</th>
+                            <th>Image</th>
+                            <th>Prix</th>
                             <th>Statut</th>
-                            <th>Date</th>
-                            <th>Infos</th>
-                            <th>Actions</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @php($productImages = $productImages ?? [])
                         @forelse ($orders as $order)
+                            @php($firstItem = $order->items[0] ?? null)
+                            @php($otherItems = count($order->items ?? []) - 1)
+                            @php($productImage = $firstItem ? ($productImages[$firstItem['id']] ?? null) : null)
                             <tr class="order-row" data-status="{{ $order->status }}">
                                 <td>{{ $order->id }}</td>
-                                <td>
-                                    <strong>{{ $order->nom }}</strong> {{ $order->prenoms }}
-                                </td>
+                                <td><strong>{{ $order->nom }}</strong> {{ $order->prenoms }}</td>
                                 <td>{{ $order->numero }}</td>
                                 <td>{{ $order->lieu }}</td>
-                                <td>{{ $order->delivery_mode === 'pickup' ? 'Retrait' : 'Livraison' }}</td>
-                                <td>{{ $order->payment_method === 'mobile_money' ? 'Mobile Money' : 'Espèces' }}</td>
                                 <td>
-                                    @foreach ($order->items as $item)
-                                        <span class="badge bg-info me-1">
-                                            {{ $item['name'] ?? ($item['title'] ?? '-') }} x{{ $item['qty'] ?? 1 }}
-                                        </span>
-                                    @endforeach
+                                    @if($firstItem)
+                                        {{ $firstItem['name'] ?? ($firstItem['title'] ?? '-') }} x{{ $firstItem['qty'] ?? 1 }}
+                                        @if($otherItems > 0)
+                                            <span class="badge bg-secondary ms-1">+{{ $otherItems }} article(s)</span>
+                                        @endif
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td>
+                                    @if($productImage)
+                                        <img src="{{ asset('storage/' . $productImage) }}" alt="" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                    @else
+                                        <span class="text-white-50">-</span>
+                                    @endif
                                 </td>
                                 <td><strong>{{ number_format($order->final_total ?: $order->total, 0, ',', ' ') }} FCFA</strong></td>
                                 <td>
@@ -246,26 +253,36 @@
                                         } }}
                                     </span>
                                 </td>
-                                <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
-                                <td>{{ $order->autre ?? '-' }}</td>
                                 <td>
-                                    <form action="{{ route('admin.boutique.orders.status', $order) }}" method="POST" class="d-flex gap-1">
-                                        @csrf
-                                        <select name="status" class="form-select form-select-sm w-auto" style="min-width: 180px;" onchange="this.form.submit()">
-                                            <option value="payment_pending" {{ $order->status === 'payment_pending' ? 'selected' : '' }}>En attente de paiement</option>
-                                            <option value="payment_confirmed" {{ $order->status === 'payment_confirmed' ? 'selected' : '' }}>Paiement confirmé</option>
-                                            <option value="preparing" {{ $order->status === 'preparing' ? 'selected' : '' }}>En préparation</option>
-                                            <option value="ready_for_pickup" {{ $order->status === 'ready_for_pickup' ? 'selected' : '' }}>Prête pour retrait</option>
-                                            <option value="in_delivery" {{ $order->status === 'in_delivery' ? 'selected' : '' }}>En livraison</option>
-                                            <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Livrée</option>
-                                            <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Annulée</option>
-                                        </select>
-                                    </form>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <form action="{{ route('admin.boutique.orders.status', $order) }}" method="POST" class="d-flex gap-1">
+                                            @csrf
+                                            <select name="status" class="form-select form-select-sm w-auto" style="min-width: 140px;" onchange="this.form.submit()">
+                                                <option value="payment_pending" {{ $order->status === 'payment_pending' ? 'selected' : '' }}>En attente de paiement</option>
+                                                <option value="payment_confirmed" {{ $order->status === 'payment_confirmed' ? 'selected' : '' }}>Paiement confirmé</option>
+                                                <option value="preparing" {{ $order->status === 'preparing' ? 'selected' : '' }}>En préparation</option>
+                                                <option value="ready_for_pickup" {{ $order->status === 'ready_for_pickup' ? 'selected' : '' }}>Prête pour retrait</option>
+                                                <option value="in_delivery" {{ $order->status === 'in_delivery' ? 'selected' : '' }}>En livraison</option>
+                                                <option value="delivered" {{ $order->status === 'delivered' ? 'selected' : '' }}>Livrée</option>
+                                                <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Annulée</option>
+                                            </select>
+                                        </form>
+                                        <a href="{{ route('admin.boutique.orders.show', $order) }}" class="btn btn-sm btn-info" title="Voir">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <form action="{{ route('admin.boutique.orders.destroy', $order) }}" method="POST" onsubmit="return confirm('Supprimer cette commande ?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="12" class="text-center py-4">Aucune commande trouvée.</td>
+                                <td colspan="9" class="text-center py-4">Aucune commande trouvée.</td>
                             </tr>
                         @endforelse
                     </tbody>

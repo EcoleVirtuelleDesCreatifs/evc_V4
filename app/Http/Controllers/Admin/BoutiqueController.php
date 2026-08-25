@@ -45,6 +45,7 @@ class BoutiqueController extends Controller
     public function orders()
     {
         $orders = StoreOrder::orderBy('created_at', 'desc')->paginate(20);
+        $productImages = Product::pluck('image', 'id');
 
         $stats = [
             'total' => StoreOrder::count(),
@@ -53,7 +54,25 @@ class BoutiqueController extends Controller
             'revenue' => StoreOrder::sum('total'),
         ];
 
-        return view('admin.boutique.index', compact('orders', 'stats'));
+        return view('admin.boutique.index', compact('orders', 'stats', 'productImages'));
+    }
+
+    /**
+     * Détail d'une commande.
+     */
+    public function showOrder(StoreOrder $order)
+    {
+        $productImages = Product::pluck('image', 'id');
+        return view('admin.boutique.orders.show', compact('order', 'productImages'));
+    }
+
+    /**
+     * Suppression d'une commande.
+     */
+    public function destroyOrder(StoreOrder $order)
+    {
+        $order->delete();
+        return redirect()->route('admin.boutique.orders')->with('success', 'Commande supprimée.');
     }
 
     /**
