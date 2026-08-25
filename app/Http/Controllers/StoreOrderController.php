@@ -14,7 +14,32 @@ class StoreOrderController extends Controller
     public function index(Request $request)
     {
         $categories = ProductCategory::where('is_active', true)->orderBy('name')->get();
-        $products = Product::with('category')->where('is_active', true)->orderBy('created_at', 'desc')->get();
+
+        $products = Product::with('category')
+            ->where('is_active', true)
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where('title', 'like', '%' . $request->input('search') . '%');
+            })
+            ->when($request->filled('category'), function ($query) use ($request) {
+                $query->whereHas('category', fn ($q) => $q->where('slug', $request->input('category')));
+            })
+            ->when($request->filled('min_price'), function ($query) use ($request) {
+                $query->where('price', '>=', (int) $request->input('min_price'));
+            })
+            ->when($request->filled('max_price'), function ($query) use ($request) {
+                $query->where('price', '<=', (int) $request->input('max_price'));
+            })
+            ->when($request->boolean('promo'), function ($query) {
+                $query->whereNotNull('old_price')->whereColumn('old_price', '>', 'price');
+            })
+            ->when($request->input('stock') === 'in_stock', function ($query) {
+                $query->where('stock', '>', 0);
+            })
+            ->when($request->input('stock') === 'available', function ($query) {
+                $query->where('stock', '>', 10);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         $productsForJs = $products->map(function (Product $product) {
             return [
@@ -26,6 +51,10 @@ class StoreOrderController extends Controller
                 'desc' => $product->summary ?: $product->description,
                 'description' => $product->description,
                 'price' => $product->price,
+                'old_price' => $product->old_price,
+                'stock' => $product->stock,
+                'stock_status' => $product->stock_status,
+                'is_promotion' => $product->is_promotion,
             ];
         });
 

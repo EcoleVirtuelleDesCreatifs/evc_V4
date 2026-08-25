@@ -92,6 +92,98 @@
         justify-content: center;
     }
 
+    .store-filters {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        max-width: 1000px;
+        margin: 0 auto 24px;
+        background: rgba(21, 26, 61, 0.6);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 16px 20px;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px 12px;
+    }
+
+    .filter-group input, .filter-select {
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        outline: none;
+        width: 120px;
+    }
+
+    .filter-group input::placeholder, .filter-select option {
+        color: var(--text-secondary);
+    }
+
+    .filter-select {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 9px 12px;
+    }
+
+    .filter-promo {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        cursor: pointer;
+    }
+
+    .filter-btn {
+        padding: 10px 18px;
+        border-radius: 10px;
+        border: none;
+        background: var(--primary);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.875rem;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .filter-btn.reset {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+    }
+
+    .product-badges {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .product-badge {
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .product-badge.promo { background: #dc3545; color: #fff; }
+    .product-badge.in { background: #198754; color: #fff; }
+    .product-badge.low { background: #ffc107; color: #000; }
+    .product-badge.out { background: #6c757d; color: #fff; }
+
     .store-categories {
         display: flex;
         flex-wrap: wrap;
@@ -892,11 +984,27 @@
                 <span class="store-cart-count" id="cart-count">0</span>
             </button>
 
-            <!-- Search -->
-            <div class="store-search">
-                <i class="fas fa-search"></i>
-                <input type="search" id="product-search" placeholder="Rechercher un produit..." autocomplete="off">
-            </div>
+            <!-- Filters -->
+            <form class="store-filters" id="store-filters">
+                <div class="filter-group search">
+                    <i class="fas fa-search"></i>
+                    <input type="search" id="product-search" placeholder="Rechercher un produit..." autocomplete="off" name="search" value="{{ request('search') }}">
+                </div>
+                <div class="filter-group price">
+                    <input type="number" id="filter-min-price" placeholder="Prix min" min="0" name="min_price" value="{{ request('min_price') }}">
+                    <input type="number" id="filter-max-price" placeholder="Prix max" min="0" name="max_price" value="{{ request('max_price') }}">
+                </div>
+                <select id="filter-stock" name="stock" class="filter-select">
+                    <option value="" {{ request('stock') == '' ? 'selected' : '' }}>Toutes dispos</option>
+                    <option value="in_stock" {{ request('stock') == 'in_stock' ? 'selected' : '' }}>En stock</option>
+                    <option value="available" {{ request('stock') == 'available' ? 'selected' : '' }}>Stock OK</option>
+                </select>
+                <label class="filter-promo">
+                    <input type="checkbox" id="filter-promo" name="promo" value="1" {{ request('promo') ? 'checked' : '' }}> Promotions
+                </label>
+                <button type="submit" class="filter-btn">Filtrer</button>
+                <a href="{{ route('evc.store') }}" class="filter-btn reset">Réinitialiser</a>
+            </form>
 
             <!-- Categories -->
             <div class="store-categories" id="category-filters">
@@ -1028,10 +1136,28 @@
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
             const q = query.toLowerCase().trim();
+            const minPrice = parseInt(document.getElementById('filter-min-price').value) || 0;
+            const maxPrice = parseInt(document.getElementById('filter-max-price').value) || 0;
+            const promoOnly = document.getElementById('filter-promo').checked;
+            const stockFilter = document.getElementById('filter-stock').value;
+            let visibleCount = 0;
             products.forEach(product => {
                 if (filter !== 'all' && product.category !== filter) return;
                 const matchesSearch = !q || product.name.toLowerCase().includes(q) || (product.desc && product.desc.toLowerCase().includes(q));
                 if (!matchesSearch) return;
+                if (product.price < minPrice) return;
+                if (maxPrice > 0 && product.price > maxPrice) return;
+                if (promoOnly && !product.is_promotion) return;
+                if (stockFilter === 'in_stock' && product.stock <= 0) return;
+                if (stockFilter === 'available' && product.stock <= 10) return;
+
+                const stockLabel = product.stock_status === 'en_stock' ? 'En stock' : product.stock_status === 'stock_limite' ? 'Stock limité' : 'Rupture';
+                const stockClass = product.stock_status === 'en_stock' ? 'in' : product.stock_status === 'stock_limite' ? 'low' : 'out';
+                const promoBadge = product.is_promotion ? '<span class="product-badge promo">Promo</span>' : '';
+                const priceDisplay = product.is_promotion
+                    ? `<span style="text-decoration:line-through;opacity:.6;margin-right:8px;font-size:1rem;">${formatPrice(product.old_price)}</span> ${formatPrice(product.price)}`
+                    : formatPrice(product.price);
+
                 const card = document.createElement('div');
                 card.className = 'store-product';
                 card.dataset.category = product.category;
@@ -1039,17 +1165,21 @@
                     <div class="store-product-image" style="height:auto;">
                         ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" class="product-image">` : `<i class="fas fa-image" style="font-size:4rem;color:var(--primary); padding: 40px 0; display:block; text-align:center;"></i>`}
                         <span class="store-product-category">${categoryLabels[product.category] || 'Non classé'}</span>
+                        <div class="product-badges">
+                            ${promoBadge}
+                            <span class="product-badge ${stockClass}">${stockLabel}</span>
+                        </div>
                         <button class="product-quick-view" data-id="${product.id}">
                             <i class="fas fa-eye"></i> Voir la fiche
                         </button>
                     </div>
                     <div class="store-product-body">
                         <h3>${product.name}</h3>
-                        <div class="store-product-price">${formatPrice(product.price)}</div>
+                        <div class="store-product-price">${priceDisplay}</div>
                         ${product.desc ? `<div class="product-desc">${product.desc}</div>` : ''}
                         <div class="store-product-actions">
-                            <button class="store-product-buy" data-id="${product.id}">
-                                <i class="fas fa-shopping-bag"></i> Commander
+                            <button class="store-product-buy" data-id="${product.id}" ${product.stock <= 0 ? 'disabled' : ''}>
+                                <i class="fas fa-shopping-bag"></i> ${product.stock <= 0 ? 'Rupture' : 'Commander'}
                             </button>
                             <button class="store-product-add" data-id="${product.id}">
                                 <i class="fas fa-cart-plus"></i> Panier
@@ -1058,7 +1188,11 @@
                     </div>
                 `;
                 grid.appendChild(card);
+                visibleCount++;
             });
+            if (visibleCount === 0) {
+                grid.innerHTML = '<div class="text-center" style="grid-column:1/-1; color:var(--text-secondary); padding:40px;">Aucun produit ne correspond à vos critères.</div>';
+            }
         }
 
         function updateCartUI() {
@@ -1092,6 +1226,15 @@
         function addToCart(id, open = false) {
             const product = products.find(p => p.id === id);
             if (!product) return;
+            if (product.stock <= 0) {
+                showToast(`${product.name} est en rupture de stock`, 'warning');
+                return;
+            }
+            const inCart = cart.reduce((sum, item) => item.id === id ? sum + item.qty : sum, 0);
+            if (inCart + 1 > product.stock) {
+                showToast(`Stock insuffisant pour ${product.name}`, 'warning');
+                return;
+            }
             const existing = cart.find(item => item.id === id);
             if (existing) {
                 existing.qty += 1;
@@ -1153,6 +1296,17 @@
             btn.classList.add('active');
             currentFilter = btn.dataset.category;
             renderProducts(currentFilter, document.getElementById('product-search').value);
+        });
+
+        document.getElementById('store-filters').addEventListener('submit', function(e) {
+            e.preventDefault();
+            renderProducts(currentFilter, document.getElementById('product-search').value);
+        });
+
+        document.getElementById('store-filters').addEventListener('change', function(e) {
+            if (e.target.id !== 'product-search') {
+                renderProducts(currentFilter, document.getElementById('product-search').value);
+            }
         });
 
         document.getElementById('cart-toggle').addEventListener('click', openCart);

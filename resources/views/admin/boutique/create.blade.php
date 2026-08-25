@@ -79,6 +79,22 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="old_price" class="form-label text-white">Ancien prix (FCFA)</label>
+                            <input type="number" name="old_price" id="old_price" class="form-control @error('old_price') is-invalid @enderror" value="{{ old('old_price') }}" min="0">
+                            @error('old_price')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="stock" class="form-label text-white">Stock <span class="text-danger">*</span></label>
+                            <input type="number" name="stock" id="stock" class="form-control @error('stock') is-invalid @enderror" value="{{ old('stock', 0) }}" min="0" required>
+                            @error('stock')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <label for="delivery_mode" class="form-label text-white">Mode de livraison <span class="text-danger">*</span></label>
                             <select name="delivery_mode" id="delivery_mode" class="form-select @error('delivery_mode') is-invalid @enderror" required>
                                 <option value="cash_on_delivery" {{ old('delivery_mode') == 'cash_on_delivery' ? 'selected' : '' }}>Paiement à la livraison</option>

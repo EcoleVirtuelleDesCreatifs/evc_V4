@@ -21,6 +21,8 @@ class Product extends Model
         'image',
         'images',
         'view_count',
+        'stock',
+        'old_price',
         'is_active',
     ];
 
@@ -28,6 +30,8 @@ class Product extends Model
         'price' => 'integer',
         'delivery_cost' => 'integer',
         'view_count' => 'integer',
+        'stock' => 'integer',
+        'old_price' => 'integer',
         'is_active' => 'boolean',
         'images' => 'array',
     ];
@@ -40,5 +44,22 @@ class Product extends Model
     public function getFormattedPriceAttribute(): string
     {
         return number_format($this->price, 0, ',', ' ') . ' FCFA';
+    }
+
+    public function getIsPromotionAttribute(): bool
+    {
+        return $this->old_price !== null && $this->old_price > $this->price;
+    }
+
+    public function getFormattedOldPriceAttribute(): ?string
+    {
+        return $this->old_price ? number_format($this->old_price, 0, ',', ' ') . ' FCFA' : null;
+    }
+
+    public function getStockStatusAttribute(): string
+    {
+        if ($this->stock <= 0) return 'rupture';
+        if ($this->stock <= 10) return 'stock_limite';
+        return 'en_stock';
     }
 }
