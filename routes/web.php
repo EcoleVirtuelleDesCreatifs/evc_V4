@@ -80,6 +80,7 @@ Route::get('/evc-store/track/{product}', [App\Http\Controllers\StoreOrderControl
 
 Route::middleware('auth')->group(function () {
     Route::get('/mes-commandes', [App\Http\Controllers\StoreOrderController::class, 'myOrders'])->name('store.my.orders');
+    Route::get('/mes-commandes/{order}/facture', [App\Http\Controllers\StoreOrderController::class, 'invoice'])->name('store.my.orders.invoice');
 });
 
 Route::get('/studio-creative', function () {

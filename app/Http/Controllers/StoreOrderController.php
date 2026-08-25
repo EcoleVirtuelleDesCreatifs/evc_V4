@@ -83,6 +83,8 @@ class StoreOrderController extends Controller
             'prenoms' => 'required|string|max:255',
             'numero' => 'required|string|max:255',
             'lieu' => 'required|string|max:255',
+            'delivery_mode' => 'required|in:delivery,pickup',
+            'payment_method' => 'required|in:cash,mobile_money',
             'autre' => 'nullable|string',
             'items' => 'required|array',
             'items.*.id' => 'required|integer',
@@ -95,7 +97,9 @@ class StoreOrderController extends Controller
         ]);
 
         $subtotal = collect($validated['items'])->sum(fn($item) => ($item['price'] ?? 0) * ($item['qty'] ?? 1));
-        $deliveryCost = collect($validated['items'])->sum(fn($item) => ($item['delivery_cost'] ?? 0) * ($item['qty'] ?? 1));
+        $deliveryCost = $validated['delivery_mode'] === 'pickup'
+            ? 0
+            : collect($validated['items'])->sum(fn($item) => ($item['delivery_cost'] ?? 0) * ($item['qty'] ?? 1));
 
         $discount = 0;
         $promo = null;
@@ -180,5 +184,17 @@ class StoreOrderController extends Controller
             ->get();
 
         return view('evc-store.my-orders', compact('orders'));
+    }
+
+    public function invoice(StoreOrder $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $pdf = \PDF::loadView('evc-store.invoice', compact('order'));
+        $filename = 'facture-' . ($order->order_number ?? $order->id) . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

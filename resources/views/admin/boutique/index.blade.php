@@ -202,7 +202,9 @@
                             <th>#</th>
                             <th>Client</th>
                             <th>Contact</th>
-                            <th>Lieu de livraison</th>
+                            <th>Adresse</th>
+                            <th>Mode</th>
+                            <th>Paiement</th>
                             <th>Articles</th>
                             <th>Total</th>
                             <th>Statut</th>
@@ -220,6 +222,8 @@
                                 </td>
                                 <td>{{ $order->numero }}</td>
                                 <td>{{ $order->lieu }}</td>
+                                <td>{{ $order->delivery_mode === 'pickup' ? 'Retrait' : 'Livraison' }}</td>
+                                <td>{{ $order->payment_method === 'mobile_money' ? 'Mobile Money' : 'Espèces' }}</td>
                                 <td>
                                     @foreach ($order->items as $item)
                                         <span class="badge bg-info me-1">
@@ -227,7 +231,7 @@
                                         </span>
                                     @endforeach
                                 </td>
-                                <td><strong>{{ number_format($order->total, 0, ',', ' ') }} FCFA</strong></td>
+                                <td><strong>{{ number_format($order->final_total ?: $order->total, 0, ',', ' ') }} FCFA</strong></td>
                                 <td>
                                     <span class="status-badge {{ $order->status }}">
                                         {{ match($order->status) {
@@ -261,7 +265,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="text-center py-4">Aucune commande trouvée.</td>
+                                <td colspan="12" class="text-center py-4">Aucune commande trouvée.</td>
                             </tr>
                         @endforelse
                     </tbody>

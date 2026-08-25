@@ -826,6 +826,34 @@
         margin-left: 2px;
     }
 
+    .order-options {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .order-option {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    .order-option:has(input:checked) {
+        border-color: var(--primary);
+        background: rgba(255, 107, 53, 0.1);
+    }
+
+    .order-option input {
+        accent-color: var(--primary);
+    }
+
     .store-order-input,
     .store-order-textarea {
         width: 100%;
@@ -1261,9 +1289,34 @@
                     <input type="tel" id="order-numero" name="numero" class="store-order-input" required>
                 </div>
                 <div class="store-order-field">
-                    <label for="order-lieu">Lieu de livraison <span>*</span></label>
+                    <label for="order-lieu">Adresse / Lieu de retrait <span>*</span></label>
                     <input type="text" id="order-lieu" name="lieu" class="store-order-input" required>
                 </div>
+
+                <div class="store-order-field">
+                    <label>Mode de réception <span>*</span></label>
+                    <div class="order-options">
+                        <label class="order-option">
+                            <input type="radio" name="delivery_mode" value="delivery" checked> Livraison
+                        </label>
+                        <label class="order-option">
+                            <input type="radio" name="delivery_mode" value="pickup"> Retrait
+                        </label>
+                    </div>
+                </div>
+
+                <div class="store-order-field">
+                    <label>Moyen de paiement <span>*</span></label>
+                    <div class="order-options">
+                        <label class="order-option">
+                            <input type="radio" name="payment_method" value="cash" checked> Espèces à la livraison
+                        </label>
+                        <label class="order-option">
+                            <input type="radio" name="payment_method" value="mobile_money"> Mobile Money
+                        </label>
+                    </div>
+                </div>
+
                 <div class="store-order-field">
                     <label for="order-autre">Autres informations</label>
                     <textarea id="order-autre" name="autre" class="store-order-textarea" placeholder="Instructions complémentaires..."></textarea>
@@ -1588,6 +1641,20 @@
             }
         });
 
+        function recalcOrderTotal() {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const isPickup = document.querySelector('input[name="delivery_mode"]:checked')?.value === 'pickup';
+            const delivery = isPickup ? 0 : cart.reduce((sum, item) => sum + ((item.delivery_cost || 0) * item.qty), 0);
+            const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
+            const total = subtotal + delivery - discount;
+
+            let deliveryRow = document.querySelector('#order-items .order-delivery span:last-child');
+            if (deliveryRow) deliveryRow.textContent = formatPrice(delivery);
+
+            document.getElementById('order-total').textContent = 'Total : ' + formatPrice(total);
+            return { subtotal, delivery, discount, total };
+        }
+
         function openOrderModal() {
             closeCart();
             const orderItems = document.getElementById('order-items');
@@ -1613,6 +1680,8 @@
             document.getElementById('order-total').textContent = 'Total : ' + formatPrice(total);
             document.getElementById('order-modal').classList.add('active');
             document.body.style.overflow = 'hidden';
+
+            document.querySelectorAll('input[name="delivery_mode"]').forEach(r => r.addEventListener('change', recalcOrderTotal));
         }
 
         function closeOrderModal() {
@@ -1642,10 +1711,9 @@
             submitBtn.innerHTML = '<i class="fas fa-spinner"></i> Envoi en cours...';
 
             const autre = document.getElementById('order-autre').value.trim();
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const delivery = cart.reduce((sum, item) => sum + ((item.delivery_cost || 0) * item.qty), 0);
-            const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
-            const total = subtotal + delivery - discount;
+            const pricing = recalcOrderTotal();
+            const deliveryMode = document.querySelector('input[name="delivery_mode"]:checked')?.value || 'delivery';
+            const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cash';
             const promoCode = localStorage.getItem('evc_cart_promo') || null;
 
             const order = {
@@ -1653,10 +1721,12 @@
                 prenoms: prenoms,
                 numero: numero,
                 lieu: lieu,
+                delivery_mode: deliveryMode,
+                payment_method: paymentMethod,
                 autre: autre,
                 items: cart,
                 promo_code: promoCode,
-                total: total
+                total: pricing.total
             };
 
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';

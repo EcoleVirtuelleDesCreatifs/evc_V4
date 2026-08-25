@@ -15,6 +15,8 @@ class StoreOrder extends Model
         'prenoms',
         'numero',
         'lieu',
+        'delivery_mode',
+        'payment_method',
         'autre',
         'items',
         'subtotal',

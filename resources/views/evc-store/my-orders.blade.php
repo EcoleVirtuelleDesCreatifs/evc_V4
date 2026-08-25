@@ -16,8 +16,11 @@
                         <th>N° commande</th>
                         <th>Date</th>
                         <th>Produits</th>
+                        <th>Mode</th>
+                        <th>Paiement</th>
                         <th>Total</th>
                         <th>Statut</th>
+                        <th>Facture</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,7 +35,9 @@
                                     </span>
                                 @endforeach
                             </td>
-                            <td>{{ number_format($order->total, 0, ',', ' ') }} FCFA</td>
+                            <td>{{ $order->delivery_mode === 'pickup' ? 'Retrait' : 'Livraison' }}</td>
+                            <td>{{ $order->payment_method === 'mobile_money' ? 'Mobile Money' : 'Espèces' }}</td>
+                            <td>{{ number_format($order->final_total ?: $order->total, 0, ',', ' ') }} FCFA</td>
                             <td>
                                 @php
                                     $statusClass = match($order->status) {
@@ -57,6 +62,11 @@
                                     };
                                 @endphp
                                 <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                            </td>
+                            <td>
+                                <a href="{{ route('store.my.orders.invoice', $order) }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-file-pdf"></i> Facture
+                                </a>
                             </td>
                         </tr>
                     @endforeach
