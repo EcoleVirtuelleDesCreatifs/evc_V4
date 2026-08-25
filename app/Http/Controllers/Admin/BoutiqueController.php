@@ -49,6 +49,24 @@ class BoutiqueController extends Controller
     }
 
     /**
+     * Mise à jour du statut d'une commande.
+     */
+    public function updateOrderStatus(Request $request, StoreOrder $order)
+    {
+        $allowed = ['pending', 'delivered', 'refused', 'cancelled', 'rescheduled'];
+        $status = $request->input('status');
+
+        if (!in_array($status, $allowed, true)) {
+            return redirect()->route('admin.boutique.orders')->with('error', 'Statut invalide.');
+        }
+
+        $order->status = $status;
+        $order->save();
+
+        return redirect()->route('admin.boutique.orders')->with('success', 'Statut de la commande mis à jour.');
+    }
+
+    /**
      * Formulaire de création d'une catégorie.
      */
     public function createCategory()

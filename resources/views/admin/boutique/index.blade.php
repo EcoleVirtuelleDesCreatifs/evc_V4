@@ -54,6 +54,10 @@
         border-radius: .25rem;
     }
     .status-badge.pending { background-color: #ffc107; color: #000; }
+    .status-badge.delivered { background-color: #198754; }
+    .status-badge.refused { background-color: #dc3545; }
+    .status-badge.cancelled { background-color: #6c757d; }
+    .status-badge.rescheduled { background-color: #0dcaf0; color: #000; }
     .status-badge.completed { background-color: #198754; }
 
     .status-filter-card {
@@ -203,6 +207,7 @@
                             <th>Statut</th>
                             <th>Date</th>
                             <th>Infos</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -223,16 +228,33 @@
                                 </td>
                                 <td><strong>{{ number_format($order->total, 0, ',', ' ') }} FCFA</strong></td>
                                 <td>
-                                    <span class="status-badge {{ $order->status === 'pending' ? 'pending' : 'completed' }}">
-                                        {{ $order->status === 'pending' ? 'En attente' : 'Traitée' }}
+                                    <span class="status-badge {{ $order->status }}">
+                                        {{ match($order->status) { 'pending' => 'En attente', 'delivered' => 'Livré', 'refused' => 'Refusé', 'cancelled' => 'Annulé', 'rescheduled' => 'Reprogrammer', default => ucfirst($order->status) } }}
                                     </span>
                                 </td>
                                 <td>{{ $order->created_at->format('d/m/Y H:i') }}</td>
                                 <td>{{ $order->autre ?? '-' }}</td>
+                                <td>
+                                    <form action="{{ route('admin.boutique.orders.status', $order) }}" method="POST" class="d-flex gap-1">
+                                        @csrf
+                                        <button type="submit" name="status" value="delivered" class="btn btn-sm btn-success" title="Marquer comme livré">
+                                            <i class="fas fa-check"></i> Livré
+                                        </button>
+                                        <button type="submit" name="status" value="refused" class="btn btn-sm btn-danger" title="Marquer comme refusé">
+                                            <i class="fas fa-times"></i> Refusé
+                                        </button>
+                                        <button type="submit" name="status" value="cancelled" class="btn btn-sm btn-warning" title="Marquer comme annulé">
+                                            <i class="fas fa-ban"></i> Annulé
+                                        </button>
+                                        <button type="submit" name="status" value="rescheduled" class="btn btn-sm btn-info" title="Reprogrammer">
+                                            <i class="fas fa-clock"></i> Reprogrammer
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center py-4">Aucune commande trouvée.</td>
+                                <td colspan="10" class="text-center py-4">Aucune commande trouvée.</td>
                             </tr>
                         @endforelse
                     </tbody>

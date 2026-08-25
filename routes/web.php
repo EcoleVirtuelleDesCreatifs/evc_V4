@@ -923,6 +923,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
 
         Route::get('/boutique', [\App\Http\Controllers\Admin\BoutiqueController::class, 'index'])->name('boutique.index');
         Route::get('/boutique/orders', [\App\Http\Controllers\Admin\BoutiqueController::class, 'orders'])->name('boutique.orders');
+        Route::post('/boutique/orders/{order}/status', [\App\Http\Controllers\Admin\BoutiqueController::class, 'updateOrderStatus'])->name('boutique.orders.status');
         Route::get('/boutique/produits/create', [\App\Http\Controllers\Admin\BoutiqueController::class, 'create'])->name('boutique.create');
         Route::post('/boutique/produits', [\App\Http\Controllers\Admin\BoutiqueController::class, 'store'])->name('boutique.store');
         Route::get('/boutique/produits/{product}/edit', [\App\Http\Controllers\Admin\BoutiqueController::class, 'edit'])->name('boutique.edit');
