@@ -128,10 +128,12 @@ class BoutiqueController extends Controller
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'is_active' => 'boolean',
+            'variants' => 'nullable|json',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', true);
+        $validated['variants'] = $request->filled('variants') ? json_decode($request->input('variants'), true) : null;
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
@@ -177,10 +179,12 @@ class BoutiqueController extends Controller
             'images' => 'nullable|array',
             'images.*' => 'image|mimes:jpg,jpeg,png,webp|max:2048',
             'is_active' => 'boolean',
+            'variants' => 'nullable|json',
         ]);
 
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', false);
+        $validated['variants'] = $request->filled('variants') ? json_decode($request->input('variants'), true) : null;
 
         $images = $product->images ?? [];
 

@@ -55,6 +55,7 @@ class StoreOrderController extends Controller
                 'stock' => $product->stock,
                 'stock_status' => $product->stock_status,
                 'is_promotion' => $product->is_promotion,
+                'variants' => $product->variants ?? [],
             ];
         });
 

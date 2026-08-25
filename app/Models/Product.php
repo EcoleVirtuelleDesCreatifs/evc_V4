@@ -20,6 +20,7 @@ class Product extends Model
         'seo_geo',
         'image',
         'images',
+        'variants',
         'view_count',
         'stock',
         'old_price',
@@ -34,6 +35,7 @@ class Product extends Model
         'old_price' => 'integer',
         'is_active' => 'boolean',
         'images' => 'array',
+        'variants' => 'array',
     ];
 
     public function category(): BelongsTo

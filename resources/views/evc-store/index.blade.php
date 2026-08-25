@@ -909,6 +909,114 @@
         margin-bottom: 24px;
     }
 
+    .product-modal-stock {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.875rem;
+        margin-bottom: 16px;
+        padding: 6px 12px;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+    }
+
+    .product-modal-variants {
+        margin-bottom: 20px;
+    }
+
+    .variant-group {
+        margin-bottom: 12px;
+    }
+
+    .variant-group label {
+        display: block;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 6px;
+    }
+
+    .variant-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .variant-option {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .variant-option:hover, .variant-option:has(input:checked) {
+        border-color: var(--primary);
+        background: rgba(255, 107, 53, 0.1);
+    }
+
+    .variant-option input {
+        accent-color: var(--primary);
+    }
+
+    .similar-products {
+        border-top: 1px solid var(--border);
+        padding-top: 20px;
+    }
+
+    .similar-products h4 {
+        color: var(--text-primary);
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+
+    .similar-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .similar-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+    }
+
+    .similar-card:hover {
+        border-color: var(--primary);
+    }
+
+    .similar-card img {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+
+    .similar-card .name {
+        color: var(--text-primary);
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .similar-card .price {
+        color: var(--primary);
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
     .product-carousel {
         position: relative;
         text-align: center;
@@ -1103,7 +1211,10 @@
             </div>
             <div id="product-modal-image" style="margin-bottom: 20px; border-radius: 16px; overflow: hidden; background: rgba(21,26,61,0.6);"></div>
             <div class="store-order-total" id="product-modal-price" style="margin-bottom: 12px; text-align: left; color: var(--primary); font-size: 1.35rem;">0 FCFA</div>
+            <div class="product-modal-stock" id="product-modal-stock"></div>
+            <div class="product-modal-variants" id="product-modal-variants"></div>
             <div class="product-modal-desc" id="product-modal-desc"></div>
+            <div id="product-modal-similar" style="margin-bottom: 24px;"></div>
             <div style="display: flex; gap: 12px;">
                 <button class="store-product-buy" id="product-modal-buy" style="flex: 1;">
                     <i class="fas fa-shopping-bag"></i> Commander
@@ -1223,26 +1334,28 @@
             localStorage.setItem('evc_cart', JSON.stringify(cart));
         }
 
-        function addToCart(id, open = false) {
+        function addToCart(id, open = false, options = {}) {
             const product = products.find(p => p.id === id);
             if (!product) return;
             if (product.stock <= 0) {
                 showToast(`${product.name} est en rupture de stock`, 'warning');
                 return;
             }
-            const inCart = cart.reduce((sum, item) => item.id === id ? sum + item.qty : sum, 0);
+            const variantName = Object.keys(options).length ? Object.entries(options).map(([k, v]) => `${k}: ${v}`).join(' / ') : null;
+            const fullName = variantName ? `${product.name} - ${variantName}` : product.name;
+            const inCart = cart.reduce((sum, item) => item.id === id && item.variant === variantName ? sum + item.qty : sum, 0);
             if (inCart + 1 > product.stock) {
-                showToast(`Stock insuffisant pour ${product.name}`, 'warning');
+                showToast(`Stock insuffisant pour ${fullName}`, 'warning');
                 return;
             }
-            const existing = cart.find(item => item.id === id);
+            const existing = cart.find(item => item.id === id && item.variant === variantName);
             if (existing) {
                 existing.qty += 1;
             } else {
-                cart.push({ id: product.id, name: product.name, price: product.price, qty: 1 });
+                cart.push({ id: product.id, name: fullName, price: product.price, qty: 1, variant: variantName });
             }
             updateCartUI();
-            showToast(`${product.name} ajouté au panier`);
+            showToast(`${fullName} ajouté au panier`);
             if (open) openOrderModal();
         }
 
@@ -1416,13 +1529,28 @@
             });
         });
 
+        function getSelectedOptions() {
+            const selected = {};
+            document.querySelectorAll('.product-modal-variants .variant-group').forEach((group, i) => {
+                const label = group.dataset.label;
+                const checked = group.querySelector('input:checked');
+                if (checked) selected[label] = checked.value;
+            });
+            return selected;
+        }
+
         function openProductModal(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
             fetch(`/evc-store/track/${id}`).catch(() => {});
             document.getElementById('product-modal-title').textContent = product.name;
-            document.getElementById('product-modal-price').textContent = formatPrice(product.price);
+            document.getElementById('product-modal-price').textContent = (product.is_promotion ? `<span style="text-decoration:line-through;opacity:.6;margin-right:8px;">${formatPrice(product.old_price)}</span>` : '') + formatPrice(product.price);
             document.getElementById('product-modal-desc').innerHTML = product.description || product.desc || '';
+
+            const stockLabel = product.stock_status === 'en_stock' ? 'En stock' : product.stock_status === 'stock_limite' ? 'Stock limité' : 'Rupture';
+            const stockClass = product.stock_status === 'en_stock' ? 'text-success' : product.stock_status === 'stock_limite' ? 'text-warning' : 'text-danger';
+            document.getElementById('product-modal-stock').innerHTML = `<i class="fas fa-circle ${stockClass}" style="font-size:0.5rem;"></i> ${stockLabel} (${product.stock} disponible${product.stock > 1 ? 's' : ''})`;
+
             const imageContainer = document.getElementById('product-modal-image');
             const images = product.images && product.images.length ? product.images : (product.image_url ? [product.image_url] : []);
             let currentImage = 0;
@@ -1459,8 +1587,51 @@
                 });
             }
 
-            document.getElementById('product-modal-buy').onclick = () => { closeProductModal(); addToCart(product.id, true); };
-            document.getElementById('product-modal-add').onclick = () => addToCart(product.id);
+            const variantsContainer = document.getElementById('product-modal-variants');
+            if (product.variants && product.variants.length) {
+                variantsContainer.innerHTML = product.variants.map((v, i) => `
+                    <div class="variant-group" data-label="${v.label}">
+                        <label>${v.label}</label>
+                        <div class="variant-options">
+                            ${(v.options || []).map((opt, j) => `
+                                <label class="variant-option">
+                                    <input type="radio" name="variant-${i}" value="${opt}" ${j === 0 ? 'checked' : ''}>
+                                    <span>${opt}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                variantsContainer.innerHTML = '';
+            }
+
+            const similarContainer = document.getElementById('product-modal-similar');
+            const similar = products.filter(p => p.id !== product.id && p.category === product.category).slice(0, 4);
+            if (similar.length) {
+                similarContainer.innerHTML = `
+                    <div class="similar-products">
+                        <h4><i class="fas fa-th-large me-2"></i>Produits similaires</h4>
+                        <div class="similar-grid">
+                            ${similar.map(p => `
+                                <div class="similar-card" data-id="${p.id}">
+                                    <img src="${p.image_url || '/images/placeholder.png'}" alt="${p.name}">
+                                    <div class="name">${p.name}</div>
+                                    <div class="price">${formatPrice(p.price)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                similarContainer.querySelectorAll('.similar-card').forEach(card => {
+                    card.addEventListener('click', () => openProductModal(parseInt(card.dataset.id)));
+                });
+            } else {
+                similarContainer.innerHTML = '';
+            }
+
+            document.getElementById('product-modal-buy').onclick = () => { closeProductModal(); addToCart(product.id, true, getSelectedOptions()); };
+            document.getElementById('product-modal-add').onclick = () => addToCart(product.id, false, getSelectedOptions());
             document.getElementById('product-modal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }

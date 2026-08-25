@@ -95,6 +95,14 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="variants" class="form-label text-white">Variantes (JSON)</label>
+                            <textarea name="variants" id="variants" class="form-control @error('variants') is-invalid @enderror" rows="4" placeholder='[{"label":"Couleur","options":["Rouge","Bleu"]},{"label":"Taille","options":["S","M","L"]}]'>{{ old('variants') }}</textarea>
+                            @error('variants')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <label for="delivery_mode" class="form-label text-white">Mode de livraison <span class="text-danger">*</span></label>
                             <select name="delivery_mode" id="delivery_mode" class="form-select @error('delivery_mode') is-invalid @enderror" required>
                                 <option value="cash_on_delivery" {{ old('delivery_mode') == 'cash_on_delivery' ? 'selected' : '' }}>Paiement à la livraison</option>
