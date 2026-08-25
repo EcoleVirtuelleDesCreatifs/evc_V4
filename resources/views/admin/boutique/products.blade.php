@@ -173,11 +173,11 @@
         <div class="col-md-3 mb-3">
             <div class="stat-card stat-card-info">
                 <div class="stat-icon">
-                    <i class="fas fa-shopping-cart"></i>
+                    <i class="fas fa-money-bill-wave"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">{{ $stats['abandoned_carts'] }}</h3>
-                    <p class="stat-label">Paniers abandonnés</p>
+                    <h3 class="stat-number">{{ number_format($stats['revenue'], 0, ',', ' ') }}</h3>
+                    <p class="stat-label">Chiffre d'affaires (FCFA)</p>
                 </div>
             </div>
         </div>

@@ -29,6 +29,7 @@ class BoutiqueController extends Controller
             'daily_visitors' => Visit::whereDate('visited_at', now()->toDateString())->distinct()->count('session_id'),
             'monthly_visitors' => Visit::whereYear('visited_at', now()->year)->whereMonth('visited_at', now()->month)->distinct()->count('session_id'),
             'abandoned_carts' => StoreOrder::where('status', 'pending')->count(),
+            'revenue' => StoreOrder::sum('total'),
         ];
 
         $mostViewed = Product::orderBy('view_count', 'desc')->limit(5)->get();
