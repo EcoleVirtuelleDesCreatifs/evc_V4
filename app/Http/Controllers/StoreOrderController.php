@@ -128,9 +128,10 @@ class StoreOrderController extends Controller
         $validated['discount'] = $discount;
         $validated['promo_code'] = $promo ? $promo->code : null;
         $validated['final_total'] = $finalTotal;
+        $validated['items'] = $validated['items'] ?? [];
 
-        $order = StoreOrder::create($validated);
-        $order->order_number = 'EVC-' . str_pad($order->id, 6, '0', STR_PAD_LEFT);
+        $order = new StoreOrder($validated);
+        $order->order_number = 'EVC-' . str_pad((StoreOrder::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
         $order->save();
 
         // Notifier les vendeurs par email
