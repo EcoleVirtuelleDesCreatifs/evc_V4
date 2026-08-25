@@ -44,6 +44,14 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <div class="mb-3">
+                            <label for="seo_geo" class="form-label text-white">SEO / GEO optimisé</label>
+                            <textarea name="seo_geo" id="seo_geo" rows="3" class="form-control @error('seo_geo') is-invalid @enderror" placeholder="Mots-clés, localisation...">{{ old('seo_geo') }}</textarea>
+                            @error('seo_geo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="col-md-4">
@@ -77,6 +85,22 @@
                                 <option value="deposit" {{ old('delivery_mode') == 'deposit' ? 'selected' : '' }}>Dépôt de confirmation</option>
                             </select>
                             @error('delivery_mode')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="delivery_cost" class="form-label text-white">Coût de livraison (FCFA)</label>
+                            <input type="number" name="delivery_cost" id="delivery_cost" class="form-control @error('delivery_cost') is-invalid @enderror" value="{{ old('delivery_cost') }}" min="0">
+                            @error('delivery_cost')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label text-white">Adresse email</label>
+                            <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}">
+                            @error('email')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

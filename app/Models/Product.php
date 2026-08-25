@@ -15,6 +15,9 @@ class Product extends Model
         'description',
         'price',
         'delivery_mode',
+        'delivery_cost',
+        'email',
+        'seo_geo',
         'image',
         'images',
         'is_active',
@@ -22,6 +25,7 @@ class Product extends Model
 
     protected $casts = [
         'price' => 'integer',
+        'delivery_cost' => 'integer',
         'is_active' => 'boolean',
         'images' => 'array',
     ];
