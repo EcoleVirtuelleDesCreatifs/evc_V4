@@ -64,7 +64,7 @@
                                 <td>
                                     @php($img = $productImages[$item['id'] ?? null] ?? null)
                                     @if($img)
-                                        <img src="{{ $img }}" alt="" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <img src="{{ $img }}" alt="" class="rounded" style="width: 120px; height: 120px; object-fit: cover;">
                                     @else
                                         -
                                     @endif
