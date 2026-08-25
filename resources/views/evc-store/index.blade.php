@@ -928,7 +928,7 @@
 
     @media (max-width: 768px) {
         .store-container {
-            padding: 180px 16px 40px;
+            padding: 260px 16px 40px;
         }
 
         .store-grid {
