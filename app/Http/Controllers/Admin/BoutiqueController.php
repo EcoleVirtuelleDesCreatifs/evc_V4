@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\StoreOrder;
+use App\Models\Visit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -24,11 +25,17 @@ class BoutiqueController extends Controller
             'active' => Product::where('is_active', true)->count(),
             'inactive' => Product::where('is_active', false)->count(),
             'orders' => StoreOrder::count(),
+            'realtime_visitors' => Visit::where('visited_at', '>', now()->subMinutes(5))->distinct()->count('session_id'),
+            'daily_visitors' => Visit::whereDate('visited_at', now()->toDateString())->distinct()->count('session_id'),
+            'monthly_visitors' => Visit::whereYear('visited_at', now()->year)->whereMonth('visited_at', now()->month)->distinct()->count('session_id'),
+            'abandoned_carts' => StoreOrder::where('status', 'pending')->count(),
         ];
+
+        $mostViewed = Product::orderBy('view_count', 'desc')->limit(5)->get();
 
         $categories = ProductCategory::withCount('products')->orderBy('name')->get();
 
-        return view('admin.boutique.products', compact('products', 'stats', 'categories'));
+        return view('admin.boutique.products', compact('products', 'stats', 'categories', 'mostViewed'));
     }
 
     /**

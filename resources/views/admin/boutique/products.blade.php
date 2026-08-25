@@ -135,6 +135,81 @@
         </div>
     </div>
 
+    <!-- Statistiques Boutique -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['realtime_visitors'] }}</h3>
+                    <p class="stat-label">Visiteurs temps réel</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-success">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['daily_visitors'] }}</h3>
+                    <p class="stat-label">Visiteurs aujourd'hui</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['monthly_visitors'] }}</h3>
+                    <p class="stat-label">Visiteurs ce mois</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-info">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['abandoned_carts'] }}</h3>
+                    <p class="stat-label">Paniers abandonnés</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if($mostViewed->isNotEmpty())
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+                <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                    <h5 class="mb-0 text-white"><i class="fas fa-eye me-2"></i>Produits les plus consultés</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        @foreach($mostViewed as $p)
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center gap-3 text-white">
+                                    <span class="badge bg-primary fs-6">{{ $loop->iteration }}</span>
+                                    <div>
+                                        <div class="fw-bold">{{ $p->title }}</div>
+                                        <div class="text-white-50 small">{{ $p->view_count }} vues</div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Statistiques par Catégorie -->
     <div class="row mb-4">
         <div class="col-12">

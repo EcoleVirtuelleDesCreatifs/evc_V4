@@ -6,11 +6,12 @@ use App\Models\MediaUrl;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\StoreOrder;
+use App\Models\Visit;
 use Illuminate\Http\Request;
 
 class StoreOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $categories = ProductCategory::where('is_active', true)->orderBy('name')->get();
         $products = Product::with('category')->where('is_active', true)->orderBy('created_at', 'desc')->get();
@@ -27,6 +28,14 @@ class StoreOrderController extends Controller
                 'price' => $product->price,
             ];
         });
+
+        Visit::create([
+            'session_id' => $request->session()->getId(),
+            'ip' => $request->ip(),
+            'path' => $request->path(),
+            'user_agent' => $request->userAgent(),
+            'visited_at' => now(),
+        ]);
 
         return response()
             ->view('evc-store.index', compact('categories', 'products', 'productsForJs'))
@@ -58,5 +67,21 @@ class StoreOrderController extends Controller
             'message' => 'Commande enregistrée avec succès',
             'order' => $order,
         ]);
+    }
+
+    public function trackProduct(Request $request, Product $product)
+    {
+        $product->increment('view_count');
+
+        Visit::create([
+            'session_id' => $request->session()->getId(),
+            'ip' => $request->ip(),
+            'path' => 'product/' . $product->id,
+            'user_agent' => $request->userAgent(),
+            'product_id' => $product->id,
+            'visited_at' => now(),
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }

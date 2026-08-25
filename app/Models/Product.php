@@ -20,12 +20,14 @@ class Product extends Model
         'seo_geo',
         'image',
         'images',
+        'view_count',
         'is_active',
     ];
 
     protected $casts = [
         'price' => 'integer',
         'delivery_cost' => 'integer',
+        'view_count' => 'integer',
         'is_active' => 'boolean',
         'images' => 'array',
     ];

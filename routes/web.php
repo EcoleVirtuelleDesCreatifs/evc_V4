@@ -75,6 +75,7 @@ Route::get('/admissions', function () {
 Route::get('/evc-store', [App\Http\Controllers\StoreOrderController::class, 'index'])->name('evc.store');
 
 Route::post('/evc-store/order', [App\Http\Controllers\StoreOrderController::class, 'store'])->name('evc.store.order');
+Route::get('/evc-store/track/{product}', [App\Http\Controllers\StoreOrderController::class, 'trackProduct'])->name('evc.store.track');
 
 Route::get('/studio-creative', function () {
     return response()

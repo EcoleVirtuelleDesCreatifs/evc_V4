@@ -1265,6 +1265,7 @@
         function openProductModal(id) {
             const product = products.find(p => p.id === id);
             if (!product) return;
+            fetch(`/evc-store/track/${id}`).catch(() => {});
             document.getElementById('product-modal-title').textContent = product.name;
             document.getElementById('product-modal-price').textContent = formatPrice(product.price);
             document.getElementById('product-modal-desc').innerHTML = product.description || product.desc || '';
