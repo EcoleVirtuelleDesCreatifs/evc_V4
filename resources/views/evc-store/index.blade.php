@@ -940,6 +940,19 @@
             height: 140px;
         }
 
+        .store-product h3 {
+            font-size: 1.05rem;
+        }
+
+        .store-categories {
+            gap: 8px;
+        }
+
+        .store-category {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+        }
+
         .store-cart {
             max-width: 100%;
         }
@@ -948,6 +961,14 @@
     @media (max-width: 480px) {
         .store-grid {
             grid-template-columns: 1fr;
+        }
+
+        .store-product h3 {
+            font-size: 1rem;
+        }
+
+        .store-product-price {
+            font-size: 1.1rem;
         }
     }
 
