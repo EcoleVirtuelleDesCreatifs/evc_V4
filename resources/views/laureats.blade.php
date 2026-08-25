@@ -42,7 +42,7 @@
                     <div class="text-sm text-gray-400">Employabilité</div>
                 </div>
                 <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
-                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">4</div>
+                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">5</div>
                     <div class="text-sm text-gray-400">Éditions</div>
                 </div>
             </div>
@@ -73,6 +73,13 @@
 
         @php
             $editions = [
+                [
+                    'numero' => 5,
+                    'annee' => '2026',
+                    'badge' => 'Nouvelle Promotion',
+                    'color' => 'from-pink-500 to-rose-500',
+                    'laureats' => []
+                ],
                 [
                     'numero' => 4,
                     'annee' => '2025',
