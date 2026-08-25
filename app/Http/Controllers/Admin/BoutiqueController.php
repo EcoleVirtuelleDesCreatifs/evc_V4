@@ -52,7 +52,8 @@ class BoutiqueController extends Controller
             'total' => StoreOrder::count(),
             'pending' => StoreOrder::where('status', 'pending')->count(),
             'completed' => StoreOrder::where('status', '!=', 'pending')->count(),
-            'revenue' => StoreOrder::sum('total'),
+            'delivered' => StoreOrder::where('status', 'delivered')->count(),
+            'revenue' => StoreOrder::where('status', 'delivered')->sum('total'),
         ];
 
         return view('admin.boutique.index', compact('orders', 'stats', 'productImages'));

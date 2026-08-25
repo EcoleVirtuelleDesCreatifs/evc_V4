@@ -131,7 +131,7 @@
                 </div>
                 <div class="stat-content">
                     <h3 class="stat-number">{{ number_format($stats['revenue'], 0, ',', ' ') }}</h3>
-                    <p class="stat-label">Chiffre d'affaires (FCFA)</p>
+                    <p class="stat-label">Gains (FCFA)</p>
                 </div>
             </div>
         </div>
@@ -150,6 +150,7 @@
                             'all' => ['label' => 'Toutes', 'count' => $stats['total'], 'icon' => 'fa-shopping-bag', 'gradient' => 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)'],
                             'pending' => ['label' => 'En attente', 'count' => $stats['pending'], 'icon' => 'fa-clock', 'gradient' => 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'],
                             'completed' => ['label' => 'Traitées', 'count' => $stats['completed'], 'icon' => 'fa-check-circle', 'gradient' => 'linear-gradient(135deg, #10b981 0%, #059669 100%)'],
+                            'delivered' => ['label' => 'Livrées', 'count' => $stats['delivered'], 'icon' => 'fa-truck', 'gradient' => 'linear-gradient(135deg, #26c6da 0%, #00acc1 100%)'],
                         ];
                     @endphp
                     <div class="row g-3">
@@ -363,6 +364,8 @@ function highlightActiveFilters() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    filterByStatus('delivered', 'Livrées');
+
     document.querySelectorAll('.status-filter-card').forEach(card => {
         card.addEventListener('mouseenter', function() {
             if (this.getAttribute('data-status') !== currentStatusFilter) {
