@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\MediaUrl;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\StoreOrder;
@@ -45,7 +46,7 @@ class BoutiqueController extends Controller
     public function orders()
     {
         $orders = StoreOrder::orderBy('created_at', 'desc')->paginate(20);
-        $productImages = Product::pluck('image', 'id');
+        $productImages = Product::all()->mapWithKeys(fn($p) => [$p->id => MediaUrl::fromPath($p->image)])->all();
 
         $stats = [
             'total' => StoreOrder::count(),
@@ -62,7 +63,7 @@ class BoutiqueController extends Controller
      */
     public function showOrder(StoreOrder $order)
     {
-        $productImages = Product::pluck('image', 'id');
+        $productImages = Product::all()->mapWithKeys(fn($p) => [$p->id => MediaUrl::fromPath($p->image)])->all();
         return view('admin.boutique.orders.show', compact('order', 'productImages'));
     }
 

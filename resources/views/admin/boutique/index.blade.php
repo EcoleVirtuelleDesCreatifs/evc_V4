@@ -233,7 +233,7 @@
                                 </td>
                                 <td>
                                     @if($productImage)
-                                        <img src="{{ asset('storage/' . $productImage) }}" alt="" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <img src="{{ $productImage }}" alt="" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
                                     @else
                                         <span class="text-white-50">-</span>
                                     @endif
