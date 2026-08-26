@@ -151,31 +151,6 @@
                     <p>Nous accompagnons chaque projet de l'idée à la réalisation, en mettant l'accent sur la qualité, la créativité et l'impact.</p>
                 </div>
 
-                <div class="studio-card">
-                    <h2>Nos domaines d'intervention</h2>
-                    <div class="studio-grid">
-                        <div class="studio-item">
-                            <i class="fas fa-palette"></i>
-                            <h3>Design Graphique</h3>
-                            <p>Identité visuelle, affiches, supports print et digitaux</p>
-                        </div>
-                        <div class="studio-item">
-                            <i class="fas fa-video"></i>
-                            <h3>Production Vidéo</h3>
-                            <p>Montage, motion design et contenus audiovisuels</p>
-                        </div>
-                        <div class="studio-item">
-                            <i class="fas fa-code"></i>
-                            <h3>Développement Web</h3>
-                            <p>Sites web, applications et expériences interactives</p>
-                        </div>
-                        <div class="studio-item">
-                            <i class="fas fa-bullhorn"></i>
-                            <h3>Stratégie Digitale</h3>
-                            <p>Gestion de marque, community management et campagnes</p>
-                        </div>
-                    </div>
-                </div>
 
                 <div class="studio-card">
                     <h2>Pourquoi choisir le Studio Créatif ?</h2>
