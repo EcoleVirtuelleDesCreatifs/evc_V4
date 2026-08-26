@@ -7,7 +7,7 @@
 @php
     $productImages = collect([$product->image])->merge($product->images ?? [])->map(fn($img) => \App\Models\MediaUrl::fromPath($img))->filter()->values()->all();
 @endphp
-<div class="store-product-page" style="min-height: 100vh; background: linear-gradient(135deg, #0a0e27 0%, #151a3d 50%, #0d1333 100%); color: #fff; padding: 240px 20px 80px;">
+<div class="store-product-page" style="min-height: 100vh; background: linear-gradient(135deg, #0a0e27 0%, #151a3d 50%, #0d1333 100%); color: #fff; padding: 320px 20px 80px;">
     <div style="max-width: 1200px; margin: 0 auto;">
         <a href="{{ route('evc.store') }}" style="display: inline-flex; align-items: center; gap: 8px; color: #ff6b35; text-decoration: none; margin-bottom: 30px; font-weight: 600;">
             <i class="fas fa-arrow-left"></i> Retour à la boutique
