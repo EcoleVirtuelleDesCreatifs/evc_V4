@@ -559,10 +559,10 @@
                             <p>Remplissez ce formulaire pour rejoindre notre équipe pédagogique</p>
                         </div>
 
-                        @if(session('success'))
+                        @if(session('success') || request('success'))
                             <div class="alert-success">
                                 <i class="fas fa-check-circle"></i>
-                                {{ session('success') }}
+                                {{ session('success') ?? 'Votre candidature a été envoyée avec succès ! Nous vous contacterons bientôt.' }}
                             </div>
                         @endif
 

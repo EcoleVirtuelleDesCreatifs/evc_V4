@@ -532,10 +532,10 @@
                             <p>Remplissez ce formulaire pour initier une collaboration</p>
                         </div>
 
-                        @if(session('success'))
+                        @if(session('success') || request('success'))
                             <div class="alert-success">
                                 <i class="fas fa-check-circle"></i>
-                                {{ session('success') }}
+                                {{ session('success') ?? 'Votre demande de partenariat a été envoyée avec succès ! Nous vous contacterons bientôt.' }}
                             </div>
                         @endif
 

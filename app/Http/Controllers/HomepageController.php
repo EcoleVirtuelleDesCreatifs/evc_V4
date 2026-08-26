@@ -117,11 +117,13 @@ class HomepageController extends Controller
             if (!empty($mailWarnings)) { $resp['warnings'] = $mailWarnings; }
             return response()->json($resp);
         }
-        $redirect = redirect()->route('preinscription.start')->with('success', $successMsg);
+
+        $query = ['success' => '1'];
         if (!empty($mailWarnings)) {
-            $redirect->with('warning', implode(' ', $mailWarnings));
+            $query['warning'] = urlencode(implode(' ', $mailWarnings));
         }
-        return $redirect;
+
+        return redirect()->to('/preinscription?' . http_build_query($query));
     }
 
     /**
@@ -943,8 +945,7 @@ class HomepageController extends Controller
             Log::error('Erreur envoi email candidature collaborateur: ' . $e->getMessage());
         }
 
-        return redirect()->route('rejoignez-nous.collaborateur')
-            ->with('success', 'Votre candidature a été envoyée avec succès ! Nous vous contacterons bientôt.');
+        return redirect()->to('/rejoignez-nous/collaborateur?success=1');
     }
 
     /**
@@ -984,8 +985,7 @@ class HomepageController extends Controller
             Log::error('Erreur envoi email demande partenariat: ' . $e->getMessage());
         }
 
-        return redirect()->route('rejoignez-nous.partenaire')
-            ->with('success', 'Votre demande de partenariat a été envoyée avec succès ! Nous vous contacterons bientôt.');
+        return redirect()->to('/rejoignez-nous/partenaire?success=1');
     }
 
     /**
@@ -1033,7 +1033,6 @@ class HomepageController extends Controller
             Log::error('Erreur envoi email candidature formateur: ' . $e->getMessage());
         }
 
-        return redirect()->route('rejoignez-nous.formateur')
-            ->with('success', 'Votre candidature a été envoyée avec succès ! Nous vous contacterons bientôt.');
+        return redirect()->to('/rejoignez-nous/formateur?success=1');
     }
 }

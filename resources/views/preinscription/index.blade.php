@@ -711,10 +711,10 @@
                             <p>Tous les champs sont obligatoires</p>
                         </div>
 
-                        @if(session('success'))
+                        @if(session('success') || request('success'))
                             <div class="pi-alert success">
                                 <i class="fas fa-check-circle"></i>
-                                <div>{{ session('success') }}</div>
+                                <div>{{ session('success') ?? 'Votre candidature a été envoyée avec succès. Un e-mail de confirmation vous sera adressé et notre équipe vous répondra sous 24h.' }}</div>
                             </div>
                         @endif
 
