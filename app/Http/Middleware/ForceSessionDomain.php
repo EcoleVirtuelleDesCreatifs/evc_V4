@@ -13,7 +13,7 @@ class ForceSessionDomain
         $host = strtolower((string) $request->getHost());
 
         if ($host === 'www.ecolevirtuelledescreatifs.com' || $host === 'ecolevirtuelledescreatifs.com') {
-            config(['session.domain' => '.ecolevirtuelledescreatifs.com']);
+            config(['session.domain' => 'ecolevirtuelledescreatifs.com']);
             config(['session.same_site' => 'lax']);
 
             // Le cookie ne doit être marqué Secure que si la connexion est HTTPS,
