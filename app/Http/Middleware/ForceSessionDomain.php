@@ -14,8 +14,13 @@ class ForceSessionDomain
 
         if ($host === 'www.ecolevirtuelledescreatifs.com' || $host === 'ecolevirtuelledescreatifs.com') {
             config(['session.domain' => '.ecolevirtuelledescreatifs.com']);
-            config(['session.secure' => true]);
             config(['session.same_site' => 'lax']);
+
+            // Le cookie ne doit être marqué Secure que si la connexion est HTTPS,
+            // sinon Safari/Chrome refusent de l'envoyer et la session est recréée à chaque requête.
+            if ($request->secure()) {
+                config(['session.secure' => true]);
+            }
         }
 
         return $next($request);

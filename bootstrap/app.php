@@ -51,6 +51,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             \App\Http\Middleware\TrackOnlineStatus::class,
             \App\Http\Middleware\CheckAccountExpiration::class,
+            \App\Http\Middleware\PreventPwaCache::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
