@@ -39,6 +39,14 @@
             width: 100%;
             min-width: 0;
         }
+        .product-info .product-price-block,
+        .product-info .product-availability,
+        .product-info .product-variants-list,
+        .product-info .product-radio-group,
+        .product-info .order-total-row {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
         #product-order-form > div {
             grid-template-columns: 1fr !important;
         }
@@ -106,7 +114,7 @@
 
                 <h1 style="font-size: 42px; font-weight: 800; margin-bottom: 16px; line-height: 1.2;">{{ $product->title }}</h1>
 
-                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
+                <div class="product-price-block" style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; flex-wrap: wrap;">
                     <div style="font-size: 28px; font-weight: 700; color: #ff6b35;">
                         {{ $product->formatted_price }}
                     </div>
@@ -132,7 +140,7 @@
                         default => '#ff4757',
                     };
                 @endphp
-                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px; font-weight: 600; color: {{ $stockColor }};">
+                <div class="product-availability" style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px; font-weight: 600; color: {{ $stockColor }};">
                     <i class="fas fa-circle" style="font-size: 8px;"></i>
                     {{ $stockLabel }} @if($product->stock > 0)({{ $product->stock }} disponible{{ $product->stock > 1 ? 's' : '' }})@endif
                 </div>
@@ -150,7 +158,7 @@
                 @if(!empty($product->variants) && is_array($product->variants))
                     <div style="margin-bottom: 24px;">
                         <label style="display: block; font-weight: 600; margin-bottom: 12px;">Options disponibles</label>
-                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <div class="product-variants-list" style="display: flex; flex-wrap: wrap; gap: 10px;">
                             @foreach($product->variants as $variant)
                                 <span style="padding: 8px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; font-size: 14px;">
                                     {{ is_array($variant) ? ($variant['label'] ?? json_encode($variant)) : $variant }}
@@ -194,7 +202,7 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div>
                                 <label style="display: block; margin-bottom: 10px; font-weight: 500; color: #a0aec0;">Mode de réception <span style="color: #ff6b35;">*</span></label>
-                                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                                <div class="product-radio-group" style="display: flex; gap: 16px; flex-wrap: wrap;">
                                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                                         <input type="radio" name="delivery_mode" value="delivery" checked onchange="updateTotal()"> Livraison
                                     </label>
@@ -205,7 +213,7 @@
                             </div>
                             <div>
                                 <label style="display: block; margin-bottom: 10px; font-weight: 500; color: #a0aec0;">Paiement <span style="color: #ff6b35;">*</span></label>
-                                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                                <div class="product-radio-group" style="display: flex; gap: 16px; flex-wrap: wrap;">
                                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                                         <input type="radio" name="payment_method" value="cash" checked> Espèces
                                     </label>
@@ -221,7 +229,7 @@
                             <textarea name="autre" rows="3" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; resize: vertical;"></textarea>
                         </div>
 
-                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+                        <div class="order-total-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
                             <div style="font-size: 22px; font-weight: 700;" id="order-total-display">
                                 Total : {{ number_format($product->price + $product->delivery_cost, 0, ',', ' ') }} FCFA
                             </div>
