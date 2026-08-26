@@ -22,23 +22,23 @@
             </p>
         </div>
 
-        @if(session('success'))
+        @if(session('success') || request('success'))
             <div class="mb-8 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-6 py-4 text-emerald-200">
                 <div class="flex items-start gap-3">
                     <i class="fas fa-check-circle mt-1"></i>
                     <div>
-                        <div class="font-semibold">{{ session('success') }}</div>
+                        <div class="font-semibold">{{ session('success') ?? 'Merci ! Votre demande de don a bien été envoyée. Notre équipe vous contactera rapidement avec les modalités.' }}</div>
                         <div class="text-sm text-emerald-200/80 mt-1">Si vous ne recevez pas d'email, vérifiez vos spams ou contactez-nous sur WhatsApp.</div>
                     </div>
                 </div>
             </div>
         @endif
 
-        @if(session('error'))
+        @if(session('error') || request('error'))
             <div class="mb-8 rounded-2xl border border-red-400/30 bg-red-500/10 px-6 py-4 text-red-200">
                 <div class="flex items-start gap-3">
                     <i class="fas fa-exclamation-circle mt-1"></i>
-                    <div class="font-semibold">{{ session('error') }}</div>
+                    <div class="font-semibold">{{ session('error') ?? 'Une erreur est survenue lors de l\'envoi. Veuillez réessayer.' }}</div>
                 </div>
             </div>
         @endif

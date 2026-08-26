@@ -75,12 +75,12 @@ class DonationController extends Controller
                 Log::error('Erreur envoi email don (donateur): ' . $e->getMessage());
             }
 
-            return redirect()->route('donation.index')->with('success', 'Merci ! Votre demande de don a bien été envoyée. Notre équipe vous contactera rapidement avec les modalités.');
+            return redirect()->to('/faire-un-don?success=1');
         } catch (\Illuminate\Validation\ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {
             Log::error('Erreur traitement don: ' . $e->getMessage());
-            return redirect()->route('donation.index')->with('error', 'Une erreur est survenue lors de l\'envoi. Veuillez réessayer.');
+            return redirect()->to('/faire-un-don?error=1');
         }
     }
 }
