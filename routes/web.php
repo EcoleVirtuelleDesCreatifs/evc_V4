@@ -37,6 +37,14 @@ use Illuminate\Support\Facades\Storage;
 // Page d'accueil et pré-inscription
 Route::get('/', [HomepageController::class, 'index'])->name('homepage');
 
+// Rafraîchissement du token CSRF pour PWA / Safari
+Route::get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()])
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+});
+
 Route::get('/domicile', [HomepageController::class, 'index'])->name('domicile');
 
 $servePublicStorage = function (string $path) {

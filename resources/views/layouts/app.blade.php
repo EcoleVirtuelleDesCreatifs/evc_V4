@@ -90,6 +90,39 @@
 
     <script>
         (function () {
+            const updateCsrfToken = (token) => {
+                const meta = document.querySelector('meta[name="csrf-token"]');
+                if (meta) meta.setAttribute('content', token);
+                document.querySelectorAll('input[name="_token"]').forEach(input => input.value = token);
+            };
+
+            const refreshToken = async () => {
+                try {
+                    const res = await fetch('{{ url('/csrf-token') }}', {
+                        method: 'GET',
+                        credentials: 'same-origin',
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    if (data.token) updateCsrfToken(data.token);
+                } catch (e) { /* silencieux */ }
+            };
+
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) refreshToken();
+            });
+
+            window.addEventListener('pageshow', (e) => {
+                if (e.persisted) refreshToken();
+            });
+
+            setInterval(refreshToken, 4 * 60 * 1000);
+        })();
+    </script>
+
+    <script>
+        (function () {
             var shouldShowForLink = function (a) {
                 if (!a) return false;
                 var href = a.getAttribute('href');
