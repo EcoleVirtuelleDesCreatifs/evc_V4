@@ -51,32 +51,60 @@
     }
 
     .studio-card {
-        background: rgba(21, 26, 61, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 32px;
+        background: rgba(21, 26, 61, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        padding: 40px;
         margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
         backdrop-filter: blur(20px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .studio-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        opacity: 0.7;
+    }
+
+    .studio-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(255, 107, 53, 0.2);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
     }
 
     .studio-card h2 {
-        color: var(--primary);
+        color: var(--text-primary);
         font-size: 1.5rem;
         font-weight: 700;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
         letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .studio-card h2 i {
+        color: var(--primary);
+        font-size: 1.25rem;
     }
 
     .studio-card p {
         color: var(--text-secondary);
         font-size: 1rem;
         line-height: 1.7;
-        margin-bottom: 16px;
+        margin-bottom: 20px;
     }
 
-    .studio-card p:last-child {
-        margin-bottom: 0;
+    .studio-card p:last-of-type {
+        margin-bottom: 24px;
     }
 
     .studio-grid {
@@ -155,8 +183,8 @@
     .studio-cards {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 24px;
-        margin-bottom: 32px;
+        gap: 28px;
+        margin-bottom: 48px;
     }
 
     .studio-cards .studio-card {
@@ -166,7 +194,7 @@
     .studio-list {
         list-style: none;
         padding: 0;
-        margin: 16px 0 0;
+        margin: 0;
     }
 
     .studio-list li {
@@ -174,8 +202,9 @@
         align-items: flex-start;
         gap: 12px;
         color: var(--text-secondary);
-        margin-bottom: 12px;
-        line-height: 1.6;
+        margin-bottom: 14px;
+        line-height: 1.5;
+        font-size: 0.9375rem;
     }
 
     .studio-list li:last-child {
@@ -184,35 +213,56 @@
 
     .studio-list i {
         color: var(--primary);
-        margin-top: 4px;
+        margin-top: 3px;
         flex-shrink: 0;
     }
 
     .studio-stats {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-        margin-bottom: 32px;
+        gap: 20px;
+        margin-bottom: 48px;
     }
 
     .studio-stat {
-        background: rgba(21, 26, 61, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 24px;
+        background: linear-gradient(135deg, rgba(21, 26, 61, 0.6) 0%, rgba(10, 14, 39, 0.5) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        padding: 28px 20px;
         text-align: center;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .studio-stat::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--accent));
+        opacity: 0.6;
+    }
+
+    .studio-stat:hover {
+        transform: translateY(-4px);
+        border-color: rgba(255, 107, 53, 0.25);
     }
 
     .studio-stat .number {
-        font-size: 2rem;
-        font-weight: 700;
+        font-size: 2.25rem;
+        font-weight: 800;
         color: var(--primary);
         margin-bottom: 8px;
+        letter-spacing: -0.02em;
     }
 
     .studio-stat .label {
         font-size: 0.875rem;
         color: var(--text-secondary);
+        font-weight: 500;
     }
 
     .studio-cta {
@@ -223,19 +273,20 @@
         display: inline-flex;
         align-items: center;
         gap: 12px;
-        padding: 16px 32px;
+        padding: 18px 40px;
         background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         color: white;
-        font-weight: 600;
+        font-size: 1.0625rem;
+        font-weight: 700;
         border-radius: 9999px;
         text-decoration: none;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+        box-shadow: 0 8px 28px rgba(255, 107, 53, 0.35);
     }
 
     .studio-cta a:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 32px rgba(255, 107, 53, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 16px 40px rgba(255, 107, 53, 0.45);
     }
 
     @media (max-width: 768px) {
@@ -264,7 +315,7 @@
 
             <div class="studio-cards" data-aos="fade-up" data-aos-delay="100">
                 <div class="studio-card">
-                    <h2>C'est quoi le Studio Creative ?</h2>
+                    <h2><i class="fas fa-flask"></i> C'est quoi le Studio Creative ?</h2>
                     <p>
                         Le Studio Creative est le laboratoire créatif de l'École Virtuelle des Créatifs. C'est un espace d'expression et d'innovation où étudiants, formateurs et professionnels co-créent des projets concrets dans le design, le community management, l'informatique et l'intelligence artificielle.
                     </p>
@@ -285,7 +336,7 @@
                 </div>
 
                 <div class="studio-card">
-                    <h2>Pourquoi le Studio Creative ?</h2>
+                    <h2><i class="fas fa-rocket"></i> Pourquoi le Studio Creative ?</h2>
                     <p>
                         Parce qu'apprendre en créant est le meilleur moyen de maîtriser un métier. Le Studio met chaque participant en situation professionnelle, avec des deadlines, des clients et des livrables concrets.
                     </p>
