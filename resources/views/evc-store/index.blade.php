@@ -24,7 +24,7 @@
     .store-container {
         background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f4e 50%, #0d1333 100%);
         min-height: 100vh;
-        padding: 280px 20px 60px;
+        padding: 340px 20px 60px;
         position: relative;
     }
 
@@ -928,7 +928,7 @@
 
     @media (max-width: 768px) {
         .store-container {
-            padding: 320px 16px 40px;
+            padding: 360px 16px 40px;
         }
 
         .store-grid {

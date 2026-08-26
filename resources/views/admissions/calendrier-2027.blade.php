@@ -19,7 +19,7 @@
     .calendar-container {
         background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1f4e 50%, #0d1333 100%);
         min-height: 100vh;
-        padding: 280px 20px 60px;
+        padding: 340px 20px 60px;
         position: relative;
     }
 
@@ -195,7 +195,7 @@
 
     @media (max-width: 768px) {
         .calendar-container {
-            padding: 180px 20px 60px;
+            padding: 240px 20px 60px;
         }
 
         .calendar-section {
