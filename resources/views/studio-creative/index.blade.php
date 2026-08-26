@@ -139,24 +139,99 @@
 <div class="studio-wrapper">
     <div class="studio-container">
         <div class="container">
-            <div class="studio-hero">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 rounded-full mb-6">
+                    <i class="fas fa-sparkles text-orange-500 text-sm"></i>
+                    <span class="text-orange-400 font-semibold text-sm uppercase tracking-wide">Pôle Créatif EVC</span>
+                </div>
                 <h1 class="studio-title">Studio Créatif</h1>
-                <p class="studio-subtitle">L'espace de création, d'innovation et de réalisation de projets créatifs de l'École Virtuelle des Créatifs.</p>
+                <p class="studio-subtitle">
+                    L'incubateur où les idées deviennent projets, et où les projets deviennent des opportunités professionnelles.
+                </p>
             </div>
 
-            <div class="studio-content">
-                <div class="studio-card">
-                    <h2>Notre mission</h2>
-                    <p>Le Studio Créatif est un espace dédié à l'expression artistique et à l'innovation numérique. Il permet aux apprenants et aux professionnels de collaborer sur des projets concrets dans les domaines du design graphique, du community management, de la gestion informatique et de l'intelligence artificielle.</p>
-                    <p>Nous accompagnons chaque projet de l'idée à la réalisation, en mettant l'accent sur la qualité, la créativité et l'impact.</p>
+            <div class="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+                <!-- C'est quoi le Studio Créatif ? -->
+                <div class="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 hover:border-orange-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                            <i class="fas fa-cube text-white text-xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">C'est quoi le Studio Créatif ?</h2>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed mb-6">
+                        Le Studio Créatif est le laboratoire créatif de l'École Virtuelle des Créatifs. C'est un espace d'expression et d'innovation où étudiants, formateurs et professionnels co-créent des projets concrets dans le design, le community management, l'informatique et l'intelligence artificielle.
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-orange-500 mt-1"></i>
+                            <span>Un atelier de production intégré à la formation.</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-orange-500 mt-1"></i>
+                            <span>Des projets réels commandités par des entreprises et associations.</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-orange-500 mt-1"></i>
+                            <span>Un accompagnement de l'idée à la livraison finale.</span>
+                        </li>
+                    </ul>
                 </div>
 
-
-                <div class="studio-card">
-                    <h2>Pourquoi choisir le Studio Créatif ?</h2>
-                    <p>Le Studio Créatif offre un environnement propice à l'apprentissage par la pratique. Les participants travaillent sur des projets réels, encadrés par des professionnels du secteur, et bénéficient des retours d'expérience de la communauté EVC.</p>
-                    <p>Que vous soyez étudiant, professionnel ou entrepreneur, notre studio est l'endroit idéal pour donner vie à vos idées créatives.</p>
+                <!-- Pourquoi le Studio Créatif ? -->
+                <div class="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <i class="fas fa-rocket text-white text-xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">Pourquoi le Studio Créatif ?</h2>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed mb-6">
+                        Parce qu'apprendre en créant est le meilleur moyen de maîtriser un métier. Le Studio met chaque participant en situation professionnelle, avec des deadlines, des clients et des livrables concrets.
+                    </p>
+                    <ul class="space-y-3">
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                            <span>Travaillez sur des briefs authentiques.</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                            <span>Profitez du retour d'experts en activité.</span>
+                        </li>
+                        <li class="flex items-start gap-3 text-gray-300">
+                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                            <span>Construisez un portfolio qui attire les recruteurs.</span>
+                        </li>
+                    </ul>
                 </div>
+            </div>
+
+            <!-- Chiffres clés -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mt-16" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">150+</div>
+                    <div class="text-sm text-gray-400">Projets Réalisés</div>
+                </div>
+                <div class="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">20+</div>
+                    <div class="text-sm text-gray-400">Formateurs Experts</div>
+                </div>
+                <div class="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">95%</div>
+                    <div class="text-sm text-gray-400">Satisfaction</div>
+                </div>
+                <div class="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
+                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">5+</div>
+                    <div class="text-sm text-gray-400">Pays Touchés</div>
+                </div>
+            </div>
+
+            <!-- Call to action -->
+            <div class="text-center mt-16" data-aos="fade-up" data-aos-delay="300">
+                <a href="{{ route('formations') }}" class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-orange-500/50 group">
+                    <span>Rejoindre le Studio Créatif</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </a>
             </div>
         </div>
     </div>
