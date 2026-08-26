@@ -132,6 +132,118 @@
             padding: 24px;
         }
     }
+    .studio-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(255, 107, 53, 0.1);
+        border: 1px solid rgba(255, 107, 53, 0.3);
+        border-radius: 9999px;
+        color: var(--primary);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 24px;
+    }
+
+    .studio-badge i {
+        color: var(--primary);
+    }
+
+    .studio-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .studio-cards .studio-card {
+        margin-bottom: 0;
+    }
+
+    .studio-list {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 0;
+    }
+
+    .studio-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+        line-height: 1.6;
+    }
+
+    .studio-list li:last-child {
+        margin-bottom: 0;
+    }
+
+    .studio-list i {
+        color: var(--primary);
+        margin-top: 4px;
+        flex-shrink: 0;
+    }
+
+    .studio-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .studio-stat {
+        background: rgba(21, 26, 61, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        text-align: center;
+    }
+
+    .studio-stat .number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 8px;
+    }
+
+    .studio-stat .label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+    }
+
+    .studio-cta {
+        text-align: center;
+    }
+
+    .studio-cta a {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 32px;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        font-weight: 600;
+        border-radius: 9999px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+    }
+
+    .studio-cta a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(255, 107, 53, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .studio-cards,
+        .studio-stats {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 @endpush
 
@@ -139,10 +251,10 @@
 <div class="studio-wrapper">
     <div class="studio-container">
         <div class="container">
-            <div class="text-center mb-16" data-aos="fade-up">
-                <div class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/10 border border-orange-500/30 rounded-full mb-6">
-                    <i class="fas fa-sparkles text-orange-500 text-sm"></i>
-                    <span class="text-orange-400 font-semibold text-sm uppercase tracking-wide">Pôle Créatif EVC</span>
+            <div class="studio-hero" data-aos="fade-up">
+                <div class="studio-badge">
+                    <i class="fas fa-sparkles"></i>
+                    <span>Pôle Créatif EVC</span>
                 </div>
                 <h1 class="studio-title">Studio Créatif</h1>
                 <p class="studio-subtitle">
@@ -150,87 +262,73 @@
                 </p>
             </div>
 
-            <div class="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto" data-aos="fade-up" data-aos-delay="100">
-                <!-- C'est quoi le Studio Créatif ? -->
-                <div class="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 hover:border-orange-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                            <i class="fas fa-cube text-white text-xl"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-white">C'est quoi le Studio Créatif ?</h2>
-                    </div>
-                    <p class="text-gray-300 leading-relaxed mb-6">
+            <div class="studio-cards" data-aos="fade-up" data-aos-delay="100">
+                <div class="studio-card">
+                    <h2>C'est quoi le Studio Créatif ?</h2>
+                    <p>
                         Le Studio Créatif est le laboratoire créatif de l'École Virtuelle des Créatifs. C'est un espace d'expression et d'innovation où étudiants, formateurs et professionnels co-créent des projets concrets dans le design, le community management, l'informatique et l'intelligence artificielle.
                     </p>
-                    <ul class="space-y-3">
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-orange-500 mt-1"></i>
+                    <ul class="studio-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
                             <span>Un atelier de production intégré à la formation.</span>
                         </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-orange-500 mt-1"></i>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
                             <span>Des projets réels commandités par des entreprises et associations.</span>
                         </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-orange-500 mt-1"></i>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
                             <span>Un accompagnement de l'idée à la livraison finale.</span>
                         </li>
                     </ul>
                 </div>
 
-                <!-- Pourquoi le Studio Créatif ? -->
-                <div class="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 hover:border-blue-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10">
-                    <div class="flex items-center gap-4 mb-6">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                            <i class="fas fa-rocket text-white text-xl"></i>
-                        </div>
-                        <h2 class="text-2xl font-bold text-white">Pourquoi le Studio Créatif ?</h2>
-                    </div>
-                    <p class="text-gray-300 leading-relaxed mb-6">
+                <div class="studio-card">
+                    <h2>Pourquoi le Studio Créatif ?</h2>
+                    <p>
                         Parce qu'apprendre en créant est le meilleur moyen de maîtriser un métier. Le Studio met chaque participant en situation professionnelle, avec des deadlines, des clients et des livrables concrets.
                     </p>
-                    <ul class="space-y-3">
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                    <ul class="studio-list">
+                        <li>
+                            <i class="fas fa-check-circle"></i>
                             <span>Travaillez sur des briefs authentiques.</span>
                         </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
                             <span>Profitez du retour d'experts en activité.</span>
                         </li>
-                        <li class="flex items-start gap-3 text-gray-300">
-                            <i class="fas fa-check-circle text-blue-500 mt-1"></i>
+                        <li>
+                            <i class="fas fa-check-circle"></i>
                             <span>Construisez un portfolio qui attire les recruteurs.</span>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Chiffres clés -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto mt-16" data-aos="fade-up" data-aos-delay="200">
-                <div class="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">150+</div>
-                    <div class="text-sm text-gray-400">Projets Réalisés</div>
+            <div class="studio-stats" data-aos="fade-up" data-aos-delay="200">
+                <div class="studio-stat">
+                    <div class="number">150+</div>
+                    <div class="label">Projets Réalisés</div>
                 </div>
-                <div class="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">20+</div>
-                    <div class="text-sm text-gray-400">Formateurs Experts</div>
+                <div class="studio-stat">
+                    <div class="number">20+</div>
+                    <div class="label">Formateurs Experts</div>
                 </div>
-                <div class="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">95%</div>
-                    <div class="text-sm text-gray-400">Satisfaction</div>
+                <div class="studio-stat">
+                    <div class="number">95%</div>
+                    <div class="label">Satisfaction</div>
                 </div>
-                <div class="text-center bg-white/5 rounded-2xl p-6 border border-white/10">
-                    <div class="text-3xl md:text-4xl font-bold text-orange-500 mb-2">5+</div>
-                    <div class="text-sm text-gray-400">Pays Touchés</div>
+                <div class="studio-stat">
+                    <div class="number">5+</div>
+                    <div class="label">Pays Touchés</div>
                 </div>
             </div>
 
-            <!-- Call to action -->
-            <div class="text-center mt-16" data-aos="fade-up" data-aos-delay="300">
-                <a href="{{ route('formations') }}" class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full text-white font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-orange-500/50 group">
+            <div class="studio-cta" data-aos="fade-up" data-aos-delay="300">
+                <a href="{{ route('formations') }}">
                     <span>Rejoindre le Studio Créatif</span>
-                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
