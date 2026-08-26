@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('title', 'Studio Créatif - École Virtuelle des Créatifs')
-@section('description', 'Découvrez le Studio Créatif de l\'École Virtuelle des Créatifs, un espace dédié à la création, l\'innovation et la réalisation de projets créatifs.')
+@section('title', 'Studio Creative - École Virtuelle des Créatifs')
+@section('description', 'Découvrez le Studio Creative de l\'École Virtuelle des Créatifs, un espace dédié à la création, l\'innovation et la réalisation de projets créatifs.')
 @section('keywords', 'studio creatif evc, creation design, innovation, projets creatifs')
 
 @push('styles')
@@ -256,7 +256,7 @@
                     <i class="fas fa-sparkles"></i>
                     <span>Pôle Créatif EVC</span>
                 </div>
-                <h1 class="studio-title">Studio Créatif</h1>
+                <h1 class="studio-title">Studio Creative</h1>
                 <p class="studio-subtitle">
                     L'incubateur où les idées deviennent projets, et où les projets deviennent des opportunités professionnelles.
                 </p>
@@ -264,9 +264,9 @@
 
             <div class="studio-cards" data-aos="fade-up" data-aos-delay="100">
                 <div class="studio-card">
-                    <h2>C'est quoi le Studio Créatif ?</h2>
+                    <h2>C'est quoi le Studio Creative ?</h2>
                     <p>
-                        Le Studio Créatif est le laboratoire créatif de l'École Virtuelle des Créatifs. C'est un espace d'expression et d'innovation où étudiants, formateurs et professionnels co-créent des projets concrets dans le design, le community management, l'informatique et l'intelligence artificielle.
+                        Le Studio Creative est le laboratoire créatif de l'École Virtuelle des Créatifs. C'est un espace d'expression et d'innovation où étudiants, formateurs et professionnels co-créent des projets concrets dans le design, le community management, l'informatique et l'intelligence artificielle.
                     </p>
                     <ul class="studio-list">
                         <li>
@@ -285,7 +285,7 @@
                 </div>
 
                 <div class="studio-card">
-                    <h2>Pourquoi le Studio Créatif ?</h2>
+                    <h2>Pourquoi le Studio Creative ?</h2>
                     <p>
                         Parce qu'apprendre en créant est le meilleur moyen de maîtriser un métier. Le Studio met chaque participant en situation professionnelle, avec des deadlines, des clients et des livrables concrets.
                     </p>
@@ -327,7 +327,7 @@
 
             <div class="studio-cta" data-aos="fade-up" data-aos-delay="300">
                 <a href="{{ route('formations') }}">
-                    <span>Rejoindre le Studio Créatif</span>
+                    <span>Rejoindre le Studio Creative</span>
                     <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
