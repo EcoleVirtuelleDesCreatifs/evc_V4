@@ -1437,12 +1437,12 @@
                             ${promoBadge}
                             <span class="product-badge ${stockClass}">${stockLabel}</span>
                         </div>
-                        <a href="/evc-store/${product.id}" class="product-quick-view">
+                        <a href="/evc-store/${product.slug}" class="product-quick-view">
                             <i class="fas fa-eye"></i> Voir la fiche
                         </a>
                     </div>
                     <div class="store-product-body">
-                        <h3><a href="/evc-store/${product.id}" style="color: inherit; text-decoration: none;">${product.name}</a></h3>
+                        <h3><a href="/evc-store/${product.slug}" style="color: inherit; text-decoration: none;">${product.name}</a></h3>
                         <div class="store-product-price">${priceDisplay}</div>
                         ${product.desc ? `<div class="product-desc">${product.desc}</div>` : ''}
                         <div class="store-product-actions">

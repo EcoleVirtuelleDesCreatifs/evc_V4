@@ -46,6 +46,7 @@ class StoreOrderController extends Controller
         $productsForJs = $products->map(function (Product $product) {
             return [
                 'id' => $product->id,
+                'slug' => $product->slug ?? $product->id,
                 'category' => $product->category->slug ?? '',
                 'image_url' => MediaUrl::fromPath($product->image),
                 'images' => collect($product->images ?? [])->map(fn($img) => MediaUrl::fromPath($img))->filter()->values()->all(),

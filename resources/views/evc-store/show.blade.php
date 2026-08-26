@@ -4,7 +4,10 @@
 @section('description', strip_tags($product->summary ?: $product->description))
 
 @section('content')
-<div class="store-product-page" style="min-height: 100vh; background: linear-gradient(135deg, #0a0e27 0%, #151a3d 50%, #0d1333 100%); color: #fff; padding: 160px 20px 80px;">
+@php
+    $productImages = collect([$product->image])->merge($product->images ?? [])->map(fn($img) => \App\Models\MediaUrl::fromPath($img))->filter()->values()->all();
+@endphp
+<div class="store-product-page" style="min-height: 100vh; background: linear-gradient(135deg, #0a0e27 0%, #151a3d 50%, #0d1333 100%); color: #fff; padding: 240px 20px 80px;">
     <div style="max-width: 1200px; margin: 0 auto;">
         <a href="{{ route('evc.store') }}" style="display: inline-flex; align-items: center; gap: 8px; color: #ff6b35; text-decoration: none; margin-bottom: 30px; font-weight: 600;">
             <i class="fas fa-arrow-left"></i> Retour à la boutique
@@ -13,24 +16,37 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: start;">
             <!-- Images -->
             <div>
-                <div style="border-radius: 24px; overflow: hidden; background: rgba(21,26,61,0.6); border: 1px solid rgba(255,255,255,0.08); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;">
-                    @php $imageUrl = \App\Models\MediaUrl::fromPath($product->image); @endphp
-                    @if($imageUrl)
-                        <img src="{{ $imageUrl }}" alt="{{ $product->title }}" style="width: 100%; height: 100%; object-fit: cover;">
-                    @else
+                <div style="position: relative; border-radius: 24px; overflow: hidden; background: rgba(21,26,61,0.6); border: 1px solid rgba(255,255,255,0.08); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;">
+                    <img id="gallery-main" src="{{ $productImages[0] ?? '' }}" alt="{{ $product->title }}" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s;">
+
+                    @if(count($productImages) > 1)
+                        <button type="button" onclick="prevImage()" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button type="button" onclick="nextImage()" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    @endif
+
+                    @if(empty($productImages))
                         <i class="fas fa-image" style="font-size: 5rem; color: #ff6b35;"></i>
                     @endif
                 </div>
 
-                @if(!empty($product->images) && is_array($product->images) && count($product->images) > 0)
-                    <div style="display: flex; gap: 12px; margin-top: 20px; overflow-x: auto;">
-                        @foreach($product->images as $img)
-                            @php $thumb = \App\Models\MediaUrl::fromPath($img); @endphp
-                            @if($thumb)
-                                <div style="width: 80px; height: 80px; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">
-                                    <img src="{{ $thumb }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                            @endif
+                @if(count($productImages) > 1)
+                    <div id="gallery-dots" style="display: flex; justify-content: center; gap: 10px; margin-top: 18px;">
+                        @foreach($productImages as $index => $img)
+                            <button type="button" onclick="showImage({{ $index }})" data-index="{{ $index }}" style="width: 10px; height: 10px; border-radius: 50%; border: none; background: {{ $index === 0 ? '#ff6b35' : 'rgba(255,255,255,0.3)' }}; cursor: pointer; padding: 0;"></button>
+                        @endforeach
+                    </div>
+                @endif
+
+                @if(count($productImages) > 1)
+                    <div id="gallery-thumbnails" style="display: flex; gap: 12px; margin-top: 18px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: thin;">
+                        @foreach($productImages as $index => $img)
+                            <button type="button" onclick="showImage({{ $index }})" data-thumb="{{ $index }}" style="flex: 0 0 80px; width: 80px; height: 80px; border-radius: 12px; overflow: hidden; border: {{ $index === 0 ? '2px solid #ff6b35' : '1px solid rgba(255,255,255,0.1)' }}; background: none; padding: 0; cursor: pointer; scroll-snap-align: start;">
+                                <img src="{{ $img }}" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                            </button>
                         @endforeach
                     </div>
                 @endif
@@ -187,6 +203,8 @@
         const productId = {{ $product->id }};
         const productName = @json($product->title);
         const productEmail = @json($product->email);
+        const images = @json($productImages);
+        let currentImage = 0;
 
         function formatPrice(value) {
             return new Intl.NumberFormat('fr-FR').format(value) + ' FCFA';
@@ -275,6 +293,31 @@
                 btn.innerHTML = '<i class="fas fa-shopping-bag"></i> Commander';
             }
         });
+
+        window.showImage = function(index) {
+            if (!images.length) return;
+            currentImage = (index + images.length) % images.length;
+            const main = document.getElementById('gallery-main');
+            if (main) {
+                main.style.opacity = '0.6';
+                setTimeout(() => {
+                    main.src = images[currentImage];
+                    main.style.opacity = '1';
+                }, 150);
+            }
+
+            document.querySelectorAll('#gallery-dots button').forEach((dot, i) => {
+                dot.style.background = i === currentImage ? '#ff6b35' : 'rgba(255,255,255,0.3)';
+            });
+
+            document.querySelectorAll('#gallery-thumbnails button').forEach((thumb, i) => {
+                thumb.style.border = i === currentImage ? '2px solid #ff6b35' : '1px solid rgba(255,255,255,0.1)';
+                if (i === currentImage) thumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            });
+        };
+
+        window.nextImage = function() { showImage(currentImage + 1); };
+        window.prevImage = function() { showImage(currentImage - 1); };
     })();
 </script>
 @endsection
