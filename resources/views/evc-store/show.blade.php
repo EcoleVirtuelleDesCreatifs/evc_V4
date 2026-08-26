@@ -4,6 +4,33 @@
 @section('description', strip_tags($product->summary ?: $product->description))
 
 @section('content')
+<style>
+    .store-product-page {
+        padding: 320px 20px 80px !important;
+    }
+    .store-product-page h1 {
+        font-size: 42px !important;
+    }
+
+    @media (max-width: 768px) {
+        .store-product-page {
+            padding: 140px 16px 60px !important;
+        }
+        .store-product-page h1 {
+            font-size: 26px !important;
+        }
+        .store-product-page > div > div:nth-of-type(2) {
+            grid-template-columns: 1fr !important;
+            gap: 30px !important;
+        }
+        #product-order-form > div {
+            grid-template-columns: 1fr !important;
+        }
+        .store-product-page #order-total-display {
+            font-size: 18px !important;
+        }
+    }
+</style>
 @php
     $productImages = collect([$product->image])->merge($product->images ?? [])->map(fn($img) => \App\Models\MediaUrl::fromPath($img))->filter()->values()->all();
 @endphp
