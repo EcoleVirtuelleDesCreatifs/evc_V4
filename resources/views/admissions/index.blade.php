@@ -339,7 +339,7 @@
                             </div>
                             <div class="admissions-list-content">
                                 <h4>Documents obligatoires</h4>
-                                <p>Photo d'identité, copie de diplôme ou dernier bulletin, pièce d'identité</p>
+                                <p>Photo d'identité, bloc note, ordinateur, smartphone</p>
                             </div>
                         </li>
                         <li>
@@ -354,29 +354,34 @@
                     </ul>
                 </div>
 
-                <!-- Calendrier des rentrées -->
+                <!-- Calendrier 2027 -->
                 <div class="admissions-section">
                     <div class="admissions-section-header">
-                        <h2>Calendrier des rentrées</h2>
-                        <p>Les dates de début de nos formations</p>
+                        <h2>Calendrier 2027</h2>
+                        <p>Sessions de formation et événements de l'année 2027</p>
                     </div>
                     <div class="admissions-grid">
                         <div class="admissions-price">
-                            <div class="admissions-price-amount">Janvier</div>
-                            <div class="admissions-price-label">Rentrée Janvier 2025</div>
+                            <div class="admissions-price-amount">Mars</div>
+                            <div class="admissions-price-label">Session 01 — 2027</div>
                         </div>
                         <div class="admissions-price">
-                            <div class="admissions-price-amount">Mai</div>
-                            <div class="admissions-price-label">Rentrée Mai 2025</div>
+                            <div class="admissions-price-amount">Juillet</div>
+                            <div class="admissions-price-label">Session 02 — 2027</div>
                         </div>
                         <div class="admissions-price">
-                            <div class="admissions-price-amount">Septembre</div>
-                            <div class="admissions-price-label">Rentrée Septembre 2025</div>
+                            <div class="admissions-price-amount">Novembre</div>
+                            <div class="admissions-price-label">Session 03 — 2027</div>
                         </div>
                         <div class="admissions-price">
-                            <div class="admissions-price-amount">Octobre</div>
-                            <div class="admissions-price-label">Rentrée Octobre 2025</div>
+                            <div class="admissions-price-amount">Juin</div>
+                            <div class="admissions-price-label">Remise des certificats officiels</div>
                         </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 24px;">
+                        <a href="{{ route('admissions.calendrier.2027') }}" class="admissions-button">
+                            <i class="fas fa-calendar-alt"></i> Voir le calendrier détaillé
+                        </a>
                     </div>
                 </div>
 
