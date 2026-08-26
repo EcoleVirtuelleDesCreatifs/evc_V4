@@ -79,10 +79,10 @@
                     'badge' => 'Nouvelle Promotion',
                     'color' => 'from-pink-500 to-rose-500',
                     'laureats' => [
-                        ['image' => 'laureats/edition-5/Afi-Constance-Sitsofe-Ayim-Togo.png', 'color' => 'from-indigo-500 to-indigo-600', 'name' => 'Afi Constance Sitsofé Ayim', 'title' => '', 'country' => 'Togo', 'flag' => '🇹🇬'],
-                        ['image' => 'laureats/edition-5/Anna-Mae-Priscille-Apphiwa-Loukou-Yao-Cote-d-ivoire.jpg', 'color' => 'from-green-500 to-green-600', 'name' => 'Anna Maé Priscille Apphiwa Loukou Yao', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
-                        ['image' => 'laureats/edition-5/Yao-Desire-Aime-Avonyo-Cote-d-Ivoire.png', 'color' => 'from-orange-500 to-orange-600', 'name' => 'Yao Désiré Aimé Avonyo', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
-                        ['image' => 'laureats/edition-5/jean-yves-roland-n-cho-Maroc.jpg', 'color' => 'from-purple-500 to-purple-600', 'name' => 'Jean-Yves Roland N\'cho', 'title' => '', 'country' => 'Maroc', 'flag' => '🇲🇦'],
+                        ['image' => 'laureats/edition-2026/Afi-Constance-Sitsofe-Ayim-Togo.png', 'color' => 'from-indigo-500 to-indigo-600', 'name' => 'Afi Constance Sitsofé Ayim', 'title' => '', 'country' => 'Togo', 'flag' => '🇹🇬'],
+                        ['image' => 'laureats/edition-2026/Anna-Mae-Priscille-Apphiwa-Loukou-Yao-Cote-d-ivoire.jpg', 'color' => 'from-green-500 to-green-600', 'name' => 'Anna Maé Priscille Apphiwa Loukou Yao', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
+                        ['image' => 'laureats/edition-2026/Yao-Desire-Aime-Avonyo-Cote-d-Ivoire.png', 'color' => 'from-orange-500 to-orange-600', 'name' => 'Yao Désiré Aimé Avonyo', 'title' => '', 'country' => 'Côte d\'Ivoire', 'flag' => '🇨🇮'],
+                        ['image' => 'laureats/edition-2026/jean-yves-roland-n-cho-Maroc.jpg', 'color' => 'from-purple-500 to-purple-600', 'name' => 'Jean-Yves Roland N\'cho', 'title' => '', 'country' => 'Maroc', 'flag' => '🇲🇦'],
                     ]
                 ],
                 [
