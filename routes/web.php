@@ -72,6 +72,14 @@ Route::get('/admissions', function () {
         ->header('Expires', '0');
 })->name('admissions');
 
+Route::get('/admissions/calendrier-2027', function () {
+    return response()
+        ->view('admissions.calendrier-2027')
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+})->name('admissions.calendrier.2027');
+
 Route::get('/evc-store', [App\Http\Controllers\StoreOrderController::class, 'index'])->name('evc.store');
 
 Route::post('/evc-store/order', [App\Http\Controllers\StoreOrderController::class, 'store'])->name('evc.store.order');
