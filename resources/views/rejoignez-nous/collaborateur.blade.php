@@ -45,7 +45,7 @@
     .header {
         text-align: center;
         margin-bottom: 60px;
-        padding-top: 60px;
+        padding-top: 120px;
     }
 
     .header-badge {
@@ -554,7 +554,7 @@
         }
 
         .header {
-            padding-top: 40px;
+            padding-top: 80px;
         }
 
         .header h1 {
