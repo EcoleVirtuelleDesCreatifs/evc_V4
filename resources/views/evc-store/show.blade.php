@@ -18,19 +18,26 @@
         font-size: 42px;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 991px) {
         .store-product-page {
-            padding: 140px 16px 60px !important;
+            padding: 120px 16px 60px !important;
         }
         .store-product-page h1 {
             font-size: 26px !important;
+            line-height: 1.2;
+            overflow-wrap: break-word;
         }
         .product-detail-grid {
-            grid-template-columns: 1fr;
-            gap: 30px;
+            grid-template-columns: 1fr !important;
+            gap: 24px;
+        }
+        .product-detail-grid > div {
+            width: 100%;
+            min-width: 0;
         }
         .product-info {
             width: 100%;
+            min-width: 0;
         }
         #product-order-form > div {
             grid-template-columns: 1fr !important;
