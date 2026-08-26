@@ -19,7 +19,7 @@
         .store-product-page h1 {
             font-size: 26px !important;
         }
-        .store-product-page > div > div:nth-of-type(2) {
+        .store-product-page > div > div:first-of-type {
             grid-template-columns: 1fr !important;
             gap: 30px !important;
         }
