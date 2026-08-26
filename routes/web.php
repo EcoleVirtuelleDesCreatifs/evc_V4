@@ -93,6 +93,7 @@ Route::get('/evc-store', [App\Http\Controllers\StoreOrderController::class, 'ind
 Route::post('/evc-store/order', [App\Http\Controllers\StoreOrderController::class, 'store'])->name('evc.store.order');
 Route::post('/evc-store/promo', [App\Http\Controllers\StoreOrderController::class, 'checkPromo'])->name('evc.store.promo');
 Route::get('/evc-store/track/{product}', [App\Http\Controllers\StoreOrderController::class, 'trackProduct'])->name('evc.store.track');
+Route::get('/evc-store/{product}', [App\Http\Controllers\StoreOrderController::class, 'show'])->name('evc.store.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('/mes-commandes', [App\Http\Controllers\StoreOrderController::class, 'myOrders'])->name('store.my.orders');

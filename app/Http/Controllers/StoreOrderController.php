@@ -201,6 +201,21 @@ class StoreOrderController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function show(Product $product)
+    {
+        if (! $product->is_active) {
+            abort(404);
+        }
+
+        $product->load('category');
+
+        return response()
+            ->view('evc-store.show', compact('product'))
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
     public function myOrders()
     {
         $orders = StoreOrder::where('user_id', auth()->id())
