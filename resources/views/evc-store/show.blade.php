@@ -3,13 +3,19 @@
 @section('title', $product->title . ' - EVC Store')
 @section('description', strip_tags($product->summary ?: $product->description))
 
-@section('content')
+@push('styles')
 <style>
     .store-product-page {
         padding: 320px 20px 80px !important;
     }
+    .product-detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 50px;
+        align-items: start;
+    }
     .store-product-page h1 {
-        font-size: 42px !important;
+        font-size: 42px;
     }
 
     @media (max-width: 768px) {
@@ -19,9 +25,12 @@
         .store-product-page h1 {
             font-size: 26px !important;
         }
-        .store-product-page > div > div:first-of-type {
-            grid-template-columns: 1fr !important;
-            gap: 30px !important;
+        .product-detail-grid {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        .product-info {
+            width: 100%;
         }
         #product-order-form > div {
             grid-template-columns: 1fr !important;
@@ -31,6 +40,9 @@
         }
     }
 </style>
+@endpush
+
+@section('content')
 @php
     $productImages = collect([$product->image])->merge($product->images ?? [])->map(fn($img) => \App\Models\MediaUrl::fromPath($img))->filter()->values()->all();
 @endphp
@@ -40,7 +52,7 @@
             <i class="fas fa-arrow-left"></i> Retour à la boutique
         </a>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: start;">
+        <div class="product-detail-grid">
             <!-- Images -->
             <div>
                 <div style="position: relative; border-radius: 24px; overflow: hidden; background: rgba(21,26,61,0.6); border: 1px solid rgba(255,255,255,0.08); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;">
@@ -80,7 +92,7 @@
             </div>
 
             <!-- Détails + Commande -->
-            <div>
+            <div class="product-info">
                 <span style="display: inline-block; padding: 6px 16px; background: rgba(255,107,53,0.15); border: 1px solid rgba(255,107,53,0.3); border-radius: 20px; color: #ff6b35; font-size: 13px; font-weight: 600; margin-bottom: 16px;">
                     {{ $product->category->name ?? 'Boutique EVC' }}
                 </span>
