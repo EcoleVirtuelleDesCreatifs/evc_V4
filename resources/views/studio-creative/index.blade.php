@@ -705,6 +705,20 @@
                                 'image' => 'https://randomuser.me/api/portraits/men/32.jpg',
                                 'is_external' => true,
                             ],
+                            [
+                                'name' => 'Bini Nazaire Kouame',
+                                'title' => 'Directeur de création',
+                                'country' => 'Côte d\'Ivoire',
+                                'flag' => '🇨🇮',
+                                'image' => 'Bini-Nazaire-Kouame-Directeur-de-creation-Cote-d-ivoire.jpg',
+                            ],
+                            [
+                                'name' => 'Nebout Alfred Désiré',
+                                'title' => 'Directeur Artistique',
+                                'country' => 'Côte d\'Ivoire',
+                                'flag' => '🇨🇮',
+                                'image' => 'Nebout-Alfred-Desire-Directeur-Artistique-Cote-d-Ivoire.jpg',
+                            ],
                         ];
                     @endphp
 
