@@ -69,11 +69,48 @@
         cursor: pointer;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         transition: all 0.3s ease;
+        overflow: visible;
     }
 
     .store-cart-toggle:hover {
         background: var(--primary);
         transform: scale(1.05);
+    }
+
+    .store-cart-toggle i {
+        animation: cartBounce 1.6s ease-in-out infinite;
+    }
+
+    .store-cart-toggle::before,
+    .store-cart-toggle::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        border: 2px solid var(--primary);
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+        z-index: -1;
+        pointer-events: none;
+        animation: cartWave 2s ease-out infinite;
+    }
+
+    .store-cart-toggle::after {
+        animation-delay: 1s;
+        border-color: rgba(255, 107, 53, 0.45);
+    }
+
+    @keyframes cartWave {
+        0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+        100% { transform: translate(-50%, -50%) scale(1.9); opacity: 0; }
+    }
+
+    @keyframes cartBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
     }
 
     .store-cart-count {
