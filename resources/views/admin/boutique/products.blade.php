@@ -286,6 +286,7 @@
                             <th>Prix</th>
                             <th>Livraison</th>
                             <th>Statut</th>
+                            <th>Stock</th>
                             <th>Date de Création</th>
                             <th>Actions</th>
                         </tr>
@@ -320,6 +321,11 @@
                                         {{ $product->is_active ? 'Actif' : 'Inactif' }}
                                     </span>
                                 </td>
+                                <td>
+                                    <span class="badge {{ $product->stock > 0 ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $product->stock }}
+                                    </span>
+                                </td>
                                 <td>{{ $product->created_at->format('d/m/Y') }}</td>
                                 <td>
                                     <a href="{{ route('admin.boutique.edit', $product) }}" class="btn btn-sm btn-warning">Modifier</a>
@@ -332,7 +338,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-4">Aucun produit trouvé.</td>
+                                <td colspan="9" class="text-center py-4">Aucun produit trouvé.</td>
                             </tr>
                         @endforelse
                     </tbody>
