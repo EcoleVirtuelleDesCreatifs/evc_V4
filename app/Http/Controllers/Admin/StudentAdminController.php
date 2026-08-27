@@ -213,7 +213,11 @@ class StudentAdminController extends Controller
         if (Schema::hasTable('students')) {
             $query = DB::table('students')
                 ->select('students.*');
-            // NE PAS filtrer par statut - afficher actifs ET inactifs
+
+            // Afficher uniquement les étudiants actifs pour la page Design Graphique
+            if ($formation === 'design-graphique') {
+                $query->where('status', 'active');
+            }
 
             // Filtrer par formation
             // - Cas standard : program OU specialization correspond à la formation
