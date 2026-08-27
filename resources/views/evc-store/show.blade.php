@@ -35,6 +35,23 @@
             width: 100%;
             min-width: 0;
         }
+        .product-gallery {
+            order: -1;
+        }
+        .product-image-stage {
+            aspect-ratio: auto !important;
+            height: auto !important;
+            min-height: 240px;
+            padding: 16px;
+        }
+        .product-main-image,
+        #gallery-main {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 60vh;
+            object-fit: contain !important;
+            border-radius: 16px;
+        }
         .product-info {
             width: 100%;
             min-width: 0;
@@ -69,9 +86,9 @@
 
         <div class="product-detail-grid">
             <!-- Images -->
-            <div>
-                <div style="position: relative; border-radius: 24px; overflow: hidden; background: rgba(21,26,61,0.6); border: 1px solid rgba(255,255,255,0.08); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;">
-                    <img id="gallery-main" src="{{ $productImages[0] ?? '' }}" alt="{{ $product->title }}" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s;">
+            <div class="product-gallery">
+                <div class="product-image-stage" style="position: relative; border-radius: 24px; overflow: hidden; background: rgba(21,26,61,0.6); border: 1px solid rgba(255,255,255,0.08); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;">
+                    <img id="gallery-main" class="product-main-image" src="{{ $productImages[0] ?? '' }}" alt="{{ $product->title }}" style="width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s;">
 
                     @if(count($productImages) > 1)
                         <button type="button" onclick="prevImage()" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 50%; border: none; background: rgba(0,0,0,0.5); color: #fff; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
