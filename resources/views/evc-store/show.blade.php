@@ -37,6 +37,7 @@
         }
         .product-gallery {
             order: -1;
+            margin-top: 250px;
         }
         .product-image-stage {
             aspect-ratio: auto !important;
