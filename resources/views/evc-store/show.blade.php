@@ -254,8 +254,11 @@
                         </div>
 
                         <div class="order-total-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
-                            <div style="font-size: 22px; font-weight: 700;" id="order-total-display">
-                                Total : {{ number_format($product->price + $product->delivery_cost, 0, ',', ' ') }} FCFA
+                            <div>
+                                <div style="font-size: 14px; color: #a0aec0; margin-bottom: 4px;">Produit : <strong style="color: #fff;" id="order-product-total">{{ number_format($product->price, 0, ',', ' ') }} FCFA</strong></div>
+                                <div style="font-size: 14px; color: #a0aec0; margin-bottom: 4px;">Livraison : <strong style="color: #fff;" id="order-delivery-total">{{ number_format($product->delivery_cost ?? 0, 0, ',', ' ') }} FCFA</strong></div>
+                                <div style="font-size: 14px; color: #a0aec0; margin-bottom: 4px; display: none;" id="order-discount-line">Remise : <strong style="color: #20c997;" id="order-discount-total">0 FCFA</strong></div>
+                                <div style="font-size: 22px; font-weight: 700; color: #ff6b35;" id="order-total-display">Total : {{ number_format($product->price + ($product->delivery_cost ?? 0), 0, ',', ' ') }} FCFA</div>
                             </div>
                             <button type="submit" id="order-submit" style="padding: 14px 32px; background: linear-gradient(135deg, #ff6b35, #ff4757); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;">
                                 <i class="fas fa-shopping-bag"></i> Commander
@@ -295,6 +298,19 @@
             const shipping = isDelivery ? deliveryCost : 0;
             const subtotal = price * qty;
             const total = subtotal + shipping - currentDiscount;
+
+            document.getElementById('order-product-total').textContent = formatPrice(subtotal);
+            document.getElementById('order-delivery-total').textContent = formatPrice(shipping);
+
+            const discountLine = document.getElementById('order-discount-line');
+            const discountTotal = document.getElementById('order-discount-total');
+            if (currentDiscount > 0) {
+                discountLine.style.display = 'block';
+                discountTotal.textContent = '-' + formatPrice(currentDiscount);
+            } else {
+                discountLine.style.display = 'none';
+            }
+
             document.getElementById('order-total-display').textContent = 'Total : ' + formatPrice(total);
             return { qty, total, shipping, subtotal };
         };
