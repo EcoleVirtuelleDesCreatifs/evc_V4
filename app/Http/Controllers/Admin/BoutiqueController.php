@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\StoreOrder;
 use App\Models\Visit;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -118,7 +119,7 @@ class BoutiqueController extends Controller
      */
     public function downloadInvoice(StoreOrder $order)
     {
-        $pdf = \PDF::loadView('evc-store.invoice', compact('order'));
+        $pdf = Pdf::loadView('evc-store.invoice', compact('order'));
         $filename = 'facture-' . ($order->order_number ?? $order->id) . '.pdf';
         return $pdf->download($filename);
     }

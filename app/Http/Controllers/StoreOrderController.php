@@ -6,11 +6,12 @@ use App\Models\Admin;
 use App\Models\MediaUrl;
 use App\Models\Product;
 use App\Models\ProductCategory;
-use Illuminate\Support\Facades\Mail;
 use App\Models\PromoCode;
 use App\Models\StoreOrder;
 use App\Models\Visit;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class StoreOrderController extends Controller
 {
@@ -275,7 +276,7 @@ class StoreOrderController extends Controller
             abort(403);
         }
 
-        $pdf = \PDF::loadView('evc-store.invoice', compact('order'));
+        $pdf = Pdf::loadView('evc-store.invoice', compact('order'));
         $filename = 'facture-' . ($order->order_number ?? $order->id) . '.pdf';
 
         return $pdf->download($filename);
