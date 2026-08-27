@@ -21,7 +21,7 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
             padding: 40px 24px;
             text-align: center;
             color: #ffffff;
@@ -40,7 +40,7 @@
             color: #111;
         }
         .card {
-            border-left: 5px solid #667eea;
+            border-left: 5px solid #2563eb;
             background: #f8f9ff;
             border-radius: 12px;
             padding: 24px;
@@ -49,18 +49,18 @@
         .card h2 {
             margin: 0 0 12px 0;
             font-size: 20px;
-            color: #764ba2;
+            color: #f97316;
         }
         .detail {
             margin: 8px 0;
             font-size: 15px;
         }
         .detail strong {
-            color: #667eea;
+            color: #2563eb;
         }
         .badge {
             display: inline-block;
-            background: #ff4757;
+            background: #f97316;
             color: #fff;
             padding: 6px 14px;
             border-radius: 20px;
@@ -74,7 +74,7 @@
         }
         .cta a {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
             color: #ffffff;
             padding: 14px 32px;
             border-radius: 30px;
