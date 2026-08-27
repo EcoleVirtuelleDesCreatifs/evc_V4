@@ -948,6 +948,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/boutique', [\App\Http\Controllers\Admin\BoutiqueController::class, 'index'])->name('boutique.index');
         Route::get('/boutique/orders', [\App\Http\Controllers\Admin\BoutiqueController::class, 'orders'])->name('boutique.orders');
         Route::get('/boutique/orders/{order}', [\App\Http\Controllers\Admin\BoutiqueController::class, 'showOrder'])->name('boutique.orders.show');
+        Route::get('/boutique/orders/{order}/invoice', [\App\Http\Controllers\Admin\BoutiqueController::class, 'downloadInvoice'])->name('boutique.orders.invoice');
         Route::post('/boutique/orders/{order}/status', [\App\Http\Controllers\Admin\BoutiqueController::class, 'updateOrderStatus'])->name('boutique.orders.status');
         Route::delete('/boutique/orders/{order}', [\App\Http\Controllers\Admin\BoutiqueController::class, 'destroyOrder'])->name('boutique.orders.destroy');
         Route::get('/boutique/produits/create', [\App\Http\Controllers\Admin\BoutiqueController::class, 'create'])->name('boutique.create');

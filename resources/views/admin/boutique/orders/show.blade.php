@@ -8,9 +8,14 @@
         <h1 class="h3 mb-0 text-white">
             <i class="fas fa-shopping-bag me-2"></i>Commande #{{ $order->id }}
         </h1>
-        <a href="{{ route('admin.boutique.orders') }}" class="btn btn-outline-light">
-            <i class="fas fa-arrow-left me-2"></i>Retour
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.boutique.orders.invoice', $order) }}" class="btn btn-success">
+                <i class="fas fa-file-pdf me-2"></i>Télécharger la facture
+            </a>
+            <a href="{{ route('admin.boutique.orders') }}" class="btn btn-outline-light">
+                <i class="fas fa-arrow-left me-2"></i>Retour
+            </a>
+        </div>
     </div>
 
     <div class="row g-4">

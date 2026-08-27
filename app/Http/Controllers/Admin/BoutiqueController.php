@@ -69,6 +69,16 @@ class BoutiqueController extends Controller
     }
 
     /**
+     * Téléchargement de la facture PDF.
+     */
+    public function downloadInvoice(StoreOrder $order)
+    {
+        $pdf = \PDF::loadView('evc-store.invoice', compact('order'));
+        $filename = 'facture-' . ($order->order_number ?? $order->id) . '.pdf';
+        return $pdf->download($filename);
+    }
+
+    /**
      * Suppression d'une commande.
      */
     public function destroyOrder(StoreOrder $order)
