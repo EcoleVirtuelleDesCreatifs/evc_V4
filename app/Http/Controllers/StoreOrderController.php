@@ -122,6 +122,24 @@ class StoreOrderController extends Controller
             ], 422);
         }
 
+        $stockReservations = [];
+        foreach ($validated['items'] as $item) {
+            $product = Product::find($item['id']);
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Produit introuvable.',
+                ], 422);
+            }
+            if ($product->stock < $item['qty']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Stock insuffisant pour : ' . $product->title,
+                ], 422);
+            }
+            $stockReservations[] = ['product' => $product, 'qty' => $item['qty']];
+        }
+
         $validated['user_id'] = auth()->id();
         $validated['status'] = 'payment_pending';
         $validated['subtotal'] = $subtotal;
@@ -134,6 +152,11 @@ class StoreOrderController extends Controller
         $order = new StoreOrder($validated);
         $order->order_number = 'EVC-' . str_pad((StoreOrder::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
         $order->save();
+
+        // Décrémenter le stock pour chaque produit commandé
+        foreach ($stockReservations as $reservation) {
+            $reservation['product']->decrement('stock', $reservation['qty']);
+        }
 
         // Notifier les vendeurs par email
         $productIds = collect($validated['items'])->pluck('id')->unique()->all();
