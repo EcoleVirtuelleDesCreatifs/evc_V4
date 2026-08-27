@@ -267,11 +267,6 @@
                         </div>
 
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">Adresse / Lieu de retrait <span style="color: #ff6b35;">*</span></label>
-                            <input type="text" name="lieu" required style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff;">
-                        </div>
-
-                        <div style="margin-bottom: 16px;">
                             <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">Ville de livraison <span style="color: #ff6b35;">*</span></label>
                             <select id="order-delivery-location" name="delivery_location" required onchange="updateTotal()" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff;">
                                 @php
@@ -291,6 +286,11 @@
                                     <option value="Livraison standard" data-price="{{ $product->delivery_cost ?? 0 }}">{{ number_format($product->delivery_cost ?? 0, 0, ',', ' ') }} FCFA — Livraison standard</option>
                                 @endif
                             </select>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">Adresse / Lieu de retrait <span style="color: #ff6b35;">*</span></label>
+                            <input type="text" name="lieu" required style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff;">
                         </div>
 
                         <input type="hidden" name="delivery_cost" id="order-delivery-cost-input" value="{{ $zones[0]['price'] ?? ($product->delivery_cost ?? 0) }}">
@@ -456,6 +456,9 @@
         });
 
         document.getElementById('order-qty').addEventListener('input', updateTotal);
+
+        // Initialiser le total au chargement de la page
+        updateTotal();
 
         document.getElementById('product-order-form').addEventListener('submit', async function(e) {
             e.preventDefault();
