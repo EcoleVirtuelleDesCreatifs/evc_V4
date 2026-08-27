@@ -12,6 +12,8 @@ use App\Models\StoreOrder;
 use App\Models\Visit;
 use App\Services\StoreOrderInvoiceGenerator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -372,7 +374,24 @@ class BoutiqueController extends Controller
         }
 
         $validated['is_active'] = $request->boolean('is_active', true);
-        PromoCode::create($validated);
+        $promo = PromoCode::create($validated);
+
+        if (!empty($validated['student_id'])) {
+            $student = Student::where('student_id', $validated['student_id'])->first();
+            if ($student && $student->email) {
+                try {
+                    Mail::send('emails.promo_assigned', [
+                        'promo' => $promo,
+                        'student' => $student,
+                    ], function ($message) use ($student, $promo) {
+                        $message->to($student->email)
+                            ->subject('Vous avez reçu une réduction !');
+                    });
+                } catch (\Exception $e) {
+                    Log::error('Erreur envoi email promo à ' . $student->email . ': ' . $e->getMessage());
+                }
+            }
+        }
 
         return redirect()->route('admin.boutique.promos')->with('success', 'Code promo / réduction enregistré.');
     }
