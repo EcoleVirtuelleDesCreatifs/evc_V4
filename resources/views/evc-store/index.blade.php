@@ -1312,11 +1312,6 @@
                     <input type="tel" id="order-numero" name="numero" class="store-order-input" required>
                 </div>
                 <div class="store-order-field">
-                    <label for="order-lieu">Adresse / Lieu de retrait <span>*</span></label>
-                    <input type="text" id="order-lieu" name="lieu" class="store-order-input" required>
-                </div>
-
-                <div class="store-order-field">
                     <label for="order-delivery-location">Ville de livraison <span>*</span></label>
                     <select id="order-delivery-location" name="delivery_location" class="store-order-input" onchange="recalcOrderTotal()" required>
                         @php
@@ -1336,6 +1331,11 @@
                         @endforeach
                     </select>
                     <input type="hidden" id="order-delivery-cost-input" name="delivery_cost" value="1500">
+                </div>
+
+                <div class="store-order-field">
+                    <label for="order-lieu">Adresse / Lieu de retrait <span>*</span></label>
+                    <input type="text" id="order-lieu" name="lieu" class="store-order-input" required>
                 </div>
 
                 <div class="store-order-field">
