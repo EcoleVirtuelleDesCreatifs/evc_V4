@@ -20,7 +20,7 @@
 
     @media (max-width: 991px) {
         .store-product-page {
-            padding: 120px 16px 60px !important;
+            padding: 150px 16px 60px !important;
         }
         .store-product-page h1 {
             font-size: 26px !important;
