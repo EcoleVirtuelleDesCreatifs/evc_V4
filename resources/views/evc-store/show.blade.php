@@ -466,6 +466,8 @@
                 prenoms: form.prenoms.value.trim(),
                 numero: form.numero.value.trim(),
                 lieu: form.lieu.value.trim(),
+                delivery_location: form.delivery_location.value,
+                delivery_cost: shipping,
                 delivery_mode: form.delivery_mode.value,
                 payment_method: form.payment_method.value,
                 autre: form.autre.value.trim(),

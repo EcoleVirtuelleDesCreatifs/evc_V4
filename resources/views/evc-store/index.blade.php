@@ -1317,6 +1317,17 @@
                 </div>
 
                 <div class="store-order-field">
+                    <label for="order-delivery-location">Lieu de livraison <span>*</span></label>
+                    <select id="order-delivery-location" name="delivery_location" class="store-order-input" onchange="recalcOrderTotal()" required>
+                        <option value="Angré, Abatta, 02 Plateaux, Riviera, Marcory, Cocody, Yopougon, Plateau, Abobo, Treichville, Adjamé" data-price="1500" selected>1500 FCFA — Angré, Abatta, 02 Plateaux, Riviera, Marcory, Cocody, Yopougon, Plateau, Abobo, Treichville, Adjamé</option>
+                        <option value="Anyama, Attécoubé, Bingerville" data-price="2000">2000 FCFA — Anyama, Attécoubé, Bingerville</option>
+                        <option value="A Bassam, Songon" data-price="4000">4000 FCFA — A Bassam, Songon</option>
+                        <option value="Expédition (A définir selon les compagnies)" data-price="0">Expédition (A définir selon les compagnies)</option>
+                    </select>
+                    <input type="hidden" id="order-delivery-cost-input" name="delivery_cost" value="1500">
+                </div>
+
+                <div class="store-order-field">
                     <label>Mode de réception <span>*</span></label>
                     <div class="order-options">
                         <label class="order-option">
@@ -1666,12 +1677,24 @@
             }
         });
 
+        function getSelectedDeliveryCost() {
+            const select = document.getElementById('order-delivery-location');
+            if (!select) return 1500;
+            const option = select.options[select.selectedIndex];
+            return parseInt(option?.dataset?.price ?? 1500) || 0;
+        }
+
         function recalcOrderTotal() {
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const isPickup = document.querySelector('input[name="delivery_mode"]:checked')?.value === 'pickup';
-            const delivery = isPickup ? 0 : (cart.length ? Math.max(0, ...cart.map(item => item.delivery_cost || 0)) : 0);
+            const delivery = isPickup ? 0 : getSelectedDeliveryCost();
             const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
             const total = subtotal + delivery - discount;
+
+            const deliveryCostInput = document.getElementById('order-delivery-cost-input');
+            if (deliveryCostInput) {
+                deliveryCostInput.value = delivery;
+            }
 
             let deliveryRow = document.querySelector('#order-items .order-delivery span:last-child');
             if (deliveryRow) deliveryRow.textContent = formatPrice(delivery);
@@ -1683,16 +1706,13 @@
         function openOrderModal() {
             closeCart();
             const orderItems = document.getElementById('order-items');
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const delivery = cart.length ? Math.max(0, ...cart.map(item => item.delivery_cost || 0)) : 0;
+            const promoCode = localStorage.getItem('evc_cart_promo') || '';
             const discount = parseInt(localStorage.getItem('evc_cart_discount') || '0');
-            const total = subtotal + delivery - discount;
 
             orderItems.innerHTML = cart.map(item => `
                 <li><span>${item.name} x${item.qty}</span><span>${formatPrice(item.price * item.qty)}</span></li>
             `).join('');
 
-            const promoCode = localStorage.getItem('evc_cart_promo') || '';
             const promoHtml = discount > 0
                 ? `<li class="order-promo"><span>Code promo ${promoCode}</span><span>-${formatPrice(discount)}</span></li>`
                 : '';
@@ -1703,12 +1723,12 @@
                 : '';
 
             orderItems.insertAdjacentHTML('beforeend', `
-                <li class="order-delivery"><span>Livraison</span><span>${formatPrice(delivery)}</span></li>
+                <li class="order-delivery"><span>Livraison</span><span>${formatPrice(0)}</span></li>
                 ${promoHtml}
                 ${sellerHtml}
             `);
 
-            document.getElementById('order-total').textContent = 'Total : ' + formatPrice(total);
+            recalcOrderTotal();
             document.getElementById('order-modal').classList.add('active');
             document.body.style.overflow = 'hidden';
 
@@ -1747,11 +1767,16 @@
             const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value || 'cash';
             const promoCode = localStorage.getItem('evc_cart_promo') || null;
 
+            const deliveryLocation = document.getElementById('order-delivery-location')?.value || '';
+            const deliveryCost = parseInt(document.getElementById('order-delivery-cost-input')?.value || 0) || 0;
+
             const order = {
                 nom: nom,
                 prenoms: prenoms,
                 numero: numero,
                 lieu: lieu,
+                delivery_location: deliveryLocation,
+                delivery_cost: deliveryCost,
                 delivery_mode: deliveryMode,
                 payment_method: paymentMethod,
                 autre: autre,
