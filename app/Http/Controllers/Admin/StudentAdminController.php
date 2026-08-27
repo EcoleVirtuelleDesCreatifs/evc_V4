@@ -214,8 +214,8 @@ class StudentAdminController extends Controller
             $query = DB::table('students')
                 ->select('students.*');
 
-            // Afficher uniquement les étudiants actifs pour les pages Design Graphique et Community Management
-            if (in_array($formation, ['design-graphique', 'community-management', 'community-manager'])) {
+            // Afficher uniquement les étudiants actifs pour les pages Design Graphique, Community Management et DG+CM
+            if (in_array($formation, ['design-graphique', 'community-management', 'community-manager', 'design-graphique-community-manager'])) {
                 $query->where('status', 'active');
             }
 
