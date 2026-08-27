@@ -72,6 +72,41 @@
             font-size: 18px !important;
         }
     }
+
+    .order-total-card {
+        background: linear-gradient(135deg, rgba(255, 107, 53, 0.15) 0%, rgba(0, 212, 255, 0.1) 100%);
+        border: 1px solid rgba(255, 107, 53, 0.25);
+        border-radius: 16px;
+        padding: 18px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(4px);
+    }
+    .order-total-card .total-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+        font-size: 14px;
+        color: #a0aec0;
+    }
+    .order-total-card .total-line strong {
+        color: #fff;
+    }
+    .order-total-card .total-line.discount strong {
+        color: #20c997;
+    }
+    .order-total-card .total-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 22px;
+        font-weight: 700;
+        color: #ff6b35;
+    }
 </style>
 @endpush
 
@@ -190,6 +225,25 @@
                     <form id="product-order-form" style="background: rgba(21,26,61,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; padding: 28px;">
                         <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 20px;">Commander ce produit</h3>
 
+                        <div class="order-total-card" id="order-total-card">
+                            <div class="total-line">
+                                <span>Produit</span>
+                                <strong id="order-product-total">{{ number_format($product->price, 0, ',', ' ') }} FCFA</strong>
+                            </div>
+                            <div class="total-line">
+                                <span>Livraison</span>
+                                <strong id="order-delivery-total">{{ number_format($product->delivery_cost ?? 0, 0, ',', ' ') }} FCFA</strong>
+                            </div>
+                            <div class="total-line discount" id="order-discount-line" style="display: none;">
+                                <span>Remise</span>
+                                <strong id="order-discount-total">0 FCFA</strong>
+                            </div>
+                            <div class="total-main">
+                                <span>Total à payer</span>
+                                <span id="order-total-display">{{ number_format($product->price + ($product->delivery_cost ?? 0), 0, ',', ' ') }} FCFA</span>
+                            </div>
+                        </div>
+
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
                             <div>
                                 <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">Nom <span style="color: #ff6b35;">*</span></label>
@@ -253,13 +307,7 @@
                             <textarea name="autre" rows="3" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; resize: vertical;"></textarea>
                         </div>
 
-                        <div class="order-total-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
-                            <div>
-                                <div style="font-size: 14px; color: #a0aec0; margin-bottom: 4px;">Produit : <strong style="color: #fff;" id="order-product-total">{{ number_format($product->price, 0, ',', ' ') }} FCFA</strong></div>
-                                <div style="font-size: 14px; color: #a0aec0; margin-bottom: 4px;">Livraison : <strong style="color: #fff;" id="order-delivery-total">{{ number_format($product->delivery_cost ?? 0, 0, ',', ' ') }} FCFA</strong></div>
-                                <div style="font-size: 14px; color: #a0aec0; margin-bottom: 4px; display: none;" id="order-discount-line">Remise : <strong style="color: #20c997;" id="order-discount-total">0 FCFA</strong></div>
-                                <div style="font-size: 22px; font-weight: 700; color: #ff6b35;" id="order-total-display">Total : {{ number_format($product->price + ($product->delivery_cost ?? 0), 0, ',', ' ') }} FCFA</div>
-                            </div>
+                        <div style="margin-top: 24px; text-align: right;">
                             <button type="submit" id="order-submit" style="padding: 14px 32px; background: linear-gradient(135deg, #ff6b35, #ff4757); border: none; border-radius: 12px; color: #fff; font-weight: 700; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;">
                                 <i class="fas fa-shopping-bag"></i> Commander
                             </button>

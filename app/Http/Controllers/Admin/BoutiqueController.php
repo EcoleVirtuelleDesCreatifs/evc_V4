@@ -10,7 +10,7 @@ use App\Models\PromoCode;
 use App\Models\Student;
 use App\Models\StoreOrder;
 use App\Models\Visit;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\StoreOrderInvoiceGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -130,9 +130,10 @@ class BoutiqueController extends Controller
      */
     public function downloadInvoice(StoreOrder $order)
     {
-        $pdf = Pdf::loadView('evc-store.invoice', compact('order'));
+        $generator = new StoreOrderInvoiceGenerator();
+        $generator->generateInvoice($order);
         $filename = 'facture-' . ($order->order_number ?? $order->id) . '.pdf';
-        return $pdf->download($filename);
+        return $generator->download($filename);
     }
 
     /**
