@@ -38,7 +38,13 @@
             <div class="mb-8 rounded-2xl border border-red-400/30 bg-red-500/10 px-6 py-4 text-red-200">
                 <div class="flex items-start gap-3">
                     <i class="fas fa-exclamation-circle mt-1"></i>
-                    <div class="font-semibold">{{ session('error') ?? 'Une erreur est survenue lors de l\'envoi. Veuillez réessayer.' }}</div>
+                    <div class="font-semibold">
+                        @if(request('error') === 'connexion')
+                            Impossible de se connecter au serveur. Veuillez réessayer dans quelques instants.
+                        @else
+                            {{ session('error') ?? 'Une erreur est survenue lors de l\'envoi. Veuillez réessayer.' }}
+                        @endif
+                    </div>
                 </div>
             </div>
         @endif
