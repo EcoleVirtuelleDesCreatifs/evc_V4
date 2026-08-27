@@ -403,6 +403,71 @@
         @yield('content')
     </main>
 
+    {{-- Flash messages toast fluides --}}
+    @if(session('success') || session('error') || session('status') || session('warning') || session('info'))
+    <div id="flash-toast" class="fixed top-24 right-4 sm:right-6 z-[70] max-w-sm w-[calc(100%-2rem)] sm:w-96 transform translate-x-full opacity-0 transition-all duration-500 ease-out" role="alert" aria-live="polite">
+        <div class="rounded-2xl p-4 shadow-2xl border backdrop-blur-md flex items-start gap-3 text-white"
+             style="
+                @if(session('success') || session('status'))
+                    background: linear-gradient(135deg, rgba(16,185,129,0.95) 0%, rgba(5,150,105,0.95) 100%);
+                    border-color: rgba(255,255,255,0.25);
+                @elseif(session('error'))
+                    background: linear-gradient(135deg, rgba(239,68,68,0.95) 0%, rgba(220,38,38,0.95) 100%);
+                    border-color: rgba(255,255,255,0.25);
+                @elseif(session('warning'))
+                    background: linear-gradient(135deg, rgba(245,158,11,0.95) 0%, rgba(217,119,6,0.95) 100%);
+                    border-color: rgba(255,255,255,0.25);
+                @else
+                    background: linear-gradient(135deg, rgba(59,130,246,0.95) 0%, rgba(37,99,235,0.95) 100%);
+                    border-color: rgba(255,255,255,0.25);
+                @endif
+             ">
+            <div class="mt-0.5 flex-shrink-0">
+                @if(session('success') || session('status'))
+                    <i class="fas fa-check-circle text-xl"></i>
+                @elseif(session('error'))
+                    <i class="fas fa-exclamation-circle text-xl"></i>
+                @elseif(session('warning'))
+                    <i class="fas fa-exclamation-triangle text-xl"></i>
+                @else
+                    <i class="fas fa-info-circle text-xl"></i>
+                @endif
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold text-sm leading-snug break-words">
+                    {{ session('success') ?? session('status') ?? session('error') ?? session('warning') ?? session('info') }}
+                </p>
+            </div>
+            <button type="button" id="flash-close" class="flex-shrink-0 -mr-1 -mt-1 p-1.5 rounded-full hover:bg-white/20 transition" aria-label="Fermer">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <style>
+        #flash-toast.show { transform: translateX(0); opacity: 1; }
+        #flash-toast.leave { transform: translateX(120%); opacity: 0; }
+    </style>
+
+    <script>
+        (function() {
+            const toast = document.getElementById('flash-toast');
+            if (!toast) return;
+
+            requestAnimationFrame(() => toast.classList.add('show'));
+
+            const close = () => {
+                toast.classList.add('leave');
+                setTimeout(() => toast.remove(), 500);
+            };
+
+            document.getElementById('flash-close')?.addEventListener('click', close);
+
+            setTimeout(close, 5000);
+        })();
+    </script>
+    @endif
+
     @include('homepage._footer')
     @include('homepage._popup-preinscription')
 
