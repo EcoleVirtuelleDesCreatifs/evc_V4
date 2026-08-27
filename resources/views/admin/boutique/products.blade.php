@@ -75,6 +75,9 @@
             <i class="fas fa-store me-2"></i>Gestion des Produits EVC Store
         </h1>
         <div class="d-flex gap-2">
+            <a href="{{ route('admin.boutique.analytics') }}" class="btn btn-info">
+                <i class="fas fa-chart-line me-2"></i>Analytics
+            </a>
             <a href="{{ route('admin.boutique.orders') }}" class="btn btn-primary">
                 <i class="fas fa-shopping-bag me-2"></i>Commandes
             </a>

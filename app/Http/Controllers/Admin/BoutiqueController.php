@@ -60,6 +60,51 @@ class BoutiqueController extends Controller
     }
 
     /**
+     * Analytics : visites boutique et paniers abandonnés.
+     */
+    public function analytics()
+    {
+        $storeVisits = Visit::where(function ($query) {
+            $query->where('path', 'like', 'evc-store%')
+                  ->orWhere('path', 'like', 'product/%');
+        });
+
+        $totalVisits = (clone $storeVisits)->count();
+        $uniqueVisitors = (clone $storeVisits)->distinct('session_id')->count('session_id');
+        $todayVisits = (clone $storeVisits)->whereDate('visited_at', now()->toDateString())->count();
+
+        $topProducts = Visit::whereNotNull('product_id')
+            ->selectRaw('product_id, count(*) as views')
+            ->groupBy('product_id')
+            ->orderByDesc('views')
+            ->limit(10)
+            ->get();
+
+        $productIds = $topProducts->pluck('product_id')->all();
+        $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+        $topProducts->each(fn ($item) => $item->product = $products->get($item->product_id));
+
+        $productImages = Product::all()->mapWithKeys(fn($p) => [$p->id => MediaUrl::fromPath($p->image)])->all();
+
+        $abandonedOrders = StoreOrder::where('status', 'payment_pending')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        $abandonedCount = StoreOrder::where('status', 'payment_pending')->count();
+
+        return view('admin.boutique.analytics', compact(
+            'totalVisits',
+            'uniqueVisitors',
+            'todayVisits',
+            'topProducts',
+            'productImages',
+            'abandonedOrders',
+            'abandonedCount'
+        ));
+    }
+
+    /**
      * Détail d'une commande.
      */
     public function showOrder(StoreOrder $order)
