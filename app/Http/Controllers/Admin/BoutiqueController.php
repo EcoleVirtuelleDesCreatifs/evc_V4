@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\MediaUrl;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\PromoCode;
+use App\Models\Student;
 use App\Models\StoreOrder;
 use App\Models\Visit;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -76,7 +78,7 @@ class BoutiqueController extends Controller
     {
         $storeVisits = Visit::where(function ($query) {
             $query->where('path', 'like', 'evc-store%')
-                  ->orWhere('path', 'like', 'product/%');
+                ->orWhere('path', 'like', 'product/%');
         });
 
         $totalVisits = (clone $storeVisits)->count();
@@ -92,7 +94,7 @@ class BoutiqueController extends Controller
 
         $productIds = $topProducts->pluck('product_id')->all();
         $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
-        $topProducts->each(fn ($item) => $item->product = $products->get($item->product_id));
+        $topProducts->each(fn($item) => $item->product = $products->get($item->product_id));
 
         $productImages = Product::all()->mapWithKeys(fn($p) => [$p->id => MediaUrl::fromPath($p->image)])->all();
 
@@ -314,5 +316,97 @@ class BoutiqueController extends Controller
         $product->delete();
 
         return redirect()->route('admin.boutique.index')->with('success', 'Produit supprimé avec succès.');
+    }
+
+    /**
+     * Liste des codes promo et réductions.
+     */
+    public function promoCodes()
+    {
+        $promos = PromoCode::orderBy('created_at', 'desc')->paginate(20);
+        return view('admin.boutique.promos.index', compact('promos'));
+    }
+
+    /**
+     * Formulaire de création d'un code promo.
+     */
+    public function createPromo()
+    {
+        return view('admin.boutique.promos.create');
+    }
+
+    /**
+     * Enregistrement d'un code promo / réduction étudiant.
+     */
+    public function storePromo(Request $request)
+    {
+        $validated = $request->validate([
+            'code' => 'nullable|string|max:255|unique:promo_codes,code',
+            'student_id' => 'nullable|string|max:255|unique:promo_codes,student_id',
+            'type' => 'required|in:percent,fixed',
+            'value' => 'required|integer|min:0',
+            'max_uses' => 'nullable|integer|min:1',
+            'expires_at' => 'nullable|date',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        if (empty($validated['code']) && empty($validated['student_id'])) {
+            return back()->withErrors(['code' => 'Veuillez renseigner un code promo ou un ID étudiant.'])->withInput();
+        }
+
+        if (!empty($validated['student_id']) && !Student::where('student_id', $validated['student_id'])->exists()) {
+            return back()->withErrors(['student_id' => 'Cet ID étudiant n\'existe pas dans la base.'])->withInput();
+        }
+
+        $validated['is_active'] = $request->boolean('is_active', true);
+        PromoCode::create($validated);
+
+        return redirect()->route('admin.boutique.promos')->with('success', 'Code promo / réduction enregistré.');
+    }
+
+    /**
+     * Formulaire d'édition d'un code promo.
+     */
+    public function editPromo(PromoCode $promo)
+    {
+        return view('admin.boutique.promos.edit', compact('promo'));
+    }
+
+    /**
+     * Mise à jour d'un code promo / réduction étudiant.
+     */
+    public function updatePromo(Request $request, PromoCode $promo)
+    {
+        $validated = $request->validate([
+            'code' => 'nullable|string|max:255|unique:promo_codes,code,' . $promo->id,
+            'student_id' => 'nullable|string|max:255|unique:promo_codes,student_id,' . $promo->id,
+            'type' => 'required|in:percent,fixed',
+            'value' => 'required|integer|min:0',
+            'max_uses' => 'nullable|integer|min:1',
+            'expires_at' => 'nullable|date',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        if (empty($validated['code']) && empty($validated['student_id'])) {
+            return back()->withErrors(['code' => 'Veuillez renseigner un code promo ou un ID étudiant.'])->withInput();
+        }
+
+        if (!empty($validated['student_id']) && !Student::where('student_id', $validated['student_id'])->exists()) {
+            return back()->withErrors(['student_id' => 'Cet ID étudiant n\'existe pas dans la base.'])->withInput();
+        }
+
+        $validated['is_active'] = $request->boolean('is_active', true);
+        $promo->update($validated);
+
+        return redirect()->route('admin.boutique.promos')->with('success', 'Code promo / réduction mis à jour.');
+    }
+
+    /**
+     * Suppression d'un code promo / réduction.
+     */
+    public function destroyPromo(PromoCode $promo)
+    {
+        $promo->delete();
+        return redirect()->route('admin.boutique.promos')->with('success', 'Code promo / réduction supprimé.');
     }
 }

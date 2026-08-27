@@ -242,6 +242,12 @@
                             </div>
                         </div>
 
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">ID étudiant EVC <span style="opacity: 0.6; font-size: 12px;">(facultatif, pour bénéficier d'une réduction)</span></label>
+                            <input type="text" id="order-student-id" name="student_id" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff;" placeholder="Ex: EVC-2024-001">
+                            <div id="student-promo-message" style="margin-top: 8px; font-size: 13px; color: #a0aec0;"></div>
+                        </div>
+
                         <div style="margin-bottom: 20px;">
                             <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">Autres informations</label>
                             <textarea name="autre" rows="3" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; resize: vertical;"></textarea>
@@ -277,6 +283,7 @@
         const productEmail = @json($product->email);
         const images = @json($productImages);
         let currentImage = 0;
+        let currentDiscount = 0;
 
         function formatPrice(value) {
             return new Intl.NumberFormat('fr-FR').format(value) + ' FCFA';
@@ -286,10 +293,67 @@
             const qty = parseInt(document.getElementById('order-qty').value) || 1;
             const isDelivery = document.querySelector('input[name="delivery_mode"]:checked').value === 'delivery';
             const shipping = isDelivery ? deliveryCost : 0;
-            const total = (price * qty) + shipping;
+            const subtotal = price * qty;
+            const total = subtotal + shipping - currentDiscount;
             document.getElementById('order-total-display').textContent = 'Total : ' + formatPrice(total);
-            return { qty, total, shipping };
+            return { qty, total, shipping, subtotal };
         };
+
+        async function applyStudentId() {
+            const studentId = document.getElementById('order-student-id').value.trim();
+            const msg = document.getElementById('student-promo-message');
+
+            if (!studentId) {
+                currentDiscount = 0;
+                msg.textContent = '';
+                updateTotal();
+                return;
+            }
+
+            const { subtotal } = updateTotal();
+
+            try {
+                const res = await fetch('{{ route('evc.store.promo', [], false) }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ student_id: studentId, subtotal: subtotal })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    currentDiscount = data.discount;
+                    msg.style.color = '#20c997';
+                    msg.innerHTML = '<i class="fas fa-check-circle"></i> Réduction appliquée : -' + formatPrice(data.discount);
+                } else {
+                    currentDiscount = 0;
+                    msg.style.color = '#ff6b6b';
+                    msg.innerHTML = '<i class="fas fa-info-circle"></i> ' + (data.message || 'Aucune réduction');
+                }
+            } catch (e) {
+                currentDiscount = 0;
+                msg.style.color = '#ff6b6b';
+                msg.textContent = 'Impossible de vérifier l\'ID étudiant.';
+            }
+
+            updateTotal();
+        }
+
+        document.getElementById('order-student-id').addEventListener('blur', applyStudentId);
+        document.getElementById('order-qty').addEventListener('input', function() {
+            applyStudentId();
+        });
+
+        document.querySelectorAll('input[name="delivery_mode"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                applyStudentId();
+            });
+        });
 
         document.getElementById('order-qty').addEventListener('input', updateTotal);
 
@@ -315,6 +379,7 @@
                 delivery_mode: form.delivery_mode.value,
                 payment_method: form.payment_method.value,
                 autre: form.autre.value.trim(),
+                student_id: form.student_id ? form.student_id.value.trim() : '',
                 items: [{
                     id: productId,
                     name: productName,

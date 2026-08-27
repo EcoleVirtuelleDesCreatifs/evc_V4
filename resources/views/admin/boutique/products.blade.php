@@ -78,6 +78,9 @@
             <a href="{{ route('admin.boutique.analytics') }}" class="btn btn-info">
                 <i class="fas fa-chart-line me-2"></i>Analytics
             </a>
+            <a href="{{ route('admin.boutique.promos') }}" class="btn btn-warning">
+                <i class="fas fa-tags me-2"></i>Promos
+            </a>
             <a href="{{ route('admin.boutique.orders') }}" class="btn btn-primary">
                 <i class="fas fa-shopping-bag me-2"></i>Commandes
             </a>

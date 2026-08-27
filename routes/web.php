@@ -948,6 +948,12 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/boutique', [\App\Http\Controllers\Admin\BoutiqueController::class, 'index'])->name('boutique.index');
         Route::get('/boutique/analytics', [\App\Http\Controllers\Admin\BoutiqueController::class, 'analytics'])->name('boutique.analytics');
         Route::get('/boutique/realtime-visitors', [\App\Http\Controllers\Admin\BoutiqueController::class, 'realtimeVisitors'])->name('boutique.realtime-visitors');
+        Route::get('/boutique/promos', [\App\Http\Controllers\Admin\BoutiqueController::class, 'promoCodes'])->name('boutique.promos');
+        Route::get('/boutique/promos/create', [\App\Http\Controllers\Admin\BoutiqueController::class, 'createPromo'])->name('boutique.promos.create');
+        Route::post('/boutique/promos', [\App\Http\Controllers\Admin\BoutiqueController::class, 'storePromo'])->name('boutique.promos.store');
+        Route::get('/boutique/promos/{promo}/edit', [\App\Http\Controllers\Admin\BoutiqueController::class, 'editPromo'])->name('boutique.promos.edit');
+        Route::put('/boutique/promos/{promo}', [\App\Http\Controllers\Admin\BoutiqueController::class, 'updatePromo'])->name('boutique.promos.update');
+        Route::delete('/boutique/promos/{promo}', [\App\Http\Controllers\Admin\BoutiqueController::class, 'destroyPromo'])->name('boutique.promos.destroy');
         Route::get('/boutique/orders', [\App\Http\Controllers\Admin\BoutiqueController::class, 'orders'])->name('boutique.orders');
         Route::get('/boutique/orders/{order}', [\App\Http\Controllers\Admin\BoutiqueController::class, 'showOrder'])->name('boutique.orders.show');
         Route::get('/boutique/orders/{order}/invoice', [\App\Http\Controllers\Admin\BoutiqueController::class, 'downloadInvoice'])->name('boutique.orders.invoice');

@@ -8,6 +8,7 @@ class PromoCode extends Model
 {
     protected $fillable = [
         'code',
+        'student_id',
         'type',
         'value',
         'max_uses',

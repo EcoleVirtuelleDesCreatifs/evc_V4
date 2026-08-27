@@ -7,6 +7,7 @@ use App\Models\MediaUrl;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\PromoCode;
+use App\Models\Student;
 use App\Models\StoreOrder;
 use App\Models\Visit;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -98,6 +99,7 @@ class StoreOrderController extends Controller
             'items.*.delivery_cost' => 'nullable|integer',
             'items.*.qty' => 'required|integer',
             'promo_code' => 'nullable|string|max:50',
+            'student_id' => 'nullable|string|max:255',
             'total' => 'required|integer',
         ]);
 
@@ -108,11 +110,23 @@ class StoreOrderController extends Controller
 
         $discount = 0;
         $promo = null;
-        if (!empty($validated['promo_code'])) {
+        $studentDiscount = null;
+
+        if (!empty($validated['student_id'])) {
+            $student = Student::where('student_id', $validated['student_id'])->first();
+            if ($student) {
+                $promo = PromoCode::where('student_id', $validated['student_id'])->where('is_active', true)->first();
+                if ($promo && $promo->isValid()) {
+                    $discount = $promo->calculateDiscount($subtotal);
+                    $studentDiscount = $promo;
+                }
+            }
+        }
+
+        if (!$studentDiscount && !empty($validated['promo_code'])) {
             $promo = PromoCode::where('code', $validated['promo_code'])->first();
             if ($promo && $promo->isValid()) {
                 $discount = $promo->calculateDiscount($subtotal);
-                $promo->increment('used_count');
             }
         }
 
@@ -147,9 +161,14 @@ class StoreOrderController extends Controller
         $validated['subtotal'] = $subtotal;
         $validated['delivery_cost'] = $deliveryCost;
         $validated['discount'] = $discount;
-        $validated['promo_code'] = $promo ? $promo->code : null;
+        $validated['promo_code'] = $promo && $promo->code ? $promo->code : null;
+        $validated['student_id'] = $studentDiscount ? $validated['student_id'] : null;
         $validated['final_total'] = $finalTotal;
         $validated['items'] = $validated['items'] ?? [];
+
+        if ($promo) {
+            $promo->increment('used_count');
+        }
 
         $order = new StoreOrder($validated);
         $order->order_number = 'EVC-' . str_pad((StoreOrder::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
@@ -210,16 +229,47 @@ class StoreOrderController extends Controller
     public function checkPromo(Request $request)
     {
         $validated = $request->validate([
-            'code' => 'required|string|max:50',
+            'code' => 'nullable|string|max:50',
+            'student_id' => 'nullable|string|max:255',
             'subtotal' => 'required|integer|min:0',
         ]);
 
-        $promo = PromoCode::where('code', $validated['code'])->first();
+        $promo = null;
 
-        if (!$promo || !$promo->isValid()) {
+        if (!empty($validated['student_id'])) {
+            $student = Student::where('student_id', $validated['student_id'])->first();
+            if (!$student) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'ID étudiant introuvable',
+                    'discount' => 0,
+                ]);
+            }
+            $promo = PromoCode::where('student_id', $validated['student_id'])->first();
+            if (!$promo || !$promo->isValid()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Aucune réduction associée à cet ID étudiant',
+                    'discount' => 0,
+                ]);
+            }
+        }
+
+        if (!$promo && !empty($validated['code'])) {
+            $promo = PromoCode::where('code', $validated['code'])->first();
+            if (!$promo || !$promo->isValid()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Code promo invalide ou expiré',
+                    'discount' => 0,
+                ]);
+            }
+        }
+
+        if (!$promo) {
             return response()->json([
                 'success' => false,
-                'message' => 'Code promo invalide ou expiré',
+                'message' => 'Aucune réduction renseignée',
                 'discount' => 0,
             ]);
         }
