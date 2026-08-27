@@ -13,7 +13,7 @@ use App\Models\Library;
 use App\Models\AccountingTransaction;
 use App\Models\Donation;
 use App\Models\Project;
-use App\Services\PaymentReceiptGenerator;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -5425,8 +5425,7 @@ class AdminDashboardController extends Controller
                 $primaryRef = (string) $primaryPayment->payment_reference;
             }
 
-            $generator = new PaymentReceiptGenerator();
-            $result = $generator->generate([
+            $pdf = Pdf::loadView('pdf.receipt', [
                 'receipt_number' => $receiptNumber,
                 'issued_at' => now()->format('d/m/Y H:i'),
                 'student_name' => $studentName,
@@ -5443,7 +5442,7 @@ class AdminDashboardController extends Controller
                 'payments' => $paymentsForPdf,
             ]);
 
-            return response()->download($result['path'], $downloadName)->deleteFileAfterSend(true);
+            return $pdf->download($downloadName);
         } catch (\Throwable $e) {
             Log::error('Erreur génération reçu paiement', [
                 'pre_registration_id' => $preRegistrationId,

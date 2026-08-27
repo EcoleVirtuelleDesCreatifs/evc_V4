@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\AdmissionApprovedRegistrationLink;
 use App\Models\User;
 use App\Models\AccountingTransaction;
-use App\Services\TrainingQuoteGenerator;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 
@@ -365,8 +365,9 @@ class PreRegistrationAdminController extends Controller
             ],
         ];
 
-        $generator = new TrainingQuoteGenerator();
-        $result = $generator->generate([
+        $filename = 'Devis_' . preg_replace('/\s+/', '_', trim(($pre->prenom ?? '') . '_' . ($pre->nom ?? ''))) . '_' . now()->format('Ymd') . '.pdf';
+
+        $pdf = Pdf::loadView('pdf.quote', [
             'quote_number' => $quoteNumber,
             'issued_at' => $issuedAt,
             'valid_until' => $validUntil,
@@ -378,10 +379,9 @@ class PreRegistrationAdminController extends Controller
             'duration' => $duration,
             'total_amount' => $totalAmount,
             'items' => $items,
-            'filename' => 'Devis_' . preg_replace('/\s+/', '_', trim(($pre->prenom ?? '') . '_' . ($pre->nom ?? ''))) . '_' . now()->format('Ymd') . '.pdf',
         ]);
 
-        return response()->download($result['path'], $result['filename'])->deleteFileAfterSend(true);
+        return $pdf->download($filename);
     }
 
     public function show($id)
