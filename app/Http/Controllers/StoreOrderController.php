@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use App\Models\MediaUrl;
 use App\Models\Product;
 use App\Models\ProductCategory;
@@ -174,6 +175,25 @@ class StoreOrderController extends Controller
                 public function build()
                 {
                     return $this->subject('Nouvelle commande EVC Store - ' . $this->order->order_number)
+                                ->view('emails.store-order', ['order' => $this->order]);
+                }
+            });
+        }
+
+        // Résumé de la commande aux administrateurs
+        $adminEmails = Admin::whereNotNull('email')->pluck('email')->unique()->filter()->all();
+        foreach ($adminEmails as $email) {
+            Mail::to($email)->send(new class($order) extends \Illuminate\Mail\Mailable {
+                public StoreOrder $order;
+
+                public function __construct(StoreOrder $order)
+                {
+                    $this->order = $order;
+                }
+
+                public function build()
+                {
+                    return $this->subject('Résumé commande EVC Store - ' . $this->order->order_number)
                                 ->view('emails.store-order', ['order' => $this->order]);
                 }
             });
