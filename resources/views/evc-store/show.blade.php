@@ -267,20 +267,30 @@
                         </div>
 
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">Lieu de livraison <span style="color: #ff6b35;">*</span></label>
-                            <select id="order-delivery-location" name="delivery_location" required onchange="updateTotal()" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff;">
-                                @php $zones = $product->delivery_zones ?? []; @endphp
-                                @forelse($zones as $zone)
-                                    <option value="{{ $zone['label'] }}" data-price="{{ $zone['price'] }}">{{ number_format($zone['price'], 0, ',', ' ') }} FCFA — {{ $zone['label'] }}</option>
-                                @empty
-                                    <option value="Standard" data-price="{{ $product->delivery_cost ?? 0 }}">{{ number_format($product->delivery_cost ?? 0, 0, ',', ' ') }} FCFA — Livraison standard</option>
-                                @endforelse
-                            </select>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">Adresse / Lieu de retrait <span style="color: #ff6b35;">*</span></label>
+                            <input type="text" name="lieu" required style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff;">
                         </div>
 
                         <div style="margin-bottom: 16px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">Adresse complète <span style="color: #ff6b35;">*</span></label>
-                            <input type="text" name="lieu" required style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #a0aec0;">Ville de livraison <span style="color: #ff6b35;">*</span></label>
+                            <select id="order-delivery-location" name="delivery_location" required onchange="updateTotal()" style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff;">
+                                @php
+                                    $zones = $product->delivery_zones ?? [];
+                                    $hasOption = false;
+                                @endphp
+                                @foreach($zones as $zone)
+                                    @php
+                                        $cities = array_filter(array_map('trim', explode(',', $zone['label'] ?? '')));
+                                        $hasOption = $hasOption || count($cities) > 0;
+                                    @endphp
+                                    @foreach($cities as $city)
+                                        <option value="{{ $city }}" data-price="{{ $zone['price'] ?? 0 }}">{{ number_format($zone['price'] ?? 0, 0, ',', ' ') }} FCFA — {{ $city }}</option>
+                                    @endforeach
+                                @endforeach
+                                @if(!$hasOption)
+                                    <option value="Livraison standard" data-price="{{ $product->delivery_cost ?? 0 }}">{{ number_format($product->delivery_cost ?? 0, 0, ',', ' ') }} FCFA — Livraison standard</option>
+                                @endif
+                            </select>
                         </div>
 
                         <input type="hidden" name="delivery_cost" id="order-delivery-cost-input" value="{{ $zones[0]['price'] ?? ($product->delivery_cost ?? 0) }}">

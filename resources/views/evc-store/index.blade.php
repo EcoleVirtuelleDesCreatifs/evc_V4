@@ -1317,12 +1317,23 @@
                 </div>
 
                 <div class="store-order-field">
-                    <label for="order-delivery-location">Lieu de livraison <span>*</span></label>
+                    <label for="order-delivery-location">Ville de livraison <span>*</span></label>
                     <select id="order-delivery-location" name="delivery_location" class="store-order-input" onchange="recalcOrderTotal()" required>
-                        <option value="Angré, Abatta, 02 Plateaux, Riviera, Marcory, Cocody, Yopougon, Plateau, Abobo, Treichville, Adjamé" data-price="1500" selected>1500 FCFA — Angré, Abatta, 02 Plateaux, Riviera, Marcory, Cocody, Yopougon, Plateau, Abobo, Treichville, Adjamé</option>
-                        <option value="Anyama, Attécoubé, Bingerville" data-price="2000">2000 FCFA — Anyama, Attécoubé, Bingerville</option>
-                        <option value="A Bassam, Songon" data-price="4000">4000 FCFA — A Bassam, Songon</option>
-                        <option value="Expédition (A définir selon les compagnies)" data-price="0">Expédition (A définir selon les compagnies)</option>
+                        @php
+                            $cartCities = [
+                                1500 => ['Angré', 'Abatta', '02 Plateaux', 'Riviera', 'Marcory', 'Cocody', 'Yopougon', 'Plateau', 'Abobo', 'Treichville', 'Adjamé'],
+                                2000 => ['Anyama', 'Attécoubé', 'Bingerville'],
+                                4000 => ['A Bassam', 'Songon'],
+                                0 => ['Expédition (A définir selon les compagnies)'],
+                            ];
+                            $first = true;
+                        @endphp
+                        @foreach($cartCities as $price => $cities)
+                            @foreach($cities as $city)
+                                <option value="{{ $city }}" data-price="{{ $price }}" {{ $first ? 'selected' : '' }}>{{ number_format($price, 0, ',', ' ') }} FCFA — {{ $city }}</option>
+                                @php $first = false; @endphp
+                            @endforeach
+                        @endforeach
                     </select>
                     <input type="hidden" id="order-delivery-cost-input" name="delivery_cost" value="1500">
                 </div>
