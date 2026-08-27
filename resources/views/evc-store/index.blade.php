@@ -1419,8 +1419,11 @@
                 if (stockFilter === 'in_stock' && product.stock <= 0) return;
                 if (stockFilter === 'available' && product.stock <= 10) return;
 
-                const stockLabel = product.stock_status === 'en_stock' ? 'En stock' : product.stock_status === 'stock_limite' ? 'Stock limité' : 'Rupture';
                 const stockClass = product.stock_status === 'en_stock' ? 'in' : product.stock_status === 'stock_limite' ? 'low' : 'out';
+                const stockIcon = product.stock_status === 'en_stock' ? 'fa-check-circle' : product.stock_status === 'stock_limite' ? 'fa-exclamation-circle' : 'fa-times-circle';
+                const stockText = product.stock > 0
+                    ? `<i class="fas ${stockIcon}"></i> ${product.stock} ${product.stock_status === 'stock_limite' ? 'restant' : 'en stock'}`
+                    : `<i class="fas fa-times-circle"></i> Rupture`;
                 const promoBadge = product.is_promotion ? '<span class="product-badge promo">Promo</span>' : '';
                 const priceDisplay = product.is_promotion
                     ? `<span style="text-decoration:line-through;opacity:.6;margin-right:8px;font-size:1rem;">${formatPrice(product.old_price)}</span> ${formatPrice(product.price)}`
@@ -1435,7 +1438,7 @@
                         <span class="store-product-category">${categoryLabels[product.category] || 'Non classé'}</span>
                         <div class="product-badges">
                             ${promoBadge}
-                            <span class="product-badge ${stockClass}">${stockLabel}</span>
+                            <span class="product-badge ${stockClass} stock-count" style="font-size:0.8rem;padding:6px 12px;font-weight:800;">${stockText}</span>
                         </div>
                         <a href="/evc-store/${product.slug}" class="product-quick-view">
                             <i class="fas fa-eye"></i> Voir la fiche
