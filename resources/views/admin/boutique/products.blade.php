@@ -288,12 +288,10 @@
                         <tr>
                             <th>Image</th>
                             <th style="min-width: 200px;">Titre</th>
-                            <th>Catégorie</th>
                             <th>Prix</th>
                             <th>Livraison</th>
                             <th>Statut</th>
                             <th>Stock</th>
-                            <th>Date de Création</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -313,7 +311,6 @@
                                     <strong>{{ $product->title }}</strong>
                                     <p class="text-muted mb-0 small">{{ Str::limit($product->summary, 60) }}</p>
                                 </td>
-                                <td>{{ $product->category->name ?? 'N/A' }}</td>
                                 <td><strong>{{ $product->formatted_price }}</strong></td>
                                 <td>
                                     @if($product->delivery_mode === 'deposit')
@@ -332,7 +329,6 @@
                                         {{ $product->stock }}
                                     </span>
                                 </td>
-                                <td>{{ $product->created_at->format('d/m/Y') }}</td>
                                 <td>
                                     <a href="{{ route('admin.boutique.edit', $product) }}" class="btn btn-sm btn-warning">Modifier</a>
                                     <form action="{{ route('admin.boutique.destroy', $product) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
@@ -344,7 +340,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center py-4">Aucun produit trouvé.</td>
+                                <td colspan="7" class="text-center py-4">Aucun produit trouvé.</td>
                             </tr>
                         @endforelse
                     </tbody>
