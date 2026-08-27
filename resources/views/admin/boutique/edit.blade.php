@@ -194,7 +194,16 @@
                         <div class="mb-4">
                             <label class="form-label d-block">Zones de livraison</label>
                             <div id="delivery-zones-container">
-                                @php $zones = old('delivery_zones', $product->delivery_zones ?? []); @endphp
+                                @php
+                                    $defaultZones = [
+                                        ['price' => 1500, 'label' => 'Angré, Abatta, 02 Plateaux, Riviera, Marcory, Cocody, Yopougon, Plateau, Abobo, Treichville, Adjamé'],
+                                        ['price' => 2000, 'label' => 'Anyama, Attécoubé, Bingerville'],
+                                        ['price' => 4000, 'label' => 'A Bassam, Songon'],
+                                        ['price' => 0, 'label' => 'Expédition (A définir selon les compagnies)'],
+                                    ];
+                                    $zones = old('delivery_zones') ?: ($product->delivery_zones ?? []);
+                                    if (empty($zones)) $zones = $defaultZones;
+                                @endphp
                                 @foreach($zones as $i => $zone)
                                     <div class="delivery-zone-row row g-2 mb-2">
                                         <div class="col-md-4">

@@ -227,7 +227,9 @@ class BoutiqueController extends Controller
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['variants'] = $request->filled('variants') ? json_decode($request->input('variants'), true) : null;
-        $validated['delivery_zones'] = collect($request->input('delivery_zones', []))->filter(fn($z) => !empty($z['price']) && !empty($z['label']))->values()->all();
+        $validated['delivery_zones'] = collect($request->input('delivery_zones', []))->filter(fn($z) => !empty($z['label']))->map(function ($z) {
+            return ['price' => (int) ($z['price'] ?? 0), 'label' => $z['label']];
+        })->values()->all();
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
@@ -282,7 +284,9 @@ class BoutiqueController extends Controller
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', false);
         $validated['variants'] = $request->filled('variants') ? json_decode($request->input('variants'), true) : null;
-        $validated['delivery_zones'] = collect($request->input('delivery_zones', []))->filter(fn($z) => !empty($z['price']) && !empty($z['label']))->values()->all();
+        $validated['delivery_zones'] = collect($request->input('delivery_zones', []))->filter(fn($z) => !empty($z['label']))->map(function ($z) {
+            return ['price' => (int) ($z['price'] ?? 0), 'label' => $z['label']];
+        })->values()->all();
 
         $images = $product->images ?? [];
 
