@@ -182,7 +182,7 @@
     .product-badge.promo { background: #dc3545; color: #fff; }
     .product-badge.in { background: #198754; color: #fff; }
     .product-badge.low { background: #ffc107; color: #000; }
-    .product-badge.out { background: #6c757d; color: #fff; }
+    .product-badge.out { background: #38bdf8; color: #0c4a6e; }
 
     .store-categories {
         display: flex;
@@ -360,6 +360,15 @@
     .store-product-buy:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .store-product-buy:disabled {
+        background: #38bdf8;
+        color: #0c4a6e;
+        cursor: not-allowed;
+        opacity: 0.9;
+        transform: none;
+        box-shadow: none;
     }
 
     .store-product-add {
