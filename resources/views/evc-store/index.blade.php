@@ -1001,10 +1001,10 @@
 
     .product-image {
         width: 100%;
-        height: auto;
-        max-height: 220px;
+        height: 100%;
         display: block;
-        object-fit: contain;
+        object-fit: cover;
+        object-position: center;
     }
 
     .product-quick-view {
@@ -1433,9 +1433,8 @@
                 card.className = 'store-product';
                 card.dataset.category = product.category;
                 card.innerHTML = `
-                    <div class="store-product-image" style="height:auto;">
+                    <div class="store-product-image">
                         ${product.image_url ? `<img src="${product.image_url}" alt="${product.name}" class="product-image">` : `<i class="fas fa-image" style="font-size:4rem;color:var(--primary); padding: 40px 0; display:block; text-align:center;"></i>`}
-                        <span class="store-product-category">${categoryLabels[product.category] || 'Non classé'}</span>
                         <div class="product-badges">
                             ${promoBadge}
                             <span class="product-badge ${stockClass} stock-count" style="font-size:0.8rem;padding:6px 12px;font-weight:800;">${stockText}</span>
