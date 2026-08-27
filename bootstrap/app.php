@@ -30,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'faire-un-don',
             'evc/faire-un-don',
             'evc/payment/process',
+            'evc-store/order',
+            'evc-store/promo',
             'student/confirm-registration/*',
             // Routes jury : sécurité assurée par unique_identifier validé côté serveur
             'jury/evaluation',
