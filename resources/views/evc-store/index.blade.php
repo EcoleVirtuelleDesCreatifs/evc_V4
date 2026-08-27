@@ -251,7 +251,7 @@
 
     .store-product-image {
         width: 100%;
-        height: 180px;
+        aspect-ratio: 1 / 1;
         background: linear-gradient(135deg, rgba(255, 107, 53, 0.2) 0%, rgba(0, 212, 255, 0.1) 100%);
         display: flex;
         align-items: center;
@@ -934,10 +934,6 @@
         .store-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 16px;
-        }
-
-        .store-product-image {
-            height: 140px;
         }
 
         .store-product h3 {
