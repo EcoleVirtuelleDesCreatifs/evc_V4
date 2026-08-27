@@ -42,6 +42,15 @@ class BoutiqueController extends Controller
     }
 
     /**
+     * Nombre de visiteurs temps réel (JSON).
+     */
+    public function realtimeVisitors()
+    {
+        $count = Visit::where('visited_at', '>', now()->subMinutes(5))->distinct()->count('session_id');
+        return response()->json(['count' => $count]);
+    }
+
+    /**
      * Liste des commandes.
      */
     public function orders()

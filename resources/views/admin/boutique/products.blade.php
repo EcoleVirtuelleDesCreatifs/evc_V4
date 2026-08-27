@@ -146,7 +146,7 @@
                     <i class="fas fa-eye"></i>
                 </div>
                 <div class="stat-content">
-                    <h3 class="stat-number">{{ $stats['realtime_visitors'] }}</h3>
+                    <h3 class="stat-number" id="realtime-visitors-count">{{ $stats['realtime_visitors'] }}</h3>
                     <p class="stat-label">Visiteurs temps réel</p>
                 </div>
             </div>
@@ -420,6 +420,24 @@ function highlightActiveFilters() {
         }
     }
 }
+
+function updateRealtimeVisitors() {
+    fetch('{{ route('admin.boutique.realtime-visitors') }}', { credentials: 'same-origin' })
+        .then(response => response.json())
+        .then(data => {
+            const counter = document.getElementById('realtime-visitors-count');
+            if (counter && typeof data.count !== 'undefined') {
+                counter.textContent = data.count;
+            }
+        })
+        .catch(() => {});
+}
+
+// Rafraîchissement toutes les 10 secondes
+document.addEventListener('DOMContentLoaded', function() {
+    updateRealtimeVisitors();
+    setInterval(updateRealtimeVisitors, 10000);
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.category-filter-card').forEach(card => {
