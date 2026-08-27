@@ -89,6 +89,8 @@ class StoreOrderController extends Controller
             'prenoms' => 'required|string|max:255',
             'numero' => 'required|string|max:255',
             'lieu' => 'required|string|max:255',
+            'delivery_location' => 'nullable|string|max:255',
+            'delivery_cost' => 'nullable|integer|min:0',
             'delivery_mode' => 'required|in:delivery,pickup',
             'payment_method' => 'required|in:cash,mobile_money',
             'autre' => 'nullable|string',

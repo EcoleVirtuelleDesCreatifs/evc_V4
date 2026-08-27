@@ -212,6 +212,9 @@ class BoutiqueController extends Controller
             'stock' => 'required|integer|min:0',
             'delivery_mode' => 'required|in:deposit,cash_on_delivery',
             'delivery_cost' => 'nullable|integer|min:0',
+            'delivery_zones' => 'nullable|array',
+            'delivery_zones.*.price' => 'nullable|integer|min:0',
+            'delivery_zones.*.label' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
             'seo_geo' => 'nullable|string|max:5000',
             'category_id' => 'required|exists:product_categories,id',
@@ -224,6 +227,7 @@ class BoutiqueController extends Controller
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['variants'] = $request->filled('variants') ? json_decode($request->input('variants'), true) : null;
+        $validated['delivery_zones'] = collect($request->input('delivery_zones', []))->filter(fn($z) => !empty($z['price']) && !empty($z['label']))->values()->all();
 
         $imagePaths = [];
         if ($request->hasFile('images')) {
@@ -263,6 +267,9 @@ class BoutiqueController extends Controller
             'stock' => 'required|integer|min:0',
             'delivery_mode' => 'required|in:deposit,cash_on_delivery',
             'delivery_cost' => 'nullable|integer|min:0',
+            'delivery_zones' => 'nullable|array',
+            'delivery_zones.*.price' => 'nullable|integer|min:0',
+            'delivery_zones.*.label' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
             'seo_geo' => 'nullable|string|max:5000',
             'category_id' => 'required|exists:product_categories,id',
@@ -275,6 +282,7 @@ class BoutiqueController extends Controller
         $validated['slug'] = Str::slug($validated['title']);
         $validated['is_active'] = $request->boolean('is_active', false);
         $validated['variants'] = $request->filled('variants') ? json_decode($request->input('variants'), true) : null;
+        $validated['delivery_zones'] = collect($request->input('delivery_zones', []))->filter(fn($z) => !empty($z['price']) && !empty($z['label']))->values()->all();
 
         $images = $product->images ?? [];
 

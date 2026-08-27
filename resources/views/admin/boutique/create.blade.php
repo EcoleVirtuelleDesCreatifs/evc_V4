@@ -181,12 +181,36 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="delivery_cost" class="form-label">Coût de livraison (FCFA)</label>
+                            <label for="delivery_cost" class="form-label">Coût de livraison par défaut (FCFA)</label>
                             <input type="number" class="form-control modern-input @error('delivery_cost') is-invalid @enderror"
                                    id="delivery_cost" name="delivery_cost" value="{{ old('delivery_cost') }}" min="0">
+                            <small class="text-muted">Utilisé si aucune zone de livraison n'est définie.</small>
                             @error('delivery_cost')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label d-block">Zones de livraison</label>
+                            <div id="delivery-zones-container">
+                                @if(old('delivery_zones'))
+                                    @foreach(old('delivery_zones') as $i => $zone)
+                                        <div class="delivery-zone-row row g-2 mb-2">
+                                            <div class="col-md-4">
+                                                <input type="number" name="delivery_zones[{{ $i }}][price]" class="form-control modern-input" placeholder="Prix (FCFA)" value="{{ $zone['price'] ?? '' }}">
+                                            </div>
+                                            <div class="col-md-7">
+                                                <input type="text" name="delivery_zones[{{ $i }}][label]" class="form-control modern-input" placeholder="Ex: Angré, Cocody, Plateau..." value="{{ $zone['label'] ?? '' }}">
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button type="button" class="btn btn-danger btn-sm remove-zone"><i class="fas fa-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="add-delivery-zone"><i class="fas fa-plus me-1"></i>Ajouter une zone</button>
+                            <small class="text-muted d-block mt-2">Laissez vide pour n'utiliser que le coût par défaut.</small>
                         </div>
 
                         <div class="mb-4">
@@ -383,6 +407,37 @@
             imagesInput.value = '';
             imagePreview.style.display = 'none';
             previewImages.innerHTML = '';
+        });
+
+        // Gestion des zones de livraison
+        const zonesContainer = document.getElementById('delivery-zones-container');
+        const addZoneBtn = document.getElementById('add-delivery-zone');
+
+        function addZoneRow() {
+            const index = zonesContainer.querySelectorAll('.delivery-zone-row').length;
+            const row = document.createElement('div');
+            row.className = 'delivery-zone-row row g-2 mb-2';
+            row.innerHTML = `
+                <div class="col-md-4">
+                    <input type="number" name="delivery_zones[${index}][price]" class="form-control modern-input" placeholder="Prix (FCFA)" min="0">
+                </div>
+                <div class="col-md-7">
+                    <input type="text" name="delivery_zones[${index}][label]" class="form-control modern-input" placeholder="Ex: Angré, Cocody, Plateau...">
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-danger btn-sm remove-zone"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            zonesContainer.appendChild(row);
+        }
+
+        addZoneBtn.addEventListener('click', addZoneRow);
+
+        zonesContainer.addEventListener('click', function(e) {
+            const remove = e.target.closest('.remove-zone');
+            if (remove) {
+                remove.closest('.delivery-zone-row').remove();
+            }
         });
     });
 </script>

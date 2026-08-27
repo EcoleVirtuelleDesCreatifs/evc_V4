@@ -16,6 +16,7 @@ class Product extends Model
         'price',
         'delivery_mode',
         'delivery_cost',
+        'delivery_zones',
         'email',
         'seo_geo',
         'image',
@@ -36,6 +37,7 @@ class Product extends Model
         'is_active' => 'boolean',
         'images' => 'array',
         'variants' => 'array',
+        'delivery_zones' => 'array',
     ];
 
     public function category(): BelongsTo
