@@ -414,7 +414,7 @@
                             <div class="calendar-event-date">
                                 <i class="fas fa-trophy"></i> Juin 2027
                             </div>
-                            <h3>Cérémonie de remise des certificats</h3>
+                            <h3>Cérémonie de Remise des Certificats officiels (CRCO)</h3>
                             <p>
                                 Moment de reconnaissance pour les apprenants ayant validé leur formation. Remise des certificats officiels, témoignages et célébration des parcours réussis.
                             </p>
