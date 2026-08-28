@@ -363,23 +363,26 @@
 
                 <div class="calendar-section creative" data-aos="fade-up" data-aos-delay="200">
                     <div class="calendar-section-header">
-                        <h2><i class="fas fa-palette"></i> Studios Créatifs 2027</h2>
+                        <h2><i class="fas fa-palette"></i> Studios Creative 2027</h2>
                     </div>
+                    <p style="text-align: center; color: var(--text-secondary); margin: -20px 0 20px;">
+                        Un mois entier consacré à l'expérimentation libre, la création visuelle et la production multimédia. Une période où les étudiants travaillent sur des projets réels, en groupe ou en solo, et viennent présenter et défendre leur projet devant des membres d'un jury international.
+                    </p>
 
                     <div class="calendar-timeline">
                         <div class="calendar-event">
                             <div class="calendar-event-date">
                                 <i class="fas fa-lightbulb"></i> Mai 2027
                             </div>
-                            <h3>Studio Créatif Printemps</h3>
+                            <h3>Studio Creative Printemps</h3>
                             <p>
-                                Un mois entier consacré à l'expérimentation libre, la création visuelle et la production multimédia. L'occasion de transformer ses idées en projets concrets.
+                                Première édition de l'année : immersion créative autour de la conception, de la production et de la présentation de projets concrets.
                             </p>
                             <h4>En détail :</h4>
                             <ul>
+                                <li>Projets réels individuels ou en groupe</li>
                                 <li>Ateliers de design, photo, vidéo et communication visuelle</li>
-                                <li>Challenges créatifs et hackathons thématiques</li>
-                                <li>Exposition collective des productions réalisées</li>
+                                <li>Présentation et défense devant un jury international</li>
                             </ul>
                         </div>
 
@@ -387,15 +390,15 @@
                             <div class="calendar-event-date">
                                 <i class="fas fa-magic"></i> Octobre 2027
                             </div>
-                            <h3>Studio Créatif Automne</h3>
+                            <h3>Studio Creative Automne</h3>
                             <p>
-                                Nouvelle immersion créative tournée vers l'innovation digitale, le motion design et les projets multimédias interactifs.
+                                Deuxième édition de l'année : nouvelle immersion tournée vers l'innovation digitale, le motion design et les projets multimédias interactifs.
                             </p>
                             <h4>En détail :</h4>
                             <ul>
-                                <li>Masterclasses animées par des professionnels du secteur</li>
                                 <li>Projets tutorés en design graphique et motion design</li>
-                                <li>Présentation des travaux et feedbacks d'experts</li>
+                                <li>Masterclasses animées par des professionnels du secteur</li>
+                                <li>Présentation et feedbacks du jury international</li>
                             </ul>
                         </div>
                     </div>
