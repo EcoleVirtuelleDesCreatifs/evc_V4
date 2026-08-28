@@ -166,11 +166,12 @@ class BoutiqueController extends Controller
     }
 
     /**
-     * Formulaire de création d'une catégorie.
+     * Formulaire de création et liste des catégories.
      */
     public function createCategory()
     {
-        return view('admin.boutique.categories.create');
+        $categories = ProductCategory::orderBy('name')->get();
+        return view('admin.boutique.categories.create', compact('categories'));
     }
 
     /**
@@ -188,7 +189,34 @@ class BoutiqueController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        return redirect()->route('admin.boutique.index')->with('success', 'Catégorie créée avec succès.');
+        return redirect()->route('admin.boutique.categories.create')->with('success', 'Catégorie créée avec succès.');
+    }
+
+    /**
+     * Mise à jour d'une catégorie.
+     */
+    public function updateCategory(Request $request, ProductCategory $category)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:product_categories,name,' . $category->id,
+        ]);
+
+        $category->update([
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+            'is_active' => $request->boolean('is_active', true),
+        ]);
+
+        return redirect()->route('admin.boutique.categories.create')->with('success', 'Catégorie mise à jour avec succès.');
+    }
+
+    /**
+     * Suppression d'une catégorie.
+     */
+    public function destroyCategory(ProductCategory $category)
+    {
+        $category->delete();
+        return redirect()->route('admin.boutique.categories.create')->with('success', 'Catégorie supprimée avec succès.');
     }
 
     /**
