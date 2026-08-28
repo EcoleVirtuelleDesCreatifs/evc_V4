@@ -303,6 +303,9 @@
                     <div class="calendar-section-header">
                         <h2><i class="fas fa-graduation-cap"></i> Sessions de formation 2027</h2>
                     </div>
+                    <p style="text-align: center; color: var(--text-secondary); margin: -20px 0 20px;">
+                        Trois rentrées sont ouvertes cette année. Chaque session donne accès aux mêmes programmes.
+                    </p>
 
                     <div class="calendar-timeline">
                         <div class="calendar-event">
@@ -311,13 +314,14 @@
                             </div>
                             <h3>Session 01 — Rentrée de printemps</h3>
                             <p>
-                                Lancement de la première promotion de l'année. Intégration complète des nouveaux apprenants, découverte des parcours et mise en route des outils digitaux.
+                                Première rentrée de l'année 2027. Intégration des nouveaux apprenants et démarrage du cycle de formation pour l'année académique.
                             </p>
-                            <h4>Au programme :</h4>
+                            <h4>Programmes disponibles :</h4>
                             <ul>
-                                <li>Ateliers d'orientation design graphique, community management, IA & informatique</li>
-                                <li>Prise en main de la plateforme pédagogique et des ressources en ligne</li>
-                                <li>Premiers modules théoriques et premiers exercices pratiques</li>
+                                <li>Design Graphique & Infographie</li>
+                                <li>Community Management</li>
+                                <li>Intelligence Artificielle</li>
+                                <li>Gestion Informatique</li>
                             </ul>
                         </div>
 
@@ -327,13 +331,14 @@
                             </div>
                             <h3>Session 02 — Rentrée d'été</h3>
                             <p>
-                                Session estivale axée sur les parcours courts et les modules spécialisés. Un rythme dynamique pour avancer sereinement sur les compétences techniques.
+                                Deuxième rentrée de l'année 2027. Nouvelle promotion d'apprenants qui débute le même cursus dès le mois de juillet.
                             </p>
-                            <h4>Au programme :</h4>
+                            <h4>Programmes disponibles :</h4>
                             <ul>
-                                <li>Modules condensés et ateliers pratiques quotidiens</li>
-                                <li>Challenges créatifs en équipe et retours d'expérience</li>
-                                <li>Suivi personnalisé et évaluation continue des acquis</li>
+                                <li>Design Graphique & Infographie</li>
+                                <li>Community Management</li>
+                                <li>Intelligence Artificielle</li>
+                                <li>Gestion Informatique</li>
                             </ul>
                         </div>
 
@@ -343,13 +348,14 @@
                             </div>
                             <h3>Session 03 — Rentrée d'automne</h3>
                             <p>
-                                Dernière session de formation 2027. Concentration sur les projets finaux, le portfolio professionnel et la préparation des certifications.
+                                Troisième rentrée de l'année 2027. Dernière session d'entrée pour débuter les mêmes parcours avant l'année suivante.
                             </p>
-                            <h4>Au programme :</h4>
+                            <h4>Programmes disponibles :</h4>
                             <ul>
-                                <li>Projets de synthèse et constitution du portfolio</li>
-                                <li>Coaching individuel pour l'insertion professionnelle</li>
-                                <li>Évaluations finales et passage des certifications</li>
+                                <li>Design Graphique & Infographie</li>
+                                <li>Community Management</li>
+                                <li>Intelligence Artificielle</li>
+                                <li>Gestion Informatique</li>
                             </ul>
                         </div>
                     </div>
