@@ -312,7 +312,7 @@
                             <div class="calendar-event-date">
                                 <i class="fas fa-rocket"></i> Mars 2027
                             </div>
-                            <h3>Session 01 — Rentrée de printemps</h3>
+                            <h3>Session 01</h3>
                             <p>
                                 Première rentrée de l'année 2027. Intégration des nouveaux apprenants et démarrage du cycle de formation pour l'année académique.
                             </p>
@@ -329,7 +329,7 @@
                             <div class="calendar-event-date">
                                 <i class="fas fa-sun"></i> Juillet 2027
                             </div>
-                            <h3>Session 02 — Rentrée d'été</h3>
+                            <h3>Session 02</h3>
                             <p>
                                 Deuxième rentrée de l'année 2027. Nouvelle promotion d'apprenants qui débute le même cursus dès le mois de juillet.
                             </p>
@@ -346,7 +346,7 @@
                             <div class="calendar-event-date">
                                 <i class="fas fa-leaf"></i> Novembre 2027
                             </div>
-                            <h3>Session 03 — Rentrée d'automne</h3>
+                            <h3>Session 03</h3>
                             <p>
                                 Troisième rentrée de l'année 2027. Dernière session d'entrée pour débuter les mêmes parcours avant l'année suivante.
                             </p>
