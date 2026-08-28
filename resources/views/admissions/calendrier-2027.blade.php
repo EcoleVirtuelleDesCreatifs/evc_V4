@@ -241,6 +241,16 @@
                             </p>
                         </div>
 
+                        <div class="calendar-event">
+                            <div class="calendar-event-date">
+                                <i class="fas fa-calendar-day"></i> Mai 2027
+                            </div>
+                            <h3>Studio Créatif</h3>
+                            <p>
+                                Session créative dédiée aux projets pratiques, ateliers de conception et productions multimédias. Une immersion dans l’expérimentation graphique et digitale.
+                            </p>
+                        </div>
+
                         <div class="calendar-event important">
                             <div class="calendar-event-date">
                                 <i class="fas fa-award"></i> Juin 2027
@@ -262,6 +272,16 @@
                             <h3>Session 02</h3>
                             <p>
                                 Deuxième session de l'année 2027. Nouvelle promotion de créatifs et professionnels pour des parcours courts et des modules spécialisés.
+                            </p>
+                        </div>
+
+                        <div class="calendar-event">
+                            <div class="calendar-event-date">
+                                <i class="fas fa-calendar-day"></i> Octobre 2027
+                            </div>
+                            <h3>Studio Créatif</h3>
+                            <p>
+                                Session créative dédiée aux projets pratiques, ateliers de conception et productions multimédias. Une immersion dans l’expérimentation graphique et digitale.
                             </p>
                         </div>
 
