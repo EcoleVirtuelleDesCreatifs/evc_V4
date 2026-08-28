@@ -115,6 +115,80 @@
         box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.2);
     }
 
+    .calendar-section.sessions .calendar-timeline::before {
+        background: linear-gradient(180deg, #ff6b35 0%, #e55a2b 100%);
+    }
+
+    .calendar-section.sessions .calendar-event::before {
+        background: #ff6b35;
+        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+    }
+
+    .calendar-section.sessions .calendar-event-date {
+        color: #ff6b35;
+        background: rgba(255, 107, 53, 0.1);
+        border-color: rgba(255, 107, 53, 0.3);
+    }
+
+    .calendar-section.creative .calendar-timeline::before {
+        background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+    }
+
+    .calendar-section.creative .calendar-event::before {
+        background: #8b5cf6;
+        box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+    }
+
+    .calendar-section.creative .calendar-event-date {
+        color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.1);
+        border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .calendar-section.official .calendar-timeline::before {
+        background: linear-gradient(180deg, #00d4ff 0%, #0ea5e9 100%);
+    }
+
+    .calendar-section.official .calendar-event::before {
+        background: #00d4ff;
+        box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.2);
+    }
+
+    .calendar-section.official .calendar-event-date {
+        color: #00d4ff;
+        background: rgba(0, 212, 255, 0.1);
+        border-color: rgba(0, 212, 255, 0.3);
+    }
+
+    .calendar-section-header h2 i {
+        margin-right: 8px;
+    }
+
+    .calendar-event h4 {
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 16px 0 8px;
+    }
+
+    .calendar-event ul {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        line-height: 1.7;
+        margin: 0 0 0 18px;
+        padding: 0;
+        list-style: disc;
+    }
+
+    .calendar-event ul li {
+        margin-bottom: 6px;
+    }
+
+    .calendar-event {
+        position: relative;
+        margin-bottom: 32px;
+    }
+
     .calendar-event-date {
         display: inline-flex;
         align-items: center;
@@ -225,79 +299,131 @@
             </div>
 
             <div class="calendar-content">
-                <div class="calendar-section" data-aos="fade-up" data-aos-delay="100">
+                <div class="calendar-section sessions" data-aos="fade-up" data-aos-delay="100">
                     <div class="calendar-section-header">
-                        <h2>Sessions et événements 2027</h2>
+                        <h2><i class="fas fa-graduation-cap"></i> Sessions de formation 2027</h2>
                     </div>
 
                     <div class="calendar-timeline">
                         <div class="calendar-event">
                             <div class="calendar-event-date">
-                                <i class="fas fa-calendar-day"></i> Mars 2027
+                                <i class="fas fa-rocket"></i> Mars 2027
                             </div>
-                            <h3>Session 01</h3>
+                            <h3>Session 01 — Rentrée de printemps</h3>
                             <p>
-                                Ouverture de la première session de formation 2027. Intégration des nouveaux apprenants et lancement des parcours en design graphique, community management, informatique et intelligence artificielle.
+                                Lancement de la première promotion de l'année. Intégration complète des nouveaux apprenants, découverte des parcours et mise en route des outils digitaux.
                             </p>
+                            <h4>Au programme :</h4>
+                            <ul>
+                                <li>Ateliers d'orientation design graphique, community management, IA & informatique</li>
+                                <li>Prise en main de la plateforme pédagogique et des ressources en ligne</li>
+                                <li>Premiers modules théoriques et premiers exercices pratiques</li>
+                            </ul>
                         </div>
 
                         <div class="calendar-event">
                             <div class="calendar-event-date">
-                                <i class="fas fa-calendar-day"></i> Mai 2027
+                                <i class="fas fa-sun"></i> Juillet 2027
                             </div>
-                            <h3>Studio Créatif</h3>
+                            <h3>Session 02 — Rentrée d'été</h3>
                             <p>
-                                Session créative dédiée aux projets pratiques, ateliers de conception et productions multimédias. Une immersion dans l’expérimentation graphique et digitale.
+                                Session estivale axée sur les parcours courts et les modules spécialisés. Un rythme dynamique pour avancer sereinement sur les compétences techniques.
                             </p>
+                            <h4>Au programme :</h4>
+                            <ul>
+                                <li>Modules condensés et ateliers pratiques quotidiens</li>
+                                <li>Challenges créatifs en équipe et retours d'expérience</li>
+                                <li>Suivi personnalisé et évaluation continue des acquis</li>
+                            </ul>
                         </div>
 
-                        <div class="calendar-event important">
+                        <div class="calendar-event">
                             <div class="calendar-event-date">
-                                <i class="fas fa-award"></i> Juin 2027
+                                <i class="fas fa-leaf"></i> Novembre 2027
                             </div>
-                            <h3>Remise des certificats officiels</h3>
+                            <h3>Session 03 — Rentrée d'automne</h3>
                             <p>
-                                Cérémonie de remise des certificats officiels aux apprenants ayant validé leur formation. La remise des certificats se fait une seule fois par an.
+                                Dernière session de formation 2027. Concentration sur les projets finaux, le portfolio professionnel et la préparation des certifications.
                             </p>
+                            <h4>Au programme :</h4>
+                            <ul>
+                                <li>Projets de synthèse et constitution du portfolio</li>
+                                <li>Coaching individuel pour l'insertion professionnelle</li>
+                                <li>Évaluations finales et passage des certifications</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calendar-section creative" data-aos="fade-up" data-aos-delay="200">
+                    <div class="calendar-section-header">
+                        <h2><i class="fas fa-palette"></i> Studios Créatifs 2027</h2>
+                    </div>
+
+                    <div class="calendar-timeline">
+                        <div class="calendar-event">
+                            <div class="calendar-event-date">
+                                <i class="fas fa-lightbulb"></i> Mai 2027
+                            </div>
+                            <h3>Studio Créatif Printemps</h3>
+                            <p>
+                                Un mois entier consacré à l'expérimentation libre, la création visuelle et la production multimédia. L'occasion de transformer ses idées en projets concrets.
+                            </p>
+                            <h4>En détail :</h4>
+                            <ul>
+                                <li>Ateliers de design, photo, vidéo et communication visuelle</li>
+                                <li>Challenges créatifs et hackathons thématiques</li>
+                                <li>Exposition collective des productions réalisées</li>
+                            </ul>
+                        </div>
+
+                        <div class="calendar-event">
+                            <div class="calendar-event-date">
+                                <i class="fas fa-magic"></i> Octobre 2027
+                            </div>
+                            <h3>Studio Créatif Automne</h3>
+                            <p>
+                                Nouvelle immersion créative tournée vers l'innovation digitale, le motion design et les projets multimédias interactifs.
+                            </p>
+                            <h4>En détail :</h4>
+                            <ul>
+                                <li>Masterclasses animées par des professionnels du secteur</li>
+                                <li>Projets tutorés en design graphique et motion design</li>
+                                <li>Présentation des travaux et feedbacks d'experts</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calendar-section official" data-aos="fade-up" data-aos-delay="300">
+                    <div class="calendar-section-header">
+                        <h2><i class="fas fa-certificate"></i> Événements officiels 2027</h2>
+                    </div>
+
+                    <div class="calendar-timeline">
+                        <div class="calendar-event">
+                            <div class="calendar-event-date">
+                                <i class="fas fa-trophy"></i> Juin 2027
+                            </div>
+                            <h3>Cérémonie de remise des certificats</h3>
+                            <p>
+                                Moment de reconnaissance pour les apprenants ayant validé leur formation. Remise des certificats officiels, témoignages et célébration des parcours réussis.
+                            </p>
+                            <h4>Déroulé :</h4>
+                            <ul>
+                                <li>Allocutions d'ouverture et présentation des lauréats</li>
+                                <li>Remise des certificats officiels et attestations</li>
+                                <li>Networking entre étudiants, anciens et professionnels</li>
+                            </ul>
                             <div class="calendar-note">
                                 <i class="fas fa-info-circle"></i>
                                 <span>La remise des certificats officiels est un événement annuel unique. Assurez-vous d'être éligible en respectant les critères de validation de votre formation.</span>
                             </div>
                         </div>
-
-                        <div class="calendar-event">
-                            <div class="calendar-event-date">
-                                <i class="fas fa-calendar-day"></i> Juillet 2027
-                            </div>
-                            <h3>Session 02</h3>
-                            <p>
-                                Deuxième session de l'année 2027. Nouvelle promotion de créatifs et professionnels pour des parcours courts et des modules spécialisés.
-                            </p>
-                        </div>
-
-                        <div class="calendar-event">
-                            <div class="calendar-event-date">
-                                <i class="fas fa-calendar-day"></i> Octobre 2027
-                            </div>
-                            <h3>Studio Créatif</h3>
-                            <p>
-                                Session créative dédiée aux projets pratiques, ateliers de conception et productions multimédias. Une immersion dans l’expérimentation graphique et digitale.
-                            </p>
-                        </div>
-
-                        <div class="calendar-event">
-                            <div class="calendar-event-date">
-                                <i class="fas fa-calendar-day"></i> Novembre 2027
-                            </div>
-                            <h3>Session 03</h3>
-                            <p>
-                                Troisième session de formation 2027. Dernière rentrée de l'année pour préparer les projets et le portfolio de fin d'année.
-                            </p>
-                        </div>
                     </div>
                 </div>
 
-                <div class="calendar-cta" data-aos="fade-up" data-aos-delay="200">
+                <div class="calendar-cta" data-aos="fade-up" data-aos-delay="400">
                     <a href="{{ route('admissions') }}">
                         <i class="fas fa-arrow-left"></i>
                         <span>Retour aux admissions</span>
