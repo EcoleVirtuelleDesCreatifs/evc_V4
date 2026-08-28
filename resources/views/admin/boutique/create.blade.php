@@ -215,7 +215,6 @@
                                             </div>
                                         </div>
                                     @endforeach
-                                @endif
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-sm" id="add-delivery-zone"><i class="fas fa-plus me-1"></i>Ajouter une zone</button>
                             <small class="text-muted d-block mt-2">Laissez vide pour n'utiliser que le coût par défaut.</small>
