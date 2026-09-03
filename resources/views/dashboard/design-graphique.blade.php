@@ -541,13 +541,13 @@
 
     {{-- Profile Header --}}
     <div class="profile-header fade-in-up">
-        <div class="row align-items-center position-relative" style="z-index: 1;">
-            <div class="col-lg-7">
+        <div class="row align-items-center g-4 position-relative" style="z-index: 1;">
+            <div class="col-lg-8">
                 <div class="d-flex align-items-center gap-4 flex-column flex-lg-row text-center text-lg-start">
                     <img src="{{ $photoUrl }}" alt="{{ $fullName }}" class="avatar-pro"
                          onerror="this.src='{{ asset('assets/img/avatar.png') }}'">
                     <div class="flex-grow-1">
-                        <div class="d-flex align-items-center justify-content-center justify-content-lg-start gap-2 flex-wrap mb-2">
+                        <div class="d-flex align-items-center justify-content-center justify-content-lg-start gap-2 flex-wrap mb-3">
                             <span class="micro-pill">
                                 <i class="fas fa-bolt"></i>
                                 Objectif : avancer chaque jour
@@ -565,11 +565,11 @@
                             @endif
                         </div>
 
-                        <h1 class="text-white mb-2" style="font-size: 2.05rem; font-weight: 900; letter-spacing: -0.02em;">
+                        <h1 class="text-white mb-2" style="font-size: 2.6rem; font-weight: 900; letter-spacing: -0.03em;">
                             {{ $fullName ?: 'Étudiant EVC' }}
                         </h1>
 
-                        <p class="text-white mb-3" style="opacity: 0.9; font-size: 1.05rem;">
+                        <p class="text-white mb-4" style="opacity: 0.85; font-size: 1.1rem; font-weight: 500;">
                             {{ $program ?: 'Design Graphique' }}
                             @if($level)
                                 <span class="mx-2">•</span>{{ $level }}
@@ -579,27 +579,12 @@
                             @endif
                         </p>
 
-                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start mb-3">
-                            @if($email)
-                            <a href="mailto:{{ $email }}" class="badge-contact">
-                                <i class="fas fa-envelope"></i>
-                                <span>{{ $email }}</span>
-                            </a>
-                            @endif
-                            @if($phone)
-                            <a href="tel:{{ $phone }}" class="badge-contact">
-                                <i class="fas fa-phone"></i>
-                                <span>{{ $phone }}</span>
-                            </a>
-                            @endif
-                        </div>
-
-                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start">
+                        <div class="d-flex gap-2 flex-wrap justify-content-center justify-content-lg-start align-items-center">
                             @if(!$isExpired)
                                 @if($nextAssignmentHero)
                                     <a href="{{ route('design-graphique.tp.voir', ['id' => $nextAssignmentHero->id]) }}" class="hero-cta primary">
                                         <i class="fas fa-play"></i>
-                                        Continuer maintenant
+                                        Continuer
                                     </a>
                                 @else
                                     <a href="{{ route('design-graphique.tp.index') }}" class="hero-cta primary">
@@ -607,18 +592,30 @@
                                         Voir mes TP
                                     </a>
                                 @endif
-                                <a href="{{ route('design-graphique.paiements.index') }}" class="hero-cta secondary">
+
+                                <a href="{{ route('design-graphique.paiements.index') }}" class="hero-cta secondary" style="width: 44px; height: 44px; padding: 0; border-radius: 50%; justify-content: center;" title="Paiements">
                                     <i class="fas fa-wallet"></i>
-                                    Paiements
                                 </a>
-                                <a href="{{ route('design-graphique.cvtheque.mon-profil') }}" class="hero-cta secondary">
+                                <a href="{{ route('design-graphique.cvtheque.mon-profil') }}" class="hero-cta secondary" style="width: 44px; height: 44px; padding: 0; border-radius: 50%; justify-content: center;" title="CVthèque">
                                     <i class="fas fa-briefcase"></i>
-                                    CVthèque
                                 </a>
-                            @else
+                            @endif
+
+                            @if($email)
+                                <a href="mailto:{{ $email }}" class="hero-cta secondary" style="width: 44px; height: 44px; padding: 0; border-radius: 50%; justify-content: center;" title="{{ $email }}">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
+                            @endif
+                            @if($phone)
+                                <a href="tel:{{ $phone }}" class="hero-cta secondary" style="width: 44px; height: 44px; padding: 0; border-radius: 50%; justify-content: center;" title="{{ $phone }}">
+                                    <i class="fas fa-phone"></i>
+                                </a>
+                            @endif
+
+                            @if($isExpired)
                                 <a href="mailto:info@ecolevirtuelledescreatifs.com" class="hero-cta secondary">
                                     <i class="fas fa-envelope"></i>
-                                    Renouveler mon accès
+                                    Renouveler
                                 </a>
                             @endif
                         </div>
@@ -626,78 +623,33 @@
                 </div>
             </div>
 
-            <div class="col-lg-5 mt-4 mt-lg-0">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <div class="hero-subcard">
-                            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
-                                <div>
-                                    <div class="hero-kpi-label mb-1">Progression globale</div>
-                                    <div class="hero-kpi">
-                                        <span id="dg_global_progress_hero">{{ round($globalProgressHero) }}</span>%
-                                    </div>
-                                    <div class="text-white" style="opacity: 0.9; font-weight: 600;">
-                                        TP : <span id="dg_tp_realises_hero">{{ $stats['tp_realises'] ?? 0 }}</span>/<span id="dg_tp_total_hero">{{ $stats['tp_total'] ?? 0 }}</span>
-                                        <span class="mx-2">•</span>
-                                        Projets : <span id="dg_projets_realises_hero">{{ $stats['projets_realises'] ?? 0 }}</span>/<span id="dg_projets_total_hero">{{ $stats['projets_total'] ?? 0 }}</span>
-                                    </div>
-                                </div>
-                                <div class="text-end">
-                                    <div class="hero-kpi-label mb-1">Reste à payer</div>
-                                    <div class="hero-kpi" style="font-size: 1.6rem;">
-                                        <span id="dg_montant_restant_hero">{{ number_format($montantRestantHero, 0, ',', ' ') }}</span> FCFA
-                                    </div>
-                                    <div class="text-white" style="opacity: 0.9; font-weight: 600;">
-                                        @if($montantRestantHero > 0)
-                                            Finalisez pour sécuriser votre accès
-                                        @else
-                                            Paiement soldé
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-3" style="background: rgba(255,255,255,0.12); border-radius: 999px; height: 10px; overflow: hidden;">
-                                <div id="dg_global_progress_fill_hero" style="height: 100%; width: {{ $globalProgressHero }}%; background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);"></div>
-                            </div>
-                        </div>
+            <div class="col-lg-4 mt-4 mt-lg-0">
+                <div class="hero-subcard">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="hero-kpi-label">Progression globale</div>
+                        <div class="hero-kpi" style="font-size: 2rem;"><span id="dg_global_progress_hero">{{ round($globalProgressHero) }}</span>%</div>
                     </div>
-
-                    <div class="col-12">
-                        <div class="hero-subcard">
-                            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
-                                <div>
-                                    <div class="hero-kpi-label mb-1">Prochaine action recommandée</div>
-                                    <div class="text-white" style="font-weight: 800;">
-                                        @if($nextAssignmentHero)
-                                            {{ $nextAssignmentHero->title ?? 'Travail à faire' }}
-                                        @else
-                                            Mettre votre profil CVthèque à jour
-                                        @endif
-                                    </div>
-                                    <div class="text-white" style="opacity: 0.9; font-weight: 600;">
-                                        @if($nextAssignmentHero && !empty($nextAssignmentHero->deadline))
-                                            Date limite : {{ \Carbon\Carbon::parse($nextAssignmentHero->deadline)->format('d/m/Y H:i') }}
-                                        @else
-                                            Un profil complet augmente vos chances (CV, portfolio)
-                                        @endif
-                                    </div>
-                                </div>
-                                @if(!$isExpired)
-                                    @if($nextAssignmentHero)
-                                        <a href="{{ route('design-graphique.tp.voir', ['id' => $nextAssignmentHero->id]) }}" class="hero-cta primary">
-                                            <i class="fas fa-arrow-right"></i>
-                                            Ouvrir
-                                        </a>
-                                    @else
-                                        <a href="{{ route('design-graphique.cvtheque.mon-profil') }}" class="hero-cta primary">
-                                            <i class="fas fa-user-check"></i>
-                                            Compléter mon profil
-                                        </a>
-                                    @endif
-                                @endif
-                            </div>
-                        </div>
+                    <div class="progress-bar-custom mb-3" style="background: rgba(255,255,255,0.15); height: 10px;">
+                        <div id="dg_global_progress_fill_hero" class="progress-bar-fill" style="width: {{ $globalProgressHero }}%; height: 100%;"></div>
                     </div>
+                    <div class="d-flex justify-content-between text-white mb-4" style="font-size: 0.85rem; font-weight: 600; opacity: 0.9;">
+                        <span>TP <span id="dg_tp_realises_hero">{{ $stats['tp_realises'] ?? 0 }}</span>/<span id="dg_tp_total_hero">{{ $stats['tp_total'] ?? 0 }}</span></span>
+                        <span>Projets <span id="dg_projets_realises_hero">{{ $stats['projets_realises'] ?? 0 }}</span>/<span id="dg_projets_total_hero">{{ $stats['projets_total'] ?? 0 }}</span></span>
+                        <span><span id="dg_montant_restant_hero">{{ number_format($montantRestantHero, 0, ',', ' ') }}</span> FCFA</span>
+                    </div>
+                    @if(!$isExpired)
+                        @if($nextAssignmentHero)
+                            <a href="{{ route('design-graphique.tp.voir', ['id' => $nextAssignmentHero->id]) }}" class="hero-cta primary w-100" style="justify-content: center;">
+                                <i class="fas fa-arrow-right"></i>
+                                {{ \Illuminate\Support\Str::limit($nextAssignmentHero->title ?? 'Travail à faire', 28) }}
+                            </a>
+                        @else
+                            <a href="{{ route('design-graphique.cvtheque.mon-profil') }}" class="hero-cta primary w-100" style="justify-content: center;">
+                                <i class="fas fa-user-check"></i>
+                                Compléter mon profil
+                            </a>
+                        @endif
+                    @endif
                 </div>
             </div>
         </div>
