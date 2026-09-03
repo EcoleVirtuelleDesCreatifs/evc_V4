@@ -305,7 +305,7 @@
 @section('content')
     <div class="studio-wrapper">
         <div class="studio-container">
-            <div class="container">
+            <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="studio-hero" data-aos="fade-up">
                     <div class="studio-badge">
                         <i class="fas fa-sparkles"></i>
