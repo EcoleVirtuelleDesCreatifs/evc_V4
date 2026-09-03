@@ -506,7 +506,9 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     Route::post('/cvtheque/upload-rapport', [CVThequeController::class, 'uploadRapport'])->name('cvtheque.upload-rapport');
 
     // TP (Travaux Pratiques) - Structure: /evc/compte/design-graphique/tp/{action}
-    Route::get('/tp/index', [DashboardController::class, 'listTP'])->name('tp.index');
+    Route::get('/tp/index', function () {
+        return redirect()->route('design-graphique.tp.ajouter');
+    })->name('tp.index');
     Route::get('/tp/tous', [DashboardController::class, 'showAllTP'])->name('tp.tous');
     Route::get('/tp/voir/{id}', [DashboardController::class, 'viewTP'])->name('tp.voir');
     Route::get('/tp/ajouter', [DashboardController::class, 'createTP'])->name('tp.ajouter');
