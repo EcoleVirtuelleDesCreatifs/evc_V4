@@ -6,7 +6,7 @@
             ->orderBy('order')
             ->orderBy('created_at', 'desc')
             ->get();
-        
+
         $items = [];
         foreach ($communiques as $c) {
             $url = null;
@@ -21,7 +21,7 @@
                 'date' => $c->created_at ? $c->created_at->format('d/m/Y') : null
             ];
         }
-        
+
         if (empty($items)) {
             $items[] = [
                 'content' => 'Bienvenue sur votre espace etudiant !',
@@ -31,78 +31,98 @@
         }
     @endphp
 
-    <div style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e5e7eb; overflow: hidden;">
+    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#0d1b2a] via-[#162536] to-[#0d1b2a] shadow-2xl border border-white/10">
+        <!-- Top accent -->
+        <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#ff6b00] via-[#ff9d4d] to-[#ff6b00]"></div>
+
         <!-- Header -->
-        <div style="background: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fbbf24 100%); padding: 20px 24px; display: flex; align-items: center; gap: 16px;">
-            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-                </svg>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 px-6 py-5 md:px-8 md:py-6 border-b border-white/10 bg-white/5 backdrop-blur-sm">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-[#ff6b00] to-[#ff9d4d] shadow-lg shadow-orange-500/25">
+                    <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-white text-2xl md:text-3xl font-black uppercase tracking-[0.15em]">FLASH INFO</h2>
+                    <p class="text-slate-400 text-sm font-medium mt-0.5">Restez informé des actualités de l'école</p>
+                </div>
             </div>
-            <div>
-                <h2 style="color: white; font-size: 18px; font-weight: 700; margin: 0;">FLASH INFO</h2>
-                @if(count($items) > 1)
-                    <span style="color: #94a3b8; font-size: 12px;">{{ count($items) }} actualites</span>
-                @endif
-            </div>
+            @if(count($items) > 1)
+                <span class="self-start md:self-auto inline-flex items-center px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs font-bold border border-white/10">
+                    {{ count($items) }} annonces
+                </span>
+            @endif
         </div>
 
         <!-- Content -->
-        <div style="padding: 24px; background: #fafafa;">
-            <div id="flash-slides">
+        <div class="relative z-10 p-6 md:p-8 bg-gradient-to-b from-white/[0.03] to-transparent">
+            <div id="flash-slides" class="min-h-[160px]">
                 @foreach($items as $index => $item)
                     <div class="flash-slide" data-slide="{{ $index }}" style="display: {{ $index === 0 ? 'block' : 'none' }};">
-                        @if($item['date'])
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                <span style="background: #ffedd5; color: #c2410c; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
-                                    {{ $item['date'] }}
-                                </span>
-                                @if($index === 0)
-                                    <span style="background: #f97316; color: white; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;">
-                                        NOUVEAU
+                        <div class="flex flex-col h-full justify-between gap-6">
+                            <div>
+                                @if($item['date'])
+                                    <div class="flex items-center flex-wrap gap-3 mb-4">
+                                        <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#ff6b00]/15 text-[#ff9d4d] text-sm font-bold border border-[#ff6b00]/25">
+                                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                                            </svg>
+                                            {{ $item['date'] }}
+                                        </span>
+                                        @if($index === 0)
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-[#ff6b00] text-white text-xs font-black uppercase tracking-wider shadow-sm">
+                                                Nouveau
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                <p class="text-white/90 text-lg md:text-xl leading-relaxed font-medium">
+                                    {!! $item['content'] !!}
+                                </p>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-2">
+                                @if($item['url'])
+                                    <a href="{{ $item['url'] }}" target="_blank" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#ff6b00] hover:bg-[#ff8533] text-white text-sm font-bold transition-all duration-200 shadow-lg shadow-orange-600/25">
+                                        Lire l'annonce
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </a>
+                                @else
+                                    <span></span>
+                                @endif
+                                @if(count($items) > 1)
+                                    <span class="text-white/40 font-mono text-sm font-bold">
+                                        {{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }} / {{ str_pad(count($items), 2, '0', STR_PAD_LEFT) }}
                                     </span>
                                 @endif
                             </div>
-                        @endif
-
-                        <p style="color: #1f2937; font-size: 16px; line-height: 1.6; margin: 0 0 16px 0; font-weight: 500;">
-                            {!! $item['content'] !!}
-                        </p>
-
-                        <div style="display: flex; align-items: center; justify-content: space-between;">
-                            @if($item['url'])
-                                <a href="{{ $item['url'] }}" target="_blank" style="display: inline-flex; align-items: center; gap: 6px; background: #ea580c; color: white; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none;">
-                                    Lire
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                    </svg>
-                                </a>
-                            @endif
-                            @if(count($items) > 1)
-                                <span style="color: #9ca3af; font-size: 13px; font-weight: 600;">
-                                    {{ $index + 1 }} / {{ count($items) }}
-                                </span>
-                            @endif
                         </div>
                     </div>
                 @endforeach
             </div>
 
             @if(count($items) > 1)
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
-                    <div style="display: flex; gap: 6px;">
+                <div class="flex items-center justify-between mt-8 pt-6 border-t border-white/10">
+                    <div class="flex items-center gap-2">
                         @foreach($items as $index => $item)
-                            <button onclick="goToSlide({{ $index }})" class="flash-dot" data-dot="{{ $index }}" style="width: {{ $index === 0 ? '20px' : '6px' }}; height: 6px; border-radius: 3px; border: none; cursor: pointer; background: {{ $index === 0 ? '#0f172a' : '#d1d5db' }};"></button>
+                            <button onclick="goToSlide({{ $index }})" class="flash-dot h-2 rounded-full transition-all duration-300" data-dot="{{ $index }}" style="width: {{ $index === 0 ? '24px' : '6px' }}; background: {{ $index === 0 ? '#f97316' : 'rgba(255,255,255,0.25)' }};"></button>
                         @endforeach
                     </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button onclick="prevSlide()" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid #d1d5db; background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
+                    <div class="flex items-center gap-3">
+                        <button onclick="prevSlide()" class="w-10 h-10 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-[#ff6b00] transition flex items-center justify-center group">
+                            <svg class="w-4 h-4 text-white/70 group-hover:text-[#ff9d4d] transition" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="15 18 9 12 15 6"></polyline>
                             </svg>
                         </button>
-                        <button onclick="nextSlide()" style="width: 32px; height: 32px; border-radius: 50%; border: none; background: #ea580c; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <button onclick="nextSlide()" class="w-10 h-10 rounded-full bg-[#ff6b00] hover:bg-[#ff8533] transition flex items-center justify-center shadow-lg shadow-orange-600/30">
+                            <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="9 18 15 12 9 6"></polyline>
                             </svg>
                         </button>
@@ -124,8 +144,8 @@
     function show(index) {
         slides.forEach((s, i) => s.style.display = i === index ? 'block' : 'none');
         dots.forEach((d, i) => {
-            d.style.width = i === index ? '20px' : '6px';
-            d.style.background = i === index ? '#0f172a' : '#d1d5db';
+            d.style.width = i === index ? '24px' : '6px';
+            d.style.background = i === index ? '#f97316' : 'rgba(255,255,255,0.25)';
         });
         current = index;
     }
