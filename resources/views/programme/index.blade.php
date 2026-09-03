@@ -190,8 +190,11 @@
 
                             <div class="programme-card-actions">
                                 @if(!empty($programme->fichier_pdf))
-                                    <a class="btn btn-sm btn-primary" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}">
-                                        <i class="fas fa-eye me-1"></i> PDF
+                                    <button type="button" class="btn btn-sm btn-primary book-open-btn" data-pdf="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" data-title="{{ $programme->titre ?? 'Programme' }}" onclick="openBook(this.dataset.pdf, this.dataset.title)">
+                                        <i class="fas fa-book-open me-1"></i> Lire le livre numérique
+                                    </button>
+                                    <a class="btn btn-sm btn-outline-light" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" title="Télécharger le PDF">
+                                        <i class="fas fa-download"></i>
                                     </a>
                                 @else
                                     <span class="btn btn-sm btn-secondary disabled">PDF indisponible</span>
@@ -313,10 +316,14 @@
                                         @endif
 
                                         @if(!empty($programme->fichier_pdf))
-                                            <div class="mb-3">
-                                                <a class="btn btn-sm btn-primary" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}">
-                                                    <i class="fas fa-file-pdf me-1"></i>
-                                                    Télécharger le programme (PDF)
+                                            <div class="mb-3 d-flex gap-2 flex-wrap">
+                                                <button type="button" class="btn btn-sm btn-primary book-open-btn" data-pdf="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" data-title="{{ $programme->titre ?? 'Programme' }}" onclick="openBook(this.dataset.pdf, this.dataset.title)">
+                                                    <i class="fas fa-book-open me-1"></i>
+                                                    Lire le livre numérique
+                                                </button>
+                                                <a class="btn btn-sm btn-outline-light" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" title="Télécharger le PDF">
+                                                    <i class="fas fa-download me-1"></i>
+                                                    Télécharger
                                                 </a>
                                             </div>
                                         @endif
@@ -472,6 +479,54 @@
         </div>
     </div>
 @endif
+
+
+<!-- Lecteur de livre numérique -->
+<div class="modal fade" id="programmeBookModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-fullscreen modal-dialog-centered">
+        <div class="modal-content book-modal-content">
+            <div class="modal-header book-modal-header">
+                <h5 class="modal-title" id="bookModalTitle">Programme</h5>
+                <div class="book-toolbar">
+                    <button type="button" class="book-btn" id="bookPrev" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="book-page-info">
+                        <input type="number" id="bookPageInput" min="1" value="1" aria-label="Page">
+                        <span>/</span>
+                        <span id="bookPageTotal">1</span>
+                    </span>
+                    <button type="button" class="book-btn" id="bookNext" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <select class="book-select" id="bookZoom" aria-label="Zoom">
+                        <option value="fit">Ajuster</option>
+                        <option value="1" selected>100%</option>
+                        <option value="1.25">125%</option>
+                        <option value="1.5">150%</option>
+                        <option value="2">200%</option>
+                    </select>
+                    <a class="book-btn" id="bookDownload" href="#" target="_blank" title="Télécharger le PDF">
+                        <i class="fas fa-download"></i>
+                    </a>
+                    <button type="button" class="book-btn" data-bs-dismiss="modal" aria-label="Fermer">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body book-modal-body" id="bookBody">
+                <div id="bookLoader" class="book-loader">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Chargement du livre numérique…</span>
+                </div>
+                <div id="bookError" class="book-error" hidden></div>
+                <div id="bookSheet" class="book-sheet">
+                    <canvas id="bookPageCanvas" class="book-page"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 
@@ -1776,6 +1831,181 @@
 .programme-chip-soft{color:rgba(15,23,42,.70) !important;}
 .programme-card-icon{background:rgba(249,115,22,.12) !important;border:1px solid rgba(249,115,22,.22) !important;color:#f97316 !important;}
 .programme-card-actions .btn{border-radius:999px !important;font-weight:800 !important;}
+
+/* ===== Lecteur de livre numérique ===== */
+.book-open-btn { font-weight: 700; }
+
+.book-modal-content {
+    background: #0b1220;
+    border: none;
+    color: #fff;
+}
+
+.book-modal-header {
+    background: #081126;
+    border-bottom: 1px solid rgba(191, 219, 254, 0.12);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.85rem 1.15rem;
+    z-index: 10;
+}
+
+#bookModalTitle {
+    color: #fff;
+    font-weight: 900;
+    margin: 0;
+    max-width: 40vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.book-toolbar {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.book-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #fff;
+    border-radius: 10px;
+    padding: 0.45rem 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    text-decoration: none;
+    line-height: 1.2;
+}
+
+.book-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+}
+
+.book-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.book-page-info {
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.book-page-info input {
+    width: 60px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.4rem 0.5rem;
+    text-align: center;
+    font-weight: 700;
+}
+
+.book-page-info input:focus {
+    outline: none;
+    border-color: rgba(37, 99, 235, 0.8);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+.book-select {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #fff;
+    border-radius: 8px;
+    padding: 0.45rem 0.65rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.book-select option {
+    background: #0b1220;
+    color: #fff;
+}
+
+.book-modal-body {
+    background: radial-gradient(circle at 50% 50%, #0e1d3a 0%, #0b1220 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    position: relative;
+    padding: 1rem;
+    min-height: calc(100vh - 80px);
+}
+
+.book-sheet {
+    background: #fff;
+    border-radius: 3px 10px 10px 3px;
+    box-shadow:
+        0 25px 80px rgba(0, 0, 0, 0.55),
+        0 4px 12px rgba(0, 0, 0, 0.25),
+        inset -12px 0 24px rgba(0, 0, 0, 0.04);
+    border-left: 5px solid rgba(11, 18, 32, 0.10);
+    display: inline-block;
+    max-width: 100%;
+    max-height: calc(100vh - 130px);
+    overflow: auto;
+    position: relative;
+    transition: box-shadow 0.3s ease;
+}
+
+.book-page {
+    display: block;
+    transition: opacity 0.2s ease;
+}
+
+.book-page-changing {
+    opacity: 0.45;
+}
+
+.book-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    gap: 0.75rem;
+    font-weight: 700;
+    background: rgba(11, 18, 32, 0.75);
+    z-index: 20;
+}
+
+.book-error {
+    color: #fecaca;
+    background: rgba(239, 68, 68, 0.14);
+    border: 1px solid rgba(239, 68, 68, 0.32);
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    max-width: 520px;
+    text-align: center;
+    font-weight: 600;
+    z-index: 25;
+}
+
+@media (max-width: 768px) {
+    #bookModalTitle { max-width: 90vw; }
+    .book-modal-header { padding: 0.75rem; }
+    .book-toolbar { width: 100%; justify-content: center; }
+    .book-select { max-width: 85px; }
+    .book-page-info input { width: 52px; }
+}
+
 </style>
 @endpush
 
@@ -1889,5 +2119,206 @@ document.addEventListener('DOMContentLoaded', function() {
 
     applyFilters();
 });
+</script>
+@endpush
+
+@push('scripts')
+<script>
+(function() {
+    const modalEl = document.getElementById('programmeBookModal');
+    if (!modalEl) return;
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    const titleEl = document.getElementById('bookModalTitle');
+    const canvas = document.getElementById('bookPageCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+    const sheet = document.getElementById('bookSheet');
+    const body = document.getElementById('bookBody');
+    const loader = document.getElementById('bookLoader');
+    const errorBox = document.getElementById('bookError');
+    const prevBtn = document.getElementById('bookPrev');
+    const nextBtn = document.getElementById('bookNext');
+    const pageInput = document.getElementById('bookPageInput');
+    const totalEl = document.getElementById('bookPageTotal');
+    const zoomSelect = document.getElementById('bookZoom');
+    const downloadLink = document.getElementById('bookDownload');
+
+    let pdfDoc = null;
+    let numPages = 0;
+    let currentPage = 1;
+    let zoom = 1;
+    let baseScale = 1;
+    let renderTask = null;
+
+    window.openBook = function(url, bookTitle) {
+        if (titleEl) titleEl.textContent = bookTitle || 'Programme';
+        if (downloadLink) { downloadLink.href = url; downloadLink.style.display = url ? '' : 'none'; }
+        modal.show();
+        loadPdf(url);
+    };
+
+    function loadPdf(url) {
+        reset();
+        showLoader(true);
+        loadPdfJs(function() {
+            if (!window.pdfjsLib) {
+                showError('Le lecteur PDF n'a pas pu être chargé.');
+                return;
+            }
+            pdfjsLib.getDocument({ url: url, withCredentials: true }).promise.then(function(pdf) {
+                pdfDoc = pdf;
+                numPages = pdf.numPages;
+                currentPage = 1;
+                zoom = 1;
+                if (zoomSelect) zoomSelect.value = '1';
+                showLoader(false);
+                renderCurrentPage();
+            }).catch(function(err) {
+                console.error(err);
+                showError('Impossible de charger le PDF. Vérifiez que le fichier est accessible ou téléchargez-le directement.');
+            });
+        });
+    }
+
+    function loadPdfJs(callback) {
+        if (window.pdfjsLib) {
+            callback();
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+        script.onload = function() {
+            if (window.pdfjsLib) {
+                window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+            }
+            callback();
+        };
+        script.onerror = function() {
+            showError('Le lecteur PDF (PDF.js) n'a pas pu être chargé.');
+        };
+        document.head.appendChild(script);
+    }
+
+    function reset() {
+        if (renderTask) {
+            try { renderTask.cancel(); } catch (e) {}
+            renderTask = null;
+        }
+        pdfDoc = null;
+        numPages = 0;
+        currentPage = 1;
+        zoom = 1;
+        baseScale = 1;
+        if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (pageInput) pageInput.value = 1;
+        if (totalEl) totalEl.textContent = 1;
+        if (prevBtn) prevBtn.disabled = true;
+        if (nextBtn) nextBtn.disabled = true;
+        if (errorBox) errorBox.hidden = true;
+    }
+
+    function showLoader(show) {
+        if (loader) loader.style.display = show ? 'flex' : 'none';
+    }
+
+    function showError(msg) {
+        showLoader(false);
+        if (errorBox) { errorBox.textContent = msg; errorBox.hidden = false; }
+    }
+
+    function renderCurrentPage() {
+        if (!pdfDoc || !canvas || !ctx || currentPage < 1 || currentPage > numPages) return;
+
+        canvas.classList.add('book-page-changing');
+
+        pdfDoc.getPage(currentPage).then(function(page) {
+            const dpr = window.devicePixelRatio || 1;
+            const viewport1 = page.getViewport({ scale: 1 });
+            const sheetRect = sheet.getBoundingClientRect();
+            const bodyRect = body.getBoundingClientRect();
+            const availableW = Math.max(220, sheetRect.width - 32);
+            const availableH = Math.max(220, bodyRect.height - 100);
+
+            const scaleByWidth = availableW / viewport1.width;
+            const scaleByHeight = availableH / viewport1.height;
+            baseScale = Math.min(scaleByWidth, scaleByHeight, 3);
+
+            const currentScale = zoom === 'fit' ? baseScale : baseScale * zoom;
+            const renderScale = currentScale * dpr;
+            const viewport = page.getViewport({ scale: renderScale });
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            canvas.style.width = (viewport.width / dpr) + 'px';
+            canvas.style.height = (viewport.height / dpr) + 'px';
+
+            if (renderTask) {
+                try { renderTask.cancel(); } catch (e) {}
+            }
+
+            renderTask = page.render({ canvasContext: ctx, viewport: viewport });
+            renderTask.promise.then(function() {
+                canvas.classList.remove('book-page-changing');
+                updateControls();
+            }).catch(function() {
+                canvas.classList.remove('book-page-changing');
+            });
+        }).catch(function() {
+            showError('Erreur lors du rendu de la page.');
+        });
+    }
+
+    function updateControls() {
+        if (pageInput) pageInput.value = currentPage;
+        if (totalEl) totalEl.textContent = numPages;
+        if (prevBtn) prevBtn.disabled = currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = currentPage >= numPages;
+    }
+
+    function changePage(delta) {
+        const newPage = currentPage + delta;
+        if (newPage >= 1 && newPage <= numPages) {
+            currentPage = newPage;
+            renderCurrentPage();
+        }
+    }
+
+    function goToPage(value) {
+        let n = parseInt(value, 10);
+        if (!Number.isFinite(n)) return;
+        n = Math.max(1, Math.min(numPages, n));
+        currentPage = n;
+        renderCurrentPage();
+    }
+
+    if (prevBtn) prevBtn.addEventListener('click', function() { changePage(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', function() { changePage(1); });
+    if (pageInput) {
+        pageInput.addEventListener('change', function() { goToPage(this.value); });
+        pageInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { goToPage(this.value); e.preventDefault(); }
+        });
+    }
+    if (zoomSelect) {
+        zoomSelect.addEventListener('change', function() {
+            zoom = this.value === 'fit' ? 'fit' : parseFloat(this.value);
+            if (!pdfDoc) return;
+            renderCurrentPage();
+        });
+    }
+
+    let resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (pdfDoc) renderCurrentPage();
+        }, 250);
+    });
+
+    modalEl.addEventListener('shown.bs.modal', function() {
+        if (pdfDoc) renderCurrentPage();
+    });
+    modalEl.addEventListener('hidden.bs.modal', reset);
+})();
 </script>
 @endpush
