@@ -548,6 +548,7 @@
                     <a href="{{ route('laureats') }}" class="evc-dropdown-link"><i class="fas fa-trophy"></i> Nos lauréats</a>
                     <a href="{{ route('studio.creative') }}" class="evc-dropdown-link"><i class="fas fa-paint-brush"></i> Studio Creative</a>
                     <a href="{{ route('admissions.calendrier.2027') }}" class="evc-dropdown-link"><i class="fas fa-calendar-alt"></i> Calendrier 2027</a>
+                    <a href="{{ route('jury') }}" class="evc-dropdown-link"><i class="fas fa-gavel"></i> Nos jurys</a>
                 </div>
             </div>
             <a href="{{ route('evc.store') }}" class="evc-nav-link">EVC STORE</a>
@@ -843,6 +844,7 @@
                     <a href="{{ route('laureats') }}" class="mobile-menu-link text-sm"><i class="fas fa-trophy"></i> Nos lauréats</a>
                     <a href="{{ route('studio.creative') }}" class="mobile-menu-link text-sm"><i class="fas fa-paint-brush"></i> Studio Creative</a>
                     <a href="{{ route('admissions.calendrier.2027') }}" class="mobile-menu-link text-sm"><i class="fas fa-calendar-alt"></i> Calendrier 2027</a>
+                    <a href="{{ route('jury') }}" class="mobile-menu-link text-sm"><i class="fas fa-gavel"></i> Nos jurys</a>
                 </div>
                 <a href="{{ route('evc.store') }}" class="mobile-menu-link"><i class="fas fa-store"></i> EVC STORE</a>
             </nav>
