@@ -395,7 +395,7 @@
 <div class="rejoignez-nous-page">
     <!-- Hero Section -->
     <section class="hero-section">
-        <div class="container">
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
             <h1 class="hero-title">Rejoignez-nous</h1>
             <p class="hero-subtitle">
                 Participez à notre mission de former la prochaine génération de créatifs en Côte d'Ivoire.
@@ -406,125 +406,115 @@
 
     <!-- Cards Section -->
     <section class="cards-container">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-10">
-                    <div class="row g-4 cards-row">
-                        <!-- Collaborateur Card -->
-                        <div class="col-4">
-                            <div class="join-card card-collaborateur">
-                        <div>
-                            <div class="icon-circle">
-                                <i class="fas fa-handshake"></i>
-                            </div>
-                            <h2 class="card-title">Collaborateur</h2>
-                            <p class="card-description">
-                                Intégrez notre équipe dynamique et contribuez à transformer l'éducation digitale en Afrique.
-                            </p>
-                            <ul class="card-features">
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Environnement de travail stimulant</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Opportunités de développement</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Équipe passionnée et innovante</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Impact social significatif</span>
-                                </li>
-                            </ul>
+        <div class="mx-auto max-w-7xl px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Collaborateur Card -->
+                <div class="join-card card-collaborateur">
+                    <div>
+                        <div class="icon-circle">
+                            <i class="fas fa-handshake"></i>
                         </div>
-                        <a href="{{ route('rejoignez-nous.collaborateur') }}" class="cta-button">
-                            Postuler maintenant
-                            <i class="fas fa-arrow-right ms-2"></i>
-                        </a>
+                        <h2 class="card-title">Collaborateur</h2>
+                        <p class="card-description">
+                            Intégrez notre équipe dynamique et contribuez à transformer l'éducation digitale en Afrique.
+                        </p>
+                        <ul class="card-features">
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Environnement de travail stimulant</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Opportunités de développement</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Équipe passionnée et innovante</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Impact social significatif</span>
+                            </li>
+                        </ul>
                     </div>
+                    <a href="{{ route('rejoignez-nous.collaborateur') }}" class="cta-button">
+                        Postuler maintenant
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
                 </div>
 
-                        <!-- Partenaire Card -->
-                        <div class="col-4">
-                    <div class="join-card card-partenaire">
-                        <div>
-                            <div class="icon-circle">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <h2 class="card-title">Partenaire</h2>
-                            <p class="card-description">
-                                Collaborez avec nous pour développer des synergies et créer de la valeur ensemble.
-                            </p>
-                            <ul class="card-features">
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Partenariats stratégiques</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Visibilité accrue</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Accès à un vivier de talents</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Projets collaboratifs innovants</span>
-                                </li>
-                            </ul>
+                <!-- Partenaire Card -->
+                <div class="join-card card-partenaire">
+                    <div>
+                        <div class="icon-circle">
+                            <i class="fas fa-users"></i>
                         </div>
-                        <a href="{{ route('rejoignez-nous.partenaire') }}" class="cta-button">
-                            Devenir partenaire
-                            <i class="fas fa-arrow-right ms-2"></i>
-                        </a>
+                        <h2 class="card-title">Partenaire</h2>
+                        <p class="card-description">
+                            Collaborez avec nous pour développer des synergies et créer de la valeur ensemble.
+                        </p>
+                        <ul class="card-features">
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Partenariats stratégiques</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Visibilité accrue</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Accès à un vivier de talents</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Projets collaboratifs innovants</span>
+                            </li>
+                        </ul>
                     </div>
+                    <a href="{{ route('rejoignez-nous.partenaire') }}" class="cta-button">
+                        Devenir partenaire
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
                 </div>
 
-                        <!-- Formateur Card -->
-                        <div class="col-4">
-                    <div class="join-card card-formateur">
-                        <div>
-                            <div class="icon-circle">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                            </div>
-                            <h2 class="card-title">Devenir formateur</h2>
-                            <p class="card-description">
-                                Partagez votre expertise et formez la nouvelle génération de créatifs africains.
-                            </p>
-                            <ul class="card-features">
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Transmission de savoir</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Rémunération attractive</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Flexibilité des horaires</span>
-                                </li>
-                                <li>
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Réseau professionnel étendu</span>
-                                </li>
-                            </ul>
+                <!-- Formateur Card -->
+                <div class="join-card card-formateur">
+                    <div>
+                        <div class="icon-circle">
+                            <i class="fas fa-chalkboard-teacher"></i>
                         </div>
-                        <a href="{{ route('rejoignez-nous.formateur') }}" class="cta-button">
-                            Rejoindre l'équipe
-                            <i class="fas fa-arrow-right ms-2"></i>
-                        </a>
+                        <h2 class="card-title">Devenir formateur</h2>
+                        <p class="card-description">
+                            Partagez votre expertise et formez la nouvelle génération de créatifs africains.
+                        </p>
+                        <ul class="card-features">
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Transmission de savoir</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Rémunération attractive</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Flexibilité des horaires</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle"></i>
+                                <span>Réseau professionnel étendu</span>
+                            </li>
+                        </ul>
                     </div>
+                    <a href="{{ route('rejoignez-nous.formateur') }}" class="cta-button">
+                        Rejoindre l'équipe
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-</section>
+    </section>
 
     <!-- Floating Particles -->
     <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
