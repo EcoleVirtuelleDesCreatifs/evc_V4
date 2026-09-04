@@ -172,6 +172,13 @@ class AttendanceController extends Controller
                 ? round((($present + $late) / $completedSeances) * 100, 1)
                 : 0;
 
+            $participationMinutes = $seances
+                ->where('status', 'completed')
+                ->filter(fn (Seance $s) =>
+                    in_array($attendances[$s->id]->status ?? '', ['present', 'late'])
+                )
+                ->sum('duration_minutes');
+
             $stats = [
                 'total' => $seances->count(),
                 'completed' => $completedSeances,
@@ -180,6 +187,7 @@ class AttendanceController extends Controller
                 'late' => $late,
                 'excused' => $excused,
                 'rate' => $rate,
+                'participation_minutes' => $participationMinutes,
             ];
         }
 
@@ -202,6 +210,7 @@ class AttendanceController extends Controller
             'late' => 0,
             'excused' => 0,
             'rate' => 0,
+            'participation_minutes' => 0,
         ];
     }
 }

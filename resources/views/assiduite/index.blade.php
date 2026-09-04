@@ -34,6 +34,7 @@
     .stat-late { color: #fbbf24; }
     .stat-absent { color: #f87171; }
     .stat-excused { color: #a5b4fc; }
+    .stat-time { color: #60a5fa; }
     .assiduite-table {
         background: #0b1220;
         border: 1px solid rgba(191, 219, 254, 0.12);
@@ -47,20 +48,7 @@
     .badge-absent { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); }
     .badge-late { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.35); }
     .badge-excused { background: rgba(99, 102, 241, 0.18); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.35); }
-    .badge-unknown { background: rgba(255, 255, 255, 0.08); color: #94a3b8; border: 1px solid rgba(255, 255, 255, 0.12); }
-    .progress-custom {
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: 10px;
-        height: 12px;
-        overflow: hidden;
-        margin-top: 0.5rem;
-    }
-    .progress-fill {
-        background: linear-gradient(90deg, #34d399 0%, #60a5fa 100%);
-        height: 100%;
-        border-radius: 10px;
-        transition: width 0.4s ease;
-    }
+    .badge-pending { background: rgba(148, 163, 184, 0.18); color: #cbd5e1; border: 1px solid rgba(148, 163, 184, 0.35); }
     .empty-assiduite {
         text-align: center;
         color: #94a3b8;
@@ -74,17 +62,20 @@
 <div class="assiduite-page">
     <div class="assiduite-hero">
         <h1><i class="fas fa-clipboard-check me-2"></i>Mon assiduité</h1>
-        <p>Suivez votre taux de présence pour les séances de votre formation.</p>
+        <p>Suivez votre taux de présence et votre temps de participation.</p>
     </div>
 
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
             <div class="stat-card">
                 <div class="stat-value stat-rate">{{ $stats['rate'] }}%</div>
-                <div class="stat-label">Taux de présence</div>
-                <div class="progress-custom">
-                    <div class="progress-fill" style="width: {{ $stats['rate'] }}%"></div>
-                </div>
+                <div class="stat-label">Taux d'assiduité</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-value text-white">{{ $stats['total'] }}</div>
+                <div class="stat-label">Séances</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
@@ -108,7 +99,7 @@
         <div class="col-6 col-md-3">
             <div class="stat-card">
                 <div class="stat-value stat-excused">{{ $stats['excused'] }}</div>
-                <div class="stat-label">Excusés</div>
+                <div class="stat-label">Absences excusées</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
@@ -119,13 +110,15 @@
         </div>
         <div class="col-6 col-md-3">
             <div class="stat-card">
-                <div class="stat-value text-white">{{ $stats['total'] }}</div>
-                <div class="stat-label">Séances prévues</div>
+                <div class="stat-value stat-time">
+                    {{ intdiv($stats['participation_minutes'], 60) }}h{{ $stats['participation_minutes'] % 60 }}
+                </div>
+                <div class="stat-label">Durée totale</div>
             </div>
         </div>
     </div>
 
-    <h2 class="h5 text-white fw-bold mb-3"><i class="fas fa-list me-2"></i>Historique</h2>
+    <h2 class="h5 text-white fw-bold mb-3"><i class="fas fa-list me-2"></i>Historique des présences</h2>
     @if($seances->isEmpty())
         <div class="empty-assiduite">
             <i class="fas fa-clipboard-list"></i>
@@ -137,55 +130,50 @@
             <table class="table table-borderless m-0">
                 <thead>
                     <tr>
-                        <th>Séance</th>
                         <th>Date</th>
-                        <th>Type</th>
+                        <th>Séance</th>
+                        <th>Mode</th>
+                        <th>Heure arrivée</th>
+                        <th>Heure départ</th>
+                        <th>Durée</th>
                         <th>Statut</th>
-                        <th>Mode de marquage</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($seances as $seance)
-                        @php $attendance = $attendances[$seance->id] ?? null; @endphp
+                        @php
+                            $attendance = $attendances[$seance->id] ?? null;
+                            $status = $attendance?->status ?? 'pending';
+                            $hasArrived = $attendance && in_array($status, ['present', 'late', 'excused']);
+                        @endphp
                         <tr>
-                            <td>
-                                <strong>{{ $seance->title }}</strong>
-                                @if(in_array($seance->type, ['onsite', 'hybrid']) && $seance->location)
-                                    <div class="small text-muted">{{ $seance->location }}</div>
-                                @endif
-                            </td>
-                            <td>{{ $seance->scheduled_at->format('d/m/Y H:i') }}</td>
-                            <td>
-                                @if($seance->type === 'online')
-                                    <span class="badge-seance" style="background: rgba(37, 99, 235, 0.14); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.25);"><i class="fas fa-video me-1"></i>En ligne</span>
-                                @elseif($seance->type === 'hybrid')
-                                    <span class="badge-seance" style="background: rgba(139, 92, 246, 0.14); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.25);"><i class="fas fa-layer-group me-1"></i>Hybride</span>
-                                @else
-                                    <span class="badge-seance" style="background: rgba(16, 185, 129, 0.14); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25);"><i class="fas fa-map-marker-alt me-1"></i>Présentiel</span>
-                                @endif
-                            </td>
+                            <td>{{ $seance->scheduled_at->format('d/m/Y') }}</td>
+                            <td><strong>{{ $seance->title }}</strong></td>
                             <td>
                                 @if($attendance)
-                                    <span class="badge-seance badge-{{ $attendance->status }}">
-                                        @if($attendance->status === 'present') Présent
-                                        @elseif($attendance->status === 'absent') Absent
-                                        @elseif($attendance->status === 'late') En retard
-                                        @elseif($attendance->status === 'excused') Excusé
-                                        @endif
-                                    </span>
-                                @else
-                                    <span class="badge-seance badge-unknown">Non marqué</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($attendance)
-                                    @if($attendance->check_method === 'meet') Google Meet
-                                    @elseif($attendance->check_method === 'qrcode') QR code
+                                    @if($attendance->check_method === 'qrcode') QR Code
+                                    @elseif($attendance->check_method === 'meet') Google Meet
                                     @elseif($attendance->check_method === 'manual') Manuel
                                     @else Système
                                     @endif
                                 @else
                                     -
+                                @endif
+                            </td>
+                            <td>{{ $hasArrived && $attendance->recorded_at ? $attendance->recorded_at->format('H:i') : '-' }}</td>
+                            <td>{{ $hasArrived && $seance->ends_at ? $seance->ends_at->format('H:i') : '-' }}</td>
+                            <td>{{ $hasArrived ? $seance->duration_minutes . ' min' : '-' }}</td>
+                            <td>
+                                @if($status === 'present')
+                                    <span class="badge-seance badge-present">Présent</span>
+                                @elseif($status === 'late')
+                                    <span class="badge-seance badge-late">En retard</span>
+                                @elseif($status === 'absent')
+                                    <span class="badge-seance badge-absent">Absent</span>
+                                @elseif($status === 'excused')
+                                    <span class="badge-seance badge-excused">Excusé</span>
+                                @else
+                                    <span class="badge-seance badge-pending">En attente</span>
                                 @endif
                             </td>
                         </tr>
