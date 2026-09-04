@@ -2,7 +2,7 @@
     $attendance = $attendances[$seance->id] ?? null;
     $clicked = $clicks[$seance->id] ?? null;
     $canJoin = in_array($seance->type, ['online', 'hybrid']) && !empty($seance->meet_link);
-    $canQr = in_array($seance->type, ['onsite', 'hybrid']) && $seance->isOngoing();
+    $canQr = in_array($seance->type, ['onsite', 'hybrid']) && $seance->qrToken && $seance->qrToken->isValid();
 @endphp
 <div class="seance-card">
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
@@ -59,12 +59,9 @@
         @endif
 
         @if($canQr)
-            <form method="POST" action="{{ route($routePrefix . '.seances.qr', $seance->id) }}" class="d-inline">
-                @csrf
-                <button type="submit" class="btn-qr">
-                    <i class="fas fa-qrcode"></i> Scanner ma présence
-                </button>
-            </form>
+            <a href="{{ route('pointage-qr', ['token' => $seance->qrToken->token]) }}" class="btn-qr" target="_blank">
+                <i class="fas fa-qrcode"></i> Scanner ma présence
+            </a>
         @endif
 
         @if($attendance)

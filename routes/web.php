@@ -598,7 +598,6 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     // Séances & assiduité
     Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
-    Route::post('/seances/{seance}/qr', [AttendanceController::class, 'qrPresence'])->name('seances.qr');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
@@ -717,7 +716,6 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
     // Séances & assiduité
     Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
-    Route::post('/seances/{seance}/qr', [AttendanceController::class, 'qrPresence'])->name('seances.qr');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
@@ -932,7 +930,6 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
     // Séances & assiduité
     Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
-    Route::post('/seances/{seance}/qr', [AttendanceController::class, 'qrPresence'])->name('seances.qr');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
@@ -976,6 +973,10 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::delete('/seances/{seance}', [SeanceAdminController::class, 'destroy'])->name('seances.destroy');
         Route::get('/seances/{seance}/attendance', [SeanceAdminController::class, 'attendance'])->name('seances.attendance');
         Route::post('/seances/{seance}/attendance', [SeanceAdminController::class, 'saveAttendance'])->name('seances.attendance.save');
+
+        Route::get('/seances/{seance}/qr', [SeanceAdminController::class, 'qr'])->name('seances.qr');
+        Route::post('/seances/{seance}/qr/regenerate', [SeanceAdminController::class, 'regenerateQr'])->name('seances.qr.regenerate');
+        Route::post('/seances/{seance}/qr/close', [SeanceAdminController::class, 'closeQr'])->name('seances.qr.close');
 
         Route::get('/boutique', [\App\Http\Controllers\Admin\BoutiqueController::class, 'index'])->name('boutique.index');
         Route::get('/boutique/analytics', [\App\Http\Controllers\Admin\BoutiqueController::class, 'analytics'])->name('boutique.analytics');
@@ -1606,4 +1607,9 @@ Route::post('/evc/app/admin/students/{id}/works/update-deadline', [\App\Http\Con
 Route::post('/evc/app/admin/students/{id}/works/remove', [\App\Http\Controllers\Admin\StudentAdminController::class, 'removeWork'])
     ->middleware(['admin.errors', 'admin.auth'])
     ->name('admin.students.works.remove');
+
+// Pointage QR (lecture via QR code)
+Route::get('/evc/pointage-qr', [AttendanceController::class, 'qrScan'])
+    ->name('pointage-qr')
+    ->middleware('auth');
 

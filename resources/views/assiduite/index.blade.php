@@ -164,7 +164,10 @@
                                     -
                                 @endif
                             </td>
-                            <td>{{ $hasArrived && $attendance->recorded_at ? $attendance->recorded_at->format('H:i') : '-' }}</td>
+                            <td>
+                                @php $arrival = $attendance->check_in_at ?? $attendance->recorded_at; @endphp
+                                {{ $hasArrived && $arrival ? $arrival->format('H:i') : '-' }}
+                            </td>
                             <td>{{ $hasArrived && $seance->ends_at ? $seance->ends_at->format('H:i') : '-' }}</td>
                             <td>{{ $hasArrived ? $seance->duration_minutes . ' min' : '-' }}</td>
                             <td>

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Seance extends Model
 {
@@ -35,6 +36,11 @@ class Seance extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class, 'seance_id');
+    }
+
+    public function qrToken(): HasOne
+    {
+        return $this->hasOne(SeanceQrToken::class, 'seance_id')->latestOfMany('created_at');
     }
 
     public function scopeForFormation($query, string $formation)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\MeetingClick;
 use App\Models\Seance;
+use App\Models\SeanceQrToken;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,6 +32,7 @@ class AttendanceController extends Controller
         if ($formation) {
             $now = now();
             $seances = Seance::forFormation($formation)
+                ->with('qrToken')
                 ->orderBy('scheduled_at')
                 ->get();
 
@@ -102,22 +104,53 @@ class AttendanceController extends Controller
     /**
      * Marque la présence de l'étudiant via QR code (présentiel / hybride).
      */
-    public function qrPresence(Request $request, Seance $seance): RedirectResponse
+    public function qrScan(Request $request): RedirectResponse
     {
+        $token = $request->get('token');
+
+        if (!$token) {
+            return redirect('/')->with('error', 'QR code invalide.');
+        }
+
+        $qrToken = SeanceQrToken::with('seance')
+            ->where('token', $token)
+            ->first();
+
+        if (!$qrToken || !$qrToken->seance) {
+            return redirect('/')->with('error', 'QR code invalide.');
+        }
+
+        $seance = $qrToken->seance;
+
+        if (!Auth::check()) {
+            return redirect('/login')->with('error', 'Veuillez vous connecter pour pointer.');
+        }
+
         $user = Auth::user();
         $student = $user ? $user->student : null;
 
         if (!$student || $seance->formation !== $student->program) {
-            abort(403);
+            return redirect('/')->with('error', 'Vous n\'êtes pas inscrit à cette formation.');
         }
 
-        if (!in_array($seance->type, ['onsite', 'hybrid'])) {
-            return back()->with('error', 'Cette séance ne prend pas en charge le QR code.');
+        if (!in_array($seance->status, ['scheduled', 'ongoing'])) {
+            return redirect('/')->with('error', 'La séance n\'est pas ouverte.');
         }
 
-        if (!$seance->isOngoing()) {
-            return back()->with('error', 'Vous ne pouvez marquer votre présence que pendant la séance.');
+        if (!$qrToken->isValid()) {
+            return redirect('/')->with('error', 'Le QR code a expiré ou est fermé.');
         }
+
+        if (Attendance::where('seance_id', $seance->id)
+            ->where('student_id', $student->id)
+            ->whereNotNull('check_in_at')
+            ->exists()) {
+            return redirect('/evc/compte/' . $student->program . '/assiduite')
+                ->with('error', 'Vous avez déjà pointé pour cette séance.');
+        }
+
+        $now = now();
+        $status = $now->lte($seance->scheduled_at->copy()->addMinutes(15)) ? 'present' : 'late';
 
         Attendance::updateOrCreate(
             [
@@ -126,15 +159,17 @@ class AttendanceController extends Controller
             ],
             [
                 'user_id' => $student->user?->id,
-                'status' => 'present',
+                'status' => $status,
                 'check_method' => 'qrcode',
                 'recorded_by' => $user->id,
-                'recorded_at' => now(),
-                'notes' => 'Présence scannée via QR code',
+                'recorded_at' => $now,
+                'check_in_at' => $now,
+                'notes' => 'Présence par QR code',
             ]
         );
 
-        return back()->with('success', 'Votre présence a été enregistrée.');
+        return redirect('/evc/compte/' . $student->program . '/assiduite')
+            ->with('success', 'Votre présence a été enregistrée.');
     }
 
     /**

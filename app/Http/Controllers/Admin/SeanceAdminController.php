@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Seance;
+use App\Models\SeanceQrToken;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -170,6 +172,58 @@ class SeanceAdminController extends Controller
 
         return redirect()->route('admin.seances.attendance', $seance)
             ->with('success', 'Présences enregistrées avec succès.');
+    }
+
+    /**
+     * Ouvre/génère le QR code de pointage d'une séance.
+     */
+    public function qr(Seance $seance): View
+    {
+        $qrToken = SeanceQrToken::updateOrCreate(
+            ['seance_id' => $seance->id],
+            [
+                'token' => hash('sha256', $seance->id . '-' . Str::random(32) . '-' . now()->timestamp),
+                'expires_at' => now()->addMinutes(3),
+                'closed_at' => null,
+            ]
+        );
+
+        $qrUrl = route('pointage-qr', ['token' => $qrToken->token]);
+
+        return view('admin.seances.qr', compact('seance', 'qrToken', 'qrUrl'));
+    }
+
+    /**
+     * Régénère le QR code (nouveau token + expiration 3 min).
+     */
+    public function regenerateQr(Seance $seance): RedirectResponse
+    {
+        SeanceQrToken::updateOrCreate(
+            ['seance_id' => $seance->id],
+            [
+                'token' => hash('sha256', $seance->id . '-' . Str::random(32) . '-' . now()->timestamp),
+                'expires_at' => now()->addMinutes(3),
+                'closed_at' => null,
+            ]
+        );
+
+        return redirect()->route('admin.seances.qr', $seance)
+            ->with('success', 'QR code régénéré.');
+    }
+
+    /**
+     * Ferme le pointage QR.
+     */
+    public function closeQr(Seance $seance): RedirectResponse
+    {
+        $qrToken = SeanceQrToken::where('seance_id', $seance->id)->first();
+
+        if ($qrToken) {
+            $qrToken->update(['closed_at' => now()]);
+        }
+
+        return redirect()->route('admin.seances.attendance', $seance)
+            ->with('success', 'Pointage fermé.');
     }
 
     /**

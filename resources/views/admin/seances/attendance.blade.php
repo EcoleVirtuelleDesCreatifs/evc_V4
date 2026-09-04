@@ -10,6 +10,11 @@
         <span class="badge {{ $seance->type === 'online' ? 'bg-info text-dark' : 'bg-success' }} ms-2">
             {{ $seance->type === 'online' ? 'En ligne' : 'Présentiel' }}
         </span>
+        @if(in_array($seance->type, ['onsite', 'hybrid']))
+            <a href="{{ route('admin.seances.qr', $seance) }}" class="btn btn-sm btn-outline-success ms-2">
+                <i class="fas fa-qrcode me-1"></i> QR Code
+            </a>
+        @endif
     </p>
 
     @if(session('success'))

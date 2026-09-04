@@ -20,11 +20,13 @@ class Attendance extends Model
         'check_method',
         'recorded_by',
         'recorded_at',
+        'check_in_at',
         'notes',
     ];
 
     protected $casts = [
         'recorded_at' => 'datetime',
+        'check_in_at' => 'datetime',
     ];
 
     public function seance(): BelongsTo
