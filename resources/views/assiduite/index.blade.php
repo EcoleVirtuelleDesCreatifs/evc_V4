@@ -150,7 +150,7 @@
                         <tr>
                             <td>
                                 <strong>{{ $seance->title }}</strong>
-                                @if($seance->type === 'presentiel' && $seance->location)
+                                @if(in_array($seance->type, ['onsite', 'hybrid']) && $seance->location)
                                     <div class="small text-muted">{{ $seance->location }}</div>
                                 @endif
                             </td>
@@ -158,6 +158,8 @@
                             <td>
                                 @if($seance->type === 'online')
                                     <span class="badge-seance" style="background: rgba(37, 99, 235, 0.14); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.25);"><i class="fas fa-video me-1"></i>En ligne</span>
+                                @elseif($seance->type === 'hybrid')
+                                    <span class="badge-seance" style="background: rgba(139, 92, 246, 0.14); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.25);"><i class="fas fa-layer-group me-1"></i>Hybride</span>
                                 @else
                                     <span class="badge-seance" style="background: rgba(16, 185, 129, 0.14); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25);"><i class="fas fa-map-marker-alt me-1"></i>Présentiel</span>
                                 @endif
