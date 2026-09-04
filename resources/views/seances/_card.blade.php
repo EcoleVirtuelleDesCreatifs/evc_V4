@@ -50,7 +50,7 @@
         @if($canJoin)
             <form method="POST" action="{{ route($routePrefix . '.seances.meet-click', $seance->id) }}" class="d-inline">
                 @csrf
-                <button type="submit" class="btn-meet" {{ $clicked ? 'disabled' : '' }}>
+                <button type="submit" class="btn-meet">
                     <i class="fas fa-video"></i> Rejoindre Google Meet
                 </button>
             </form>
