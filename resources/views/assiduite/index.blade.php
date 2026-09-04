@@ -143,7 +143,11 @@
                     @foreach($seances as $seance)
                         @php
                             $attendance = $attendances[$seance->id] ?? null;
-                            $status = $attendance?->status ?? 'pending';
+                            if ($seance->status === 'cancelled') {
+                                $status = 'cancelled';
+                            } else {
+                                $status = $attendance?->status ?? 'pending';
+                            }
                             $hasArrived = $attendance && in_array($status, ['present', 'late', 'excused']);
                         @endphp
                         <tr>
@@ -172,6 +176,8 @@
                                     <span class="badge-seance badge-absent">Absent</span>
                                 @elseif($status === 'excused')
                                     <span class="badge-seance badge-excused">Excusé</span>
+                                @elseif($status === 'cancelled')
+                                    <span class="badge-seance" style="background: rgba(100, 116, 139, 0.18); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.35);">Annulée</span>
                                 @else
                                     <span class="badge-seance badge-pending">En attente</span>
                                 @endif

@@ -152,7 +152,6 @@ class AttendanceController extends Controller
 
         if ($formation) {
             $seances = Seance::forFormation($formation)
-                ->visible()
                 ->orderByDesc('scheduled_at')
                 ->get();
 
