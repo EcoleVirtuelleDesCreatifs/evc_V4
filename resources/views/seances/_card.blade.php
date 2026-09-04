@@ -2,7 +2,8 @@
     $attendance = $attendances[$seance->id] ?? null;
     $clicked = $clicks[$seance->id] ?? null;
     $canJoin = in_array($seance->type, ['online', 'hybrid']) && !empty($seance->meet_link);
-    $canQr = in_array($seance->type, ['onsite', 'hybrid']) && $seance->qrToken && $seance->qrToken->isValid();
+    $isQrEligible = in_array($seance->type, ['onsite', 'hybrid']);
+    $isQrOpen = $isQrEligible && $seance->qrToken && $seance->qrToken->isValid();
 @endphp
 <div class="seance-card">
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
@@ -58,10 +59,14 @@
             @endif
         @endif
 
-        @if($canQr)
+        @if($isQrOpen)
             <a href="{{ route('pointage-qr', ['token' => $seance->qrToken->token]) }}" class="btn-qr" target="_blank">
                 <i class="fas fa-qrcode"></i> Scanner ma présence
             </a>
+        @elseif($isQrEligible)
+            <span class="btn-qr disabled" title="Le pointage n'est pas encore ouvert">
+                <i class="fas fa-qrcode"></i> Pointage fermé
+            </span>
         @endif
 
         @if($attendance)

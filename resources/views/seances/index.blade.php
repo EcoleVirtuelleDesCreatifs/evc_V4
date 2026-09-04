@@ -57,6 +57,11 @@
     .btn-meet:hover { color: #fff; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35); }
     .btn-qr { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
     .btn-qr:hover { color: #fff; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35); }
+    .btn-qr.disabled {
+        background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
     .empty-seances {
         text-align: center; color: #94a3b8; padding: 3rem 1rem;
         background: rgba(11, 18, 32, 0.6); border-radius: 16px;
