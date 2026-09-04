@@ -1215,9 +1215,9 @@
                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </div>
                 <div class="submenu {{ request()->routeIs($formationPrefix . '.tp.*') || request()->routeIs($formationPrefix . '.projets.*') || request()->routeIs($formationPrefix . '.todo.*') ? 'open' : '' }}">
-                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.tp.index') ? route($formationPrefix . '.tp.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.tp.*') ? 'active' : '' }}">
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.tp.ajouter') ? route($formationPrefix . '.tp.ajouter') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.tp.*') ? 'active' : '' }}">
                         <i class="fas fa-tasks"></i>
-                        Travaux Pratiques
+                        Publier Un projet
                     </a>
                     <a href="{{ route('design-graphique.projets.index') }}" class="submenu-item {{ (request()->routeIs('design-graphique.projets.*') && !request()->routeIs('design-graphique.projets.historique')) ? 'active' : '' }}">
                         <i class="fas fa-external-link-alt"></i>
