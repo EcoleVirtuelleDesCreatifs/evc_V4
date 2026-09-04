@@ -5,7 +5,7 @@
 @section('content')
 <div class="container-fluid py-4">
     <h1 class="h3 mb-2">Marquer les présences</h1>
-    <p class="text-muted mb-4">
+    <p class="mb-4" style="color: #fff;">
         <i class="far fa-calendar me-1"></i>{{ $seance->title }} — {{ $seance->scheduled_at->format('d/m/Y H:i') }}
         <span class="badge {{ $seance->type === 'online' ? 'bg-info text-dark' : 'bg-success' }} ms-2">
             {{ $seance->type === 'online' ? 'En ligne' : 'Présentiel' }}
