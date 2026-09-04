@@ -186,7 +186,6 @@ class AttendanceController extends Controller
         }
 
         return view('assiduite.index', [
-            'formationPrefix' => $formationPrefix,
             'seances' => $seances,
             'attendances' => $attendances,
             'stats' => $stats,
