@@ -34,7 +34,8 @@
                     <label class="form-label">Statut</label>
                     <select name="status" class="form-select">
                         <option value="">Tous</option>
-                        <option value="planned" {{ request('status') == 'planned' ? 'selected' : '' }}>Planifiée</option>
+                        <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }}>Planifiée</option>
+                        <option value="ongoing" {{ request('status') == 'ongoing' ? 'selected' : '' }}>En cours</option>
                         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Terminée</option>
                         <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Annulée</option>
                     </select>
@@ -43,8 +44,9 @@
                     <label class="form-label">Type</label>
                     <select name="type" class="form-select">
                         <option value="">Tous</option>
-                        <option value="presentiel" {{ request('type') == 'presentiel' ? 'selected' : '' }}>Présentiel</option>
+                        <option value="onsite" {{ request('type') == 'onsite' ? 'selected' : '' }}>Présentiel</option>
                         <option value="online" {{ request('type') == 'online' ? 'selected' : '' }}>En ligne</option>
+                        <option value="hybrid" {{ request('type') == 'hybrid' ? 'selected' : '' }}>Hybride</option>
                     </select>
                 </div>
                 <div class="col-md-3 d-flex align-items-end">
@@ -76,6 +78,8 @@
                             <td>
                                 @if($seance->type === 'online')
                                     <span class="badge bg-info text-dark"><i class="fas fa-video me-1"></i>En ligne</span>
+                                @elseif($seance->type === 'hybrid')
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-layer-group me-1"></i>Hybride</span>
                                 @else
                                     <span class="badge bg-success"><i class="fas fa-map-marker-alt me-1"></i>Présentiel</span>
                                 @endif
@@ -83,8 +87,10 @@
                             <td>{{ $seance->scheduled_at->format('d/m/Y H:i') }}</td>
                             <td>{{ $seance->duration_minutes }} min</td>
                             <td>
-                                @if($seance->status === 'planned')
+                                @if($seance->status === 'scheduled')
                                     <span class="badge bg-secondary">Planifiée</span>
+                                @elseif($seance->status === 'ongoing')
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-circle me-1 small"></i>En cours</span>
                                 @elseif($seance->status === 'completed')
                                     <span class="badge bg-primary">Terminée</span>
                                 @else

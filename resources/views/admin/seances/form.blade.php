@@ -29,6 +29,18 @@
                         @error('title')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                     <div class="col-md-4">
+                        <label for="module" class="form-label required">Module</label>
+                        <input type="text" id="module" name="module" class="form-control @error('module') is-invalid @enderror"
+                               value="{{ old('module', $seance->module ?? '') }}" required>
+                        @error('module')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-4">
+                        <label for="formateur" class="form-label required">Formateur</label>
+                        <input type="text" id="formateur" name="formateur" class="form-control @error('formateur') is-invalid @enderror"
+                               value="{{ old('formateur', $seance->formateur ?? '') }}" required>
+                        @error('formateur')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="col-md-4">
                         <label for="formation" class="form-label required">Formation</label>
                         <select id="formation" name="formation" class="form-select @error('formation') is-invalid @enderror" required>
                             <option value="">Choisir une formation</option>
@@ -43,8 +55,9 @@
                         <label for="type" class="form-label required">Type de séance</label>
                         <select id="type" name="type" class="form-select @error('type') is-invalid @enderror" required onchange="toggleFields()">
                             <option value="">Choisir...</option>
-                            <option value="presentiel" {{ old('type', $seance->type ?? '') == 'presentiel' ? 'selected' : '' }}>Présentiel</option>
+                            <option value="onsite" {{ old('type', $seance->type ?? '') == 'onsite' ? 'selected' : '' }}>Présentiel</option>
                             <option value="online" {{ old('type', $seance->type ?? '') == 'online' ? 'selected' : '' }}>En ligne (Google Meet)</option>
+                            <option value="hybrid" {{ old('type', $seance->type ?? '') == 'hybrid' ? 'selected' : '' }}>Hybride</option>
                         </select>
                         @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
@@ -68,7 +81,8 @@
                     <div class="col-md-4">
                         <label for="status" class="form-label required">Statut</label>
                         <select id="status" name="status" class="form-select @error('status') is-invalid @enderror" required>
-                            <option value="planned" {{ old('status', $seance->status ?? 'planned') == 'planned' ? 'selected' : '' }}>Planifiée</option>
+                            <option value="scheduled" {{ old('status', $seance->status ?? 'scheduled') == 'scheduled' ? 'selected' : '' }}>Planifiée</option>
+                            <option value="ongoing" {{ old('status', $seance->status ?? '') == 'ongoing' ? 'selected' : '' }}>En cours</option>
                             <option value="completed" {{ old('status', $seance->status ?? '') == 'completed' ? 'selected' : '' }}>Terminée</option>
                             <option value="cancelled" {{ old('status', $seance->status ?? '') == 'cancelled' ? 'selected' : '' }}>Annulée</option>
                         </select>
@@ -76,7 +90,7 @@
                     </div>
 
                     <div class="col-md-8" id="location-group">
-                        <label for="location" class="form-label">Lieu (présentiel)</label>
+                        <label for="location" class="form-label">Lieu (présentiel / hybride)</label>
                         <input type="text" id="location" name="location"
                                class="form-control @error('location') is-invalid @enderror"
                                value="{{ old('location', $seance->location ?? '') }}">
@@ -84,7 +98,7 @@
                     </div>
 
                     <div class="col-12" id="meet-group">
-                        <label for="meet_link" class="form-label">Lien Google Meet</label>
+                        <label for="meet_link" class="form-label">Lien Google Meet (en ligne / hybride)</label>
                         <input type="url" id="meet_link" name="meet_link"
                                class="form-control @error('meet_link') is-invalid @enderror"
                                value="{{ old('meet_link', $seance->meet_link ?? '') }}" placeholder="https://meet.google.com/...">
@@ -123,10 +137,13 @@
             meetGroup.style.display = 'block';
             locationGroup.style.display = 'none';
             locationInput.value = '';
-        } else if (type === 'presentiel') {
+        } else if (type === 'onsite') {
             meetGroup.style.display = 'none';
             locationGroup.style.display = 'block';
             meetInput.value = '';
+        } else if (type === 'hybrid') {
+            meetGroup.style.display = 'block';
+            locationGroup.style.display = 'block';
         } else {
             meetGroup.style.display = 'block';
             locationGroup.style.display = 'block';

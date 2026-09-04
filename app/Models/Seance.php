@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Seance extends Model
@@ -15,6 +14,8 @@ class Seance extends Model
 
     protected $fillable = [
         'title',
+        'module',
+        'formateur',
         'description',
         'formation',
         'type',
@@ -44,5 +45,22 @@ class Seance extends Model
     public function scopeVisible($query)
     {
         return $query->where('status', '!=', 'cancelled');
+    }
+
+    public function getEndsAtAttribute()
+    {
+        return $this->scheduled_at
+            ? $this->scheduled_at->copy()->addMinutes($this->duration_minutes)
+            : null;
+    }
+
+    public function isOngoing(): bool
+    {
+        if ($this->status === 'cancelled' || !$this->scheduled_at || !$this->ends_at) {
+            return false;
+        }
+
+        $now = now();
+        return $this->scheduled_at <= $now && $now < $this->ends_at;
     }
 }

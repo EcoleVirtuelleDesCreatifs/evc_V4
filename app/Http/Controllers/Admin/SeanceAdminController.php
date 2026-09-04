@@ -180,16 +180,22 @@ class SeanceAdminController extends Controller
     {
         $rules = [
             'title' => 'required|string|max:255',
+            'module' => 'required|string|max:255',
+            'formateur' => 'required|string|max:255',
             'description' => 'nullable|string',
             'formation' => 'required|string|max:255',
-            'type' => 'required|in:presentiel,online',
+            'type' => 'required|in:onsite,online,hybrid',
             'scheduled_at' => 'required|date',
             'duration_minutes' => 'required|integer|min:1',
-            'status' => 'required|in:planned,completed,cancelled',
+            'status' => 'required|in:scheduled,ongoing,completed,cancelled',
         ];
 
-        $rules['meet_link'] = $request->input('type') === 'online' ? 'required|url|max:1000' : 'nullable|url|max:1000';
-        $rules['location'] = $request->input('type') === 'presentiel' ? 'required|string|max:255' : 'nullable|string|max:255';
+        $type = $request->input('type');
+        $isOnline = in_array($type, ['online', 'hybrid']);
+        $isOnsite = in_array($type, ['onsite', 'hybrid']);
+
+        $rules['meet_link'] = $isOnline ? 'required|url|max:1000' : 'nullable|url|max:1000';
+        $rules['location'] = $isOnsite ? 'required|string|max:255' : 'nullable|string|max:255';
 
         return $request->validate($rules);
     }
