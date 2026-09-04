@@ -78,6 +78,14 @@
                         </div>
                     </li>
 
+                    <!-- Séances & assiduité -->
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.seances.index') }}" class="admin-nav-link {{ request()->routeIs('admin.seances.*') ? 'active' : '' }}">
+                            <i class="fas fa-clipboard-list"></i>
+                            Séances & assiduité
+                        </a>
+                    </li>
+
                     <!-- Gestion des Étudiants -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.etudiants.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#studentsMenu">

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CVThequeController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Admin\PreRegistrationAdminController;
 use App\Http\Controllers\Admin\CVThequeAdminController;
 use App\Http\Controllers\Admin\DonationAdminController;
 use App\Http\Controllers\Admin\SaopEligibilityTestAdminController;
+use App\Http\Controllers\Admin\SeanceAdminController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\Api\ProjectApiController;
@@ -592,6 +594,10 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     Route::get('/formations/category/{category}', [DashboardController::class, 'formationsCategory'])->name('formations.category');
     Route::get('/formations/show/{id}', [DashboardController::class, 'formationsShow'])->name('formations.show');
     Route::get('/formations/download/{id}', [DashboardController::class, 'formationsDownload'])->name('formations.download');
+
+    // Séances & assiduité
+    Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
+    Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
     // Projets - Structure: /evc/compte/design-graphique/projets/{action}
@@ -705,6 +711,10 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
     Route::get('/formations/category/{category}', [DashboardController::class, 'formationsCategory'])->name('formations.category');
     Route::get('/formations/show/{id}', [DashboardController::class, 'formationsShow'])->name('formations.show');
     Route::get('/formations/download/{id}', [DashboardController::class, 'formationsDownload'])->name('formations.download');
+
+    // Séances & assiduité
+    Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
+    Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
     // Events
@@ -914,6 +924,10 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
     Route::get('/formations/category/{category}', [DashboardController::class, 'formationsCategory'])->name('formations.category');
     Route::get('/formations/show/{id}', [DashboardController::class, 'formationsShow'])->name('formations.show');
     Route::get('/formations/download/{id}', [DashboardController::class, 'formationsDownload'])->name('formations.download');
+
+    // Séances & assiduité
+    Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
+    Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
     // Events - Structure: /evc/compte/community-management/events/{action}
@@ -946,6 +960,16 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
     Route::middleware('admin.auth')->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
+
+        // Gestion des séances et des présences
+        Route::get('/seances', [SeanceAdminController::class, 'index'])->name('seances.index');
+        Route::get('/seances/create', [SeanceAdminController::class, 'create'])->name('seances.create');
+        Route::post('/seances', [SeanceAdminController::class, 'store'])->name('seances.store');
+        Route::get('/seances/{seance}/edit', [SeanceAdminController::class, 'edit'])->name('seances.edit');
+        Route::put('/seances/{seance}', [SeanceAdminController::class, 'update'])->name('seances.update');
+        Route::delete('/seances/{seance}', [SeanceAdminController::class, 'destroy'])->name('seances.destroy');
+        Route::get('/seances/{seance}/attendance', [SeanceAdminController::class, 'attendance'])->name('seances.attendance');
+        Route::post('/seances/{seance}/attendance', [SeanceAdminController::class, 'saveAttendance'])->name('seances.attendance.save');
 
         Route::get('/boutique', [\App\Http\Controllers\Admin\BoutiqueController::class, 'index'])->name('boutique.index');
         Route::get('/boutique/analytics', [\App\Http\Controllers\Admin\BoutiqueController::class, 'analytics'])->name('boutique.analytics');

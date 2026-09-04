@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Seance extends Model
+{
+    use HasFactory;
+
+    protected $table = 'seances';
+
+    protected $fillable = [
+        'title',
+        'description',
+        'formation',
+        'type',
+        'location',
+        'meet_link',
+        'scheduled_at',
+        'duration_minutes',
+        'status',
+        'created_by',
+    ];
+
+    protected $casts = [
+        'scheduled_at' => 'datetime',
+        'duration_minutes' => 'integer',
+    ];
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class, 'seance_id');
+    }
+
+    public function scopeForFormation($query, string $formation)
+    {
+        return $query->where('formation', $formation);
+    }
+
+    public function scopeVisible($query)
+    {
+        return $query->where('status', '!=', 'cancelled');
+    }
+}

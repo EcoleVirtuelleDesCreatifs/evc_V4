@@ -1176,14 +1176,14 @@
 
             <!-- Gestion Formation (avec sous-menus) -->
             <div class="nav-item-dropdown">
-                <div class="nav-link-dropdown {{ request()->routeIs($formationPrefix . '.formations.*') || request()->routeIs($formationPrefix . '.programme.*') || request()->routeIs($formationPrefix . '.paiements.*') || request()->routeIs($formationPrefix . '.communaute.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)">
+                <div class="nav-link-dropdown {{ request()->routeIs($formationPrefix . '.formations.*') || request()->routeIs($formationPrefix . '.programme.*') || request()->routeIs($formationPrefix . '.seances.*') || request()->routeIs($formationPrefix . '.assiduite.*') || request()->routeIs($formationPrefix . '.paiements.*') || request()->routeIs($formationPrefix . '.communaute.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)">
                     <div>
                         <i class="fas fa-graduation-cap"></i>
                         Gestion Formation
                     </div>
                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </div>
-                <div class="submenu {{ request()->routeIs($formationPrefix . '.formations.*') || request()->routeIs($formationPrefix . '.programme.*') || request()->routeIs($formationPrefix . '.paiements.*') || request()->routeIs($formationPrefix . '.communaute.*') ? 'open' : '' }}">
+                <div class="submenu {{ request()->routeIs($formationPrefix . '.formations.*') || request()->routeIs($formationPrefix . '.programme.*') || request()->routeIs($formationPrefix . '.seances.*') || request()->routeIs($formationPrefix . '.assiduite.*') || request()->routeIs($formationPrefix . '.paiements.*') || request()->routeIs($formationPrefix . '.communaute.*') ? 'open' : '' }}">
                     <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.formations.index') ? route($formationPrefix . '.formations.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.formations.*') ? 'active' : '' }}">
                         <i class="fas fa-book-reader"></i>
                         Formation
@@ -1191,6 +1191,14 @@
                     <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.programme.index') ? route($formationPrefix . '.programme.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.programme.*') ? 'active' : '' }}">
                         <i class="fas fa-book"></i>
                         Programme
+                    </a>
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.seances.index') ? route($formationPrefix . '.seances.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.seances.*') ? 'active' : '' }}">
+                        <i class="fas fa-chalkboard-user"></i>
+                        Mes séances
+                    </a>
+                    <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.assiduite.index') ? route($formationPrefix . '.assiduite.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.assiduite.*') ? 'active' : '' }}">
+                        <i class="fas fa-clipboard-check"></i>
+                        Mon assiduité
                     </a>
                     <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.paiements.index') ? route($formationPrefix . '.paiements.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs($formationPrefix . '.paiements.*') ? 'active' : '' }}">
                         <i class="fas fa-credit-card"></i>
