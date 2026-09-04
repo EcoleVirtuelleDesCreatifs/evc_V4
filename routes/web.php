@@ -978,6 +978,8 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/seances/{seance}/qr/regenerate', [SeanceAdminController::class, 'regenerateQr'])->name('seances.qr.regenerate');
         Route::post('/seances/{seance}/qr/close', [SeanceAdminController::class, 'closeQr'])->name('seances.qr.close');
 
+        Route::get('/attendance', [\App\Http\Controllers\Admin\AttendanceAdminController::class, 'index'])->name('attendance.index');
+
         Route::get('/boutique', [\App\Http\Controllers\Admin\BoutiqueController::class, 'index'])->name('boutique.index');
         Route::get('/boutique/analytics', [\App\Http\Controllers\Admin\BoutiqueController::class, 'analytics'])->name('boutique.analytics');
         Route::get('/boutique/realtime-visitors', [\App\Http\Controllers\Admin\BoutiqueController::class, 'realtimeVisitors'])->name('boutique.realtime-visitors');

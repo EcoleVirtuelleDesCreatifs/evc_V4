@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AttendanceService;
 
 class AttendanceController extends Controller
 {
@@ -175,76 +176,34 @@ class AttendanceController extends Controller
     /**
      * Bilan d'assiduité de l'étudiant connecté.
      */
-    public function assiduiteIndex(Request $request): View
+    public function assiduiteIndex(Request $request, AttendanceService $service): View
     {
         $user = Auth::user();
         $student = $user ? $user->student : null;
-        $formation = $student ? $student->program : null;
 
-        $seances = collect([]);
-        $attendances = collect([]);
-        $stats = $this->emptyStats();
-
-        if ($formation) {
-            $seances = Seance::forFormation($formation)
-                ->orderByDesc('scheduled_at')
-                ->get();
-
-            $seanceIds = $seances->pluck('id');
-            $attendances = Attendance::where('student_id', $student->id)
-                ->whereIn('seance_id', $seanceIds)
-                ->get()
-                ->keyBy('seance_id');
-
-            $completedSeances = $seances->where('status', 'completed')->count();
-            $present = $attendances->where('status', 'present')->count();
-            $absent = $attendances->where('status', 'absent')->count();
-            $late = $attendances->where('status', 'late')->count();
-            $excused = $attendances->where('status', 'excused')->count();
-
-            $rate = $completedSeances > 0
-                ? round((($present + $late) / $completedSeances) * 100, 1)
-                : 0;
-
-            $participationMinutes = $seances
-                ->where('status', 'completed')
-                ->filter(fn (Seance $s) =>
-                    in_array($attendances[$s->id]->status ?? '', ['present', 'late'])
-                )
-                ->sum('duration_minutes');
-
-            $stats = [
-                'total' => $seances->count(),
-                'completed' => $completedSeances,
-                'present' => $present,
-                'absent' => $absent,
-                'late' => $late,
-                'excused' => $excused,
-                'rate' => $rate,
-                'participation_minutes' => $participationMinutes,
+        if ($student) {
+            $data = $service->getStudentStats($student);
+        } else {
+            $data = [
+                'seances' => collect([]),
+                'attendances' => collect([]),
+                'total' => 0,
+                'completed' => 0,
+                'present' => 0,
+                'absent' => 0,
+                'late' => 0,
+                'excused' => 0,
+                'rate' => 0,
+                'participation_minutes' => 0,
             ];
         }
 
         return view('assiduite.index', [
-            'seances' => $seances,
-            'attendances' => $attendances,
-            'stats' => $stats,
+            'seances' => $data['seances'],
+            'attendances' => $data['attendances'],
+            'stats' => $data,
             'student' => $student,
             'user' => $user,
         ]);
-    }
-
-    private function emptyStats(): array
-    {
-        return [
-            'total' => 0,
-            'completed' => 0,
-            'present' => 0,
-            'absent' => 0,
-            'late' => 0,
-            'excused' => 0,
-            'rate' => 0,
-            'participation_minutes' => 0,
-        ];
     }
 }
