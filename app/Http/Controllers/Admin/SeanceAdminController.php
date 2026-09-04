@@ -7,7 +7,6 @@ use App\Models\Attendance;
 use App\Models\Seance;
 use App\Models\Student;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -159,7 +158,7 @@ class SeanceAdminController extends Controller
                     'student_id' => $student->id,
                 ],
                 [
-                    'user_id' => $student->user_id,
+                    'user_id' => $student->user?->id,
                     'status' => $status,
                     'check_method' => $record['check_method'] ?? 'manual',
                     'recorded_by' => $recorder,

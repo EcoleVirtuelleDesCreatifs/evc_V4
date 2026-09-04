@@ -125,7 +125,7 @@ class AttendanceController extends Controller
                 'student_id' => $student->id,
             ],
             [
-                'user_id' => $student->user_id,
+                'user_id' => $student->user?->id,
                 'status' => 'present',
                 'check_method' => 'qrcode',
                 'recorded_by' => $user->id,
