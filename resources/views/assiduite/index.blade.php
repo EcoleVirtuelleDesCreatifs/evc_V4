@@ -36,13 +36,25 @@
     .stat-excused { color: #a5b4fc; }
     .stat-time { color: #60a5fa; }
     .assiduite-table {
-        background: #0b1220;
         border: 1px solid rgba(191, 219, 254, 0.12);
         border-radius: 16px;
         overflow: hidden;
     }
-    .assiduite-table th { background: #081126; color: #fff; font-weight: 700; padding: 1rem; }
-    .assiduite-table td { color: #e2e8f0; padding: 1rem; border-top: 1px solid rgba(191, 219, 254, 0.08); }
+    .assiduite-table thead th {
+        background: #081126 !important;
+        color: #ffffff !important;
+        font-weight: 700;
+        padding: 1rem;
+    }
+    .assiduite-table tbody td {
+        background: #0b1220 !important;
+        color: #ffffff !important;
+        padding: 1rem;
+        border-top: 1px solid rgba(191, 219, 254, 0.08);
+    }
+    .assiduite-table tbody tr:nth-child(even) td {
+        background: #0e1626 !important;
+    }
     .badge-seance { border-radius: 20px; padding: 0.35rem 0.7rem; font-weight: 700; font-size: 0.78rem; }
     .badge-present { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
     .badge-absent { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); }
@@ -126,8 +138,8 @@
             <p>Votre formateur n'a pas encore planifié de séances pour votre formation.</p>
         </div>
     @else
-        <div class="table-responsive assiduite-table">
-            <table class="table table-borderless m-0">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover table-striped m-0 assiduite-table">
                 <thead>
                     <tr>
                         <th>Date</th>
