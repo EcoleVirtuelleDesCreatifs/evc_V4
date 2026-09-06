@@ -218,6 +218,12 @@
                                 <a href="{{ route('admin.certification-eligibility.show', $student) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-edit"></i> Voir / Ajuster
                                 </a>
+                                <form method="POST" action="{{ route('admin.certification-eligibility.validate-all', $student) }}" class="d-inline" onsubmit="return confirm('Confirmer définitivement cette éligibilité ?');">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success" title="Tout valider">
+                                        <i class="fas fa-check-double"></i>
+                                    </button>
+                                </form>
                                 <form method="POST" action="{{ route('admin.certification-eligibility.sync', $student) }}" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-outline-light">

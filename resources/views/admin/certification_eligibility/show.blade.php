@@ -137,18 +137,26 @@
                     <i class="fas fa-clipboard-check me-2"></i>Critères de certification
                 </div>
                 <div class="card-body">
-                    <div class="criterion-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <div class="fw-semibold">Projets / TP</div>
-                            <div class="small text-muted">Minimum {{ $eval['projects_required'] }} requis</div>
-                        </div>
-                        <div class="text-end">
-                            <div class="fw-bold {{ $eval['projects_ok'] ? 'text-success' : 'text-danger' }}">
-                                {{ $eval['projects_count'] }} / {{ $eval['projects_required'] }}
+                    <div class="criterion-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="fw-semibold">Projets / TP</div>
+                                <div class="small text-muted">Minimum {{ $eval['projects_required'] }} requis</div>
                             </div>
-                            <span class="badge-c {{ $eval['projects_ok'] ? 'bg-success' : 'bg-danger' }}">
-                                {{ $eval['projects_ok'] ? 'Conforme' : 'Non conforme' }}
-                            </span>
+                            <div class="text-end">
+                                <div class="fw-bold {{ $eval['projects_ok'] ? 'text-success' : 'text-danger' }}">
+                                    {{ $eval['projects_count'] }} / {{ $eval['projects_required'] }}
+                                </div>
+                                <span class="badge-c {{ $eval['projects_ok'] ? 'bg-success' : 'bg-danger' }}">
+                                    {{ $eval['projects_ok'] ? 'Conforme' : 'Non conforme' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="small text-muted mt-1">
+                            {{ $eval['tp_count'] }} TP — {{ $eval['project_count'] }} projets
+                            @if($eval['manual_override'])
+                                <span class="text-warning ms-1"><i class="fas fa-pen me-1"></i>Compteurs ajustés manuellement</span>
+                            @endif
                         </div>
                     </div>
 
@@ -284,6 +292,14 @@
                                 <label for="adjust_studio_creative_comment" class="form-label">Commentaire Studio Creative</label>
                                 <input type="text" name="studio_creative_comment" id="adjust_studio_creative_comment" class="form-control" value="{{ old('studio_creative_comment', $record->studio_creative_comment) }}">
                             </div>
+                            <div class="col-md-6">
+                                <label for="manual_tp_count" class="form-label">Compteur TP manuel (laisser vide = auto)</label>
+                                <input type="number" min="0" name="manual_tp_count" id="manual_tp_count" class="form-control" value="{{ old('manual_tp_count', $record->manual_tp_count) }}" placeholder="Auto : {{ $eval['auto_tp_count'] }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="manual_projects_count" class="form-label">Compteur projets manuel (laisser vide = auto)</label>
+                                <input type="number" min="0" name="manual_projects_count" id="manual_projects_count" class="form-control" value="{{ old('manual_projects_count', $record->manual_projects_count) }}" placeholder="Auto : {{ $eval['auto_project_count'] }}">
+                            </div>
                             <div class="col-12">
                                 <label for="admin_comment" class="form-label">Commentaire administratif</label>
                                 <textarea name="admin_comment" id="admin_comment" class="form-control" rows="2">{{ old('admin_comment', $record->admin_comment) }}</textarea>
@@ -354,6 +370,24 @@
                     L'étudiant n'est pas encore pré-éligible. Les critères automatiques doivent tous être remplis avant validation.
                 </div>
             @endif
+
+            <div class="card card-dark mt-4">
+                <div class="card-header py-3">
+                    <i class="fas fa-certificate me-2"></i>Validation finale
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">Ce bouton force en une seule action : Système = Pré-éligible, Studio = Confirmé, Admin = Éligible confirmé.</p>
+                    <form method="POST" action="{{ route('admin.certification-eligibility.validate-all', $student) }}" onsubmit="return confirm('Confirmer définitivement l\\'éligibilité de cet étudiant ?');">
+                        @csrf
+                        <div class="mb-3">
+                            <textarea name="admin_comment" class="form-control" rows="2" placeholder="Commentaire (optionnel)"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="fas fa-check-double me-1"></i> Tout valider
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>

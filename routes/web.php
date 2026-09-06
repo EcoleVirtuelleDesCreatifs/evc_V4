@@ -1122,6 +1122,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/certification/eligibilite/{student}/confirm', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'confirmEligible'])->name('certification-eligibility.confirm');
         Route::post('/certification/eligibilite/{student}/reject', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'reject'])->name('certification-eligibility.reject');
         Route::post('/certification/eligibilite/{student}/update', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'updateRecord'])->name('certification-eligibility.update-record');
+        Route::post('/certification/eligibilite/{student}/validate-all', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'validateAll'])->name('certification-eligibility.validate-all');
 
         // Pages de détails des statistiques (route générique en dernier)
         Route::get('/statistiques/{statType}', [AdminStatisticsDetailController::class, 'show'])->name('statistics.detail');

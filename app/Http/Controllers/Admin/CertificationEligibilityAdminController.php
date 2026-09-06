@@ -235,6 +235,8 @@ class CertificationEligibilityAdminController extends Controller
             'studio_creative_name' => 'nullable|string|max:255',
             'studio_creative_comment' => 'nullable|string|max:1000',
             'admin_comment' => 'nullable|string|max:1000',
+            'manual_tp_count' => 'nullable|integer|min:0',
+            'manual_projects_count' => 'nullable|integer|min:0',
             'history_comment' => 'nullable|string|max:1000',
         ]);
 
@@ -251,6 +253,8 @@ class CertificationEligibilityAdminController extends Controller
             'studio_creative_name' => $validated['studio_creative_name'],
             'studio_creative_comment' => $validated['studio_creative_comment'],
             'admin_comment' => $validated['admin_comment'],
+            'manual_tp_count' => $validated['manual_tp_count'] ?? null,
+            'manual_projects_count' => $validated['manual_projects_count'] ?? null,
         ];
 
         if ($validated['admin_status'] === 'eligible' && $oldAdmin !== 'eligible') {
@@ -283,6 +287,53 @@ class CertificationEligibilityAdminController extends Controller
         );
 
         return redirect()->back()->with('success', 'Fiche d\'éligibilité mise à jour.');
+    }
+
+    public function validateAll(Request $request, Student $student): RedirectResponse
+    {
+        if ($redirect = $this->ensureManager()) {
+            return $redirect;
+        }
+
+        $formation = $this->service->getFormationForStudent($student);
+
+        if ($formation === null) {
+            return redirect()->back()->with('error', 'Aucune formation certifiable détectée pour cet étudiant.');
+        }
+
+        $record = $this->service->getOrCreateRecord($student, $formation);
+
+        $oldSystem = $record->system_status;
+        $oldAdmin = $record->admin_status;
+        $oldStudio = $record->studio_creative_status;
+        $adminId = (int) session('admin_id');
+        $comment = $request->input('admin_comment') ?: 'Validation finale manuelle (tout valider)';
+
+        $record->update([
+            'system_status' => 'pre_eligible',
+            'admin_status' => 'eligible',
+            'studio_creative_status' => 'validated',
+            'admin_comment' => $comment,
+            'validated_by' => $adminId,
+            'validated_at' => now(),
+            'studio_creative_validated_by' => $adminId,
+            'studio_creative_validated_at' => now(),
+            'last_evaluated_at' => now(),
+        ]);
+
+        $this->service->recordHistory(
+            $record,
+            $oldSystem,
+            'pre_eligible',
+            $oldAdmin,
+            'eligible',
+            $oldStudio,
+            'validated',
+            $adminId,
+            $comment
+        );
+
+        return redirect()->back()->with('success', 'Éligibilité confirmée définitivement (tout valider).');
     }
 
     private function statusLabels(): array

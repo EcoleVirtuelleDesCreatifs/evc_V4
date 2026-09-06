@@ -23,6 +23,8 @@ class CertificationEligibility extends Model
         'validated_by',
         'validated_at',
         'admin_comment',
+        'manual_tp_count',
+        'manual_projects_count',
         'last_evaluated_at',
     ];
 
@@ -30,6 +32,8 @@ class CertificationEligibility extends Model
         'studio_creative_validated_at' => 'datetime',
         'validated_at' => 'datetime',
         'last_evaluated_at' => 'datetime',
+        'manual_tp_count' => 'integer',
+        'manual_projects_count' => 'integer',
     ];
 
     public function student(): BelongsTo

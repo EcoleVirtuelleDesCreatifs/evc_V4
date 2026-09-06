@@ -66,8 +66,30 @@ class CertificationEligibilityService
         $criteria = $this->criteria[$formation];
         $record = $this->getRecord($student, $formation);
 
-        $projectsCount = $this->countValidatedProjects($student);
-        $projectsOk = $projectsCount >= $criteria['required_projects'];
+        $autoDesignProjects = DesignProject::query()
+            ->where('user_id', $student->user_id)
+            ->where('status', 'validated')
+            ->count();
+
+        $autoProjects = Project::query()
+            ->where('user_id', $student->user_id)
+            ->where('status', 'valide')
+            ->count();
+
+        $autoTp = TpAssignment::query()
+            ->where('student_id', $student->id)
+            ->where('status', 'validated')
+            ->count();
+
+        $autoProjectCount = $autoDesignProjects + $autoProjects;
+        $autoTotal = $autoProjectCount + $autoTp;
+
+        $tpCount = $record?->manual_tp_count !== null ? (int) $record->manual_tp_count : $autoTp;
+        $projectCount = $record?->manual_projects_count !== null ? (int) $record->manual_projects_count : $autoProjectCount;
+        $totalCount = $tpCount + $projectCount;
+        $projectsOk = $totalCount >= $criteria['required_projects'];
+
+        $manualOverride = $record?->manual_tp_count !== null || $record?->manual_projects_count !== null;
 
         $payment = $this->getPaymentStatus($student);
 
@@ -88,7 +110,7 @@ class CertificationEligibilityService
         if (!$projectsOk) {
             $missing[] = sprintf(
                 '%d projet(s) / TP validé(s) sur %d requis',
-                $projectsCount,
+                $totalCount,
                 $criteria['required_projects']
             );
         }
@@ -107,9 +129,14 @@ class CertificationEligibilityService
             'formation' => $formation,
             'formation_label' => $this->getFormationLabel($formation),
             'formation_supported' => true,
-            'projects_count' => $projectsCount,
+            'projects_count' => $totalCount,
             'projects_required' => $criteria['required_projects'],
             'projects_ok' => $projectsOk,
+            'tp_count' => $tpCount,
+            'project_count' => $projectCount,
+            'auto_tp_count' => $autoTp,
+            'auto_project_count' => $autoProjectCount,
+            'manual_override' => $manualOverride,
             'payment' => $payment,
             'report_ok' => $reportOk,
             'portfolio_ok' => $portfolioOk,
