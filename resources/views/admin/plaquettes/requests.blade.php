@@ -109,6 +109,13 @@
                                         <i class="fas fa-eye"></i> Voir
                                     </a>
 
+                                    <form method="POST" action="{{ route('admin.plaquettes.requests.relance', $r) }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Envoyer un email de relance à {{ addslashes($r->prenoms) }} {{ addslashes($r->nom) }} ?')">
+                                            <i class="fas fa-paper-plane"></i> Relancer
+                                        </button>
+                                    </form>
+
                                     @if($r->status === 'pending')
                                         <form method="POST" action="{{ route('admin.plaquettes.requests.approve', $r) }}" class="d-inline">
                                             @csrf

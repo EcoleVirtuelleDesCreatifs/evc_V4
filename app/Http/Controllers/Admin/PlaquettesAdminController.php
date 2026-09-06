@@ -301,4 +301,28 @@ class PlaquettesAdminController extends Controller
 
         return redirect()->back()->with('success', 'Demande rejetée.');
     }
+
+    public function relanceRequest(Request $request, PlaquetteRequest $plaquetteRequest): RedirectResponse
+    {
+        $this->ensureAllowed();
+
+        try {
+            Mail::send('emails.plaquette_relance', [
+                'request' => $plaquetteRequest,
+            ], function ($message) use ($plaquetteRequest) {
+                $message->to($plaquetteRequest->email)
+                    ->subject('Relance : inscrivez-vous à la formation EVC');
+            });
+        } catch (\Throwable $e) {
+            Log::error('Erreur envoi email relance plaquette', [
+                'request_id' => $plaquetteRequest->id,
+                'email' => $plaquetteRequest->email,
+                'message' => $e->getMessage(),
+            ]);
+
+            return redirect()->back()->with('error', 'L\'email de relance n\'a pas pu être envoyé.');
+        }
+
+        return redirect()->back()->with('success', 'Relance envoyée à ' . $plaquetteRequest->email);
+    }
 }

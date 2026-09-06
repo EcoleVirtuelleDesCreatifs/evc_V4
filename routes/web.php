@@ -1035,6 +1035,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::get('/plaquettes/requests/{plaquetteRequest}', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'requestShow'])->name('plaquettes.requests.show');
         Route::post('/plaquettes/requests/{plaquetteRequest}/approve', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'approveRequest'])->name('plaquettes.requests.approve');
         Route::post('/plaquettes/requests/{plaquetteRequest}/reject', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'rejectRequest'])->name('plaquettes.requests.reject');
+        Route::post('/plaquettes/requests/{plaquetteRequest}/relance', [\App\Http\Controllers\Admin\PlaquettesAdminController::class, 'relanceRequest'])->name('plaquettes.requests.relance');
 
         Route::get('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'index'])->name('assistant.tasks.index');
         Route::post('/assistant/tasks', [App\Http\Controllers\Admin\AssistantTasksController::class, 'store'])->name('assistant.tasks.store');
