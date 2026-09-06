@@ -150,6 +150,7 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
+                            <th>Photo</th>
                             <th>Étudiant</th>
                             <th>Email</th>
                             <th>Formation</th>
@@ -162,6 +163,13 @@
                     <tbody>
                         @forelse($students as $student)
                         <tr>
+                            <td>
+                                <img src="{{ \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo) }}"
+                                     alt="{{ $student->first_name }} {{ $student->last_name }}"
+                                     class="rounded-circle"
+                                     width="45" height="45"
+                                     style="object-fit: cover; border: 2px solid rgba(255,255,255,0.2);">
+                            </td>
                             <td>
                                 <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
                             </td>
@@ -192,7 +200,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="8" class="text-center py-5">
                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                 <p class="text-muted">Aucun étudiant à jour pour le moment</p>
                             </td>
