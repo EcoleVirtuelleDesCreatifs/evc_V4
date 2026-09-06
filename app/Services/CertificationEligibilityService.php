@@ -99,6 +99,15 @@ class CertificationEligibilityService
 
         $preEligible = $projectsOk && $payment['ok'] && $reportOk && $portfolioOk;
 
+        if ($record?->admin_status === 'eligible') {
+            $projectsOk = true;
+            $payment['ok'] = true;
+            $payment['remaining'] = 0;
+            $reportOk = true;
+            $portfolioOk = true;
+            $preEligible = true;
+        }
+
         $studioStatus = $record?->studio_creative_status ?? 'pending';
         $studioValidated = $studioStatus === 'validated';
 
