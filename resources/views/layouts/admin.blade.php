@@ -348,11 +348,22 @@
                         <i class="fas fa-clipboard-check me-2"></i>Évaluation & Certification
                     </li>
 
-                    <li class="admin-nav-item">
-                        <a href="{{ route('admin.certifications.index') }}" class="admin-nav-link {{ request()->routeIs('admin.certifications.*') ? 'active' : '' }}">
-                            <i class="fas fa-file-signature"></i>
-                            Évaluation Certification
+                    <li class="admin-nav-item dropdown">
+                        <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.certifications.*') || request()->routeIs('admin.certification-eligibility.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#certificationMainMenu">
+                            <i class="fas fa-award"></i>
+                            Certification
+                            <i class="fas fa-chevron-right ms-auto"></i>
                         </a>
+                        <div class="collapse {{ request()->routeIs('admin.certifications.*') || request()->routeIs('admin.certification-eligibility.*') ? 'show' : '' }}" id="certificationMainMenu">
+                            <ul class="admin-nav-submenu">
+                                <li><a href="{{ route('admin.certification-eligibility.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.certification-eligibility.*') ? 'active' : '' }}">
+                                    <i class="fas fa-user-check"></i>Éligibilité
+                                </a></li>
+                                <li><a href="{{ route('admin.certifications.index') }}" class="admin-nav-sublink {{ request()->routeIs('admin.certifications.*') ? 'active' : '' }}">
+                                    <i class="fas fa-file-signature"></i>Évaluation Certification
+                                </a></li>
+                            </ul>
+                        </div>
                     </li>
 
                     <!-- Séparateur : Communication -->

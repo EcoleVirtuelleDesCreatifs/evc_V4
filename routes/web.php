@@ -459,6 +459,7 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::post('/evc/compte/design-graphique-cm/certifications/{id}/save-answer', [App\Http\Controllers\CertificationController::class, 'saveAnswer'])->name('certification.save-answer');
     Route::post('/evc/compte/design-graphique-cm/certifications/{id}/submit', [App\Http\Controllers\CertificationController::class, 'submit'])->name('certification.submit');
     Route::get('/evc/compte/design-graphique-cm/certifications/{id}/result', [App\Http\Controllers\CertificationController::class, 'result'])->name('certification.result');
+    Route::get('/evc/compte/design-graphique-cm/certifications/eligibilite', [App\Http\Controllers\CertificationController::class, 'eligibility'])->name('certification.eligibility');
 
     // Legacy routes: redirect old URLs to module-prefixed URLs
     Route::get('/evc/compte/certifications', function () {
@@ -1111,6 +1112,15 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/certifications/answers/{id}/grade', [App\Http\Controllers\Admin\CertificationAdminController::class, 'gradeAnswer'])->name('certifications.answers.grade');
         Route::post('/certifications/attempts/{id}/finalize', [App\Http\Controllers\Admin\CertificationAdminController::class, 'finalizeGrading'])->name('certifications.attempts.finalize');
         Route::post('/certifications/attempts/{id}/certify', [App\Http\Controllers\Admin\CertificationAdminController::class, 'certifyAttempt'])->name('certifications.attempts.certify');
+
+        // Routes Éligibilité Certification
+        Route::get('/certification/eligibilite', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'index'])->name('certification-eligibility.index');
+        Route::get('/certification/eligibilite/{student}', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'show'])->name('certification-eligibility.show');
+        Route::post('/certification/eligibilite/{student}/sync', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'sync'])->name('certification-eligibility.sync');
+        Route::post('/certification/eligibilite/{student}/studio', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'updateStudioCreative'])->name('certification-eligibility.studio');
+        Route::post('/certification/eligibilite/{student}/review', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'setReviewing'])->name('certification-eligibility.review');
+        Route::post('/certification/eligibilite/{student}/confirm', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'confirmEligible'])->name('certification-eligibility.confirm');
+        Route::post('/certification/eligibilite/{student}/reject', [App\Http\Controllers\Admin\CertificationEligibilityAdminController::class, 'reject'])->name('certification-eligibility.reject');
 
         // Pages de détails des statistiques (route générique en dernier)
         Route::get('/statistiques/{statType}', [AdminStatisticsDetailController::class, 'show'])->name('statistics.detail');

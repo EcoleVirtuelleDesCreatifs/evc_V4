@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Student;
+use App\Services\CertificationEligibilityService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -168,6 +170,21 @@ class CertificationController extends Controller
         $upd = ['submitted_at' => now(), 'is_auto_submitted' => $isAuto, 'score' => $qcmScore, 'status' => $hasRedaction ? 'submitted' : 'graded', 'updated_at' => now()];
         if (!$hasRedaction) { $upd['score_percentage'] = $pct; $upd['passed'] = $pct >= $cert->passing_score; }
         DB::table('certification_attempts')->where('id', $attemptId)->update($upd);
+    }
+
+    public function eligibility(CertificationEligibilityService $service)
+    {
+        $userId = session('user_id');
+        $student = Student::where('user_id', $userId)->first();
+
+        if (!$student) {
+            return redirect()->back()->with('error', 'Profil étudiant introuvable.');
+        }
+
+        $eval = $service->evaluate($student);
+        $formationSlug = $this->getFormationSlug($student->program);
+
+        return view('certifications.eligibility', compact('student', 'eval', 'formationSlug'));
     }
 
     private function getFormationSlug(?string $p): string
