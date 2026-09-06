@@ -216,7 +216,7 @@
                             </td>
                             <td class="text-end text-nowrap">
                                 <a href="{{ route('admin.certification-eligibility.show', $student) }}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i> Voir
+                                    <i class="fas fa-edit"></i> Voir / Ajuster
                                 </a>
                                 <form method="POST" action="{{ route('admin.certification-eligibility.sync', $student) }}" class="d-inline">
                                     @csrf

@@ -216,6 +216,75 @@ class CertificationEligibilityAdminController extends Controller
         return redirect()->back()->with('success', 'Éligibilité refusée. Le motif a été enregistré.');
     }
 
+    public function updateRecord(Request $request, Student $student): RedirectResponse
+    {
+        if ($redirect = $this->ensureManager()) {
+            return $redirect;
+        }
+
+        $formation = $this->service->getFormationForStudent($student);
+
+        if ($formation === null) {
+            return redirect()->back()->with('error', 'Aucune formation certifiable détectée pour cet étudiant.');
+        }
+
+        $validated = $request->validate([
+            'system_status' => 'required|in:not_eligible,pre_eligible',
+            'admin_status' => 'required|in:pending,reviewing,eligible,rejected',
+            'studio_creative_status' => 'required|in:pending,validated,rejected',
+            'studio_creative_name' => 'nullable|string|max:255',
+            'studio_creative_comment' => 'nullable|string|max:1000',
+            'admin_comment' => 'nullable|string|max:1000',
+            'history_comment' => 'nullable|string|max:1000',
+        ]);
+
+        $record = $this->service->getOrCreateRecord($student, $formation);
+
+        $oldSystem = $record->system_status;
+        $oldAdmin = $record->admin_status;
+        $oldStudio = $record->studio_creative_status;
+
+        $data = [
+            'system_status' => $validated['system_status'],
+            'admin_status' => $validated['admin_status'],
+            'studio_creative_status' => $validated['studio_creative_status'],
+            'studio_creative_name' => $validated['studio_creative_name'],
+            'studio_creative_comment' => $validated['studio_creative_comment'],
+            'admin_comment' => $validated['admin_comment'],
+        ];
+
+        if ($validated['admin_status'] === 'eligible' && $oldAdmin !== 'eligible') {
+            $data['validated_by'] = (int) session('admin_id');
+            $data['validated_at'] = now();
+        }
+
+        if ($validated['admin_status'] !== 'eligible') {
+            $data['validated_by'] = null;
+            $data['validated_at'] = null;
+        }
+
+        if ($validated['studio_creative_status'] !== $oldStudio) {
+            $data['studio_creative_validated_by'] = (int) session('admin_id');
+            $data['studio_creative_validated_at'] = now();
+        }
+
+        $record->update($data);
+
+        $this->service->recordHistory(
+            $record,
+            $oldSystem,
+            $validated['system_status'],
+            $oldAdmin,
+            $validated['admin_status'],
+            $oldStudio,
+            $validated['studio_creative_status'],
+            (int) session('admin_id'),
+            $validated['history_comment'] ?? 'Ajustement administratif manuel'
+        );
+
+        return redirect()->back()->with('success', 'Fiche d\'éligibilité mise à jour.');
+    }
+
     private function statusLabels(): array
     {
         return [

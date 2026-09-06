@@ -386,7 +386,7 @@ class CertificationEligibilityService
         return $record->fresh();
     }
 
-    private function recordHistory(
+    public function recordHistory(
         CertificationEligibility $record,
         ?string $fromSystem,
         ?string $toSystem,

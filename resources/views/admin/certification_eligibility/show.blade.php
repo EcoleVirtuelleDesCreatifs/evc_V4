@@ -244,6 +244,64 @@
                 </div>
             </div>
 
+            <div class="card card-dark mb-4">
+                <div class="card-header py-3">
+                    <i class="fas fa-edit me-2"></i>Ajuster la fiche d'éligibilité
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ route('admin.certification-eligibility.update-record', $student) }}">
+                        @csrf
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="system_status" class="form-label">Statut système</label>
+                                <select name="system_status" id="system_status" class="form-select">
+                                    @foreach(['not_eligible' => 'Non éligible', 'pre_eligible' => 'Pré-éligible'] as $key => $label)
+                                        <option value="{{ $key }}" {{ $record->system_status === $key ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="admin_status" class="form-label">Statut administratif</label>
+                                <select name="admin_status" id="admin_status" class="form-select">
+                                    @foreach(['pending' => 'En attente', 'reviewing' => 'En vérification', 'eligible' => 'Éligible confirmé', 'rejected' => 'Refusé'] as $key => $label)
+                                        <option value="{{ $key }}" {{ $record->admin_status === $key ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="adjust_studio_creative_status" class="form-label">Studio Creative</label>
+                                <select name="studio_creative_status" id="adjust_studio_creative_status" class="form-select">
+                                    @foreach(['pending' => 'À vérifier', 'validated' => 'Confirmé', 'rejected' => 'Refusé'] as $key => $label)
+                                        <option value="{{ $key }}" {{ $record->studio_creative_status === $key ? 'selected' : '' }}>{{ $label }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="adjust_studio_creative_name" class="form-label">Studio concerné</label>
+                                <input type="text" name="studio_creative_name" id="adjust_studio_creative_name" class="form-control" value="{{ old('studio_creative_name', $record->studio_creative_name) }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="adjust_studio_creative_comment" class="form-label">Commentaire Studio Creative</label>
+                                <input type="text" name="studio_creative_comment" id="adjust_studio_creative_comment" class="form-control" value="{{ old('studio_creative_comment', $record->studio_creative_comment) }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="admin_comment" class="form-label">Commentaire administratif</label>
+                                <textarea name="admin_comment" id="admin_comment" class="form-control" rows="2">{{ old('admin_comment', $record->admin_comment) }}</textarea>
+                            </div>
+                            <div class="col-12">
+                                <label for="history_comment" class="form-label">Motif de la modification (historique)</label>
+                                <input type="text" name="history_comment" id="history_comment" class="form-control" placeholder="Ex : Correction manuelle suite vérification">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-warning text-dark" onclick="return confirm('Confirmer l\\'ajustement manuel de cette fiche ?');">
+                                <i class="fas fa-save me-1"></i> Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             @if($eval['pre_eligible'])
                 <div class="card card-dark">
                     <div class="card-header py-3">
