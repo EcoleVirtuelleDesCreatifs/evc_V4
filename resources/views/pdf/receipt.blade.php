@@ -18,9 +18,17 @@
         .totals td:last-child { text-align: right; font-weight: bold; }
         .total-row { font-size: 15px; color: #1a56db; }
         .status { display: inline-block; padding: 4px 10px; border-radius: 20px; background: #eee; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+        .print-bar { text-align: center; margin-bottom: 20px; }
+        .print-bar button { padding: 8px 18px; font-size: 13px; border: none; border-radius: 6px; background: #1a56db; color: #fff; cursor: pointer; }
+        @media print { .print-bar { display: none; } }
     </style>
 </head>
-<body>
+<body @if(!empty($printable)) onload="window.print()" @endif>
+    @if(!empty($printable))
+        <div class="print-bar">
+            <button type="button" onclick="window.print()">Imprimer / Enregistrer en PDF</button>
+        </div>
+    @endif
     <div class="header">
         <h1>EVC - École Virtuelle des Créatifs</h1>
         <p>Reçu de paiement n° {{ $receipt_number }}</p>

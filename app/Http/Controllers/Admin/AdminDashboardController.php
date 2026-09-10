@@ -5425,7 +5425,7 @@ class AdminDashboardController extends Controller
                 $primaryRef = (string) $primaryPayment->payment_reference;
             }
 
-            $pdf = Pdf::loadView('pdf.receipt', [
+            $receiptData = [
                 'receipt_number' => $receiptNumber,
                 'issued_at' => now()->format('d/m/Y H:i'),
                 'student_name' => $studentName,
@@ -5440,17 +5440,65 @@ class AdminDashboardController extends Controller
                 'amount_paid' => $amountPaid,
                 'remaining' => $remaining,
                 'payments' => $paymentsForPdf,
-            ]);
+            ];
 
-            return $pdf->download($downloadName);
+            if (request()->query('format') === 'html') {
+                return response()->view('pdf.receipt', $receiptData + ['printable' => true]);
+            }
+
+            try {
+                $pdf = Pdf::setOptions($this->dompdfOptions())->loadView('pdf.receipt', $receiptData);
+
+                return $pdf->download($downloadName);
+            } catch (\Throwable $e) {
+                Log::error('Erreur génération PDF du reçu, bascule sur la version imprimable', [
+                    'pre_registration_id' => $preRegistrationId,
+                    'exception' => get_class($e),
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile() . ':' . $e->getLine(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+
+                return response()->view('pdf.receipt', $receiptData + ['printable' => true]);
+            }
         } catch (\Throwable $e) {
             Log::error('Erreur génération reçu paiement', [
                 'pre_registration_id' => $preRegistrationId,
+                'exception' => get_class($e),
                 'message' => $e->getMessage(),
+                'file' => $e->getFile() . ':' . $e->getLine(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect()->back()->with('error', 'Impossible de générer le reçu PDF pour le moment.');
+            return redirect()->back()->with('error', 'Impossible de générer le reçu : ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Options dompdf avec des répertoires de police et temporaires garantis inscriptibles
+     */
+    private function dompdfOptions(): array
+    {
+        $fontDir = storage_path('fonts');
+        if (!is_dir($fontDir)) {
+            @mkdir($fontDir, 0775, true);
+        }
+        if (!is_dir($fontDir) || !is_writable($fontDir)) {
+            $fontDir = sys_get_temp_dir();
+        }
+
+        $tempDir = sys_get_temp_dir();
+        if (!is_writable($tempDir)) {
+            $tempDir = $fontDir;
+        }
+
+        return [
+            'fontDir' => $fontDir,
+            'fontCache' => $fontDir,
+            'tempDir' => $tempDir,
+            'chroot' => base_path(),
+            'isRemoteEnabled' => false,
+        ];
     }
 
     /**
