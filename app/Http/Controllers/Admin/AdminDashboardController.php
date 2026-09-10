@@ -13,7 +13,7 @@ use App\Models\Library;
 use App\Models\AccountingTransaction;
 use App\Models\Donation;
 use App\Models\Project;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\PaymentReceiptGenerator;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -5447,9 +5447,11 @@ class AdminDashboardController extends Controller
             }
 
             try {
-                $pdf = Pdf::setOptions($this->dompdfOptions())->loadView('pdf.receipt', $receiptData);
+                $result = (new PaymentReceiptGenerator())->generate($receiptData + [
+                    'filename' => 'recu_' . $preRegistrationId . '_' . now()->format('YmdHis') . '.pdf',
+                ]);
 
-                return $pdf->download($downloadName);
+                return response()->download($result['path'], $downloadName)->deleteFileAfterSend(true);
             } catch (\Throwable $e) {
                 Log::error('Erreur génération PDF du reçu, bascule sur la version imprimable', [
                     'pre_registration_id' => $preRegistrationId,
@@ -5472,33 +5474,6 @@ class AdminDashboardController extends Controller
 
             return redirect()->back()->with('error', 'Impossible de générer le reçu : ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Options dompdf avec des répertoires de police et temporaires garantis inscriptibles
-     */
-    private function dompdfOptions(): array
-    {
-        $fontDir = storage_path('fonts');
-        if (!is_dir($fontDir)) {
-            @mkdir($fontDir, 0775, true);
-        }
-        if (!is_dir($fontDir) || !is_writable($fontDir)) {
-            $fontDir = sys_get_temp_dir();
-        }
-
-        $tempDir = sys_get_temp_dir();
-        if (!is_writable($tempDir)) {
-            $tempDir = $fontDir;
-        }
-
-        return [
-            'fontDir' => $fontDir,
-            'fontCache' => $fontDir,
-            'tempDir' => $tempDir,
-            'chroot' => base_path(),
-            'isRemoteEnabled' => false,
-        ];
     }
 
     /**
