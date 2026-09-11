@@ -131,7 +131,24 @@ class SeanceAdminController extends Controller
             ->get()
             ->keyBy('student_id');
 
-        return view('admin.seances.attendance', compact('seance', 'students', 'attendances'));
+        $present = $attendances->where('status', 'present')->count();
+        $late = $attendances->where('status', 'late')->count();
+        $absent = $attendances->where('status', 'absent')->count();
+        $excused = $attendances->where('status', 'excused')->count();
+        $total = $students->count();
+
+        $stats = [
+            'total' => $total,
+            'present' => $present,
+            'late' => $late,
+            'absent' => $absent,
+            'excused' => $excused,
+            'marked' => $attendances->count(),
+            'unmarked' => max(0, $total - $attendances->count()),
+            'rate' => $total > 0 ? round((($present + $late) / $total) * 100, 1) : 0.0,
+        ];
+
+        return view('admin.seances.attendance', compact('seance', 'students', 'attendances', 'stats'));
     }
 
     /**

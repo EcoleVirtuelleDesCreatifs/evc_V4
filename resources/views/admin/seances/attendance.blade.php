@@ -30,6 +30,65 @@
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
+    {{-- Statistiques en temps réel (recalculées automatiquement au changement de statut) --}}
+    <div class="row g-3 mb-4" id="attendance-stats">
+        <div class="col-6 col-md-2">
+            <div class="card text-center h-100">
+                <div class="card-body py-3">
+                    <div class="h4 mb-0" id="stat-total">{{ $stats['total'] }}</div>
+                    <small class="text-muted">Étudiants</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card text-center h-100 border-success">
+                <div class="card-body py-3">
+                    <div class="h4 mb-0 text-success" id="stat-present">{{ $stats['present'] }}</div>
+                    <small class="text-muted">Présents</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card text-center h-100 border-warning">
+                <div class="card-body py-3">
+                    <div class="h4 mb-0 text-warning" id="stat-late">{{ $stats['late'] }}</div>
+                    <small class="text-muted">Retards</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card text-center h-100 border-danger">
+                <div class="card-body py-3">
+                    <div class="h4 mb-0 text-danger" id="stat-absent">{{ $stats['absent'] }}</div>
+                    <small class="text-muted">Absents</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card text-center h-100 border-info">
+                <div class="card-body py-3">
+                    <div class="h4 mb-0 text-info" id="stat-excused">{{ $stats['excused'] }}</div>
+                    <small class="text-muted">Excusés</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-2">
+            <div class="card text-center h-100 border-primary">
+                <div class="card-body py-3">
+                    <div class="h4 mb-0 text-primary" id="stat-rate">{{ $stats['rate'] }}%</div>
+                    <small class="text-muted">Taux présence</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="progress mb-4" style="height: 8px;" title="Répartition des statuts">
+        <div class="progress-bar bg-success" id="bar-present" style="width: 0%"></div>
+        <div class="progress-bar bg-warning" id="bar-late" style="width: 0%"></div>
+        <div class="progress-bar bg-danger" id="bar-absent" style="width: 0%"></div>
+        <div class="progress-bar bg-info" id="bar-excused" style="width: 0%"></div>
+    </div>
+
     <div class="card">
         <div class="card-body p-0 table-responsive">
             <form method="POST" action="{{ route('admin.seances.attendance.save', $seance) }}">
@@ -53,10 +112,15 @@
                             <tr>
                                 <td>
                                     <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
+                                    @if($attendance && $attendance->check_in_at)
+                                        <span class="badge bg-success ms-1" title="Pointage {{ $attendance->check_method === 'qrcode' ? 'QR code' : $attendance->check_method }}">
+                                            <i class="fas fa-qrcode me-1"></i>{{ \Carbon\Carbon::parse($attendance->check_in_at)->format('H:i') }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td>{{ $student->email }}</td>
                                 <td>
-                                    <select name="attendances[{{ $student->id }}][status]" class="form-select form-select-sm">
+                                    <select name="attendances[{{ $student->id }}][status]" class="form-select form-select-sm attendance-status">
                                         <option value="absent" {{ $record == 'absent' ? 'selected' : '' }}>Absent</option>
                                         <option value="present" {{ $record == 'present' ? 'selected' : '' }}>Présent</option>
                                         <option value="late" {{ $record == 'late' ? 'selected' : '' }}>En retard</option>
@@ -101,10 +165,41 @@
 
 @push('scripts')
 <script>
+    function refreshStats() {
+        const selects = document.querySelectorAll('select.attendance-status');
+        const counts = { present: 0, late: 0, absent: 0, excused: 0 };
+        selects.forEach(function (s) {
+            if (counts[s.value] !== undefined) counts[s.value]++;
+        });
+        const total = selects.length;
+        const rate = total > 0 ? Math.round(((counts.present + counts.late) / total) * 1000) / 10 : 0;
+
+        document.getElementById('stat-total').textContent = total;
+        document.getElementById('stat-present').textContent = counts.present;
+        document.getElementById('stat-late').textContent = counts.late;
+        document.getElementById('stat-absent').textContent = counts.absent;
+        document.getElementById('stat-excused').textContent = counts.excused;
+        document.getElementById('stat-rate').textContent = rate + '%';
+
+        const pct = function (n) { return total > 0 ? (n / total) * 100 : 0; };
+        document.getElementById('bar-present').style.width = pct(counts.present) + '%';
+        document.getElementById('bar-late').style.width = pct(counts.late) + '%';
+        document.getElementById('bar-absent').style.width = pct(counts.absent) + '%';
+        document.getElementById('bar-excused').style.width = pct(counts.excused) + '%';
+    }
+
     function markAll(status) {
-        document.querySelectorAll('select[name$="[status]"]').forEach(function (select) {
+        document.querySelectorAll('select.attendance-status').forEach(function (select) {
             select.value = status;
         });
+        refreshStats();
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('select.attendance-status').forEach(function (select) {
+            select.addEventListener('change', refreshStats);
+        });
+        refreshStats();
+    });
 </script>
 @endpush
