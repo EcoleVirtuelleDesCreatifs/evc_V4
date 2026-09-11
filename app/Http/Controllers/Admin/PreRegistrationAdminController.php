@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\AdmissionApprovedRegistrationLink;
 use App\Models\User;
 use App\Models\AccountingTransaction;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 
@@ -367,7 +366,8 @@ class PreRegistrationAdminController extends Controller
 
         $filename = 'Devis_' . preg_replace('/\s+/', '_', trim(($pre->prenom ?? '') . '_' . ($pre->nom ?? ''))) . '_' . now()->format('Ymd') . '.pdf';
 
-        $pdf = Pdf::loadView('pdf.quote', [
+        $generator = new \App\Services\QuoteGenerator();
+        $result = $generator->generate([
             'quote_number' => $quoteNumber,
             'issued_at' => $issuedAt,
             'valid_until' => $validUntil,
@@ -379,9 +379,10 @@ class PreRegistrationAdminController extends Controller
             'duration' => $duration,
             'total_amount' => $totalAmount,
             'items' => $items,
+            'filename' => $filename,
         ]);
 
-        return $pdf->download($filename);
+        return response()->download($result['path'], $result['filename'])->deleteFileAfterSend(true);
     }
 
     public function show($id)
