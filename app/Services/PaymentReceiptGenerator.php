@@ -6,6 +6,52 @@ use setasign\Fpdi\Fpdi;
 
 class PaymentReceiptGenerator
 {
+    private function resolveTemplatePath(string $relativePath): ?string
+    {
+        $relativePath = ltrim($relativePath, '/');
+
+        $assetsPrefixed = str_starts_with($relativePath, 'assets/')
+            ? $relativePath
+            : ('assets/' . $relativePath);
+
+        $candidates = [
+            public_path($relativePath),
+            public_path($assetsPrefixed),
+            base_path('public/' . $relativePath),
+            base_path('public/' . $assetsPrefixed),
+        ];
+
+        foreach ($candidates as $path) {
+            if (is_string($path) && $path !== '' && is_file($path) && is_readable($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
+    private function templatePath(): ?string
+    {
+        // Template voulu: celui du dossier "recu" (public/assets/recu/*.pdf)
+        // On prend template_recu.pdf en priorité, sinon le premier PDF trouvé dans le dossier.
+        $recuDir = public_path('assets/recu');
+        if (is_dir($recuDir)) {
+            $preferred = $this->resolveTemplatePath('assets/recu/template_recu.pdf');
+            if ($preferred) {
+                return $preferred;
+            }
+
+            $pdfs = glob($recuDir . '/*.pdf') ?: [];
+            if (!empty($pdfs)) {
+                sort($pdfs);
+                return $pdfs[0];
+            }
+        }
+
+        // Fallback: template de la facture
+        return $this->resolveTemplatePath('assets/facture/Template_Facture.pdf');
+    }
+
     private function toLatin(string $text): string
     {
         $converted = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
@@ -18,12 +64,240 @@ class PaymentReceiptGenerator
     }
 
     /**
-     * Génère un reçu de paiement professionnel sur une seule page A4.
+     * Génère un reçu de paiement professionnel sur une seule page.
+     * Utilise le template PDF du dossier assets/recu comme fond si disponible,
+     * sinon génère un design complet autonome aux couleurs EVC.
      *
      * @param array $data
      * @return array{path:string, filename:string}
      */
     public function generate(array $data): array
+    {
+        $templatePath = $this->templatePath();
+
+        if (is_string($templatePath) && is_file($templatePath)) {
+            return $this->generateFromTemplate($data, $templatePath);
+        }
+
+        return $this->generateCustom($data);
+    }
+
+    /**
+     * Reçu basé sur le template PDF du dossier "recu" : le gabarit sert de fond
+     * et les valeurs sont superposées aux emplacements prévus, aux couleurs EVC.
+     * Tout tient sur une seule page (récapitulatif + historique des paiements).
+     *
+     * @param array $data
+     * @return array{path:string, filename:string}
+     */
+    private function generateFromTemplate(array $data, string $templatePath): array
+    {
+        $pdf = new Fpdi('P', 'mm');
+        $pdf->SetAutoPageBreak(false);
+        $pdf->SetMargins(0, 0, 0);
+
+        // Palette EVC
+        $navy   = [30, 60, 114];
+        $blue   = [42, 82, 152];
+        $green  = [16, 185, 129];
+        $orange = [245, 158, 11];
+        $gray   = [100, 116, 139];
+        $light  = [241, 245, 249];
+        $border = [203, 213, 225];
+
+        $receiptNumber    = (string) ($data['receipt_number'] ?? '');
+        $issuedAt         = (string) ($data['issued_at'] ?? '');
+        $studentName      = (string) ($data['student_name'] ?? '');
+        $studentEmail     = (string) ($data['student_email'] ?? '');
+        $formation        = (string) ($data['formation'] ?? '');
+        $paymentReference = (string) ($data['payment_reference'] ?? '');
+        $studentId        = (string) ($data['student_id'] ?? '');
+
+        $grossTotalAmount  = $this->money($data['gross_total_amount'] ?? ($data['total_amount'] ?? 0));
+        $discountAmountRaw = (float) ($data['discount_amount'] ?? 0);
+        $discountAmount    = $this->money($discountAmountRaw);
+        $totalAmount       = $this->money($data['total_amount'] ?? 0);
+        $amountPaid        = $this->money($data['amount_paid'] ?? 0);
+        $remainingRaw      = (float) ($data['remaining'] ?? 0);
+        $remaining         = $this->money($remainingRaw);
+        $isFullyPaid       = $remainingRaw <= 0;
+
+        $pdf->setSourceFile($templatePath);
+        $tplId = $pdf->importPage(1);
+        $size  = $pdf->getTemplateSize($tplId);
+
+        $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+        $pdf->useTemplate($tplId, 0, 0, $size['width'], $size['height']);
+
+        // ---------- Valeurs aux emplacements du gabarit ----------
+        $valueX = 70.0;
+        $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+
+        $pdf->SetFont('Helvetica', '', 10);
+        $pdf->SetXY(145.0, 90.5);
+        $pdf->Cell(45, 5, $this->toLatin($issuedAt), 0, 0, 'R');
+
+        $pdf->SetFont('Helvetica', 'B', 10);
+        $pdf->SetXY(57.0, 107.5);
+        $pdf->Cell(80, 5, $this->toLatin($receiptNumber), 0, 0, 'L');
+
+        $pdf->SetFont('Helvetica', '', 11);
+        $pdf->SetXY($valueX, 139.0);
+        $pdf->Cell(80, 5, $this->toLatin($studentName), 0, 0, 'L');
+
+        $pdf->SetXY($valueX, 151.5);
+        $pdf->Cell(80, 5, $this->toLatin($studentId !== '' ? $studentId : ($paymentReference !== '' ? $paymentReference : '-')), 0, 0, 'L');
+
+        $pdf->SetXY($valueX, 164.5);
+        $pdf->Cell(80, 5, $this->toLatin($studentEmail), 0, 0, 'L');
+
+        $pdf->SetXY($valueX, 191.0);
+        $pdf->Cell(80, 5, $this->toLatin($formation), 0, 0, 'L');
+
+        $pdf->SetFont('Helvetica', 'B', 12);
+        $pdf->SetXY($valueX, 205.0);
+        $pdf->Cell(80, 5, $this->toLatin($amountPaid), 0, 0, 'L');
+
+        // ---------- Récapitulatif EVC (colonne droite) ----------
+        $rightX = 120.0;
+        $rightW = 72.0;
+        $rowH = 6.0;
+        $y = 132.0;
+
+        $pdf->SetDrawColor($border[0], $border[1], $border[2]);
+        $pdf->SetLineWidth(0.2);
+        $pdf->SetFillColor($navy[0], $navy[1], $navy[2]);
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetFont('Helvetica', 'B', 9);
+        $pdf->SetXY($rightX, $y);
+        $pdf->Cell($rightW, $rowH, $this->toLatin('RÉCAPITULATIF'), 1, 1, 'C', true);
+        $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+
+        $labelW = 40.0;
+        $amountW = $rightW - $labelW;
+
+        $line = function (string $label, string $value, bool $bold = false, ?array $color = null, ?array $fillColor = null) use ($pdf, $rightX, $labelW, $amountW, $rowH, $navy) {
+            if ($fillColor !== null) {
+                $pdf->SetFillColor($fillColor[0], $fillColor[1], $fillColor[2]);
+                $fill = true;
+            } else {
+                $pdf->SetFillColor(255, 255, 255);
+                $fill = false;
+            }
+            $pdf->SetX($rightX);
+            $pdf->SetFont('Helvetica', $bold ? 'B' : '', 9);
+            $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+            $pdf->Cell($labelW, $rowH, $this->toLatin($label), 1, 0, 'L', $fill);
+            if ($color !== null) {
+                $pdf->SetTextColor($color[0], $color[1], $color[2]);
+            }
+            $pdf->Cell($amountW, $rowH, $this->toLatin($value), 1, 1, 'R', $fill);
+            $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+        };
+
+        if ($discountAmountRaw > 0) {
+            $line('Cout formation', $grossTotalAmount);
+            $line('Remise', '- ' . $discountAmount, false, $green);
+        }
+        $line('Total du', $totalAmount, true);
+        $line('Total paye', $amountPaid, false, $green);
+        $line('Reste a solder', $remaining, true, $isFullyPaid ? $green : [220, 38, 38], $isFullyPaid ? [220, 252, 231] : [254, 226, 226]);
+
+        if ($paymentReference !== '') {
+            $pdf->SetFont('Helvetica', '', 8);
+            $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
+            $pdf->SetXY($rightX, $pdf->GetY() + 2);
+            $pdf->Cell($rightW, 4.5, $this->toLatin('Reference : ' . $paymentReference), 0, 1, 'L');
+        }
+
+        // ---------- Historique des paiements (bas de page, compact) ----------
+        $payments = array_values((array) ($data['payments'] ?? []));
+        if (count($payments) > 0) {
+            $maxRows = 5;
+            $extraCount = max(0, count($payments) - $maxRows);
+            $rows = array_slice($payments, 0, $maxRows);
+
+            $tableX = 15.0;
+            $tableY = 222.0;
+            $pRowH = 5.5;
+            $wDate = 26;
+            $wLib = 48;
+            $wRef = 56;
+            $wAmount = 30;
+            $wStatus = 20;
+
+            $pdf->SetFont('Helvetica', 'B', 8.5);
+            $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+            $pdf->SetXY($tableX, $tableY - 5);
+            $pdf->Cell(0, 4.5, $this->toLatin('HISTORIQUE DES PAIEMENTS'), 0, 0, 'L');
+
+            $pdf->SetFillColor($navy[0], $navy[1], $navy[2]);
+            $pdf->SetTextColor(255, 255, 255);
+            $pdf->SetFont('Helvetica', 'B', 8);
+            $pdf->SetXY($tableX, $tableY);
+            $pdf->Cell($wDate, $pRowH, $this->toLatin('Date'), 1, 0, 'L', true);
+            $pdf->Cell($wLib, $pRowH, $this->toLatin('Libelle'), 1, 0, 'L', true);
+            $pdf->Cell($wRef, $pRowH, $this->toLatin('Reference'), 1, 0, 'L', true);
+            $pdf->Cell($wAmount, $pRowH, $this->toLatin('Montant'), 1, 0, 'R', true);
+            $pdf->Cell($wStatus, $pRowH, $this->toLatin('Statut'), 1, 1, 'C', true);
+
+            $pdf->SetFont('Helvetica', '', 8);
+            $y = $tableY + $pRowH;
+            foreach ($rows as $i => $p) {
+                $date   = (string) (($p['paid_at'] ?? '') ?: ($p['created_at'] ?? ''));
+                $lib    = (string) (($p['installment_label'] ?? '') ?: 'Paiement');
+                $ref    = (string) ($p['payment_reference'] ?? '');
+                $amt    = $this->money($p['amount'] ?? 0);
+                $status = (string) (($p['status_label'] ?? ($p['status'] ?? '')) ?: '');
+
+                $fill = ($i % 2) === 1;
+                if ($fill) {
+                    $pdf->SetFillColor($light[0], $light[1], $light[2]);
+                } else {
+                    $pdf->SetFillColor(255, 255, 255);
+                }
+                $pdf->SetTextColor(30, 41, 59);
+
+                $pdf->SetXY($tableX, $y);
+                $pdf->Cell($wDate, $pRowH, $this->toLatin($date), 1, 0, 'L', $fill);
+                $pdf->Cell($wLib, $pRowH, $this->toLatin($lib), 1, 0, 'L', $fill);
+                $pdf->Cell($wRef, $pRowH, $this->toLatin($ref !== '' ? $ref : '-'), 1, 0, 'L', $fill);
+                $pdf->Cell($wAmount, $pRowH, $this->toLatin($amt), 1, 0, 'R', $fill);
+
+                $statusColor = [30, 41, 59];
+                if (($p['status'] ?? '') === 'completed') {
+                    $statusColor = $green;
+                } elseif (in_array(($p['status'] ?? ''), ['failed', 'cancelled'], true)) {
+                    $statusColor = [220, 38, 38];
+                } elseif (($p['status'] ?? '') === 'pending') {
+                    $statusColor = $orange;
+                }
+                $pdf->SetTextColor($statusColor[0], $statusColor[1], $statusColor[2]);
+                $pdf->SetFont('Helvetica', 'B', 8);
+                $pdf->Cell($wStatus, $pRowH, $this->toLatin($status), 1, 1, 'C', $fill);
+                $pdf->SetFont('Helvetica', '', 8);
+
+                $y += $pRowH;
+            }
+
+            if ($extraCount > 0) {
+                $pdf->SetFillColor($light[0], $light[1], $light[2]);
+                $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
+                $pdf->SetXY($tableX, $y);
+                $pdf->Cell($wDate + $wLib + $wRef + $wAmount + $wStatus, $pRowH, $this->toLatin('+ ' . $extraCount . ' autre(s) paiement(s)'), 1, 1, 'C', true);
+            }
+        }
+
+        return $this->output($pdf, $data);
+    }
+
+    /**
+     * Design complet autonome (fallback si aucun template PDF n'est disponible).
+     *
+     * @param array $data
+     * @return array{path:string, filename:string}
+     */
+    private function generateCustom(array $data): array
     {
         $pdf = new Fpdi('P', 'mm', 'A4');
         $pdf->SetAutoPageBreak(false);
@@ -322,7 +596,14 @@ class PaymentReceiptGenerator
         $pdf->SetXY(0, 288);
         $pdf->Cell($pageW, 5, $this->toLatin('EVC - École Virtuelle des Créatifs  |  Abidjan, Côte d\'Ivoire  |  www.ecolevirtuelledescreatifs.com'), 0, 0, 'C');
 
-        // ---------- Output ----------
+        return $this->output($pdf, $data);
+    }
+
+    /**
+     * @return array{path:string, filename:string}
+     */
+    private function output(Fpdi $pdf, array $data): array
+    {
         $outputDir = storage_path('app/receipts');
         if (!file_exists($outputDir)) {
             mkdir($outputDir, 0755, true);
@@ -338,5 +619,4 @@ class PaymentReceiptGenerator
             'filename' => $filename,
         ];
     }
-
 }
