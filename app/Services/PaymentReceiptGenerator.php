@@ -129,6 +129,9 @@ class PaymentReceiptGenerator
         $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
         $pdf->useTemplate($tplId, 0, 0, $size['width'], $size['height']);
 
+        // Tout le contenu superposé est remonté de ~200px (≈53mm)
+        $pdf->beginTranslate(0, 53);
+
         // ---------- En-tête du gabarit : date + n° reçu ----------
         $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
         $pdf->SetFont('Helvetica', '', 10);
@@ -407,6 +410,8 @@ class PaymentReceiptGenerator
         $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
         $pdf->SetXY(15, 282);
         $pdf->Cell(180, 4, $this->toLatin('Document généré électroniquement par EVC - École Virtuelle des Créatifs. Pour toute vérification, indiquez le numéro de reçu.'), 0, 0, 'C');
+
+        $pdf->endTranslate();
 
         return $this->output($pdf, $data);
     }
@@ -786,6 +791,19 @@ class EvcReceiptPdf extends Fpdi
     public function circle(float $cx, float $cy, float $r, string $style = 'F'): void
     {
         $this->roundedRect($cx - $r, $cy - $r, 2 * $r, 2 * $r, $r, $style);
+    }
+
+    /**
+     * Décale tout le contenu dessiné ensuite (tx, ty en mm ; ty positif = vers le haut).
+     */
+    public function beginTranslate(float $txMm, float $tyUpMm): void
+    {
+        $this->_out(sprintf('q 1 0 0 1 %.2F %.2F cm', $txMm * $this->k, $tyUpMm * $this->k));
+    }
+
+    public function endTranslate(): void
+    {
+        $this->_out('Q');
     }
 
     private function arc(float $x1, float $y1, float $x2, float $y2, float $x3, float $y3): void
