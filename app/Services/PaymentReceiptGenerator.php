@@ -32,10 +32,24 @@ class PaymentReceiptGenerator
 
     private function templatePath(): ?string
     {
-        // Template voulu: celui de la facture (public/assets/facture/Template_Facture.pdf)
-        // Fallback: template reçu dédié si présent
-        return $this->resolveTemplatePath('assets/facture/Template_Facture.pdf')
-            ?: $this->resolveTemplatePath('assets/recu/template_recu.pdf');
+        // Template voulu: celui du dossier "recu" (public/assets/recu/*.pdf)
+        // On prend template_recu.pdf en priorité, sinon le premier PDF trouvé dans le dossier.
+        $recuDir = public_path('assets/recu');
+        if (is_dir($recuDir)) {
+            $preferred = $this->resolveTemplatePath('assets/recu/template_recu.pdf');
+            if ($preferred) {
+                return $preferred;
+            }
+
+            $pdfs = glob($recuDir . '/*.pdf') ?: [];
+            if (!empty($pdfs)) {
+                sort($pdfs);
+                return $pdfs[0];
+            }
+        }
+
+        // Fallback: template de la facture
+        return $this->resolveTemplatePath('assets/facture/Template_Facture.pdf');
     }
 
     private function toLatin(string $text): string
