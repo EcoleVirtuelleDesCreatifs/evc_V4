@@ -408,7 +408,7 @@ class PaymentReceiptGenerator
         // ---------- Mention bas de page ----------
         $pdf->SetFont('Helvetica', 'I', 7.5);
         $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
-        $pdf->SetXY(15, 282);
+        $pdf->SetXY(15, 262);
         $pdf->Cell(180, 4, $this->toLatin('Document généré électroniquement par EVC - École Virtuelle des Créatifs. Pour toute vérification, indiquez le numéro de reçu.'), 0, 0, 'C');
 
         $pdf->endTranslate();
