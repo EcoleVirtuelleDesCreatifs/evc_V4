@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('attendances', function (Blueprint $table) {
-            $table->dateTime('recorded_at')->nullable()->after('recorded_by');
-        });
+        if (Schema::hasTable('attendances') && !Schema::hasColumn('attendances', 'recorded_at')) {
+            Schema::table('attendances', function (Blueprint $table) {
+                $table->dateTime('recorded_at')->nullable()->after('recorded_by');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('attendances', function (Blueprint $table) {
-            $table->dropColumn('recorded_at');
-        });
+        // No-op : la colonne est gérée par la migration de création
     }
 };

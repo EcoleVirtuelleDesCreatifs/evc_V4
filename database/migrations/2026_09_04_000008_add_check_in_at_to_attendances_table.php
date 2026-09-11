@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('attendances', function (Blueprint $table) {
-            $table->dateTime('check_in_at')->nullable()->after('recorded_at');
-        });
+        if (Schema::hasTable('attendances') && !Schema::hasColumn('attendances', 'check_in_at')) {
+            Schema::table('attendances', function (Blueprint $table) {
+                $table->dateTime('check_in_at')->nullable()->after('recorded_at');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('attendances', function (Blueprint $table) {
-            $table->dropColumn('check_in_at');
-        });
+        if (Schema::hasTable('attendances') && Schema::hasColumn('attendances', 'check_in_at')) {
+            Schema::table('attendances', function (Blueprint $table) {
+                $table->dropColumn('check_in_at');
+            });
+        }
     }
 };

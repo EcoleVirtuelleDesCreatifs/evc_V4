@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('attendances', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->nullable()->after('student_id');
-        });
+        // La colonne peut déjà exister si la table a été créée avec (migration 000002 à jour)
+        if (Schema::hasTable('attendances') && !Schema::hasColumn('attendances', 'user_id')) {
+            Schema::table('attendances', function (Blueprint $table) {
+                $table->unsignedBigInteger('user_id')->nullable()->after('student_id');
+            });
+        }
     }
 
     /**
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('attendances', function (Blueprint $table) {
-            $table->dropColumn('user_id');
-        });
+        // No-op : la colonne est gérée par la migration de création
     }
 };

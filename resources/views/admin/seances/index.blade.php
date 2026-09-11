@@ -66,6 +66,7 @@
                         <th>Type</th>
                         <th>Date</th>
                         <th>Durée</th>
+                        <th>Présences</th>
                         <th>Statut</th>
                         <th class="text-end">Actions</th>
                     </tr>
@@ -87,17 +88,34 @@
                             <td>{{ $seance->scheduled_at->format('d/m/Y H:i') }}</td>
                             <td>{{ $seance->duration_minutes }} min</td>
                             <td>
-                                @if($seance->status === 'scheduled')
-                                    <span class="badge bg-secondary">Planifiée</span>
-                                @elseif($seance->status === 'ongoing')
+                                <span class="badge bg-light text-dark border">
+                                    <i class="fas fa-user-check me-1 text-success"></i>{{ $seance->presents_count }}/{{ $seance->attendances_count }}
+                                </span>
+                            </td>
+                            <td>
+                                @if($seance->status === 'cancelled')
+                                    <span class="badge bg-danger">Annulée</span>
+                                @elseif($seance->isOngoing())
                                     <span class="badge bg-warning text-dark"><i class="fas fa-circle me-1 small"></i>En cours</span>
                                 @elseif($seance->status === 'completed')
                                     <span class="badge bg-primary">Terminée</span>
+                                @elseif($seance->status === 'ongoing')
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-circle me-1 small"></i>En cours</span>
                                 @else
-                                    <span class="badge bg-danger">Annulée</span>
+                                    <span class="badge bg-secondary">Planifiée</span>
                                 @endif
                             </td>
-                            <td class="text-end">
+                            <td class="text-end text-nowrap">
+                                @if(in_array($seance->type, ['online', 'hybrid']) && $seance->meet_link)
+                                    <a href="{{ $seance->meet_link }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-info me-1" title="Ouvrir Google Meet">
+                                        <i class="fas fa-video"></i>
+                                    </a>
+                                @endif
+                                @if(in_array($seance->type, ['onsite', 'hybrid']))
+                                    <a href="{{ route('admin.seances.qr', $seance) }}" class="btn btn-sm btn-outline-dark me-1" title="QR code de pointage">
+                                        <i class="fas fa-qrcode"></i>
+                                    </a>
+                                @endif
                                 <a href="{{ route('admin.seances.attendance', $seance) }}" class="btn btn-sm btn-outline-success me-1" title="Marquer les présences">
                                     <i class="fas fa-clipboard-check"></i>
                                 </a>
@@ -115,12 +133,17 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4 text-muted">Aucune séance trouvée.</td>
+                            <td colspan="8" class="text-center py-4 text-muted">Aucune séance trouvée.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        @if($seances->hasPages())
+            <div class="card-footer">
+                {{ $seances->links() }}
+            </div>
+        @endif
     </div>
 </div>
 @endsection

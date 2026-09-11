@@ -16,11 +16,16 @@ use Illuminate\Http\RedirectResponse;
 class SeanceAdminController extends Controller
 {
     /**
-     * Liste des séances avec filtre par formation.
+     * Liste des séances avec filtres + pagination + compteurs de présences.
      */
     public function index(Request $request): View
     {
-        $query = Seance::query()->orderByDesc('scheduled_at');
+        $query = Seance::query()
+            ->withCount([
+                'attendances as presents_count' => fn ($q) => $q->whereIn('status', ['present', 'late']),
+                'attendances as attendances_count',
+            ])
+            ->orderByDesc('scheduled_at');
 
         if ($request->filled('formation')) {
             $query->where('formation', $request->get('formation'));
@@ -34,15 +39,12 @@ class SeanceAdminController extends Controller
             $query->where('type', $request->get('type'));
         }
 
-        $seances = $query->get();
+        $seances = $query->paginate(15)->withQueryString();
 
-        $formations = Student::select('program')
-            ->whereNotNull('program')
-            ->distinct()
-            ->orderBy('program')
-            ->pluck('program');
-
-        return view('admin.seances.index', compact('seances', 'formations'));
+        return view('admin.seances.index', [
+            'seances' => $seances,
+            'formations' => $this->formationOptions(),
+        ]);
     }
 
     /**
@@ -79,13 +81,10 @@ class SeanceAdminController extends Controller
      */
     public function edit(Seance $seance): View
     {
-        $formations = Student::select('program')
-            ->whereNotNull('program')
-            ->distinct()
-            ->orderBy('program')
-            ->pluck('program');
-
-        return view('admin.seances.form', compact('seance', 'formations'));
+        return view('admin.seances.form', [
+            'seance' => $seance,
+            'formations' => $this->formationOptions(),
+        ]);
     }
 
     /**
@@ -224,6 +223,38 @@ class SeanceAdminController extends Controller
 
         return redirect()->route('admin.seances.attendance', $seance)
             ->with('success', 'Pointage fermé.');
+    }
+
+    /**
+     * Liste complète des formations : catalogue EVC + programmes étudiants
+     * + formations déjà utilisées par des séances existantes.
+     */
+    private function formationOptions(): \Illuminate\Support\Collection
+    {
+        $catalog = collect([
+            'Design Graphique',
+            'Community Management',
+            'Gestion Informatique',
+            'Intelligence Artificielle',
+        ]);
+
+        $fromStudents = Student::select('program')
+            ->whereNotNull('program')
+            ->distinct()
+            ->pluck('program');
+
+        $fromSeances = Seance::select('formation')
+            ->whereNotNull('formation')
+            ->distinct()
+            ->pluck('formation');
+
+        return $catalog
+            ->merge($fromStudents)
+            ->merge($fromSeances)
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
     }
 
     /**

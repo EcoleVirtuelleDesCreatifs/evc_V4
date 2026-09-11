@@ -4,18 +4,27 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <h1 class="h3 mb-2">Marquer les présences</h1>
-    <p class="mb-4" style="color: #fff;">
-        <i class="far fa-calendar me-1"></i>{{ $seance->title }} — {{ $seance->scheduled_at->format('d/m/Y H:i') }}
-        <span class="badge {{ $seance->type === 'online' ? 'bg-info text-dark' : 'bg-success' }} ms-2">
-            {{ $seance->type === 'online' ? 'En ligne' : 'Présentiel' }}
-        </span>
-        @if(in_array($seance->type, ['onsite', 'hybrid']))
-            <a href="{{ route('admin.seances.qr', $seance) }}" class="btn btn-sm btn-outline-success ms-2">
-                <i class="fas fa-qrcode me-1"></i> QR Code
-            </a>
-        @endif
-    </p>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h1 class="h3 mb-1">Marquer les présences</h1>
+            <p class="text-muted mb-0">
+                <i class="far fa-calendar me-1"></i>{{ $seance->title }} — {{ $seance->scheduled_at->format('d/m/Y H:i') }}
+                <span class="badge {{ $seance->type === 'online' ? 'bg-info text-dark' : 'bg-success' }} ms-2">
+                    {{ $seance->type === 'online' ? 'En ligne' : 'Présentiel' }}
+                </span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            @if(in_array($seance->type, ['onsite', 'hybrid']))
+                <a href="{{ route('admin.seances.qr', $seance) }}" class="btn btn-outline-dark">
+                    <i class="fas fa-qrcode me-1"></i> QR Code
+                </a>
+            @endif
+            <button type="button" class="btn btn-outline-success" onclick="markAll('present')">
+                <i class="fas fa-check-double me-1"></i> Tous présents
+            </button>
+        </div>
+    </div>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -89,3 +98,13 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function markAll(status) {
+        document.querySelectorAll('select[name$="[status]"]').forEach(function (select) {
+            select.value = status;
+        });
+    }
+</script>
+@endpush

@@ -26,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
+        // Pagination au style Bootstrap 5 (admin + fronts)
+        Paginator::useBootstrapFive();
+
         // Directive Blade personnalisée pour vérifier si le compte peut soumettre du contenu
         Blade::if('canCreate', function () {
             $sharedData = View::getShared();

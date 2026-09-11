@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('seance_id')->constrained('seances')->onDelete('cascade');
             $table->foreignId('student_id')->constrained('students')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->enum('status', ['present', 'absent', 'late', 'excused'])->default('absent');
             $table->enum('check_method', ['manual', 'qrcode', 'meet', 'auto'])->default('manual');
             $table->unsignedBigInteger('recorded_by')->nullable()->index();
