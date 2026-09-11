@@ -92,7 +92,7 @@ class PaymentReceiptGenerator
      */
     private function generateFromTemplate(array $data, string $templatePath): array
     {
-        $pdf = new Fpdi('P', 'mm');
+        $pdf = new EvcReceiptPdf('P', 'mm');
         $pdf->SetAutoPageBreak(false);
         $pdf->SetMargins(0, 0, 0);
 
@@ -129,10 +129,8 @@ class PaymentReceiptGenerator
         $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
         $pdf->useTemplate($tplId, 0, 0, $size['width'], $size['height']);
 
-        // ---------- Valeurs aux emplacements du gabarit ----------
-        $valueX = 70.0;
+        // ---------- En-tête du gabarit : date + n° reçu ----------
         $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
-
         $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY(145.0, 90.5);
         $pdf->Cell(45, 5, $this->toLatin($issuedAt), 0, 0, 'R');
@@ -141,183 +139,267 @@ class PaymentReceiptGenerator
         $pdf->SetXY(57.0, 107.5);
         $pdf->Cell(80, 5, $this->toLatin($receiptNumber), 0, 0, 'L');
 
-        // Nom de l'étudiant en gras, plus visible
-        $pdf->SetFont('Helvetica', 'B', 11);
-        $pdf->SetXY($valueX, 139.0);
-        $pdf->Cell(80, 5, $this->toLatin($studentName), 0, 0, 'L');
+        $registrationDate = (string) ($data['registration_date'] ?? '');
 
-        $pdf->SetFont('Helvetica', '', 10);
-        $pdf->SetXY($valueX, 151.5);
-        $pdf->Cell(80, 5, $this->toLatin($studentId !== '' ? $studentId : ($paymentReference !== '' ? $paymentReference : '-')), 0, 0, 'L');
+        // ---------- Carte INFORMATIONS ÉTUDIANT(E) (gauche) ----------
+        $cardX = 14.0;
+        $cardY = 122.0;
+        $cardW = 88.0;
+        $cardH = 74.0;
+        $pdf->SetFillColor(238, 243, 249);
+        $pdf->roundedRect($cardX, $cardY, $cardW, $cardH, 3, 'F');
 
-        $pdf->SetXY($valueX, 164.5);
-        $pdf->Cell(80, 5, $this->toLatin($studentEmail), 0, 0, 'L');
+        // Icône personne dans un cercle navy
+        $pdf->SetFillColor($navy[0], $navy[1], $navy[2]);
+        $pdf->circle(21.5, $cardY + 9, 5, 'F');
+        $pdf->SetFillColor(255, 255, 255);
+        $pdf->circle(21.5, $cardY + 7.6, 1.7, 'F');
+        $pdf->roundedRect(18.1, $cardY + 10.4, 6.8, 3.0, 1.4, 'F');
 
-        $pdf->SetXY($valueX, 191.0);
-        $pdf->Cell(80, 5, $this->toLatin($formation), 0, 0, 'L');
-
-        // Montant payé mis en avant
-        $pdf->SetFont('Helvetica', 'B', 13);
-        $pdf->SetTextColor($green[0], $green[1], $green[2]);
-        $pdf->SetXY($valueX, 205.0);
-        $pdf->Cell(80, 5, $this->toLatin($amountPaid), 0, 0, 'L');
         $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+        $pdf->SetFont('Helvetica', 'B', 9.5);
+        $pdf->SetXY(29, $cardY + 6.5);
+        $pdf->Cell(70, 5, $this->toLatin('INFORMATIONS ÉTUDIANT(E)'), 0, 0, 'L');
 
-        // ---------- Récapitulatif EVC (colonne droite) ----------
-        $rightX = 120.0;
-        $rightW = 72.0;
-        $rowH = 6.0;
-        $y = 132.0;
+        $infoRows = [
+            ['Nom et prénoms', $studentName],
+            ['Matricule', $studentId !== '' ? $studentId : '-'],
+            ['Email', $studentEmail],
+            ['Formation', $formation],
+            ['Inscription', $registrationDate !== '' ? $registrationDate : '-'],
+        ];
+        $iy = $cardY + 18;
+        foreach ($infoRows as $idx => [$label, $value]) {
+            $pdf->SetFont('Helvetica', '', 8.5);
+            $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
+            $pdf->SetXY($cardX + 5, $iy);
+            $pdf->Cell(26, 4.5, $this->toLatin($label), 0, 0, 'L');
+            $pdf->Cell(4, 4.5, ':', 0, 0, 'C');
+            $pdf->SetFont('Helvetica', 'B', 8.5);
+            $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+            if ($idx === 0) {
+                // Le nom peut tenir sur 2 lignes
+                $pdf->SetXY($cardX + 35, $iy - 0.5);
+                $pdf->MultiCell(48, 4.2, $this->toLatin($value), 0, 'L');
+                $iy += 15;
+            } else {
+                $pdf->SetXY($cardX + 35, $iy);
+                $pdf->Cell(48, 4.5, $this->toLatin($value), 0, 0, 'L');
+                $iy += 8;
+            }
+        }
 
+        // ---------- RÉCAPITULATIF (droite) ----------
+        $rcX = 106.0;
+        $rcW = 90.0;
+        $rcY = 122.0;
+        $rcRowH = 7.0;
+        $labelW = 50.0;
+        $amtW = $rcW - $labelW;
+
+        // Header navy arrondi en haut
+        $pdf->SetFillColor($navy[0], $navy[1], $navy[2]);
+        $pdf->roundedRect($rcX, $rcY, $rcW, 8, 2, 'F');
+        $pdf->Rect($rcX, $rcY + 4, $rcW, 4, 'F');
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetFont('Helvetica', 'B', 10);
+        $pdf->SetXY($rcX, $rcY + 1.5);
+        $pdf->Cell($rcW, 5, $this->toLatin('RÉCAPITULATIF'), 0, 0, 'C');
+
+        $ry = $rcY + 8;
         $pdf->SetDrawColor($border[0], $border[1], $border[2]);
         $pdf->SetLineWidth(0.2);
-        $pdf->SetFillColor($navy[0], $navy[1], $navy[2]);
-        $pdf->SetTextColor(255, 255, 255);
-        $pdf->SetFont('Helvetica', 'B', 9);
-        $pdf->SetXY($rightX, $y);
-        $pdf->Cell($rightW, $rowH, $this->toLatin('RÉCAPITULATIF'), 1, 1, 'C', true);
-        $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
 
-        $labelW = 40.0;
-        $amountW = $rightW - $labelW;
-
-        $line = function (string $label, string $value, bool $bold = false, ?array $color = null, ?array $fillColor = null) use ($pdf, $rightX, $labelW, $amountW, $rowH, $navy) {
-            if ($fillColor !== null) {
+        $recapLine = function (string $label, string $value, bool $bold = false, ?array $valColor = null, ?array $fillColor = null) use ($pdf, $rcX, $labelW, $amtW, $rcRowH, $navy) {
+            $fill = $fillColor !== null;
+            if ($fill) {
                 $pdf->SetFillColor($fillColor[0], $fillColor[1], $fillColor[2]);
-                $fill = true;
-            } else {
-                $pdf->SetFillColor(255, 255, 255);
-                $fill = false;
             }
-            $pdf->SetX($rightX);
+            $pdf->SetX($rcX);
             $pdf->SetFont('Helvetica', $bold ? 'B' : '', 9);
             $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
-            $pdf->Cell($labelW, $rowH, $this->toLatin($label), 1, 0, 'L', $fill);
-            if ($color !== null) {
-                $pdf->SetTextColor($color[0], $color[1], $color[2]);
+            $pdf->Cell($labelW, $rcRowH, $this->toLatin($label), 'B', 0, 'L', $fill);
+            if ($valColor !== null) {
+                $pdf->SetTextColor($valColor[0], $valColor[1], $valColor[2]);
             }
-            $pdf->Cell($amountW, $rowH, $this->toLatin($value), 1, 1, 'R', $fill);
-            $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+            $pdf->SetFont('Helvetica', 'B', 9);
+            $pdf->Cell($amtW, $rcRowH, $this->toLatin($value), 'B', 1, 'R', $fill);
         };
 
+        $greenTxt = [22, 163, 74];
+        $recapLine('Montant de la formation', $grossTotalAmount);
         if ($discountAmountRaw > 0) {
-            $line('Cout formation', $grossTotalAmount);
-            $line('Remise', '- ' . $discountAmount, false, $green);
+            $recapLine('Remise', '- ' . $discountAmount, false, $greenTxt);
         }
-        $line('Total du', $totalAmount, true);
-        $line('Total paye', $amountPaid, false, $green);
-        $line('Reste a solder', $remaining, true, $isFullyPaid ? $green : [220, 38, 38], $isFullyPaid ? [220, 252, 231] : [254, 226, 226]);
+        $recapLine('Total du', $totalAmount, true, null, [216, 230, 248]);
+        $recapLine('Total payé', $amountPaid, false, $greenTxt);
+        $recapLine(
+            'Reste à solder',
+            $remaining,
+            true,
+            $isFullyPaid ? $greenTxt : [220, 38, 38],
+            $isFullyPaid ? [211, 242, 227] : [254, 226, 226]
+        );
 
-        // Badge statut sous le récapitulatif
-        $badgeY = $pdf->GetY() + 3;
-        if ($isFullyPaid) {
-            $pdf->SetFillColor($green[0], $green[1], $green[2]);
-        } else {
-            $pdf->SetFillColor($orange[0], $orange[1], $orange[2]);
-        }
-        $pdf->Rect($rightX, $badgeY, $rightW, 7, 'F');
+        // Bordure extérieure arrondie du tableau récap
+        $pdf->roundedRect($rcX, $rcY, $rcW, ($ry + ($pdf->GetY() - $ry)), 2, 'S');
+
+        // ---------- Badge statut ----------
+        $bY = $pdf->GetY() + 6;
+        $bH = 15.0;
+        $bColor = $isFullyPaid ? [34, 197, 94] : $orange;
+        $pdf->SetFillColor($bColor[0], $bColor[1], $bColor[2]);
+        $pdf->roundedRect($rcX, $bY, $rcW, $bH, 3, 'F');
+
+        // Cercle blanc + coche
+        $pdf->SetFillColor(255, 255, 255);
+        $pdf->circle($rcX + 10, $bY + 7.5, 5, 'F');
+        $pdf->SetDrawColor($bColor[0], $bColor[1], $bColor[2]);
+        $pdf->SetLineWidth(0.9);
+        $pdf->Line($rcX + 7.6, $bY + 7.4, $rcX + 9.6, $bY + 9.4);
+        $pdf->Line($rcX + 9.6, $bY + 9.4, $rcX + 12.8, $bY + 5.2);
+        $pdf->SetLineWidth(0.2);
+
         $pdf->SetTextColor(255, 255, 255);
-        $pdf->SetFont('Helvetica', 'B', 9);
-        $pdf->SetXY($rightX, $badgeY + 1.2);
-        $pdf->Cell($rightW, 5, $this->toLatin($isFullyPaid ? 'PAIEMENT SOLDÉ' : 'PAIEMENT EN COURS'), 0, 0, 'C');
+        $pdf->SetFont('Helvetica', 'B', 13);
+        $pdf->SetXY($rcX + 18, $bY + 2.8);
+        $pdf->Cell($rcW - 20, 6, $this->toLatin($isFullyPaid ? 'PAIEMENT SOLDÉ' : 'PAIEMENT EN COURS'), 0, 0, 'L');
+        $pdf->SetFont('Helvetica', '', 8.5);
+        $pdf->SetXY($rcX + 18, $bY + 9.5);
+        $pdf->Cell($rcW - 20, 4, $this->toLatin($isFullyPaid ? 'Merci pour votre confiance !' : 'Reste à payer : ' . $remaining), 0, 0, 'L');
 
+        // ---------- Boîte référence ----------
         if ($paymentReference !== '') {
+            $fY = $bY + $bH + 5;
+            $pdf->SetFillColor($light[0], $light[1], $light[2]);
+            $pdf->roundedRect($rcX, $fY, $rcW, 9, 2, 'F');
+
+            // Icône document
+            $pdf->SetDrawColor($navy[0], $navy[1], $navy[2]);
+            $pdf->SetLineWidth(0.35);
+            $pdf->roundedRect($rcX + 4, $fY + 2.2, 4, 4.8, 0.5, 'S');
+            $pdf->Line($rcX + 5, $fY + 3.8, $rcX + 7, $fY + 3.8);
+            $pdf->Line($rcX + 5, $fY + 5.2, $rcX + 7, $fY + 5.2);
+            $pdf->SetLineWidth(0.2);
+
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
-            $pdf->SetXY($rightX, $badgeY + 9);
-            $pdf->Cell($rightW, 4.5, $this->toLatin('Reference : ' . $paymentReference), 0, 1, 'L');
+            $pdf->SetXY($rcX + 11, $fY + 2.3);
+            $pdf->Cell($rcW - 13, 4.5, $this->toLatin('Référence : ' . $paymentReference), 0, 0, 'L');
         }
 
-        // ---------- Historique des paiements (bas de page) ----------
+        // ---------- HISTORIQUE DES PAIEMENTS ----------
         $payments = array_values((array) ($data['payments'] ?? []));
         if (count($payments) > 0) {
-            $maxRows = 8;
+            $secY = 210.0;
+
+            // Icône carte dans un cercle navy
+            $pdf->SetFillColor($navy[0], $navy[1], $navy[2]);
+            $pdf->circle(21.5, $secY + 3.5, 5, 'F');
+            $pdf->SetFillColor(255, 255, 255);
+            $pdf->roundedRect(18.3, $secY + 1.8, 6.4, 3.6, 0.7, 'F');
+            $pdf->SetDrawColor($navy[0], $navy[1], $navy[2]);
+            $pdf->SetLineWidth(0.5);
+            $pdf->Line(19, $secY + 3, 24, $secY + 3);
+            $pdf->SetLineWidth(0.2);
+
+            $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+            $pdf->SetFont('Helvetica', 'B', 10);
+            $pdf->SetXY(29, $secY + 1);
+            $pdf->Cell(0, 5, $this->toLatin('HISTORIQUE DES PAIEMENTS'), 0, 0, 'L');
+
+            $maxRows = 5;
             $extraCount = max(0, count($payments) - $maxRows);
             $rows = array_slice($payments, 0, $maxRows);
 
-            $tableX = 15.0;
-            $tableY = 220.0;
-            $pRowH = 5.5;
+            $tX = 14.0;
+            $tY = $secY + 9;
+            $pRowH = 7.0;
             $wDate = 26;
-            $wLib = 48;
+            $wLib = 42;
             $wRef = 56;
-            $wAmount = 30;
-            $wStatus = 20;
+            $wAmount = 32;
+            $wStatus = 26;
+            $tableW = $wDate + $wLib + $wRef + $wAmount + $wStatus;
 
-            // Titre de section avec liseré EVC
-            $pdf->SetFont('Helvetica', 'B', 9);
-            $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
-            $pdf->SetXY($tableX, $tableY - 6);
-            $pdf->Cell(0, 4.5, $this->toLatin('HISTORIQUE DES PAIEMENTS'), 0, 0, 'L');
-            $pdf->SetFillColor($blue[0], $blue[1], $blue[2]);
-            $pdf->Rect($tableX, $tableY - 1.2, 180, 0.6, 'F');
-
+            // Header navy
             $pdf->SetFillColor($navy[0], $navy[1], $navy[2]);
             $pdf->SetTextColor(255, 255, 255);
-            $pdf->SetFont('Helvetica', 'B', 8);
-            $pdf->SetXY($tableX, $tableY);
-            $pdf->Cell($wDate, $pRowH, $this->toLatin('Date'), 1, 0, 'L', true);
-            $pdf->Cell($wLib, $pRowH, $this->toLatin('Libelle'), 1, 0, 'L', true);
-            $pdf->Cell($wRef, $pRowH, $this->toLatin('Reference'), 1, 0, 'L', true);
-            $pdf->Cell($wAmount, $pRowH, $this->toLatin('Montant'), 1, 0, 'R', true);
-            $pdf->Cell($wStatus, $pRowH, $this->toLatin('Statut'), 1, 1, 'C', true);
+            $pdf->SetFont('Helvetica', 'B', 8.5);
+            $pdf->SetXY($tX, $tY);
+            $pdf->Cell($wDate, $pRowH, $this->toLatin('Date'), 0, 0, 'L', true);
+            $pdf->Cell($wLib, $pRowH, $this->toLatin('Libellé'), 0, 0, 'L', true);
+            $pdf->Cell($wRef, $pRowH, $this->toLatin('Référence'), 0, 0, 'L', true);
+            $pdf->Cell($wAmount, $pRowH, $this->toLatin('Montant'), 0, 0, 'R', true);
+            $pdf->Cell($wStatus, $pRowH, $this->toLatin('Statut'), 0, 1, 'C', true);
 
-            $pdf->SetFont('Helvetica', '', 8);
-            $y = $tableY + $pRowH;
-            foreach ($rows as $i => $p) {
+            $pdf->SetDrawColor($border[0], $border[1], $border[2]);
+            $y = $tY + $pRowH;
+            foreach ($rows as $p) {
                 $date   = (string) (($p['paid_at'] ?? '') ?: ($p['created_at'] ?? ''));
                 $lib    = (string) (($p['installment_label'] ?? '') ?: 'Paiement');
                 $ref    = (string) ($p['payment_reference'] ?? '');
                 $amt    = $this->money($p['amount'] ?? 0);
                 $status = (string) (($p['status_label'] ?? ($p['status'] ?? '')) ?: '');
+                $stKey  = (string) ($p['status'] ?? '');
 
-                $fill = ($i % 2) === 1;
-                if ($fill) {
-                    $pdf->SetFillColor($light[0], $light[1], $light[2]);
-                } else {
-                    $pdf->SetFillColor(255, 255, 255);
-                }
+                $pdf->SetFont('Helvetica', '', 8.5);
                 $pdf->SetTextColor(30, 41, 59);
+                $pdf->SetXY($tX, $y);
+                $pdf->Cell($wDate, $pRowH, $this->toLatin($date), 'B', 0, 'L');
+                $pdf->Cell($wLib, $pRowH, $this->toLatin($lib), 'B', 0, 'L');
+                $pdf->Cell($wRef, $pRowH, $this->toLatin($ref !== '' ? $ref : '-'), 'B', 0, 'L');
+                $pdf->Cell($wAmount, $pRowH, $this->toLatin($amt), 'B', 0, 'R');
+                $pdf->Cell($wStatus, $pRowH, '', 'B', 1, 'C');
 
-                $pdf->SetXY($tableX, $y);
-                $pdf->Cell($wDate, $pRowH, $this->toLatin($date), 1, 0, 'L', $fill);
-                $pdf->Cell($wLib, $pRowH, $this->toLatin($lib), 1, 0, 'L', $fill);
-                $pdf->Cell($wRef, $pRowH, $this->toLatin($ref !== '' ? $ref : '-'), 1, 0, 'L', $fill);
-                $pdf->Cell($wAmount, $pRowH, $this->toLatin($amt), 1, 0, 'R', $fill);
-
-                $statusColor = [30, 41, 59];
-                if (($p['status'] ?? '') === 'completed') {
-                    $statusColor = $green;
-                } elseif (in_array(($p['status'] ?? ''), ['failed', 'cancelled'], true)) {
-                    $statusColor = [220, 38, 38];
-                } elseif (($p['status'] ?? '') === 'pending') {
-                    $statusColor = $orange;
+                // Pilule de statut
+                if ($stKey === 'completed') {
+                    $pillFill = [220, 252, 231];
+                    $pillTxt = [22, 163, 74];
+                } elseif (in_array($stKey, ['failed', 'cancelled'], true)) {
+                    $pillFill = [254, 226, 226];
+                    $pillTxt = [220, 38, 38];
+                } else {
+                    $pillFill = [254, 243, 199];
+                    $pillTxt = [180, 120, 10];
                 }
-                $pdf->SetTextColor($statusColor[0], $statusColor[1], $statusColor[2]);
-                $pdf->SetFont('Helvetica', 'B', 8);
-                $pdf->Cell($wStatus, $pRowH, $this->toLatin($status), 1, 1, 'C', $fill);
-                $pdf->SetFont('Helvetica', '', 8);
+                if ($status !== '') {
+                    $pillW = 18;
+                    $pillH = 4.6;
+                    $pillX = $tX + $wDate + $wLib + $wRef + $wAmount + ($wStatus - $pillW) / 2;
+                    $pdf->SetFillColor($pillFill[0], $pillFill[1], $pillFill[2]);
+                    $pdf->roundedRect($pillX, $y + ($pRowH - $pillH) / 2, $pillW, $pillH, $pillH / 2, 'F');
+                    $pdf->SetTextColor($pillTxt[0], $pillTxt[1], $pillTxt[2]);
+                    $pdf->SetFont('Helvetica', 'B', 7.5);
+                    $pdf->SetXY($pillX, $y + ($pRowH - $pillH) / 2 + 0.4);
+                    $pdf->Cell($pillW, 4, $this->toLatin($status), 0, 0, 'C');
+                }
 
                 $y += $pRowH;
             }
 
             if ($extraCount > 0) {
-                $pdf->SetFillColor($light[0], $light[1], $light[2]);
+                $pdf->SetFont('Helvetica', 'I', 8);
                 $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
-                $pdf->SetXY($tableX, $y);
-                $pdf->Cell($wDate + $wLib + $wRef + $wAmount + $wStatus, $pRowH, $this->toLatin('+ ' . $extraCount . ' autre(s) paiement(s)'), 1, 1, 'C', true);
+                $pdf->SetXY($tX, $y);
+                $pdf->Cell($tableW, $pRowH, $this->toLatin('+ ' . $extraCount . ' autre(s) paiement(s)'), 'B', 1, 'C');
                 $y += $pRowH;
             }
 
-            // Ligne de total sous le tableau
-            $pdf->SetFont('Helvetica', 'B', 8.5);
-            $pdf->SetFillColor($light[0], $light[1], $light[2]);
+            // Ligne Total payé
+            $pdf->SetFillColor(238, 243, 249);
+            $pdf->SetFont('Helvetica', 'B', 9);
             $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
-            $pdf->SetXY($tableX, $y);
-            $pdf->Cell($wDate + $wLib + $wRef, $pRowH, $this->toLatin('Total payé'), 1, 0, 'R', true);
-            $pdf->SetTextColor($green[0], $green[1], $green[2]);
-            $pdf->Cell($wAmount, $pRowH, $this->toLatin($amountPaid), 1, 0, 'R', true);
-            $pdf->Cell($wStatus, $pRowH, '', 1, 1, 'C', true);
+            $pdf->SetXY($tX, $y);
+            $pdf->Cell($wDate + $wLib + $wRef, $pRowH, $this->toLatin('Total payé'), 0, 0, 'R', true);
+            $pdf->SetTextColor($greenTxt[0], $greenTxt[1], $greenTxt[2]);
+            $pdf->Cell($wAmount, $pRowH, $this->toLatin($amountPaid), 0, 0, 'R', true);
+            $pdf->Cell($wStatus, $pRowH, '', 0, 1, 'C', true);
+            $y += $pRowH;
+
+            // Bordure extérieure arrondie du tableau
+            $pdf->SetDrawColor($border[0], $border[1], $border[2]);
+            $pdf->roundedRect($tX, $tY, $tableW, $y - $tY, 2, 'S');
         }
 
         // ---------- Mention bas de page ----------
@@ -656,5 +738,68 @@ class PaymentReceiptGenerator
             'path' => $outputPath,
             'filename' => $filename,
         ];
+    }
+}
+
+/**
+ * FPDI étendu avec primitives de dessin (rectangles arrondis, cercles)
+ * via commandes PDF brutes (courbes de Bézier).
+ */
+class EvcReceiptPdf extends Fpdi
+{
+    public function roundedRect(float $x, float $y, float $w, float $h, float $r, string $style = 'F'): void
+    {
+        $k  = $this->k;
+        $hp = $this->h;
+        $op = match ($style) {
+            'F'      => 'f',
+            'FD', 'DF', 'B' => 'B',
+            default  => 'S',
+        };
+        $arc = 4 / 3 * (sqrt(2) - 1);
+
+        $this->_out(sprintf('%.2F %.2F m', ($x + $r) * $k, ($hp - $y) * $k));
+
+        $xc = $x + $w - $r;
+        $yc = $y + $r;
+        $this->_out(sprintf('%.2F %.2F l', $xc * $k, ($hp - $y) * $k));
+        $this->arc($xc + $r * $arc, $yc - $r, $xc + $r, $yc - $r * $arc, $xc + $r, $yc);
+
+        $xc = $x + $w - $r;
+        $yc = $y + $h - $r;
+        $this->_out(sprintf('%.2F %.2F l', ($x + $w) * $k, ($hp - $yc) * $k));
+        $this->arc($xc + $r, $yc + $r * $arc, $xc + $r * $arc, $yc + $r, $xc, $yc + $r);
+
+        $xc = $x + $r;
+        $yc = $y + $h - $r;
+        $this->_out(sprintf('%.2F %.2F l', $xc * $k, ($hp - ($y + $h)) * $k));
+        $this->arc($xc - $r * $arc, $yc + $r, $xc - $r, $yc + $r * $arc, $xc - $r, $yc);
+
+        $xc = $x + $r;
+        $yc = $y + $r;
+        $this->_out(sprintf('%.2F %.2F l', $x * $k, ($hp - $yc) * $k));
+        $this->arc($xc - $r, $yc - $r * $arc, $xc - $r * $arc, $yc - $r, $xc, $yc - $r);
+
+        $this->_out($op);
+    }
+
+    public function circle(float $cx, float $cy, float $r, string $style = 'F'): void
+    {
+        $this->roundedRect($cx - $r, $cy - $r, 2 * $r, 2 * $r, $r, $style);
+    }
+
+    private function arc(float $x1, float $y1, float $x2, float $y2, float $x3, float $y3): void
+    {
+        $h = $this->h;
+        $k = $this->k;
+        $this->_out(sprintf(
+            '%.2F %.2F %.2F %.2F %.2F %.2F c',
+            $x1 * $k,
+            ($h - $y1) * $k,
+            $x2 * $k,
+            ($h - $y2) * $k,
+            $x3 * $k,
+            ($h - $y3) * $k
+        ));
     }
 }
