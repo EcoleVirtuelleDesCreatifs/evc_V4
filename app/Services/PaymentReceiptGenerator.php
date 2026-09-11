@@ -141,10 +141,12 @@ class PaymentReceiptGenerator
         $pdf->SetXY(57.0, 107.5);
         $pdf->Cell(80, 5, $this->toLatin($receiptNumber), 0, 0, 'L');
 
-        $pdf->SetFont('Helvetica', '', 11);
+        // Nom de l'étudiant en gras, plus visible
+        $pdf->SetFont('Helvetica', 'B', 11);
         $pdf->SetXY($valueX, 139.0);
         $pdf->Cell(80, 5, $this->toLatin($studentName), 0, 0, 'L');
 
+        $pdf->SetFont('Helvetica', '', 10);
         $pdf->SetXY($valueX, 151.5);
         $pdf->Cell(80, 5, $this->toLatin($studentId !== '' ? $studentId : ($paymentReference !== '' ? $paymentReference : '-')), 0, 0, 'L');
 
@@ -154,9 +156,12 @@ class PaymentReceiptGenerator
         $pdf->SetXY($valueX, 191.0);
         $pdf->Cell(80, 5, $this->toLatin($formation), 0, 0, 'L');
 
-        $pdf->SetFont('Helvetica', 'B', 12);
+        // Montant payé mis en avant
+        $pdf->SetFont('Helvetica', 'B', 13);
+        $pdf->SetTextColor($green[0], $green[1], $green[2]);
         $pdf->SetXY($valueX, 205.0);
         $pdf->Cell(80, 5, $this->toLatin($amountPaid), 0, 0, 'L');
+        $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
 
         // ---------- Récapitulatif EVC (colonne droite) ----------
         $rightX = 120.0;
@@ -203,22 +208,35 @@ class PaymentReceiptGenerator
         $line('Total paye', $amountPaid, false, $green);
         $line('Reste a solder', $remaining, true, $isFullyPaid ? $green : [220, 38, 38], $isFullyPaid ? [220, 252, 231] : [254, 226, 226]);
 
+        // Badge statut sous le récapitulatif
+        $badgeY = $pdf->GetY() + 3;
+        if ($isFullyPaid) {
+            $pdf->SetFillColor($green[0], $green[1], $green[2]);
+        } else {
+            $pdf->SetFillColor($orange[0], $orange[1], $orange[2]);
+        }
+        $pdf->Rect($rightX, $badgeY, $rightW, 7, 'F');
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetFont('Helvetica', 'B', 9);
+        $pdf->SetXY($rightX, $badgeY + 1.2);
+        $pdf->Cell($rightW, 5, $this->toLatin($isFullyPaid ? 'PAIEMENT SOLDÉ' : 'PAIEMENT EN COURS'), 0, 0, 'C');
+
         if ($paymentReference !== '') {
             $pdf->SetFont('Helvetica', '', 8);
             $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
-            $pdf->SetXY($rightX, $pdf->GetY() + 2);
+            $pdf->SetXY($rightX, $badgeY + 9);
             $pdf->Cell($rightW, 4.5, $this->toLatin('Reference : ' . $paymentReference), 0, 1, 'L');
         }
 
-        // ---------- Historique des paiements (bas de page, compact) ----------
+        // ---------- Historique des paiements (bas de page) ----------
         $payments = array_values((array) ($data['payments'] ?? []));
         if (count($payments) > 0) {
-            $maxRows = 5;
+            $maxRows = 8;
             $extraCount = max(0, count($payments) - $maxRows);
             $rows = array_slice($payments, 0, $maxRows);
 
             $tableX = 15.0;
-            $tableY = 222.0;
+            $tableY = 220.0;
             $pRowH = 5.5;
             $wDate = 26;
             $wLib = 48;
@@ -226,10 +244,13 @@ class PaymentReceiptGenerator
             $wAmount = 30;
             $wStatus = 20;
 
-            $pdf->SetFont('Helvetica', 'B', 8.5);
+            // Titre de section avec liseré EVC
+            $pdf->SetFont('Helvetica', 'B', 9);
             $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
-            $pdf->SetXY($tableX, $tableY - 5);
+            $pdf->SetXY($tableX, $tableY - 6);
             $pdf->Cell(0, 4.5, $this->toLatin('HISTORIQUE DES PAIEMENTS'), 0, 0, 'L');
+            $pdf->SetFillColor($blue[0], $blue[1], $blue[2]);
+            $pdf->Rect($tableX, $tableY - 1.2, 180, 0.6, 'F');
 
             $pdf->SetFillColor($navy[0], $navy[1], $navy[2]);
             $pdf->SetTextColor(255, 255, 255);
@@ -285,8 +306,25 @@ class PaymentReceiptGenerator
                 $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
                 $pdf->SetXY($tableX, $y);
                 $pdf->Cell($wDate + $wLib + $wRef + $wAmount + $wStatus, $pRowH, $this->toLatin('+ ' . $extraCount . ' autre(s) paiement(s)'), 1, 1, 'C', true);
+                $y += $pRowH;
             }
+
+            // Ligne de total sous le tableau
+            $pdf->SetFont('Helvetica', 'B', 8.5);
+            $pdf->SetFillColor($light[0], $light[1], $light[2]);
+            $pdf->SetTextColor($navy[0], $navy[1], $navy[2]);
+            $pdf->SetXY($tableX, $y);
+            $pdf->Cell($wDate + $wLib + $wRef, $pRowH, $this->toLatin('Total payé'), 1, 0, 'R', true);
+            $pdf->SetTextColor($green[0], $green[1], $green[2]);
+            $pdf->Cell($wAmount, $pRowH, $this->toLatin($amountPaid), 1, 0, 'R', true);
+            $pdf->Cell($wStatus, $pRowH, '', 1, 1, 'C', true);
         }
+
+        // ---------- Mention bas de page ----------
+        $pdf->SetFont('Helvetica', 'I', 7.5);
+        $pdf->SetTextColor($gray[0], $gray[1], $gray[2]);
+        $pdf->SetXY(15, 282);
+        $pdf->Cell(180, 4, $this->toLatin('Document généré électroniquement par EVC - École Virtuelle des Créatifs. Pour toute vérification, indiquez le numéro de reçu.'), 0, 0, 'C');
 
         return $this->output($pdf, $data);
     }
