@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SessionTimeTracking extends Model
 {
+    protected $table = 'session_time_tracking';
+
     protected $fillable = [
         'student_id',
         'seance_id',

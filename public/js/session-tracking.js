@@ -40,10 +40,14 @@ class SessionTracker {
 
             if (response.ok) {
                 const data = await response.json();
-                this.sessionId = data.session_id;
-                this.startTime = new Date(data.started_at);
-                this.startHeartbeat();
-                console.log('Session tracking started:', this.sessionId);
+                if (data.session_id) {
+                    this.sessionId = data.session_id;
+                    this.startTime = new Date(data.started_at);
+                    this.startHeartbeat();
+                    console.log('Session tracking started:', this.sessionId);
+                } else {
+                    console.log('Session tracking not available:', data.warning);
+                }
             }
         } catch (error) {
             console.error('Failed to start session tracking:', error);

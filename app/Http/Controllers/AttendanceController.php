@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Services\AttendanceService;
 
 class AttendanceController extends Controller
@@ -102,33 +103,42 @@ class AttendanceController extends Controller
             'duration_seconds' => 0,
         ]);
 
-        // Create or update session tracking for this seance
-        $existingSession = \App\Models\SessionTimeTracking::forStudent($student->id)
-            ->forSeance($seance->id)
-            ->active()
-            ->first();
+        // Create or update session tracking for this seance (only if table exists)
+        try {
+            $existingSession = \App\Models\SessionTimeTracking::forStudent($student->id)
+                ->forSeance($seance->id)
+                ->active()
+                ->first();
 
-        if ($existingSession) {
-            // End any existing session
-            $existingSession->endSession();
+            if ($existingSession) {
+                // End any existing session
+                $existingSession->endSession();
+            }
+
+            // Create new session for meeting participation
+            \App\Models\SessionTimeTracking::create([
+                'student_id' => $student->id,
+                'seance_id' => $seance->id,
+                'user_id' => $user->id,
+                'page_type' => 'meeting',
+                'session_start' => now(),
+                'is_active' => true,
+                'user_agent' => $request->userAgent(),
+                'ip_address' => $request->ip(),
+                'metadata' => [
+                    'meeting_click_id' => $meetingClick->id,
+                    'meet_link' => $seance->meet_link,
+                    'source' => 'meet_click',
+                ],
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Log error if table doesn't exist yet, but don't block the redirect
+            Log::warning('Session tracking table not available', [
+                'error' => $e->getMessage(),
+                'student_id' => $student->id,
+                'seance_id' => $seance->id,
+            ]);
         }
-
-        // Create new session for meeting participation
-        \App\Models\SessionTimeTracking::create([
-            'student_id' => $student->id,
-            'seance_id' => $seance->id,
-            'user_id' => $user->id,
-            'page_type' => 'meeting',
-            'session_start' => now(),
-            'is_active' => true,
-            'user_agent' => $request->userAgent(),
-            'ip_address' => $request->ip(),
-            'metadata' => [
-                'meeting_click_id' => $meetingClick->id,
-                'meet_link' => $seance->meet_link,
-                'source' => 'meet_click',
-            ],
-        ]);
 
         return redirect()->away($seance->meet_link);
     }
