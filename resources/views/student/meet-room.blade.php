@@ -178,6 +178,9 @@
     $routePrefix = explode('.', Route::currentRouteName())[0];
 @endphp
 
+<input type="hidden" id="seanceId" value="{{ $seance->id }}">
+<input type="hidden" id="routePrefix" value="{{ $routePrefix }}">
+
 <div class="meet-room-container">
     <!-- Header -->
     <div class="meet-header">
@@ -293,12 +296,38 @@
         clearInterval(timerInterval);
     }
 
+    function recordCheckOut() {
+        const seanceId = document.getElementById('seanceId').value;
+        const routePrefix = document.getElementById('routePrefix').value;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        fetch(`/${routePrefix}/seances/${seanceId}/check-out`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({})
+        }).then(response => response.json())
+        .then(data => {
+            console.log('Check-out recorded:', data);
+        }).catch(error => {
+            console.error('Failed to record check-out:', error);
+        });
+    }
+
     // Démarrer le timer
     startTimer();
 
     // Quand l'utilisateur quitte la page
     window.addEventListener('beforeunload', function() {
         stopTimer();
+        recordCheckOut();
+    });
+
+    // Quand l'utilisateur ferme l'onglet
+    window.addEventListener('unload', function() {
+        recordCheckOut();
     });
 </script>
 @endsection

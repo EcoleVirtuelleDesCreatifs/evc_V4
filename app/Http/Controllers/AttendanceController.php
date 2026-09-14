@@ -174,12 +174,51 @@ class AttendanceController extends Controller
         // Passer le lien modifié à la vue
         $seance->meet_link = $meetLink;
 
+        // Enregistrer le check_in_at si ce n'est pas déjà fait
+        $attendance = Attendance::where('seance_id', $seance->id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if ($attendance && !$attendance->check_in_at) {
+            $attendance->update([
+                'check_in_at' => now(),
+                'check_out_at' => null,
+            ]);
+        }
+
         return view('student.meet-room', [
             'seance' => $seance,
             'student' => $student,
             'user' => $user,
             'routePrefix' => $routePrefix,
         ]);
+    }
+
+    /**
+     * Enregistre l'heure de départ de l'étudiant lors de la sortie de la salle de réunion.
+     */
+    public function recordCheckOut(Request $request, Seance $seance): JsonResponse
+    {
+        $user = Auth::user();
+        $student = $user ? $user->student : null;
+
+        if (!$student || $seance->formation !== $student->program) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $attendance = Attendance::where('seance_id', $seance->id)
+            ->where('student_id', $student->id)
+            ->first();
+
+        if ($attendance) {
+            $attendance->update([
+                'check_out_at' => now(),
+            ]);
+
+            return response()->json(['success' => true]);
+        }
+
+        return response()->json(['error' => 'Attendance not found'], 404);
     }
 
     /**

@@ -192,8 +192,24 @@
                                     -
                                 @endif
                             </td>
-                            <td>{{ $hasArrived && $seance->ends_at ? $seance->ends_at->format('H:i') : '-' }}</td>
-                            <td>{{ $hasArrived ? $seance->duration_minutes . ' min' : '-' }}</td>
+                            <td>
+                                @if($hasArrived && $attendance && $attendance->check_out_at)
+                                    {{ $attendance->check_out_at->format('H:i') }}
+                                @elseif($hasArrived && $seance->ends_at)
+                                    {{ $seance->ends_at->format('H:i') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                            <td>
+                                @if($hasArrived && $attendance && $attendance->check_in_at && $attendance->check_out_at)
+                                    {{ $attendance->check_in_at->diffInMinutes($attendance->check_out_at) }} min
+                                @elseif($hasArrived)
+                                    {{ $seance->duration_minutes . ' min' }}
+                                @else
+                                    -
+                                @endif
+                            </td>
                             <td>
                                 @if($status === 'present')
                                     <span class="badge-seance badge-present">Présent</span>

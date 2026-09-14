@@ -21,12 +21,14 @@ class Attendance extends Model
         'recorded_by',
         'recorded_at',
         'check_in_at',
+        'check_out_at',
         'notes',
     ];
 
     protected $casts = [
         'recorded_at' => 'datetime',
         'check_in_at' => 'datetime',
+        'check_out_at' => 'datetime',
     ];
 
     public function seance(): BelongsTo

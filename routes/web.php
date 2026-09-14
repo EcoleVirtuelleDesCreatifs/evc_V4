@@ -603,6 +603,7 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
     Route::get('/seances/{seance}/meet-room', [AttendanceController::class, 'meetRoom'])->name('seances.meet-room');
+    Route::post('/seances/{seance}/check-out', [AttendanceController::class, 'recordCheckOut'])->name('seances.check-out');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
@@ -732,6 +733,7 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
     Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
     Route::get('/seances/{seance}/meet-room', [AttendanceController::class, 'meetRoom'])->name('seances.meet-room');
+    Route::post('/seances/{seance}/check-out', [AttendanceController::class, 'recordCheckOut'])->name('seances.check-out');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
@@ -957,6 +959,7 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
     Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
     Route::get('/seances/{seance}/meet-room', [AttendanceController::class, 'meetRoom'])->name('seances.meet-room');
+    Route::post('/seances/{seance}/check-out', [AttendanceController::class, 'recordCheckOut'])->name('seances.check-out');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
