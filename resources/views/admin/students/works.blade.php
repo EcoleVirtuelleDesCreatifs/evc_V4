@@ -373,7 +373,7 @@
                                 </form>
                                 <div class="mt-auto">
                                     <small class="text-white-50" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px;">
-                                        <i class="fas fa-database me-1"></i>{{ $isFromProjects ? 'Projet' : 'TP Assignment' }}
+                                        <i class="fas fa-database me-1"></i>{{ ($todo->source_table ?? '') === 'projects' ? 'Projet' : 'TP Assignment' }}
                                     </small>
                                 </div>
                             </div>
@@ -593,7 +593,7 @@
                                 <div class="mt-auto">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <small class="text-white-50" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px;">
-                                            <i class="fas fa-database me-1"></i>{{ $isFromProjects ? 'Projet' : 'TP Assignment' }}
+                                            <i class="fas fa-database me-1"></i>{{ ($todo->source_table ?? '') === 'projects' ? 'Projet' : 'TP Assignment' }}
                                         </small>
                                         <small class="text-white-50">
                                             {{ !empty($todo->created_at) ? date('d/m/Y', strtotime($todo->created_at)) : '—' }}
