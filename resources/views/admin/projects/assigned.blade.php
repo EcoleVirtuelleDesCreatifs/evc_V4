@@ -5,640 +5,474 @@
 @section('content')
 <style>
     :root {
-        --dg-start: #1e3c72;
-        --dg-end: #2a5298;
-        --cm-start: #ff9800;
-        --cm-end: #fb8c00;
-        --dgc-start: #2a5298;
-        --dgc-end: #ff9800;
-        --zone-done-start: #22c55e;
-        --zone-done-end: #16a34a;
-        --zone-todo-start: #ef4444;
-        --zone-todo-end: #b91c1c;
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --dark-bg: #0f172a;
+        --card-bg: rgba(30, 41, 59, 0.7);
+        --border-color: rgba(148, 163, 184, 0.1);
     }
 
-    .assigned-page .top-actions .btn {
-        border-radius: 14px;
-        font-weight: 700;
-        padding: 0.6rem 0.9rem;
+    .assigned-page {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        min-height: 100vh;
     }
 
-    .assigned-card {
-        background: rgba(15, 23, 42, 0.65);
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        border-radius: 18px;
-        overflow: hidden;
-        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+    .stat-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 1.5rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
     }
 
-    .assigned-card .card-header {
-        background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.75));
-        border-bottom: 1px solid rgba(148, 163, 184, 0.16);
-        color: white;
-        padding: 1rem 1.25rem;
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     }
 
-    .assigned-card.zone-done .card-header {
-        background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(22, 163, 74, 0.85));
-        border-bottom-color: rgba(34, 197, 94, 0.25);
-    }
-
-    .assigned-card.zone-todo .card-header {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(185, 28, 28, 0.85));
-        border-bottom-color: rgba(239, 68, 68, 0.25);
-    }
-
-    .assigned-card .card-body {
-        padding: 1.25rem;
-    }
-
-    .assigned-accordion .accordion-item {
-        border: 1px solid rgba(148, 163, 184, 0.14);
+    .stat-icon {
+        width: 60px;
+        height: 60px;
         border-radius: 16px;
-        overflow: hidden;
-        background: rgba(2, 6, 23, 0.35);
-        margin-bottom: 12px;
-    }
-
-    .assigned-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 14px;
-    }
-
-    .assigned-card-tile {
-        background: rgba(15, 23, 42, 0.88);
-        border: 1px solid rgba(148, 163, 184, 0.16);
-        border-radius: 16px;
-        padding: 14px;
-        color: rgba(255, 255, 255, 0.92);
-        text-decoration: none;
-        cursor: pointer;
-        transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
         display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .assigned-card-tile.formation-dg {
-        border-color: rgba(42, 82, 152, 0.45);
-        background: linear-gradient(135deg, rgba(30, 60, 114, 0.55), rgba(15, 23, 42, 0.90));
-    }
-
-    .assigned-card-tile.formation-cm {
-        border-color: rgba(251, 140, 0, 0.45);
-        background: linear-gradient(135deg, rgba(251, 140, 0, 0.35), rgba(15, 23, 42, 0.90));
-    }
-
-    .assigned-card-tile.formation-dgcm {
-        border-color: rgba(255, 152, 0, 0.35);
-        background: linear-gradient(135deg, rgba(42, 82, 152, 0.55), rgba(255, 152, 0, 0.28));
-    }
-
-    .assigned-card-tile:hover {
-        transform: translateY(-1px);
-        border-color: rgba(148, 163, 184, 0.28);
-        background: rgba(15, 23, 42, 0.95);
-    }
-
-    .assigned-card-tile.active {
-        border-color: rgba(42, 82, 152, 0.55);
-        box-shadow: 0 0 0 1px rgba(42, 82, 152, 0.28) inset;
-    }
-
-    .assigned-tile-top {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .assigned-tile-title {
-        font-weight: 900;
-        letter-spacing: -0.2px;
-        line-height: 1.2;
-    }
-
-    .assigned-tile-meta {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: auto;
-    }
-
-    .assigned-chevron {
-        margin-left: auto;
-        opacity: 0.85;
-    }
-
-    .assigned-panel {
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        border-radius: 16px;
-        background: rgba(2, 6, 23, 0.25);
-        padding: 14px;
-        margin-top: 14px;
-    }
-
-    .projects-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-    }
-
-    .students-panel {
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        border-radius: 14px;
-        background: rgba(30, 41, 59, 0.22);
-        padding: 12px;
-        margin-top: 12px;
-    }
-
-    .assigned-accordion .accordion-header {
-        margin: 0;
-    }
-
-    .assigned-accordion .accordion-button {
-        background: rgba(15, 23, 42, 0.92);
-        color: rgba(255, 255, 255, 0.92);
-        border: none;
-        box-shadow: none;
-        padding: 1rem 1rem;
-        font-weight: 800;
-        letter-spacing: -0.2px;
-        display: flex;
-        gap: 12px;
-        align-items: center;
-    }
-
-    .assigned-accordion .accordion-button:focus {
-        box-shadow: none;
-    }
-
-    .assigned-accordion .accordion-button:not(.collapsed) {
-        background: rgba(15, 23, 42, 0.98);
-    }
-
-    .assigned-accordion .accordion-button::after {
-        filter: invert(1);
-        opacity: 0.85;
-    }
-
-    .assigned-accordion .accordion-body {
-        background: rgba(30, 41, 59, 0.35);
-        padding: 1rem;
-    }
-
-    .assigned-pill {
-        display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 38px;
-        height: 38px;
+        font-size: 1.8rem;
+        color: white;
+    }
+
+    .tab-btn {
+        background: transparent;
+        border: 2px solid var(--border-color);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 0.75rem 1.5rem;
         border-radius: 12px;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        color: rgba(255, 255, 255, 0.9);
-        flex: 0 0 auto;
+        font-weight: 600;
+        transition: all 0.3s ease;
     }
 
-    .assigned-pill.formation-dg {
-        background: linear-gradient(135deg, var(--dg-start), var(--dg-end));
-        border-color: rgba(42, 82, 152, 0.35);
-    }
-
-    .assigned-pill.formation-cm {
-        background: linear-gradient(135deg, var(--cm-start), var(--cm-end));
-        border-color: rgba(251, 140, 0, 0.35);
-    }
-
-    .assigned-pill.formation-dgcm {
-        background: linear-gradient(135deg, var(--dgc-start), var(--dgc-end));
-        border-color: rgba(255, 152, 0, 0.25);
-    }
-
-    .assigned-badges {
-        margin-left: auto;
-        display: inline-flex;
-        gap: 8px;
-        align-items: center;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-    }
-
-    .assigned-badge {
-        border-radius: 999px;
-        padding: 0.25rem 0.55rem;
-        font-weight: 800;
-        font-size: 0.78rem;
-        letter-spacing: 0.02em;
-    }
-
-    .assigned-badge.soft {
-        background: rgba(148, 163, 184, 0.16);
-        color: rgba(255, 255, 255, 0.9);
-        border: 1px solid rgba(148, 163, 184, 0.20);
-    }
-
-    .assigned-badge.primary {
-        background: linear-gradient(135deg, rgba(30, 60, 114, 0.9), rgba(42, 82, 152, 0.9));
-        border: 1px solid rgba(42, 82, 152, 0.35);
+    .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
         color: white;
     }
 
-    .assigned-students .list-group-item {
-        background: rgba(15, 23, 42, 0.88);
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        border-radius: 14px;
-        color: rgba(255, 255, 255, 0.92);
-        padding: 0.85rem 0.9rem;
-        margin-bottom: 10px;
+    .tab-btn.active {
+        background: var(--primary-gradient);
+        border-color: transparent;
+        color: white;
     }
 
-    .assigned-students .student-avatar {
-        width: 36px;
-        height: 36px;
-        border-radius: 999px;
-        object-fit: cover;
-        border: 2px solid rgba(255, 255, 255, 0.16);
+    .project-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.25rem;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
     }
 
-    .assigned-students .student-avatar-fallback {
-        width: 36px;
-        height: 36px;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, rgba(30, 60, 114, 0.9), rgba(255, 138, 0, 0.6));
-        font-weight: 900;
+    .project-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .student-chip {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 0.4rem 0.8rem;
         font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.95);
+        color: rgba(255, 255, 255, 0.9);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-en_cours {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-termine {
+        background: rgba(59, 130, 246, 0.2);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-valide {
+        background: rgba(34, 197, 94, 0.2);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-rejete {
+        background: rgba(239, 68, 68, 0.2);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .filter-section {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 1.25rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .search-input {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(102, 126, 234, 0.5);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
     }
 
     @media (max-width: 768px) {
-        .assigned-card .card-body {
+        .stat-card {
             padding: 1rem;
         }
 
-        .assigned-accordion .accordion-button {
-            padding: 0.9rem;
-        }
-
-        .assigned-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .projects-grid {
-            grid-template-columns: 1fr;
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
         }
     }
 </style>
 
-<div class="container-fluid py-4 assigned-page">
-    <div class="d-flex justify-content-between align-items-center mb-4 top-actions">
-        <div></div>
+<div class="container-fluid py-5 assigned-page">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
         <div>
-            <a href="{{ route('admin.projets.design-graphique.to-send') }}" class="btn btn-sm btn-primary">
-                <i class="fas fa-paper-plane me-2"></i>Attribuer un projet
+            <h1 class="text-white mb-2" style="font-weight: 800; font-size: 2rem;">
+                <i class="fas fa-layer-group me-3" style="color: #667eea;"></i>
+                Projets Design Graphique
+            </h1>
+            <p class="text-white-50">Gestion des projets assignés aux étudiants</p>
+        </div>
+        <div>
+            <a href="{{ route('admin.projets.design-graphique.to-send') }}" class="btn btn-lg" style="background: var(--primary-gradient); border: none; border-radius: 12px; color: white; font-weight: 700; padding: 0.75rem 1.5rem;">
+                <i class="fas fa-plus me-2"></i>Attribuer un projet
             </a>
         </div>
     </div>
 
-    <div class="row mb-4">
+    <!-- Statistics -->
+    <div class="row mb-5">
         <div class="col-md-3 mb-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 16px; padding: 1.5rem; color: white; display: flex; align-items: center; gap: 1rem;">
-                <div class="stat-icon" style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h3 style="font-size: 2.2rem; font-weight: 700; margin: 0;">{{ $stats['total'] ?? 0 }}</h3>
-                    <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">Total</p>
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background: var(--primary-gradient);">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white mb-0" style="font-size: 2rem; font-weight: 800;">{{ $stats['total'] ?? 0 }}</h3>
+                        <p class="text-white-50 mb-0" style="font-size: 0.9rem;">Total Projets</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3 mb-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 16px; padding: 1.5rem; color: white; display: flex; align-items: center; gap: 1rem;">
-                <div class="stat-icon" style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h3 style="font-size: 2.2rem; font-weight: 700; margin: 0;">{{ $stats['en_cours'] ?? 0 }}</h3>
-                    <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">Pas encore Fait</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border-radius: 16px; padding: 1.5rem; color: white; display: flex; align-items: center; gap: 1rem;">
-                <div class="stat-icon" style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
-                    <i class="fas fa-flag-checkered"></i>
-                </div>
-                <div style="flex: 1;">
-                    <h3 style="font-size: 2.2rem; font-weight: 700; margin: 0;">{{ $stats['termine'] ?? 0 }}</h3>
-                    <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">Terminés</p>
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background: var(--warning-gradient);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white mb-0" style="font-size: 2rem; font-weight: 800;">{{ $stats['en_cours'] ?? 0 }}</h3>
+                        <p class="text-white-50 mb-0" style="font-size: 0.9rem;">En Cours</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-3 mb-3">
-            <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 16px; padding: 1.5rem; color: white; display: flex; align-items: center; gap: 1rem;">
-                <div class="stat-icon" style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">
-                    <i class="fas fa-check-circle"></i>
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background: var(--info-gradient);">
+                        <i class="fas fa-flag-checkered"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white mb-0" style="font-size: 2rem; font-weight: 800;">{{ $stats['termine'] ?? 0 }}</h3>
+                        <p class="text-white-50 mb-0" style="font-size: 0.9rem;">Terminés</p>
+                    </div>
                 </div>
-                <div style="flex: 1;">
-                    <h3 style="font-size: 2.2rem; font-weight: 700; margin: 0;">{{ $stats['valide'] ?? 0 }}</h3>
-                    <p style="margin: 0; opacity: 0.9; font-size: 0.95rem;">Validés</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="stat-icon" style="background: var(--success-gradient);">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white mb-0" style="font-size: 2rem; font-weight: 800;">{{ $stats['valide'] ?? 0 }}</h3>
+                        <p class="text-white-50 mb-0" style="font-size: 0.9rem;">Validés</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    @php
-        $formations = [
-            'Design Graphique',
-            'Community Management',
-            'Design Graphique et Community Management',
-        ];
-    @endphp
-
-    <div class="card assigned-card zone-done mb-4">
-        <div class="card-header">
-            <div class="d-flex align-items-center justify-content-between gap-3">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fas fa-check-circle"></i>
-                    <h5 class="mb-0">Déjà fait</h5>
-                </div>
-                <div class="text-white-50 small">Clique une formation, puis un projet</div>
+    <!-- Filters -->
+    <div class="filter-section mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-4 mb-3">
+                <input type="text" class="form-control search-input" placeholder="Rechercher un projet ou un étudiant..." id="searchInput">
             </div>
-        </div>
-        <div class="card-body">
-            <div class="assigned-grid">
-                @foreach($formations as $formation)
-                    @php
-                        $projects = $groupedAssignmentsDone[$formation] ?? collect();
-                        $formationId = 'done_formation_' . md5($formation);
-                        $formationTheme = $formation === 'Design Graphique'
-                            ? 'formation-dg'
-                            : ($formation === 'Community Management'
-                                ? 'formation-cm'
-                                : 'formation-dgcm');
-                    @endphp
-
-                    <button class="assigned-card-tile {{ $formationTheme }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $formationId }}" aria-expanded="false" aria-controls="collapse_{{ $formationId }}">
-                        <div class="assigned-tile-top">
-                            <span class="assigned-pill {{ $formationTheme }}"><i class="fas fa-graduation-cap"></i></span>
-                            <div class="assigned-tile-title">{{ $formation }}</div>
-                            <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
-                        </div>
-                        <div class="assigned-tile-meta">
-                            <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
-                            <span class="text-white-50 small">Voir les projets terminés</span>
-                        </div>
-                    </button>
-                @endforeach
+            <div class="col-md-3 mb-3">
+                <select class="form-select search-input" id="statusFilter">
+                    <option value="">Tous les statuts</option>
+                    <option value="en_cours">En Cours</option>
+                    <option value="termine">Terminé</option>
+                    <option value="valide">Validé</option>
+                    <option value="rejete">Rejeté</option>
+                </select>
             </div>
-
-            @foreach($formations as $formation)
-                @php
-                    $projects = $groupedAssignmentsDone[$formation] ?? collect();
-                    $formationId = 'done_formation_' . md5($formation);
-                    $formationTheme = $formation === 'Design Graphique'
-                        ? 'formation-dg'
-                        : ($formation === 'Community Management'
-                            ? 'formation-cm'
-                            : 'formation-dgcm');
-                @endphp
-
-                <div class="collapse" id="collapse_{{ $formationId }}">
-                    <div class="assigned-panel">
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                            <div class="text-white fw-bold">
-                                <span class="assigned-pill {{ $formationTheme }} me-2" style="width: 32px; height: 32px;"><i class="fas fa-graduation-cap"></i></span>{{ $formation }}
-                            </div>
-                            <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
-                        </div>
-
-                        @if($projects->isEmpty())
-                            <div class="text-center py-3 text-muted">Aucun projet attribué pour cette formation.</div>
-                        @else
-                            <div class="projects-grid">
-                                @foreach($projects as $index => $project)
-                                    @php
-                                        $projectId = $formationId . '_project_' . $index;
-                                        $students = collect($project['students'] ?? []);
-                                    @endphp
-
-                                    <div>
-                                        <div class="assigned-card-tile" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $projectId }}" aria-expanded="false" aria-controls="collapse_{{ $projectId }}" role="button" tabindex="0">
-                                            <div class="assigned-tile-top">
-                                                <span class="assigned-pill"><i class="fas fa-tasks"></i></span>
-                                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                    <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
-                                                    @php
-                                                        $representativeId = $project['representative_id'] ?? ($students->first() ? $students->first()->id : null);
-                                                    @endphp
-                                                    @if($representativeId)
-                                                        <a href="{{ route('admin.projects.view', $representativeId) }}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                        <a href="{{ route('admin.projects.edit', $representativeId) }}?bulk=1" class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();">
-                                                            <i class="fas fa-pen"></i>
-                                                        </a>
-                                                        <form action="{{ route('admin.projects.delete', $representativeId) }}?bulk=1" method="POST" class="d-inline" onsubmit="event.stopPropagation(); return confirm('Supprimer ce projet pour tous les étudiants ?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                </div>
-                                                <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
-                                            </div>
-                                            <div class="assigned-tile-meta">
-                                                <span class="assigned-badge primary">{{ $students->count() }} étudiant(s)</span>
-                                                <span class="text-white-50 small">Voir la liste</span>
-                                            </div>
-                                        </div>
-
-                                        <div class="collapse" id="collapse_{{ $projectId }}">
-                                            <div class="students-panel">
-                                                <div class="list-group assigned-students">
-                                                    @foreach($students as $studentWork)
-                                                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                            <div class="d-flex align-items-center gap-3">
-                                                                @php
-                                                                    $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($studentWork->profile_photo ?? null);
-                                                                @endphp
-                                                                @if($photoUrl)
-                                                                    <img src="{{ $photoUrl }}" alt="{{ $studentWork->first_name }}" class="student-avatar">
-                                                                @else
-                                                                    <div class="student-avatar-fallback">
-                                                                        {{ strtoupper(substr($studentWork->first_name ?? 'E', 0, 1)) }}{{ strtoupper(substr($studentWork->last_name ?? '', 0, 1)) }}
-                                                                    </div>
-                                                                @endif
-                                                                <div>
-                                                                    <div class="fw-bold">{{ $studentWork->first_name }} {{ $studentWork->last_name }}</div>
-                                                                    <div class="text-white-50 small">{{ $studentWork->student_email }}</div>
-                                                                </div>
-                                                            </div>
-                                                            <a href="{{ route('admin.projects.view', $studentWork->id) }}" class="btn btn-sm btn-outline-info">
-                                                                <i class="fas fa-eye me-1"></i>Voir
-                                                            </a>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            @endforeach
+            <div class="col-md-3 mb-3">
+                <select class="form-select search-input" id="formationFilter">
+                    <option value="">Toutes les formations</option>
+                    <option value="Design Graphique">Design Graphique</option>
+                    <option value="Community Management">Community Management</option>
+                    <option value="Design Graphique et Community Management">Design Graphique et Community Management</option>
+                </select>
+            </div>
+            <div class="col-md-2 mb-3">
+                <button class="btn w-100" style="background: var(--primary-gradient); border: none; border-radius: 12px; color: white; font-weight: 600;" onclick="resetFilters()">
+                    <i class="fas fa-sync-alt me-2"></i>Réinitialiser
+                </button>
+            </div>
         </div>
     </div>
 
-    <div class="card assigned-card zone-todo">
-        <div class="card-header">
-            <div class="d-flex align-items-center justify-content-between gap-3">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fas fa-clock"></i>
-                    <h5 class="mb-0">Pas encore fait</h5>
-                </div>
-                <div class="text-white-50 small">Clique une formation, puis un projet</div>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="assigned-grid">
-                @foreach($formations as $formation)
-                    @php
-                        $projects = $groupedAssignmentsTodo[$formation] ?? collect();
-                        $formationId = 'todo_formation_' . md5($formation);
-                        $formationTheme = $formation === 'Design Graphique'
-                            ? 'formation-dg'
-                            : ($formation === 'Community Management'
-                                ? 'formation-cm'
-                                : 'formation-dgcm');
-                    @endphp
+    <!-- Tabs -->
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+        <button class="tab-btn active" onclick="switchTab('all')" id="tab-all">
+            <i class="fas fa-th-large me-2"></i>Tous
+        </button>
+        <button class="tab-btn" onclick="switchTab('todo')" id="tab-todo">
+            <i class="fas fa-hourglass-half me-2"></i>À Faire
+        </button>
+        <button class="tab-btn" onclick="switchTab('done')" id="tab-done">
+            <i class="fas fa-check-circle me-2"></i>Faits
+        </button>
+    </div>
 
-                    <button class="assigned-card-tile {{ $formationTheme }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $formationId }}" aria-expanded="false" aria-controls="collapse_{{ $formationId }}">
-                        <div class="assigned-tile-top">
-                            <span class="assigned-pill {{ $formationTheme }}"><i class="fas fa-graduation-cap"></i></span>
-                            <div class="assigned-tile-title">{{ $formation }}</div>
-                            <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
+    <!-- Projects List -->
+    <div id="projectsContainer">
+        @php
+            $formations = [
+                'Design Graphique',
+                'Community Management',
+                'Design Graphique et Community Management',
+            ];
+        @endphp
+
+        @foreach($formations as $formation)
+            @php
+                $allProjects = $groupedAssignments[$formation] ?? collect();
+                $doneProjects = $groupedAssignmentsDone[$formation] ?? collect();
+                $todoProjects = $groupedAssignmentsTodo[$formation] ?? collect();
+                $formationTheme = $formation === 'Design Graphique'
+                    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                    : ($formation === 'Community Management'
+                        ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+                        : 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)');
+            @endphp
+
+            @if($allProjects->isNotEmpty())
+                <div class="mb-5" data-formation="{{ $formation }}">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div style="width: 50px; height: 50px; border-radius: 12px; background: {{ $formationTheme }}; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-graduation-cap text-white" style="font-size: 1.2rem;"></i>
                         </div>
-                        <div class="assigned-tile-meta">
-                            <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
-                            <span class="text-white-50 small">Voir les projets à faire</span>
+                        <div>
+                            <h3 class="text-white mb-0" style="font-weight: 700;">{{ $formation }}</h3>
+                            <p class="text-white-50 mb-0" style="font-size: 0.9rem;">{{ $allProjects->count() }} projet(s)</p>
                         </div>
-                    </button>
-                @endforeach
-            </div>
+                    </div>
 
-            @foreach($formations as $formation)
-                @php
-                    $projects = $groupedAssignmentsTodo[$formation] ?? collect();
-                    $formationId = 'todo_formation_' . md5($formation);
-                    $formationTheme = $formation === 'Design Graphique'
-                        ? 'formation-dg'
-                        : ($formation === 'Community Management'
-                            ? 'formation-cm'
-                            : 'formation-dgcm');
-                @endphp
+                    <div class="row g-4">
+                        @foreach($allProjects as $project)
+                            @php
+                                $students = collect($project['students'] ?? []);
+                                $representativeId = $project['representative_id'] ?? ($students->first() ? $students->first()->id : null);
+                                $statusClass = 'status-' . ($project['status'] ?? 'en_cours');
+                            @endphp
 
-                <div class="collapse" id="collapse_{{ $formationId }}">
-                    <div class="assigned-panel">
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                            <div class="text-white fw-bold">
-                                <span class="assigned-pill {{ $formationTheme }} me-2" style="width: 32px; height: 32px;"><i class="fas fa-graduation-cap"></i></span>{{ $formation }}
-                            </div>
-                            <span class="assigned-badge soft">{{ $projects->count() }} projet(s)</span>
-                        </div>
-
-                        @if($projects->isEmpty())
-                            <div class="text-center py-3 text-muted">Aucun projet attribué pour cette formation.</div>
-                        @else
-                            <div class="projects-grid">
-                                @foreach($projects as $index => $project)
-                                    @php
-                                        $projectId = $formationId . '_project_' . $index;
-                                        $students = collect($project['students'] ?? []);
-                                    @endphp
-
-                                    <div>
-                                        <div class="assigned-card-tile" data-bs-toggle="collapse" data-bs-target="#collapse_{{ $projectId }}" aria-expanded="false" aria-controls="collapse_{{ $projectId }}" role="button" tabindex="0">
-                                            <div class="assigned-tile-top">
-                                                <span class="assigned-pill"><i class="fas fa-tasks"></i></span>
-                                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                    <div class="assigned-tile-title">{{ $project['title'] ?? 'Projet' }}</div>
-                                                    @php
-                                                        $representativeId = $project['representative_id'] ?? ($students->first() ? $students->first()->id : null);
-                                                    @endphp
-                                                    @if($representativeId)
-                                                        <a href="{{ route('admin.projects.view', $representativeId) }}" class="btn btn-sm btn-outline-info" onclick="event.stopPropagation();">
-                                                            <i class="fas fa-eye"></i>
-                                                        </a>
-                                                        <a href="{{ route('admin.projects.edit', $representativeId) }}?bulk=1" class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();">
-                                                            <i class="fas fa-pen"></i>
-                                                        </a>
-                                                        <form action="{{ route('admin.projects.delete', $representativeId) }}?bulk=1" method="POST" class="d-inline" onsubmit="event.stopPropagation(); return confirm('Supprimer ce projet pour tous les étudiants ?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                </div>
-                                                <span class="assigned-chevron"><i class="fas fa-chevron-down"></i></span>
-                                            </div>
-                                            <div class="assigned-tile-meta">
-                                                <span class="assigned-badge primary">{{ $students->count() }} étudiant(s)</span>
-                                                <span class="text-white-50 small">Voir la liste</span>
-                                            </div>
+                            <div class="col-md-6 col-lg-4" data-status="{{ $project['status'] ?? 'en_cours' }}">
+                                <div class="project-card">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div class="flex-grow-1">
+                                            <h5 class="text-white mb-2" style="font-weight: 700; font-size: 1.1rem;">
+                                                {{ $project['title'] ?? 'Projet' }}
+                                            </h5>
+                                            @if($project['category'])
+                                                <span class="student-chip">
+                                                    <i class="fas fa-tag"></i>
+                                                    {{ $project['category'] }}
+                                                </span>
+                                            @endif
                                         </div>
-
-                                        <div class="collapse" id="collapse_{{ $projectId }}">
-                                            <div class="students-panel">
-                                                <div class="list-group assigned-students">
-                                                    @foreach($students as $studentWork)
-                                                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                                                            <div class="d-flex align-items-center gap-3">
-                                                                @php
-                                                                    $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($studentWork->profile_photo ?? null);
-                                                                @endphp
-                                                                @if($photoUrl)
-                                                                    <img src="{{ $photoUrl }}" alt="{{ $studentWork->first_name }}" class="student-avatar">
-                                                                @else
-                                                                    <div class="student-avatar-fallback">
-                                                                        {{ strtoupper(substr($studentWork->first_name ?? 'E', 0, 1)) }}{{ strtoupper(substr($studentWork->last_name ?? '', 0, 1)) }}
-                                                                    </div>
-                                                                @endif
-                                                                <div>
-                                                                    <div class="fw-bold">{{ $studentWork->first_name }} {{ $studentWork->last_name }}</div>
-                                                                    <div class="text-white-50 small">{{ $studentWork->student_email }}</div>
-                                                                </div>
-                                                            </div>
-                                                            <a href="{{ route('admin.projects.view', $studentWork->id) }}" class="btn btn-sm btn-outline-info">
-                                                                <i class="fas fa-eye me-1"></i>Voir
-                                                            </a>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <span class="status-badge {{ $statusClass }}">
+                                            {{ $project['status'] ?? 'en_cours' }}
+                                        </span>
                                     </div>
-                                @endforeach
+
+                                    <div class="mb-3">
+                                        <p class="text-white-50 mb-1" style="font-size: 0.85rem;">
+                                            <i class="fas fa-users me-2"></i>{{ $students->count() }} étudiant(s)
+                                        </p>
+                                        @if($project['deadline'])
+                                            <p class="text-white-50 mb-0" style="font-size: 0.85rem;">
+                                                <i class="fas fa-calendar me-2"></i>{{ \Carbon\Carbon::parse($project['deadline'])->format('d/m/Y') }}
+                                            </p>
+                                        @endif
+                                    </div>
+
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        @foreach($students->take(3) as $studentWork)
+                                            @php
+                                                $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($studentWork->profile_photo ?? null);
+                                                $initials = strtoupper(substr($studentWork->first_name ?? '', 0, 1)) . strtoupper(substr($studentWork->last_name ?? '', 0, 1));
+                                            @endphp
+                                            <div class="student-chip">
+                                                @if($photoUrl)
+                                                    <img src="{{ $photoUrl }}" alt="" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;">
+                                                @else
+                                                    <span style="width: 24px; height: 24px; border-radius: 50%; background: var(--primary-gradient); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700;">{{ $initials }}</span>
+                                                @endif
+                                                {{ $studentWork->first_name }} {{ $studentWork->last_name }}
+                                            </div>
+                                        @endforeach
+                                        @if($students->count() > 3)
+                                            <span class="student-chip">+{{ $students->count() - 3 }}</span>
+                                        @endif
+                                    </div>
+
+                                    <div class="d-flex gap-2">
+                                        @if($representativeId)
+                                            <a href="{{ route('admin.projects.view', $representativeId) }}" class="btn btn-sm flex-grow-1" style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.3); color: #60a5fa; border-radius: 10px; font-weight: 600;">
+                                                <i class="fas fa-eye me-1"></i>Voir
+                                            </a>
+                                            <a href="{{ route('admin.projects.edit', $representativeId) }}?bulk=1" class="btn btn-sm flex-grow-1" style="background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; border-radius: 10px; font-weight: 600;">
+                                                <i class="fas fa-pen me-1"></i>Modifier
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                        @endif
+                        @endforeach
                     </div>
                 </div>
-            @endforeach
-        </div>
+            @endif
+        @endforeach
+
+        @if($groupedAssignments->flatten()->isEmpty())
+            <div class="text-center py-5">
+                <div style="width: 100px; height: 100px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                    <i class="fas fa-inbox text-white-50" style="font-size: 3rem;"></i>
+                </div>
+                <h4 class="text-white mb-2" style="font-weight: 700;">Aucun projet assigné</h4>
+                <p class="text-white-50">Commencez par attribuer un projet aux étudiants</p>
+            </div>
+        @endif
     </div>
 </div>
+
+<script>
+    function switchTab(tab) {
+        // Update tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+
+        // Filter projects
+        const projects = document.querySelectorAll('[data-status]');
+        projects.forEach(project => {
+            const status = project.getAttribute('data-status');
+            const doneStatuses = ['termine', 'valide', 'rejete'];
+
+            if (tab === 'all') {
+                project.style.display = 'block';
+            } else if (tab === 'done') {
+                project.style.display = doneStatuses.includes(status) ? 'block' : 'none';
+            } else if (tab === 'todo') {
+                project.style.display = doneStatuses.includes(status) ? 'none' : 'block';
+            }
+        });
+    }
+
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('formationFilter').value = '';
+        switchTab('all');
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const projects = document.querySelectorAll('.project-card');
+
+        projects.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.parentElement.style.display = text.includes(searchTerm) ? 'block' : 'none';
+        });
+    });
+
+    // Status filter
+    document.getElementById('statusFilter').addEventListener('change', function(e) {
+        const status = e.target.value;
+        const projects = document.querySelectorAll('[data-status]');
+
+        projects.forEach(project => {
+            if (status === '') {
+                project.style.display = 'block';
+            } else {
+                project.style.display = project.getAttribute('data-status') === status ? 'block' : 'none';
+            }
+        });
+    });
+
+    // Formation filter
+    document.getElementById('formationFilter').addEventListener('change', function(e) {
+        const formation = e.target.value;
+        const formations = document.querySelectorAll('[data-formation]');
+
+        formations.forEach(div => {
+            if (formation === '') {
+                div.style.display = 'block';
+            } else {
+                div.style.display = div.getAttribute('data-formation') === formation ? 'block' : 'none';
+            }
+        });
+    });
+</script>
 @endsection
