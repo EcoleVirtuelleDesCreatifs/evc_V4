@@ -97,7 +97,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>Étudiant</th>
-                            <th>Email</th>
+                            <th>Formation</th>
                             <th>Statut</th>
                             <th>Mode</th>
                             <th>Notes</th>
@@ -111,14 +111,26 @@
                             @endphp
                             <tr>
                                 <td>
-                                    <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
-                                    @if($attendance && $attendance->check_in_at)
-                                        <span class="badge bg-success ms-1" title="Pointage {{ $attendance->check_method === 'qrcode' ? 'QR code' : $attendance->check_method }}">
-                                            <i class="fas fa-qrcode me-1"></i>{{ \Carbon\Carbon::parse($attendance->check_in_at)->format('H:i') }}
-                                        </span>
-                                    @endif
+                                    @php
+                                        $initials = strtoupper(mb_substr($student->first_name ?? '', 0, 1) . mb_substr($student->last_name ?? '', 0, 1));
+                                        $fallbackAvatar = 'data:image/svg+xml;utf8,' . rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" width="38" height="38"><rect width="38" height="38" rx="19" fill="#e9ecef"/><text x="19" y="25" font-family="Arial,sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#6c757d">' . $initials . '</text></svg>');
+                                    @endphp
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="{{ $student->profile_photo_url }}" alt=""
+                                             class="rounded-circle border" width="38" height="38"
+                                             style="object-fit: cover;"
+                                             onerror="this.onerror=null;this.src='{{ $fallbackAvatar }}'">
+                                        <div>
+                                            <strong>{{ $student->first_name }} {{ $student->last_name }}</strong>
+                                            @if($attendance && $attendance->check_in_at)
+                                                <span class="badge bg-success ms-1" title="Pointage {{ $attendance->check_method === 'qrcode' ? 'QR code' : $attendance->check_method }}">
+                                                    <i class="fas fa-qrcode me-1"></i>{{ \Carbon\Carbon::parse($attendance->check_in_at)->format('H:i') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </td>
-                                <td>{{ $student->email }}</td>
+                                <td><span class="badge bg-light text-dark border">{{ $student->program ?? '—' }}</span></td>
                                 <td>
                                     <select name="attendances[{{ $student->id }}][status]" class="form-select form-select-sm attendance-status">
                                         <option value="absent" {{ $record == 'absent' ? 'selected' : '' }}>Absent</option>

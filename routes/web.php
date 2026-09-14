@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\LibraryCategoryController;
+use App\Http\Controllers\Admin\ProjectTemplateController;
 use App\Http\Controllers\Admin\AdminStatisticsController;
 use App\Http\Controllers\Admin\PreRegistrationAdminController;
 use App\Http\Controllers\Admin\CVThequeAdminController;
@@ -1248,6 +1249,15 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
 
         // Route sécurisée pour servir les fichiers des projets design
         Route::get('/design-projects/file/{fileId}', [AdminDashboardController::class, 'serveDesignProjectFile'])->name('design-projects.file');
+
+        // Project Templates - Gestion des modèles de projets
+        Route::get('/project-templates', [ProjectTemplateController::class, 'index'])->name('project-templates.index');
+        Route::get('/project-templates/create', [ProjectTemplateController::class, 'create'])->name('project-templates.create');
+        Route::post('/project-templates', [ProjectTemplateController::class, 'store'])->name('project-templates.store');
+        Route::get('/project-templates/{projectTemplate}/edit', [ProjectTemplateController::class, 'edit'])->name('project-templates.edit');
+        Route::put('/project-templates/{projectTemplate}', [ProjectTemplateController::class, 'update'])->name('project-templates.update');
+        Route::delete('/project-templates/{projectTemplate}', [ProjectTemplateController::class, 'destroy'])->name('project-templates.destroy');
+        Route::post('/students/{id}/assign-template', [ProjectTemplateController::class, 'assignToStudent'])->name('students.assign-template');
 
         // TP - Actions de validation
         Route::post('/tp/validate-batch', [AdminDashboardController::class, 'validateTpBatch'])->name('tp.validate-batch');
