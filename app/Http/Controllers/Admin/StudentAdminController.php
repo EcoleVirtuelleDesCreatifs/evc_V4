@@ -1267,13 +1267,14 @@ class StudentAdminController extends Controller
                         ->get()
                         ->groupBy('project_id');
 
-                    foreach ($availableProjects as $project) {
+                    $availableProjects = $availableProjects->map(function ($project) use ($filesByAvailableProject) {
                         $project->project_files = $filesByAvailableProject[$project->id] ?? collect();
-                        $project->brief_files = collect($project->project_files)->filter(function ($f) {
+                        $project->brief_files = collect($project->project_files)->filter(function ($f) use ($project) {
                             $path = $f->file_path ?? '';
                             return !str_contains($path, 'project_submissions/' . $project->id . '/');
                         })->values();
-                    }
+                        return $project;
+                    });
                 }
             }
         }
