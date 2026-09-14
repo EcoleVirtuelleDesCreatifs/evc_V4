@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\CVThequeAdminController;
 use App\Http\Controllers\Admin\DonationAdminController;
 use App\Http\Controllers\Admin\SaopEligibilityTestAdminController;
 use App\Http\Controllers\Admin\SeanceAdminController;
+use App\Http\Controllers\Admin\SessionTrackingAdminController;
+use App\Http\Controllers\SessionTrackingController;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\HomepageController;
 use App\Http\Controllers\Api\ProjectApiController;
@@ -603,6 +605,16 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
+    // Session Time Tracking API
+    Route::prefix('session-tracking')->name('session-tracking.')->group(function () {
+        Route::post('/start', [SessionTrackingController::class, 'startSession'])->name('start');
+        Route::post('/update', [SessionTrackingController::class, 'updateSession'])->name('update');
+        Route::post('/end', [SessionTrackingController::class, 'endSession'])->name('end');
+        Route::get('/stats', [SessionTrackingController::class, 'getStats'])->name('stats');
+        Route::post('/meeting-click', [SessionTrackingController::class, 'updateMeetingClick'])->name('meeting-click');
+        Route::post('/webtv-log', [SessionTrackingController::class, 'logWebtvConnection'])->name('webtv-log');
+    });
+
     // Projets - Structure: /evc/compte/design-graphique/projets/{action}
     // Routes déplacées vers les lignes 112-117 pour éviter les doublons
 
@@ -720,6 +732,16 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
+
+    // Session Time Tracking API
+    Route::prefix('session-tracking')->name('session-tracking.')->group(function () {
+        Route::post('/start', [SessionTrackingController::class, 'startSession'])->name('start');
+        Route::post('/update', [SessionTrackingController::class, 'updateSession'])->name('update');
+        Route::post('/end', [SessionTrackingController::class, 'endSession'])->name('end');
+        Route::get('/stats', [SessionTrackingController::class, 'getStats'])->name('stats');
+        Route::post('/meeting-click', [SessionTrackingController::class, 'updateMeetingClick'])->name('meeting-click');
+        Route::post('/webtv-log', [SessionTrackingController::class, 'logWebtvConnection'])->name('webtv-log');
+    });
 
     // Events
     Route::get('/events/index', [DashboardController::class, 'eventsIndex'])->name('events.index');
@@ -935,6 +957,16 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
+    // Session Time Tracking API
+    Route::prefix('session-tracking')->name('session-tracking.')->group(function () {
+        Route::post('/start', [SessionTrackingController::class, 'startSession'])->name('start');
+        Route::post('/update', [SessionTrackingController::class, 'updateSession'])->name('update');
+        Route::post('/end', [SessionTrackingController::class, 'endSession'])->name('end');
+        Route::get('/stats', [SessionTrackingController::class, 'getStats'])->name('stats');
+        Route::post('/meeting-click', [SessionTrackingController::class, 'updateMeetingClick'])->name('meeting-click');
+        Route::post('/webtv-log', [SessionTrackingController::class, 'logWebtvConnection'])->name('webtv-log');
+    });
+
     // Events - Structure: /evc/compte/community-management/events/{action}
     Route::get('/events/index', [DashboardController::class, 'eventsIndex'])->name('events.index');
     Route::get('/events/{id}', [DashboardController::class, 'eventsShow'])->where('id', '[0-9]+')->name('events.show');
@@ -981,6 +1013,13 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/seances/{seance}/qr/close', [SeanceAdminController::class, 'closeQr'])->name('seances.qr.close');
 
         Route::get('/attendance', [\App\Http\Controllers\Admin\AttendanceAdminController::class, 'index'])->name('attendance.index');
+
+        // Session Tracking
+        Route::prefix('session-tracking')->name('session-tracking.')->group(function () {
+            Route::get('/', [SessionTrackingAdminController::class, 'index'])->name('index');
+            Route::get('/student/{studentId}', [SessionTrackingAdminController::class, 'studentDetail'])->name('student');
+            Route::get('/export', [SessionTrackingAdminController::class, 'export'])->name('export');
+        });
 
         Route::get('/boutique', [\App\Http\Controllers\Admin\BoutiqueController::class, 'index'])->name('boutique.index');
         Route::get('/boutique/analytics', [\App\Http\Controllers\Admin\BoutiqueController::class, 'analytics'])->name('boutique.analytics');

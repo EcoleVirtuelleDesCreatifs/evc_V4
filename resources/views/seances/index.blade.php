@@ -76,6 +76,15 @@
 @php
     $routePrefix = explode('.', Route::currentRouteName())[0];
 @endphp
+
+<script>
+    window.pageData = {
+        seanceId: @isset($current) ? $current->id : null,
+        pageType: 'seance',
+        trackingEnabled: true
+    };
+</script>
+
 <div class="seances-page">
     <div class="seances-hero">
         <h1><i class="fas fa-chalkboard-user me-2"></i>Mes séances</h1>
@@ -134,4 +143,6 @@
         @endforeach
     @endif
 </div>
+
+<script src="{{ asset('js/session-tracking.js') }}"></script>
 @endsection

@@ -50,12 +50,15 @@
         @if($canJoin)
             <form method="POST" action="{{ route($routePrefix . '.seances.meet-click', $seance->id) }}" class="d-inline">
                 @csrf
-                <button type="submit" class="btn-meet">
+                <button type="submit" class="btn-meet" data-meet-link data-seance-id="{{ $seance->id }}">
                     <i class="fas fa-video"></i> Rejoindre Google Meet
                 </button>
             </form>
             @if($clicked)
                 <span class="text-muted small">cliqué le {{ $clicked->clicked_at->format('d/m/Y H:i') }}</span>
+                @if($clicked->duration_seconds > 0)
+                    <span class="text-muted small">• {{ gmdate('H:i:s', $clicked->duration_seconds) }}</span>
+                @endif
             @endif
         @endif
 

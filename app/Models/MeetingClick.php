@@ -16,6 +16,7 @@ class MeetingClick extends Model
         'seance_id',
         'student_id',
         'clicked_at',
+        'duration_seconds',
     ];
 
     protected $casts = [

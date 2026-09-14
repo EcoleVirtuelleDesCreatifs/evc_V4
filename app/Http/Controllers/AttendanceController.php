@@ -79,6 +79,7 @@ class AttendanceController extends Controller
 
     /**
      * Enregistre un clic sur le lien Google Meet sans valider la présence.
+     * Intègre le tracking de temps de session.
      */
     public function meetClick(Request $request, Seance $seance): RedirectResponse
     {
@@ -93,10 +94,40 @@ class AttendanceController extends Controller
             return back()->with('error', 'Lien Google Meet indisponible.');
         }
 
-        MeetingClick::create([
+        // Create meeting click record
+        $meetingClick = MeetingClick::create([
             'seance_id' => $seance->id,
             'student_id' => $student->id,
             'clicked_at' => now(),
+            'duration_seconds' => 0,
+        ]);
+
+        // Create or update session tracking for this seance
+        $existingSession = \App\Models\SessionTimeTracking::forStudent($student->id)
+            ->forSeance($seance->id)
+            ->active()
+            ->first();
+
+        if ($existingSession) {
+            // End any existing session
+            $existingSession->endSession();
+        }
+
+        // Create new session for meeting participation
+        \App\Models\SessionTimeTracking::create([
+            'student_id' => $student->id,
+            'seance_id' => $seance->id,
+            'user_id' => $user->id,
+            'page_type' => 'meeting',
+            'session_start' => now(),
+            'is_active' => true,
+            'user_agent' => $request->userAgent(),
+            'ip_address' => $request->ip(),
+            'metadata' => [
+                'meeting_click_id' => $meetingClick->id,
+                'meet_link' => $seance->meet_link,
+                'source' => 'meet_click',
+            ],
         ]);
 
         return redirect()->away($seance->meet_link);

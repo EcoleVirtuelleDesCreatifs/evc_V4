@@ -71,6 +71,15 @@
 @endpush
 
 @section('content')
+
+<script>
+    window.pageData = {
+        seanceId: null,
+        pageType: 'assiduite',
+        trackingEnabled: true
+    };
+</script>
+
 <div class="assiduite-page">
     <div class="assiduite-hero">
         <h1><i class="fas fa-clipboard-check me-2"></i>Mon assiduité</h1>
@@ -207,4 +216,6 @@
         </div>
     @endif
 </div>
+
+<script src="{{ asset('js/session-tracking.js') }}"></script>
 @endsection
