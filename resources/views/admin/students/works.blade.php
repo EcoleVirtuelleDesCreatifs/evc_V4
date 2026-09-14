@@ -433,7 +433,7 @@
                             $projectCategory = $project->category ?? '—';
                             $projectDesc = strip_tags($project->description ?? '');
                             $projectDeadline = $project->deadline ?? null;
-                            $projectBriefFiles = collect($project->brief_files ?? []);
+                            $projectBriefFiles = isset($project->brief_files) ? collect($project->brief_files) : collect();
                         @endphp
                         <div class="col-md-6 col-lg-4">
                             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(139,92,246,0.25); border-radius: 16px; padding: 1.25rem; height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='#8b5cf6'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(139,92,246,0.15)';" onmouseout="this.style.borderColor='rgba(139,92,246,0.25)'; this.style.transform='none'; this.style.boxShadow='none';">
