@@ -1,9 +1,36 @@
 @php
     $attendance = $attendances[$seance->id] ?? null;
     $clicked = $clicks[$seance->id] ?? null;
+
+    // Vérifier si l'étudiant peut rejoindre la réunion
     $canJoin = in_array($seance->type, ['online', 'hybrid']) && !empty($seance->meet_link);
+
+    // Vérifier si la séance est dans la plage de temps (15 min avant jusqu'à la fin)
+    $now = now();
+    $scheduledAt = $seance->scheduled_at;
+    $endsAt = $seance->ends_at;
+
+    $isInTimeSlot = false;
+    if ($scheduledAt && $endsAt) {
+        // Permettre de rejoindre 15 minutes avant le début
+        $startTime = $scheduledAt->copy()->subMinutes(15);
+        $isInTimeSlot = $now->between($startTime, $endsAt);
+    }
+
+    // Combiner les conditions
+    $canJoin = $canJoin && $isInTimeSlot;
+
     $isQrEligible = in_array($seance->type, ['onsite', 'hybrid']);
     $isQrOpen = $isQrEligible && $seance->qrToken && $seance->qrToken->isValid();
+
+    // Calculer le temps restant avant l'ouverture
+    $timeUntilOpen = null;
+    if ($scheduledAt && !$isInTimeSlot) {
+        $startTime = $scheduledAt->copy()->subMinutes(15);
+        if ($now->lt($startTime)) {
+            $timeUntilOpen = $now->diffForHumans($startTime, true);
+        }
+    }
 @endphp
 <div class="seance-card">
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
@@ -47,14 +74,30 @@
         <p class="text-light-emphasis mb-3">{{ $seance->description }}</p>
     @endif
     <div class="d-flex gap-2 flex-wrap align-items-center mt-2">
-        @if($canJoin)
-            <a href="{{ route($routePrefix . '.seances.meet-room', $seance->id) }}" class="btn-meet" data-meet-link data-seance-id="{{ $seance->id }}">
-                <i class="fas fa-video"></i> Rejoindre la réunion
-            </a>
-            @if($clicked)
-                <span class="text-muted small">cliqué le {{ $clicked->clicked_at->format('d/m/Y H:i') }}</span>
-                @if($clicked->duration_seconds > 0)
-                    <span class="text-muted small">• {{ gmdate('H:i:s', $clicked->duration_seconds) }}</span>
+        @if(in_array($seance->type, ['online', 'hybrid']))
+            @if($canJoin)
+                <a href="{{ route($routePrefix . '.seances.meet-room', $seance->id) }}" class="btn-meet" data-meet-link data-seance-id="{{ $seance->id }}">
+                    <i class="fas fa-video"></i> Rejoindre la réunion
+                </a>
+                @if($clicked)
+                    <span class="text-muted small">cliqué le {{ $clicked->clicked_at->format('d/m/Y H:i') }}</span>
+                    @if($clicked->duration_seconds > 0)
+                        <span class="text-muted small">• {{ gmdate('H:i:s', $clicked->duration_seconds) }}</span>
+                    @endif
+                @endif
+            @else
+                @if($timeUntilOpen)
+                    <span class="btn-meet disabled" title="Réunion disponible dans {{ $timeUntilOpen }}">
+                        <i class="fas fa-video"></i> Réunion dans {{ $timeUntilOpen }}
+                    </span>
+                @elseif($endsAt && $now->gt($endsAt))
+                    <span class="btn-meet disabled" title="Séance terminée">
+                        <i class="fas fa-video-slash"></i> Séance terminée
+                    </span>
+                @else
+                    <span class="btn-meet disabled" title="Lien de réunion non disponible">
+                        <i class="fas fa-video-slash"></i> Lien non disponible
+                    </span>
                 @endif
             @endif
         @endif
