@@ -210,6 +210,17 @@
                 allow="camera; microphone; fullscreen; display-capture; autoplay"
                 allowfullscreen>
             </iframe>
+
+            <!-- Affichage du lien pour référence -->
+            <div class="mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
+                <div class="text-sm text-gray-400 mb-1">Lien Google Meet :</div>
+                <div class="d-flex align-items-center gap-2">
+                    <code class="text-orange-400 text-sm flex-1 break-all">{{ $seance->meet_link }}</code>
+                    <a href="{{ $seance->meet_link }}" target="_blank" class="btn btn-sm btn-primary">
+                        <i class="fas fa-external-link-alt me-1"></i>Ouvrir
+                    </a>
+                </div>
+            </div>
         @else
             <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center p-4">
                 <i class="fas fa-video-slash text-gray-500 text-5xl mb-4"></i>
