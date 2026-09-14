@@ -145,7 +145,6 @@ class AttendanceController extends Controller
         // Rediriger vers la page de salle de réunion intégrée
         return redirect()->route($request->route()->getPrefix() . '.meet-room', [
             'seance' => $seance->id,
-            'session_id' => $sessionId
         ]);
     }
 
@@ -167,8 +166,6 @@ class AttendanceController extends Controller
             'seance' => $seance,
             'student' => $student,
             'user' => $user,
-            'studentId' => $student->id,
-            'seanceId' => $seance->id,
             'routePrefix' => $routePrefix,
         ]);
     }
