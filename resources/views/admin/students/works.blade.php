@@ -428,13 +428,6 @@
                 @if(isset($data['available_projects']) && $data['available_projects']->count() > 0)
                     <div class="row g-3">
                         @foreach($data['available_projects'] as $project)
-                        @php
-                            $projectTitle = $project->title ?? 'Projet';
-                            $projectCategory = $project->category ?? '—';
-                            $projectDesc = strip_tags($project->description ?? '');
-                            $projectDeadline = $project->deadline ?? null;
-                            $projectBriefFiles = isset($project->brief_files) ? collect($project->brief_files) : collect();
-                        @endphp
                         <div class="col-md-6 col-lg-4">
                             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(139,92,246,0.25); border-radius: 16px; padding: 1.25rem; height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='#8b5cf6'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(139,92,246,0.15)';" onmouseout="this.style.borderColor='rgba(139,92,246,0.25)'; this.style.transform='none'; this.style.boxShadow='none';">
                                 <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#8b5cf6,#6366f1);"></div>
@@ -444,21 +437,21 @@
                                         <i class="fas fa-folder-open text-white"></i>
                                     </div>
                                     <div style="min-width:0;">
-                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $projectTitle }}</h6>
+                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $project->title ?? 'Projet' }}</h6>
                                         <span class="badge" style="background:rgba(139,92,246,0.15); color:#8b5cf6; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
-                                            <i class="fas fa-tag me-1"></i>{{ $projectCategory }}
+                                            <i class="fas fa-tag me-1"></i>{{ $project->category ?? '—' }}
                                         </span>
                                     </div>
                                 </div>
 
-                                @if(!empty($projectDesc))
-                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ \Illuminate\Support\Str::limit($projectDesc, 120) }}</p>
+                                @if(!empty($project->description))
+                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ \Illuminate\Support\Str::limit(strip_tags($project->description), 120) }}</p>
                                 @endif
 
                                 <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
-                                    @if($projectDeadline)
+                                    @if($project->deadline)
                                     @php
-                                        $dl = \Carbon\Carbon::parse($projectDeadline);
+                                        $dl = \Carbon\Carbon::parse($project->deadline);
                                         $daysLeft = round(now()->diffInDays($dl, false));
                                     @endphp
                                     <div class="d-flex align-items-center gap-2 mb-2">
@@ -466,10 +459,10 @@
                                         <small class="text-white-50">Délai: {{ $dl->format('d/m/Y') }} ({{ $daysLeft }}j)</small>
                                     </div>
                                     @endif
-                                    @if($projectBriefFiles->count() > 0)
+                                    @if(isset($project->brief_files) && count($project->brief_files) > 0)
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-info">{{ $projectBriefFiles->count() }} fichier(s) brief</small>
+                                        <small class="text-info">{{ count($project->brief_files) }} fichier(s) brief</small>
                                     </div>
                                     @endif
                                 </div>
