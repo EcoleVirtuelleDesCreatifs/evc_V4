@@ -584,42 +584,6 @@
                                     </div>
                                 </div>
 
-                                @if(!empty($todo->description))
-                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit(strip_tags($todo->description), 120) }}</p>
-                                @endif
-
-                                {{-- Affichage des fichiers brief (images) --}}
-                                @if(isset($todo->brief_files) && count($todo->brief_files) > 0)
-                                <div class="mb-3">
-                                    <small class="text-white-50 d-block mb-2"><i class="fas fa-images me-1"></i>Fichiers brief ({{ count($todo->brief_files) }})</small>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @foreach($todo->brief_files as $briefFile)
-                                        @php
-                                            $bPath = $briefFile->file_path ?? '';
-                                            $bPath = ltrim((string) $bPath, '/');
-                                            if (str_starts_with($bPath, 'storage/app/public/')) {
-                                                $bPath = substr($bPath, strlen('storage/app/public/'));
-                                            }
-                                            $bUrl = \App\Models\MediaUrl::fromPath($bPath);
-                                            $bName = $briefFile->original_name ?? basename($bPath);
-                                            $bExt = strtolower(pathinfo($bPath, PATHINFO_EXTENSION));
-                                            $isImage = in_array($bExt, ['jpg','jpeg','png','gif','webp']);
-                                        @endphp
-                                        @if($isImage)
-                                        <a href="{{ $bUrl }}" target="_blank" style="display:block; width:80px; height:80px; border-radius:10px; overflow:hidden; border:2px solid rgba(255,255,255,0.1); transition:all 0.2s;" onmouseover="this.style.borderColor='#10b981'; this.style.transform='scale(1.05)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.transform='none';">
-                                            <img src="{{ $bUrl }}" alt="{{ $bName }}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
-                                        </a>
-                                        @else
-                                        <a href="{{ $bUrl }}" target="_blank" class="d-flex align-items-center gap-2 px-3 py-2" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#10b981; text-decoration:none; font-size:0.8rem;">
-                                            <i class="fas fa-{{ $bExt === 'pdf' ? 'file-pdf' : 'file' }}"></i>
-                                            {{ Str::limit($bName, 20) }}
-                                        </a>
-                                        @endif
-                                        @endforeach
-                                    </div>
-                                </div>
-                                @endif
-
                                 {{-- Galerie images/fichiers soumis --}}
                                 @php
                                     $allFiles = collect($todo->submission_files ?? []);
@@ -680,52 +644,6 @@
                                     @endforeach
                                 </div>
                                 @endif
-
-                                <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <i class="fas fa-graduation-cap text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">{{ $todo->formation ?? ($todo->category ?? '—') }}</small>
-                                    </div>
-                                    @if(!empty($todo->submitted_at))
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <i class="fas fa-paper-plane text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">Soumis le {{ date('d/m/Y', strtotime($todo->submitted_at)) }}</small>
-                                    </div>
-                                    @endif
-                                    @if(!empty($todo->validated_at))
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        <i class="fas fa-check text-success" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-success">Validé le {{ date('d/m/Y', strtotime($todo->validated_at)) }}</small>
-                                    </div>
-                                    @endif
-                                </div>
-
-                                @if(!empty($todo->submission_link))
-                                <div class="mb-2">
-                                    <a href="{{ $todo->submission_link }}" target="_blank" class="small" style="color: #4fc3f7; text-decoration: none;">
-                                        <i class="fas fa-external-link-alt me-1"></i>Lien de soumission
-                                    </a>
-                                </div>
-                                @endif
-
-                                @if(!empty($todo->admin_comment))
-                                <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:0.6rem; margin-bottom:0.5rem; border-left:3px solid {{ $todoStatus === 'rejected' ? '#ef4444' : '#3b82f6' }};">
-                                    <small class="text-white-50">
-                                        <i class="fas fa-comment me-1"></i>{{ Str::limit($todo->admin_comment, 100) }}
-                                    </small>
-                                </div>
-                                @endif
-
-                                <div class="mt-auto">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-white-50" style="font-size:0.65rem; text-transform:uppercase; letter-spacing:0.5px;">
-                                            <i class="fas fa-database me-1"></i>{{ ($todo->source_table ?? '') === 'projects' ? 'Projet' : 'TP Assignment' }}
-                                        </small>
-                                        <small class="text-white-50">
-                                            {{ !empty($todo->created_at) ? date('d/m/Y', strtotime($todo->created_at)) : '—' }}
-                                        </small>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         @endforeach
