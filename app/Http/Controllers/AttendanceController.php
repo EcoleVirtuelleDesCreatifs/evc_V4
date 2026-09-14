@@ -104,6 +104,7 @@ class AttendanceController extends Controller
         ]);
 
         // Create or update session tracking for this seance (only if table exists)
+        $sessionId = null;
         try {
             $existingSession = \App\Models\SessionTimeTracking::forStudent($student->id)
                 ->forSeance($seance->id)
@@ -116,7 +117,7 @@ class AttendanceController extends Controller
             }
 
             // Create new session for meeting participation
-            \App\Models\SessionTimeTracking::create([
+            $session = \App\Models\SessionTimeTracking::create([
                 'student_id' => $student->id,
                 'seance_id' => $seance->id,
                 'user_id' => $user->id,
@@ -131,6 +132,7 @@ class AttendanceController extends Controller
                     'source' => 'meet_click',
                 ],
             ]);
+            $sessionId = $session->id;
         } catch (\Illuminate\Database\QueryException $e) {
             // Log error if table doesn't exist yet, but don't block the redirect
             Log::warning('Session tracking table not available', [
@@ -140,7 +142,35 @@ class AttendanceController extends Controller
             ]);
         }
 
-        return redirect()->away($seance->meet_link);
+        // Rediriger vers la page de salle de réunion intégrée
+        return redirect()->route($request->route()->getPrefix() . '.meet-room', [
+            'seance' => $seance->id,
+            'session_id' => $sessionId
+        ]);
+    }
+
+    /**
+     * Affiche la page de salle de réunion intégrée avec Google Meet.
+     */
+    public function meetRoom(Request $request, Seance $seance): View
+    {
+        $user = Auth::user();
+        $student = $user ? $user->student : null;
+
+        if (!$student || $seance->formation !== $student->program) {
+            abort(403);
+        }
+
+        $routePrefix = explode('.', Route::currentRouteName())[0];
+
+        return view('student.meet-room', [
+            'seance' => $seance,
+            'student' => $student,
+            'user' => $user,
+            'studentId' => $student->id,
+            'seanceId' => $seance->id,
+            'routePrefix' => $routePrefix,
+        ]);
     }
 
     /**

@@ -602,6 +602,7 @@ Route::prefix('/evc/compte/design-graphique')->name('design-graphique.')->middle
     // Séances & assiduité
     Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
+    Route::get('/seances/{seance}/meet-room', [AttendanceController::class, 'meetRoom'])->name('seances.meet-room');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
@@ -730,6 +731,7 @@ Route::prefix('/evc/compte/design-graphique-cm')->name('design-graphique-cm.')->
     // Séances & assiduité
     Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
+    Route::get('/seances/{seance}/meet-room', [AttendanceController::class, 'meetRoom'])->name('seances.meet-room');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
@@ -954,6 +956,7 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
     // Séances & assiduité
     Route::get('/seances', [AttendanceController::class, 'seancesIndex'])->name('seances.index');
     Route::post('/seances/{seance}/meet-click', [AttendanceController::class, 'meetClick'])->name('seances.meet-click');
+    Route::get('/seances/{seance}/meet-room', [AttendanceController::class, 'meetRoom'])->name('seances.meet-room');
     Route::get('/assiduite', [AttendanceController::class, 'assiduiteIndex'])->name('assiduite.index');
     Route::get('/formations/download-all/{id}', [DashboardController::class, 'formationsDownloadAll'])->name('formations.download-all');
 
