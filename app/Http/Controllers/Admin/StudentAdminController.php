@@ -1251,9 +1251,12 @@ class StudentAdminController extends Controller
 
             // Récupérer les projets créés par l'admin (user_id = null ou projects admin)
             // Pour simplifier, on considère tous les projets qui ne sont pas assignés à cet étudiant
+            // Utiliser distinct() pour éviter les doublons et limiter à 20 projets
             $availableProjects = DB::table('projects')
                 ->whereNotIn('id', $assignedProjectIds)
+                ->distinct()
                 ->orderBy('created_at', 'desc')
+                ->limit(20)
                 ->get();
 
             // Charger les fichiers pour les projets disponibles
