@@ -191,7 +191,6 @@
                         <thead>
                             <tr>
                                 <th>Projet</th>
-                                <th>Catégorie</th>
                                 <th>Deadline</th>
                                 <th>Statut</th>
                                 <th>Étudiants</th>
@@ -208,9 +207,6 @@
                                 <tr>
                                     <td>
                                         <strong>{{ $project['title'] ?? 'Projet' }}</strong>
-                                    </td>
-                                    <td>
-                                        {{ $project['category'] ?? '—' }}
                                     </td>
                                     <td>
                                         @if($project['deadline'])
