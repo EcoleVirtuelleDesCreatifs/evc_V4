@@ -1527,6 +1527,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/students/{id}/works/toggle-hidden', [\App\Http\Controllers\Admin\StudentAdminController::class, 'toggleWorkHidden'])->name('students.works.toggle-hidden');
         Route::post('/students/{id}/works/update-deadline', [\App\Http\Controllers\Admin\StudentAdminController::class, 'updateWorkDeadline'])->name('students.works.update-deadline');
         Route::post('/students/{id}/works/remove', [\App\Http\Controllers\Admin\StudentAdminController::class, 'removeWork'])->name('students.works.remove');
+        Route::post('/students/{id}/assign-project', [\App\Http\Controllers\Admin\StudentAdminController::class, 'assignProject'])->name('students.assign-project');
         Route::delete('/students/{id}/delete', [\App\Http\Controllers\Admin\StudentAdminController::class, 'destroy'])->name('students.delete');
         // Route::get('/students/add', [AdminDashboardController::class, 'createStudent'])->name('students.add');
 

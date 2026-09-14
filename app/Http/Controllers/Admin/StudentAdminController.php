@@ -1240,6 +1240,44 @@ class StudentAdminController extends Controller
         $todosNonTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['assigned', 'pending']));
         $todosTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['submitted', 'validated', 'rejected']));
 
+        // Récupérer les projets disponibles créés par l'admin mais non assignés à cet étudiant
+        $availableProjects = collect();
+        if (Schema::hasTable('projects')) {
+            // Récupérer les IDs des projets déjà assignés à cet étudiant
+            $assignedProjectIds = DB::table('projects')
+                ->where('user_id', $user->id)
+                ->pluck('id')
+                ->toArray();
+
+            // Récupérer les projets créés par l'admin (user_id = null ou projects admin)
+            // Pour simplifier, on considère tous les projets qui ne sont pas assignés à cet étudiant
+            $availableProjects = DB::table('projects')
+                ->whereNotIn('id', $assignedProjectIds)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Charger les fichiers pour les projets disponibles
+            if ($availableProjects->isNotEmpty() && Schema::hasTable('project_images')) {
+                $availableProjectIds = $availableProjects->pluck('id')->map(fn($v) => (int) $v)->filter()->values()->all();
+                if (!empty($availableProjectIds)) {
+                    $filesByAvailableProject = DB::table('project_images')
+                        ->whereIn('project_id', $availableProjectIds)
+                        ->orderBy('order_index', 'asc')
+                        ->orderBy('created_at', 'asc')
+                        ->get()
+                        ->groupBy('project_id');
+
+                    foreach ($availableProjects as $project) {
+                        $project->project_files = $filesByAvailableProject[$project->id] ?? collect();
+                        $project->brief_files = collect($project->project_files)->filter(function ($f) {
+                            $path = $f->file_path ?? '';
+                            return !str_contains($path, 'project_submissions/' . $project->id . '/');
+                        })->values();
+                    }
+                }
+            }
+        }
+
         $data = [
             'student' => [
                 'id' => $student->id,
@@ -1262,6 +1300,7 @@ class StudentAdminController extends Controller
             'tps' => $tps,
             'todos_non_traites' => $todosNonTraites,
             'todos_traites' => $todosTraites,
+            'available_projects' => $availableProjects,
         ];
 
         return view('admin.students.works', compact('data'));
@@ -1378,6 +1417,121 @@ class StudentAdminController extends Controller
         }
 
         return back()->with('success', 'Projet retiré du compte de l\'étudiant.');
+    }
+
+    /**
+     * Assigner un projet existant à un étudiant
+     */
+    public function assignProject(Request $request, int $id)
+    {
+        $validated = $request->validate([
+            'project_id' => 'required|exists:projects,id',
+        ]);
+
+        $projectId = (int) $validated['project_id'];
+
+        // Récupérer l'étudiant et son user_id
+        $student = DB::table('students')->where('id', $id)->first();
+        if (!$student) {
+            return back()->with('error', 'Étudiant non trouvé.');
+        }
+
+        $userId = $student->user_id;
+        if (!$userId) {
+            return back()->with('error', 'Utilisateur associé non trouvé.');
+        }
+
+        // Récupérer le projet source
+        $sourceProject = DB::table('projects')->where('id', $projectId)->first();
+        if (!$sourceProject) {
+            return back()->with('error', 'Projet non trouvé.');
+        }
+
+        // Vérifier si le projet existe déjà pour cet étudiant
+        $existingProject = DB::table('projects')
+            ->where('user_id', $userId)
+            ->where('title', $sourceProject->title)
+            ->where('category', $sourceProject->category)
+            ->first();
+
+        if ($existingProject) {
+            return back()->with('error', 'Ce projet existe déjà pour cet étudiant.');
+        }
+
+        // Créer une copie du projet pour cet étudiant
+        $newProjectData = [
+            'user_id' => $userId,
+            'title' => $sourceProject->title,
+            'category' => $sourceProject->category,
+            'description' => $sourceProject->description,
+            'link' => $sourceProject->link,
+            'tags' => $sourceProject->tags,
+            'software_used' => $sourceProject->software_used,
+            'thumbnail_image' => $sourceProject->thumbnail_image,
+            'status' => 'en_cours',
+            'deadline' => $sourceProject->deadline,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+
+        $newProjectId = DB::table('projects')->insertGetId($newProjectData);
+
+        // Copier les fichiers associés au projet
+        if (Schema::hasTable('project_images')) {
+            $sourceFiles = DB::table('project_images')
+                ->where('project_id', $projectId)
+                ->get();
+
+            foreach ($sourceFiles as $file) {
+                DB::table('project_images')->insert([
+                    'project_id' => $newProjectId,
+                    'file_path' => $file->file_path,
+                    'original_name' => $file->original_name,
+                    'mime_type' => $file->mime_type,
+                    'file_size' => $file->file_size,
+                    'order_index' => $file->order_index,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // Notification in-app (database)
+        try {
+            $user = \App\Models\User::find($userId);
+            if ($user) {
+                $formationSlug = 'design-graphique';
+                if (!empty($student->program)) {
+                    $prog = strtolower((string) $student->program);
+                    if (str_contains($prog, 'community')) {
+                        $formationSlug = 'community-management';
+                    } elseif (str_contains($prog, 'informatique')) {
+                        $formationSlug = 'gestion-informatique';
+                    } elseif (str_contains($prog, 'intelligence')) {
+                        $formationSlug = 'intelligence-artificielle';
+                    }
+                }
+
+                $user->notify(new \App\Notifications\ProjectAssignedNotification([
+                    'category' => 'project',
+                    'event' => 'assigned',
+                    'title' => 'Nouveau projet assigné',
+                    'message' => 'Un nouveau projet a été assigné : ' . ($sourceProject->title ?? 'Projet'),
+                    'project_id' => $newProjectId,
+                    'project_title' => $sourceProject->title ?? null,
+                    'created_at' => now()->toIso8601String(),
+                    'url' => url("/evc/compte/{$formationSlug}/todo/traiter/{$newProjectId}"),
+                ]));
+            }
+        } catch (\Exception $e) {
+            Log::warning('Notification in-app projet assigné échouée (assignProject)', [
+                'project_id' => $newProjectId,
+                'user_id' => $userId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        return back()->with('success', 'Projet assigné avec succès.');
     }
 
     /**

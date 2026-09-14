@@ -425,48 +425,58 @@
                 <span>Projets Disponibles</span>
             </div>
             <div class="info-card-body">
-                @php
-                    $availableTemplates = \App\Models\ProjectTemplate::where('is_active', true)->get();
-                @endphp
-                @if($availableTemplates->count() > 0)
+                @if(isset($data['available_projects']) && $data['available_projects']->count() > 0)
                     <div class="row g-3">
-                        @foreach($availableTemplates as $template)
+                        @foreach($data['available_projects'] as $project)
+                        @php
+                            $projectTitle = $project->title ?? 'Projet';
+                            $projectCategory = $project->category ?? '—';
+                            $projectDesc = strip_tags($project->description ?? '');
+                            $projectDeadline = $project->deadline ?? null;
+                            $projectBriefFiles = collect($project->brief_files ?? []);
+                        @endphp
                         <div class="col-md-6 col-lg-4">
                             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(139,92,246,0.25); border-radius: 16px; padding: 1.25rem; height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='#8b5cf6'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(139,92,246,0.15)';" onmouseout="this.style.borderColor='rgba(139,92,246,0.25)'; this.style.transform='none'; this.style.boxShadow='none';">
                                 <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#8b5cf6,#6366f1);"></div>
 
                                 <div class="d-flex align-items-start gap-3 mb-3">
                                     <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#8b5cf6,#6366f1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i class="fas fa-clipboard-list text-white"></i>
+                                        <i class="fas fa-folder-open text-white"></i>
                                     </div>
                                     <div style="min-width:0;">
-                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $template->title }}</h6>
+                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $projectTitle }}</h6>
                                         <span class="badge" style="background:rgba(139,92,246,0.15); color:#8b5cf6; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
-                                            <i class="fas fa-tag me-1"></i>{{ $template->category }}
+                                            <i class="fas fa-tag me-1"></i>{{ $projectCategory }}
                                         </span>
                                     </div>
                                 </div>
 
-                                @if(!empty($template->description))
-                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ \Illuminate\Support\Str::limit($template->description, 120) }}</p>
+                                @if(!empty($projectDesc))
+                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ \Illuminate\Support\Str::limit($projectDesc, 120) }}</p>
                                 @endif
 
                                 <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
+                                    @if($projectDeadline)
+                                    @php
+                                        $dl = \Carbon\Carbon::parse($projectDeadline);
+                                        $daysLeft = round(now()->diffInDays($dl, false));
+                                    @endphp
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <i class="fas fa-clock text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">Délai: {{ $template->default_deadline_days }} jours</small>
+                                        <small class="text-white-50">Délai: {{ $dl->format('d/m/Y') }} ({{ $daysLeft }}j)</small>
                                     </div>
-                                    @if(!empty($template->brief_content))
+                                    @endif
+                                    @if($projectBriefFiles->count() > 0)
                                     <div class="d-flex align-items-center gap-2">
-                                        <i class="fas fa-file-alt text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-info">Brief disponible</small>
+                                        <i class="fas fa-paperclip text-white-50" style="width:14px; font-size:0.75rem;"></i>
+                                        <small class="text-info">{{ $projectBriefFiles->count() }} fichier(s) brief</small>
                                     </div>
                                     @endif
                                 </div>
 
-                                <form method="POST" action="{{ route('admin.students.assign-template', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mt-auto">
+                                <form method="POST" action="{{ route('admin.students.assign-project', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mt-auto">
                                     @csrf
-                                    <input type="hidden" name="template_id" value="{{ $template->id }}">
+                                    <input type="hidden" name="project_id" value="{{ $project->id }}">
                                     <button type="submit" class="btn btn-sm btn-modern w-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: white; border: none;" onclick="return confirm('Assigner ce projet à l\'étudiant ?')">
                                         <i class="fas fa-plus me-1"></i>Assigner ce projet
                                     </button>
