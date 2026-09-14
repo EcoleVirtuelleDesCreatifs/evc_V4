@@ -56,7 +56,7 @@
                         <select id="type" name="type" class="form-select @error('type') is-invalid @enderror" required onchange="toggleFields()">
                             <option value="">Choisir...</option>
                             <option value="onsite" {{ old('type', $seance->type ?? '') == 'onsite' ? 'selected' : '' }}>Présentiel</option>
-                            <option value="online" {{ old('type', $seance->type ?? '') == 'online' ? 'selected' : '' }}>En ligne (Google Meet)</option>
+                            <option value="online" {{ old('type', $seance->type ?? '') == 'online' ? 'selected' : '' }}>En ligne (Jitsi Meet)</option>
                             <option value="hybrid" {{ old('type', $seance->type ?? '') == 'hybrid' ? 'selected' : '' }}>Hybride</option>
                         </select>
                         @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -98,10 +98,11 @@
                     </div>
 
                     <div class="col-12" id="meet-group">
-                        <label for="meet_link" class="form-label">Lien Google Meet (en ligne / hybride)</label>
+                        <label for="meet_link" class="form-label">Lien de réunion (en ligne / hybride)</label>
                         <input type="url" id="meet_link" name="meet_link"
                                class="form-control @error('meet_link') is-invalid @enderror"
-                               value="{{ old('meet_link', $seance->meet_link ?? '') }}" placeholder="https://meet.google.com/...">
+                               value="{{ old('meet_link', $seance->meet_link ?? '') }}" placeholder="https://meet.jit.si/... (laisser vide pour générer automatiquement)">
+                        <small class="text-muted">Laissez vide pour générer automatiquement un lien Jitsi Meet unique pour cette séance</small>
                         @error('meet_link')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
 

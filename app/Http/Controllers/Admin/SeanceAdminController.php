@@ -70,6 +70,11 @@ class SeanceAdminController extends Controller
 
         $validated['created_by'] = session('admin_id') ?? auth()->id();
 
+        // Générer un lien Jitsi Meet si meet_link est vide et type est online/hybrid
+        if (in_array($validated['type'], ['online', 'hybrid']) && empty($validated['meet_link'])) {
+            $validated['meet_link'] = 'https://meet.jit.si/evc-' . strtolower(str_replace(' ', '-', $validated['title']));
+        }
+
         Seance::create($validated);
 
         return redirect()->route('admin.seances.index')
@@ -93,6 +98,11 @@ class SeanceAdminController extends Controller
     public function update(Request $request, Seance $seance): RedirectResponse
     {
         $validated = $this->validateSeance($request, $seance);
+
+        // Générer un lien Jitsi Meet si meet_link est vide et type est online/hybrid
+        if (in_array($validated['type'], ['online', 'hybrid']) && empty($validated['meet_link'])) {
+            $validated['meet_link'] = 'https://meet.jit.si/evc-' . $seance->id . '-' . strtolower(str_replace(' ', '-', $validated['title']));
+        }
 
         $seance->update($validated);
 
@@ -295,7 +305,7 @@ class SeanceAdminController extends Controller
         $isOnline = in_array($type, ['online', 'hybrid']);
         $isOnsite = in_array($type, ['onsite', 'hybrid']);
 
-        $rules['meet_link'] = $isOnline ? 'required|url|max:1000' : 'nullable|url|max:1000';
+        $rules['meet_link'] = $isOnline ? 'nullable|url|max:1000' : 'nullable|url|max:1000';
         $rules['location'] = $isOnsite ? 'required|string|max:255' : 'nullable|string|max:255';
 
         return $request->validate($rules);
