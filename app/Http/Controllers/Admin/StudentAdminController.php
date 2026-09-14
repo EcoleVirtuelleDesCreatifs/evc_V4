@@ -1490,6 +1490,7 @@ class StudentAdminController extends Controller
                 DB::table('project_images')->insert([
                     'project_id' => $newProjectId,
                     'file_path' => $file->file_path,
+                    'filename' => $file->filename ?? $file->original_name ?? basename($file->file_path ?? ''),
                     'original_name' => $file->original_name,
                     'mime_type' => $file->mime_type,
                     'file_size' => $file->file_size,
