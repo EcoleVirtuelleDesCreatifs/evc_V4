@@ -249,29 +249,25 @@
                                     </td>
                                     <td><small>{{ $tp->created_at ? date('d/m/Y', strtotime($tp->created_at)) : '-' }}</small></td>
                                     <td>
-                                        @php
-                                            $tpFiles = $tp->tp_files ?? collect();
-                                            $tpImages = collect($tpFiles)->map(function ($file) {
-                                                $path = $file->file_path ?? '';
-                                                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                                                if (!in_array($ext, ['jpg','jpeg','png','gif','webp'], true)) {
-                                                    return null;
-                                                }
-                                                $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
-                                                if (!$url) return null;
-                                                return [
-                                                    'url' => $url,
-                                                    'original_name' => $file->original_name ?? basename($path),
-                                                ];
-                                            })->filter()->values();
-                                        @endphp
                                         <button type="button"
                                                 class="btn btn-sm btn-modern btn-primary-modern"
                                                 data-tp-open
                                                 data-tp-title="{{ e($tp->title ?? 'TP') }}"
                                                 data-tp-status="{{ e($tp->status ?? '') }}"
                                                 data-tp-created="{{ e($tp->created_at ? date('d/m/Y H:i', strtotime($tp->created_at)) : '') }}"
-                                                data-tp-images='@json($tpImages)'>
+                                                data-tp-images='@json(collect($tp->tp_files ?? collect())->map(function ($file) {
+                                                    $path = $file->file_path ?? '';
+                                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                                    if (!in_array($ext, ['jpg','jpeg','png','gif','webp'], true)) {
+                                                        return null;
+                                                    }
+                                                    $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
+                                                    if (!$url) return null;
+                                                    return [
+                                                        'url' => $url,
+                                                        'original_name' => $file->original_name ?? basename($path),
+                                                    ];
+                                                })->filter()->values())'>
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </td>
@@ -298,84 +294,57 @@
                 @if(isset($data['todos_non_traites']) && $data['todos_non_traites']->count() > 0)
                     <div class="row g-3">
                         @foreach($data['todos_non_traites'] as $todo)
-                        @php
-                            $isFromProjects = ($todo->source_table ?? '') === 'projects';
-                            $todoTitle = $todo->title ?? 'Projet';
-                            $todoDesc = strip_tags($todo->description ?? '');
-                            $todoFormation = $todo->formation ?? ($todo->category ?? '—');
-                            $todoDeadline = $todo->deadline ?? null;
-                            $todoCreated = $todo->created_at ?? null;
-                            $todoBriefFiles = collect($todo->brief_files ?? []);
-                        @endphp
                         <div class="col-md-6 col-lg-4">
                             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(245,158,11,0.25); border-radius: 16px; padding: 1.25rem; height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease; position: relative; overflow: hidden;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(245,158,11,0.15)';" onmouseout="this.style.borderColor='rgba(245,158,11,0.25)'; this.style.transform='none'; this.style.boxShadow='none';">
                                 <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,#f59e0b,#d97706);"></div>
 
                                 <div class="d-flex align-items-start gap-3 mb-3">
                                     <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i class="fas fa-{{ $isFromProjects ? 'folder-open' : 'file-alt' }} text-white"></i>
+                                        <i class="fas fa-{{ ($todo->source_table ?? '') === 'projects' ? 'folder-open' : 'file-alt' }} text-white"></i>
                                     </div>
                                     <div style="min-width:0;">
-                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $todoTitle }}</h6>
+                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $todo->title ?? 'Projet' }}</h6>
                                         <span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
                                             <i class="fas fa-hourglass-half me-1"></i>À traiter
                                         </span>
                                     </div>
                                 </div>
 
-{{--                                 @if(!empty($todoDesc)) --}}
-{{--                                 <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit($todoDesc, 120) }}</p> --}}
+{{--                                 @if(!empty($todo->description)) --}}
+{{--                                 <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit(strip_tags($todo->description), 120) }}</p> --}}
 {{--                                 @endif --}}
 
                                 <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <i class="fas fa-graduation-cap text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">{{ $todoFormation }}</small>
+                                        <small class="text-white-50">{{ $todo->formation ?? ($todo->category ?? '—') }}</small>
                                     </div>
-                                    @if($todoDeadline)
-                                    @php
-                                        $dl = \Carbon\Carbon::parse($todoDeadline);
-                                        $isOverdue = $dl->isPast();
-                                        $daysLeft = round(now()->diffInDays($dl, false));
-                                    @endphp
+                                    @if($todo->deadline)
                                     <div class="d-flex align-items-center gap-2 mb-2">
-                                        <i class="fas fa-clock {{ $isOverdue ? 'text-danger' : ($daysLeft <= 3 ? 'text-warning' : 'text-white-50') }}" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="{{ $isOverdue ? 'text-danger fw-bold' : ($daysLeft <= 3 ? 'text-warning fw-bold' : 'text-white-50') }}">
-                                            @if($isOverdue)
-                                                <i class="fas fa-exclamation-triangle me-1"></i>Dépassé — {{ $dl->format('d/m/Y') }}
-                                            @elseif($daysLeft == 0)
-                                                Aujourd'hui
-                                            @elseif($daysLeft <= 3)
-                                                {{ $dl->format('d/m/Y') }} ({{ $daysLeft }}j restant{{ $daysLeft > 1 ? 's' : '' }})
-                                            @else
-                                                {{ $dl->format('d/m/Y') }}
-                                            @endif
-                                        </small>
+                                        <i class="fas fa-clock text-white-50" style="width:14px; font-size:0.75rem;"></i>
+                                        <small class="text-white-50">Délai: {{ \Carbon\Carbon::parse($todo->deadline)->format('d/m/Y') }}</small>
                                     </div>
                                     @endif
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="fas fa-calendar-plus text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">Assigné le {{ $todoCreated ? date('d/m/Y', strtotime($todoCreated)) : '—' }}</small>
+                                        <small class="text-white-50">Assigné le {{ $todo->created_at ? date('d/m/Y', strtotime($todo->created_at)) : '—' }}</small>
                                     </div>
-                                    @if($todoBriefFiles->count() > 0)
+                                    @if(isset($todo->brief_files) && count($todo->brief_files) > 0)
                                     <div class="d-flex align-items-center gap-2 mt-2">
                                         <i class="fas fa-paperclip text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-info">{{ $todoBriefFiles->count() }} fichier(s) brief</small>
+                                        <small class="text-info">{{ count($todo->brief_files) }} fichier(s) brief</small>
                                     </div>
                                     @endif
                                 </div>
 
 
 
-                                @php
-                                    $isHidden = !empty($todo->admin_hidden);
-                                @endphp
                                 <form method="POST" action="{{ route('admin.students.works.toggle-hidden', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mb-2">
                                     @csrf
                                     <input type="hidden" name="source_table" value="{{ $todo->source_table }}">
                                     <input type="hidden" name="work_id" value="{{ $todo->id }}">
-                                    <button type="submit" class="btn btn-sm btn-modern" style="background: {{ $isHidden ? 'rgba(79,195,247,0.15)' : 'rgba(239,68,68,0.15)' }}; color: {{ $isHidden ? '#4fc3f7' : '#ef4444' }}; border: 1px solid {{ $isHidden ? 'rgba(79,195,247,0.35)' : 'rgba(239,68,68,0.35)' }};" onclick="return confirm('{{ $isHidden ? 'Afficher ce projet à l\'étudiant ?' : 'Masquer ce projet à l\'étudiant ?' }}')">
-                                        <i class="fas fa-{{ $isHidden ? 'eye' : 'eye-slash' }} me-1"></i>{{ $isHidden ? 'Afficher' : 'Masquer' }}
+                                    <button type="submit" class="btn btn-sm btn-modern" style="background: {{ !empty($todo->admin_hidden) ? 'rgba(79,195,247,0.15)' : 'rgba(239,68,68,0.15)' }}; color: {{ !empty($todo->admin_hidden) ? '#4fc3f7' : '#ef4444' }}; border: 1px solid {{ !empty($todo->admin_hidden) ? 'rgba(79,195,247,0.35)' : 'rgba(239,68,68,0.35)' }};" onclick="return confirm('{{ !empty($todo->admin_hidden) ? 'Afficher ce projet à l\'étudiant ?' : 'Masquer ce projet à l\'étudiant ?' }}')">
+                                        <i class="fas fa-{{ !empty($todo->admin_hidden) ? 'eye' : 'eye-slash' }} me-1"></i>{{ !empty($todo->admin_hidden) ? 'Afficher' : 'Masquer' }}
                                     </button>
                                 </form>
 
@@ -495,20 +464,12 @@
                     <div class="row g-3">
                         @foreach($data['todos_traites'] as $todo)
                         @php
-                            $isFromProjects = ($todo->source_table ?? '') === 'projects';
-                            $todoTitle = $todo->title ?? 'Projet';
-                            $todoDesc = strip_tags($todo->description ?? '');
-                            $todoFormation = $todo->formation ?? ($todo->category ?? '—');
-                            $todoStatus = $todo->normalized_status ?? $todo->status ?? '';
-                            $todoLink = $todo->submission_link ?? null;
-                            $todoAdminComment = $todo->admin_comment ?? null;
-                            $todoSubmissionFiles = collect($todo->submission_files ?? []);
-
                             $statusConfig = [
                                 'submitted' => ['label' => 'Soumis', 'icon' => 'paper-plane', 'bg' => 'linear-gradient(135deg,#3b82f6,#2563eb)', 'border' => 'rgba(59,130,246,0.3)'],
                                 'validated' => ['label' => 'Validé', 'icon' => 'check-circle', 'bg' => 'linear-gradient(135deg,#10b981,#059669)', 'border' => 'rgba(16,185,129,0.3)'],
                                 'rejected'  => ['label' => 'Rejeté', 'icon' => 'times-circle', 'bg' => 'linear-gradient(135deg,#ef4444,#dc2626)', 'border' => 'rgba(239,68,68,0.3)'],
                             ];
+                            $todoStatus = $todo->normalized_status ?? $todo->status ?? '';
                             $sc = $statusConfig[$todoStatus] ?? $statusConfig['submitted'];
                         @endphp
                         <div class="col-md-6 col-lg-4">
@@ -517,23 +478,23 @@
 
                                 <div class="d-flex align-items-start gap-3 mb-3">
                                     <div style="width:42px;height:42px;border-radius:10px;background:{{ $sc['bg'] }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                        <i class="fas fa-{{ $isFromProjects ? 'folder-open' : 'file-alt' }} text-white"></i>
+                                        <i class="fas fa-{{ ($todo->source_table ?? '') === 'projects' ? 'folder-open' : 'file-alt' }} text-white"></i>
                                     </div>
                                     <div style="min-width:0;">
-                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $todoTitle }}</h6>
+                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $todo->title ?? 'Projet' }}</h6>
                                         <span class="badge" style="background:{{ $sc['bg'] }}; color:#fff; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
                                             <i class="fas fa-{{ $sc['icon'] }} me-1"></i>{{ $sc['label'] }}
                                         </span>
                                     </div>
                                 </div>
 
-                                @if(!empty($todoDesc))
-                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit($todoDesc, 120) }}</p>
+                                @if(!empty($todo->description))
+                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ Str::limit(strip_tags($todo->description), 120) }}</p>
                                 @endif
 
                                 {{-- Galerie images/fichiers soumis --}}
                                 @php
-                                    $allFiles = $todoSubmissionFiles;
+                                    $allFiles = collect($todo->submission_files ?? []);
                                     $imageFiles = $allFiles->filter(function ($f) {
                                         $mime = $f->mime_type ?? '';
                                         $path = $f->file_path ?? ($f->filename ?? '');
@@ -594,7 +555,7 @@
                                 <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <i class="fas fa-graduation-cap text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">{{ $todoFormation }}</small>
+                                        <small class="text-white-50">{{ $todo->formation ?? ($todo->category ?? '—') }}</small>
                                     </div>
                                     @if(!empty($todo->submitted_at))
                                     <div class="d-flex align-items-center gap-2 mb-2">
@@ -610,15 +571,15 @@
                                     @endif
                                 </div>
 
-                                @if(!empty($todoLink))
+                                @if(!empty($todo->submission_link))
                                 <div class="mb-2">
-                                    <a href="{{ $todoLink }}" target="_blank" class="small" style="color: #4fc3f7; text-decoration: none;">
+                                    <a href="{{ $todo->submission_link }}" target="_blank" class="small" style="color: #4fc3f7; text-decoration: none;">
                                         <i class="fas fa-external-link-alt me-1"></i>Lien de soumission
                                     </a>
                                 </div>
                                 @endif
 
-                                @if(!empty($todoAdminComment))
+                                @if(!empty($todo->admin_comment))
                                 <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:0.6rem; margin-bottom:0.5rem; border-left:3px solid {{ $todoStatus === 'rejected' ? '#ef4444' : '#3b82f6' }};">
                                     <small class="text-white-50">
                                         <i class="fas fa-comment me-1"></i>{{ Str::limit($todoAdminComment, 100) }}
