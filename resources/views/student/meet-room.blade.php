@@ -176,19 +176,7 @@
 @section('content')
 @php
     $routePrefix = explode('.', Route::currentRouteName())[0];
-    $currentSessionId = isset($sessionId) && $sessionId ? $sessionId : null;
 @endphp
-
-<script>
-    window.pageData = {
-        seanceId: {{ $seance->id }},
-        pageType: 'meeting',
-        trackingEnabled: true,
-        sessionId: {{ $currentSessionId ? $currentSessionId : 'null' }}
-    };
-</script>
-
-<script src="{{ asset('js/session-tracking.js') }}"></script>
 
 <div class="meet-room-container">
     <!-- Header -->
