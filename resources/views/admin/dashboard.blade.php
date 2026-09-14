@@ -608,6 +608,97 @@
     </div>
     @endif
 
+    <!-- Quick Actions - Moved up -->
+    <div class="activity-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <span class="icon">
+                    <i class="fas fa-bolt"></i>
+                </span>
+                Actions Rapides
+            </h2>
+            <a href="{{ route('admin.statistics.all') }}" class="view-all-btn">
+                Voir tout <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="quick-actions-grid">
+            <a href="{{ route('admin.students.index') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="quick-action-label">Gérer Étudiants</div>
+            </a>
+
+            <a href="{{ route('admin.preinscriptions.index') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="quick-action-label">Préinscriptions</div>
+            </a>
+
+            <a href="{{ route('admin.travaux.pending') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="quick-action-label">Valider TP</div>
+            </a>
+
+            <a href="{{ route('admin.travaux.all') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="quick-action-label">Tous les TP</div>
+            </a>
+
+            <a href="{{ route('admin.rapports') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="quick-action-label">Rapports</div>
+            </a>
+
+            <a href="{{ route('admin.bibliotheque.index') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div class="quick-action-label">Bibliothèque</div>
+            </a>
+
+            <a href="{{ route('admin.parametres.index') }}" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="quick-action-label">Paramètres</div>
+            </a>
+
+            <a href="{{ route('admin.payments.index') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="quick-action-label">Gérer Paiements</div>
+            </a>
+
+            @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
+            <a href="{{ session('admin_role') === 'super_admin' ? route('admin.payroll.index') : route('admin.payroll.me') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <div class="quick-action-label">Gestion salaires</div>
+            </a>
+            @endif
+
+            @if(session('admin_role') === 'super_admin')
+            <a href="{{ route('admin.donations.index') }}" class="quick-action-card">
+                <div class="quick-action-icon" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);">
+                    <i class="fas fa-hand-holding-heart"></i>
+                </div>
+                <div class="quick-action-label">Gérer Dons</div>
+            </a>
+            @endif
+        </div>
+    </div>
+
     <!-- Stats Grid -->
     <div class="stats-grid">
         <div class="stat-card">
@@ -863,97 +954,6 @@
             </div>
         </div>
     @endif
-
-    <!-- Quick Actions -->
-    <div class="activity-section">
-        <div class="section-header">
-            <h2 class="section-title">
-                <span class="icon">
-                    <i class="fas fa-bolt"></i>
-                </span>
-                Actions Rapides
-            </h2>
-            <a href="{{ route('admin.statistics.all') }}" class="view-all-btn">
-                Voir tout <i class="fas fa-arrow-right ms-1"></i>
-            </a>
-        </div>
-
-        <div class="quick-actions-grid">
-            <a href="{{ route('admin.students.index') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="quick-action-label">Gérer Étudiants</div>
-            </a>
-
-            <a href="{{ route('admin.preinscriptions.index') }}" class="quick-action-card">
-                <div class="quick-action-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-                <div class="quick-action-label">Préinscriptions</div>
-            </a>
-
-            <a href="{{ route('admin.travaux.pending') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <div class="quick-action-label">Valider TP</div>
-            </a>
-
-            <a href="{{ route('admin.travaux.all') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-clipboard-list"></i>
-                </div>
-                <div class="quick-action-label">Tous les TP</div>
-            </a>
-
-            <a href="{{ route('admin.rapports') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-chart-bar"></i>
-                </div>
-                <div class="quick-action-label">Rapports</div>
-            </a>
-
-            <a href="{{ route('admin.bibliotheque.index') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-book-open"></i>
-                </div>
-                <div class="quick-action-label">Bibliothèque</div>
-            </a>
-
-            <a href="{{ route('admin.parametres.index') }}" class="quick-action-card">
-                <div class="quick-action-icon">
-                    <i class="fas fa-cog"></i>
-                </div>
-                <div class="quick-action-label">Paramètres</div>
-            </a>
-
-            <a href="{{ route('admin.payments.index') }}" class="quick-action-card">
-                <div class="quick-action-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
-                    <i class="fas fa-money-bill-wave"></i>
-                </div>
-                <div class="quick-action-label">Gérer Paiements</div>
-            </a>
-
-            @if(in_array(session('admin_role'), ['super_admin', 'assistant']))
-            <a href="{{ session('admin_role') === 'super_admin' ? route('admin.payroll.index') : route('admin.payroll.me') }}" class="quick-action-card">
-                <div class="quick-action-icon" style="background: linear-gradient(135deg, #0ea5e9 0%, #22c55e 100%);">
-                    <i class="fas fa-hand-holding-usd"></i>
-                </div>
-                <div class="quick-action-label">Gestion salaires</div>
-            </a>
-            @endif
-
-            @if(session('admin_role') === 'super_admin')
-            <a href="{{ route('admin.donations.index') }}" class="quick-action-card">
-                <div class="quick-action-icon" style="background: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);">
-                    <i class="fas fa-hand-holding-heart"></i>
-                </div>
-                <div class="quick-action-label">Gérer Dons</div>
-            </a>
-            @endif
-        </div>
-    </div>
 
     <!-- Charts Section -->
     <div class="row mb-4">
