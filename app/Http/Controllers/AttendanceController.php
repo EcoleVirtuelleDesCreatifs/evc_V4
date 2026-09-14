@@ -150,7 +150,7 @@ class AttendanceController extends Controller
     }
 
     /**
-     * Affiche la page de salle de réunion intégrée avec Google Meet.
+     * Affiche la page de salle de réunion intégrée avec Jitsi Meet.
      */
     public function meetRoom(Request $request, Seance $seance): View
     {
@@ -162,6 +162,17 @@ class AttendanceController extends Controller
         }
 
         $routePrefix = explode('.', \Illuminate\Support\Facades\Route::currentRouteName())[0];
+
+        // Générer un lien Jitsi Meet si meet_link n'existe pas ou est un lien Google Meet
+        $meetLink = $seance->meet_link;
+        if (empty($meetLink) || stripos($meetLink, 'meet.google.com') !== false) {
+            // Générer un lien Jitsi Meet unique pour cette séance
+            $roomName = 'evc-' . $seance->id . '-' . str_replace(' ', '-', strtolower($seance->title));
+            $meetLink = 'https://meet.jit.si/' . $roomName;
+        }
+
+        // Passer le lien modifié à la vue
+        $seance->meet_link = $meetLink;
 
         return view('student.meet-room', [
             'seance' => $seance,

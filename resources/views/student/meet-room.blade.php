@@ -184,7 +184,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h1 class="meet-title">
-                    <i class="fas fa-video me-2"></i>Salle de Réunion
+                    <i class="fas fa-video me-2"></i>Salle de Réunion Jitsi Meet
                 </h1>
                 <p class="meet-subtitle">{{ $seance->title ?? 'Séance en cours' }}</p>
             </div>
@@ -201,36 +201,19 @@
         </div>
     </div>
 
-    <!-- Google Meet Container -->
+    <!-- Jitsi Meet Container -->
     <div class="meet-iframe-container">
         @if($seance->meet_link)
-            <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center p-8">
-                <i class="fas fa-video text-orange-500 text-6xl mb-6"></i>
-                <h3 class="text-white text-2xl font-bold mb-4">Salle de Réunion Google Meet</h3>
-                <p class="text-gray-400 mb-6 max-w-lg">
-                    Google Meet ne peut pas être affiché directement dans cette page pour des raisons de sécurité.
-                    Cliquez sur le bouton ci-dessous pour rejoindre la réunion dans un nouvel onglet.
-                </p>
-
-                <a href="{{ $seance->meet_link }}" target="_blank" class="btn btn-lg btn-primary px-8 py-4 mb-6" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none; border-radius: 12px; font-weight: 600; transition: all 0.3s ease;">
-                    <i class="fas fa-video me-2"></i>Rejoindre Google Meet
-                </a>
-
-                <!-- Affichage du lien pour référence -->
-                <div class="mt-4 p-4 bg-white/5 rounded-lg border border-white/10 w-full max-w-lg">
-                    <div class="text-sm text-gray-400 mb-2">Lien Google Meet :</div>
-                    <div class="d-flex align-items-center gap-2">
-                        <code class="text-orange-400 text-sm flex-1 break-all">{{ $seance->meet_link }}</code>
-                        <button onclick="copyToClipboard('{{ $seance->meet_link }}')" class="btn btn-sm btn-outline-light">
-                            <i class="fas fa-copy"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <iframe
+                src="{{ $seance->meet_link }}"
+                class="meet-iframe"
+                allow="camera; microphone; fullscreen; display-capture; autoplay; screen-wake-lock"
+                allowfullscreen>
+            </iframe>
         @else
             <div class="d-flex flex-column align-items-center justify-content-center h-100 text-center p-4">
                 <i class="fas fa-video-slash text-gray-500 text-5xl mb-4"></i>
-                <h3 class="text-white mb-2">Lien Google Meet non disponible</h3>
+                <h3 class="text-white mb-2">Lien de réunion non disponible</h3>
                 <p class="text-gray-400">Veuillez contacter votre formateur pour obtenir le lien de connexion.</p>
                 <a href="{{ route($routePrefix . '.seances.index') }}" class="btn btn-primary mt-4">
                     <i class="fas fa-arrow-left me-2"></i>Retour aux séances
@@ -308,14 +291,6 @@
 
     function stopTimer() {
         clearInterval(timerInterval);
-    }
-
-    function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(function() {
-            alert('Lien copié dans le presse-papier !');
-        }, function(err) {
-            console.error('Erreur lors de la copie :', err);
-        });
     }
 
     // Démarrer le timer
