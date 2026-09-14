@@ -176,7 +176,7 @@
 @section('content')
 @php
     $routePrefix = explode('.', Route::currentRouteName())[0];
-    $currentSessionId = isset($sessionId) ? $sessionId : null;
+    $currentSessionId = isset($sessionId) && $sessionId ? $sessionId : null;
 @endphp
 
 <script>
