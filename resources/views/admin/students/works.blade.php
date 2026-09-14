@@ -249,25 +249,28 @@
                                     </td>
                                     <td><small>{{ $tp->created_at ? date('d/m/Y', strtotime($tp->created_at)) : '-' }}</small></td>
                                     <td>
+                                        @php
+                                            $tpImages = collect($tp->tp_files ?? collect())->map(function ($file) {
+                                                $path = $file->file_path ?? '';
+                                                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                                if (!in_array($ext, ['jpg','jpeg','png','gif','webp'], true)) {
+                                                    return null;
+                                                }
+                                                $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
+                                                if (!$url) return null;
+                                                return [
+                                                    'url' => $url,
+                                                    'original_name' => $file->original_name ?? basename($path),
+                                                ];
+                                            })->filter()->values();
+                                        @endphp
                                         <button type="button"
                                                 class="btn btn-sm btn-modern btn-primary-modern"
                                                 data-tp-open
                                                 data-tp-title="{{ e($tp->title ?? 'TP') }}"
                                                 data-tp-status="{{ e($tp->status ?? '') }}"
                                                 data-tp-created="{{ e($tp->created_at ? date('d/m/Y H:i', strtotime($tp->created_at)) : '') }}"
-                                                data-tp-images='@json(collect($tp->tp_files ?? collect())->map(function ($file) {
-                                                    $path = $file->file_path ?? '';
-                                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                                                    if (!in_array($ext, ['jpg','jpeg','png','gif','webp'], true)) {
-                                                        return null;
-                                                    }
-                                                    $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
-                                                    if (!$url) return null;
-                                                    return [
-                                                        'url' => $url,
-                                                        'original_name' => $file->original_name ?? basename($path),
-                                                    ];
-                                                })->filter()->values())'>
+                                                data-tp-images='@json($tpImages)'>
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </td>
