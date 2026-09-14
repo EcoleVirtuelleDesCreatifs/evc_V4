@@ -450,13 +450,9 @@
 
                                 <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
                                     @if($project->deadline)
-                                    @php
-                                        $dl = \Carbon\Carbon::parse($project->deadline);
-                                        $daysLeft = round(now()->diffInDays($dl, false));
-                                    @endphp
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <i class="fas fa-clock text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">Délai: {{ $dl->format('d/m/Y') }} ({{ $daysLeft }}j)</small>
+                                        <small class="text-white-50">Délai: {{ \Carbon\Carbon::parse($project->deadline)->format('d/m/Y') }}</small>
                                     </div>
                                     @endif
                                     @if(isset($project->brief_files) && count($project->brief_files) > 0)
