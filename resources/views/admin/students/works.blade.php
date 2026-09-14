@@ -406,35 +406,35 @@
                                         <i class="fas fa-folder-open text-white"></i>
                                     </div>
                                     <div style="min-width:0;">
-                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $project['title'] ?? 'Projet' }}</h6>
+                                        <h6 class="text-white mb-1" style="font-weight:700; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">{{ $project->title ?? 'Projet' }}</h6>
                                         <span class="badge" style="background:rgba(139,92,246,0.15); color:#8b5cf6; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
-                                            <i class="fas fa-tag me-1"></i>{{ $project['category'] ?? '—' }}
+                                            <i class="fas fa-tag me-1"></i>{{ $project->category ?? '—' }}
                                         </span>
                                     </div>
                                 </div>
 
-                                @if(!empty($project['description']))
-                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ \Illuminate\Support\Str::limit(strip_tags($project['description']), 120) }}</p>
+                                @if(!empty($project->description))
+                                <p class="text-white-50 small mb-3" style="display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; line-height:1.5;">{{ \Illuminate\Support\Str::limit(strip_tags($project->description), 120) }}</p>
                                 @endif
 
                                 <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
-                                    @if(!empty($project['deadline']))
+                                    @if(!empty($project->deadline))
                                     <div class="d-flex align-items-center gap-2 mb-2">
                                         <i class="fas fa-clock text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-white-50">Délai: {{ \Carbon\Carbon::parse($project['deadline'])->format('d/m/Y') }}</small>
+                                        <small class="text-white-50">Délai: {{ \Carbon\Carbon::parse($project->deadline)->format('d/m/Y') }}</small>
                                     </div>
                                     @endif
-                                    @if(isset($project['brief_files']) && count($project['brief_files']) > 0)
+                                    @if(isset($project->brief_files) && count($project->brief_files) > 0)
                                     <div class="d-flex align-items-center gap-2">
                                         <i class="fas fa-paperclip text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-info">{{ count($project['brief_files']) }} fichier(s) brief</small>
+                                        <small class="text-info">{{ count($project->brief_files) }} fichier(s) brief</small>
                                     </div>
                                     @endif
                                 </div>
 
                                 <form method="POST" action="{{ route('admin.students.assign-project', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mt-auto">
                                     @csrf
-                                    <input type="hidden" name="project_id" value="{{ $project['id'] }}">
+                                    <input type="hidden" name="project_id" value="{{ $project->id }}">
                                     <button type="submit" class="btn btn-sm btn-modern w-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: white; border: none;" onclick="return confirm('Assigner ce projet à l\'étudiant ?')">
                                         <i class="fas fa-plus me-1"></i>Assigner ce projet
                                     </button>
