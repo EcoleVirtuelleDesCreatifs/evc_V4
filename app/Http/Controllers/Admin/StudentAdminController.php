@@ -1254,9 +1254,9 @@ class StudentAdminController extends Controller
             // Utiliser groupBy sur title et category pour éviter les doublons
             $availableProjects = DB::table('projects')
                 ->whereNotIn('id', $assignedProjectIds)
-                ->select('title', 'category', 'description', 'link', 'tags', 'software_used', 'thumbnail_image', 'deadline', DB::raw('MAX(id) as id'), DB::raw('MAX(created_at) as created_at'))
+                ->select('title', 'category', DB::raw('MAX(id) as id'), DB::raw('MAX(created_at) as created_at'))
                 ->groupBy('title', 'category')
-                ->orderByDesc('created_at')
+                ->orderBy('created_at', 'desc')
                 ->limit(20)
                 ->get();
 
