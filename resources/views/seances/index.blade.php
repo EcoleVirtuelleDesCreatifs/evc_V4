@@ -77,9 +77,13 @@
     $routePrefix = explode('.', Route::currentRouteName())[0];
 @endphp
 
+@php
+    $currentSeanceId = isset($current) ? $current->id : null;
+@endphp
+
 <script>
     window.pageData = {
-        seanceId: @isset($current) ? $current->id : null,
+        seanceId: {{ $currentSeanceId ? $currentSeanceId : 'null' }},
         pageType: 'seance',
         trackingEnabled: true
     };
