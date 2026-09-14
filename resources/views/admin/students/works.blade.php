@@ -224,60 +224,107 @@
             </div>
             <div class="info-card-body">
                 @if(isset($data['tps']) && is_countable($data['tps']) && count($data['tps']) > 0)
-                    <div class="table-responsive">
-                        <table class="table table-modern">
-                            <thead>
-                                <tr>
-                                    <th>Titre</th>
-                                    <th>Statut</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($data['tps'] as $tp)
-                                <tr>
-                                    <td>{{ $tp->title ?? 'TP' }}</td>
-                                    <td>
+                    <div class="row g-3">
+                        @foreach($data['tps'] as $tp)
+                        @php
+                            $tpImages = collect($tp->tp_files ?? collect())->map(function ($file) {
+                                $path = $file->file_path ?? '';
+                                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                if (!in_array($ext, ['jpg','jpeg','png','gif','webp'], true)) {
+                                    return null;
+                                }
+                                $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
+                                if (!$url) return null;
+                                return [
+                                    'url' => $url,
+                                    'original_name' => $file->original_name ?? basename($path),
+                                ];
+                            })->filter()->values();
+
+                            $tpOtherFiles = collect($tp->tp_files ?? collect())->filter(function ($file) {
+                                $path = $file->file_path ?? '';
+                                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                return !in_array($ext, ['jpg','jpeg','png','gif','webp'], true);
+                            })->values();
+                        @endphp
+                        <div class="col-md-6 col-lg-4">
+                            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1.25rem; height: 100%; display: flex; flex-direction: column; transition: all 0.3s ease;">
+                                <div class="d-flex align-items-start gap-3 mb-3">
+                                    <div style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#4fc3f7,#29b6f6);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                        <i class="fas fa-tasks text-white"></i>
+                                    </div>
+                                    <div style="min-width:0;">
+                                        <h6 class="text-white mb-1" style="font-weight:700;">{{ $tp->title ?? 'TP' }}</h6>
                                         @if($tp->status === 'validated')
-                                            <span class="badge badge-modern badge-success-modern">✓ Validé</span>
+                                            <span class="badge" style="background:linear-gradient(135deg,#10b981,#059669); color:#fff; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
+                                                <i class="fas fa-check-circle me-1"></i>Validé
+                                            </span>
                                         @elseif($tp->status === 'pending')
-                                            <span class="badge badge-modern badge-warning-modern">⏳ En attente</span>
+                                            <span class="badge" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
+                                                <i class="fas fa-hourglass-half me-1"></i>En attente
+                                            </span>
                                         @else
-                                            <span class="badge badge-modern badge-danger-modern">✗ Rejeté</span>
+                                            <span class="badge" style="background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; font-size:0.7rem; padding:0.25rem 0.6rem; border-radius:20px;">
+                                                <i class="fas fa-times-circle me-1"></i>Rejeté
+                                            </span>
                                         @endif
-                                    </td>
-                                    <td><small>{{ $tp->created_at ? date('d/m/Y', strtotime($tp->created_at)) : '-' }}</small></td>
-                                    <td>
-                                        @php
-                                            $tpImages = collect($tp->tp_files ?? collect())->map(function ($file) {
-                                                $path = $file->file_path ?? '';
-                                                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                                                if (!in_array($ext, ['jpg','jpeg','png','gif','webp'], true)) {
-                                                    return null;
-                                                }
-                                                $url = $path !== '' ? \App\Models\MediaUrl::fromPath($path) : null;
-                                                if (!$url) return null;
-                                                return [
-                                                    'url' => $url,
-                                                    'original_name' => $file->original_name ?? basename($path),
-                                                ];
-                                            })->filter()->values();
-                                        @endphp
-                                        <button type="button"
-                                                class="btn btn-sm btn-modern btn-primary-modern"
-                                                data-tp-open
-                                                data-tp-title="{{ e($tp->title ?? 'TP') }}"
-                                                data-tp-status="{{ e($tp->status ?? '') }}"
-                                                data-tp-created="{{ e($tp->created_at ? date('d/m/Y H:i', strtotime($tp->created_at)) : '') }}"
-                                                data-tp-images='@json($tpImages)'>
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                    </div>
+                                </div>
+
+                                <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:0.75rem; margin-bottom:0.75rem; border:1px solid rgba(255,255,255,0.06);">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-calendar-plus text-white-50" style="width:14px; font-size:0.75rem;"></i>
+                                        <small class="text-white-50">Soumis le {{ $tp->created_at ? date('d/m/Y H:i', strtotime($tp->created_at)) : '—' }}</small>
+                                    </div>
+                                </div>
+
+                                {{-- Affichage des images TP --}}
+                                @if($tpImages->count() > 0)
+                                <div class="mb-3">
+                                    <small class="text-white-50 d-block mb-2"><i class="fas fa-images me-1"></i>Images ({{ $tpImages->count() }})</small>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach($tpImages as $img)
+                                        <a href="{{ $img['url'] }}" target="_blank" style="display:block; width:80px; height:80px; border-radius:10px; overflow:hidden; border:2px solid rgba(255,255,255,0.1); transition:all 0.2s;" onmouseover="this.style.borderColor='#4fc3f7'; this.style.transform='scale(1.05)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.transform='none';">
+                                            <img src="{{ $img['url'] }}" alt="{{ $img['original_name'] }}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                                        </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
+
+                                {{-- Affichage des autres fichiers TP --}}
+                                @if($tpOtherFiles->count() > 0)
+                                <div class="mb-3">
+                                    <small class="text-white-50 d-block mb-2"><i class="fas fa-file me-1"></i>Fichiers ({{ $tpOtherFiles->count() }})</small>
+                                    @foreach($tpOtherFiles->take(3) as $file)
+                                    @php
+                                        $fPath = $file->file_path ?? '';
+                                        $fUrl = $fPath !== '' ? \App\Models\MediaUrl::fromPath($fPath) : null;
+                                        $fName = $file->original_name ?? basename($fPath);
+                                        $fExt = strtolower(pathinfo($fPath, PATHINFO_EXTENSION));
+                                    @endphp
+                                    @if($fUrl)
+                                    <a href="{{ $fUrl }}" target="_blank" class="d-flex align-items-center gap-2 mb-1" style="color:#4fc3f7; text-decoration:none; font-size:0.8rem;">
+                                        <i class="fas fa-{{ $fExt === 'pdf' ? 'file-pdf' : 'file' }}" style="font-size:0.85rem;"></i>
+                                        {{ Str::limit($fName, 30) }}
+                                    </a>
+                                    @endif
+                                    @endforeach
+                                </div>
+                                @endif
+
+                                <button type="button"
+                                        class="btn btn-sm btn-modern btn-primary-modern mt-auto"
+                                        data-tp-open
+                                        data-tp-title="{{ e($tp->title ?? 'TP') }}"
+                                        data-tp-status="{{ e($tp->status ?? '') }}"
+                                        data-tp-created="{{ e($tp->created_at ? date('d/m/Y H:i', strtotime($tp->created_at)) : '') }}"
+                                        data-tp-images='@json($tpImages)'>
+                                    <i class="fas fa-eye me-1"></i>Voir détails
+                                </button>
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
                 @else
                     <p class="text-center text-white-50 py-4 mb-0">Aucun TP soumis</p>
@@ -332,13 +379,39 @@
                                         <i class="fas fa-calendar-plus text-white-50" style="width:14px; font-size:0.75rem;"></i>
                                         <small class="text-white-50">Assigné le {{ $todo->created_at ? date('d/m/Y', strtotime($todo->created_at)) : '—' }}</small>
                                     </div>
-                                    @if(isset($todo->brief_files) && count($todo->brief_files) > 0)
-                                    <div class="d-flex align-items-center gap-2 mt-2">
-                                        <i class="fas fa-paperclip text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-info">{{ count($todo->brief_files) }} fichier(s) brief</small>
-                                    </div>
-                                    @endif
                                 </div>
+
+                                {{-- Affichage des fichiers brief (images) --}}
+                                @if(isset($todo->brief_files) && count($todo->brief_files) > 0)
+                                <div class="mb-3">
+                                    <small class="text-white-50 d-block mb-2"><i class="fas fa-images me-1"></i>Fichiers brief ({{ count($todo->brief_files) }})</small>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach($todo->brief_files as $briefFile)
+                                        @php
+                                            $bPath = $briefFile->file_path ?? '';
+                                            $bPath = ltrim((string) $bPath, '/');
+                                            if (str_starts_with($bPath, 'storage/app/public/')) {
+                                                $bPath = substr($bPath, strlen('storage/app/public/'));
+                                            }
+                                            $bUrl = \App\Models\MediaUrl::fromPath($bPath);
+                                            $bName = $briefFile->original_name ?? basename($bPath);
+                                            $bExt = strtolower(pathinfo($bPath, PATHINFO_EXTENSION));
+                                            $isImage = in_array($bExt, ['jpg','jpeg','png','gif','webp']);
+                                        @endphp
+                                        @if($isImage)
+                                        <a href="{{ $bUrl }}" target="_blank" style="display:block; width:80px; height:80px; border-radius:10px; overflow:hidden; border:2px solid rgba(255,255,255,0.1); transition:all 0.2s;" onmouseover="this.style.borderColor='#f59e0b'; this.style.transform='scale(1.05)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.transform='none';">
+                                            <img src="{{ $bUrl }}" alt="{{ $bName }}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                                        </a>
+                                        @else
+                                        <a href="{{ $bUrl }}" target="_blank" class="d-flex align-items-center gap-2 px-3 py-2" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#f59e0b; text-decoration:none; font-size:0.8rem;">
+                                            <i class="fas fa-{{ $bExt === 'pdf' ? 'file-pdf' : 'file' }}"></i>
+                                            {{ Str::limit($bName, 20) }}
+                                        </a>
+                                        @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
 
 
 
@@ -421,13 +494,39 @@
                                         <i class="fas fa-calendar-plus text-white-50" style="width:14px; font-size:0.75rem;"></i>
                                         <small class="text-white-50">Créé le {{ $project->created_at ? date('d/m/Y', strtotime($project->created_at)) : '—' }}</small>
                                     </div>
-                                    @if(isset($project->brief_files) && count($project->brief_files) > 0)
-                                    <div class="d-flex align-items-center gap-2">
-                                        <i class="fas fa-paperclip text-white-50" style="width:14px; font-size:0.75rem;"></i>
-                                        <small class="text-info">{{ count($project->brief_files) }} fichier(s) brief</small>
-                                    </div>
-                                    @endif
                                 </div>
+
+                                {{-- Affichage des fichiers brief avec images --}}
+                                @if(isset($project->brief_files) && count($project->brief_files) > 0)
+                                <div class="mb-3">
+                                    <small class="text-white-50 d-block mb-2"><i class="fas fa-images me-1"></i>Fichiers brief ({{ count($project->brief_files) }})</small>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach($project->brief_files as $briefFile)
+                                        @php
+                                            $bPath = $briefFile->file_path ?? '';
+                                            $bPath = ltrim((string) $bPath, '/');
+                                            if (str_starts_with($bPath, 'storage/app/public/')) {
+                                                $bPath = substr($bPath, strlen('storage/app/public/'));
+                                            }
+                                            $bUrl = \App\Models\MediaUrl::fromPath($bPath);
+                                            $bName = $briefFile->original_name ?? basename($bPath);
+                                            $bExt = strtolower(pathinfo($bPath, PATHINFO_EXTENSION));
+                                            $isImage = in_array($bExt, ['jpg','jpeg','png','gif','webp']);
+                                        @endphp
+                                        @if($isImage)
+                                        <a href="{{ $bUrl }}" target="_blank" style="display:block; width:80px; height:80px; border-radius:10px; overflow:hidden; border:2px solid rgba(255,255,255,0.1); transition:all 0.2s;" onmouseover="this.style.borderColor='#8b5cf6'; this.style.transform='scale(1.05)';" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.transform='none';">
+                                            <img src="{{ $bUrl }}" alt="{{ $bName }}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                                        </a>
+                                        @else
+                                        <a href="{{ $bUrl }}" target="_blank" class="d-flex align-items-center gap-2 px-3 py-2" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#8b5cf6; text-decoration:none; font-size:0.8rem;">
+                                            <i class="fas fa-{{ $bExt === 'pdf' ? 'file-pdf' : 'file' }}"></i>
+                                            {{ Str::limit($bName, 20) }}
+                                        </a>
+                                        @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
 
                                 <form method="POST" action="{{ route('admin.students.assign-project', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mt-auto">
                                     @csrf
