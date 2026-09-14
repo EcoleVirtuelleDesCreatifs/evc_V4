@@ -78,6 +78,7 @@
                 @elseif($attendance->status === 'absent') Absent
                 @elseif($attendance->status === 'late') En retard
                 @elseif($attendance->status === 'excused') Excusé
+                @else Inconnu
                 @endif
             </span>
             @if($attendance->recorded_at)
