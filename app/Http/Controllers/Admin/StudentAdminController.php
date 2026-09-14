@@ -1527,6 +1527,26 @@ class StudentAdminController extends Controller
                     'created_at' => now()->toIso8601String(),
                     'url' => url("/evc/compte/{$formationSlug}/todo/traiter/{$newProjectId}"),
                 ]));
+
+                // Notification par email
+                try {
+                    Mail::send('emails.project_assigned', [
+                        'user' => $user,
+                        'student' => $student,
+                        'project' => $sourceProject,
+                        'projectUrl' => url("/evc/compte/{$formationSlug}/todo/traiter/{$newProjectId}"),
+                    ], function ($message) use ($user, $sourceProject) {
+                        $message->to($user->email)
+                            ->subject('Nouveau projet assigné : ' . ($sourceProject->title ?? 'Projet'));
+                    });
+                } catch (\Exception $e) {
+                    Log::warning('Notification email projet assigné échouée (assignProject)', [
+                        'project_id' => $newProjectId,
+                        'user_id' => $userId,
+                        'email' => $user->email ?? null,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
         } catch (\Exception $e) {
             Log::warning('Notification in-app projet assigné échouée (assignProject)', [

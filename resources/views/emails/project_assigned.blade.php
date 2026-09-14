@@ -69,7 +69,7 @@
                     </div>
                 @endif
 
-                <a class="btn" href="{{ $studentUrl ?? url('/evc') }}">Accéder au projet</a>
+                <a class="btn" href="{{ $projectUrl }}">Accéder au projet</a>
             </div>
 
             <p class="muted">Cet email est automatique. Si vous ne parvenez pas à accéder au projet, contactez l'administration.</p>
