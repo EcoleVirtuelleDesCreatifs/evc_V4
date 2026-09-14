@@ -165,7 +165,7 @@ class AttendanceController extends Controller
 
         // Générer un lien Jitsi Meet si meet_link n'existe pas ou est un lien Google Meet
         $meetLink = $seance->meet_link;
-        if (empty($meetLink) || stripos($meetLink, 'meet.google.com') !== false) {
+        if (empty($meetLink) || (stripos($meetLink, 'meet.google.com') !== false)) {
             // Générer un lien Jitsi Meet unique pour cette séance
             $roomName = 'evc-' . $seance->id . '-' . str_replace(' ', '-', strtolower($seance->title));
             $meetLink = 'https://meet.jit.si/' . $roomName;
