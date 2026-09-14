@@ -315,6 +315,394 @@ class ProjectController extends Controller
         ]);
     }
 
+    public function assignedDG()
+    {
+        $baseQuery = DB::table('projects')
+            ->leftJoin('users', 'projects.user_id', '=', 'users.id')
+            ->leftJoin('students', 'students.user_id', '=', 'users.id')
+            ->where(function ($q) {
+                $q->where(function ($qq) {
+                    $qq->whereRaw('LOWER(students.program) LIKE ?', ['%design%'])
+                        ->whereRaw('LOWER(students.program) LIKE ?', ['%graph%']);
+                })->whereRaw('LOWER(students.program) NOT LIKE ?', ['%community%']);
+            });
+
+        $doneStatuses = ['termine', 'valide', 'rejete'];
+
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'en_cours' => (clone $baseQuery)->whereNotIn('projects.status', $doneStatuses)->count(),
+            'termine' => (clone $baseQuery)->where('projects.status', 'termine')->count(),
+            'valide' => (clone $baseQuery)->where('projects.status', 'valide')->count(),
+            'rejete' => (clone $baseQuery)->where('projects.status', 'rejete')->count(),
+        ];
+
+        $assignments = (clone $baseQuery)
+            ->select(
+                'projects.id',
+                'projects.title',
+                'projects.category',
+                'projects.deadline',
+                'projects.status',
+                'projects.created_at',
+                'students.first_name',
+                'students.last_name',
+                'students.profile_photo',
+                'students.program as formation',
+                'users.email as student_email'
+            )
+            ->orderByDesc('projects.created_at')
+            ->get();
+
+        $normalized = $assignments->map(function ($work) {
+            $program = mb_strtolower((string) ($work->formation ?? ''));
+            $isDesignGraph = str_contains($program, 'design') && str_contains($program, 'graph');
+            $isCommunity = str_contains($program, 'community');
+
+            if ($isDesignGraph && $isCommunity) {
+                $work->formation_group = 'Design Graphique et Community Management';
+            } elseif ($isDesignGraph) {
+                $work->formation_group = 'Design Graphique';
+            } elseif ($isCommunity) {
+                $work->formation_group = 'Community Management';
+            } else {
+                $work->formation_group = 'Autres';
+            }
+
+            $work->project_group_key = implode('|', [
+                (string) ($work->title ?? ''),
+                (string) ($work->category ?? ''),
+                (string) ($work->deadline ?? ''),
+            ]);
+
+            return $work;
+        });
+
+        $grouped = $normalized
+            ->where('formation_group', 'Design Graphique')
+            ->groupBy('project_group_key')
+            ->map(function ($projectItems) {
+                $first = $projectItems->first();
+                return [
+                    'representative_id' => $first->id,
+                    'title' => $first->title,
+                    'category' => $first->category,
+                    'deadline' => $first->deadline,
+                    'created_at' => $first->created_at,
+                    'status' => $first->status,
+                    'students' => $projectItems->values(),
+                ];
+            })
+            ->sortByDesc(function ($project) {
+                return $project['created_at'];
+            })
+            ->values();
+
+        $groupedAssignments = collect(['Design Graphique' => $grouped]);
+
+        $groupedAssignmentsDone = $groupedAssignments->map(function ($projects) use ($doneStatuses) {
+            return $projects
+                ->map(function ($project) use ($doneStatuses) {
+                    $students = collect($project['students'] ?? [])->filter(function ($studentWork) use ($doneStatuses) {
+                        return in_array($studentWork->status ?? null, $doneStatuses, true);
+                    })->values();
+
+                    if ($students->isEmpty()) {
+                        return null;
+                    }
+
+                    $project['students'] = $students;
+                    return $project;
+                })
+                ->filter()
+                ->values();
+        });
+
+        $groupedAssignmentsTodo = $groupedAssignments->map(function ($projects) use ($doneStatuses) {
+            return $projects
+                ->map(function ($project) use ($doneStatuses) {
+                    $students = collect($project['students'] ?? [])->filter(function ($studentWork) use ($doneStatuses) {
+                        return !in_array($studentWork->status ?? null, $doneStatuses, true);
+                    })->values();
+
+                    if ($students->isEmpty()) {
+                        return null;
+                    }
+
+                    $project['students'] = $students;
+                    return $project;
+                })
+                ->filter()
+                ->values();
+        });
+
+        return view('admin.projects.assigned-dg', [
+            'assignments' => $assignments,
+            'stats' => $stats,
+            'groupedAssignments' => $groupedAssignments,
+            'groupedAssignmentsDone' => $groupedAssignmentsDone,
+            'groupedAssignmentsTodo' => $groupedAssignmentsTodo,
+        ]);
+    }
+
+    public function assignedCM()
+    {
+        $baseQuery = DB::table('projects')
+            ->leftJoin('users', 'projects.user_id', '=', 'users.id')
+            ->leftJoin('students', 'students.user_id', '=', 'users.id')
+            ->where(function ($q) {
+                $q->whereRaw('LOWER(students.program) LIKE ?', ['%community%'])
+                    ->whereRaw('LOWER(students.program) NOT LIKE ?', ['%design%']);
+            });
+
+        $doneStatuses = ['termine', 'valide', 'rejete'];
+
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'en_cours' => (clone $baseQuery)->whereNotIn('projects.status', $doneStatuses)->count(),
+            'termine' => (clone $baseQuery)->where('projects.status', 'termine')->count(),
+            'valide' => (clone $baseQuery)->where('projects.status', 'valide')->count(),
+            'rejete' => (clone $baseQuery)->where('projects.status', 'rejete')->count(),
+        ];
+
+        $assignments = (clone $baseQuery)
+            ->select(
+                'projects.id',
+                'projects.title',
+                'projects.category',
+                'projects.deadline',
+                'projects.status',
+                'projects.created_at',
+                'students.first_name',
+                'students.last_name',
+                'students.profile_photo',
+                'students.program as formation',
+                'users.email as student_email'
+            )
+            ->orderByDesc('projects.created_at')
+            ->get();
+
+        $normalized = $assignments->map(function ($work) {
+            $program = mb_strtolower((string) ($work->formation ?? ''));
+            $isDesignGraph = str_contains($program, 'design') && str_contains($program, 'graph');
+            $isCommunity = str_contains($program, 'community');
+
+            if ($isDesignGraph && $isCommunity) {
+                $work->formation_group = 'Design Graphique et Community Management';
+            } elseif ($isDesignGraph) {
+                $work->formation_group = 'Design Graphique';
+            } elseif ($isCommunity) {
+                $work->formation_group = 'Community Management';
+            } else {
+                $work->formation_group = 'Autres';
+            }
+
+            $work->project_group_key = implode('|', [
+                (string) ($work->title ?? ''),
+                (string) ($work->category ?? ''),
+                (string) ($work->deadline ?? ''),
+            ]);
+
+            return $work;
+        });
+
+        $grouped = $normalized
+            ->where('formation_group', 'Community Management')
+            ->groupBy('project_group_key')
+            ->map(function ($projectItems) {
+                $first = $projectItems->first();
+                return [
+                    'representative_id' => $first->id,
+                    'title' => $first->title,
+                    'category' => $first->category,
+                    'deadline' => $first->deadline,
+                    'created_at' => $first->created_at,
+                    'status' => $first->status,
+                    'students' => $projectItems->values(),
+                ];
+            })
+            ->sortByDesc(function ($project) {
+                return $project['created_at'];
+            })
+            ->values();
+
+        $groupedAssignments = collect(['Community Management' => $grouped]);
+
+        $groupedAssignmentsDone = $groupedAssignments->map(function ($projects) use ($doneStatuses) {
+            return $projects
+                ->map(function ($project) use ($doneStatuses) {
+                    $students = collect($project['students'] ?? [])->filter(function ($studentWork) use ($doneStatuses) {
+                        return in_array($studentWork->status ?? null, $doneStatuses, true);
+                    })->values();
+
+                    if ($students->isEmpty()) {
+                        return null;
+                    }
+
+                    $project['students'] = $students;
+                    return $project;
+                })
+                ->filter()
+                ->values();
+        });
+
+        $groupedAssignmentsTodo = $groupedAssignments->map(function ($projects) use ($doneStatuses) {
+            return $projects
+                ->map(function ($project) use ($doneStatuses) {
+                    $students = collect($project['students'] ?? [])->filter(function ($studentWork) use ($doneStatuses) {
+                        return !in_array($studentWork->status ?? null, $doneStatuses, true);
+                    })->values();
+
+                    if ($students->isEmpty()) {
+                        return null;
+                    }
+
+                    $project['students'] = $students;
+                    return $project;
+                })
+                ->filter()
+                ->values();
+        });
+
+        return view('admin.projects.assigned-cm', [
+            'assignments' => $assignments,
+            'stats' => $stats,
+            'groupedAssignments' => $groupedAssignments,
+            'groupedAssignmentsDone' => $groupedAssignmentsDone,
+            'groupedAssignmentsTodo' => $groupedAssignmentsTodo,
+        ]);
+    }
+
+    public function assignedDGCM()
+    {
+        $baseQuery = DB::table('projects')
+            ->leftJoin('users', 'projects.user_id', '=', 'users.id')
+            ->leftJoin('students', 'students.user_id', '=', 'users.id')
+            ->where(function ($q) {
+                $q->where(function ($qq) {
+                    $qq->whereRaw('LOWER(students.program) LIKE ?', ['%design%'])
+                        ->whereRaw('LOWER(students.program) LIKE ?', ['%graph%']);
+                })->whereRaw('LOWER(students.program) LIKE ?', ['%community%']);
+            });
+
+        $doneStatuses = ['termine', 'valide', 'rejete'];
+
+        $stats = [
+            'total' => (clone $baseQuery)->count(),
+            'en_cours' => (clone $baseQuery)->whereNotIn('projects.status', $doneStatuses)->count(),
+            'termine' => (clone $baseQuery)->where('projects.status', 'termine')->count(),
+            'valide' => (clone $baseQuery)->where('projects.status', 'valide')->count(),
+            'rejete' => (clone $baseQuery)->where('projects.status', 'rejete')->count(),
+        ];
+
+        $assignments = (clone $baseQuery)
+            ->select(
+                'projects.id',
+                'projects.title',
+                'projects.category',
+                'projects.deadline',
+                'projects.status',
+                'projects.created_at',
+                'students.first_name',
+                'students.last_name',
+                'students.profile_photo',
+                'students.program as formation',
+                'users.email as student_email'
+            )
+            ->orderByDesc('projects.created_at')
+            ->get();
+
+        $normalized = $assignments->map(function ($work) {
+            $program = mb_strtolower((string) ($work->formation ?? ''));
+            $isDesignGraph = str_contains($program, 'design') && str_contains($program, 'graph');
+            $isCommunity = str_contains($program, 'community');
+
+            if ($isDesignGraph && $isCommunity) {
+                $work->formation_group = 'Design Graphique et Community Management';
+            } elseif ($isDesignGraph) {
+                $work->formation_group = 'Design Graphique';
+            } elseif ($isCommunity) {
+                $work->formation_group = 'Community Management';
+            } else {
+                $work->formation_group = 'Autres';
+            }
+
+            $work->project_group_key = implode('|', [
+                (string) ($work->title ?? ''),
+                (string) ($work->category ?? ''),
+                (string) ($work->deadline ?? ''),
+            ]);
+
+            return $work;
+        });
+
+        $grouped = $normalized
+            ->where('formation_group', 'Design Graphique et Community Management')
+            ->groupBy('project_group_key')
+            ->map(function ($projectItems) {
+                $first = $projectItems->first();
+                return [
+                    'representative_id' => $first->id,
+                    'title' => $first->title,
+                    'category' => $first->category,
+                    'deadline' => $first->deadline,
+                    'created_at' => $first->created_at,
+                    'status' => $first->status,
+                    'students' => $projectItems->values(),
+                ];
+            })
+            ->sortByDesc(function ($project) {
+                return $project['created_at'];
+            })
+            ->values();
+
+        $groupedAssignments = collect(['Design Graphique et Community Management' => $grouped]);
+
+        $groupedAssignmentsDone = $groupedAssignments->map(function ($projects) use ($doneStatuses) {
+            return $projects
+                ->map(function ($project) use ($doneStatuses) {
+                    $students = collect($project['students'] ?? [])->filter(function ($studentWork) use ($doneStatuses) {
+                        return in_array($studentWork->status ?? null, $doneStatuses, true);
+                    })->values();
+
+                    if ($students->isEmpty()) {
+                        return null;
+                    }
+
+                    $project['students'] = $students;
+                    return $project;
+                })
+                ->filter()
+                ->values();
+        });
+
+        $groupedAssignmentsTodo = $groupedAssignments->map(function ($projects) use ($doneStatuses) {
+            return $projects
+                ->map(function ($project) use ($doneStatuses) {
+                    $students = collect($project['students'] ?? [])->filter(function ($studentWork) use ($doneStatuses) {
+                        return !in_array($studentWork->status ?? null, $doneStatuses, true);
+                    })->values();
+
+                    if ($students->isEmpty()) {
+                        return null;
+                    }
+
+                    $project['students'] = $students;
+                    return $project;
+                })
+                ->filter()
+                ->values();
+        });
+
+        return view('admin.projects.assigned-dgcm', [
+            'assignments' => $assignments,
+            'stats' => $stats,
+            'groupedAssignments' => $groupedAssignments,
+            'groupedAssignmentsDone' => $groupedAssignmentsDone,
+            'groupedAssignmentsTodo' => $groupedAssignmentsTodo,
+        ]);
+    }
+
     public function allDesignGraphique()
     {
         $selectedUserId = request()->query('user_id');

@@ -1569,6 +1569,9 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
             Route::get('/pending', [App\Http\Controllers\Admin\ProjectController::class, 'pendingDesignGraphique'])->name('pending');
             Route::get('/to-send', [App\Http\Controllers\Admin\ProjectController::class, 'toSendDesignGraphique'])->name('to-send');
             Route::get('/assigned', [App\Http\Controllers\Admin\ProjectController::class, 'assignedDesignGraphique'])->name('assigned');
+            Route::get('/assigned/dg', [App\Http\Controllers\Admin\ProjectController::class, 'assignedDG'])->name('assigned.dg');
+            Route::get('/assigned/cm', [App\Http\Controllers\Admin\ProjectController::class, 'assignedCM'])->name('assigned.cm');
+            Route::get('/assigned/dgcm', [App\Http\Controllers\Admin\ProjectController::class, 'assignedDGCM'])->name('assigned.dgcm');
             Route::get('/all', [App\Http\Controllers\Admin\ProjectController::class, 'allDesignGraphique'])->name('all');
         });
 
