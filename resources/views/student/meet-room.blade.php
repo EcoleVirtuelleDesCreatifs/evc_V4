@@ -175,7 +175,7 @@
 
 @section('content')
 @php
-    $routePrefix = explode('.', Route::currentRouteName())[0];
+    $routePrefix = explode('.', \Illuminate\Support\Facades\Route::currentRouteName())[0];
 @endphp
 
 <input type="hidden" id="seanceId" value="{{ $seance->id }}">
