@@ -72,7 +72,11 @@ class SeanceAdminController extends Controller
 
         // Générer un lien Jitsi Meet si meet_link est vide et type est online/hybrid
         if (in_array($validated['type'], ['online', 'hybrid']) && empty($validated['meet_link'])) {
-            $validated['meet_link'] = 'https://meet.jit.si/evc-' . strtolower(str_replace(' ', '-', $validated['title']));
+            $roomName = 'evc-' . strtolower(str_replace(' ', '-', $validated['title']));
+            $meetLink = 'https://meet.jit.si/' . $roomName;
+            // Ajouter configuration pour les étudiants (désactiver page pré-join)
+            $meetLink .= '#config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true';
+            $validated['meet_link'] = $meetLink;
         }
 
         Seance::create($validated);
@@ -101,7 +105,11 @@ class SeanceAdminController extends Controller
 
         // Générer un lien Jitsi Meet si meet_link est vide et type est online/hybrid
         if (in_array($validated['type'], ['online', 'hybrid']) && empty($validated['meet_link'])) {
-            $validated['meet_link'] = 'https://meet.jit.si/evc-' . $seance->id . '-' . strtolower(str_replace(' ', '-', $validated['title']));
+            $roomName = 'evc-' . $seance->id . '-' . str_replace(' ', '-', strtolower($validated['title']));
+            $meetLink = 'https://meet.jit.si/' . $roomName;
+            // Ajouter configuration pour les étudiants (désactiver page pré-join)
+            $meetLink .= '#config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true';
+            $validated['meet_link'] = $meetLink;
         }
 
         $seance->update($validated);

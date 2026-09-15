@@ -172,6 +172,10 @@ class AttendanceController extends Controller
             $meetLink = 'https://meet.jit.si/' . $roomName;
         }
 
+        // Ajouter des paramètres de configuration Jitsi Meet pour les étudiants
+        // Désactiver la page de pré-join et le bouton "Je suis l'hôte"
+        $meetLink .= '#config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true&config.disableDeepLinking=true&config.brandingRoomEnabled=false';
+
         // Passer le lien modifié à la vue
         $seance->meet_link = $meetLink;
 
