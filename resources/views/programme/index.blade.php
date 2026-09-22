@@ -3,11 +3,251 @@
 @section('title', 'Programmes de Formation - EVC 2024')
 @section('page-title', 'Programmes de Formation')
 
+@push('styles')
+<style>
+    .pgi-bg {
+        position: fixed; inset: 0; z-index: -1;
+        background: linear-gradient(180deg, #081126 0%, #0b1220 55%, #081126 100%);
+    }
+    .content-wrapper, .main-content { background: transparent !important; }
+
+    /* ─── Hero ─── */
+    .pgi-hero {
+        border-radius: 20px; position: relative; overflow: hidden;
+        background: linear-gradient(90deg, #0a1128 0%, #001f54 50%, #034078 100%);
+        border: 1px solid rgba(255,255,255,0.10);
+        padding: 2rem 1.5rem; margin-bottom: 1.5rem; text-align: center;
+    }
+    .pgi-hero::before {
+        content: ''; position: absolute; inset: -2px;
+        background: radial-gradient(circle at 20% 20%, rgba(249,115,22,0.22), transparent 45%),
+                    radial-gradient(circle at 80% 20%, rgba(59,130,246,0.18), transparent 40%);
+        pointer-events: none;
+    }
+    .pgi-hero > * { position: relative; z-index: 1; }
+    .pgi-hero h1 { color: #fff; font-weight: 900; letter-spacing: -0.02em; font-size: 1.8rem; margin-bottom: 0.35rem; }
+    .pgi-hero .lead { color: rgba(255,255,255,0.82); font-weight: 700; }
+    .pgi-hero .breadcrumb { justify-content: center; margin-bottom: 0.75rem; }
+    .pgi-hero .breadcrumb-item + .breadcrumb-item::before { color: rgba(255,255,255,0.35); }
+    .pgi-hero .breadcrumb a { color: rgba(255,255,255,0.75); font-weight: 700; text-decoration: none; }
+    .pgi-hero .breadcrumb a:hover { color: #f97316; }
+    .pgi-hero .breadcrumb-item.active { color: rgba(255,255,255,0.55); }
+    .pgi-count-chip {
+        display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1rem;
+        padding: 0.6rem 1.1rem; border-radius: 999px;
+        background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18);
+        color: #fff; font-weight: 800;
+    }
+
+    /* ─── Barre de filtres ─── */
+    .pgi-toolbar {
+        display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+        background: rgba(15,23,42,0.55); border: 1px solid rgba(191,219,254,0.18);
+        border-radius: 16px; padding: 0.75rem 1rem; margin-bottom: 1.5rem;
+        position: sticky; top: 10px; z-index: 50; backdrop-filter: blur(12px);
+    }
+    .pgi-search {
+        flex: 1 1 220px; display: flex; align-items: center; gap: 0.5rem;
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px; padding: 0.45rem 0.8rem;
+    }
+    .pgi-search i { color: #64748b; }
+    .pgi-search input {
+        flex: 1; background: transparent; border: none; outline: none;
+        color: #fff; font-size: 0.88rem;
+    }
+    .pgi-search input::placeholder { color: #64748b; }
+    .pgi-pills { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .pgi-pill {
+        padding: 0.4rem 0.85rem; border-radius: 999px; font-size: 0.78rem; font-weight: 800;
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+        color: rgba(255,255,255,0.75); cursor: pointer; transition: all 0.15s ease; user-select: none;
+    }
+    .pgi-pill:hover { border-color: rgba(59,130,246,0.5); }
+    .pgi-pill.active { background: #2563eb; border-color: #2563eb; color: #fff; }
+    .pgi-pill.pill-dg.active { background: #f97316; border-color: #f97316; }
+    .pgi-pill.pill-cm.active { background: #8b5cf6; border-color: #8b5cf6; }
+    .pgi-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.12); }
+    .pgi-noresults { display: none; text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.6); }
+    .pgi-noresults i { font-size: 2.5rem; display: block; margin-bottom: 1rem; opacity: 0.4; }
+
+    /* ─── Cartes programme ─── */
+    .pgi-card {
+        border-radius: 18px; background: rgba(15,23,42,0.55);
+        border: 1px solid rgba(255,255,255,0.10); overflow: hidden;
+        display: flex; flex-direction: column; height: 100%;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .pgi-card:hover { transform: translateY(-3px); box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
+    .pgi-card.hidden { display: none; }
+    .pgi-cover { position: relative; aspect-ratio: 16/8; background: rgba(37,99,235,0.08); overflow: hidden; }
+    .pgi-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .pgi-cover .pgi-cover-ph {
+        width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.15); font-size: 2.5rem;
+        background: linear-gradient(135deg, rgba(37,99,235,0.15), rgba(249,115,22,0.10));
+    }
+    .pgi-status {
+        position: absolute; top: 10px; right: 10px;
+        padding: 0.3rem 0.75rem; border-radius: 999px;
+        font-size: 0.72rem; font-weight: 900; color: #fff;
+        backdrop-filter: blur(6px);
+    }
+    .pgi-status.en_cours { background: rgba(245,158,11,0.9); }
+    .pgi-status.a_venir { background: rgba(59,130,246,0.9); }
+    .pgi-status.terminee { background: rgba(100,116,139,0.85); }
+    .pgi-card-body { padding: 1rem 1.1rem; flex: 1 1 auto; }
+    .pgi-card-title { color: #fff; font-weight: 900; font-size: 1.02rem; margin-bottom: 0.4rem; }
+    .pgi-card-desc { color: rgba(255,255,255,0.65); font-size: 0.85rem; font-weight: 600; }
+    .pgi-chips { display: flex; gap: 0.35rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+    .pgi-chip {
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        padding: 0.25rem 0.6rem; border-radius: 999px;
+        font-size: 0.72rem; font-weight: 800; color: rgba(255,255,255,0.85);
+        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    }
+    .pgi-next {
+        margin-top: 0.75rem; padding: 0.6rem 0.8rem; border-radius: 10px;
+        background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.3);
+        font-size: 0.8rem; color: rgba(255,255,255,0.9); font-weight: 700;
+        display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;
+    }
+    .pgi-next i { color: #10b981; }
+    .pgi-card-foot {
+        padding: 0.75rem 1.1rem 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .pgi-btn {
+        border-radius: 999px; font-weight: 800; font-size: 0.8rem;
+        padding: 0.45rem 0.9rem; border: none; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        transition: all 0.15s ease; text-decoration: none;
+    }
+    .pgi-btn-primary { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: #fff; }
+    .pgi-btn-primary:hover { filter: brightness(1.1); color: #fff; }
+    .pgi-btn-ghost { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.85); }
+    .pgi-btn-ghost:hover { background: rgba(255,255,255,0.14); color: #fff; }
+    .pgi-btn-toggle { margin-left: auto; }
+
+    /* Séances dépliables dans la carte */
+    .pgi-sessions { display: none; padding: 0 1.1rem 1rem; }
+    .pgi-sessions.open { display: block; }
+    .pgi-session {
+        display: flex; align-items: flex-start; gap: 0.7rem;
+        padding: 0.6rem 0.7rem; border-radius: 10px; margin-bottom: 0.4rem;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+    }
+    .pgi-session.is-future { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.25); }
+    .pgi-session.is-past { opacity: 0.65; }
+    .pgi-session-date {
+        width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+        background: rgba(37,99,235,0.15); border: 1px solid rgba(37,99,235,0.3);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: #fff; line-height: 1;
+    }
+    .pgi-session.is-future .pgi-session-date { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.35); }
+    .pgi-session-date .d { font-size: 0.95rem; font-weight: 900; }
+    .pgi-session-date .m { font-size: 0.6rem; font-weight: 800; text-transform: uppercase; opacity: 0.8; }
+    .pgi-session-info { flex: 1; min-width: 0; }
+    .pgi-session-title { color: #fff; font-weight: 800; font-size: 0.85rem; }
+    .pgi-session-meta { color: rgba(255,255,255,0.6); font-size: 0.72rem; font-weight: 700; display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.15rem; }
+    .pgi-session-badge {
+        font-size: 0.65rem; font-weight: 900; padding: 0.15rem 0.5rem; border-radius: 999px;
+    }
+    .pgi-session-badge.online { background: rgba(37,99,235,0.2); color: #93c5fd; }
+    .pgi-session-badge.presentielle { background: rgba(249,115,22,0.2); color: #fdba74; }
+    .pgi-session-dl { color: rgba(255,255,255,0.5); font-size: 0.8rem; }
+    .pgi-session-dl:hover { color: #fff; }
+
+    /* ─── Timeline séances du mois ─── */
+    .pgi-month-card {
+        background: rgba(15,23,42,0.55); border: 1px solid rgba(191,219,254,0.18);
+        border-radius: 18px; padding: 1.25rem; margin-top: 2rem;
+    }
+    .pgi-month-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .pgi-month-title { font-weight: 950; color: #fff; font-size: 1.15rem; }
+    .pgi-month-sub { color: rgba(219,234,254,0.8); font-weight: 700; font-size: 0.85rem; }
+    .pgi-month-count {
+        background: linear-gradient(135deg, rgba(37,99,235,0.9), rgba(249,115,22,0.9));
+        color: #fff; font-weight: 950; border-radius: 999px; padding: 0.4rem 0.9rem;
+    }
+    .pgi-timeline { position: relative; padding-left: 1.5rem; }
+    .pgi-timeline::before {
+        content: ''; position: absolute; left: 6px; top: 4px; bottom: 4px;
+        width: 2px; background: rgba(255,255,255,0.12); border-radius: 2px;
+    }
+    .pgi-tl-item { position: relative; padding: 0.5rem 0 0.5rem 0.8rem; }
+    .pgi-tl-item::before {
+        content: ''; position: absolute; left: -1.28rem; top: 0.85rem;
+        width: 12px; height: 12px; border-radius: 50%;
+        background: #64748b; border: 2px solid #0b1220;
+    }
+    .pgi-tl-item.is-future::before { background: #10b981; box-shadow: 0 0 8px rgba(16,185,129,0.6); }
+    .pgi-tl-title { color: #fff; font-weight: 800; font-size: 0.9rem; }
+    .pgi-tl-meta { color: rgba(255,255,255,0.6); font-size: 0.75rem; font-weight: 700; display: flex; gap: 0.6rem; flex-wrap: wrap; }
+
+    /* ─── Lecteur PDF (book modal) ─── */
+    .book-modal-content { background: #0b1220; border: none; color: #fff; }
+    .book-modal-header {
+        background: #081126; border-bottom: 1px solid rgba(191,219,254,0.12);
+        display: flex; justify-content: space-between; align-items: center;
+        flex-wrap: wrap; gap: 0.75rem; padding: 0.85rem 1.15rem; z-index: 10;
+    }
+    #bookModalTitle { color: #fff; font-weight: 900; margin: 0; max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .book-toolbar { display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .book-btn {
+        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+        color: #fff; border-radius: 10px; padding: 0.45rem 0.75rem; font-weight: 700;
+        cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none;
+    }
+    .book-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+    .book-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .book-page-info { color: rgba(255,255,255,0.92); font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; }
+    .book-page-info input {
+        width: 60px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+        color: #fff; border-radius: 8px; padding: 0.4rem 0.5rem; text-align: center; font-weight: 700;
+    }
+    .book-select {
+        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+        color: #fff; border-radius: 8px; padding: 0.45rem 0.65rem; font-weight: 700; cursor: pointer;
+    }
+    .book-select option { background: #0b1220; color: #fff; }
+    .book-modal-body {
+        background: radial-gradient(circle at 50% 50%, #0e1d3a 0%, #0b1220 100%);
+        display: flex; align-items: center; justify-content: center;
+        overflow: auto; position: relative; padding: 1rem; min-height: calc(100vh - 80px);
+    }
+    .book-sheet {
+        background: #fff; border-radius: 3px 10px 10px 3px;
+        box-shadow: 0 25px 80px rgba(0,0,0,0.55), 0 4px 12px rgba(0,0,0,0.25), inset -12px 0 24px rgba(0,0,0,0.04);
+        border-left: 5px solid rgba(11,18,32,0.10);
+        display: inline-block; max-width: 100%; max-height: calc(100vh - 130px);
+        overflow: auto; position: relative;
+    }
+    .book-page { display: block; transition: opacity 0.2s ease; }
+    .book-page-changing { opacity: 0.45; }
+    .book-loader {
+        position: absolute; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; color: #fff; gap: 0.75rem;
+        font-weight: 700; background: rgba(11,18,32,0.75); z-index: 20;
+    }
+    .book-error {
+        color: #fecaca; background: rgba(239,68,68,0.14); border: 1px solid rgba(239,68,68,0.32);
+        border-radius: 12px; padding: 0.85rem 1.1rem; max-width: 520px; text-align: center; font-weight: 600; z-index: 25;
+    }
+    @media (max-width: 768px) {
+        .pgi-hero h1 { font-size: 1.5rem; }
+        #bookModalTitle { max-width: 90vw; }
+        .book-toolbar { width: 100%; justify-content: center; }
+        .pgi-toolbar { position: static; }
+    }
+</style>
+@endpush
+
 @section('content')
 @php
     $studentProgram = (string) ($student->program ?? '');
-    $studentProgramLower = strtolower($studentProgram);
-    $isDgCm = str_contains($studentProgramLower, 'design') && (str_contains($studentProgramLower, 'community') || str_contains($studentProgramLower, 'cm'));
+    $isDgCm = str_contains(strtolower($studentProgram), 'design') && (str_contains(strtolower($studentProgram), 'community') || str_contains(strtolower($studentProgram), 'cm'));
 
     $routeName = request()->route() ? (request()->route()->getName() ?? '') : '';
     $formationPrefix = $formationPrefix ?? (string) (session('user_formation') ?? 'design-graphique');
@@ -29,476 +269,254 @@
         default => 'dashboard.design-graphique',
     };
 
+    $now = now();
     $dgCount = $programmes->where('canonical_formation', 'Design Graphique')->count();
     $cmCount = $programmes->where('canonical_formation', 'Community Management')->count();
-    $now = now();
-    $currentMonthCount = $programmes->filter(function ($p) use ($now) {
-        try {
-            if (!empty($p->month_start) && \Carbon\Carbon::parse($p->month_start)->isSameMonth($now)) {
-                return true;
-            }
-        } catch (\Throwable $e) {
-            // ignore
-        }
+    $enCoursCount = $programmes->where('status', 'en_cours')->count();
+    $totalSessions = $programmes->sum('items_count');
 
-        $items = $p->items ?? collect();
-        return collect($items)->contains(function ($it) use ($now) {
-            try {
-                return !empty($it->session_date) && \Carbon\Carbon::parse($it->session_date)->isSameMonth($now);
-            } catch (\Throwable $e) {
-                return false;
-            }
-        });
-    })->count();
-
-    $formationProgrammeSlug = 'design-graphique';
-    if ($formationPrefix === 'community-management') {
-        $formationProgrammeSlug = 'community-management';
-    }
+    $statusLabels = ['en_cours' => 'En cours', 'a_venir' => 'À venir', 'terminee' => 'Terminé'];
 @endphp
-<div class="programme-page-bg" aria-hidden="true"></div>
-<div class="programme-hero-wrap mb-4">
-    <div class="container-fluid">
-        <div class="programme-hero-inner">
-            <div class="text-center">
-                <nav aria-label="breadcrumb" class="programme-breadcrumb">
-                    <ol class="breadcrumb justify-content-center mb-3">
-                        <li class="breadcrumb-item">
-                            <a href="{{ route($dashboardRoute) }}">Accueil</a>
-                        </li>
-                        <li class="breadcrumb-item active" aria-current="page">Programme</li>
-                    </ol>
-                </nav>
 
-                <h1 class="programme-hero-h1">Programmes de formation</h1>
-                <div class="programme-hero-lead">{{ $student->program ?? 'Votre formation' }}</div>
+<div class="pgi-bg" aria-hidden="true"></div>
 
-                <div class="programme-count-chip mt-4">
-                    <i class="fas fa-book-open"></i>
-                    <span>{{ $programmes->count() }} programme{{ $programmes->count() > 1 ? 's' : '' }}</span>
-                </div>
-
-            </div>
-        </div>
+{{-- ═══ Hero ═══ --}}
+<div class="pgi-hero">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route($dashboardRoute) }}">Accueil</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Programme</li>
+        </ol>
+    </nav>
+    <h1>Programmes de formation</h1>
+    <div class="lead">{{ $student->program ?? 'Votre formation' }}</div>
+    <div class="pgi-count-chip">
+        <i class="fas fa-book-open"></i>
+        <span>{{ $programmes->count() }} programme{{ $programmes->count() > 1 ? 's' : '' }} • {{ $totalSessions }} séance{{ $totalSessions > 1 ? 's' : '' }}</span>
     </div>
 </div>
 
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="programme-cards-grid">
-            <div class="row g-4">
-                @foreach($programmes as $index => $programme)
-                    @php
-                        $items = $programme->items ?? collect();
-                        $itemsCount = (int) ($programme->items_count ?? (is_countable($items) ? count($items) : 0));
-                        $monthLabel = null;
-                        try {
-                            $monthLabel = !empty($programme->month_start) ? \Carbon\Carbon::parse($programme->month_start)->translatedFormat('F Y') : null;
-                        } catch (\Throwable $e) {
-                            $monthLabel = null;
-                        }
-
-                        $pStatus = $programme->status ?? null;
-                        $pStatusLabel = $pStatus === 'en_cours' ? 'En cours' : ($pStatus === 'terminee' ? 'Terminée' : 'À venir');
-                        $pStatusBadge = $pStatus === 'en_cours' ? 'badge-warning' : ($pStatus === 'terminee' ? 'badge-success' : 'badge-info');
-                        $programmeImageUrl = null;
-                        try {
-                            if (!empty($programme->image)) {
-                                $programmeImageUrl = asset('storage/' . ltrim($programme->image, '/'));
-                            }
-                        } catch (\Throwable $e) {
-                            $programmeImageUrl = null;
-                        }
-
-                        $nextItem = $programme->next_item ?? null;
-                        $nextDateLabel = null;
-                        $nextTimeLabel = null;
-                        $nextType = null;
-                        $nextLieu = null;
-                        try {
-                            if (!empty($nextItem?->session_date)) {
-                                $time = !empty($nextItem?->session_time) ? $nextItem->session_time : '00:00';
-                                $dt = \Carbon\Carbon::parse($nextItem->session_date . ' ' . $time);
-                                $nextDateLabel = $dt->format('d/m/Y');
-                                $nextTimeLabel = $dt->format('H:i');
-                                $nextType = $nextItem->type_formation ?? null;
-                                $nextLieu = $nextItem->lieu ?? null;
-                            }
-                        } catch (\Throwable $e) {
-                            $nextDateLabel = null;
-                            $nextTimeLabel = null;
-                            $nextType = null;
-                            $nextLieu = null;
-                        }
-
-                    @endphp
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="programme-card-modern">
-
-                            <div class="programme-card-cover">
-                                @if(!empty($programmeImageUrl))
-                                    <img src="{{ $programmeImageUrl }}" alt="Illustration" loading="lazy">
-                                @else
-                                    <div class="programme-card-cover-placeholder">
-                                        <i class="fas fa-image"></i>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="programme-card-top">
-                                <div class="programme-card-icon">
-                                    <i class="fas fa-file-alt"></i>
-                                </div>
-                                <div class="programme-card-meta">
-                                    @if($monthLabel)
-                                        <span class="programme-chip">{{ $monthLabel }}</span>
-                                    @endif
-                                    <span class="programme-chip programme-chip-soft">{{ $itemsCount }} séance{{ $itemsCount > 1 ? 's' : '' }}</span>
-                                    <span class="programme-chip {{ $pStatusBadge }}">{{ $pStatusLabel }}</span>
-                                </div>
-                            </div>
-
-                            <div class="programme-card-body">
-                                <div class="programme-card-title">{{ $programme->titre ?? 'Programme' }}</div>
-                                @if(!empty($programme->description))
-                                    <div class="programme-card-desc">{{ \Illuminate\Support\Str::limit($programme->description, 130) }}</div>
-                                @else
-                                    <div class="programme-card-desc programme-card-desc-muted">Téléchargez le programme pour consulter le détail.</div>
-                                @endif
-
-
-                                <div class="programme-agenda-meta">
-                                    @if(!empty($nextDateLabel) && !empty($nextTimeLabel))
-                                        <div class="programme-agenda-item">
-                                            <i class="fas fa-calendar"></i>
-                                            <span>{{ $nextDateLabel }}</span>
-                                        </div>
-                                        <div class="programme-agenda-item">
-                                            <i class="fas fa-clock"></i>
-                                            <span>{{ $nextTimeLabel }}</span>
-                                        </div>
-                                        <div class="programme-agenda-item">
-                                            <i class="fas {{ ($nextType === 'presentielle') ? 'fa-map-marker-alt' : 'fa-video' }}"></i>
-                                            @if($nextType === 'presentielle')
-                                                <span>Présentiel{{ !empty($nextLieu) ? ' • ' . $nextLieu : '' }}</span>
-                                            @else
-                                                <span>En ligne</span>
-                                            @endif
-                                        </div>
-                                    @endif
-                                </div>
-                            </div>
-
-                            <div class="programme-card-actions">
-                                @if(!empty($programme->fichier_pdf))
-                                    <button type="button" class="btn btn-sm btn-primary book-open-btn" data-pdf="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" data-title="{{ $programme->titre ?? 'Programme' }}" onclick="openBook(this.dataset.pdf, this.dataset.title)">
-                                        <i class="fas fa-book-open me-1"></i> Lire le livre numérique
-                                    </button>
-                                    <a class="btn btn-sm btn-outline-light" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" title="Télécharger le PDF">
-                                        <i class="fas fa-download"></i>
-                                    </a>
-                                @else
-                                    <span class="btn btn-sm btn-secondary disabled">PDF indisponible</span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
+{{-- ═══ Barre de filtres ═══ --}}
+<div class="pgi-toolbar">
+    <div class="pgi-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="pgiSearch" placeholder="Rechercher un programme, une séance...">
     </div>
+    <div class="pgi-sep"></div>
+    <div class="pgi-pills" id="statusPills">
+        <span class="pgi-pill active" data-status="">Tous</span>
+        <span class="pgi-pill" data-status="en_cours">En cours{{ $enCoursCount > 0 ? ' (' . $enCoursCount . ')' : '' }}</span>
+        <span class="pgi-pill" data-status="a_venir">À venir</span>
+        <span class="pgi-pill" data-status="terminee">Terminés</span>
+    </div>
+    @if($isDgCm)
+    <div class="pgi-sep"></div>
+    <div class="pgi-pills" id="formationPills">
+        <span class="pgi-pill active" data-formation="">Toutes formations</span>
+        <span class="pgi-pill pill-dg" data-formation="Design Graphique">Design Graphique ({{ $dgCount }})</span>
+        <span class="pgi-pill pill-cm" data-formation="Community Management">Community Mgmt ({{ $cmCount }})</span>
+    </div>
+    @endif
 </div>
 
-@if($isDgCm)
-    @php
-        $dgStatus = $formationStatuses['Design Graphique'] ?? null;
-        $cmStatus = $formationStatuses['Community Management'] ?? null;
+{{-- ═══ Grille des programmes ═══ --}}
+<div class="row g-4" id="programmesGrid">
+    @foreach($programmes as $index => $programme)
+        @php
+            $items = $programme->items ?? collect();
+            $itemsCount = (int) ($programme->items_count ?? $items->count());
+            $monthLabel = null;
+            try { $monthLabel = !empty($programme->month_start) ? \Carbon\Carbon::parse($programme->month_start)->translatedFormat('F Y') : null; } catch (\Throwable $e) {}
+            $pStatus = $programme->status ?? 'a_venir';
+            $pStatusLabel = $statusLabels[$pStatus] ?? 'À venir';
+            $imageUrl = !empty($programme->image) ? asset('storage/' . ltrim($programme->image, '/')) : null;
+            $nextItem = $programme->next_item ?? null;
+            $searchText = strtolower(($programme->titre ?? '') . ' ' . ($programme->description ?? '') . ' ' . ($monthLabel ?? '') . ' ' . $items->pluck('thematique')->implode(' '));
+        @endphp
+        <div class="col-12 col-md-6 col-xl-4">
+            <div class="pgi-card"
+                 data-status="{{ $pStatus }}"
+                 data-formation="{{ $programme->canonical_formation ?? '' }}"
+                 data-search="{{ $searchText }}">
 
-        $statusLabel = function ($s) {
-            if ($s === 'en_cours') return 'En cours';
-            if ($s === 'terminee') return 'Terminée';
-            if ($s === 'a_venir') return 'À venir';
-            return null;
-        };
+                <div class="pgi-cover">
+                    @if($imageUrl)
+                        <img src="{{ $imageUrl }}" alt="{{ $programme->titre ?? 'Programme' }}" loading="lazy">
+                    @else
+                        <div class="pgi-cover-ph"><i class="fas fa-book-open"></i></div>
+                    @endif
+                    <span class="pgi-status {{ $pStatus }}">{{ $pStatusLabel }}</span>
+                </div>
 
-        $statusClass = function ($s) {
-            if ($s === 'en_cours') return 'is-running';
-            if ($s === 'terminee') return 'is-done';
-            if ($s === 'a_venir') return 'is-upcoming';
-            return '';
-        };
-    @endphp
-    <div class="row g-3 mb-4" id="programmeFormationCards">
-        <div class="col-12 col-md-6">
-            <a href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', 'design-graphique') }}" class="text-decoration-none">
-                <div class="formation-card formation-card-dg">
-                    <div class="formation-card-top">
-                        <div>
-                            <div class="formation-card-label">Formation</div>
-                            <div class="formation-card-title">Design Graphique</div>
-                            @if($statusLabel($dgStatus))
-                                <div class="formation-status-badge {{ $statusClass($dgStatus) }}">{{ $statusLabel($dgStatus) }}</div>
+                <div class="pgi-card-body">
+                    <div class="pgi-chips">
+                        @if($monthLabel)<span class="pgi-chip"><i class="fas fa-calendar"></i>{{ $monthLabel }}</span>@endif
+                        <span class="pgi-chip"><i class="fas fa-list"></i>{{ $itemsCount }} séance{{ $itemsCount > 1 ? 's' : '' }}</span>
+                        @if($isDgCm)<span class="pgi-chip"><i class="fas fa-tag"></i>{{ $programme->canonical_formation }}</span>@endif
+                    </div>
+                    <div class="pgi-card-title">{{ $programme->titre ?? 'Programme' }}</div>
+                    <div class="pgi-card-desc">
+                        {{ !empty($programme->description) ? \Illuminate\Support\Str::limit($programme->description, 120) : 'Téléchargez le programme pour consulter le détail.' }}
+                    </div>
+
+                    @if($nextItem && !empty($nextItem->session_date))
+                        @php
+                            $ntime = !empty($nextItem->session_time) ? $nextItem->session_time : '00:00';
+                            $ndt = \Carbon\Carbon::parse($nextItem->session_date . ' ' . $ntime);
+                        @endphp
+                        <div class="pgi-next">
+                            <i class="fas fa-bolt"></i>
+                            <span>Prochaine : {{ Str::limit($nextItem->thematique ?? 'Séance', 30) }}</span>
+                            <span><i class="fas fa-calendar me-1"></i>{{ $ndt->format('d/m') }} <i class="fas fa-clock ms-1 me-1"></i>{{ $ndt->format('H:i') }}</span>
+                            @if(($nextItem->type_formation ?? '') === 'presentielle')
+                                <span><i class="fas fa-map-marker-alt me-1"></i>{{ $nextItem->lieu ?? 'Présentiel' }}</span>
+                            @else
+                                <span><i class="fas fa-video me-1"></i>En ligne</span>
                             @endif
                         </div>
-                        <div class="formation-card-count">{{ $dgCount }}</div>
-                    </div>
-                    <div class="formation-card-cta">Voir le programme</div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-12 col-md-6">
-            <a href="{{ route(($formationPrefix ?? 'design-graphique') . '.programme.formation', 'community-management') }}" class="text-decoration-none">
-                <div class="formation-card formation-card-cm">
-                    <div class="formation-card-top">
-                        <div>
-                            <div class="formation-card-label">Formation</div>
-                            <div class="formation-card-title">Community Management</div>
-                            @if($statusLabel($cmStatus))
-                                <div class="formation-status-badge {{ $statusClass($cmStatus) }}">{{ $statusLabel($cmStatus) }}</div>
-                            @endif
-                        </div>
-                        <div class="formation-card-count">{{ $cmCount }}</div>
-                    </div>
-                    <div class="formation-card-cta">Voir le programme</div>
-                </div>
-            </a>
-        </div>
-    </div>
-
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="all-programmes-card">
-                <div class="all-programmes-header">
-                    <div>
-                        <div class="all-programmes-title">Tous les programmes</div>
-                        <div class="all-programmes-subtitle">Retrouve ici tous les programmes (tous les mois).</div>
-                    </div>
+                    @endif
                 </div>
 
-                @if(($programmes ?? collect())->isEmpty())
-                    <div class="all-programmes-empty">Aucun programme disponible pour le moment.</div>
-                @else
-                    <div class="accordion" id="programmeAllAccordion">
-                        @foreach($programmes as $i => $programme)
-                            @php
-                                $items = $programme->items ?? collect();
-                                $itemsCount = (int) ($programme->items_count ?? (is_countable($items) ? count($items) : 0));
-                                $monthLabel = !empty($programme->month_start) ? \Carbon\Carbon::parse($programme->month_start)->translatedFormat('F Y') : null;
-
-                                $pStatus = $programme->status ?? null;
-                                $pStatusLabel = $pStatus === 'en_cours' ? 'En cours' : ($pStatus === 'terminee' ? 'Terminée' : 'À venir');
-                                $pStatusClass = $pStatus === 'en_cours' ? 'is-running' : ($pStatus === 'terminee' ? 'is-done' : 'is-upcoming');
-                            @endphp
-                            <div class="accordion-item programme-acc-item">
-                                <h2 class="accordion-header" id="allHeading{{ $i }}">
-                                    <button class="accordion-button {{ $i === 0 ? '' : 'collapsed' }} programme-acc-btn" type="button" data-bs-toggle="collapse" data-bs-target="#allCollapse{{ $i }}" aria-expanded="{{ $i === 0 ? 'true' : 'false' }}" aria-controls="allCollapse{{ $i }}">
-                                        <div class="programme-acc-title">
-                                            <div class="programme-acc-name">
-                                                {{ $programme->titre ?? 'Programme' }}
-                                                <span class="programme-status-badge {{ $pStatusClass }}">{{ $pStatusLabel }}</span>
-                                            </div>
-                                            <div class="programme-acc-meta">
-                                                @if(!empty($monthLabel))
-                                                    <span class="badge badge-soft"><i class="fas fa-calendar me-1"></i>{{ $monthLabel }}</span>
-                                                @endif
-                                                <span class="badge badge-soft"><i class="fas fa-list me-1"></i>{{ $itemsCount }} séance(s)</span>
-                                                @if(!empty($programme->next_item))
-                                                    <span class="badge badge-soft"><i class="fas fa-bolt me-1"></i>Prochaine: {{ \Carbon\Carbon::parse($programme->next_item->session_date)->format('d/m') }} {{ !empty($programme->next_item->session_time) ? \Carbon\Carbon::parse($programme->next_item->session_time)->format('H:i') : '00:00' }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </button>
-                                </h2>
-                                <div id="allCollapse{{ $i }}" class="accordion-collapse collapse {{ $i === 0 ? 'show' : '' }}" aria-labelledby="allHeading{{ $i }}" data-bs-parent="#programmeAllAccordion">
-                                    <div class="accordion-body programme-acc-body">
-                                        @if(!empty($programme->description))
-                                            <div class="programme-desc">{{ $programme->description }}</div>
-                                        @endif
-
-                                        @if(!empty($programme->fichier_pdf))
-                                            <div class="mb-3 d-flex gap-2 flex-wrap">
-                                                <button type="button" class="btn btn-sm btn-primary book-open-btn" data-pdf="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" data-title="{{ $programme->titre ?? 'Programme' }}" onclick="openBook(this.dataset.pdf, this.dataset.title)">
-                                                    <i class="fas fa-book-open me-1"></i>
-                                                    Lire le livre numérique
-                                                </button>
-                                                <a class="btn btn-sm btn-outline-light" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" title="Télécharger le PDF">
-                                                    <i class="fas fa-download me-1"></i>
-                                                    Télécharger
-                                                </a>
-                                            </div>
-                                        @endif
-
-                                        @if(collect($items)->isEmpty())
-                                            <div class="programme-empty">Aucune séance n'a été ajoutée pour ce programme.</div>
-                                        @else
-                                            <div class="month-sessions-list">
-                                                @foreach(collect($items) as $item)
-                                                    @php
-                                                        $typeFormation = $item->type_formation ?? null;
-                                                        $downloadPath = $item->piece_jointe ?? null;
-                                                        $sessionRowClass = '';
-                                                        try {
-                                                            if (!empty($item->session_date)) {
-                                                                $dt = \Carbon\Carbon::parse(($item->session_date ?? '') . ' ' . ($item->session_time ?? '00:00'));
-                                                                $sessionRowClass = $dt->isFuture() ? 'is-future' : 'is-past';
-                                                            }
-                                                        } catch (\Throwable $e) {
-                                                        }
-                                                    @endphp
-                                                    <div class="month-session-row {{ $sessionRowClass }}">
-                                                        <div class="month-session-left">
-                                                            <div class="month-session-title">{{ $item->thematique ?? 'Séance' }}</div>
-                                                            <div class="month-session-meta">
-                                                                <span>
-                                                                    <i class="fas fa-calendar me-1"></i>
-                                                                    {{ !empty($item->session_date) ? \Carbon\Carbon::parse($item->session_date)->format('d/m/Y') : 'Date à confirmer' }}
-                                                                </span>
-                                                                <span class="month-dot">•</span>
-                                                                <span>
-                                                                    <i class="fas fa-clock me-1"></i>
-                                                                    {{ !empty($item->session_time) ? \Carbon\Carbon::parse($item->session_time)->format('H:i') : 'Heure à confirmer' }}
-                                                                </span>
-                                                                @if(($typeFormation ?? null) === 'presentielle' && !empty($item->lieu))
-                                                                    <span class="month-dot">•</span>
-                                                                    <span>
-                                                                        <i class="fas fa-map-marker-alt me-1"></i>
-                                                                        {{ $item->lieu }}
-                                                                    </span>
-                                                                @endif
-                                                            </div>
-                                                            @if(!empty($item->description))
-                                                                <div class="programme-desc">{{ $item->description }}</div>
-                                                            @endif
-                                                        </div>
-                                                        <div class="month-session-right">
-                                                            @if($typeFormation)
-                                                                <span class="month-type {{ $typeFormation === 'presentielle' ? 'type-presentielle' : 'type-enligne' }}">
-                                                                    {{ $typeFormation === 'presentielle' ? 'Présentielle' : 'En ligne' }}
-                                                                </span>
-                                                            @endif
-                                                            @if(!empty($downloadPath))
-                                                                <a class="btn btn-sm btn-primary" target="_blank" href="{{ asset('storage/' . ltrim($downloadPath, '/')) }}">
-                                                                    <i class="fas fa-download me-1"></i>
-                                                                    Télécharger
-                                                                </a>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="month-sessions-card">
-                <div class="month-sessions-header">
-                    <div>
-                        <div class="month-sessions-title">Séances du mois</div>
-                        <div class="month-sessions-subtitle">{{ $now->translatedFormat('F Y') }}</div>
-                    </div>
-                    <div class="month-sessions-count">{{ (int) ($currentMonthSessions->count() ?? 0) }}</div>
-                </div>
-
-                @if(($currentMonthSessions ?? collect())->isEmpty())
-                    <div class="month-empty">Aucune séance planifiée pour ce mois.</div>
-                @else
-                    <div class="month-sessions-list">
-                        @foreach($currentMonthSessions as $item)
-                            @php
-                                $canonical = (string) ($item->canonical_formation ?? '');
-                                $canonicalLower = strtolower($canonical);
-                                $tag = str_contains($canonicalLower, 'community') ? 'CM' : (str_contains($canonicalLower, 'design') ? 'DG' : '');
-                                $typeFormation = $item->type_formation ?? null;
-                                $sessionRowClass = '';
-                                try {
-                                    if (!empty($item->session_date)) {
-                                        $dt = \Carbon\Carbon::parse(($item->session_date ?? '') . ' ' . ($item->session_time ?? '00:00'));
-                                        $sessionRowClass = $dt->isFuture() ? 'is-future' : 'is-past';
-                                    }
-                                } catch (\Throwable $e) {
+                {{-- Séances dépliables --}}
+                @if($itemsCount > 0)
+                <div class="pgi-sessions" id="pgiSessions{{ $index }}">
+                    @foreach($items as $item)
+                        @php
+                            $isFuture = false;
+                            $dateObj = null;
+                            try {
+                                if (!empty($item->session_date)) {
+                                    $dateObj = \Carbon\Carbon::parse($item->session_date . ' ' . ($item->session_time ?? '00:00'));
+                                    $isFuture = $dateObj->isFuture();
                                 }
-                            @endphp
-                            <div class="month-session-row {{ $sessionRowClass }}">
-                                <div class="month-session-left">
-                                    <div class="month-session-title">
-                                        {{ $item->thematique ?? 'Séance' }}
-                                        @if($tag !== '')
-                                            <span class="month-tag">{{ $tag }}</span>
-                                        @endif
-                                    </div>
-                                    <div class="month-session-meta">
-                                        <span>
-                                            <i class="fas fa-calendar me-1"></i>
-                                            {{ !empty($item->session_date) ? \Carbon\Carbon::parse($item->session_date)->format('d/m/Y') : 'Date à confirmer' }}
-                                        </span>
-                                        <span class="month-dot">•</span>
-                                        <span>
-                                            <i class="fas fa-clock me-1"></i>
-                                            {{ !empty($item->session_time) ? \Carbon\Carbon::parse($item->session_time)->format('H:i') : 'Heure à confirmer' }}
-                                        </span>
-                                        @if(($typeFormation ?? null) === 'presentielle' && !empty($item->lieu))
-                                            <span class="month-dot">•</span>
-                                            <span>
-                                                <i class="fas fa-map-marker-alt me-1"></i>
-                                                {{ $item->lieu }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="month-session-right">
-                                    @if($typeFormation)
-                                        <span class="month-type {{ $typeFormation === 'presentielle' ? 'type-presentielle' : 'type-enligne' }}">
-                                            {{ $typeFormation === 'presentielle' ? 'Présentielle' : 'En ligne' }}
-                                        </span>
+                            } catch (\Throwable $e) {}
+                        @endphp
+                        <div class="pgi-session {{ $dateObj ? ($isFuture ? 'is-future' : 'is-past') : '' }}">
+                            <div class="pgi-session-date">
+                                @if($dateObj)
+                                    <span class="d">{{ $dateObj->format('d') }}</span>
+                                    <span class="m">{{ $dateObj->translatedFormat('M') }}</span>
+                                @else
+                                    <span class="d">?</span>
+                                @endif
+                            </div>
+                            <div class="pgi-session-info">
+                                <div class="pgi-session-title">{{ $item->thematique ?? 'Séance' }}</div>
+                                <div class="pgi-session-meta">
+                                    <span><i class="fas fa-clock me-1"></i>{{ !empty($item->session_time) ? \Carbon\Carbon::parse($item->session_time)->format('H:i') : '--:--' }}</span>
+                                    @if(($item->type_formation ?? '') === 'presentielle' && !empty($item->lieu))
+                                        <span><i class="fas fa-map-marker-alt me-1"></i>{{ $item->lieu }}</span>
                                     @endif
-
-                                    @php
-                                        $downloadPath = $item->piece_jointe ?? null;
-                                    @endphp
-                                    @if(!empty($downloadPath))
-                                        <a class="btn btn-sm btn-primary" target="_blank" href="{{ asset('storage/' . ltrim($downloadPath, '/')) }}">
-                                            <i class="fas fa-download me-1"></i>
-                                            Télécharger
-                                        </a>
+                                    @if(!empty($item->type_formation))
+                                        <span class="pgi-session-badge {{ ($item->type_formation === 'presentielle') ? 'presentielle' : 'online' }}">
+                                            {{ $item->type_formation === 'presentielle' ? 'Présentielle' : 'En ligne' }}
+                                        </span>
                                     @endif
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                            @if(!empty($item->piece_jointe))
+                                <a class="pgi-session-dl" target="_blank" href="{{ asset('storage/' . ltrim($item->piece_jointe, '/')) }}" title="Télécharger la pièce jointe">
+                                    <i class="fas fa-download"></i>
+                                </a>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
                 @endif
+
+                <div class="pgi-card-foot">
+                    @if(!empty($programme->fichier_pdf))
+                        <button type="button" class="pgi-btn pgi-btn-primary book-open-btn"
+                                data-pdf="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}"
+                                data-title="{{ $programme->titre ?? 'Programme' }}"
+                                onclick="openBook(this.dataset.pdf, this.dataset.title)">
+                            <i class="fas fa-book-open"></i>Lire
+                        </button>
+                        <a class="pgi-btn pgi-btn-ghost" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" title="Télécharger le PDF">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    @else
+                        <span class="pgi-btn pgi-btn-ghost" style="opacity:0.5; cursor:not-allowed;"><i class="fas fa-file-pdf"></i>PDF indisponible</span>
+                    @endif
+                    @if($itemsCount > 0)
+                        <button type="button" class="pgi-btn pgi-btn-ghost pgi-btn-toggle" data-target="pgiSessions{{ $index }}">
+                            <i class="fas fa-chevron-down"></i><span>Séances ({{ $itemsCount }})</span>
+                        </button>
+                    @endif
+                </div>
             </div>
         </div>
+    @endforeach
+</div>
+
+{{-- Aucun résultat / aucun programme --}}
+@if($programmes->isEmpty())
+    <div class="text-center py-5">
+        <i class="fas fa-book-open fa-3x d-block mb-3" style="color:rgba(255,255,255,0.2);"></i>
+        <div class="text-white fw-bold">Aucun programme disponible pour le moment.</div>
+        <div class="mt-2" style="color:rgba(255,255,255,0.55);">Les programmes publiés par l'administration apparaîtront ici.</div>
+    </div>
+@else
+    <div class="pgi-noresults" id="pgiNoResults">
+        <i class="fas fa-search"></i>
+        <div class="fw-bold">Aucun programme ne correspond à vos filtres.</div>
     </div>
 @endif
 
+{{-- ═══ Séances du mois (timeline) ═══ --}}
+@if(($currentMonthSessions ?? collect())->isNotEmpty())
+<div class="pgi-month-card">
+    <div class="pgi-month-head">
+        <div>
+            <div class="pgi-month-title"><i class="fas fa-calendar-day me-2" style="color:#f97316;"></i>Séances du mois</div>
+            <div class="pgi-month-sub">{{ $now->translatedFormat('F Y') }}</div>
+        </div>
+        <div class="pgi-month-count">{{ $currentMonthSessions->count() }}</div>
+    </div>
+    <div class="pgi-timeline">
+        @foreach($currentMonthSessions as $item)
+            @php
+                $isFuture = false;
+                try {
+                    if (!empty($item->session_date)) {
+                        $isFuture = \Carbon\Carbon::parse($item->session_date . ' ' . ($item->session_time ?? '00:00'))->isFuture();
+                    }
+                } catch (\Throwable $e) {}
+            @endphp
+            <div class="pgi-tl-item {{ $isFuture ? 'is-future' : '' }}">
+                <div class="pgi-tl-title">{{ $item->thematique ?? 'Séance' }}</div>
+                <div class="pgi-tl-meta">
+                    <span><i class="fas fa-calendar me-1"></i>{{ !empty($item->session_date) ? \Carbon\Carbon::parse($item->session_date)->format('d/m/Y') : '—' }}</span>
+                    <span><i class="fas fa-clock me-1"></i>{{ !empty($item->session_time) ? \Carbon\Carbon::parse($item->session_time)->format('H:i') : '--:--' }}</span>
+                    @if(!empty($item->programme_title))<span><i class="fas fa-book me-1"></i>{{ $item->programme_title }}</span>@endif
+                    @if(($item->type_formation ?? '') === 'presentielle' && !empty($item->lieu))
+                        <span><i class="fas fa-map-marker-alt me-1"></i>{{ $item->lieu }}</span>
+                    @elseif(!empty($item->type_formation))
+                        <span><i class="fas fa-video me-1"></i>En ligne</span>
+                    @endif
+                    @if(!empty($item->piece_jointe))
+                        <a href="{{ asset('storage/' . ltrim($item->piece_jointe, '/')) }}" target="_blank" style="color:#93c5fd;"><i class="fas fa-download me-1"></i>Support</a>
+                    @endif
+                </div>
+            </div>
+        @endforeach
+    </div>
+</div>
+@endif
 
-<!-- Lecteur de livre numérique -->
+{{-- ═══ Lecteur PDF (livre numérique) ═══ --}}
 <div class="modal fade" id="programmeBookModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-fullscreen modal-dialog-centered">
         <div class="modal-content book-modal-content">
             <div class="modal-header book-modal-header">
                 <h5 class="modal-title" id="bookModalTitle">Programme</h5>
                 <div class="book-toolbar">
-                    <button type="button" class="book-btn" id="bookPrev" disabled>
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
+                    <button type="button" class="book-btn" id="bookPrev" disabled><i class="fas fa-chevron-left"></i></button>
                     <span class="book-page-info">
                         <input type="number" id="bookPageInput" min="1" value="1" aria-label="Page">
-                        <span>/</span>
-                        <span id="bookPageTotal">1</span>
+                        <span>/</span><span id="bookPageTotal">1</span>
                     </span>
-                    <button type="button" class="book-btn" id="bookNext" disabled>
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+                    <button type="button" class="book-btn" id="bookNext" disabled><i class="fas fa-chevron-right"></i></button>
                     <select class="book-select" id="bookZoom" aria-label="Zoom">
                         <option value="fit">Ajuster</option>
                         <option value="1" selected>100%</option>
@@ -506,12 +524,8 @@
                         <option value="1.5">150%</option>
                         <option value="2">200%</option>
                     </select>
-                    <a class="book-btn" id="bookDownload" href="#" target="_blank" title="Télécharger le PDF">
-                        <i class="fas fa-download"></i>
-                    </a>
-                    <button type="button" class="book-btn" data-bs-dismiss="modal" aria-label="Fermer">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <a class="book-btn" id="bookDownload" href="#" target="_blank" title="Télécharger le PDF"><i class="fas fa-download"></i></a>
+                    <button type="button" class="book-btn" data-bs-dismiss="modal" aria-label="Fermer"><i class="fas fa-times"></i></button>
                 </div>
             </div>
             <div class="modal-body book-modal-body" id="bookBody">
@@ -520,9 +534,7 @@
                     <span>Chargement du livre numérique…</span>
                 </div>
                 <div id="bookError" class="book-error" hidden></div>
-                <div id="bookSheet" class="book-sheet">
-                    <canvas id="bookPageCanvas" class="book-page"></canvas>
-                </div>
+                <div id="bookSheet" class="book-sheet"><canvas id="bookPageCanvas" class="book-page"></canvas></div>
             </div>
         </div>
     </div>
@@ -530,1600 +542,65 @@
 
 @endsection
 
-@push('styles')
-<style>
-/* Palette (blue) */
-:root {
-    --evc-blue-950: #0b1220;
-    --evc-blue-900: #0b1f44;
-    --evc-blue-700: #1d4ed8;
-    --evc-blue-600: #2563eb;
-    --evc-blue-500: #3b82f6;
-    --evc-blue-200: #bfdbfe;
-    --evc-blue-100: #dbeafe;
-    --evc-surface: #0b1f44;
-    --evc-surface-soft: #0e2a5a;
-    --evc-border: rgba(191, 219, 254, 0.18);
-}
-
- .programme-hero-wrap {
-     border-radius: 22px;
-     background: linear-gradient(180deg, rgba(0, 0, 51, 0.92) 0%, rgba(0, 0, 102, 0.92) 100%);
-     border: 1px solid rgba(255,255,255,0.10);
-     position: relative;
-     overflow: hidden;
- }
-
- .programme-hero-wrap::before {
-     content: '';
-     position: absolute;
-     inset: -2px;
-     background: radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.22), transparent 45%),
-                 radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.18), transparent 40%);
-     pointer-events: none;
- }
-
- .programme-hero-inner {
-     padding: 2.2rem 1.5rem;
-     position: relative;
-     z-index: 1;
- }
-
- .programme-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
-     color: rgba(255,255,255,0.35);
- }
-
- .programme-breadcrumb a {
-     color: rgba(255,255,255,0.75);
-     font-weight: 700;
-     text-decoration: none;
- }
-
- .programme-breadcrumb a:hover {
-     color: #f97316;
- }
-
- .programme-hero-h1 {
-     color: #fff;
-     font-weight: 900;
-     letter-spacing: -0.02em;
-     margin-bottom: .4rem;
-     font-size: 2rem;
- }
-
- .programme-hero-lead {
-     color: rgba(255,255,255,0.82);
-     font-weight: 700;
- }
-
- .programme-count-chip {
-     display: inline-flex;
-     align-items: center;
-     gap: .55rem;
-     padding: .75rem 1.1rem;
-     border-radius: 999px;
-     background: rgba(255,255,255,0.10);
-     border: 1px solid rgba(255,255,255,0.18);
-     color: #fff;
-     font-weight: 800;
-     backdrop-filter: blur(10px);
- }
-
- .programme-cards-grid {
-     margin-bottom: 1rem;
- }
-
- .programme-card-modern {
-     border-radius: 18px;
-     background: rgba(15, 23, 42, 0.55);
-     border: 1px solid rgba(255,255,255,0.10);
-     box-shadow: 0 18px 45px rgba(0,0,0,0.20);
-     overflow: hidden;
-     height: 100%;
-     display: flex;
-     flex-direction: column;
- }
-
-
- .programme-card-cover {
-     width: 100%;
-     aspect-ratio: 16 / 9;
-     background: rgba(15, 23, 42, 0.06);
-     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-     overflow: hidden;
- }
-
- .programme-card-cover img {
-     width: 100%;
-     height: 100%;
-     object-fit: cover;
-     display: block;
- }
-
- .programme-card-cover-placeholder {
-     width: 100%;
-     height: 100%;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     color: rgba(15, 23, 42, 0.35);
-     background: linear-gradient(135deg, rgba(37, 99, 235, 0.10), rgba(249, 115, 22, 0.08));
- }
-
- .programme-agenda-meta {
-     display: flex;
-     gap: .5rem;
-     flex-wrap: wrap;
-     margin-top: .85rem;
- }
-
- .programme-agenda-item {
-     display: inline-flex;
-     align-items: center;
-     gap: .45rem;
-     padding: .35rem .7rem;
-     border-radius: 999px;
-     background: rgba(15, 23, 42, 0.04);
-     border: 1px solid rgba(15, 23, 42, 0.08);
-     font-weight: 800;
-     font-size: .82rem;
-     color: rgba(15, 23, 42, 0.82);
- }
-
- .programme-agenda-item i {
-     color: rgba(15, 23, 42, 0.55);
- }
-
- .programme-agenda-muted {
-     opacity: .8;
- }
-
- .programme-card-top {
-     padding: 1rem 1rem 0.75rem;
-     display: flex;
-     gap: .85rem;
-     align-items: flex-start;
- }
-
- .programme-card-icon {
-     width: 46px;
-     height: 46px;
-     border-radius: 14px;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     background: rgba(249, 115, 22, 0.18);
-     border: 1px solid rgba(249, 115, 22, 0.25);
-     color: #f97316;
-     flex: 0 0 auto;
- }
-
- .programme-card-meta {
-     display: flex;
-     gap: .4rem;
-     flex-wrap: wrap;
- }
-
- .programme-chip {
-     display: inline-flex;
-     align-items: center;
-     padding: .35rem .7rem;
-     border-radius: 999px;
-     font-size: .75rem;
-     font-weight: 800;
-     color: #fff;
-     background: rgba(255,255,255,0.10);
-     border: 1px solid rgba(255,255,255,0.14);
- }
-
- .programme-chip-soft {
-     color: rgba(255,255,255,0.85);
- }
-
- .programme-chip.badge-warning {
-     background: rgba(255,152,0,0.20);
-     border-color: rgba(255,152,0,0.30);
- }
-
- .programme-chip.badge-success {
-     background: rgba(16,185,129,0.18);
-     border-color: rgba(16,185,129,0.28);
- }
-
- .programme-chip.badge-info {
-     background: rgba(59,130,246,0.18);
-     border-color: rgba(59,130,246,0.28);
- }
-
- .programme-card-body {
-     padding: 0 1rem 1rem;
-     flex: 1 1 auto;
- }
-
- .programme-card-title {
-     color: #fff;
-     font-weight: 900;
-     letter-spacing: -0.01em;
-     margin-bottom: .5rem;
- }
-
- .programme-card-desc {
-     color: rgba(255,255,255,0.78);
-     font-weight: 600;
-     font-size: .92rem;
- }
-
- .programme-card-desc-muted {
-     color: rgba(255,255,255,0.55);
- }
-
- .programme-card-actions {
-     padding: 0 1rem 1rem;
- }
-
- @media (max-width: 768px) {
-     .programme-hero-inner {
-         padding: 1.6rem 1rem;
-     }
-     .programme-hero-h1 {
-         font-size: 1.6rem;
-     }
- }
-
-.programme-hero {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-}
-
-.programme-hero-left {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.programme-hero-title {
-    font-weight: 900;
-    letter-spacing: 0.01em;
-    font-size: 1.65rem;
-    line-height: 1.15;
-}
-
-.programme-hero-subtitle {
-    color: rgba(255, 255, 255, 0.85);
-    font-weight: 700;
-}
-
-.programme-hero-kpis {
-    display: flex;
-    gap: .6rem;
-    align-items: stretch;
-    flex-wrap: wrap;
-}
-
-.kpi-chip {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 14px;
-    padding: .6rem .75rem;
-    min-width: 112px;
-}
-
-.kpi-label {
-    font-size: .78rem;
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.78);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-}
-
-.kpi-value {
-    font-size: 1.2rem;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.98);
-    line-height: 1.15;
-}
-
-.programme-card-header {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    margin-bottom: 0.75rem;
-}
-
-.programme-card-meta {
-    color: rgba(219, 234, 254, 0.82);
-    font-weight: 700;
-    font-size: .9rem;
-}
-
-.sessions-subheader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.sessions-subtitle {
-    display: inline-flex;
-    align-items: center;
-    gap: .5rem;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.92);
-    letter-spacing: 0.01em;
-}
-
-.empty-title {
-    color: rgba(255, 255, 255, 0.95);
-    font-weight: 900;
-}
-
-.empty-subtitle {
-    color: rgba(219, 234, 254, 0.82);
-    font-weight: 700;
-}
-
-.tools-input::placeholder {
-    color: rgba(219, 234, 254, 0.65);
-}
-
-/* Fond (isolé à cette page) */
-.programme-page-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background:
-        linear-gradient(180deg, #081126 0%, #0b1220 55%, #081126 100%);
-}
-
-/* IMPORTANT: le layout met un fond opaque sur .content-wrapper, on le rend transparent uniquement pour cette page */
-.content-wrapper {
-    background: transparent !important;
-}
-
-/* Donne un “glow” Instagram au container principal */
-.main-content {
-    background: transparent !important;
-}
-
-.row, .container, .container-fluid {
-    position: relative;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-    .programme-page-bg {
-        background-size: 140% 140%;
-        animation: bgShift 10s ease-in-out infinite alternate;
-    }
-}
-
-@keyframes bgShift {
-    from { background-position: 0% 0%, 100% 0%, 100% 100%, 0% 0%; }
-    to { background-position: 20% 10%, 80% 15%, 85% 80%, 0% 0%; }
-}
-
-/* Header avec dégradé Instagram */
-.instagram-header {
-    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
-    border-radius: 20px;
-    color: white;
-    box-shadow: 0 14px 40px rgba(2, 6, 23, 0.45);
-    animation: fadeInDown 0.6s ease;
-    margin-bottom: 2rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.programme-formation-card {
-    color: #fff;
-}
-
-.programme-formation-card[data-programme-filter] {
-    border: 1px solid rgba(255, 255, 255, 0.18);
-}
-
-.programme-formation-card[data-programme-filter].is-active {
-    border-color: rgba(255, 255, 255, 0.50);
-    box-shadow: 0 18px 45px rgba(2, 6, 23, 0.35);
-}
-
-.programme-formation-card-dg {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(29, 78, 216, 0.90));
-}
-
-.programme-formation-card-cm {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.92), rgba(29, 78, 216, 0.86));
-}
-
-.programme-formation-card-current {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.88), rgba(29, 78, 216, 0.82));
-}
-
- .formation-card {
-     border-radius: 18px;
-     padding: 1.15rem 1.2rem;
-     border: 1px solid rgba(255, 255, 255, 0.16);
-     box-shadow: 0 18px 55px rgba(2, 6, 23, 0.35);
-     transition: transform 0.25s ease, box-shadow 0.25s ease;
-     position: relative;
-     overflow: hidden;
- }
-
- .formation-card::before {
-     content: '';
-     position: absolute;
-     inset: -2px;
-     background:
-         radial-gradient(600px 220px at 20% 20%, rgba(255,255,255,0.35), transparent 55%),
-         radial-gradient(480px 220px at 80% 0%, rgba(255,255,255,0.18), transparent 60%);
-     pointer-events: none;
- }
-
- .formation-card:hover {
-     transform: translateY(-2px);
-     box-shadow: 0 24px 70px rgba(2, 6, 23, 0.48);
- }
-
- .formation-card-top {
-     display: flex;
-     align-items: flex-start;
-     justify-content: space-between;
-     gap: 1rem;
- }
-
- .formation-card-label {
-     color: rgba(255, 255, 255, 0.78);
-     font-weight: 900;
-     text-transform: uppercase;
-     letter-spacing: 0.08em;
-     font-size: 0.78rem;
- }
-
- .formation-card-title {
-     color: rgba(255, 255, 255, 0.98);
-     font-weight: 950;
-     font-size: 1.2rem;
-     line-height: 1.15;
-     margin-top: 0.2rem;
- }
-
- .formation-status-badge {
-     display: inline-flex;
-     align-items: center;
-     margin-top: 0.5rem;
-     padding: 0.22rem 0.55rem;
-     border-radius: 999px;
-     font-size: 0.75rem;
-     font-weight: 950;
-     border: 1px solid rgba(255, 255, 255, 0.18);
-     background: rgba(2, 6, 23, 0.22);
-     color: rgba(255, 255, 255, 0.98);
- }
-
- .formation-status-badge.is-running {
-     background: rgba(16, 185, 129, 0.22);
-     border-color: rgba(16, 185, 129, 0.35);
- }
-
- .formation-status-badge.is-done {
-     background: rgba(148, 163, 184, 0.22);
-     border-color: rgba(148, 163, 184, 0.35);
- }
-
- .formation-status-badge.is-upcoming {
-     background: rgba(249, 115, 22, 0.22);
-     border-color: rgba(249, 115, 22, 0.35);
- }
-
- .formation-card-count {
-     background: rgba(255, 255, 255, 0.18);
-     border: 1px solid rgba(255, 255, 255, 0.20);
-     border-radius: 999px;
-     padding: 0.5rem 0.9rem;
-     font-weight: 950;
-     color: rgba(255, 255, 255, 0.98);
- }
-
- .formation-card-cta {
-     margin-top: 1rem;
-     display: inline-flex;
-     align-items: center;
-     gap: 0.5rem;
-     font-weight: 950;
-     color: rgba(255, 255, 255, 0.98);
- }
-
- .formation-card-dg {
-     background: linear-gradient(135deg, rgba(37, 99, 235, 0.92), rgba(249, 115, 22, 0.90));
- }
-
- .formation-card-cm {
-     background: linear-gradient(135deg, rgba(249, 115, 22, 0.92), rgba(37, 99, 235, 0.90));
- }
-
- .month-sessions-card {
-     background: rgba(15, 23, 42, 0.55);
-     border: 1px solid rgba(191, 219, 254, 0.18);
-     border-radius: 18px;
-     padding: 1rem;
-     backdrop-filter: blur(10px);
- }
-
- .month-sessions-header {
-     display: flex;
-     align-items: flex-end;
-     justify-content: space-between;
-     gap: 1rem;
-     flex-wrap: wrap;
-     margin-bottom: 0.75rem;
- }
-
- .month-sessions-title {
-     font-weight: 950;
-     color: rgba(255, 255, 255, 0.98);
-     font-size: 1.2rem;
- }
-
- .month-sessions-subtitle {
-     font-weight: 800;
-     color: rgba(219, 234, 254, 0.88);
- }
-
- .month-sessions-count {
-     background: linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(249, 115, 22, 0.9));
-     color: rgba(255, 255, 255, 0.98);
-     font-weight: 950;
-     border-radius: 999px;
-     padding: 0.45rem 0.9rem;
-     border: 1px solid rgba(255,255,255,0.18);
- }
-
- .month-empty {
-     padding: 1rem;
-     font-weight: 800;
-     color: rgba(219, 234, 254, 0.9);
-     border: 1px dashed rgba(191, 219, 254, 0.25);
-     border-radius: 12px;
- }
-
- .month-sessions-list {
-     display: flex;
-     flex-direction: column;
-     gap: 0.65rem;
- }
-
- .month-session-row {
-     display: flex;
-     align-items: flex-start;
-     justify-content: space-between;
-     gap: 1rem;
-     padding: 0.9rem;
-     border-radius: 14px;
-     background: rgba(2, 6, 23, 0.22);
-     border: 1px solid rgba(191, 219, 254, 0.16);
- }
-
- .month-session-row.is-future {
-     background: rgba(16, 185, 129, 0.10);
-     border-color: rgba(16, 185, 129, 0.38);
- }
-
- .month-session-row.is-past {
-     opacity: 0.72;
- }
-
- .month-session-title {
-     font-weight: 950;
-     color: rgba(255, 255, 255, 0.96);
- }
-
- .month-session-meta {
-     margin-top: 0.25rem;
-     display: flex;
-     gap: 0.6rem;
-     flex-wrap: wrap;
-     align-items: center;
-     font-weight: 800;
-     color: rgba(219, 234, 254, 0.88);
- }
-
- .month-dot {
-     opacity: 0.6;
- }
-
- .month-session-right {
-     display: flex;
-     gap: 0.6rem;
-     align-items: center;
-     flex-wrap: wrap;
- }
-
- .month-tag {
-     margin-left: 0.5rem;
-     padding: 0.2rem 0.55rem;
-     border-radius: 999px;
-     font-size: 0.75rem;
-     font-weight: 950;
-     background: rgba(255, 255, 255, 0.14);
-     border: 1px solid rgba(255, 255, 255, 0.16);
- }
-
- .month-type {
-     padding: 0.25rem 0.6rem;
-     border-radius: 999px;
-     font-size: 0.75rem;
-     font-weight: 950;
-     border: 1px solid rgba(255,255,255,0.18);
- }
-
- .type-presentielle {
-     background: rgba(249, 115, 22, 0.18);
-     color: rgba(255, 255, 255, 0.96);
- }
-
- .type-enligne {
-     background: rgba(37, 99, 235, 0.18);
-     color: rgba(255, 255, 255, 0.96);
- }
-
- .all-programmes-card {
-     margin-top: 0.25rem;
-     background: rgba(15, 23, 42, 0.55);
-     border: 1px solid rgba(191, 219, 254, 0.18);
-     border-radius: 18px;
-     padding: 1rem;
-     backdrop-filter: blur(10px);
- }
-
- .all-programmes-header {
-     display: flex;
-     justify-content: space-between;
-     align-items: flex-end;
-     gap: 1rem;
-     flex-wrap: wrap;
-     margin-bottom: 0.75rem;
- }
-
- .all-programmes-title {
-     font-weight: 950;
-     color: rgba(255, 255, 255, 0.98);
-     font-size: 1.25rem;
- }
-
- .all-programmes-subtitle {
-     font-weight: 800;
-     color: rgba(219, 234, 254, 0.88);
- }
-
- .all-programmes-empty {
-     padding: 1rem;
-     color: rgba(219, 234, 254, 0.9);
-     font-weight: 800;
- }
-
- .programme-acc-item {
-     background: transparent;
-     border: 1px solid rgba(191, 219, 254, 0.18);
-     border-radius: 14px;
-     overflow: hidden;
-     margin-bottom: 0.85rem;
- }
-
- .programme-acc-btn {
-     background: rgba(2, 6, 23, 0.25);
-     color: rgba(255, 255, 255, 0.95);
-     font-weight: 900;
- }
-
- .programme-acc-btn:focus {
-     box-shadow: none;
- }
-
- .programme-acc-title {
-     display: flex;
-     flex-direction: column;
-     gap: 0.35rem;
-     width: 100%;
- }
-
- .programme-acc-name {
-     font-size: 1.05rem;
-     font-weight: 950;
- }
-
- .programme-acc-meta {
-     display: flex;
-     gap: 0.4rem;
-     flex-wrap: wrap;
- }
-
- .programme-acc-body {
-     background: rgba(2, 6, 23, 0.22);
-     color: rgba(255, 255, 255, 0.92);
- }
-
- .programme-desc {
-     color: rgba(219, 234, 254, 0.92);
-     font-weight: 700;
-     margin-bottom: 0.75rem;
- }
-
- .programme-empty {
-     padding: 0.75rem;
-     font-weight: 800;
-     color: rgba(219, 234, 254, 0.9);
-     border: 1px dashed rgba(191, 219, 254, 0.25);
-     border-radius: 12px;
- }
-
- .badge-soft {
-     background: rgba(255, 255, 255, 0.10);
-     border: 1px solid rgba(255, 255, 255, 0.12);
-     color: rgba(255, 255, 255, 0.92);
-     font-weight: 850;
- }
-
- .programme-status-badge {
-     display: inline-flex;
-     align-items: center;
-     margin-left: 0.6rem;
-     padding: 0.15rem 0.55rem;
-     border-radius: 999px;
-     font-size: 0.75rem;
-     font-weight: 950;
-     border: 1px solid rgba(255, 255, 255, 0.18);
-     background: rgba(2, 6, 23, 0.22);
-     color: rgba(255, 255, 255, 0.98);
- }
-
- .programme-status-badge.is-running {
-     background: rgba(16, 185, 129, 0.22);
-     border-color: rgba(16, 185, 129, 0.35);
- }
-
- .programme-status-badge.is-done {
-     background: rgba(148, 163, 184, 0.22);
-     border-color: rgba(148, 163, 184, 0.35);
- }
-
- .programme-status-badge.is-upcoming {
-     background: rgba(249, 115, 22, 0.22);
-     border-color: rgba(249, 115, 22, 0.35);
- }
-
-/* Bordure dégradée Instagram */
-.programme-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    padding: 2px;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(191, 219, 254, 0.35), rgba(191, 219, 254, 0.16));
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    opacity: 0.55;
-}
-
-.instagram-header::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    background: radial-gradient(600px 220px at 20% 20%, rgba(255,255,255,0.35), transparent 55%),
-                radial-gradient(480px 220px at 80% 0%, rgba(255,255,255,0.18), transparent 60%);
-    pointer-events: none;
-}
-
-/* Icône circulaire avec effet glassmorphism */
-.icon-circle {
-    width: 70px;
-    height: 70px;
-    background: rgba(255, 255, 255, 0.18);
-    backdrop-filter: blur(10px);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.28);
-    animation: pulse 2s infinite;
-}
-
-.icon-circle-large {
-    width: 120px;
-    height: 120px;
-    background: linear-gradient(135deg, rgba(30, 60, 114, 0.08), rgba(79, 195, 247, 0.12));
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3.5rem;
-    color: var(--evc-blue-600);
-    margin: 0 auto;
-}
-
-/* Carte de programme avec style Instagram */
-.programme-card {
-    background: var(--evc-surface);
-    border-radius: 20px;
-    padding: 2rem;
-    border: 1px solid var(--evc-border);
-    box-shadow: 0 18px 55px rgba(2, 6, 23, 0.45);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    animation: fadeInUp 0.6s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.programme-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: transparent;
-    pointer-events: none;
-}
-
-.programme-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 22px 70px rgba(2, 6, 23, 0.55);
-    border-color: rgba(191, 219, 254, 0.30);
-}
-
-.programme-card:hover::after {
-    opacity: 0.85;
-}
-
-/* Icône PDF avec dégradé */
-.pdf-icon-container {
-    display: flex;
-    justify-content: center;
-}
-
-.pdf-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    color: white;
-    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.25);
-    transition: all 0.3s ease;
-}
-
-.programme-card:hover .pdf-icon {
-    transform: scale(1.1) rotate(5deg);
-}
-
-/* Titre du programme */
-.programme-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.95);
-    text-align: center;
-    line-height: 1.4;
-}
-
-/* Description du programme */
-.programme-description {
-    color: rgba(219, 234, 254, 0.90);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    text-align: center;
-}
-
-/* Option B: light premium (cartes très lisibles) */
-.programme-card,
-.tools-card,
-.empty-state,
-.session-row {
-    backdrop-filter: blur(10px);
-}
-
-.programme-card {
-    border: 1px solid rgba(255, 255, 255, 0.55);
-}
-
-.programme-title,
-.programme-description {
-    text-align: left;
-}
-
-/* Informations du programme */
-.programme-info {
-    padding-top: 1rem;
-    border-top: 1px solid #f3f4f6;
-}
-
-.programme-badges {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 0.5rem;
-}
-
-.badge-soft {
-    background: #12336b;
-    color: rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(191, 219, 254, 0.22);
-    padding: 0.45rem 0.7rem;
-    border-radius: 999px;
-    font-weight: 600;
-}
-
-.badge-soft i {
-    color: rgba(255, 255, 255, 0.85);
-}
-
-/* Bouton Instagram */
-.instagram-btn {
-    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
-    color: white;
-    border: none;
-    border-radius: 30px;
-    padding: 0.875rem 1.5rem;
-    font-weight: 600;
-    font-size: 1rem;
-    text-decoration: none;
-    display: inline-block;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
-    margin-top: auto;
-}
-
-.btn-disabled {
-    background: linear-gradient(135deg, #94a3b8, #64748b);
-    opacity: 0.85;
-    cursor: not-allowed;
-}
-
-.instagram-btn:hover {
-    background: linear-gradient(135deg, var(--evc-blue-600), var(--evc-blue-500));
-    transform: translateY(-2px);
-    box-shadow: 0 20px 55px rgba(0, 0, 0, 0.35);
-    color: white;
-}
-
-/* État vide */
-.empty-state {
-    background: var(--evc-surface);
-    border-radius: 20px;
-    padding: 4rem 2rem;
-    box-shadow: 0 18px 55px rgba(2, 6, 23, 0.45);
-    border: 1px solid var(--evc-border);
-}
-
-/* Sessions */
-.sessions-list {
-    display: grid;
-    gap: 0.75rem;
-}
-
-.session-row {
-    background: var(--evc-surface-soft);
-    border: 1px solid var(--evc-border);
-    border-radius: 16px;
-    padding: 0.9rem 1rem;
-    display: grid;
-    grid-template-columns: 48px 1fr auto;
-    gap: 0.9rem;
-    align-items: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.session-row[data-status="current"] {
-    border: 2px solid rgba(37, 99, 235, 0.45);
-    box-shadow: 0 14px 35px rgba(37, 99, 235, 0.16);
-}
-
-.sessions-focus {
-    border-radius: 20px;
-    padding: 1rem;
-    background: #0a2a5c;
-    border: 1px solid rgba(191, 219, 254, 0.18);
-    box-shadow: 0 22px 70px rgba(2, 6, 23, 0.55);
-}
-
-.sessions-focus-header {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-    padding: 0.25rem 0.25rem 0.5rem 0.25rem;
-}
-
-.sessions-focus-title {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.95);
-    text-shadow: 0 14px 40px rgba(0,0,0,0.35);
-    letter-spacing: 0.02em;
-}
-
-.sessions-focus-subtitle {
-    color: rgba(255, 255, 255, 0.82);
-    font-weight: 700;
-}
-
-.session-row-focus {
-    background: rgba(255, 255, 255, 0.96);
-    border: 2px solid rgba(37, 99, 235, 0.55);
-    box-shadow: 0 18px 55px rgba(37, 99, 235, 0.16);
-}
-
-.session-row[data-status="soon"] {
-    border: 2px solid rgba(37, 99, 235, 0.28);
-    box-shadow: 0 14px 35px rgba(37, 99, 235, 0.12);
-}
-
-.session-row[data-status="past"] {
-    opacity: 0.78;
-}
-
-.session-row:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.18);
-}
-
-.session-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
-    box-shadow: 0 12px 30px rgba(0,0,0,0.18);
-}
-
-.session-title {
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.95);
-}
-
-.session-topline {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0.6rem;
-    align-items: center;
-}
-
-.session-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.session-status-badge {
-    border-radius: 999px;
-    padding: 0.45rem 0.7rem;
-    font-weight: 900;
-    letter-spacing: 0.02em;
-}
-
-.session-status-current {
-    color: #fff;
-    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
-    box-shadow: 0 14px 35px rgba(37, 99, 235, 0.18);
-}
-
-.session-status-soon {
-    color: #fff;
-    background: rgba(37, 99, 235, 0.85);
-    box-shadow: 0 14px 35px rgba(37, 99, 235, 0.16);
-}
-
-.session-status-past {
-    color: rgba(15, 23, 42, 0.85);
-    background: rgba(15, 23, 42, 0.08);
-    border: 1px solid rgba(15, 23, 42, 0.12);
-}
-
-.session-type-badge {
-    border-radius: 999px;
-    padding: 0.45rem 0.7rem;
-    font-weight: 900;
-    letter-spacing: 0.02em;
-    border: 1px solid rgba(37, 99, 235, 0.16);
-}
-
-.session-type-badge.type-enligne {
-    color: #0b1f44;
-    background: rgba(37, 99, 235, 0.10);
-}
-
-.session-type-badge.type-presentielle {
-    color: #0b1f44;
-    background: rgba(37, 99, 235, 0.10);
-}
-
-.session-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    color: rgba(219, 234, 254, 0.85);
-    font-weight: 600;
-    margin-top: 0.15rem;
-}
-
-.session-desc {
-    margin-top: 0.55rem;
-    padding: 0.75rem 0.9rem;
-    border-radius: 14px;
-    background: #12336b;
-    border: 1px solid rgba(191, 219, 254, 0.18);
-    color: rgba(255, 255, 255, 0.88);
-    font-weight: 600;
-    line-height: 1.6;
-}
-
-.session-when,
-.session-where {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.45rem 0.7rem;
-    border-radius: 999px;
-    border: 1px solid rgba(191, 219, 254, 0.18);
-    font-weight: 800;
-    color: rgba(255, 255, 255, 0.92);
-}
-
-.session-when {
-    background: #12336b;
-}
-
-.session-where {
-    background: #12336b;
-}
-
-.session-dot {
-    opacity: 0.7;
-    font-weight: 900;
-}
-
-.session-actions .btn {
-    border-radius: 999px;
-    font-weight: 800;
-}
-
-.session-actions .btn-primary {
-    background: linear-gradient(135deg, var(--evc-blue-700), var(--evc-blue-600));
-    border: none;
-    box-shadow: 0 14px 35px rgba(0,0,0,0.20);
-}
-
-.session-actions .btn-primary:hover {
-    filter: brightness(1.05);
-}
-
-/* Animations */
-@keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .programme-hero-title {
-        font-size: 1.35rem;
-    }
-
-    .programme-hero-subtitle {
-        font-size: 0.95rem;
-    }
-
-    .icon-circle {
-        width: 60px;
-        height: 60px;
-        font-size: 1.5rem;
-    }
-
-    .programme-card {
-        padding: 1.5rem;
-    }
-
-    .pdf-icon {
-        width: 70px;
-        height: 70px;
-        font-size: 2rem;
-    }
-
-    .programme-title {
-        font-size: 1.1rem;
-    }
-}
-
-/* Animation en cascade pour les cartes */
-.programme-card:nth-child(1) { animation-delay: 0.1s; }
-.programme-card:nth-child(2) { animation-delay: 0.2s; }
-.programme-card:nth-child(3) { animation-delay: 0.3s; }
-.programme-card:nth-child(4) { animation-delay: 0.4s; }
-.programme-card:nth-child(5) { animation-delay: 0.5s; }
-.programme-card:nth-child(6) { animation-delay: 0.6s; }
-
-.tools-card {
-    background: var(--evc-surface);
-    border-radius: 20px;
-    padding: 1rem;
-    box-shadow: 0 18px 55px rgba(2, 6, 23, 0.45);
-    border: 1px solid var(--evc-border);
-}
-
-.tools-input {
-    border-radius: 12px;
-    border: 1px solid rgba(191, 219, 254, 0.18);
-    background: #0e2a5a;
-    color: rgba(255, 255, 255, 0.92);
-}
-
-.tools-input:focus {
-    border-color: rgba(59, 130, 246, 0.65);
-    box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.20);
-}
-
-.tools-input-addon {
-    border-radius: 12px;
-    background: #0e2a5a;
-    border: 1px solid rgba(191, 219, 254, 0.18);
-    color: rgba(255, 255, 255, 0.92);
-}
-
-.tools-reset {
-    border-radius: 12px;
-    font-weight: 600;
-    border: none;
-    background: #12336b;
-    color: rgba(255, 255, 255, 0.92);
-}
-
-.tools-reset:hover {
-    filter: brightness(1.02);
-}
-
-.programme-hero-wrap{background:linear-gradient(90deg,#0a1128 0%,#001f54 50%,#034078 100%) !important;}
-.programme-card-modern{background:#fff !important;border:1px solid rgba(15,23,42,.08) !important;}
-.programme-card-title{color:#0f172a !important;}
-.programme-card-desc,.programme-card-desc-muted{color:rgba(15,23,42,.72) !important;}
-.programme-chip{color:rgba(15,23,42,.85) !important;background:rgba(15,23,42,.04) !important;border:1px solid rgba(15,23,42,.08) !important;}
-.programme-chip-soft{color:rgba(15,23,42,.70) !important;}
-.programme-card-icon{background:rgba(249,115,22,.12) !important;border:1px solid rgba(249,115,22,.22) !important;color:#f97316 !important;}
-.programme-card-actions .btn{border-radius:999px !important;font-weight:800 !important;}
-
-/* ===== Lecteur de livre numérique ===== */
-.book-open-btn { font-weight: 700; }
-
-.book-modal-content {
-    background: #0b1220;
-    border: none;
-    color: #fff;
-}
-
-.book-modal-header {
-    background: #081126;
-    border-bottom: 1px solid rgba(191, 219, 254, 0.12);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    padding: 0.85rem 1.15rem;
-    z-index: 10;
-}
-
-#bookModalTitle {
-    color: #fff;
-    font-weight: 900;
-    margin: 0;
-    max-width: 40vw;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.book-toolbar {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-}
-
-.book-btn {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #fff;
-    border-radius: 10px;
-    padding: 0.45rem 0.75rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    text-decoration: none;
-    line-height: 1.2;
-}
-
-.book-btn:hover {
-    background: rgba(255, 255, 255, 0.16);
-    color: #fff;
-}
-
-.book-btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.book-page-info {
-    color: rgba(255, 255, 255, 0.92);
-    font-weight: 700;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-}
-
-.book-page-info input {
-    width: 60px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #fff;
-    border-radius: 8px;
-    padding: 0.4rem 0.5rem;
-    text-align: center;
-    font-weight: 700;
-}
-
-.book-page-info input:focus {
-    outline: none;
-    border-color: rgba(37, 99, 235, 0.8);
-    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
-}
-
-.book-select {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #fff;
-    border-radius: 8px;
-    padding: 0.45rem 0.65rem;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.book-select option {
-    background: #0b1220;
-    color: #fff;
-}
-
-.book-modal-body {
-    background: radial-gradient(circle at 50% 50%, #0e1d3a 0%, #0b1220 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: auto;
-    position: relative;
-    padding: 1rem;
-    min-height: calc(100vh - 80px);
-}
-
-.book-sheet {
-    background: #fff;
-    border-radius: 3px 10px 10px 3px;
-    box-shadow:
-        0 25px 80px rgba(0, 0, 0, 0.55),
-        0 4px 12px rgba(0, 0, 0, 0.25),
-        inset -12px 0 24px rgba(0, 0, 0, 0.04);
-    border-left: 5px solid rgba(11, 18, 32, 0.10);
-    display: inline-block;
-    max-width: 100%;
-    max-height: calc(100vh - 130px);
-    overflow: auto;
-    position: relative;
-    transition: box-shadow 0.3s ease;
-}
-
-.book-page {
-    display: block;
-    transition: opacity 0.2s ease;
-}
-
-.book-page-changing {
-    opacity: 0.45;
-}
-
-.book-loader {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    gap: 0.75rem;
-    font-weight: 700;
-    background: rgba(11, 18, 32, 0.75);
-    z-index: 20;
-}
-
-.book-error {
-    color: #fecaca;
-    background: rgba(239, 68, 68, 0.14);
-    border: 1px solid rgba(239, 68, 68, 0.32);
-    border-radius: 12px;
-    padding: 0.85rem 1.1rem;
-    max-width: 520px;
-    text-align: center;
-    font-weight: 600;
-    z-index: 25;
-}
-
-@media (max-width: 768px) {
-    #bookModalTitle { max-width: 90vw; }
-    .book-modal-header { padding: 0.75rem; }
-    .book-toolbar { width: 100%; justify-content: center; }
-    .book-select { max-width: 85px; }
-    .book-page-info input { width: 52px; }
-}
-
-</style>
-@endpush
-
 @push('scripts')
 <script>
-// Animation au scroll
-document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('programmeSearch');
-    const typeFilter = document.getElementById('programmeTypeFilter');
-    const resetBtn = document.getElementById('programmeReset');
-    const programmeFilterResetBtn = document.getElementById('programmeFilterReset');
-    const cardsWrap = document.getElementById('programmeFormationCards');
-    const programmeCards = Array.from(document.querySelectorAll('.programme-card-item'));
-
-    let activeProgrammeFilter = '';
-
-    function setProgrammeFilter(filter) {
-        activeProgrammeFilter = (filter || '').toString();
-        if (cardsWrap) {
-            Array.from(cardsWrap.querySelectorAll('[data-programme-filter]')).forEach(el => {
-                const isActive = (el.getAttribute('data-programme-filter') || '') === activeProgrammeFilter;
-                el.classList.toggle('is-active', !!activeProgrammeFilter && isActive);
-            });
-        }
-        applyFilters();
-    }
-
-    function normalize(value) {
-        return (value || '').toString().toLowerCase().trim();
-    }
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('pgiSearch');
+    const cards = document.querySelectorAll('.pgi-card');
+    const noResults = document.getElementById('pgiNoResults');
+    let activeStatus = '';
+    let activeFormation = '';
 
     function applyFilters() {
-        const search = normalize(searchInput ? searchInput.value : '');
-        const type = normalize(typeFilter ? typeFilter.value : '');
-
-        // Filtre sur les PROGRAMMES (DG / CM / Mois en cours)
-        programmeCards.forEach(el => {
-            const canonical = el.getAttribute('data-canonical') || '';
-            const currentMonth = el.getAttribute('data-current-month') || '0';
-            let show = true;
-
-            if (activeProgrammeFilter === 'dg') {
-                show = canonical === 'dg';
-            } else if (activeProgrammeFilter === 'cm') {
-                show = canonical === 'cm';
-            } else if (activeProgrammeFilter === 'current') {
-                show = currentMonth === '1';
-            }
-
-            el.style.display = show ? '' : 'none';
+        const q = (searchInput ? searchInput.value : '').toLowerCase().trim();
+        let visible = 0;
+        cards.forEach(card => {
+            const matchStatus = !activeStatus || card.dataset.status === activeStatus;
+            const matchFormation = !activeFormation || card.dataset.formation === activeFormation;
+            const matchSearch = !q || (card.dataset.search || '').includes(q);
+            const show = matchStatus && matchFormation && matchSearch;
+            card.classList.toggle('hidden', !show);
+            if (show) visible++;
         });
-
-        document.querySelectorAll('.programme-item').forEach(item => {
-            const itemSearch = normalize(item.getAttribute('data-search'));
-            const itemType = normalize(item.getAttribute('data-type'));
-
-            const matchSearch = !search || itemSearch.includes(search);
-            const matchType = !type || itemType === type;
-
-            item.style.display = (matchSearch && matchType) ? '' : 'none';
-        });
+        if (noResults) noResults.style.display = visible === 0 ? 'block' : 'none';
     }
 
-    if (searchInput) {
-        searchInput.addEventListener('input', applyFilters);
-    }
-    if (typeFilter) {
-        typeFilter.addEventListener('change', applyFilters);
-    }
-    if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
-            if (searchInput) searchInput.value = '';
-            if (typeFilter) typeFilter.value = '';
-            setProgrammeFilter('');
+    // Pills statut
+    document.querySelectorAll('#statusPills .pgi-pill').forEach(pill => {
+        pill.addEventListener('click', function () {
+            document.querySelectorAll('#statusPills .pgi-pill').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            activeStatus = this.dataset.status;
             applyFilters();
         });
-    }
-
-    if (programmeFilterResetBtn) {
-        programmeFilterResetBtn.addEventListener('click', function() {
-            setProgrammeFilter('');
-        });
-    }
-
-    if (cardsWrap) {
-        Array.from(cardsWrap.querySelectorAll('[data-programme-filter]')).forEach(el => {
-            el.addEventListener('click', function(e) {
-                const filter = this.getAttribute('data-programme-filter');
-                if (!filter) return;
-                e.preventDefault();
-                e.stopPropagation();
-                setProgrammeFilter(filter);
-            });
-        });
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, {
-        threshold: 0.1
     });
 
-    document.querySelectorAll('.programme-card').forEach(card => {
-        observer.observe(card);
+    // Pills formation (étudiants combinés)
+    document.querySelectorAll('#formationPills .pgi-pill').forEach(pill => {
+        pill.addEventListener('click', function () {
+            document.querySelectorAll('#formationPills .pgi-pill').forEach(p => p.classList.remove('active'));
+            this.classList.add('active');
+            activeFormation = this.dataset.formation;
+            applyFilters();
+        });
     });
 
-    applyFilters();
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+
+    // Toggle séances dans les cartes
+    document.querySelectorAll('.pgi-btn-toggle').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const target = document.getElementById(this.dataset.target);
+            if (!target) return;
+            const open = target.classList.toggle('open');
+            this.querySelector('i').className = open ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+        });
+    });
 });
 </script>
-@endpush
 
-@push('scripts')
 <script>
+// ─── Lecteur PDF (livre numérique) ───
 (function() {
     const modalEl = document.getElementById('programmeBookModal');
     if (!modalEl) return;
@@ -2143,12 +620,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const zoomSelect = document.getElementById('bookZoom');
     const downloadLink = document.getElementById('bookDownload');
 
-    let pdfDoc = null;
-    let numPages = 0;
-    let currentPage = 1;
-    let zoom = 1;
-    let baseScale = 1;
-    let renderTask = null;
+    let pdfDoc = null, numPages = 0, currentPage = 1, zoom = 1, baseScale = 1, renderTask = null;
 
     window.openBook = function(url, bookTitle) {
         if (titleEl) titleEl.textContent = bookTitle || 'Programme';
@@ -2161,15 +633,9 @@ document.addEventListener('DOMContentLoaded', function() {
         reset();
         showLoader(true);
         loadPdfJs(function() {
-            if (!window.pdfjsLib) {
-                showError('Le lecteur PDF n'a pas pu être chargé.');
-                return;
-            }
+            if (!window.pdfjsLib) { showError("Le lecteur PDF n'a pas pu être chargé."); return; }
             pdfjsLib.getDocument({ url: url, withCredentials: true }).promise.then(function(pdf) {
-                pdfDoc = pdf;
-                numPages = pdf.numPages;
-                currentPage = 1;
-                zoom = 1;
+                pdfDoc = pdf; numPages = pdf.numPages; currentPage = 1; zoom = 1;
                 if (zoomSelect) zoomSelect.value = '1';
                 showLoader(false);
                 renderCurrentPage();
@@ -2181,10 +647,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadPdfJs(callback) {
-        if (window.pdfjsLib) {
-            callback();
-            return;
-        }
+        if (window.pdfjsLib) { callback(); return; }
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
         script.onload = function() {
@@ -2193,22 +656,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             callback();
         };
-        script.onerror = function() {
-            showError('Le lecteur PDF (PDF.js) n'a pas pu être chargé.');
-        };
+        script.onerror = function() { showError("Le lecteur PDF (PDF.js) n'a pas pu être chargé."); };
         document.head.appendChild(script);
     }
 
     function reset() {
-        if (renderTask) {
-            try { renderTask.cancel(); } catch (e) {}
-            renderTask = null;
-        }
-        pdfDoc = null;
-        numPages = 0;
-        currentPage = 1;
-        zoom = 1;
-        baseScale = 1;
+        if (renderTask) { try { renderTask.cancel(); } catch (e) {} renderTask = null; }
+        pdfDoc = null; numPages = 0; currentPage = 1; zoom = 1; baseScale = 1;
         if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
         if (pageInput) pageInput.value = 1;
         if (totalEl) totalEl.textContent = 1;
@@ -2217,55 +671,31 @@ document.addEventListener('DOMContentLoaded', function() {
         if (errorBox) errorBox.hidden = true;
     }
 
-    function showLoader(show) {
-        if (loader) loader.style.display = show ? 'flex' : 'none';
-    }
-
-    function showError(msg) {
-        showLoader(false);
-        if (errorBox) { errorBox.textContent = msg; errorBox.hidden = false; }
-    }
+    function showLoader(show) { if (loader) loader.style.display = show ? 'flex' : 'none'; }
+    function showError(msg) { showLoader(false); if (errorBox) { errorBox.textContent = msg; errorBox.hidden = false; } }
 
     function renderCurrentPage() {
         if (!pdfDoc || !canvas || !ctx || currentPage < 1 || currentPage > numPages) return;
-
         canvas.classList.add('book-page-changing');
-
         pdfDoc.getPage(currentPage).then(function(page) {
             const dpr = window.devicePixelRatio || 1;
             const viewport1 = page.getViewport({ scale: 1 });
-            const sheetRect = sheet.getBoundingClientRect();
-            const bodyRect = body.getBoundingClientRect();
-            const availableW = Math.max(220, sheetRect.width - 32);
-            const availableH = Math.max(220, bodyRect.height - 100);
-
-            const scaleByWidth = availableW / viewport1.width;
-            const scaleByHeight = availableH / viewport1.height;
-            baseScale = Math.min(scaleByWidth, scaleByHeight, 3);
-
+            const availableW = Math.max(220, sheet.getBoundingClientRect().width - 32);
+            const availableH = Math.max(220, body.getBoundingClientRect().height - 100);
+            baseScale = Math.min(availableW / viewport1.width, availableH / viewport1.height, 3);
             const currentScale = zoom === 'fit' ? baseScale : baseScale * zoom;
-            const renderScale = currentScale * dpr;
-            const viewport = page.getViewport({ scale: renderScale });
-
+            const viewport = page.getViewport({ scale: currentScale * dpr });
             canvas.width = viewport.width;
             canvas.height = viewport.height;
             canvas.style.width = (viewport.width / dpr) + 'px';
             canvas.style.height = (viewport.height / dpr) + 'px';
-
-            if (renderTask) {
-                try { renderTask.cancel(); } catch (e) {}
-            }
-
+            if (renderTask) { try { renderTask.cancel(); } catch (e) {} }
             renderTask = page.render({ canvasContext: ctx, viewport: viewport });
             renderTask.promise.then(function() {
                 canvas.classList.remove('book-page-changing');
                 updateControls();
-            }).catch(function() {
-                canvas.classList.remove('book-page-changing');
-            });
-        }).catch(function() {
-            showError('Erreur lors du rendu de la page.');
-        });
+            }).catch(function() { canvas.classList.remove('book-page-changing'); });
+        }).catch(function() { showError('Erreur lors du rendu de la page.'); });
     }
 
     function updateControls() {
@@ -2276,48 +706,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function changePage(delta) {
-        const newPage = currentPage + delta;
-        if (newPage >= 1 && newPage <= numPages) {
-            currentPage = newPage;
-            renderCurrentPage();
-        }
+        const n = currentPage + delta;
+        if (n >= 1 && n <= numPages) { currentPage = n; renderCurrentPage(); }
     }
-
-    function goToPage(value) {
-        let n = parseInt(value, 10);
+    function goToPage(v) {
+        let n = parseInt(v, 10);
         if (!Number.isFinite(n)) return;
-        n = Math.max(1, Math.min(numPages, n));
-        currentPage = n;
+        currentPage = Math.max(1, Math.min(numPages, n));
         renderCurrentPage();
     }
 
-    if (prevBtn) prevBtn.addEventListener('click', function() { changePage(-1); });
-    if (nextBtn) nextBtn.addEventListener('click', function() { changePage(1); });
+    if (prevBtn) prevBtn.addEventListener('click', () => changePage(-1));
+    if (nextBtn) nextBtn.addEventListener('click', () => changePage(1));
     if (pageInput) {
         pageInput.addEventListener('change', function() { goToPage(this.value); });
-        pageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { goToPage(this.value); e.preventDefault(); }
-        });
+        pageInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') { goToPage(this.value); e.preventDefault(); } });
     }
     if (zoomSelect) {
         zoomSelect.addEventListener('change', function() {
             zoom = this.value === 'fit' ? 'fit' : parseFloat(this.value);
-            if (!pdfDoc) return;
-            renderCurrentPage();
+            if (pdfDoc) renderCurrentPage();
         });
     }
 
     let resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            if (pdfDoc) renderCurrentPage();
-        }, 250);
+        resizeTimer = setTimeout(() => { if (pdfDoc) renderCurrentPage(); }, 250);
     });
 
-    modalEl.addEventListener('shown.bs.modal', function() {
-        if (pdfDoc) renderCurrentPage();
-    });
+    modalEl.addEventListener('shown.bs.modal', () => { if (pdfDoc) renderCurrentPage(); });
     modalEl.addEventListener('hidden.bs.modal', reset);
 })();
 </script>
