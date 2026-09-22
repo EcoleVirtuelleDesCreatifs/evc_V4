@@ -1280,7 +1280,7 @@ class AdminDashboardController extends Controller
     public function index(): View
     {
         try {
-            $formations = \App\Models\Formation::with('category')->latest()->get();
+            $formations = \App\Models\Formation::with('category')->withCount('students')->latest()->get();
 
             // Calculer les statistiques globales
             $stats = [
