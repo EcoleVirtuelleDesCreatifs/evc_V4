@@ -329,7 +329,7 @@
             try { $monthLabel = !empty($programme->month_start) ? \Carbon\Carbon::parse($programme->month_start)->translatedFormat('F Y') : null; } catch (\Throwable $e) {}
             $pStatus = $programme->status ?? 'a_venir';
             $pStatusLabel = $statusLabels[$pStatus] ?? 'À venir';
-            $imageUrl = !empty($programme->image) ? asset('storage/' . ltrim($programme->image, '/')) : null;
+            $imageUrl = !empty($programme->image) ? \App\Models\MediaUrl::fromPath($programme->image) : null;
             $nextItem = $programme->next_item ?? null;
             $searchText = strtolower(($programme->titre ?? '') . ' ' . ($programme->description ?? '') . ' ' . ($monthLabel ?? '') . ' ' . $items->pluck('thematique')->implode(' '));
         @endphp
@@ -415,7 +415,7 @@
                                 </div>
                             </div>
                             @if(!empty($item->piece_jointe))
-                                <a class="pgi-session-dl" target="_blank" href="{{ asset('storage/' . ltrim($item->piece_jointe, '/')) }}" title="Télécharger la pièce jointe">
+                                <a class="pgi-session-dl" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($item->piece_jointe) }}" title="Télécharger la pièce jointe">
                                     <i class="fas fa-download"></i>
                                 </a>
                             @endif
@@ -427,12 +427,12 @@
                 <div class="pgi-card-foot">
                     @if(!empty($programme->fichier_pdf))
                         <button type="button" class="pgi-btn pgi-btn-primary book-open-btn"
-                                data-pdf="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}"
+                                data-pdf="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}"
                                 data-title="{{ $programme->titre ?? 'Programme' }}"
                                 onclick="openBook(this.dataset.pdf, this.dataset.title)">
                             <i class="fas fa-book-open"></i>Lire
                         </button>
-                        <a class="pgi-btn pgi-btn-ghost" target="_blank" href="{{ asset('storage/' . ltrim($programme->fichier_pdf, '/')) }}" title="Télécharger le PDF">
+                        <a class="pgi-btn pgi-btn-ghost" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}" title="Télécharger le PDF">
                             <i class="fas fa-download"></i>
                         </a>
                     @else
@@ -495,7 +495,7 @@
                         <span><i class="fas fa-video me-1"></i>En ligne</span>
                     @endif
                     @if(!empty($item->piece_jointe))
-                        <a href="{{ asset('storage/' . ltrim($item->piece_jointe, '/')) }}" target="_blank" style="color:#93c5fd;"><i class="fas fa-download me-1"></i>Support</a>
+                        <a href="{{ \App\Models\MediaUrl::fromPath($item->piece_jointe) }}" target="_blank" style="color:#93c5fd;"><i class="fas fa-download me-1"></i>Support</a>
                     @endif
                 </div>
             </div>
