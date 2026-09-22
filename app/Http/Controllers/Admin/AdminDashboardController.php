@@ -2201,10 +2201,9 @@ class AdminDashboardController extends Controller
 
     public function createProgramme()
     {
-        // Liste des étudiants actifs (pour ciblage spécifique)
-        $students = DB::table('students')
+        // Liste des étudiants réellement actifs (pour ciblage spécifique)
+        $students = self::activeStudentsQuery()
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->where('students.status', 'active')
             ->select(
                 'students.*',
                 'users.email'
@@ -2273,9 +2272,8 @@ class AdminDashboardController extends Controller
             }
             $programmesCreated++;
 
-            $students = DB::table('students')
+            $students = self::activeStudentsQuery()
                 ->leftJoin('users', 'students.user_id', '=', 'users.id')
-                ->where('students.status', 'active')
                 ->whereIn('students.id', $studentIds)
                 ->select('students.*', 'users.email')
                 ->get();
@@ -2347,10 +2345,9 @@ class AdminDashboardController extends Controller
                 }
                 $programmesCreated++;
 
-                // Récupérer les étudiants concernés par cette formation
-                $studentsQuery = DB::table('students')
+                // Récupérer les étudiants actifs concernés par cette formation
+                $studentsQuery = self::activeStudentsQuery()
                     ->leftJoin('users', 'students.user_id', '=', 'users.id')
-                    ->where('students.status', 'active')
                     ->select('students.*', 'users.email');
 
                 if ($formation !== 'Toutes') {
@@ -2536,10 +2533,9 @@ class AdminDashboardController extends Controller
                 ->get();
         }
 
-        // Liste des étudiants actifs (pour affichage en cas de ciblage spécifique)
-        $students = DB::table('students')
+        // Liste des étudiants réellement actifs (pour affichage en cas de ciblage spécifique)
+        $students = self::activeStudentsQuery()
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->where('students.status', 'active')
             ->select('students.*', 'users.email')
             ->orderBy('students.first_name')
             ->orderBy('students.last_name')
