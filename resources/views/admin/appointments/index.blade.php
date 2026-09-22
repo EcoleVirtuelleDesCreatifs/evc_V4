@@ -252,7 +252,8 @@
                                 </div>
                                 <div class="sub">
                                     @if($slot->mode === 'en_ligne')<i class="fas fa-video me-1"></i>En ligne
-                                    @else<i class="fas fa-map-marker-alt me-1"></i>Présentiel@endif
+                                    @else<i class="fas fa-map-marker-alt me-1"></i>Présentiel
+                                    @endif
                                     @if($slot->lieu) · {{ $slot->lieu }}@endif
                                     @if(!$slot->is_active) · <span class="text-warning">désactivé</span>@endif
                                 </div>
