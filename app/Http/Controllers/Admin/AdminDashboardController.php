@@ -6756,11 +6756,13 @@ class AdminDashboardController extends Controller
                         }
 
                         $studentUrl = url("/evc/compte/{$formationSlug}/projets");
+                        $projectUrl = url("/evc/compte/{$formationSlug}/todo/traiter/{$projectId}");
 
                         Mail::send('emails.project_assigned', [
                             'student' => $student,
                             'project' => (object) $projectData,
                             'studentUrl' => $studentUrl,
+                            'projectUrl' => $projectUrl,
                         ], function ($message) use ($student, $projectData) {
                             $message->to($student->email)
                                 ->subject('📌 Nouveau projet disponible : ' . $projectData['title']);
