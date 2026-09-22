@@ -1243,30 +1243,50 @@ class StudentAdminController extends Controller
         // Récupérer les projets disponibles créés par l'admin pour la formation de l'étudiant
         $availableProjects = collect();
         if (Schema::hasTable('projects')) {
-            // Récupérer les IDs des projets déjà assignés à cet étudiant
-            $assignedProjectIds = DB::table('projects')
-                ->where('user_id', $user->id)
-                ->pluck('id')
+            // user_id de tous les étudiants : un projet dont le user_id appartient à un
+            // étudiant est soit une copie assignée, soit un projet créé par un étudiant.
+            $studentUserIds = DB::table('students')
+                ->whereNotNull('user_id')
+                ->pluck('user_id')
                 ->toArray();
 
-            // Récupérer les projets créés par l'admin pour la formation de l'étudiant
-            // Filtrer par formation de l'étudiant et exclure les projets assignés
+            // Titres des projets déjà attribués à un étudiant (peu importe lequel) :
+            // quand un projet admin est assigné, une copie est créée avec le user_id
+            // de l'étudiant — le titre ne doit donc plus apparaître comme disponible.
+            $assignedTitles = DB::table('projects')
+                ->whereIn('user_id', $studentUserIds)
+                ->pluck('title')
+                ->map(fn($t) => mb_strtolower(trim((string) $t)))
+                ->filter()
+                ->unique()
+                ->flip();
+
+            // Projets créés par l'admin : user_id qui n'appartient à aucun étudiant
             $studentFormation = $student->program;
+            $normalizedProgram = mb_strtolower(str_replace([' ', '_', '-', '&'], '', (string) $studentFormation));
+
             $availableProjects = DB::table('projects')
-                ->whereNotIn('id', $assignedProjectIds)
-                ->where('user_id', '!=', $user->id) // Exclure les projets de l'étudiant
-                ->where(function($query) use ($studentFormation) {
-                    // Filtrer par formation ou afficher tous les projets admin
-                    $query->where('category', $studentFormation)
-                          ->orWhereNull('category')
-                          ->orWhere('category', '');
-                })
+                ->when(!empty($studentUserIds), fn($q) => $q->whereNotIn('user_id', $studentUserIds))
                 ->where('title', '!=', '') // Exclure les projets sans titre
                 ->select('title', 'category', 'description', 'link', 'tags', 'software_used', 'thumbnail_image', 'deadline', DB::raw('MAX(id) as id'), DB::raw('MAX(created_at) as created_at'))
                 ->groupBy('title', 'category', 'description', 'link', 'tags', 'software_used', 'thumbnail_image', 'deadline')
                 ->orderBy('created_at', 'desc')
-                ->limit(20)
-                ->get();
+                ->limit(60)
+                ->get()
+                ->filter(function ($project) use ($assignedTitles, $normalizedProgram) {
+                    // Exclure les projets déjà attribués à un étudiant (par titre)
+                    if ($assignedTitles->has(mb_strtolower(trim((string) $project->title)))) {
+                        return false;
+                    }
+                    // Filtrer par formation : catégorie vide = visible pour toutes les formations
+                    $catNorm = mb_strtolower(str_replace([' ', '_', '-', '&'], '', (string) ($project->category ?? '')));
+                    if ($catNorm === '' || $normalizedProgram === '') {
+                        return true;
+                    }
+                    return str_contains($catNorm, $normalizedProgram) || str_contains($normalizedProgram, $catNorm);
+                })
+                ->take(20)
+                ->values();
 
             // Charger les fichiers pour les projets disponibles (uniquement fichiers admin, pas soumissions étudiants)
             if ($availableProjects->isNotEmpty() && Schema::hasTable('project_images')) {
