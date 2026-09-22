@@ -1240,53 +1240,76 @@ class StudentAdminController extends Controller
         $todosNonTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['assigned', 'pending']));
         $todosTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['submitted', 'validated', 'rejected']));
 
-        // Récupérer les projets disponibles créés par l'admin pour la formation de l'étudiant
+        // Récupérer les projets disponibles pour la formation de l'étudiant :
+        // catalogue des projets (groupés par titre) + templates admin actifs,
+        // en excluant ceux déjà assignés à CET étudiant.
         $availableProjects = collect();
         if (Schema::hasTable('projects')) {
-            // user_id de tous les étudiants : un projet dont le user_id appartient à un
-            // étudiant est soit une copie assignée, soit un projet créé par un étudiant.
-            $studentUserIds = DB::table('students')
-                ->whereNotNull('user_id')
-                ->pluck('user_id')
-                ->toArray();
-
-            // Titres des projets déjà attribués à un étudiant (peu importe lequel) :
-            // quand un projet admin est assigné, une copie est créée avec le user_id
-            // de l'étudiant — le titre ne doit donc plus apparaître comme disponible.
-            $assignedTitles = DB::table('projects')
-                ->whereIn('user_id', $studentUserIds)
+            // Titres déjà assignés à cet étudiant : l'assignation crée une copie
+            // (nouvel id), donc l'exclusion doit se faire par titre.
+            $studentTitles = DB::table('projects')
+                ->where('user_id', $user->id)
                 ->pluck('title')
                 ->map(fn($t) => mb_strtolower(trim((string) $t)))
                 ->filter()
                 ->unique()
                 ->flip();
 
-            // Projets créés par l'admin : user_id qui n'appartient à aucun étudiant
             $studentFormation = $student->program;
             $normalizedProgram = mb_strtolower(str_replace([' ', '_', '-', '&'], '', (string) $studentFormation));
+            $matchesFormation = function ($category) use ($normalizedProgram) {
+                // Catégorie vide = visible pour toutes les formations
+                $catNorm = mb_strtolower(str_replace([' ', '_', '-', '&'], '', (string) ($category ?? '')));
+                if ($catNorm === '' || $normalizedProgram === '') {
+                    return true;
+                }
+                return str_contains($catNorm, $normalizedProgram) || str_contains($normalizedProgram, $catNorm);
+            };
 
             $availableProjects = DB::table('projects')
-                ->when(!empty($studentUserIds), fn($q) => $q->whereNotIn('user_id', $studentUserIds))
                 ->where('title', '!=', '') // Exclure les projets sans titre
                 ->select('title', 'category', 'description', 'link', 'tags', 'software_used', 'thumbnail_image', 'deadline', DB::raw('MAX(id) as id'), DB::raw('MAX(created_at) as created_at'))
                 ->groupBy('title', 'category', 'description', 'link', 'tags', 'software_used', 'thumbnail_image', 'deadline')
                 ->orderBy('created_at', 'desc')
                 ->limit(60)
                 ->get()
-                ->filter(function ($project) use ($assignedTitles, $normalizedProgram) {
-                    // Exclure les projets déjà attribués à un étudiant (par titre)
-                    if ($assignedTitles->has(mb_strtolower(trim((string) $project->title)))) {
+                ->filter(function ($project) use ($studentTitles, $matchesFormation) {
+                    if ($studentTitles->has(mb_strtolower(trim((string) $project->title)))) {
                         return false;
                     }
-                    // Filtrer par formation : catégorie vide = visible pour toutes les formations
-                    $catNorm = mb_strtolower(str_replace([' ', '_', '-', '&'], '', (string) ($project->category ?? '')));
-                    if ($catNorm === '' || $normalizedProgram === '') {
-                        return true;
-                    }
-                    return str_contains($catNorm, $normalizedProgram) || str_contains($normalizedProgram, $catNorm);
+                    return $matchesFormation($project->category ?? null);
                 })
                 ->take(20)
                 ->values();
+
+            foreach ($availableProjects as $project) {
+                $project->is_template = false;
+            }
+
+            // Ajouter les templates de projets admin actifs non encore assignés
+            if (Schema::hasTable('project_templates')) {
+                $templates = DB::table('project_templates')
+                    ->where('is_active', 1)
+                    ->orderBy('created_at', 'desc')
+                    ->get()
+                    ->filter(function ($t) use ($studentTitles, $matchesFormation) {
+                        if ($studentTitles->has(mb_strtolower(trim((string) $t->title)))) {
+                            return false;
+                        }
+                        return $matchesFormation($t->category ?? null);
+                    })
+                    ->map(function ($t) {
+                        $t->is_template = true;
+                        $t->brief_files = collect();
+                        $t->project_files = collect();
+                        return $t;
+                    });
+
+                $availableProjects = $availableProjects->merge($templates)
+                    ->sortByDesc('created_at')
+                    ->take(20)
+                    ->values();
+            }
 
             // Charger les fichiers pour les projets disponibles (uniquement fichiers admin, pas soumissions étudiants)
             if ($availableProjects->isNotEmpty() && Schema::hasTable('project_images')) {

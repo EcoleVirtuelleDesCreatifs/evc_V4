@@ -528,6 +528,15 @@
                                 </div>
                                 @endif
 
+                                @if(!empty($project->is_template))
+                                <form method="POST" action="{{ route('admin.students.assign-template', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mt-auto">
+                                    @csrf
+                                    <input type="hidden" name="template_id" value="{{ $project->id }}">
+                                    <button type="submit" class="btn btn-sm btn-modern w-100" style="background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%); color: white; border: none;" onclick="return confirm('Assigner ce projet à l\'étudiant ?')">
+                                        <i class="fas fa-plus me-1"></i>Assigner ce projet
+                                    </button>
+                                </form>
+                                @else
                                 <form method="POST" action="{{ route('admin.students.assign-project', $data['student']['id'] ?? $data['student']['user_id']) }}" class="mt-auto">
                                     @csrf
                                     <input type="hidden" name="project_id" value="{{ $project->id }}">
@@ -535,6 +544,7 @@
                                         <i class="fas fa-plus me-1"></i>Assigner ce projet
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </div>
                         @endforeach
