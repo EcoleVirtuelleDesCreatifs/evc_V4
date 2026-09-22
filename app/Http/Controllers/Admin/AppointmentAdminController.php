@@ -26,6 +26,11 @@ class AppointmentAdminController extends Controller
         $students = \Illuminate\Support\Facades\DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
             ->where('students.status', 'active')
+            ->whereNotNull('students.user_id')
+            ->whereRaw(
+                "COALESCE(students.expiration_date, DATE_ADD(students.created_at, INTERVAL 4 MONTH)) >= ?",
+                [\Carbon\Carbon::today()->toDateString()]
+            )
             ->select('students.id', 'students.first_name', 'students.last_name', 'students.program', 'users.email')
             ->orderBy('students.first_name')
             ->orderBy('students.last_name')
@@ -148,9 +153,6 @@ class AppointmentAdminController extends Controller
                 ->all();
 
             $toBook = array_values(array_diff($studentIds, $alreadyBooked));
-            if (count($toBook) > $remaining) {
-                return ['error' => "Capacité insuffisante : {$remaining} place(s) restante(s) pour " . count($toBook) . ' étudiant(s).'];
-            }
             if (empty($toBook)) {
                 return ['error' => 'Tous les étudiants sélectionnés ont déjà un rendez-vous sur ce créneau.'];
             }
@@ -164,15 +166,28 @@ class AppointmentAdminController extends Controller
 
             $students = \Illuminate\Support\Facades\DB::table('students')
                 ->whereIn('id', $toBook)
+                ->where('status', 'active')
+                ->whereNotNull('user_id')
+                ->whereRaw(
+                    "COALESCE(expiration_date, DATE_ADD(created_at, INTERVAL 4 MONTH)) >= ?",
+                    [\Carbon\Carbon::today()->toDateString()]
+                )
                 ->get()
                 ->keyBy('id');
+
+            $inactiveCount = count($toBook) - $students->count();
+            $toBook = $students->keys()->map(fn ($v) => (int) $v)->all();
+
+            if (empty($toBook)) {
+                return ['error' => 'Aucun étudiant actif parmi la sélection.'];
+            }
+            if (count($toBook) > $remaining) {
+                return ['error' => "Capacité insuffisante : {$remaining} place(s) restante(s) pour " . count($toBook) . ' étudiant(s).'];
+            }
 
             $createdIds = [];
             foreach ($toBook as $studentId) {
                 $student = $students->get($studentId);
-                if (!$student || empty($student->user_id)) {
-                    continue;
-                }
                 $createdIds[] = Appointment::insertGetId([
                     'slot_id' => $slot->id,
                     'user_id' => $student->user_id,
@@ -191,6 +206,7 @@ class AppointmentAdminController extends Controller
                 'created' => count($createdIds),
                 'created_ids' => $createdIds,
                 'skipped' => count($alreadyBooked),
+                'inactive' => $inactiveCount,
                 'slot_id' => $slot->id,
             ];
         });
@@ -212,7 +228,8 @@ class AppointmentAdminController extends Controller
         }
 
         $msg = $result['created'] . ' rendez-vous créé(s) et confirmé(s).'
-            . ($result['skipped'] > 0 ? ' ' . $result['skipped'] . ' déjà réservé(s) ignoré(s).' : '');
+            . ($result['skipped'] > 0 ? ' ' . $result['skipped'] . ' déjà réservé(s) ignoré(s).' : '')
+            . (($result['inactive'] ?? 0) > 0 ? ' ' . $result['inactive'] . ' étudiant(s) inactif(s)/expiré(s) ignoré(s).' : '');
 
         if ($request->expectsJson()) {
             return response()->json([
