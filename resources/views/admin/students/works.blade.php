@@ -583,152 +583,6 @@
                         </div>
                         @endforeach
                     </div>
-
-                    {{-- Modales de détails des projets disponibles --}}
-                    @foreach($data['available_projects'] as $project)
-                    @php
-                        $modalId = 'detailsModal-' . (!empty($project->is_template) ? 't' : 'p') . '-' . $project->id;
-                        $swList = [];
-                        if (!empty($project->software_used)) {
-                            $decoded = is_string($project->software_used) ? json_decode($project->software_used, true) : $project->software_used;
-                            $swList = is_array($decoded) ? $decoded : [];
-                        }
-                    @endphp
-                    <div class="modal fade" id="{{ $modalId }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                            <div class="modal-content" style="background:#1e293b; border:1px solid rgba(139,92,246,0.3); border-radius:16px;">
-                                <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.1);">
-                                    <h5 class="modal-title text-white">
-                                        <i class="fas fa-folder-open me-2" style="color:#8b5cf6;"></i>{{ $project->title ?? 'Projet' }}
-                                        @if(!empty($project->is_template))
-                                        <span class="badge ms-2" style="background:rgba(139,92,246,0.2); color:#a78bfa; font-size:0.65rem;">Modèle</span>
-                                        @endif
-                                    </h5>
-                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <span class="badge" style="background:rgba(139,92,246,0.15); color:#8b5cf6; padding:0.35rem 0.8rem; border-radius:20px;">
-                                            <i class="fas fa-tag me-1"></i>{{ $project->category ?? '—' }}
-                                        </span>
-                                        <small class="text-white-50 ms-2">
-                                            <i class="fas fa-calendar-plus me-1"></i>Créé le {{ $project->created_at ? date('d/m/Y', strtotime($project->created_at)) : '—' }}
-                                        </small>
-                                    </div>
-
-                                    @if(!empty($project->description))
-                                    <div class="mb-3">
-                                        <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Description</h6>
-                                        <div class="project-rich-content text-white">
-                                            @if($project->description !== strip_tags($project->description))
-                                                {!! $project->description !!}
-                                            @else
-                                                {!! nl2br(e($project->description)) !!}
-                                            @endif
-                                        </div>
-                                    </div>
-                                    @endif
-
-                                    @if(!empty($project->brief_content))
-                                    <div class="mb-3">
-                                        <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Brief</h6>
-                                        <div class="project-rich-content text-white">
-                                            @if($project->brief_content !== strip_tags($project->brief_content))
-                                                {!! $project->brief_content !!}
-                                            @else
-                                                {!! nl2br(e($project->brief_content)) !!}
-                                            @endif
-                                        </div>
-                                    </div>
-                                    @endif
-
-                                    <div class="row g-3 mb-3">
-                                        @if(!empty($project->link))
-                                        <div class="col-md-6">
-                                            <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Lien de référence</h6>
-                                            <a href="{{ $project->link }}" target="_blank" style="color:#8b5cf6; word-break:break-all;">{{ $project->link }}</a>
-                                        </div>
-                                        @endif
-                                        @if(!empty($project->deadline))
-                                        <div class="col-md-6">
-                                            <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Deadline</h6>
-                                            <span class="text-white"><i class="fas fa-clock me-1 text-warning"></i>{{ date('d/m/Y', strtotime($project->deadline)) }}</span>
-                                        </div>
-                                        @endif
-                                        @if(!empty($project->default_deadline_days))
-                                        <div class="col-md-6">
-                                            <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Délai par défaut</h6>
-                                            <span class="text-white"><i class="fas fa-clock me-1 text-warning"></i>{{ $project->default_deadline_days }} jours</span>
-                                        </div>
-                                        @endif
-                                    </div>
-
-                                    @if(!empty($project->tags))
-                                    <div class="mb-3">
-                                        <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Tags</h6>
-                                        <span class="text-white">{{ $project->tags }}</span>
-                                    </div>
-                                    @endif
-
-                                    @if(count($swList) > 0)
-                                    <div class="mb-3">
-                                        <h6 class="text-white-50 mb-2" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Logiciels</h6>
-                                        <div class="d-flex flex-wrap gap-2">
-                                            @foreach($swList as $sw)
-                                            <span class="badge" style="background:rgba(59,130,246,0.15); color:#60a5fa; padding:0.3rem 0.7rem; border-radius:20px;">{{ $sw }}</span>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    @endif
-
-                                    @if(isset($project->brief_files) && count($project->brief_files) > 0)
-                                    <div class="mb-2">
-                                        <h6 class="text-white-50 mb-2" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">
-                                            <i class="fas fa-images me-1"></i>Fichiers brief ({{ count($project->brief_files) }})
-                                        </h6>
-                                        <div class="d-flex flex-wrap gap-2">
-                                            @foreach($project->brief_files as $briefFile)
-                                            @php
-                                                $mPath = ltrim((string) ($briefFile->file_path ?? ''), '/');
-                                                if (str_starts_with($mPath, 'storage/app/public/')) {
-                                                    $mPath = substr($mPath, strlen('storage/app/public/'));
-                                                }
-                                                $mUrl = \App\Models\MediaUrl::fromPath($mPath);
-                                                $mName = $briefFile->original_name ?? basename($mPath);
-                                                $mExt = strtolower(pathinfo($mPath, PATHINFO_EXTENSION));
-                                                $mIsImage = in_array($mExt, ['jpg','jpeg','png','gif','webp']);
-                                            @endphp
-                                            @if($mIsImage)
-                                            <a href="{{ $mUrl }}" target="_blank" style="display:block; width:90px; height:90px; border-radius:10px; overflow:hidden; border:2px solid rgba(255,255,255,0.1);">
-                                                <img src="{{ $mUrl }}" alt="{{ $mName }}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
-                                            </a>
-                                            @else
-                                            <a href="{{ $mUrl }}" target="_blank" class="d-flex align-items-center gap-2 px-3 py-2" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#8b5cf6; text-decoration:none; font-size:0.8rem;">
-                                                <i class="fas fa-{{ $mExt === 'pdf' ? 'file-pdf' : 'file' }}"></i>
-                                                {{ Str::limit($mName, 25) }}
-                                            </a>
-                                            @endif
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    @endif
-                                </div>
-                                <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,0.1);">
-                                    @if(!empty($project->is_template))
-                                    <a href="{{ route('admin.project-templates.edit', $project->id) }}" class="btn btn-sm" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3);">
-                                        <i class="fas fa-edit me-1"></i>Modifier
-                                    </a>
-                                    @else
-                                    <a href="{{ route('admin.projects.edit', $project->id) }}" class="btn btn-sm" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3);">
-                                        <i class="fas fa-edit me-1"></i>Modifier
-                                    </a>
-                                    @endif
-                                    <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
                 @else
                     <p class="text-center text-white-50 py-4 mb-0">
                         <i class="fas fa-inbox me-2 text-secondary"></i>Aucun projet disponible pour l'assignation
@@ -849,6 +703,157 @@
 
 </div>
 @endsection
+
+{{-- Modales de détails : rendues au niveau body via @stack('modals') du layout,
+     sinon elles restent piégées dans les panels (display:none / transform). --}}
+@push('modals')
+@if(isset($data['available_projects']) && $data['available_projects']->count() > 0)
+@foreach($data['available_projects'] as $project)
+@php
+    $modalId = 'detailsModal-' . (!empty($project->is_template) ? 't' : 'p') . '-' . $project->id;
+    $swList = [];
+    if (!empty($project->software_used)) {
+        $decoded = is_string($project->software_used) ? json_decode($project->software_used, true) : $project->software_used;
+        $swList = is_array($decoded) ? $decoded : [];
+    }
+@endphp
+<div class="modal fade" id="{{ $modalId }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background:#1e293b; border:1px solid rgba(139,92,246,0.3); border-radius:16px;">
+            <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-folder-open me-2" style="color:#8b5cf6;"></i>{{ $project->title ?? 'Projet' }}
+                    @if(!empty($project->is_template))
+                    <span class="badge ms-2" style="background:rgba(139,92,246,0.2); color:#a78bfa; font-size:0.65rem;">Modèle</span>
+                    @endif
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <span class="badge" style="background:rgba(139,92,246,0.15); color:#8b5cf6; padding:0.35rem 0.8rem; border-radius:20px;">
+                        <i class="fas fa-tag me-1"></i>{{ $project->category ?? '—' }}
+                    </span>
+                    <small class="text-white-50 ms-2">
+                        <i class="fas fa-calendar-plus me-1"></i>Créé le {{ $project->created_at ? date('d/m/Y', strtotime($project->created_at)) : '—' }}
+                    </small>
+                </div>
+
+                @if(!empty($project->description))
+                <div class="mb-3">
+                    <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Description</h6>
+                    <div class="project-rich-content text-white">
+                        @if($project->description !== strip_tags($project->description))
+                            {!! $project->description !!}
+                        @else
+                            {!! nl2br(e($project->description)) !!}
+                        @endif
+                    </div>
+                </div>
+                @endif
+
+                @if(!empty($project->brief_content))
+                <div class="mb-3">
+                    <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Brief</h6>
+                    <div class="project-rich-content text-white">
+                        @if($project->brief_content !== strip_tags($project->brief_content))
+                            {!! $project->brief_content !!}
+                        @else
+                            {!! nl2br(e($project->brief_content)) !!}
+                        @endif
+                    </div>
+                </div>
+                @endif
+
+                <div class="row g-3 mb-3">
+                    @if(!empty($project->link))
+                    <div class="col-md-6">
+                        <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Lien de référence</h6>
+                        <a href="{{ $project->link }}" target="_blank" style="color:#8b5cf6; word-break:break-all;">{{ $project->link }}</a>
+                    </div>
+                    @endif
+                    @if(!empty($project->deadline))
+                    <div class="col-md-6">
+                        <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Deadline</h6>
+                        <span class="text-white"><i class="fas fa-clock me-1 text-warning"></i>{{ date('d/m/Y', strtotime($project->deadline)) }}</span>
+                    </div>
+                    @endif
+                    @if(!empty($project->default_deadline_days))
+                    <div class="col-md-6">
+                        <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Délai par défaut</h6>
+                        <span class="text-white"><i class="fas fa-clock me-1 text-warning"></i>{{ $project->default_deadline_days }} jours</span>
+                    </div>
+                    @endif
+                </div>
+
+                @if(!empty($project->tags))
+                <div class="mb-3">
+                    <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Tags</h6>
+                    <span class="text-white">{{ $project->tags }}</span>
+                </div>
+                @endif
+
+                @if(count($swList) > 0)
+                <div class="mb-3">
+                    <h6 class="text-white-50 mb-2" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Logiciels</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach($swList as $sw)
+                        <span class="badge" style="background:rgba(59,130,246,0.15); color:#60a5fa; padding:0.3rem 0.7rem; border-radius:20px;">{{ $sw }}</span>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
+                @if(isset($project->brief_files) && count($project->brief_files) > 0)
+                <div class="mb-2">
+                    <h6 class="text-white-50 mb-2" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">
+                        <i class="fas fa-images me-1"></i>Fichiers brief ({{ count($project->brief_files) }})
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach($project->brief_files as $briefFile)
+                        @php
+                            $mPath = ltrim((string) ($briefFile->file_path ?? ''), '/');
+                            if (str_starts_with($mPath, 'storage/app/public/')) {
+                                $mPath = substr($mPath, strlen('storage/app/public/'));
+                            }
+                            $mUrl = \App\Models\MediaUrl::fromPath($mPath);
+                            $mName = $briefFile->original_name ?? basename($mPath);
+                            $mExt = strtolower(pathinfo($mPath, PATHINFO_EXTENSION));
+                            $mIsImage = in_array($mExt, ['jpg','jpeg','png','gif','webp']);
+                        @endphp
+                        @if($mIsImage)
+                        <a href="{{ $mUrl }}" target="_blank" style="display:block; width:90px; height:90px; border-radius:10px; overflow:hidden; border:2px solid rgba(255,255,255,0.1);">
+                            <img src="{{ $mUrl }}" alt="{{ $mName }}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                        </a>
+                        @else
+                        <a href="{{ $mUrl }}" target="_blank" class="d-flex align-items-center gap-2 px-3 py-2" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#8b5cf6; text-decoration:none; font-size:0.8rem;">
+                            <i class="fas fa-{{ $mExt === 'pdf' ? 'file-pdf' : 'file' }}"></i>
+                            {{ Str::limit($mName, 25) }}
+                        </a>
+                        @endif
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+            </div>
+            <div class="modal-footer" style="border-top:1px solid rgba(255,255,255,0.1);">
+                @if(!empty($project->is_template))
+                <a href="{{ route('admin.project-templates.edit', $project->id) }}" class="btn btn-sm" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3);">
+                    <i class="fas fa-edit me-1"></i>Modifier
+                </a>
+                @else
+                <a href="{{ route('admin.projects.edit', $project->id) }}" class="btn btn-sm" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid rgba(245,158,11,0.3);">
+                    <i class="fas fa-edit me-1"></i>Modifier
+                </a>
+                @endif
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
+@endif
+@endpush
 
 @push('scripts')
 <script>
