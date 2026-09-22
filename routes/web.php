@@ -1033,6 +1033,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::delete('/rendez-vous/slots/{id}', [AppointmentAdminController::class, 'destroySlot'])->name('appointments.slots.destroy');
         Route::post('/rendez-vous/{id}/status', [AppointmentAdminController::class, 'updateStatus'])->name('appointments.status');
         Route::post('/rendez-vous/appointments', [AppointmentAdminController::class, 'storeAppointment'])->name('appointments.store');
+        Route::post('/rendez-vous/{id}/update', [AppointmentAdminController::class, 'updateAppointment'])->name('appointments.update');
 
         // Session Tracking
         Route::prefix('session-tracking')->name('session-tracking.')->group(function () {

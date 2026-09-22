@@ -12,6 +12,7 @@
         'confirmed' => ['icon' => '✅', 'color' => '#16a34a', 'title' => 'Rendez-vous confirmé !', 'intro' => 'Bonne nouvelle : votre demande de rendez-vous a été confirmée par l\'équipe EVC.'],
         'cancelled' => ['icon' => '❌', 'color' => '#dc2626', 'title' => 'Rendez-vous annulé', 'intro' => 'Votre rendez-vous a été annulé par l\'équipe EVC. Vous pouvez réserver un autre créneau.'],
         'completed' => ['icon' => '🏁', 'color' => '#2563eb', 'title' => 'Rendez-vous terminé', 'intro' => 'Votre rendez-vous est terminé. Merci pour votre participation !'],
+        'modified' => ['icon' => '✏️', 'color' => '#d97706', 'title' => 'Rendez-vous modifié', 'intro' => 'Votre rendez-vous a été modifié par l\'équipe EVC. Vérifiez les nouveaux détails ci-dessous.'],
     ];
     $c = $config[$status] ?? $config['confirmed'];
 @endphp
@@ -60,7 +61,7 @@
                 </td></tr>
             </table>
 
-            @if($status === 'confirmed' && $appointment->meet_link)
+            @if(in_array($status, ['confirmed', 'modified']) && $appointment->meet_link)
             <!-- Lien réunion -->
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; margin-bottom:20px;">
                 <tr><td style="padding:16px 20px; text-align:center;">

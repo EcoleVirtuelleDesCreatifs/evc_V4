@@ -169,6 +169,35 @@ class AppointmentController extends Controller
         } catch (\Throwable $e) {
             \Log::warning('Appointment admin notification failed: ' . $e->getMessage());
         }
+
+        // Email aux admins (nouvelle demande ou annulation)
+        try {
+            $slotLabel = $this->formatSlot($appointment->slot);
+            Admin::whereNotNull('email')->each(function ($admin) use ($appointment, $user, $slotLabel, $cancelled) {
+                if (empty($admin->email)) {
+                    return;
+                }
+                try {
+                    Mail::send('emails.appointment_request', [
+                        'admin' => $admin,
+                        'student' => $user,
+                        'appointment' => $appointment,
+                        'slotLabel' => $slotLabel,
+                        'cancelled' => $cancelled,
+                        'adminUrl' => route('admin.appointments.index'),
+                    ], function ($m) use ($admin, $user, $slotLabel, $cancelled) {
+                        $subject = $cancelled
+                            ? 'Rendez-vous annulé — ' . ($user->name ?? 'Étudiant')
+                            : 'Nouvelle demande de RDV — ' . ($user->name ?? 'Étudiant') . ' (' . $slotLabel . ')';
+                        $m->to($admin->email, $admin->name ?? null)->subject($subject);
+                    });
+                } catch (\Throwable $e) {
+                    \Log::warning('Appointment admin email failed: ' . $e->getMessage());
+                }
+            });
+        } catch (\Throwable $e) {
+            \Log::warning('Appointment admin emails failed: ' . $e->getMessage());
+        }
     }
 
     public function formatSlot(?AppointmentSlot $slot): string

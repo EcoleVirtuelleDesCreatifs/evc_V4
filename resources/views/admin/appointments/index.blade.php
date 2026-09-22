@@ -116,6 +116,37 @@
     .rdv-table tbody tr.row-flash { animation: slotFlash 1.2s ease; }
     .stu-name { color: #fff; font-weight: 700; }
     .stu-mail { color: rgba(255,255,255,0.5); font-size: 0.75rem; }
+    .stu-cell { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+    .stu-avatar {
+        width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+        object-fit: cover; border: 2px solid rgba(139,92,246,0.4);
+    }
+    .stu-avatar-ph {
+        width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+        background: linear-gradient(135deg, #8b5cf6, #6366f1);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-weight: 800; font-size: 0.95rem;
+        border: 2px solid rgba(139,92,246,0.4);
+    }
+    .fmt-chip {
+        display: inline-flex; align-items: center; gap: 0.3rem;
+        font-size: 0.68rem; font-weight: 700; border-radius: 999px;
+        padding: 0.15rem 0.55rem; margin-top: 0.25rem;
+    }
+    .fmt-dg { background: rgba(59,130,246,0.14); color: #93c5fd; border: 1px solid rgba(59,130,246,0.35); }
+    .fmt-cm { background: rgba(236,72,153,0.14); color: #f9a8d4; border: 1px solid rgba(236,72,153,0.35); }
+    .fmt-dgcm { background: rgba(251,191,36,0.14); color: #fcd34d; border: 1px solid rgba(251,191,36,0.35); }
+    .fmt-gi { background: rgba(249,115,22,0.14); color: #fdba74; border: 1px solid rgba(249,115,22,0.35); }
+    .fmt-ia { background: rgba(34,211,238,0.14); color: #67e8f9; border: 1px solid rgba(34,211,238,0.35); }
+    .fmt-other { background: rgba(148,163,184,0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+    .rdv-msg {
+        color: rgba(255,255,255,0.6); font-size: 0.76rem; font-style: italic;
+        background: rgba(255,255,255,0.04); border-left: 3px solid rgba(139,92,246,0.4);
+        border-radius: 6px; padding: 0.35rem 0.6rem; margin-top: 0.35rem;
+        max-width: 260px; overflow: hidden; text-overflow: ellipsis;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        cursor: help;
+    }
     .stb { font-size: 0.72rem; font-weight: 800; border-radius: 999px; padding: 0.25rem 0.65rem; white-space: nowrap; }
     .stb-pending { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.4); }
     .stb-confirmed { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
@@ -131,6 +162,8 @@
     .act-cancel:hover { background: rgba(239,68,68,0.22); }
     .act-done { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
     .act-done:hover { background: rgba(59,130,246,0.28); }
+    .act-edit { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.4); }
+    .act-edit:hover { background: rgba(139,92,246,0.28); }
     .meet-link { color: #93c5fd; font-size: 0.72rem; text-decoration: none; }
     .meet-link:hover { color: #bfdbfe; }
 
@@ -340,6 +373,9 @@
                         <input type="text" id="rdvSearch" placeholder="Étudiant, motif…">
                     </div>
                 </div>
+                <div class="rdv-filters" id="formationFilters" style="margin-top:-0.4rem;">
+                    <span class="rdv-pill active" data-formation="">Toutes formations</span>
+                </div>
 
                 <div class="table-responsive">
                     <table class="table rdv-table mb-0">
@@ -449,6 +485,54 @@
         </div>
     </div>
 </div>
+
+<!-- ═══ Modal modification RDV ═══ -->
+<div class="modal fade rdv-modal" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="editForm">
+                <input type="hidden" id="editRdvId">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-pen me-2" style="color:#a78bfa;"></i>Modifier le rendez-vous</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-white-50 mb-3" id="editModalLabel"></p>
+                    <div class="mb-3">
+                        <label class="form-label">Créneau <span class="text-danger">*</span></label>
+                        <select id="editSlotSelect" class="form-select"></select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Motif <span class="text-danger">*</span></label>
+                        <select id="editMotif" class="form-select">
+                            @foreach($motifs as $motif)
+                                <option value="{{ $motif }}">{{ $motif }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message <small class="text-white-50">(optionnel)</small></label>
+                        <textarea id="editMessage" class="form-control" rows="2" maxlength="2000"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Lien de réunion <small class="text-white-50">(auto si vide et en ligne)</small></label>
+                        <input type="url" id="editMeetLink" class="form-control" placeholder="https://meet.jit.si/...">
+                    </div>
+                    <div class="mb-1">
+                        <label class="form-label">Note pour l'étudiant <small class="text-white-50">(optionnel)</small></label>
+                        <textarea id="editNote" class="form-control" rows="2" maxlength="1000"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Fermer</button>
+                    <button type="submit" class="btn btn-sm fw-bold" id="editSubmitBtn" style="background:#8b5cf6; color:#fff;">
+                        <i class="fas fa-save me-1"></i>Enregistrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endpush
 @endsection
 
@@ -460,13 +544,14 @@ document.addEventListener('DOMContentLoaded', function () {
         storeSlot: '{{ route('admin.appointments.slots.store') }}',
         deleteSlot: id => '{{ url('/evc/app/admin/rendez-vous/slots') }}/' + id,
         status: id => '{{ url('/evc/app/admin/rendez-vous') }}/' + id + '/status',
+        update: id => '{{ url('/evc/app/admin/rendez-vous') }}/' + id + '/update',
         storeAppointment: '{{ route('admin.appointments.store') }}',
     };
 
     let slots = @json($slotsJson);
     let appointments = @json($appointmentsJson);
     const students = @json($studentsJson);
-    const filterState = { status: '', period: '', q: '' };
+    const filterState = { status: '', period: '', formation: '', q: '' };
 
     /* ─── Toasts ─── */
     function toast(msg, type = 'success') {
@@ -529,13 +614,50 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const STATUS_LABELS = { pending: 'En attente', confirmed: 'Confirmé', cancelled: 'Annulé', completed: 'Terminé' };
+    const FMT_CLASSES = {
+        'design graphique': 'fmt-dg',
+        'community management': 'fmt-cm',
+        'design graphique & community manager': 'fmt-dgcm',
+        'gestion informatique': 'fmt-gi',
+        'intelligence artificielle': 'fmt-ia',
+    };
+    const FMT_ICONS = {
+        'design graphique': 'fa-palette',
+        'community management': 'fa-mobile-alt',
+        'design graphique & community manager': 'fa-layer-group',
+        'gestion informatique': 'fa-laptop-code',
+        'intelligence artificielle': 'fa-robot',
+    };
+
+    function fmtChip(formation) {
+        if (!formation) return '';
+        const key = formation.toLowerCase();
+        const cls = FMT_CLASSES[key] || 'fmt-other';
+        const icon = FMT_ICONS[key] || 'fa-graduation-cap';
+        return `<span class="fmt-chip ${cls}"><i class="fas ${icon}"></i>${esc(formation)}</span>`;
+    }
+
+    function avatarHtml(a) {
+        if (a.student_photo) {
+            return `<img src="${esc(a.student_photo)}" class="stu-avatar" alt="" loading="lazy"
+                        onerror="this.outerHTML=initialsAvatar('${esc(a.student_name)}')">`;
+        }
+        return initialsAvatar(a.student_name);
+    }
+
+    function initialsAvatar(name) {
+        const parts = String(name || '?').trim().split(/\s+/);
+        const ini = ((parts[0] || '?')[0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+        return `<div class="stu-avatar-ph">${esc(ini)}</div>`;
+    }
 
     function appointmentMatches(a) {
         if (filterState.status && a.status !== filterState.status) return false;
         if (filterState.period === 'upcoming' && a.slot_past) return false;
         if (filterState.period === 'past' && !a.slot_past) return false;
+        if (filterState.formation && (a.formation || '') !== filterState.formation) return false;
         if (filterState.q) {
-            const hay = (a.student_name + ' ' + a.student_email + ' ' + a.motif + ' ' + (a.message || '')).toLowerCase();
+            const hay = (a.student_name + ' ' + a.student_email + ' ' + a.motif + ' ' + (a.message || '') + ' ' + (a.formation || '')).toLowerCase();
             if (!hay.includes(filterState.q)) return false;
         }
         return true;
@@ -543,14 +665,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function actionButtons(a) {
         const label = esc(`${a.student_name} — ${a.slot_date} ${a.slot_time}`);
+        const edit = `<button type="button" class="act-btn act-edit" title="Modifier" data-edit="${a.id}"><i class="fas fa-pen"></i></button>`;
         const btn = (status, cls, icon, title) =>
             `<button type="button" class="act-btn ${cls}" title="${title}"
                 data-rdv="${a.id}" data-status="${status}" data-label="${label}"><i class="fas ${icon}"></i></button>`;
         if (a.status === 'pending') {
-            return btn('confirmed', 'act-confirm', 'fa-check', 'Confirmer') + ' ' + btn('cancelled', 'act-cancel', 'fa-times', 'Refuser / Annuler');
+            return btn('confirmed', 'act-confirm', 'fa-check', 'Confirmer') + ' ' + edit + ' ' + btn('cancelled', 'act-cancel', 'fa-times', 'Refuser / Annuler');
         }
         if (a.status === 'confirmed') {
-            return btn('completed', 'act-done', 'fa-check-double', 'Marquer terminé') + ' ' + btn('cancelled', 'act-cancel', 'fa-times', 'Annuler');
+            return btn('completed', 'act-done', 'fa-check-double', 'Marquer terminé') + ' ' + edit + ' ' + btn('cancelled', 'act-cancel', 'fa-times', 'Annuler');
         }
         return '<span class="stu-mail">—</span>';
     }
@@ -565,8 +688,14 @@ document.addEventListener('DOMContentLoaded', function () {
         tbody.innerHTML = rows.map(a => `
             <tr data-rdv-row="${a.id}">
                 <td>
-                    <div class="stu-name">${esc(a.student_name)}</div>
-                    <div class="stu-mail">${esc(a.student_email)}${a.formation ? ' · ' + esc(a.formation) : ''}</div>
+                    <div class="stu-cell">
+                        ${avatarHtml(a)}
+                        <div style="min-width:0;">
+                            <div class="stu-name">${esc(a.student_name)}</div>
+                            <div class="stu-mail">${esc(a.student_email)}</div>
+                            ${fmtChip(a.formation)}
+                        </div>
+                    </div>
                 </td>
                 <td>
                     <div class="text-white fw-bold">${a.slot_date}</div>
@@ -575,7 +704,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </td>
                 <td>
                     <div class="stu-name" style="font-weight:600;">${esc(a.motif)}</div>
-                    ${a.message ? `<div class="stu-mail" title="${esc(a.message)}">${esc(a.message.length > 45 ? a.message.slice(0, 45) + '…' : a.message)}</div>` : ''}
+                    ${a.message ? `<div class="rdv-msg" title="${esc(a.message)}">${esc(a.message)}</div>` : ''}
                     ${a.admin_note ? `<div class="stu-mail" style="color:#a78bfa;"><i class="fas fa-reply me-1"></i>${esc(a.admin_note.length > 40 ? a.admin_note.slice(0, 40) + '…' : a.admin_note)}</div>` : ''}
                 </td>
                 <td><span class="stb stb-${a.status}">${STATUS_LABELS[a.status] || a.status}</span></td>
@@ -591,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('kpiTotal').textContent = appointments.length;
     }
 
-    function renderAll() { renderSlots(); renderAppointments(); renderStats(); }
+    function renderAll() { renderSlots(); renderFormationPills(); renderAppointments(); renderStats(); }
 
     /* ─── Filtres (instantanés, sans rechargement) ─── */
     document.querySelectorAll('.rdv-pill[data-status]').forEach(pill => {
@@ -612,6 +741,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     document.getElementById('rdvSearch').addEventListener('input', function () {
         filterState.q = this.value.toLowerCase().trim();
+        renderAppointments();
+    });
+
+    // Filtre formations (pills générées depuis les données)
+    function renderFormationPills() {
+        const box = document.getElementById('formationFilters');
+        const formations = [...new Set(appointments.map(a => a.formation).filter(Boolean))].sort();
+        box.innerHTML = '<span class="rdv-pill ' + (!filterState.formation ? 'active' : '') + '" data-formation="">Toutes formations</span>'
+            + formations.map(f => `<span class="rdv-pill ${filterState.formation === f ? 'active' : ''}" data-formation="${esc(f)}">${esc(f)}</span>`).join('');
+    }
+    document.getElementById('formationFilters').addEventListener('click', function (e) {
+        const pill = e.target.closest('[data-formation]');
+        if (!pill) return;
+        filterState.formation = pill.dataset.formation;
+        this.querySelectorAll('.rdv-pill').forEach(p => p.classList.toggle('active', p === pill));
         renderAppointments();
     });
 
@@ -885,6 +1029,73 @@ document.addEventListener('DOMContentLoaded', function () {
         } finally {
             bookSubmitBtn.disabled = false;
             bookSubmitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Créer et confirmer';
+        }
+    });
+
+    /* ─── Modification / replanification ─── */
+    const editModalEl = document.getElementById('editModal');
+    const editModal = new bootstrap.Modal(editModalEl);
+    const editSlotSelect = document.getElementById('editSlotSelect');
+
+    document.getElementById('rdvTbody').addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-edit]');
+        if (!btn) return;
+        const a = appointments.find(x => x.id == btn.dataset.edit);
+        if (!a) return;
+
+        document.getElementById('editRdvId').value = a.id;
+        document.getElementById('editModalLabel').textContent = `${a.student_name} — statut actuel : ${STATUS_LABELS[a.status] || a.status}`;
+        document.getElementById('editMotif').value = a.motif;
+        document.getElementById('editMessage').value = a.message || '';
+        document.getElementById('editMeetLink').value = a.meet_link || '';
+        document.getElementById('editNote').value = a.admin_note || '';
+
+        // Créneaux : ouverts + le créneau actuel du RDV (même plein/passé)
+        const currentSlot = slots.find(s => s.id === a.slot_id);
+        const options = slots
+            .filter(s => s.id === a.slot_id || (s.active && (s.booked < s.capacity || s.id === a.slot_id)))
+            .map(s => `<option value="${s.id}">${s.date_full} · ${s.start}–${s.end} · ${s.mode === 'en_ligne' ? 'En ligne' : 'Présentiel'} · ${s.capacity - s.booked} place(s)${s.id === a.slot_id ? ' — actuel' : ''}</option>`);
+
+        if (!currentSlot) {
+            options.unshift(`<option value="${a.slot_id}">${a.slot_date} · ${a.slot_time} — actuel</option>`);
+        }
+        editSlotSelect.innerHTML = options.join('');
+        editSlotSelect.value = a.slot_id;
+
+        editModal.show();
+    });
+
+    document.getElementById('editForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const btn = document.getElementById('editSubmitBtn');
+        const rdvId = document.getElementById('editRdvId').value;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner spin me-1"></i> Enregistrement…';
+        try {
+            const data = await api(URLS.update(rdvId), 'POST', {
+                slot_id: parseInt(editSlotSelect.value, 10),
+                motif: document.getElementById('editMotif').value,
+                message: document.getElementById('editMessage').value || null,
+                meet_link: document.getElementById('editMeetLink').value || null,
+                admin_note: document.getElementById('editNote').value || null,
+            });
+
+            const idx = appointments.findIndex(a => a.id == rdvId);
+            if (idx !== -1) appointments[idx] = data.appointment;
+            slots = data.slots;
+
+            renderAll();
+            editModal.hide();
+            toast(data.message || 'Rendez-vous modifié.');
+
+            const row = document.querySelector(`tr[data-rdv-row="${rdvId}"]`);
+            if (row) row.classList.add('row-flash');
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-1"></i>Enregistrer';
         }
     });
 

@@ -313,6 +313,87 @@ class AppointmentAdminController extends Controller
         return back()->with('success', $msg);
     }
 
+    /**
+     * Modifier / replanifier un rendez-vous.
+     */
+    public function updateAppointment(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'slot_id' => 'required|exists:appointment_slots,id',
+            'motif' => 'required|string|max:150',
+            'message' => 'nullable|string|max:2000',
+            'meet_link' => 'nullable|url|max:500',
+            'admin_note' => 'nullable|string|max:1000',
+        ]);
+
+        $appointment = Appointment::with(['slot', 'user'])->findOrFail($id);
+
+        if (in_array($appointment->status, ['cancelled', 'completed'])) {
+            $err = 'Un rendez-vous annulé ou terminé ne peut plus être modifié.';
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $err], 422);
+            }
+            return back()->with('error', $err);
+        }
+
+        $result = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $appointment) {
+            $newSlot = AppointmentSlot::where('id', $validated['slot_id'])->lockForUpdate()->first();
+
+            if (!$newSlot || !$newSlot->is_active) {
+                return ['error' => 'Le créneau choisi n\'est plus actif.'];
+            }
+
+            $slotChanged = (int) $newSlot->id !== (int) $appointment->slot_id;
+
+            if ($slotChanged) {
+                if ($newSlot->date->isPast() || ($newSlot->date->isToday() && Carbon::parse($newSlot->start_time)->lt(Carbon::now()))) {
+                    return ['error' => 'Le créneau choisi est déjà passé.'];
+                }
+                if ($newSlot->activeAppointments()->count() >= $newSlot->capacity) {
+                    return ['error' => 'Le créneau choisi est complet.'];
+                }
+            }
+
+            $meetLink = $validated['meet_link'] ?? $appointment->meet_link;
+            if ($newSlot->mode === 'en_ligne' && empty($meetLink)) {
+                $meetLink = 'https://meet.jit.si/evc-rdv-' . $appointment->id . '-' . strtolower(\Illuminate\Support\Str::random(6))
+                    . '#config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true';
+            }
+
+            $appointment->update([
+                'slot_id' => $newSlot->id,
+                'motif' => $validated['motif'],
+                'message' => $validated['message'] ?? null,
+                'meet_link' => $meetLink,
+                'admin_note' => $validated['admin_note'] ?? null,
+            ]);
+
+            return ['ok' => true, 'slot_changed' => $slotChanged];
+        });
+
+        if (isset($result['error'])) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $result['error']], 422);
+            }
+            return back()->with('error', $result['error']);
+        }
+
+        $this->notifyStudent($appointment->fresh(['slot', 'user']), 'modified');
+
+        $msg = 'Rendez-vous modifié' . ($result['slot_changed'] ? ' et replanifié' : '') . '.';
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'appointment' => $this->serializeAppointment($appointment->fresh(['slot', 'user', 'student'])),
+                'slots' => $this->upcomingSlots()->map(fn ($s) => $this->serializeSlot($s))->values(),
+            ]);
+        }
+
+        return back()->with('success', $msg);
+    }
+
     /* ──────────────────────────────────────────────── */
 
     private function upcomingSlots()
@@ -362,6 +443,7 @@ class AppointmentAdminController extends Controller
             'slot_id' => $a->slot_id,
             'student_name' => $a->user->name ?? ($a->student ? trim(($a->student->first_name ?? '') . ' ' . ($a->student->last_name ?? '')) : '—'),
             'student_email' => $a->user->email ?? '',
+            'student_photo' => \App\Helpers\ProfilePhotoHelper::getUrl($a->student->profile_photo ?? null),
             'formation' => $a->student->program ?? '',
             'motif' => $a->motif,
             'message' => $a->message,
@@ -388,11 +470,13 @@ class AppointmentAdminController extends Controller
             'confirmed' => 'Rendez-vous confirmé',
             'cancelled' => 'Rendez-vous annulé',
             'completed' => 'Rendez-vous terminé',
+            'modified' => 'Rendez-vous modifié',
         ];
         $messages = [
             'confirmed' => 'Votre rendez-vous du ' . $slotLabel . ' est confirmé.',
             'cancelled' => 'Votre rendez-vous du ' . $slotLabel . ' a été annulé par EVC.',
             'completed' => 'Votre rendez-vous du ' . $slotLabel . ' est terminé.',
+            'modified' => 'Votre rendez-vous a été modifié — nouvelle date : ' . $slotLabel . '.',
         ];
 
         try {
@@ -422,6 +506,7 @@ class AppointmentAdminController extends Controller
                     $subject = match ($status) {
                         'confirmed' => 'Rendez-vous confirmé — ' . $slotLabel,
                         'cancelled' => 'Rendez-vous annulé — ' . $slotLabel,
+                        'modified' => 'Rendez-vous modifié — ' . $slotLabel,
                         default => 'Votre rendez-vous EVC',
                     };
                     $m->to($user->email, $user->name ?? null)->subject($subject);
