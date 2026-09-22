@@ -7,6 +7,7 @@ use App\Models\Appointment;
 use App\Models\AppointmentSlot;
 use App\Notifications\AppointmentNotification;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -19,57 +20,19 @@ class AppointmentAdminController extends Controller
      */
     public function index(Request $request): View
     {
-        $upcomingSlots = AppointmentSlot::where('date', '>=', Carbon::today())
-            ->withCount(['appointments as booked_count' => function ($q) {
-                $q->whereIn('status', ['pending', 'confirmed']);
-            }])
-            ->with(['appointments' => function ($q) {
-                $q->whereIn('status', ['pending', 'confirmed'])
-                    ->with(['user', 'student']);
-            }])
-            ->orderBy('date')
-            ->orderBy('start_time')
-            ->get();
-
-        $appointmentsQuery = Appointment::with(['slot', 'user', 'student'])
-            ->join('appointment_slots', 'appointments.slot_id', '=', 'appointment_slots.id')
-            ->select('appointments.*')
-            ->orderBy('appointment_slots.date')
-            ->orderBy('appointment_slots.start_time');
-
-        if ($request->filled('status')) {
-            $appointmentsQuery->where('appointments.status', $request->get('status'));
-        }
-        if ($request->filled('period') === 'upcoming') {
-            $appointmentsQuery->where('appointment_slots.date', '>=', Carbon::today());
-        } elseif ($request->filled('period') === 'past') {
-            $appointmentsQuery->where('appointment_slots.date', '<', Carbon::today());
-        }
-
-        $appointments = $appointmentsQuery->get();
-
-        $stats = [
-            'pending' => Appointment::where('status', 'pending')->count(),
-            'confirmed_upcoming' => Appointment::where('appointments.status', 'confirmed')
-                ->join('appointment_slots', 'appointments.slot_id', '=', 'appointment_slots.id')
-                ->where('appointment_slots.date', '>=', Carbon::today())
-                ->count(),
-            'slots_open' => $upcomingSlots->filter(fn ($s) => $s->is_active && $s->booked_count < $s->capacity)->count(),
-            'total' => Appointment::count(),
-        ];
+        $slots = $this->upcomingSlots()->map(fn ($s) => $this->serializeSlot($s))->values();
+        $appointments = $this->allAppointments()->map(fn ($a) => $this->serializeAppointment($a))->values();
 
         return view('admin.appointments.index', [
-            'upcomingSlots' => $upcomingSlots,
-            'appointments' => $appointments,
-            'stats' => $stats,
-            'filters' => $request->only(['status', 'period']),
+            'slotsJson' => $slots,
+            'appointmentsJson' => $appointments,
         ]);
     }
 
     /**
      * Créer un ou plusieurs créneaux (récurrence hebdomadaire optionnelle).
      */
-    public function storeSlot(Request $request): RedirectResponse
+    public function storeSlot(Request $request)
     {
         $validated = $request->validate([
             'date' => 'required|date|after_or_equal:today',
@@ -89,7 +52,6 @@ class AppointmentAdminController extends Controller
         for ($i = 0; $i <= $repeat; $i++) {
             $date = Carbon::parse($validated['date'])->addWeeks($i);
 
-            // Éviter les doublons exacts (même date + mêmes horaires)
             $exists = AppointmentSlot::where('date', $date->toDateString())
                 ->where('start_time', $validated['start_time'])
                 ->where('end_time', $validated['end_time'])
@@ -114,9 +76,17 @@ class AppointmentAdminController extends Controller
             $created++;
         }
 
-        $msg = $created . ' créneau(x) créé(s).';
-        if ($skipped > 0) {
-            $msg .= ' ' . $skipped . ' ignoré(s) (doublon).';
+        $msg = $created . ' créneau(x) créé(s).' . ($skipped > 0 ? ' ' . $skipped . ' ignoré(s) (doublon).' : '');
+
+        if ($request->expectsJson()) {
+            if ($created === 0) {
+                return response()->json(['success' => false, 'message' => $msg], 422);
+            }
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'slots' => $this->upcomingSlots()->map(fn ($s) => $this->serializeSlot($s))->values(),
+            ]);
         }
 
         return back()->with($created > 0 ? 'success' : 'error', $msg);
@@ -125,26 +95,38 @@ class AppointmentAdminController extends Controller
     /**
      * Supprimer/désactiver un créneau.
      */
-    public function destroySlot($id): RedirectResponse
+    public function destroySlot(Request $request, $id)
     {
         $slot = AppointmentSlot::withCount(['appointments as active_bookings' => function ($q) {
             $q->whereIn('status', ['pending', 'confirmed']);
         }])->findOrFail($id);
 
+        $deactivated = false;
         if ($slot->active_bookings > 0) {
-            // Ne pas supprimer un créneau réservé : le désactiver
             $slot->update(['is_active' => false]);
-            return back()->with('success', 'Créneau désactivé (des rendez-vous y sont encore rattachés).');
+            $deactivated = true;
+            $msg = 'Créneau désactivé (des rendez-vous y sont encore rattachés).';
+        } else {
+            $slot->delete();
+            $msg = 'Créneau supprimé.';
         }
 
-        $slot->delete();
-        return back()->with('success', 'Créneau supprimé.');
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'deactivated' => $deactivated,
+                'slots' => $this->upcomingSlots()->map(fn ($s) => $this->serializeSlot($s))->values(),
+            ]);
+        }
+
+        return back()->with('success', $msg);
     }
 
     /**
      * Confirmer / annuler / terminer un rendez-vous.
      */
-    public function updateStatus(Request $request, $id): RedirectResponse
+    public function updateStatus(Request $request, $id)
     {
         $validated = $request->validate([
             'status' => 'required|in:confirmed,cancelled,completed',
@@ -156,6 +138,9 @@ class AppointmentAdminController extends Controller
         $newStatus = $validated['status'];
 
         if ($appointment->status === $newStatus) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => 'Ce rendez-vous a déjà ce statut.'], 422);
+            }
             return back()->with('error', 'Ce rendez-vous a déjà ce statut.');
         }
 
@@ -178,11 +163,83 @@ class AppointmentAdminController extends Controller
         }
 
         $appointment->update($data);
-
         $this->notifyStudent($appointment->fresh(['slot', 'user']), $newStatus);
 
         $labels = ['confirmed' => 'confirmé', 'cancelled' => 'annulé', 'completed' => 'marqué comme terminé'];
-        return back()->with('success', 'Rendez-vous ' . ($labels[$newStatus] ?? $newStatus) . '.');
+        $msg = 'Rendez-vous ' . ($labels[$newStatus] ?? $newStatus) . '.';
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'appointment' => $this->serializeAppointment($appointment->fresh(['slot', 'user', 'student'])),
+            ]);
+        }
+
+        return back()->with('success', $msg);
+    }
+
+    /* ──────────────────────────────────────────────── */
+
+    private function upcomingSlots()
+    {
+        return AppointmentSlot::where('date', '>=', Carbon::today())
+            ->withCount(['appointments as booked_count' => function ($q) {
+                $q->whereIn('status', ['pending', 'confirmed']);
+            }])
+            ->orderBy('date')
+            ->orderBy('start_time')
+            ->get();
+    }
+
+    private function allAppointments()
+    {
+        return Appointment::with(['slot', 'user', 'student'])
+            ->join('appointment_slots', 'appointments.slot_id', '=', 'appointment_slots.id')
+            ->select('appointments.*')
+            ->orderBy('appointment_slots.date')
+            ->orderBy('appointment_slots.start_time')
+            ->get();
+    }
+
+    private function serializeSlot(AppointmentSlot $s): array
+    {
+        return [
+            'id' => $s->id,
+            'day' => $s->date->format('d'),
+            'month' => $s->date->translatedFormat('M'),
+            'date_label' => $s->date->translatedFormat('D j M'),
+            'date_full' => $s->date->format('d/m/Y'),
+            'start' => Carbon::parse($s->start_time)->format('H:i'),
+            'end' => Carbon::parse($s->end_time)->format('H:i'),
+            'mode' => $s->mode,
+            'lieu' => $s->lieu,
+            'capacity' => (int) $s->capacity,
+            'booked' => (int) $s->booked_count,
+            'active' => (bool) $s->is_active,
+        ];
+    }
+
+    private function serializeAppointment(Appointment $a): array
+    {
+        $slot = $a->slot;
+        return [
+            'id' => $a->id,
+            'slot_id' => $a->slot_id,
+            'student_name' => $a->user->name ?? ($a->student ? trim(($a->student->first_name ?? '') . ' ' . ($a->student->last_name ?? '')) : '—'),
+            'student_email' => $a->user->email ?? '',
+            'formation' => $a->student->program ?? '',
+            'motif' => $a->motif,
+            'message' => $a->message,
+            'status' => $a->status,
+            'meet_link' => $a->meet_link,
+            'admin_note' => $a->admin_note,
+            'slot_date' => $slot ? $slot->date->format('d/m/Y') : '',
+            'slot_date_raw' => $slot ? $slot->date->toDateString() : '',
+            'slot_time' => $slot ? Carbon::parse($slot->start_time)->format('H:i') . '–' . Carbon::parse($slot->end_time)->format('H:i') : '',
+            'slot_mode' => $slot->mode ?? '',
+            'slot_past' => $slot ? ($slot->date->isPast() && !$slot->date->isToday()) : false,
+        ];
     }
 
     private function notifyStudent(Appointment $appointment, string $status): void
