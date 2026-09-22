@@ -236,6 +236,74 @@
         color: var(--form-text);
     }
 
+    /* ─── Student picker ─── */
+    .stu-picker {
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 12px;
+        background: rgba(255,255,255,0.03);
+        overflow: hidden;
+    }
+    .stu-picker-head {
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .stu-picker-head i { color: #64748b; font-size: 0.85rem; }
+    .stu-picker-search {
+        flex: 1; background: transparent; border: none; outline: none;
+        color: var(--form-text, #e2e8f0); font-size: 0.85rem;
+    }
+    .stu-picker-search::placeholder { color: #64748b; }
+    .stu-picker-list {
+        max-height: 320px; overflow-y: auto; padding: 0.4rem;
+    }
+    .stu-group-title {
+        display: flex; align-items: center; justify-content: space-between;
+        font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+        letter-spacing: 0.06em; color: #94a3b8;
+        padding: 0.55rem 0.6rem 0.3rem;
+    }
+    .stu-group-title .g-all {
+        font-size: 0.7rem; color: #38bdf8; cursor: pointer; text-transform: none;
+        font-weight: 700; letter-spacing: 0;
+    }
+    .stu-group-title .g-all:hover { text-decoration: underline; }
+    .stu-row {
+        display: flex; align-items: center; gap: 0.65rem;
+        padding: 0.5rem 0.6rem; border-radius: 9px; cursor: pointer;
+        transition: background 0.12s;
+    }
+    .stu-row:hover { background: rgba(56,189,248,0.07); }
+    .stu-row.selected { background: rgba(56,189,248,0.12); }
+    .stu-row .form-check-input { width: 1.05em; height: 1.05em; cursor: pointer; flex-shrink: 0; margin: 0; }
+    .stu-row .form-check-input:checked { background-color: #38bdf8; border-color: #38bdf8; }
+    .stu-row-info { flex: 1; min-width: 0; }
+    .stu-row-name { font-weight: 700; font-size: 0.85rem; color: var(--form-text, #e2e8f0); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stu-row-email { font-size: 0.74rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stu-row-badge {
+        font-size: 0.68rem; font-weight: 700; padding: 0.15rem 0.5rem;
+        border-radius: 6px; white-space: nowrap; flex-shrink: 0;
+    }
+    .stu-row-zero {
+        font-size: 0.66rem; font-weight: 800; color: #fbbf24;
+        background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3);
+        border-radius: 999px; padding: 0.1rem 0.45rem; flex-shrink: 0;
+    }
+    .stu-picker-empty { padding: 1.5rem 1rem; text-align: center; color: #64748b; font-size: 0.85rem; }
+    .stu-picker-foot {
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 0.55rem 0.9rem; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .stu-pick-btn {
+        font-size: 0.74rem; font-weight: 700; padding: 0.28rem 0.65rem;
+        border-radius: 999px; border: 1px solid rgba(56,189,248,0.4);
+        background: rgba(56,189,248,0.1); color: #38bdf8; cursor: pointer;
+    }
+    .stu-pick-btn:hover { background: rgba(56,189,248,0.2); }
+    .stu-pick-none { border-color: rgba(148,163,184,0.4); background: rgba(148,163,184,0.08); color: #94a3b8; }
+    .stu-picker-count { margin-left: auto; font-size: 0.78rem; color: #94a3b8; }
+    .stu-picker-count strong { color: #38bdf8; }
+
     #quill-editor {
         height: 300px;
     }
@@ -547,23 +615,12 @@
                             <!-- Sélection étudiants spécifiques -->
                             <div class="form-group" id="studentsSelectContainer" style="display: none;">
                                 <label for="students">
-                                    Sélectionner les étudiants spécifiques (optionnel)
+                                    Étudiants actifs à cibler (optionnel)
                                 </label>
-                                <input type="text"
-                                       class="form-control mb-2"
-                                       id="studentsSearch"
-                                       placeholder="🔍 Rechercher un étudiant (nom, email, formation)…"
-                                       autocomplete="off">
-                                <div class="d-flex align-items-center gap-2 mb-2">
-                                    <button type="button" class="btn-select-all" id="stuSelectAll">Tout sélectionner</button>
-                                    <button type="button" class="btn-select-all" id="stuDeselectAll" style="border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.1);color:#ef4444;">Tout désélectionner</button>
-                                    <span class="zero-tp-selection-count" id="stuVisibleCount"></span>
-                                </div>
-                                <select class="form-select"
-                                        id="students"
+                                <select id="students"
                                         name="students[]"
                                         multiple
-                                        size="10">
+                                        class="d-none">
                                     @php
                                         $oldStudents = old('students');
                                         if (!is_array($oldStudents)) {
@@ -586,7 +643,9 @@
                                     @if($groupWithout->count() > 0)
                                         <optgroup label="Nouveaux inscrits (0 projet)">
                                             @foreach($groupWithout as $student)
-                                                <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}" {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
+                                                <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}" data-zero="1"
+                                                        data-name="{{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')) }}" data-email="{{ $student->email ?? '' }}"
+                                                        {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
                                                     {{ $student->first_name }} {{ $student->last_name }}
                                                     @if($student->email)
                                                         ({{ $student->email }})
@@ -600,7 +659,9 @@
                                     @if($groupWith->count() > 0)
                                         <optgroup label="Déjà avec projets">
                                             @foreach($groupWith as $student)
-                                                <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}" {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
+                                                <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}"
+                                                        data-name="{{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')) }}" data-email="{{ $student->email ?? '' }}"
+                                                        {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
                                                     {{ $student->first_name }} {{ $student->last_name }}
                                                     @if($student->email)
                                                         ({{ $student->email }})
@@ -611,10 +672,20 @@
                                         </optgroup>
                                     @endif
                                 </select>
-                                <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Maintenez Ctrl/Cmd pour sélectionner plusieurs étudiants
-                                </small>
+
+                                <!-- Picker moderne : recherche + checkboxes groupées par formation -->
+                                <div class="stu-picker">
+                                    <div class="stu-picker-head">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="stuSearch" class="stu-picker-search" placeholder="Rechercher (nom, email, formation)…">
+                                    </div>
+                                    <div class="stu-picker-list" id="stuPickerList"></div>
+                                    <div class="stu-picker-foot">
+                                        <button type="button" class="stu-pick-btn" id="stuSelectAll"><i class="fas fa-check-double me-1"></i>Tout</button>
+                                        <button type="button" class="stu-pick-btn stu-pick-none" id="stuDeselectAll"><i class="fas fa-times me-1"></i>Aucun</button>
+                                        <span class="stu-picker-count" id="stuPickerCount"></span>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Info destinataires -->
@@ -805,29 +876,6 @@ const stats = {
     'Sans formation': {{ $stats['sans_formation'] ?? 0 }}
 };
 
-// Filtre combiné formation + recherche sur les options du select étudiants
-const studentsSearch = document.getElementById('studentsSearch');
-
-function refreshStudentOptions() {
-    const selectedFormations = Array.from(formationSelect.selectedOptions)
-        .map(o => o.value).filter(v => v && v !== 'all');
-    const q = (studentsSearch ? studentsSearch.value : '').toLowerCase().trim();
-    let visible = 0;
-
-    Array.from(studentsSelect.options).forEach(option => {
-        const optionFormation = option.getAttribute('data-formation');
-        const matchFormation = !optionFormation || selectedFormations.includes(optionFormation);
-        if (!matchFormation) option.selected = false;
-        const matchQuery = q === '' || option.textContent.toLowerCase().includes(q);
-        const show = matchFormation && matchQuery;
-        option.style.display = show ? 'block' : 'none';
-        if (show) visible++;
-    });
-
-    const countEl = document.getElementById('stuVisibleCount');
-    if (countEl) countEl.innerHTML = `<strong>${visible}</strong> affiché(s)`;
-}
-
 formationSelect.addEventListener('change', function() {
     const selectedFormations = Array.from(this.selectedOptions).map(o => o.value).filter(Boolean);
     const hasAll = selectedFormations.includes('all');
@@ -843,7 +891,19 @@ formationSelect.addEventListener('change', function() {
     if (selectedSpecificFormations.length > 0) {
         // Afficher le sélecteur d'étudiants
         studentsSelectContainer.style.display = 'block';
-        refreshStudentOptions();
+
+        // Filtrer les options
+        const options = studentsSelect.querySelectorAll('option');
+        options.forEach(option => {
+            const optionFormation = option.getAttribute('data-formation');
+            if (!optionFormation || selectedSpecificFormations.includes(optionFormation)) {
+                option.style.display = 'block';
+            } else {
+                option.style.display = 'none';
+                option.selected = false;
+            }
+        });
+
         updateRecipientsCount();
     } else {
         studentsSelectContainer.style.display = 'none';
@@ -851,25 +911,176 @@ formationSelect.addEventListener('change', function() {
     }
 });
 
-if (studentsSearch) {
-    studentsSearch.addEventListener('input', refreshStudentOptions);
-}
-
-document.getElementById('stuSelectAll')?.addEventListener('click', function() {
-    Array.from(studentsSelect.options).forEach(o => {
-        if (o.style.display !== 'none') o.selected = true;
-    });
-    updateRecipientsCount();
-});
-
-document.getElementById('stuDeselectAll')?.addEventListener('click', function() {
-    Array.from(studentsSelect.options).forEach(o => { o.selected = false; });
-    updateRecipientsCount();
-});
-
 studentsSelect.addEventListener('change', function() {
     updateRecipientsCount();
 });
+
+/* ─── Student picker (checkboxes + recherche) ─── */
+const stuPickerList = document.getElementById('stuPickerList');
+const stuSearch = document.getElementById('stuSearch');
+const stuPickerCount = document.getElementById('stuPickerCount');
+
+const FORMATION_COLORS = {
+    'Design Graphique': 'background:#1e3c72;color:#fff;',
+    'Design Graphique & Community Management': 'background:#833AB4;color:#fff;',
+    'Community Management': 'background:#0891b2;color:#fff;',
+    'Gestion Informatique': 'background:#d97706;color:#fff;',
+    'Intelligence Artificielle': 'background:#0d9488;color:#fff;',
+    'Sans formation': 'background:#475569;color:#fff;'
+};
+
+function escHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function currentFormationFilter() {
+    return Array.from(formationSelect.selectedOptions)
+        .map(o => o.value)
+        .filter(v => v && v !== 'all');
+}
+
+function rebuildPicker() {
+    if (!stuPickerList) return;
+    const formations = currentFormationFilter();
+    const q = (stuSearch ? stuSearch.value : '').toLowerCase().trim();
+
+    // Options éligibles : formation sélectionnée + recherche
+    const eligible = Array.from(studentsSelect.options).filter(opt => {
+        if (!formations.includes(opt.getAttribute('data-formation'))) return false;
+        if (q) {
+            const hay = ((opt.getAttribute('data-name') || '') + ' ' + (opt.getAttribute('data-email') || '') + ' ' + (opt.getAttribute('data-formation') || '')).toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+        return true;
+    });
+
+    if (!eligible.length) {
+        stuPickerList.innerHTML = '<div class="stu-picker-empty"><i class="fas fa-user-slash me-1"></i>Aucun étudiant actif dans cette sélection.</div>';
+        updatePickerCount();
+        return;
+    }
+
+    // Grouper par formation
+    const groups = {};
+    eligible.forEach(opt => {
+        const f = opt.getAttribute('data-formation') || 'Sans formation';
+        (groups[f] = groups[f] || []).push(opt);
+    });
+
+    stuPickerList.innerHTML = Object.entries(groups).map(([formation, opts]) => {
+        const rows = opts.map(opt => `
+            <label class="stu-row ${opt.selected ? 'selected' : ''}" data-opt="${opt.value}">
+                <input type="checkbox" class="form-check-input" ${opt.selected ? 'checked' : ''}>
+                <span class="stu-row-info">
+                    <span class="stu-row-name">${escHtml(opt.getAttribute('data-name'))}</span>
+                    <span class="stu-row-email d-block">${escHtml(opt.getAttribute('data-email'))}</span>
+                </span>
+                ${opt.getAttribute('data-zero') ? '<span class="stu-row-zero">0 projet</span>' : ''}
+                <span class="stu-row-badge" style="${FORMATION_COLORS[formation] || 'background:#475569;color:#fff;'}">${escHtml(formation)}</span>
+            </label>`).join('');
+        return `
+            <div class="stu-group">
+                <div class="stu-group-title">
+                    <span>${escHtml(formation)} · ${opts.length}</span>
+                    <span class="g-all" data-group="${escHtml(formation)}">Tout sélectionner</span>
+                </div>
+                ${rows}
+            </div>`;
+    }).join('');
+
+    updatePickerCount();
+}
+
+function updatePickerCount() {
+    if (!stuPickerCount) return;
+    const n = studentsSelect.selectedOptions.length;
+    stuPickerCount.innerHTML = '<strong>' + n + '</strong> sélectionné(s)';
+}
+
+function setOption(id, selected) {
+    const opt = Array.from(studentsSelect.options).find(o => o.value === String(id));
+    if (opt) opt.selected = selected;
+}
+
+// Clic sur ligne ou checkbox
+if (stuPickerList) {
+    stuPickerList.addEventListener('click', function (e) {
+        const groupAll = e.target.closest('.g-all');
+        if (groupAll) {
+            e.preventDefault();
+            const group = groupAll.getAttribute('data-group');
+            stuPickerList.querySelectorAll(`.stu-group`).forEach(g => {
+                const title = g.querySelector('.stu-group-title span');
+                if (title && title.textContent.startsWith(group)) {
+                    g.querySelectorAll('.stu-row').forEach(row => {
+                        const cb = row.querySelector('input[type="checkbox"]');
+                        if (row.style.display !== 'none') {
+                            cb.checked = true;
+                            row.classList.add('selected');
+                            setOption(row.getAttribute('data-opt'), true);
+                        }
+                    });
+                }
+            });
+            updateRecipientsCount();
+            updatePickerCount();
+            return;
+        }
+
+        const row = e.target.closest('.stu-row');
+        if (!row) return;
+        const cb = row.querySelector('input[type="checkbox"]');
+        if (e.target !== cb) {
+            e.preventDefault();
+            cb.checked = !cb.checked;
+        }
+        row.classList.toggle('selected', cb.checked);
+        setOption(row.getAttribute('data-opt'), cb.checked);
+        updateRecipientsCount();
+        updatePickerCount();
+    });
+}
+
+if (stuSearch) {
+    stuSearch.addEventListener('input', rebuildPicker);
+}
+
+document.getElementById('stuSelectAll')?.addEventListener('click', function () {
+    stuPickerList.querySelectorAll('.stu-row').forEach(row => {
+        const cb = row.querySelector('input[type="checkbox"]');
+        cb.checked = true;
+        row.classList.add('selected');
+        setOption(row.getAttribute('data-opt'), true);
+    });
+    updateRecipientsCount();
+    updatePickerCount();
+});
+
+document.getElementById('stuDeselectAll')?.addEventListener('click', function () {
+    stuPickerList.querySelectorAll('.stu-row').forEach(row => {
+        const cb = row.querySelector('input[type="checkbox"]');
+        cb.checked = false;
+        row.classList.remove('selected');
+        setOption(row.getAttribute('data-opt'), false);
+    });
+    updateRecipientsCount();
+    updatePickerCount();
+});
+
+// Re-synchroniser les checkboxes quand le select caché change (panel 0 projet)
+function refreshPickerChecks() {
+    if (!stuPickerList) return;
+    stuPickerList.querySelectorAll('.stu-row').forEach(row => {
+        const opt = Array.from(studentsSelect.options).find(o => o.value === row.getAttribute('data-opt'));
+        const sel = opt ? opt.selected : false;
+        row.querySelector('input[type="checkbox"]').checked = sel;
+        row.classList.toggle('selected', sel);
+    });
+    updatePickerCount();
+}
+
+// Reconstruire le picker quand la formation change
+formationSelect.addEventListener('change', rebuildPicker);
 
 if (formationSelect.value) {
     formationSelect.dispatchEvent(new Event('change'));
@@ -947,6 +1158,7 @@ function syncZeroTpToStudentsSelect() {
         }
     });
     updateRecipientsCount();
+    if (typeof refreshPickerChecks === 'function') refreshPickerChecks();
 }
 
 // Click on row toggles checkbox

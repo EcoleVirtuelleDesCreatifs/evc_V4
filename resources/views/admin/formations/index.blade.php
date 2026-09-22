@@ -4,346 +4,508 @@
 
 @push('styles')
 <style>
-    .fm-kpi {
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 14px; padding: 0.9rem 1.1rem;
-        display: flex; align-items: center; gap: 0.85rem; height: 100%;
-        transition: border-color 0.2s, transform 0.2s;
+    /* Cartes de statistiques modernes */
+    .stat-card {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-    .fm-kpi:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.2); }
-    .fm-kpi .ic {
-        width: 44px; height: 44px; border-radius: 11px; flex-shrink: 0;
-        display: flex; align-items: center; justify-content: center; font-size: 1.15rem; color: #fff;
-    }
-    .fm-kpi .num { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1.1; }
-    .fm-kpi .lbl { font-size: 0.72rem; color: rgba(255,255,255,0.55); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
 
-    .fm-toolbar {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 14px; padding: 0.9rem 1.1rem;
-        display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(30, 60, 114, 0.3);
     }
-    .fm-pill {
-        border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.04);
-        color: rgba(255,255,255,0.75); border-radius: 999px; padding: 0.4rem 0.9rem;
-        font-size: 0.78rem; font-weight: 700; cursor: pointer; user-select: none;
-        display: inline-flex; align-items: center; gap: 0.45rem; transition: all 0.15s;
-    }
-    .fm-pill:hover { border-color: rgba(255,255,255,0.35); color: #fff; }
-    .fm-pill.active { background: rgba(139,92,246,0.2); border-color: #8b5cf6; color: #c4b5fd; }
-    .fm-pill .cnt { background: rgba(255,255,255,0.12); border-radius: 999px; padding: 0 0.45rem; font-size: 0.7rem; }
-    .fm-pill.active .cnt { background: rgba(139,92,246,0.35); }
 
-    .fm-search {
-        flex: 1; min-width: 220px; display: flex; align-items: center; gap: 0.55rem;
-        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 10px; padding: 0.45rem 0.8rem;
+    .stat-card-primary {
+        background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%);
     }
-    .fm-search i { color: rgba(255,255,255,0.4); }
-    .fm-search input {
-        background: transparent; border: none; outline: none; color: #fff;
-        font-size: 0.85rem; width: 100%;
-    }
-    .fm-search input::placeholder { color: rgba(255,255,255,0.35); }
-    .fm-select {
-        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 10px; color: #fff; font-size: 0.82rem; padding: 0.45rem 0.7rem;
-    }
-    .fm-select option, .fm-select optgroup { background: #0f172a; color: #fff; }
 
-    .fm-table-wrap {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 14px; overflow: hidden;
+    .stat-card-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
-    .fm-table {
-        color: rgba(255,255,255,0.85); font-size: 0.85rem; margin: 0;
-        --bs-table-bg: transparent;
-        --bs-table-color: rgba(255,255,255,0.85);
-        --bs-table-border-color: rgba(255,255,255,0.07);
-        --bs-table-hover-bg: transparent;
+
+    .stat-card-warning {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
     }
-    .fm-table > :not(caption) > * > * { background-color: transparent !important; box-shadow: none; }
-    .fm-table thead th {
-        color: rgba(255,255,255,0.45); font-weight: 700; font-size: 0.7rem;
-        text-transform: uppercase; letter-spacing: 0.05em;
-        border-bottom: 1px solid rgba(255,255,255,0.09); padding: 0.65rem 0.85rem;
+
+    .stat-card-cyan {
+        background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%);
     }
-    .fm-table tbody td { border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.7rem 0.85rem; vertical-align: middle; }
-    .fm-table tbody tr:hover > * { background-color: rgba(139,92,246,0.06) !important; }
 
-    .fm-thumb { width: 58px; height: 40px; border-radius: 8px; object-fit: cover; }
-    .fm-thumb-ph {
-        width: 58px; height: 40px; border-radius: 8px;
-        background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center;
-        color: rgba(255,255,255,0.3);
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
     }
-    .fm-name { color: #fff; font-weight: 700; }
-    .fm-sub { color: rgba(255,255,255,0.5); font-size: 0.75rem; }
 
-    .stb { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.65rem; border-radius: 999px; }
-    .stb-active { background: rgba(34,197,94,0.14); color: #4ade80; border: 1px solid rgba(34,197,94,0.35); }
-    .stb-draft { background: rgba(148,163,184,0.14); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
-    .stb-inactive { background: rgba(251,191,36,0.14); color: #fbbf24; border: 1px solid rgba(251,191,36,0.35); }
-    .stb-archived { background: rgba(239,68,68,0.14); color: #f87171; border: 1px solid rgba(239,68,68,0.35); }
-
-    .fm-act {
-        width: 32px; height: 32px; border-radius: 9px; border: none;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 0.8rem; transition: all 0.15s; text-decoration: none;
+    .stat-content {
+        flex: 1;
     }
-    .fm-act-view { background: rgba(59,130,246,0.15); color: #93c5fd; border: 1px solid rgba(59,130,246,0.4); }
-    .fm-act-view:hover { background: rgba(59,130,246,0.3); color: #bfdbfe; }
-    .fm-act-edit { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.35); }
-    .fm-act-edit:hover { background: rgba(251,191,36,0.25); }
-    .fm-act-on { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
-    .fm-act-on:hover { background: rgba(34,197,94,0.28); }
-    .fm-act-off { background: rgba(148,163,184,0.12); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
-    .fm-act-off:hover { background: rgba(251,191,36,0.2); color: #fbbf24; }
-    .fm-act-del { background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.35); }
-    .fm-act-del:hover { background: rgba(239,68,68,0.25); }
 
-    .fm-empty { text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.5); }
-    .fm-empty i { font-size: 2.2rem; display: block; margin-bottom: 0.75rem; opacity: 0.4; }
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
 
-    .mod-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+    .stat-label {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.95rem;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: .35em .65em;
+        font-size: .75em;
+        font-weight: 700;
+        line-height: 1;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: .25rem;
+    }
+    .status-badge.active { background-color: #198754; }
+    .status-badge.draft { background-color: #6c757d; }
+    .status-badge.inactive { background-color: #ffc107; color: #000; }
+    .status-badge.archived { background-color: #dc3545; }
+    th, td { vertical-align: middle; }
 </style>
 @endpush
 
 @section('content')
-@php
-    $moduleMeta = [
-        'design-graphique' => ['label' => 'Design Graphique', 'icon' => 'fa-palette', 'color' => '#3b82f6'],
-        'design-graphique-cm' => ['label' => 'Design & Community', 'icon' => 'fa-object-group', 'color' => '#8b5cf6'],
-        'community-management' => ['label' => 'Community Management', 'icon' => 'fa-users', 'color' => '#ec4899'],
-        'gestion-informatique' => ['label' => 'Gestion Informatique', 'icon' => 'fa-laptop-code', 'color' => '#f59e0b'],
-        'intelligence-artificielle' => ['label' => 'Intelligence Artificielle', 'icon' => 'fa-brain', 'color' => '#06b6d4'],
-    ];
-    $inactiveCount = ($stats['inactive'] ?? 0) + ($stats['archived'] ?? 0);
-@endphp
-
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h1 class="h3 mb-0 text-white"><i class="fas fa-graduation-cap me-2" style="color:#a78bfa;"></i>Gestion des Formations</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0 text-white">Gestion des Formations</h1>
         <a href="{{ route('admin.formations.create') }}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Créer une formation</a>
     </div>
 
-    <!-- KPIs -->
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md">
-            <div class="fm-kpi">
-                <div class="ic" style="background: linear-gradient(135deg,#1e3c72,#2a5298);"><i class="fas fa-graduation-cap"></i></div>
-                <div><div class="num">{{ $stats['total'] }}</div><div class="lbl">Total</div></div>
+    <!-- Statistiques Globales -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['total'] }}</h3>
+                    <p class="stat-label">Total Formations</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md">
-            <div class="fm-kpi">
-                <div class="ic" style="background: linear-gradient(135deg,#10b981,#059669);"><i class="fas fa-check-circle"></i></div>
-                <div><div class="num">{{ $stats['active'] }}</div><div class="lbl">Actives</div></div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-success">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['active'] }}</h3>
+                    <p class="stat-label">Formations Actives</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md">
-            <div class="fm-kpi">
-                <div class="ic" style="background: linear-gradient(135deg,#f59e0b,#d97706);"><i class="fas fa-file-alt"></i></div>
-                <div><div class="num">{{ $stats['draft'] }}</div><div class="lbl">Brouillons</div></div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['draft'] }}</h3>
+                    <p class="stat-label">Brouillons</p>
+                </div>
             </div>
         </div>
-        <div class="col-6 col-md">
-            <div class="fm-kpi">
-                <div class="ic" style="background: linear-gradient(135deg,#64748b,#475569);"><i class="fas fa-pause-circle"></i></div>
-                <div><div class="num">{{ $inactiveCount }}</div><div class="lbl">Inact./Arch.</div></div>
-            </div>
-        </div>
-        <div class="col-6 col-md">
-            <div class="fm-kpi">
-                <div class="ic" style="background: linear-gradient(135deg,#4fc3f7,#29b6f6);"><i class="fas fa-calendar-plus"></i></div>
-                <div><div class="num">{{ $stats['ce_mois'] }}</div><div class="lbl">Ce mois</div></div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number">{{ $stats['ce_mois'] }}</h3>
+                    <p class="stat-label">Ajoutées ce Mois</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Filtres -->
-    <div class="fm-toolbar mb-3">
-        <span class="fm-pill active" data-module=""><i class="fas fa-layer-group"></i>Tous modules</span>
-        @foreach($moduleMeta as $slug => $meta)
-            @if(($statsByModule[$slug] ?? 0) > 0 || true)
-                <span class="fm-pill" data-module="{{ $slug }}">
-                    <span class="mod-dot" style="background: {{ $meta['color'] }};"></span>
-                    {{ $meta['label'] }}
-                    <span class="cnt">{{ $statsByModule[$slug] ?? 0 }}</span>
-                </span>
-            @endif
-        @endforeach
-    </div>
-
-    <div class="fm-toolbar mb-4">
-        <span class="fm-pill active" data-status="">Tous statuts</span>
-        <span class="fm-pill" data-status="active"><i class="fas fa-circle" style="color:#4ade80;font-size:0.5rem;"></i>Actives</span>
-        <span class="fm-pill" data-status="draft"><i class="fas fa-circle" style="color:#94a3b8;font-size:0.5rem;"></i>Brouillons</span>
-        <span class="fm-pill" data-status="inactive"><i class="fas fa-circle" style="color:#fbbf24;font-size:0.5rem;"></i>Inactives</span>
-        <span class="fm-pill" data-status="archived"><i class="fas fa-circle" style="color:#f87171;font-size:0.5rem;"></i>Archivées</span>
-
-        <select class="fm-select" id="catFilter">
-            <option value="">Toutes catégories</option>
-            @foreach($statsByCategory as $module => $categories)
-                <optgroup label="{{ $moduleMeta[$module]['label'] ?? $module }}">
-                    @foreach($categories as $cat)
-                        <option value="{{ $cat->category_name }}">{{ $cat->category_name }} ({{ $cat->total }})</option>
-                    @endforeach
-                </optgroup>
-            @endforeach
-        </select>
-
-        <div class="fm-search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="fmSearch" placeholder="Rechercher (nom, catégorie, module)…">
-        </div>
-
-        <button type="button" class="fm-pill" id="fmReset" style="display:none;">
-            <i class="fas fa-redo"></i>Réinitialiser
-        </button>
-    </div>
-
-    <!-- Table -->
-    <div class="fm-table-wrap">
-        <div class="table-responsive">
-            <table class="table fm-table">
-                <thead>
-                    <tr>
-                        <th style="width:70px;">Image</th>
-                        <th style="min-width:200px;">Formation</th>
-                        <th>Catégorie</th>
-                        <th>Module</th>
-                        <th>Statut</th>
-                        <th>Étudiants</th>
-                        <th>Créée le</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="fmTbody">
-                    @forelse($formations as $formation)
+    <!-- Statistiques par Module -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+                <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                    <h5 class="mb-0 text-white"><i class="fas fa-chart-pie me-2"></i>Statistiques par Module</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
                         @php
-                            $moduleSlug = $formation->modules[0] ?? '';
-                            $catModule = $formation->category->module ?? '';
-                            $catName = $formation->category->name ?? 'N/A';
+                            $moduleColors = [
+                                'design-graphique' => ['bg' => 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', 'icon' => 'fa-palette'],
+                                'design-graphique-cm' => ['bg' => 'linear-gradient(135deg, #2563eb 0%, #f97316 100%)', 'icon' => 'fa-object-group'],
+                                'community-management' => ['bg' => 'linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%)', 'icon' => 'fa-users'],
+                                'gestion-informatique' => ['bg' => 'linear-gradient(135deg, #ff9800 0%, #fb8c00 100%)', 'icon' => 'fa-laptop-code'],
+                                'intelligence-artificielle' => ['bg' => 'linear-gradient(135deg, #26c6da 0%, #00acc1 100%)', 'icon' => 'fa-brain'],
+                            ];
+                            $moduleNames = [
+                                'design-graphique' => 'Design Graphique',
+                                'design-graphique-cm' => 'Design Graphique & Community Management',
+                                'community-management' => 'Community Management',
+                                'gestion-informatique' => 'Gestion Informatique',
+                                'intelligence-artificielle' => 'Intelligence Artificielle',
+                            ];
                         @endphp
-                        <tr class="fm-row"
-                            data-module="{{ $moduleSlug }}"
-                            data-catmodule="{{ $catModule }}"
-                            data-category="{{ $catName }}"
-                            data-status="{{ $formation->status }}"
-                            data-search="{{ strtolower(($formation->name ?? '') . ' ' . $catName . ' ' . ($moduleMeta[$moduleSlug]['label'] ?? $moduleSlug) . ' ' . ($moduleMeta[$catModule]['label'] ?? $catModule)) }}">
-                            <td>
-                                @if($formation->image_url)
-                                    <img src="{{ \App\Models\MediaUrl::fromPath($formation->image_url) }}" alt="" class="fm-thumb">
-                                @else
-                                    <div class="fm-thumb-ph"><i class="fas fa-image"></i></div>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="fm-name">{{ $formation->name }}</div>
-                                @if($formation->is_featured)
-                                    <div class="fm-sub"><i class="fas fa-star" style="color:#fbbf24;"></i> À la une</div>
-                                @endif
-                            </td>
-                            <td><span class="fm-sub" style="font-size:0.8rem;">{{ $catName }}</span></td>
-                            <td>
-                                @php $m = $moduleMeta[$moduleSlug] ?? $moduleMeta[$catModule] ?? null; @endphp
-                                @if($m)
-                                    <span class="d-inline-flex align-items-center gap-2" style="font-size:0.8rem;">
-                                        <span class="mod-dot" style="background:{{ $m['color'] }};"></span>{{ $m['label'] }}
-                                    </span>
-                                @else
-                                    <span class="fm-sub">{{ $moduleSlug ?: '—' }}</span>
-                                @endif
-                            </td>
-                            <td><span class="stb stb-{{ $formation->status }}">{{ $formation->status_label }}</span></td>
-                            <td><span class="fw-bold" style="color:#93c5fd;">{{ $formation->students_count }}</span></td>
-                            <td><span class="fm-sub">{{ $formation->created_at->format('d/m/Y') }}</span></td>
-                            <td class="text-end" style="white-space:nowrap;">
-                                <a href="{{ route('admin.formations.show', $formation) }}" class="fm-act fm-act-view" title="Voir"><i class="fas fa-eye"></i></a>
-                                <a href="{{ route('admin.formations.edit', $formation) }}" class="fm-act fm-act-edit" title="Modifier"><i class="fas fa-pen"></i></a>
-                                <form action="{{ route('admin.formations.toggleStatus', $formation) }}" method="POST" class="d-inline">
-                                    @csrf @method('PATCH')
-                                    @if($formation->status === 'active')
-                                        <button type="submit" class="fm-act fm-act-off" title="Désactiver"><i class="fas fa-power-off"></i></button>
-                                    @else
-                                        <button type="submit" class="fm-act fm-act-on" title="Activer"><i class="fas fa-check"></i></button>
-                                    @endif
-                                </form>
-                                <form action="{{ route('admin.formations.destroy', $formation) }}" method="POST" class="d-inline"
-                                      onsubmit="return confirm('Supprimer définitivement « {{ addslashes($formation->name) }} » ?');">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="fm-act fm-act-del" title="Supprimer"><i class="fas fa-trash"></i></button>
-                                </form>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="8"><div class="fm-empty"><i class="fas fa-graduation-cap"></i>Aucune formation trouvée.</div></td></tr>
-                    @endforelse
-                </tbody>
-            </table>
+
+                        @foreach($moduleColors as $moduleSlug => $moduleData)
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card h-100 border-0 module-filter-card"
+                                     data-module="{{ $moduleSlug }}"
+                                     style="background: {{ $moduleData['bg'] }}; cursor: pointer; transition: all 0.3s ease;"
+                                     onclick="filterByModule('{{ $moduleSlug }}')">
+                                    <div class="card-body text-white">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <h6 class="text-white-50 text-uppercase mb-2" style="font-size: 0.75rem;">{{ $moduleNames[$moduleSlug] ?? $moduleSlug }}</h6>
+                                                <h2 class="mb-0 fw-bold">{{ $statsByModule[$moduleSlug] ?? 0 }}</h2>
+                                                <p class="mb-0 mt-1" style="font-size: 0.85rem;">Formation(s) active(s)</p>
+                                            </div>
+                                            <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                                                <i class="fas {{ $moduleData['icon'] }} fa-2x"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2 text-end">
+                                            <small class="text-white-50"><i class="fas fa-mouse-pointer me-1"></i>Cliquer pour filtrer</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="fm-empty d-none" id="fmEmpty"><i class="fas fa-search"></i>Aucune formation ne correspond aux filtres.</div>
+    </div>
+
+    <!-- Statistiques par Catégorie -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+                <div class="card-header" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+                    <h5 class="mb-0 text-white"><i class="fas fa-tags me-2"></i>Statistiques par Catégorie</h5>
+                </div>
+                <div class="card-body">
+                    @if($statsByCategory->isEmpty())
+                        <p class="text-white-50 mb-0">Aucune catégorie avec des formations actives.</p>
+                    @else
+                        <div class="row g-3">
+                            @foreach($statsByCategory as $module => $categories)
+                                <div class="col-12">
+                                    <h6 class="text-white mb-3">
+                                        <i class="fas {{ $moduleColors[$module]['icon'] ?? 'fa-folder' }} me-2"></i>
+                                        {{ $moduleNames[$module] ?? $module }}
+                                    </h6>
+                                    <div class="row g-2">
+                                        @foreach($categories as $category)
+                                            <div class="col-md-4 col-lg-3">
+                                                <div class="card bg-dark border-secondary category-filter-card"
+                                                     data-category="{{ $category->category_name }}"
+                                                     data-module="{{ $module }}"
+                                                     style="cursor: pointer; transition: all 0.3s ease;"
+                                                     onclick="filterByCategory('{{ $category->category_name }}', '{{ $module }}')">
+                                                    <div class="card-body py-2">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="text-white" style="font-size: 0.9rem;">
+                                                                <i class="fas fa-tag me-1"></i>{{ $category->category_name }}
+                                                            </span>
+                                                            <span class="badge bg-primary">{{ $category->total }}</span>
+                                                        </div>
+                                                        <small class="text-white-50 d-block mt-1" style="font-size: 0.7rem;">
+                                                            <i class="fas fa-mouse-pointer me-1"></i>Cliquer pour filtrer
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des formations -->
+    <div class="card" style="background-color: #1e293b; border: 1px solid #334155;">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #0f172a; border-bottom: 1px solid #334155;">
+            <h5 class="mb-0 text-white"><i class="fas fa-list me-2"></i>Liste des Formations</h5>
+            <button class="btn btn-sm btn-outline-light" onclick="resetFilters()" id="resetFiltersBtn" style="display: none;">
+                <i class="fas fa-redo me-1"></i>Réinitialiser les filtres
+            </button>
+        </div>
+        <div class="card-body">
+            <div id="filterInfo" class="alert alert-info mb-3" style="display: none; background-color: #1e40af; border-color: #1e40af; color: white;">
+                <i class="fas fa-filter me-2"></i><span id="filterText"></span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th style="min-width: 200px;">Nom de la Formation</th>
+                            <th>Catégorie</th>
+                            <th>Module Principal</th>
+                            <th>Statut</th>
+                            <th>Étudiants</th>
+                            <th>Date de Création</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($formations as $formation)
+                            <tr class="formation-row"
+                                data-module="{{ $formation->modules[0] ?? '' }}"
+                                data-category="{{ $formation->category->name ?? '' }}"
+                                data-status="{{ $formation->status }}">
+                                <td>
+                                    @if($formation->image_url)
+                                        <img src="{{ \App\Models\MediaUrl::fromPath($formation->image_url) }}" alt="{{ $formation->name }}" width="60" class="rounded shadow-sm">
+                                    @else
+                                        <div style="width: 60px; height: 40px; background-color: #334155;" class="rounded shadow-sm d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    @endif
+                                </td>
+                                <td>{{ $formation->name }}</td>
+                                <td>{{ $formation->category->name ?? 'N/A' }}</td>
+                                <td>{{ $formation->modules[0] ?? 'N/A' }}</td>
+                                <td>
+                                    <span class="status-badge {{ $formation->status }}">{{ $formation->status_label }}</span>
+                                </td>
+                                <td>{{ $formation->students_count }}</td>
+                                <td>{{ $formation->created_at->format('d/m/Y') }}</td>
+                                <td>
+                                    <a href="{{ route('admin.formations.show', $formation) }}" class="btn btn-sm btn-info">Voir</a>
+                                    <a href="{{ route('admin.formations.edit', $formation) }}" class="btn btn-sm btn-warning">Modifier</a>
+                                    <form action="{{ route('admin.formations.toggleStatus', $formation) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        @if($formation->status === 'active')
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Désactiver">
+                                                <i class="fas fa-power-off"></i>
+                                            </button>
+                                        @else
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Activer">
+                                                <i class="fas fa-check-circle"></i>
+                                            </button>
+                                        @endif
+                                    </form>
+                                    <form action="{{ route('admin.formations.destroy', $formation) }}" method="POST" class="d-inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette formation ?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="text-center py-4">Aucune formation trouvée.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
 @push('scripts')
 <script>
-(function () {
-    const state = { module: '', status: '', category: '', q: '' };
-    const rows = Array.from(document.querySelectorAll('.fm-row'));
-    const empty = document.getElementById('fmEmpty');
-    const resetBtn = document.getElementById('fmReset');
-    const catFilter = document.getElementById('catFilter');
-    const search = document.getElementById('fmSearch');
+// Variables globales pour le filtrage
+let currentModuleFilter = null;
+let currentCategoryFilter = null;
 
-    function apply() {
-        let visible = 0;
-        rows.forEach(row => {
-            const mod = row.dataset.module || '';
-            const catMod = row.dataset.catmodule || '';
-            const okModule = !state.module || mod === state.module || catMod === state.module;
-            const okStatus = !state.status || row.dataset.status === state.status;
-            const okCat = !state.category || row.dataset.category === state.category;
-            const okQ = !state.q || (row.dataset.search || '').includes(state.q);
-            const show = okModule && okStatus && okCat && okQ;
-            row.style.display = show ? '' : 'none';
-            if (show) visible++;
-        });
-        empty.classList.toggle('d-none', visible > 0 || rows.length === 0);
-        resetBtn.style.display = (state.module || state.status || state.category || state.q) ? '' : 'none';
-    }
+// Filtrer par module
+function filterByModule(module) {
+    currentModuleFilter = module;
+    currentCategoryFilter = null; // Réinitialiser le filtre de catégorie
 
-    function bindPills(attr, key) {
-        document.querySelectorAll(`.fm-pill[data-${attr}]`).forEach(pill => {
-            pill.addEventListener('click', () => {
-                document.querySelectorAll(`.fm-pill[data-${attr}]`).forEach(p => p.classList.remove('active'));
-                pill.classList.add('active');
-                state[key] = pill.dataset[attr];
-                apply();
-            });
-        });
-    }
+    const rows = document.querySelectorAll('.formation-row');
+    let visibleCount = 0;
 
-    bindPills('module', 'module');
-    bindPills('status', 'status');
-
-    catFilter.addEventListener('change', () => { state.category = catFilter.value; apply(); });
-    search.addEventListener('input', () => { state.q = search.value.toLowerCase().trim(); apply(); });
-
-    resetBtn.addEventListener('click', () => {
-        state.module = state.status = state.category = state.q = '';
-        catFilter.value = '';
-        search.value = '';
-        document.querySelectorAll('.fm-pill').forEach(p => p.classList.remove('active'));
-        document.querySelector('.fm-pill[data-module=""]').classList.add('active');
-        document.querySelector('.fm-pill[data-status=""]').classList.add('active');
-        apply();
+    rows.forEach(row => {
+        const rowModule = row.getAttribute('data-module');
+        if (rowModule === module) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
     });
-})();
+
+    // Mettre à jour l'interface
+    updateFilterUI(module, null, visibleCount);
+    highlightActiveFilters();
+}
+
+// Filtrer par catégorie
+function filterByCategory(category, module) {
+    currentModuleFilter = module;
+    currentCategoryFilter = category;
+
+    const rows = document.querySelectorAll('.formation-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const rowModule = row.getAttribute('data-module');
+        const rowCategory = row.getAttribute('data-category');
+
+        if (rowModule === module && rowCategory === category) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Mettre à jour l'interface
+    updateFilterUI(module, category, visibleCount);
+    highlightActiveFilters();
+}
+
+// Réinitialiser les filtres
+function resetFilters() {
+    currentModuleFilter = null;
+    currentCategoryFilter = null;
+
+    const rows = document.querySelectorAll('.formation-row');
+    rows.forEach(row => {
+        row.style.display = '';
+    });
+
+    // Cacher les éléments de filtre
+    document.getElementById('filterInfo').style.display = 'none';
+    document.getElementById('resetFiltersBtn').style.display = 'none';
+
+    // Retirer les highlights
+    document.querySelectorAll('.module-filter-card').forEach(card => {
+        card.style.transform = 'scale(1)';
+        card.style.boxShadow = 'none';
+    });
+
+    document.querySelectorAll('.category-filter-card').forEach(card => {
+        card.style.transform = 'scale(1)';
+        card.style.border = '';
+    });
+}
+
+// Mettre à jour l'interface de filtrage
+function updateFilterUI(module, category, count) {
+    const filterInfo = document.getElementById('filterInfo');
+    const filterText = document.getElementById('filterText');
+    const resetBtn = document.getElementById('resetFiltersBtn');
+
+    const moduleNames = {
+        'design-graphique': 'Design Graphique',
+        'design-graphique-cm': 'Design Graphique & Community Management',
+        'community-management': 'Community Management',
+        'gestion-informatique': 'Gestion Informatique',
+        'intelligence-artificielle': 'Intelligence Artificielle'
+    };
+
+    let text = '';
+    if (category) {
+        text = `Filtré par : <strong>${moduleNames[module]}</strong> → <strong>${category}</strong> (${count} formation(s))`;
+    } else {
+        text = `Filtré par module : <strong>${moduleNames[module]}</strong> (${count} formation(s))`;
+    }
+
+    filterText.innerHTML = text;
+    filterInfo.style.display = 'block';
+    resetBtn.style.display = 'inline-block';
+}
+
+// Mettre en évidence les filtres actifs
+function highlightActiveFilters() {
+    // Réinitialiser tous les highlights
+    document.querySelectorAll('.module-filter-card').forEach(card => {
+        card.style.transform = 'scale(1)';
+        card.style.boxShadow = 'none';
+    });
+
+    document.querySelectorAll('.category-filter-card').forEach(card => {
+        card.style.transform = 'scale(1)';
+        card.style.border = '';
+    });
+
+    // Highlight le module actif
+    if (currentModuleFilter) {
+        const moduleCard = document.querySelector(`.module-filter-card[data-module="${currentModuleFilter}"]`);
+        if (moduleCard) {
+            moduleCard.style.transform = 'scale(1.05)';
+            moduleCard.style.boxShadow = '0 10px 30px rgba(255, 255, 255, 0.3)';
+        }
+    }
+
+    // Highlight la catégorie active
+    if (currentCategoryFilter) {
+        const categoryCard = document.querySelector(`.category-filter-card[data-category="${currentCategoryFilter}"][data-module="${currentModuleFilter}"]`);
+        if (categoryCard) {
+            categoryCard.style.transform = 'scale(1.05)';
+            categoryCard.style.border = '2px solid #60a5fa';
+        }
+    }
+}
+
+// Effet hover pour les cartes
+document.addEventListener('DOMContentLoaded', function() {
+    // Hover sur les cartes de module
+    document.querySelectorAll('.module-filter-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            if (this.getAttribute('data-module') !== currentModuleFilter) {
+                this.style.transform = 'scale(1.03)';
+                this.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.3)';
+            }
+        });
+
+        card.addEventListener('mouseleave', function() {
+            if (this.getAttribute('data-module') !== currentModuleFilter) {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = 'none';
+            }
+        });
+    });
+
+    // Hover sur les cartes de catégorie
+    document.querySelectorAll('.category-filter-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            if (this.getAttribute('data-category') !== currentCategoryFilter) {
+                this.style.transform = 'scale(1.03)';
+                this.style.border = '2px solid #3b82f6';
+            }
+        });
+
+        card.addEventListener('mouseleave', function() {
+            if (this.getAttribute('data-category') !== currentCategoryFilter) {
+                this.style.transform = 'scale(1)';
+                this.style.border = '';
+            }
+        });
+    });
+});
 </script>
 @endpush
 @endsection

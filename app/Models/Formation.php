@@ -102,10 +102,6 @@ class Formation extends Model
 
     public function getStudentsCountAttribute()
     {
-        // Utilise le compteur préchargé (withCount) quand disponible — évite le N+1
-        if (array_key_exists('students_count', $this->attributes)) {
-            return (int) $this->attributes['students_count'];
-        }
         return $this->students()->count();
     }
 

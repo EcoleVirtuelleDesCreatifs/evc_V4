@@ -1080,17 +1080,7 @@ class AdminDashboardController extends Controller
     public function create(): View
     {
         $categories = Category::orderBy('name')->get();
-
-        // Uniquement les étudiants réellement actifs (compte lié + non expiré)
-        $students = self::activeStudentsQuery()
-            ->join('users', 'students.user_id', '=', 'users.id')
-            ->select(
-                'users.id',
-                DB::raw("CONCAT(students.first_name, ' ', students.last_name) as name"),
-                'users.email'
-            )
-            ->orderBy('name')
-            ->get();
+        $students = User::orderBy('name')->get();
 
         $userIds = $students
             ->pluck('id')
@@ -1185,8 +1175,8 @@ class AdminDashboardController extends Controller
                 return is_string($v) && trim($v) !== '';
             })));
 
-            // Récupérer uniquement les étudiants réellement actifs du module
-            $studentsQuery = self::activeStudentsQuery()
+            // Récupérer les étudiants du module depuis la table students
+            $studentsQuery = DB::table('students')
                 ->join('users', 'students.user_id', '=', 'users.id')
                 ->where(function ($query) use ($allVariants) {
                     foreach ($allVariants as $variant) {
@@ -1200,6 +1190,21 @@ class AdminDashboardController extends Controller
                 $studentsQuery->where(function ($q) {
                     $q->whereNull('users.status')
                       ->orWhere('users.status', 'active');
+                });
+            }
+
+            // Exclure les comptes étudiants désactivés
+            $studentsQuery->where(function ($q) {
+                $q->whereNull('students.status')
+                  ->orWhere('students.status', '')
+                  ->orWhere('students.status', 'active');
+            });
+
+            // Exclure les comptes expirés (si la colonne existe)
+            if (Schema::hasColumn('students', 'expiration_date')) {
+                $studentsQuery->where(function ($q) {
+                    $q->whereNull('students.expiration_date')
+                      ->orWhere('students.expiration_date', '>=', now()->toDateTimeString());
                 });
             }
 
@@ -1275,7 +1280,7 @@ class AdminDashboardController extends Controller
     public function index(): View
     {
         try {
-            $formations = \App\Models\Formation::with('category')->withCount('students')->latest()->get();
+            $formations = \App\Models\Formation::with('category')->latest()->get();
 
             // Calculer les statistiques globales
             $stats = [
@@ -2196,9 +2201,10 @@ class AdminDashboardController extends Controller
 
     public function createProgramme()
     {
-        // Liste des étudiants réellement actifs (pour ciblage spécifique)
-        $students = self::activeStudentsQuery()
+        // Liste des étudiants actifs (pour ciblage spécifique)
+        $students = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
             ->select(
                 'students.*',
                 'users.email'
@@ -2267,8 +2273,9 @@ class AdminDashboardController extends Controller
             }
             $programmesCreated++;
 
-            $students = self::activeStudentsQuery()
+            $students = DB::table('students')
                 ->leftJoin('users', 'students.user_id', '=', 'users.id')
+                ->where('students.status', 'active')
                 ->whereIn('students.id', $studentIds)
                 ->select('students.*', 'users.email')
                 ->get();
@@ -2340,9 +2347,10 @@ class AdminDashboardController extends Controller
                 }
                 $programmesCreated++;
 
-                // Récupérer les étudiants actifs concernés par cette formation
-                $studentsQuery = self::activeStudentsQuery()
+                // Récupérer les étudiants concernés par cette formation
+                $studentsQuery = DB::table('students')
                     ->leftJoin('users', 'students.user_id', '=', 'users.id')
+                    ->where('students.status', 'active')
                     ->select('students.*', 'users.email');
 
                 if ($formation !== 'Toutes') {
@@ -2528,9 +2536,10 @@ class AdminDashboardController extends Controller
                 ->get();
         }
 
-        // Liste des étudiants réellement actifs (pour affichage en cas de ciblage spécifique)
-        $students = self::activeStudentsQuery()
+        // Liste des étudiants actifs (pour affichage en cas de ciblage spécifique)
+        $students = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
             ->select('students.*', 'users.email')
             ->orderBy('students.first_name')
             ->orderBy('students.last_name')
@@ -6204,21 +6213,6 @@ class AdminDashboardController extends Controller
     /**
      * Page pour envoyer/assigner des projets aux étudiants
      */
-    /**
-     * Requête de base : étudiants réellement actifs
-     * (statut actif + compte utilisateur lié + abonnement non expiré).
-     */
-    private static function activeStudentsQuery()
-    {
-        return DB::table('students')
-            ->where('students.status', 'active')
-            ->whereNotNull('students.user_id')
-            ->whereRaw(
-                "COALESCE(students.expiration_date, DATE_ADD(students.created_at, INTERVAL 4 MONTH)) >= ?",
-                [\Carbon\Carbon::today()->toDateString()]
-            );
-    }
-
     public function projetsToSend(Request $request)
     {
         $defaultFormation = $request->query('formation');
@@ -6245,10 +6239,15 @@ class AdminDashboardController extends Controller
             $defaultStudentIds = [(int) $defaultStudentId];
         }
 
-        // Récupérer uniquement les étudiants réellement actifs
-        // (statut actif + compte utilisateur lié + abonnement non expiré)
-        $students = self::activeStudentsQuery()
+        // Récupérer uniquement les étudiants actifs (statut + compte lié + abonnement non expiré)
+        $students = DB::table('students')
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
+            ->whereNotNull('students.user_id')
+            ->whereRaw(
+                "COALESCE(students.expiration_date, DATE_ADD(students.created_at, INTERVAL 4 MONTH)) >= ?",
+                [\Carbon\Carbon::today()->toDateString()]
+            )
             ->select(
                 'students.*',
                 'users.email'
@@ -6280,6 +6279,9 @@ class AdminDashboardController extends Controller
             }
             return $student;
         });
+
+        // Récupérer tous les étudiants pour la liste
+        $all_students = $students;
 
         // Compter les TP soumis/validés par student_id (travail réellement effectué)
         $tpCountsByStudentId = DB::table('tp_assignments')
@@ -6327,6 +6329,7 @@ class AdminDashboardController extends Controller
 
         return view('admin.projets.to-send', [
             'students' => $students,
+            'all_students' => $all_students,
             'studentsWithoutProjects' => $studentsWithoutProjects,
             'studentsWithProjects' => $studentsWithProjects,
             'stats' => $stats,
@@ -6602,17 +6605,27 @@ class AdminDashboardController extends Controller
         }));
         $hasAll = in_array('all', $formations, true);
 
+        // Requête de base : étudiants actifs (statut + compte lié + abonnement non expiré)
+        $activeStudentsQuery = function () {
+            return DB::table('students')
+                ->where('status', 'active')
+                ->whereNotNull('user_id')
+                ->whereRaw(
+                    "COALESCE(expiration_date, DATE_ADD(created_at, INTERVAL 4 MONTH)) >= ?",
+                    [\Carbon\Carbon::today()->toDateString()]
+                );
+        };
+
+        $inactiveSkipped = 0;
+
         if ($hasAll) {
-            // Tous les étudiants réellement actifs
-            $targetStudents = self::activeStudentsQuery()
-                ->pluck('students.id')
-                ->toArray();
+            // Tous les étudiants actifs
+            $targetStudents = $activeStudentsQuery()->pluck('id')->toArray();
         } elseif ($request->has('students') && count($request->students) > 0) {
-            // Étudiants spécifiques sélectionnés (déjà filtrés actifs côté liste)
-            $targetStudents = self::activeStudentsQuery()
-                ->whereIn('students.id', $request->students)
-                ->pluck('students.id')
-                ->toArray();
+            // Étudiants spécifiques sélectionnés — restreints aux actifs
+            $requestedIds = array_values(array_unique(array_map('intval', (array) $request->students)));
+            $targetStudents = $activeStudentsQuery()->whereIn('id', $requestedIds)->pluck('id')->toArray();
+            $inactiveSkipped = count($requestedIds) - count($targetStudents);
         } else {
             // Tous les étudiants des formations sélectionnées
             $selectedSpecificFormations = array_values(array_filter($formations, function ($f) {
@@ -6628,8 +6641,7 @@ class AdminDashboardController extends Controller
                 ->unique()
                 ->values();
 
-            $targetStudents = self::activeStudentsQuery()
-                ->get()
+            $targetStudents = $activeStudentsQuery()->get()
                 ->filter(function ($student) use ($normalizedSearches, $wantsSansFormation) {
                     $program = $student->program;
                     if (!$program || trim((string) $program) === '') {
@@ -6640,6 +6652,16 @@ class AdminDashboardController extends Controller
                 })
                 ->pluck('id')
                 ->toArray();
+        }
+
+        if ($inactiveSkipped > 0) {
+            $errors[] = $inactiveSkipped . ' étudiant(s) inactif(s) ou expiré(s) ignoré(s).';
+        }
+
+        if (empty($targetStudents)) {
+            return redirect()->back()
+                ->with('error', 'Aucun étudiant actif ne correspond à la sélection.')
+                ->withInput();
         }
 
         // Créer un projet pour chaque étudiant cible
