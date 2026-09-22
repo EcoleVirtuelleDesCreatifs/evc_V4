@@ -6213,6 +6213,21 @@ class AdminDashboardController extends Controller
     /**
      * Page pour envoyer/assigner des projets aux étudiants
      */
+    /**
+     * Requête de base : étudiants réellement actifs
+     * (statut actif + compte utilisateur lié + abonnement non expiré).
+     */
+    private static function activeStudentsQuery()
+    {
+        return DB::table('students')
+            ->where('students.status', 'active')
+            ->whereNotNull('students.user_id')
+            ->whereRaw(
+                "COALESCE(students.expiration_date, DATE_ADD(students.created_at, INTERVAL 4 MONTH)) >= ?",
+                [\Carbon\Carbon::today()->toDateString()]
+            );
+    }
+
     public function projetsToSend(Request $request)
     {
         $defaultFormation = $request->query('formation');
@@ -6239,14 +6254,10 @@ class AdminDashboardController extends Controller
             $defaultStudentIds = [(int) $defaultStudentId];
         }
 
-        // Récupérer tous les étudiants actifs avec leurs informations
-        $students = DB::table('students')
+        // Récupérer uniquement les étudiants réellement actifs
+        // (statut actif + compte utilisateur lié + abonnement non expiré)
+        $students = self::activeStudentsQuery()
             ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->where(function ($q) {
-                $q->where('students.status', 'active')
-                    ->orWhereNull('students.status')
-                    ->orWhere('students.status', '');
-            })
             ->select(
                 'students.*',
                 'users.email'
@@ -6279,30 +6290,6 @@ class AdminDashboardController extends Controller
             return $student;
         });
 
-        // Récupérer tous les étudiants pour la liste
-        $all_students = $students;
-
-        // DEBUG: Vérifier l'étudiant ID 19
-        $student19 = $students->firstWhere('id', 19);
-        if ($student19) {
-            Log::info('DEBUG student 19 TROUVÉ dans la liste', [
-                'id' => $student19->id,
-                'status' => $student19->status ?? 'NULL',
-                'user_id' => $student19->user_id ?? 'NULL',
-                'program' => $student19->program ?? 'NULL',
-                'first_name' => $student19->first_name ?? '',
-                'last_name' => $student19->last_name ?? '',
-            ]);
-        } else {
-            // Chercher directement en base
-            $raw19 = DB::table('students')->where('id', 19)->first();
-            Log::warning('DEBUG student 19 NON TROUVÉ dans la liste filtrée', [
-                'exists_in_db' => $raw19 ? true : false,
-                'db_status' => $raw19->status ?? 'NULL',
-                'db_user_id' => $raw19->user_id ?? 'NULL',
-            ]);
-        }
-
         // Compter les TP soumis/validés par student_id (travail réellement effectué)
         $tpCountsByStudentId = DB::table('tp_assignments')
             ->whereIn('status', ['submitted', 'pending', 'validated'])
@@ -6326,17 +6313,6 @@ class AdminDashboardController extends Controller
             return $student;
         });
 
-        // DEBUG: Vérifier student 19 après comptage projets
-        $s19after = $students->firstWhere('id', 19);
-        if ($s19after) {
-            Log::info('DEBUG student 19 APRÈS comptage', [
-                'tp_count' => $s19after->tp_count,
-                'project_count' => $s19after->project_count,
-                'has_projects' => $s19after->has_projects,
-                'user_id' => $s19after->user_id ?? 'NULL',
-            ]);
-        }
-
         $studentsWithoutProjects = $students
             ->filter(fn($s) => empty($s->has_projects))
             ->values();
@@ -6345,22 +6321,21 @@ class AdminDashboardController extends Controller
             ->filter(fn($s) => !empty($s->has_projects))
             ->values();
 
-        // Calculer les statistiques par formation — uniquement les étudiants ayant réalisé au moins 1 TP/Projet
+        // Statistiques par formation — tous les étudiants actifs
         $stats = [
-            'total_students' => $studentsWithProjects->count(),
-            'design_graphique' => $studentsWithProjects->where('program_normalized', 'Design Graphique')->count(),
-            'design_graphique_cm' => $studentsWithProjects->where('program_normalized', 'Design Graphique & Community Management')->count(),
-            'community_management' => $studentsWithProjects->where('program_normalized', 'Community Management')->count(),
-            'gestion_informatique' => $studentsWithProjects->where('program_normalized', 'Gestion Informatique')->count(),
-            'intelligence_artificielle' => $studentsWithProjects->where('program_normalized', 'Intelligence Artificielle')->count(),
-            'sans_formation' => $studentsWithProjects->where('program_normalized', 'Sans formation')->count(),
+            'total_students' => $students->count(),
+            'design_graphique' => $students->where('program_normalized', 'Design Graphique')->count(),
+            'design_graphique_cm' => $students->where('program_normalized', 'Design Graphique & Community Management')->count(),
+            'community_management' => $students->where('program_normalized', 'Community Management')->count(),
+            'gestion_informatique' => $students->where('program_normalized', 'Gestion Informatique')->count(),
+            'intelligence_artificielle' => $students->where('program_normalized', 'Intelligence Artificielle')->count(),
+            'sans_formation' => $students->where('program_normalized', 'Sans formation')->count(),
         ];
 
         $stats['zero_projects'] = $studentsWithoutProjects->count();
 
         return view('admin.projets.to-send', [
             'students' => $students,
-            'all_students' => $all_students,
             'studentsWithoutProjects' => $studentsWithoutProjects,
             'studentsWithProjects' => $studentsWithProjects,
             'stats' => $stats,
@@ -6637,14 +6612,16 @@ class AdminDashboardController extends Controller
         $hasAll = in_array('all', $formations, true);
 
         if ($hasAll) {
-            // Tous les étudiants actifs
-            $targetStudents = DB::table('students')
-                ->where('status', 'active')
-                ->pluck('id')
+            // Tous les étudiants réellement actifs
+            $targetStudents = self::activeStudentsQuery()
+                ->pluck('students.id')
                 ->toArray();
         } elseif ($request->has('students') && count($request->students) > 0) {
-            // Étudiants spécifiques sélectionnés
-            $targetStudents = $request->students;
+            // Étudiants spécifiques sélectionnés (déjà filtrés actifs côté liste)
+            $targetStudents = self::activeStudentsQuery()
+                ->whereIn('students.id', $request->students)
+                ->pluck('students.id')
+                ->toArray();
         } else {
             // Tous les étudiants des formations sélectionnées
             $selectedSpecificFormations = array_values(array_filter($formations, function ($f) {
@@ -6660,8 +6637,7 @@ class AdminDashboardController extends Controller
                 ->unique()
                 ->values();
 
-            $targetStudents = DB::table('students')
-                ->where('status', 'active')
+            $targetStudents = self::activeStudentsQuery()
                 ->get()
                 ->filter(function ($student) use ($normalizedSearches, $wantsSansFormation) {
                     $program = $student->program;

@@ -549,6 +549,16 @@
                                 <label for="students">
                                     Sélectionner les étudiants spécifiques (optionnel)
                                 </label>
+                                <input type="text"
+                                       class="form-control mb-2"
+                                       id="studentsSearch"
+                                       placeholder="🔍 Rechercher un étudiant (nom, email, formation)…"
+                                       autocomplete="off">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <button type="button" class="btn-select-all" id="stuSelectAll">Tout sélectionner</button>
+                                    <button type="button" class="btn-select-all" id="stuDeselectAll" style="border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.1);color:#ef4444;">Tout désélectionner</button>
+                                    <span class="zero-tp-selection-count" id="stuVisibleCount"></span>
+                                </div>
                                 <select class="form-select"
                                         id="students"
                                         name="students[]"
@@ -795,6 +805,29 @@ const stats = {
     'Sans formation': {{ $stats['sans_formation'] ?? 0 }}
 };
 
+// Filtre combiné formation + recherche sur les options du select étudiants
+const studentsSearch = document.getElementById('studentsSearch');
+
+function refreshStudentOptions() {
+    const selectedFormations = Array.from(formationSelect.selectedOptions)
+        .map(o => o.value).filter(v => v && v !== 'all');
+    const q = (studentsSearch ? studentsSearch.value : '').toLowerCase().trim();
+    let visible = 0;
+
+    Array.from(studentsSelect.options).forEach(option => {
+        const optionFormation = option.getAttribute('data-formation');
+        const matchFormation = !optionFormation || selectedFormations.includes(optionFormation);
+        if (!matchFormation) option.selected = false;
+        const matchQuery = q === '' || option.textContent.toLowerCase().includes(q);
+        const show = matchFormation && matchQuery;
+        option.style.display = show ? 'block' : 'none';
+        if (show) visible++;
+    });
+
+    const countEl = document.getElementById('stuVisibleCount');
+    if (countEl) countEl.innerHTML = `<strong>${visible}</strong> affiché(s)`;
+}
+
 formationSelect.addEventListener('change', function() {
     const selectedFormations = Array.from(this.selectedOptions).map(o => o.value).filter(Boolean);
     const hasAll = selectedFormations.includes('all');
@@ -810,24 +843,28 @@ formationSelect.addEventListener('change', function() {
     if (selectedSpecificFormations.length > 0) {
         // Afficher le sélecteur d'étudiants
         studentsSelectContainer.style.display = 'block';
-
-        // Filtrer les options
-        const options = studentsSelect.querySelectorAll('option');
-        options.forEach(option => {
-            const optionFormation = option.getAttribute('data-formation');
-            if (!optionFormation || selectedSpecificFormations.includes(optionFormation)) {
-                option.style.display = 'block';
-            } else {
-                option.style.display = 'none';
-                option.selected = false;
-            }
-        });
-
+        refreshStudentOptions();
         updateRecipientsCount();
     } else {
         studentsSelectContainer.style.display = 'none';
         recipientsCount.textContent = 'Sélectionnez une formation';
     }
+});
+
+if (studentsSearch) {
+    studentsSearch.addEventListener('input', refreshStudentOptions);
+}
+
+document.getElementById('stuSelectAll')?.addEventListener('click', function() {
+    Array.from(studentsSelect.options).forEach(o => {
+        if (o.style.display !== 'none') o.selected = true;
+    });
+    updateRecipientsCount();
+});
+
+document.getElementById('stuDeselectAll')?.addEventListener('click', function() {
+    Array.from(studentsSelect.options).forEach(o => { o.selected = false; });
+    updateRecipientsCount();
 });
 
 studentsSelect.addEventListener('change', function() {
