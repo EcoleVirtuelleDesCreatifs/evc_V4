@@ -939,6 +939,8 @@ class AdminDashboardController extends Controller
         $assignedCount = 0;
         $skippedCount = 0;
         $resetCount = 0;
+        $emailsSent = 0;
+        $emailsFailures = [];
 
         foreach ($targetUserIds as $targetUserId) {
             $dupQuery = Project::query()
@@ -1015,6 +1017,8 @@ class AdminDashboardController extends Controller
                         }
                     }
 
+                    $projectUrl = url("/evc/compte/{$formationSlug}/todo/traiter/{$newProject->id}");
+
                     $user->notify(new ProjectAssignedNotification([
                         'category' => 'project',
                         'event' => 'assigned',
@@ -1023,8 +1027,34 @@ class AdminDashboardController extends Controller
                         'project_id' => $newProject->id,
                         'project_title' => $newProject->title ?? null,
                         'created_at' => now()->toIso8601String(),
-                        'url' => url("/evc/compte/{$formationSlug}/todo/traiter/{$newProject->id}"),
+                        'url' => $projectUrl,
                     ]));
+
+                    // Notification par email
+                    try {
+                        if (empty($user->email)) {
+                            $emailsFailures[] = "user_id={$targetUserId}: email manquant";
+                        } else {
+                            Mail::send('emails.project_assigned', [
+                                'user' => $user,
+                                'student' => $user->student ?? $user,
+                                'project' => $newProject,
+                                'projectUrl' => $projectUrl,
+                            ], function ($message) use ($user, $newProject) {
+                                $message->to($user->email)
+                                    ->subject('Nouveau projet assigné : ' . ($newProject->title ?? 'Projet'));
+                            });
+                            $emailsSent++;
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Notification email projet assigné échouée (addStudentToProject)', [
+                            'project_id' => $newProject->id,
+                            'user_id' => $targetUserId,
+                            'email' => $user->email ?? null,
+                            'error' => $e->getMessage(),
+                        ]);
+                        $emailsFailures[] = "user_id={$targetUserId}: " . $e->getMessage();
+                    }
                 }
             } catch (\Exception $e) {
                 Log::warning('Notification in-app projet assigné échouée (addStudentToProject)', [
@@ -1039,9 +1069,12 @@ class AdminDashboardController extends Controller
         if ($assignedCount > 0) $parts[] = "{$assignedCount} étudiant(s) assigné(s)";
         if ($resetCount > 0) $parts[] = "{$resetCount} réinitialisé(s)";
         if ($skippedCount > 0) $parts[] = "{$skippedCount} ignoré(s)";
+        if ($emailsSent > 0) $parts[] = "{$emailsSent} email(s) envoyé(s)";
+        if (!empty($emailsFailures)) $parts[] = count($emailsFailures) . " email(s) non envoyé(s)";
 
         return redirect()->route('admin.projects.edit', $project->id)
-            ->with('success', 'Projet assigné : ' . implode(', ', $parts) . '.');
+            ->with('success', 'Projet assigné : ' . implode(', ', $parts) . '.')
+            ->with('emails_failures', $emailsFailures);
     }
 
     public function create(): View

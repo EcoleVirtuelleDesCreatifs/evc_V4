@@ -140,6 +140,17 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+    @if(session('emails_failures') && is_array(session('emails_failures')) && count(session('emails_failures')))
+        <div class="alert alert-warning alert-dismissible fade show mb-4">
+            <strong><i class="fas fa-envelope me-2"></i>Emails non envoyés :</strong>
+            <ul class="mb-0 mt-1">
+                @foreach(session('emails_failures') as $err)
+                    <li>{{ $err }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
     {{-- Formulaire d'édition --}}
     <div class="row">
