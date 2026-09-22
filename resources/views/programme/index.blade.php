@@ -276,6 +276,19 @@
     $totalSessions = $programmes->sum('items_count');
 
     $statusLabels = ['en_cours' => 'En cours', 'a_venir' => 'À venir', 'terminee' => 'Terminé'];
+
+    // URL same-origin pour les fichiers (PDF.js fetch = CORS si www ≠ non-www)
+    $mediaUrl = function ($path) {
+        $path = ltrim((string) ($path ?? ''), '/');
+        if ($path === '') return null;
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) return $path;
+        foreach (['storage/app/public/', 'public/storage/', 'storage/'] as $pre) {
+            if (str_starts_with($path, $pre)) { $path = substr($path, strlen($pre)); break; }
+        }
+        $parts = explode('/', ltrim($path, '/'));
+        $file = rawurlencode((string) array_pop($parts));
+        return url('storage/app/public/' . implode('/', $parts) . ($parts ? '/' : '') . $file);
+    };
 @endphp
 
 <div class="pgi-bg" aria-hidden="true"></div>
@@ -329,7 +342,7 @@
             try { $monthLabel = !empty($programme->month_start) ? \Carbon\Carbon::parse($programme->month_start)->translatedFormat('F Y') : null; } catch (\Throwable $e) {}
             $pStatus = $programme->status ?? 'a_venir';
             $pStatusLabel = $statusLabels[$pStatus] ?? 'À venir';
-            $imageUrl = !empty($programme->image) ? \App\Models\MediaUrl::fromPath($programme->image) : null;
+            $imageUrl = !empty($programme->image) ? $mediaUrl($programme->image) : null;
             $nextItem = $programme->next_item ?? null;
             $searchText = strtolower(($programme->titre ?? '') . ' ' . ($programme->description ?? '') . ' ' . ($monthLabel ?? '') . ' ' . $items->pluck('thematique')->implode(' '));
         @endphp
@@ -415,7 +428,7 @@
                                 </div>
                             </div>
                             @if(!empty($item->piece_jointe))
-                                <a class="pgi-session-dl" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($item->piece_jointe) }}" title="Télécharger la pièce jointe">
+                                <a class="pgi-session-dl" target="_blank" href="{{ $mediaUrl($item->piece_jointe) }}" title="Télécharger la pièce jointe">
                                     <i class="fas fa-download"></i>
                                 </a>
                             @endif
@@ -427,12 +440,12 @@
                 <div class="pgi-card-foot">
                     @if(!empty($programme->fichier_pdf))
                         <button type="button" class="pgi-btn pgi-btn-primary book-open-btn"
-                                data-pdf="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}"
+                                data-pdf="{{ $mediaUrl($programme->fichier_pdf) }}"
                                 data-title="{{ $programme->titre ?? 'Programme' }}"
                                 onclick="openBook(this.dataset.pdf, this.dataset.title)">
                             <i class="fas fa-book-open"></i>Lire
                         </button>
-                        <a class="pgi-btn pgi-btn-ghost" target="_blank" href="{{ \App\Models\MediaUrl::fromPath($programme->fichier_pdf) }}" title="Télécharger le PDF">
+                        <a class="pgi-btn pgi-btn-ghost" target="_blank" href="{{ $mediaUrl($programme->fichier_pdf) }}" title="Télécharger le PDF">
                             <i class="fas fa-download"></i>
                         </a>
                     @else
@@ -495,7 +508,7 @@
                         <span><i class="fas fa-video me-1"></i>En ligne</span>
                     @endif
                     @if(!empty($item->piece_jointe))
-                        <a href="{{ \App\Models\MediaUrl::fromPath($item->piece_jointe) }}" target="_blank" style="color:#93c5fd;"><i class="fas fa-download me-1"></i>Support</a>
+                        <a href="{{ $mediaUrl($item->piece_jointe) }}" target="_blank" style="color:#93c5fd;"><i class="fas fa-download me-1"></i>Support</a>
                     @endif
                 </div>
             </div>
