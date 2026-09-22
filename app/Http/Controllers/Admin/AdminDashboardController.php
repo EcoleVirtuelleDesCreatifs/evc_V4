@@ -2649,7 +2649,8 @@ class AdminDashboardController extends Controller
                 ->values()
                 ->all();
 
-            $submittedItems = array_values($validatedData['items']);
+            // Conserver les clés d'origine : les inputs fichiers sont nommés items[<clé>][piece_jointe]
+            $submittedItems = $validatedData['items'];
             $submittedIds = [];
 
             foreach ($submittedItems as $index => $item) {
