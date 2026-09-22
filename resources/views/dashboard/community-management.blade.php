@@ -614,7 +614,7 @@
                                 <i class="fas fa-briefcase"></i>
                                 CVthèque
                             </a>
-                            <a href="{{ route('student.appointments.index') }}" class="hero-cta">
+                            <a href="{{ \Illuminate\Support\Facades\Route::has('student.appointments.index') ? route('student.appointments.index') : '#' }}" class="hero-cta">
                                 <i class="fas fa-calendar-check"></i>
                                 Rendez-vous
                             </a>

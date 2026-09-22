@@ -88,7 +88,7 @@
 
                     <!-- Rendez-vous -->
                     <li class="admin-nav-item">
-                        <a href="{{ route('admin.appointments.index') }}" class="admin-nav-link {{ request()->routeIs('admin.appointments.*') ? 'active' : '' }}">
+                        <a href="{{ \Illuminate\Support\Facades\Route::has('admin.appointments.index') ? route('admin.appointments.index') : route('admin.dashboard') }}" class="admin-nav-link {{ request()->routeIs('admin.appointments.*') ? 'active' : '' }}">
                             <i class="fas fa-calendar-check"></i>
                             Rendez-vous
                         </a>

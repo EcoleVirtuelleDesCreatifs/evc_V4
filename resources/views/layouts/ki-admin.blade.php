@@ -1263,7 +1263,7 @@
 
             <!-- Rendez-vous -->
             <div class="nav-item">
-                <a href="{{ route('student.appointments.index') }}" class="nav-link {{ request()->routeIs('student.appointments.*') ? 'active' : '' }}">
+                <a href="{{ \Illuminate\Support\Facades\Route::has('student.appointments.index') ? route('student.appointments.index') : route($dashboardRoute) }}" class="nav-link {{ request()->routeIs('student.appointments.*') ? 'active' : '' }}">
                     <i class="fas fa-calendar-check"></i>
                     <span>Rendez-vous</span>
                 </a>
