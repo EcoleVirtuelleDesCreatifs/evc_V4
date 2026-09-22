@@ -137,6 +137,25 @@
     }
     .works-panel { display: none; }
     .works-panel.active { display: block; }
+    .project-rich-content h1, .project-rich-content h2, .project-rich-content h3,
+    .project-rich-content h4, .project-rich-content h5, .project-rich-content h6 {
+        color: #fff;
+        margin: 0.75rem 0 0.4rem;
+        font-weight: 700;
+    }
+    .project-rich-content h1 { font-size: 1.25rem; }
+    .project-rich-content h2 { font-size: 1.1rem; }
+    .project-rich-content h3 { font-size: 1rem; }
+    .project-rich-content p { margin-bottom: 0.5rem; color: rgba(255,255,255,0.9); }
+    .project-rich-content ul, .project-rich-content ol {
+        padding-left: 1.25rem;
+        margin-bottom: 0.5rem;
+        color: rgba(255,255,255,0.9);
+    }
+    .project-rich-content li { margin-bottom: 0.25rem; }
+    .project-rich-content a { color: #8b5cf6; word-break: break-all; }
+    .project-rich-content strong { color: #fff; }
+    .project-rich-content img { max-width: 100%; height: auto; border-radius: 8px; }
 </style>
 @endpush
 
@@ -600,14 +619,26 @@
                                     @if(!empty($project->description))
                                     <div class="mb-3">
                                         <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Description</h6>
-                                        <p class="text-white mb-0" style="white-space:pre-wrap;">{{ $project->description }}</p>
+                                        <div class="project-rich-content text-white">
+                                            @if($project->description !== strip_tags($project->description))
+                                                {!! $project->description !!}
+                                            @else
+                                                {!! nl2br(e($project->description)) !!}
+                                            @endif
+                                        </div>
                                     </div>
                                     @endif
 
                                     @if(!empty($project->brief_content))
                                     <div class="mb-3">
                                         <h6 class="text-white-50 mb-1" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px;">Brief</h6>
-                                        <div class="text-white" style="white-space:pre-wrap;">{{ $project->brief_content }}</div>
+                                        <div class="project-rich-content text-white">
+                                            @if($project->brief_content !== strip_tags($project->brief_content))
+                                                {!! $project->brief_content !!}
+                                            @else
+                                                {!! nl2br(e($project->brief_content)) !!}
+                                            @endif
+                                        </div>
                                     </div>
                                     @endif
 
