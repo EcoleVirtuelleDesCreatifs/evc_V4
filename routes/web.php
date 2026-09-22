@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\Admin\AppointmentAdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CVThequeController;
 use App\Http\Controllers\Auth\PasswordResetController;
@@ -445,6 +447,11 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::get('/evc/compte/notifications', [DashboardController::class, 'notificationsFeed'])->name('dashboard.notifications.feed');
     Route::post('/evc/compte/notifications/mark-read', [DashboardController::class, 'notificationsMarkRead'])->name('dashboard.notifications.mark-read');
     Route::get('/evc/compte/notifications/toutes', [DashboardController::class, 'notificationsIndex'])->name('dashboard.notifications.index');
+
+    // Rendez-vous étudiant (assistance spéciale)
+    Route::get('/evc/compte/rendez-vous', [AppointmentController::class, 'index'])->name('student.appointments.index');
+    Route::post('/evc/compte/rendez-vous', [AppointmentController::class, 'store'])->name('student.appointments.store');
+    Route::delete('/evc/compte/rendez-vous/{id}', [AppointmentController::class, 'cancel'])->name('student.appointments.cancel');
     Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
     Route::get('/evc/compte/community-management/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-management');
     Route::get('/evc/compte/community-management/espace-etudiant/stats', [DashboardController::class, 'communityManagementStats'])->name('dashboard.community-management.stats');
@@ -1019,6 +1026,12 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/seances/{seance}/qr/close', [SeanceAdminController::class, 'closeQr'])->name('seances.qr.close');
 
         Route::get('/attendance', [\App\Http\Controllers\Admin\AttendanceAdminController::class, 'index'])->name('attendance.index');
+
+        // Rendez-vous étudiants (assistance spéciale)
+        Route::get('/rendez-vous', [AppointmentAdminController::class, 'index'])->name('appointments.index');
+        Route::post('/rendez-vous/slots', [AppointmentAdminController::class, 'storeSlot'])->name('appointments.slots.store');
+        Route::delete('/rendez-vous/slots/{id}', [AppointmentAdminController::class, 'destroySlot'])->name('appointments.slots.destroy');
+        Route::post('/rendez-vous/{id}/status', [AppointmentAdminController::class, 'updateStatus'])->name('appointments.status');
 
         // Session Tracking
         Route::prefix('session-tracking')->name('session-tracking.')->group(function () {

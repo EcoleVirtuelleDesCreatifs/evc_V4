@@ -1261,6 +1261,14 @@
             </div>
             @endif
 
+            <!-- Rendez-vous -->
+            <div class="nav-item">
+                <a href="{{ route('student.appointments.index') }}" class="nav-link {{ request()->routeIs('student.appointments.*') ? 'active' : '' }}">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Rendez-vous</span>
+                </a>
+            </div>
+
             <!-- Mes Évènements (avec sous-menus) -->
             <div class="nav-item-dropdown">
                 <div class="nav-link-dropdown {{ request()->routeIs($formationPrefix . '.events.*') || request()->routeIs($formationPrefix . '.actualites.*') ? 'active' : '' }}" onclick="toggleSubmenu(this)">

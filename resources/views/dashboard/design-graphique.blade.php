@@ -599,6 +599,9 @@
                                 <a href="{{ route('design-graphique.cvtheque.mon-profil') }}" class="hero-cta secondary" style="width: 44px; height: 44px; padding: 0; border-radius: 50%; justify-content: center;" title="CVthèque">
                                     <i class="fas fa-briefcase"></i>
                                 </a>
+                                <a href="{{ route('student.appointments.index') }}" class="hero-cta secondary" style="width: 44px; height: 44px; padding: 0; border-radius: 50%; justify-content: center;" title="Prendre rendez-vous">
+                                    <i class="fas fa-calendar-check"></i>
+                                </a>
                             @endif
 
                             @if($email)

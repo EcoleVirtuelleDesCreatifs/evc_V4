@@ -614,6 +614,10 @@
                                 <i class="fas fa-briefcase"></i>
                                 CVthèque
                             </a>
+                            <a href="{{ route('student.appointments.index') }}" class="hero-cta">
+                                <i class="fas fa-calendar-check"></i>
+                                Rendez-vous
+                            </a>
                         </div>
                     </div>
                 </div>

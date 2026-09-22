@@ -86,6 +86,14 @@
                         </a>
                     </li>
 
+                    <!-- Rendez-vous -->
+                    <li class="admin-nav-item">
+                        <a href="{{ route('admin.appointments.index') }}" class="admin-nav-link {{ request()->routeIs('admin.appointments.*') ? 'active' : '' }}">
+                            <i class="fas fa-calendar-check"></i>
+                            Rendez-vous
+                        </a>
+                    </li>
+
                     <!-- Gestion des Étudiants -->
                     <li class="admin-nav-item dropdown">
                         <a href="#" class="admin-nav-link dropdown-toggle {{ request()->routeIs('admin.etudiants.*') ? 'active' : '' }}" data-bs-toggle="collapse" data-bs-target="#studentsMenu">
