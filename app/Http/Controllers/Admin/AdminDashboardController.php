@@ -1080,7 +1080,17 @@ class AdminDashboardController extends Controller
     public function create(): View
     {
         $categories = Category::orderBy('name')->get();
-        $students = User::orderBy('name')->get();
+
+        // Uniquement les étudiants réellement actifs (compte lié + non expiré)
+        $students = self::activeStudentsQuery()
+            ->join('users', 'students.user_id', '=', 'users.id')
+            ->select(
+                'users.id',
+                DB::raw("CONCAT(students.first_name, ' ', students.last_name) as name"),
+                'users.email'
+            )
+            ->orderBy('name')
+            ->get();
 
         $userIds = $students
             ->pluck('id')
@@ -1175,8 +1185,8 @@ class AdminDashboardController extends Controller
                 return is_string($v) && trim($v) !== '';
             })));
 
-            // Récupérer les étudiants du module depuis la table students
-            $studentsQuery = DB::table('students')
+            // Récupérer uniquement les étudiants réellement actifs du module
+            $studentsQuery = self::activeStudentsQuery()
                 ->join('users', 'students.user_id', '=', 'users.id')
                 ->where(function ($query) use ($allVariants) {
                     foreach ($allVariants as $variant) {
@@ -1190,21 +1200,6 @@ class AdminDashboardController extends Controller
                 $studentsQuery->where(function ($q) {
                     $q->whereNull('users.status')
                       ->orWhere('users.status', 'active');
-                });
-            }
-
-            // Exclure les comptes étudiants désactivés
-            $studentsQuery->where(function ($q) {
-                $q->whereNull('students.status')
-                  ->orWhere('students.status', '')
-                  ->orWhere('students.status', 'active');
-            });
-
-            // Exclure les comptes expirés (si la colonne existe)
-            if (Schema::hasColumn('students', 'expiration_date')) {
-                $studentsQuery->where(function ($q) {
-                    $q->whereNull('students.expiration_date')
-                      ->orWhere('students.expiration_date', '>=', now()->toDateTimeString());
                 });
             }
 
