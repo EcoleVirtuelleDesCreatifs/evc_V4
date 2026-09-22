@@ -918,91 +918,130 @@ class AdminDashboardController extends Controller
     {
         $project = Project::findOrFail($id);
 
+        // Accepte un étudiant (student_user_id) ou plusieurs (student_user_ids[])
         $validated = $request->validate([
-            'student_user_id' => 'required|exists:users,id',
+            'student_user_id' => 'nullable|exists:users,id',
+            'student_user_ids' => 'nullable|array',
+            'student_user_ids.*' => 'integer|exists:users,id',
         ]);
 
-        $targetUserId = (int) $validated['student_user_id'];
+        $targetUserIds = collect($validated['student_user_ids'] ?? [])
+            ->merge(isset($validated['student_user_id']) ? [$validated['student_user_id']] : [])
+            ->map(fn($v) => (int) $v)
+            ->filter()
+            ->unique()
+            ->values();
 
-        $dupQuery = Project::query()
-            ->where('user_id', $targetUserId)
-            ->where('title', $project->title)
-            ->where('category', $project->category);
-
-        if (!is_null($project->deadline)) {
-            $dupQuery->whereDate('deadline', $project->deadline);
-        } else {
-            $dupQuery->whereNull('deadline');
+        if ($targetUserIds->isEmpty()) {
+            return redirect()->back()->with('error', 'Veuillez sélectionner au moins un étudiant.');
         }
 
-        if ($dupQuery->exists()) {
-            $existing = (clone $dupQuery)->first();
-            if ($existing) {
-                $existing->status = 'en_cours';
-                if (Schema::hasColumn('projects', 'thumbnail_image')) {
-                    $existing->thumbnail_image = null;
-                }
-                $existing->updated_at = now();
-                $existing->save();
+        $assignedCount = 0;
+        $skippedCount = 0;
+        $resetCount = 0;
 
-                return redirect()->route('admin.projects.edit', $project->id)
-                    ->with('success', "Projet réinitialisé pour cet étudiant.");
+        foreach ($targetUserIds as $targetUserId) {
+            $dupQuery = Project::query()
+                ->where('user_id', $targetUserId)
+                ->where('title', $project->title)
+                ->where('category', $project->category);
+
+            if (!is_null($project->deadline)) {
+                $dupQuery->whereDate('deadline', $project->deadline);
+            } else {
+                $dupQuery->whereNull('deadline');
             }
 
-            return redirect()->back()->with('error', "Cet étudiant a déjà ce projet.");
-        }
-
-        $newProject = $project->replicate([
-            'created_at',
-            'updated_at',
-        ]);
-        $newProject->user_id = $targetUserId;
-        $newProject->status = 'en_cours';
-        if (Schema::hasColumn('projects', 'thumbnail_image')) {
-            $newProject->thumbnail_image = null;
-        }
-        $newProject->created_at = now();
-        $newProject->updated_at = now();
-        $newProject->save();
-
-        // Notification in-app (database)
-        try {
-            $user = \App\Models\User::find($targetUserId);
-            if ($user) {
-                $formationSlug = 'design-graphique';
-                $studentProgram = $user->student->program ?? null;
-                if (is_string($studentProgram) && trim($studentProgram) !== '') {
-                    $prog = strtolower((string) $studentProgram);
-                    if (str_contains($prog, 'community')) {
-                        $formationSlug = 'community-management';
-                    } elseif (str_contains($prog, 'informatique')) {
-                        $formationSlug = 'gestion-informatique';
-                    } elseif (str_contains($prog, 'intelligence')) {
-                        $formationSlug = 'intelligence-artificielle';
+            if ($dupQuery->exists()) {
+                $existing = (clone $dupQuery)->first();
+                if ($existing) {
+                    $existing->status = 'en_cours';
+                    if (Schema::hasColumn('projects', 'thumbnail_image')) {
+                        $existing->thumbnail_image = null;
                     }
+                    $existing->updated_at = now();
+                    $existing->save();
+                    $resetCount++;
+                    continue;
                 }
-
-                $user->notify(new ProjectAssignedNotification([
-                    'category' => 'project',
-                    'event' => 'assigned',
-                    'title' => 'Nouveau projet assigné',
-                    'message' => 'Un nouveau projet a été assigné : ' . ($newProject->title ?? 'Projet'),
-                    'project_id' => $newProject->id,
-                    'project_title' => $newProject->title ?? null,
-                    'created_at' => now()->toIso8601String(),
-                    'url' => url("/evc/compte/{$formationSlug}/todo/traiter/{$newProject->id}"),
-                ]));
+                $skippedCount++;
+                continue;
             }
-        } catch (\Exception $e) {
-            Log::warning('Notification in-app projet assigné échouée (addStudentToProject)', [
-                'project_id' => $newProject->id ?? null,
-                'user_id' => $targetUserId,
-                'error' => $e->getMessage(),
+
+            $newProject = $project->replicate([
+                'created_at',
+                'updated_at',
             ]);
+            $newProject->user_id = $targetUserId;
+            $newProject->status = 'en_cours';
+            if (Schema::hasColumn('projects', 'thumbnail_image')) {
+                $newProject->thumbnail_image = null;
+            }
+            $newProject->created_at = now();
+            $newProject->updated_at = now();
+            $newProject->save();
+
+            // Copier les fichiers (project_images) du projet source vers la copie
+            if (Schema::hasTable('project_images')) {
+                $sourceFiles = DB::table('project_images')
+                    ->where('project_id', $project->id)
+                    ->get();
+                foreach ($sourceFiles as $file) {
+                    $fileData = (array) $file;
+                    unset($fileData['id']);
+                    $fileData['project_id'] = $newProject->id;
+                    $fileData['created_at'] = now();
+                    $fileData['updated_at'] = now();
+                    DB::table('project_images')->insert($fileData);
+                }
+            }
+
+            $assignedCount++;
+
+            // Notification in-app (database)
+            try {
+                $user = \App\Models\User::find($targetUserId);
+                if ($user) {
+                    $formationSlug = 'design-graphique';
+                    $studentProgram = $user->student->program ?? null;
+                    if (is_string($studentProgram) && trim($studentProgram) !== '') {
+                        $prog = strtolower((string) $studentProgram);
+                        if (str_contains($prog, 'community')) {
+                            $formationSlug = 'community-management';
+                        } elseif (str_contains($prog, 'informatique')) {
+                            $formationSlug = 'gestion-informatique';
+                        } elseif (str_contains($prog, 'intelligence')) {
+                            $formationSlug = 'intelligence-artificielle';
+                        }
+                    }
+
+                    $user->notify(new ProjectAssignedNotification([
+                        'category' => 'project',
+                        'event' => 'assigned',
+                        'title' => 'Nouveau projet assigné',
+                        'message' => 'Un nouveau projet a été assigné : ' . ($newProject->title ?? 'Projet'),
+                        'project_id' => $newProject->id,
+                        'project_title' => $newProject->title ?? null,
+                        'created_at' => now()->toIso8601String(),
+                        'url' => url("/evc/compte/{$formationSlug}/todo/traiter/{$newProject->id}"),
+                    ]));
+                }
+            } catch (\Exception $e) {
+                Log::warning('Notification in-app projet assigné échouée (addStudentToProject)', [
+                    'project_id' => $newProject->id ?? null,
+                    'user_id' => $targetUserId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
+
+        $parts = [];
+        if ($assignedCount > 0) $parts[] = "{$assignedCount} étudiant(s) assigné(s)";
+        if ($resetCount > 0) $parts[] = "{$resetCount} réinitialisé(s)";
+        if ($skippedCount > 0) $parts[] = "{$skippedCount} ignoré(s)";
 
         return redirect()->route('admin.projects.edit', $project->id)
-            ->with('success', "Étudiant ajouté au projet.");
+            ->with('success', 'Projet assigné : ' . implode(', ', $parts) . '.');
     }
 
     public function create(): View
