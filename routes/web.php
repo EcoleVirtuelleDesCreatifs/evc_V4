@@ -1032,6 +1032,7 @@ Route::prefix('/evc/app/admin')->name('admin.')->middleware('admin.errors')->gro
         Route::post('/rendez-vous/slots', [AppointmentAdminController::class, 'storeSlot'])->name('appointments.slots.store');
         Route::delete('/rendez-vous/slots/{id}', [AppointmentAdminController::class, 'destroySlot'])->name('appointments.slots.destroy');
         Route::post('/rendez-vous/{id}/status', [AppointmentAdminController::class, 'updateStatus'])->name('appointments.status');
+        Route::post('/rendez-vous/appointments', [AppointmentAdminController::class, 'storeAppointment'])->name('appointments.store');
 
         // Session Tracking
         Route::prefix('session-tracking')->name('session-tracking.')->group(function () {

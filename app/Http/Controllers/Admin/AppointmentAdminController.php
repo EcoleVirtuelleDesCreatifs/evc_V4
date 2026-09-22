@@ -23,9 +23,26 @@ class AppointmentAdminController extends Controller
         $slots = $this->upcomingSlots()->map(fn ($s) => $this->serializeSlot($s))->values();
         $appointments = $this->allAppointments()->map(fn ($a) => $this->serializeAppointment($a))->values();
 
+        $students = \Illuminate\Support\Facades\DB::table('students')
+            ->leftJoin('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
+            ->select('students.id', 'students.first_name', 'students.last_name', 'students.program', 'users.email')
+            ->orderBy('students.first_name')
+            ->orderBy('students.last_name')
+            ->get()
+            ->map(fn ($s) => [
+                'id' => (int) $s->id,
+                'name' => trim(($s->first_name ?? '') . ' ' . ($s->last_name ?? '')),
+                'email' => $s->email ?? '',
+                'program' => trim($s->program ?? '') !== '' ? $s->program : 'Sans formation',
+            ])
+            ->values();
+
         return view('admin.appointments.index', [
             'slotsJson' => $slots,
             'appointmentsJson' => $appointments,
+            'studentsJson' => $students,
+            'motifs' => \App\Http\Controllers\AppointmentController::MOTIFS,
         ]);
     }
 
@@ -90,6 +107,123 @@ class AppointmentAdminController extends Controller
         }
 
         return back()->with($created > 0 ? 'success' : 'error', $msg);
+    }
+
+    /**
+     * Créer un rendez-vous pour un ou plusieurs étudiants (confirmé d'office).
+     */
+    public function storeAppointment(Request $request)
+    {
+        $validated = $request->validate([
+            'slot_id' => 'required|exists:appointment_slots,id',
+            'student_ids' => 'required|array|min:1',
+            'student_ids.*' => 'integer|exists:students,id',
+            'motif' => 'required|string|max:150',
+            'message' => 'nullable|string|max:2000',
+            'meet_link' => 'nullable|url|max:500',
+            'admin_note' => 'nullable|string|max:1000',
+        ]);
+
+        $studentIds = array_values(array_unique(array_map('intval', $validated['student_ids'])));
+
+        $result = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $studentIds) {
+            $slot = AppointmentSlot::where('id', $validated['slot_id'])->lockForUpdate()->first();
+
+            if (!$slot || !$slot->is_active) {
+                return ['error' => 'Ce créneau n\'est plus actif.'];
+            }
+            if ($slot->date->isPast() || ($slot->date->isToday() && Carbon::parse($slot->start_time)->lt(Carbon::now()))) {
+                return ['error' => 'Ce créneau est déjà passé.'];
+            }
+
+            $booked = $slot->activeAppointments()->count();
+            $remaining = $slot->capacity - $booked;
+
+            // Étudiants déjà réservés sur ce créneau
+            $alreadyBooked = Appointment::where('slot_id', $slot->id)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->whereIn('student_id', $studentIds)
+                ->pluck('student_id')
+                ->map(fn ($v) => (int) $v)
+                ->all();
+
+            $toBook = array_values(array_diff($studentIds, $alreadyBooked));
+            if (count($toBook) > $remaining) {
+                return ['error' => "Capacité insuffisante : {$remaining} place(s) restante(s) pour " . count($toBook) . ' étudiant(s).'];
+            }
+            if (empty($toBook)) {
+                return ['error' => 'Tous les étudiants sélectionnés ont déjà un rendez-vous sur ce créneau.'];
+            }
+
+            // Lien Jitsi partagé si créneau en ligne
+            $meetLink = $validated['meet_link'] ?? null;
+            if ($slot->mode === 'en_ligne' && empty($meetLink)) {
+                $meetLink = 'https://meet.jit.si/evc-rdv-slot-' . $slot->id . '-' . strtolower(\Illuminate\Support\Str::random(6))
+                    . '#config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true';
+            }
+
+            $students = \Illuminate\Support\Facades\DB::table('students')
+                ->whereIn('id', $toBook)
+                ->get()
+                ->keyBy('id');
+
+            $createdIds = [];
+            foreach ($toBook as $studentId) {
+                $student = $students->get($studentId);
+                if (!$student || empty($student->user_id)) {
+                    continue;
+                }
+                $createdIds[] = Appointment::insertGetId([
+                    'slot_id' => $slot->id,
+                    'user_id' => $student->user_id,
+                    'student_id' => $student->id,
+                    'motif' => $validated['motif'],
+                    'message' => $validated['message'] ?? null,
+                    'status' => 'confirmed',
+                    'meet_link' => $meetLink,
+                    'admin_note' => $validated['admin_note'] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return [
+                'created' => count($createdIds),
+                'created_ids' => $createdIds,
+                'skipped' => count($alreadyBooked),
+                'slot_id' => $slot->id,
+            ];
+        });
+
+        if (isset($result['error'])) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $result['error']], 422);
+            }
+            return back()->with('error', $result['error']);
+        }
+
+        // Notifier chaque étudiant (in-app + email)
+        $newAppointments = Appointment::with(['slot', 'user', 'student'])
+            ->whereIn('id', $result['created_ids'])
+            ->get();
+
+        foreach ($newAppointments as $apt) {
+            $this->notifyStudent($apt, 'confirmed');
+        }
+
+        $msg = $result['created'] . ' rendez-vous créé(s) et confirmé(s).'
+            . ($result['skipped'] > 0 ? ' ' . $result['skipped'] . ' déjà réservé(s) ignoré(s).' : '');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'slots' => $this->upcomingSlots()->map(fn ($s) => $this->serializeSlot($s))->values(),
+                'appointments' => $this->allAppointments()->map(fn ($a) => $this->serializeAppointment($a))->values(),
+            ]);
+        }
+
+        return back()->with('success', $msg);
     }
 
     /**

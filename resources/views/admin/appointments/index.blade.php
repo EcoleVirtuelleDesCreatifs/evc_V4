@@ -146,6 +146,55 @@
     .rdv-empty { text-align: center; padding: 2.5rem 1rem; color: rgba(255,255,255,0.5); }
     .rdv-empty i { font-size: 2rem; display: block; margin-bottom: 0.75rem; opacity: 0.4; }
 
+    /* Bouton +RDV sur créneau */
+    .btn-add-rdv {
+        background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.35); color: #4ade80;
+        border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 0.78rem;
+    }
+    .btn-add-rdv:hover { background: rgba(34,197,94,0.22); color: #4ade80; }
+
+    /* Picker étudiants dans la modale */
+    .bk-group {
+        border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+        margin-bottom: 0.45rem; background: rgba(255,255,255,0.02); overflow: hidden;
+    }
+    .bk-group-head {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.5rem 0.8rem; cursor: pointer; background: rgba(255,255,255,0.03);
+    }
+    .bk-group-head:hover { background: rgba(255,255,255,0.06); }
+    .bk-group-title { font-size: 0.75rem; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.4px; }
+    .bk-group-count { font-size: 0.7rem; color: #94a3b8; }
+    .bk-group-body { display: none; padding: 0.3rem 0.45rem; max-height: 180px; overflow-y: auto; }
+    .bk-group.open .bk-group-body { display: block; }
+    .bk-group.open .bk-caret { transform: rotate(180deg); }
+    .bk-caret { transition: transform 0.2s; color: #64748b; font-size: 0.72rem; }
+    .bk-row {
+        display: flex; align-items: center; gap: 0.55rem;
+        padding: 0.35rem 0.45rem; border-radius: 7px; cursor: pointer;
+    }
+    .bk-row:hover { background: rgba(139,92,246,0.08); }
+    .bk-row input { accent-color: #8b5cf6; width: 15px; height: 15px; flex-shrink: 0; }
+    .bk-name { font-size: 0.82rem; color: #e2e8f0; }
+    .bk-mail { font-size: 0.7rem; color: #64748b; }
+    .bk-row.bk-hidden, .bk-group.bk-hidden { display: none; }
+    .bk-counter {
+        background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(99,102,241,0.2));
+        border: 1px solid rgba(139,92,246,0.4); border-radius: 10px;
+        padding: 0.55rem 0.85rem; color: #fff; font-size: 0.82rem; font-weight: 600;
+        margin-top: 0.6rem; display: flex; justify-content: space-between; align-items: center;
+    }
+    .bk-places { color: #fbbf24; font-size: 0.75rem; }
+    .bk-slot-info {
+        background: rgba(37,99,235,0.12); border: 1px solid rgba(59,130,246,0.35);
+        border-radius: 10px; padding: 0.6rem 0.85rem; color: #bfdbfe;
+        font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .rdv-modal .form-select {
+        background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff;
+    }
+    .rdv-modal .form-select option { background: #0f172a; }
+
     /* Toasts */
     .rdv-toasts { position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 0.6rem; }
     .rdv-toast {
@@ -269,7 +318,12 @@
         <!-- ═══ Demandes de RDV ═══ -->
         <div class="col-lg-7">
             <div class="rdv-card">
-                <div class="rdv-card-title"><i class="fas fa-clipboard-list"></i> Demandes de rendez-vous</div>
+                <div class="rdv-card-title" style="justify-content: space-between;">
+                    <span class="d-flex align-items-center gap-2"><i class="fas fa-clipboard-list"></i> Demandes de rendez-vous</span>
+                    <button type="button" class="btn btn-sm fw-bold" id="newRdvBtn" style="background: linear-gradient(135deg, #8b5cf6, #6366f1); color:#fff; border-radius: 999px;">
+                        <i class="fas fa-plus me-1"></i>Nouveau RDV
+                    </button>
+                </div>
 
                 <div class="rdv-filters">
                     <span class="rdv-pill active" data-status="">Tous</span>
@@ -341,6 +395,60 @@
         </div>
     </div>
 </div>
+<!-- ═══ Modal création RDV par l'admin ═══ -->
+<div class="modal fade rdv-modal" id="bookModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form id="bookForm">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-calendar-plus me-2" style="color:#a78bfa;"></i>Créer un rendez-vous</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Créneau <span class="text-danger">*</span></label>
+                        <select id="bookSlotSelect" class="form-select"></select>
+                        <div class="bk-slot-info mt-2" id="bookSlotInfo" style="display:none;"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Motif <span class="text-danger">*</span></label>
+                        <select id="bookMotif" class="form-select">
+                            @foreach($motifs as $motif)
+                                <option value="{{ $motif }}">{{ $motif }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Message / contexte <small class="text-white-50">(optionnel)</small></label>
+                        <textarea id="bookMessage" class="form-control" rows="2" maxlength="2000"
+                                  placeholder="Objet de l'assistance…"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Lien de réunion <small class="text-white-50">(auto-généré si vide et en ligne)</small></label>
+                        <input type="url" id="bookMeetLink" class="form-control" placeholder="https://meet.jit.si/...">
+                    </div>
+
+                    <label class="form-label d-flex justify-content-between align-items-center">
+                        <span>Étudiants <span class="text-danger">*</span></span>
+                        <small class="text-white-50">cochez un ou plusieurs étudiants</small>
+                    </label>
+                    <input type="text" id="bookSearch" class="form-control mb-2" placeholder="🔍 Rechercher (nom, email)…">
+                    <div id="bookGroups" style="max-height:260px; overflow-y:auto;"></div>
+                    <div class="bk-counter">
+                        <span><i class="fas fa-user-check me-2"></i><span id="bookCount">0</span> étudiant(s) sélectionné(s)</span>
+                        <span class="bk-places" id="bookPlaces"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Fermer</button>
+                    <button type="submit" class="btn btn-sm fw-bold" id="bookSubmitBtn" style="background:#22c55e; color:#fff;" disabled>
+                        <i class="fas fa-check me-1"></i>Créer et confirmer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endpush
 @endsection
 
@@ -352,10 +460,12 @@ document.addEventListener('DOMContentLoaded', function () {
         storeSlot: '{{ route('admin.appointments.slots.store') }}',
         deleteSlot: id => '{{ url('/evc/app/admin/rendez-vous/slots') }}/' + id,
         status: id => '{{ url('/evc/app/admin/rendez-vous') }}/' + id + '/status',
+        storeAppointment: '{{ route('admin.appointments.store') }}',
     };
 
     let slots = @json($slotsJson);
     let appointments = @json($appointmentsJson);
+    const students = @json($studentsJson);
     const filterState = { status: '', period: '', q: '' };
 
     /* ─── Toasts ─── */
@@ -412,6 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="sub">${mode}${s.lieu ? ' · ' + esc(s.lieu) : ''}${s.active ? '' : ' · <span class="text-warning">désactivé</span>'}</div>
                     </div>
                     <span class="occ-badge ${occ}">${s.booked}/${s.capacity} réservé(s)</span>
+                    ${s.active && s.booked < s.capacity ? `<button type="button" class="btn-add-rdv" data-book="${s.id}" title="Créer un RDV sur ce créneau"><i class="fas fa-calendar-plus"></i></button>` : ''}
                     <button type="button" class="btn-del-slot" data-del="${s.id}" data-booked="${s.booked}" title="Supprimer"><i class="fas fa-trash"></i></button>
                 </div>`;
         }).join('');
@@ -617,6 +728,167 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    /* ─── Création de RDV par l'admin ─── */
+    const bookModalEl = document.getElementById('bookModal');
+    const bookModal = new bootstrap.Modal(bookModalEl);
+    const bookSlotSelect = document.getElementById('bookSlotSelect');
+    const bookSlotInfo = document.getElementById('bookSlotInfo');
+    const bookGroups = document.getElementById('bookGroups');
+    const bookCount = document.getElementById('bookCount');
+    const bookPlaces = document.getElementById('bookPlaces');
+    const bookSubmitBtn = document.getElementById('bookSubmitBtn');
+
+    // Grouper les étudiants par formation
+    const studentsByProgram = {};
+    students.forEach(s => {
+        (studentsByProgram[s.program] = studentsByProgram[s.program] || []).push(s);
+    });
+
+    // Construire le picker une seule fois
+    function buildBookGroups() {
+        bookGroups.innerHTML = Object.keys(studentsByProgram).sort().map(prog => `
+            <div class="bk-group" data-program="${esc(prog)}">
+                <div class="bk-group-head">
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="checkbox" class="bk-select-all" title="Tout sélectionner" style="accent-color:#8b5cf6;">
+                        <span class="bk-group-title">${esc(prog)}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="bk-group-count"><span class="bk-sel">0</span>/${studentsByProgram[prog].length}</span>
+                        <i class="fas fa-chevron-down bk-caret"></i>
+                    </div>
+                </div>
+                <div class="bk-group-body">
+                    ${studentsByProgram[prog].map(s => `
+                        <label class="bk-row" data-search="${esc((s.name + ' ' + s.email).toLowerCase())}">
+                            <input type="checkbox" class="bk-cb" value="${s.id}">
+                            <span><span class="bk-name d-block">${esc(s.name)}</span>
+                            <span class="bk-mail d-block">${esc(s.email)}</span></span>
+                        </label>`).join('')}
+                </div>
+            </div>`).join('');
+
+        bookGroups.querySelectorAll('.bk-group').forEach(group => {
+            const head = group.querySelector('.bk-group-head');
+            const selectAll = group.querySelector('.bk-select-all');
+            const selCount = group.querySelector('.bk-sel');
+            const cbs = group.querySelectorAll('.bk-cb');
+
+            head.addEventListener('click', e => {
+                if (e.target === selectAll) return;
+                group.classList.toggle('open');
+            });
+            selectAll.addEventListener('change', () => {
+                cbs.forEach(cb => {
+                    if (!cb.closest('.bk-row').classList.contains('bk-hidden')) cb.checked = selectAll.checked;
+                });
+                refreshBook();
+            });
+            cbs.forEach(cb => cb.addEventListener('change', refreshBook));
+
+            function refreshBookGroup() {
+                const n = [...cbs].filter(c => c.checked).length;
+                selCount.textContent = n;
+                selectAll.checked = n === cbs.length && n > 0;
+                selectAll.indeterminate = n > 0 && n < cbs.length;
+            }
+            group._refresh = refreshBookGroup;
+        });
+    }
+
+    function refreshBook() {
+        bookGroups.querySelectorAll('.bk-group').forEach(g => g._refresh && g._refresh());
+        const n = bookGroups.querySelectorAll('.bk-cb:checked').length;
+        bookCount.textContent = n;
+
+        const slot = slots.find(s => s.id == bookSlotSelect.value);
+        const remaining = slot ? slot.capacity - slot.booked : 0;
+        bookPlaces.textContent = slot ? remaining + ' place(s) restante(s)' : '';
+        bookPlaces.style.color = (slot && n > remaining) ? '#f87171' : '#fbbf24';
+        bookSubmitBtn.disabled = n === 0 || !slot;
+    }
+
+    function refreshBookSlots(preselect) {
+        const open = slots.filter(s => s.active && s.booked < s.capacity);
+        bookSlotSelect.innerHTML = open.length
+            ? open.map(s => `<option value="${s.id}">${s.date_full} · ${s.start}–${s.end} · ${s.mode === 'en_ligne' ? 'En ligne' : 'Présentiel'} · ${s.capacity - s.booked} place(s)</option>`).join('')
+            : '<option value="">— Aucun créneau disponible —</option>';
+        if (preselect && open.some(s => s.id == preselect)) bookSlotSelect.value = preselect;
+
+        const slot = slots.find(s => s.id == bookSlotSelect.value);
+        bookSlotInfo.style.display = slot ? 'flex' : 'none';
+        if (slot) {
+            bookSlotInfo.innerHTML = `<i class="far fa-calendar-check"></i>
+                ${slot.date_full} · ${slot.start}–${slot.end} · ${slot.mode === 'en_ligne' ? '🎥 En ligne' : '📍 Présentiel'}${slot.lieu ? ' · ' + esc(slot.lieu) : ''}`;
+        }
+        refreshBook();
+    }
+
+    function openBookModal(preselectSlotId) {
+        refreshBookSlots(preselectSlotId);
+        document.getElementById('bookSearch').value = '';
+        bookGroups.querySelectorAll('.bk-hidden').forEach(el => el.classList.remove('bk-hidden'));
+        bookModal.show();
+    }
+
+    bookSlotSelect.addEventListener('change', () => refreshBookSlots(bookSlotSelect.value));
+
+    document.getElementById('bookSearch').addEventListener('input', function () {
+        const q = this.value.toLowerCase().trim();
+        bookGroups.querySelectorAll('.bk-group').forEach(group => {
+            let visible = 0;
+            group.querySelectorAll('.bk-row').forEach(row => {
+                const match = !q || row.dataset.search.includes(q);
+                row.classList.toggle('bk-hidden', !match);
+                if (match) visible++;
+            });
+            group.classList.toggle('bk-hidden', visible === 0);
+            if (q && visible > 0) group.classList.add('open');
+        });
+    });
+
+    // Ouvrir via le bouton global ou le bouton d'un créneau
+    document.getElementById('newRdvBtn').addEventListener('click', () => openBookModal(null));
+    document.getElementById('slotsList').addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-book]');
+        if (btn) openBookModal(btn.dataset.book);
+    });
+
+    document.getElementById('bookForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const studentIds = [...bookGroups.querySelectorAll('.bk-cb:checked')].map(cb => parseInt(cb.value, 10));
+        if (!studentIds.length) return;
+
+        bookSubmitBtn.disabled = true;
+        bookSubmitBtn.innerHTML = '<i class="fas fa-spinner spin me-1"></i> Création…';
+        try {
+            const data = await api(URLS.storeAppointment, 'POST', {
+                slot_id: parseInt(bookSlotSelect.value, 10),
+                student_ids: studentIds,
+                motif: document.getElementById('bookMotif').value,
+                message: document.getElementById('bookMessage').value || null,
+                meet_link: document.getElementById('bookMeetLink').value || null,
+            });
+
+            slots = data.slots;
+            appointments = data.appointments;
+            renderAll();
+
+            bookModal.hide();
+            bookGroups.querySelectorAll('.bk-cb:checked').forEach(cb => cb.checked = false);
+            document.getElementById('bookMessage').value = '';
+            document.getElementById('bookMeetLink').value = '';
+            refreshBook();
+            toast(data.message || 'Rendez-vous créé(s).');
+        } catch (err) {
+            toast(err.message, 'error');
+        } finally {
+            bookSubmitBtn.disabled = false;
+            bookSubmitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Créer et confirmer';
+        }
+    });
+
+    buildBookGroups();
     renderAll();
 });
 </script>
