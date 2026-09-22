@@ -173,6 +173,8 @@
     .act-done:hover { background: rgba(59,130,246,0.28); }
     .act-edit { background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.4); }
     .act-edit:hover { background: rgba(139,92,246,0.28); }
+    .act-delete { background: rgba(148,163,184,0.10); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+    .act-delete:hover { background: rgba(239,68,68,0.25); color: #fca5a5; border-color: rgba(239,68,68,0.45); }
     .meet-link { color: #93c5fd; font-size: 0.72rem; text-decoration: none; }
     .meet-link:hover { color: #bfdbfe; }
 
@@ -554,6 +556,7 @@ document.addEventListener('DOMContentLoaded', function () {
         deleteSlot: id => '{{ url('/evc/app/admin/rendez-vous/slots') }}/' + id,
         status: id => '{{ url('/evc/app/admin/rendez-vous') }}/' + id + '/status',
         update: id => '{{ url('/evc/app/admin/rendez-vous') }}/' + id + '/update',
+        destroy: id => '{{ url('/evc/app/admin/rendez-vous') }}/' + id,
         storeAppointment: '{{ route('admin.appointments.store') }}',
     };
 
@@ -675,16 +678,17 @@ document.addEventListener('DOMContentLoaded', function () {
     function actionButtons(a) {
         const label = esc(`${a.student_name} — ${a.slot_date} ${a.slot_time}`);
         const edit = `<button type="button" class="act-btn act-edit" title="Modifier" data-edit="${a.id}"><i class="fas fa-pen"></i></button>`;
+        const del = `<button type="button" class="act-btn act-delete" title="Supprimer définitivement" data-del-apt="${a.id}" data-label="${label}"><i class="fas fa-trash"></i></button>`;
         const btn = (status, cls, icon, title) =>
             `<button type="button" class="act-btn ${cls}" title="${title}"
                 data-rdv="${a.id}" data-status="${status}" data-label="${label}"><i class="fas ${icon}"></i></button>`;
         if (a.status === 'pending') {
-            return btn('confirmed', 'act-confirm', 'fa-check', 'Confirmer') + ' ' + edit + ' ' + btn('cancelled', 'act-cancel', 'fa-times', 'Refuser / Annuler');
+            return btn('confirmed', 'act-confirm', 'fa-check', 'Confirmer') + ' ' + edit + ' ' + btn('cancelled', 'act-cancel', 'fa-times', 'Refuser / Annuler') + ' ' + del;
         }
         if (a.status === 'confirmed') {
-            return btn('completed', 'act-done', 'fa-check-double', 'Marquer terminé') + ' ' + edit + ' ' + btn('cancelled', 'act-cancel', 'fa-times', 'Annuler');
+            return btn('completed', 'act-done', 'fa-check-double', 'Marquer terminé') + ' ' + edit + ' ' + btn('cancelled', 'act-cancel', 'fa-times', 'Annuler') + ' ' + del;
         }
-        return '<span class="stu-mail">—</span>';
+        return del;
     }
 
     function renderAppointments() {
@@ -840,6 +844,29 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('statusSubmitBtn').style.background = colors[status] || '#8b5cf6';
 
         statusModal.show();
+    });
+
+    // Suppression définitive d'un rendez-vous
+    document.getElementById('rdvTbody').addEventListener('click', async function (e) {
+        const btn = e.target.closest('[data-del-apt]');
+        if (!btn) return;
+        const id = btn.dataset.delApt;
+        const label = btn.dataset.label || '';
+        if (!confirm('Supprimer définitivement ce rendez-vous ?\n' + label + '\nL\'étudiant sera notifié si le RDV était actif.')) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner spin"></i>';
+        try {
+            const data = await api(URLS.destroy(id), 'DELETE');
+            appointments = appointments.filter(a => a.id != id);
+            if (data.slots) slots = data.slots;
+            renderAll();
+            toast(data.message || 'Rendez-vous supprimé.');
+        } catch (err) {
+            toast(err.message, 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-trash"></i>';
+        }
     });
 
     document.getElementById('statusForm').addEventListener('submit', async function (e) {

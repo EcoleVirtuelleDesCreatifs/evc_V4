@@ -394,6 +394,37 @@ class AppointmentAdminController extends Controller
         return back()->with('success', $msg);
     }
 
+    /**
+     * Supprimer définitivement un rendez-vous (libère la place du créneau).
+     */
+    public function destroyAppointment(Request $request, $id)
+    {
+        $appointment = Appointment::with(['slot', 'user', 'student'])->findOrFail($id);
+        $wasActive = in_array($appointment->status, ['pending', 'confirmed']);
+        $slotId = $appointment->slot_id;
+
+        // Notifier l'étudiant si le rendez-vous était actif
+        if ($wasActive) {
+            $this->notifyStudent($appointment, 'cancelled');
+        }
+
+        $appointment->delete();
+
+        $msg = 'Rendez-vous supprimé' . ($wasActive ? ' — l\'étudiant a été notifié.' : '.');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $msg,
+                'deleted_id' => (int) $id,
+                'slot_id' => (int) $slotId,
+                'slots' => $this->upcomingSlots()->map(fn ($s) => $this->serializeSlot($s))->values(),
+            ]);
+        }
+
+        return back()->with('success', $msg);
+    }
+
     /* ──────────────────────────────────────────────── */
 
     private function upcomingSlots()
