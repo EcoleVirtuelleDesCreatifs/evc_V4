@@ -1240,7 +1240,7 @@ class StudentAdminController extends Controller
         $todosNonTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['assigned', 'pending']));
         $todosTraites = $allTodos->filter(fn($t) => in_array($t->normalized_status, ['submitted', 'validated', 'rejected']));
 
-        // Récupérer les projets disponibles créés par l'admin mais non assignés à cet étudiant
+        // Récupérer les projets disponibles créés par l'admin pour la formation de l'étudiant
         $availableProjects = collect();
         if (Schema::hasTable('projects')) {
             // Récupérer les IDs des projets déjà assignés à cet étudiant
@@ -1249,18 +1249,26 @@ class StudentAdminController extends Controller
                 ->pluck('id')
                 ->toArray();
 
-            // Récupérer les projets créés par l'admin (user_id = null ou projects admin)
-            // Pour simplifier, on considère tous les projets qui ne sont pas assignés à cet étudiant
-            // Utiliser groupBy sur title et category pour éviter les doublons
+            // Récupérer les projets créés par l'admin pour la formation de l'étudiant
+            // Filtrer par formation de l'étudiant et exclure les projets assignés
+            $studentFormation = $student->program;
             $availableProjects = DB::table('projects')
                 ->whereNotIn('id', $assignedProjectIds)
-                ->select('title', 'category', DB::raw('MAX(id) as id'), DB::raw('MAX(created_at) as created_at'))
-                ->groupBy('title', 'category')
+                ->where('user_id', '!=', $user->id) // Exclure les projets de l'étudiant
+                ->where(function($query) use ($studentFormation) {
+                    // Filtrer par formation ou afficher tous les projets admin
+                    $query->where('category', $studentFormation)
+                          ->orWhereNull('category')
+                          ->orWhere('category', '');
+                })
+                ->where('title', '!=', '') // Exclure les projets sans titre
+                ->select('title', 'category', 'description', 'link', 'tags', 'software_used', 'thumbnail_image', 'deadline', DB::raw('MAX(id) as id'), DB::raw('MAX(created_at) as created_at'))
+                ->groupBy('title', 'category', 'description', 'link', 'tags', 'software_used', 'thumbnail_image', 'deadline')
                 ->orderBy('created_at', 'desc')
                 ->limit(20)
                 ->get();
 
-            // Charger les fichiers pour les projets disponibles
+            // Charger les fichiers pour les projets disponibles (uniquement fichiers admin, pas soumissions étudiants)
             if ($availableProjects->isNotEmpty() && Schema::hasTable('project_images')) {
                 $availableProjectIds = $availableProjects->pluck('id')->map(fn($v) => (int) $v)->filter()->values()->all();
                 if (!empty($availableProjectIds)) {
@@ -1273,9 +1281,12 @@ class StudentAdminController extends Controller
 
                     foreach ($availableProjects as $project) {
                         $project->project_files = $filesByAvailableProject[$project->id] ?? collect();
+                        // Filtrer pour ne garder que les fichiers admin (pas les soumissions étudiants)
                         $project->brief_files = collect($project->project_files)->filter(function ($f) use ($project) {
                             $path = $f->file_path ?? '';
-                            return !str_contains($path, 'project_submissions/' . $project->id . '/');
+                            // Exclure les fichiers de soumissions étudiants
+                            return !str_contains($path, 'project_submissions/') &&
+                                   !str_contains($path, '/' . $project->id . '/student_');
                         })->values();
                     }
                 }
