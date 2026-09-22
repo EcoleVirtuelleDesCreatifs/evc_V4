@@ -219,6 +219,10 @@
                                     @csrf @method('DELETE')
                                     <button type="submit" class="cancel-btn"><i class="fas fa-times me-1"></i>Annuler</button>
                                 </form>
+                            @elseif($rdv->status === 'confirmed')
+                                <div class="rdv-sub mt-2" style="font-size: 0.72rem;">
+                                    <i class="fas fa-lock me-1" style="color:#4ade80;"></i>Confirmé — contactez EVC pour toute modification
+                                </div>
                             @endif
                         </div>
                     </div>

@@ -28,7 +28,7 @@ class Appointment extends Model
 
     public function isCancellable(): bool
     {
-        if (!in_array($this->status, ['pending', 'confirmed'])) {
+        if ($this->status !== 'pending') {
             return false;
         }
         return $this->slot && !$this->slot->isPast();

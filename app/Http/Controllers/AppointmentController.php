@@ -138,7 +138,9 @@ class AppointmentController extends Controller
         $appointment = Appointment::with('slot')->where('user_id', auth()->id())->findOrFail($id);
 
         if (!$appointment->isCancellable()) {
-            return back()->with('error', 'Ce rendez-vous ne peut plus être annulé.');
+            return back()->with('error', $appointment->status === 'confirmed'
+                ? 'Ce rendez-vous est déjà confirmé. Contactez EVC pour toute modification.'
+                : 'Ce rendez-vous ne peut plus être annulé.');
         }
 
         $appointment->update(['status' => 'cancelled']);
