@@ -104,7 +104,16 @@
     .rdv-search input::placeholder { color: #64748b; }
 
     /* Table */
-    .rdv-table { color: rgba(255,255,255,0.85); font-size: 0.85rem; }
+    .rdv-table {
+        color: rgba(255,255,255,0.85); font-size: 0.85rem;
+        --bs-table-bg: transparent;
+        --bs-table-color: rgba(255,255,255,0.85);
+        --bs-table-border-color: rgba(255,255,255,0.08);
+        --bs-table-hover-bg: transparent;
+        background: transparent;
+    }
+    .rdv-table > :not(caption) > * > * { background-color: transparent !important; box-shadow: none; }
+    .rdv-table tbody tr:hover > * { background-color: rgba(139,92,246,0.06) !important; }
     .rdv-table thead th {
         color: rgba(255,255,255,0.5); font-weight: 700; font-size: 0.72rem;
         text-transform: uppercase; letter-spacing: 0.05em;
