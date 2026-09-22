@@ -4,202 +4,163 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nouveau Programme Disponible</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .email-container {
-            background-color: #ffffff;
-            margin: 20px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-        }
-        .header .icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-        .content {
-            padding: 30px 20px;
-        }
-        .greeting {
-            font-size: 18px;
-            color: #1e3c72;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-        .programme-card {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-left: 4px solid #1e3c72;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .programme-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #1e3c72;
-            margin: 0 0 10px 0;
-        }
-        .programme-formation {
-            display: inline-block;
-            background: #1e3c72;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-        .programme-description {
-            background: white;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 10px;
-            color: #555;
-        }
-        .info-box {
-            background-color: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .cta-button {
-            display: inline-block;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: 600;
-            margin: 20px 0;
-            text-align: center;
-            transition: transform 0.3s;
-        }
-        .cta-button:hover {
-            transform: translateY(-2px);
-        }
-        .tip-box {
-            background-color: #f1f8e9;
-            border-left: 4px solid #4caf50;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .tip-box strong {
-            color: #2e7d32;
-        }
-        .footer {
-            background-color: #f9f9f9;
-            padding: 20px;
-            text-align: center;
-            font-size: 14px;
-            color: #666;
-            border-top: 1px solid #e0e0e0;
-        }
-        .footer a {
-            color: #1e3c72;
-            text-decoration: none;
-        }
-        .social-links {
-            margin: 15px 0;
-        }
-        .social-links a {
-            display: inline-block;
-            margin: 0 10px;
-            color: #1e3c72;
-            text-decoration: none;
-        }
-    </style>
 </head>
-<body>
-    <div class="email-container">
-        <!-- Header -->
-        <div class="header">
-            <div class="icon">📚</div>
-            <h1>Nouveau Programme Disponible</h1>
-        </div>
+<body style="margin:0; padding:0; background-color:#eef1f6; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-text-size-adjust:100%;">
+    @php
+        $studentName = trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? ''));
+        if ($studentName === '') { $studentName = 'Étudiant'; }
+        $firstName = $student->first_name ?? $studentName;
 
-        <!-- Content -->
-        <div class="content">
-            <p class="greeting">Bonjour {{ $student->first_name ?? 'Étudiant' }} {{ $student->last_name ?? '' }},</p>
+        $rawFormation = (string) ($programme['formation'] ?? '');
+        $formationLabel = ($rawFormation === 'Ciblage' || $rawFormation === '')
+            ? ($student->program ?? 'Votre formation')
+            : $rawFormation;
+        $isTargeted = $rawFormation === 'Ciblage';
+    @endphp
 
-            <p>Nous avons le plaisir de vous informer qu'un nouveau programme de formation vient d'être publié et est maintenant disponible dans votre espace étudiant !</p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#eef1f6; padding:24px 12px;">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%; background:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 8px 30px rgba(15,23,42,0.10);">
 
-            <!-- Programme Card -->
-            <div class="programme-card">
-                <h2 class="programme-title">{{ $programme['titre'] }}</h2>
+                    {{-- Header --}}
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#1e3c72 0%,#2a5298 55%,#1d4ed8 100%); padding:36px 30px 30px; text-align:center;">
+                            <div style="width:64px; height:64px; margin:0 auto 14px; background:rgba(255,255,255,0.14); border-radius:50%; line-height:64px; font-size:30px;">📚</div>
+                            <div style="display:inline-block; background:rgba(255,255,255,0.16); border:1px solid rgba(255,255,255,0.25); color:#fff; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; padding:5px 14px; border-radius:999px; margin-bottom:12px;">École Virtuelle des Créatifs</div>
+                            <h1 style="margin:0; color:#ffffff; font-size:24px; font-weight:800; letter-spacing:-0.3px;">Nouveau Programme Disponible</h1>
+                            <p style="margin:8px 0 0; color:rgba(255,255,255,0.85); font-size:14px;">Votre programme de formation vient d'être publié</p>
+                        </td>
+                    </tr>
 
-                <span class="programme-formation">📖 {{ $programme['formation'] }}</span>
+                    {{-- Greeting --}}
+                    <tr>
+                        <td style="padding:30px 32px 0;">
+                            <p style="margin:0 0 6px; font-size:17px; color:#1e293b; font-weight:700;">Bonjour {{ $firstName }} 👋</p>
+                            <p style="margin:0; font-size:14px; color:#475569; line-height:1.6;">
+                                Un nouveau programme de formation vient d'être publié
+                                @if($isTargeted) et vous a été <strong>spécialement destiné</strong>@endif.
+                                Il est maintenant disponible dans votre espace étudiant.
+                            </p>
+                        </td>
+                    </tr>
 
-                @if(!empty($programme['description']))
-                <div class="programme-description">
-                    {{ $programme['description'] }}
-                </div>
-                @endif
-            </div>
+                    {{-- Programme card --}}
+                    <tr>
+                        <td style="padding:22px 32px 0;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#f8faff 0%,#eef2fb 100%); border:1px solid #dbe4f5; border-left:5px solid #2a5298; border-radius:14px;">
+                                <tr>
+                                    <td style="padding:20px 22px;">
+                                        <div style="font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#64748b; margin-bottom:6px;">Programme du mois</div>
+                                        <div style="font-size:19px; font-weight:800; color:#1e3c72; margin-bottom:10px;">{{ $programme['titre'] }}</div>
+                                        <div style="margin-bottom:4px;">
+                                            <span style="display:inline-block; background:#2a5298; color:#fff; font-size:12px; font-weight:700; padding:5px 13px; border-radius:999px;">🎓 {{ $formationLabel }}</span>
+                                        </div>
+                                        @if(!empty($programme['description']))
+                                        <div style="margin-top:12px; padding-top:12px; border-top:1px dashed #c9d6ee; font-size:13px; color:#475569; line-height:1.6;">
+                                            {{ $programme['description'] }}
+                                        </div>
+                                        @endif
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
 
-            <!-- Info Box -->
-            <div class="info-box">
-                <strong>📥 Document PDF disponible</strong><br>
-                Le programme complet est disponible en téléchargement au format PDF dans votre espace étudiant.
-            </div>
+                    {{-- PDF info --}}
+                    <tr>
+                        <td style="padding:18px 32px 0;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed; border:1px solid #fed7aa; border-radius:12px;">
+                                <tr>
+                                    <td width="46" style="padding:14px 0 14px 16px; font-size:22px; vertical-align:top;">📄</td>
+                                    <td style="padding:14px 16px 14px 10px;">
+                                        <div style="font-size:13px; font-weight:800; color:#9a3412;">Document PDF inclus</div>
+                                        <div style="font-size:13px; color:#7c2d12; line-height:1.5;">Le programme complet est téléchargeable au format PDF — consultable aussi en livre numérique dans votre espace.</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
 
-            <!-- CTA Button -->
-            <center>
-                <a href="{{ $programmeUrl }}" class="cta-button">
-                    📖 Accéder au programme
-                </a>
-            </center>
+                    {{-- CTA --}}
+                    <tr>
+                        <td align="center" style="padding:28px 32px 8px;">
+                            <a href="{{ $programmeUrl }}" style="display:inline-block; background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%); color:#ffffff; font-size:15px; font-weight:800; text-decoration:none; padding:15px 42px; border-radius:999px; box-shadow:0 8px 20px rgba(42,82,152,0.35);">
+                                Accéder au programme →
+                            </a>
+                            <p style="margin:12px 0 0; font-size:12px; color:#94a3b8;">Espace étudiant → Programme</p>
+                        </td>
+                    </tr>
 
-            <!-- Tip -->
-            <div class="tip-box">
-                <strong>💡 Astuce :</strong> Consultez régulièrement votre espace étudiant pour ne manquer aucune nouveauté. Les programmes sont des ressources précieuses pour votre apprentissage !
-            </div>
+                    {{-- Steps --}}
+                    <tr>
+                        <td style="padding:20px 32px 0;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
+                                <tr>
+                                    <td style="padding:16px 18px;">
+                                        <div style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:#64748b; margin-bottom:10px;">En 3 étapes</div>
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td width="26" style="font-size:14px; font-weight:800; color:#2a5298; vertical-align:top;">1.</td>
+                                                <td style="font-size:13px; color:#475569; padding-bottom:6px;">Connectez-vous à votre espace étudiant</td>
+                                            </tr>
+                                            <tr>
+                                                <td width="26" style="font-size:14px; font-weight:800; color:#2a5298; vertical-align:top;">2.</td>
+                                                <td style="font-size:13px; color:#475569; padding-bottom:6px;">Ouvrez la section <strong>Programme</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td width="26" style="font-size:14px; font-weight:800; color:#2a5298; vertical-align:top;">3.</td>
+                                                <td style="font-size:13px; color:#475569;">Lisez le livre numérique ou téléchargez le PDF</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
 
-            <p style="margin-top: 30px;">
-                Bonne formation,<br>
-                <strong>L'équipe École Virtuelle des Créatifs</strong>
-            </p>
-        </div>
+                    {{-- Tip --}}
+                    <tr>
+                        <td style="padding:18px 32px 0;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px;">
+                                <tr>
+                                    <td style="padding:13px 16px; font-size:13px; color:#166534; line-height:1.5;">
+                                        <strong>💡 Astuce :</strong> consultez régulièrement votre espace étudiant — les dates des séances du mois y sont aussi affichées.
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
 
-        <!-- Footer -->
-        <div class="footer">
-            <p><strong>École Virtuelle des Créatifs (EVC)</strong></p>
-            <p>📞 (+225) 07 17 25 86 02<br>
-               📍 Abidjan, Palmeraie<br>
-               📧 Email : <a href="mailto:info@ecolevirtuelledescreatifs.com">info@ecolevirtuelledescreatifs.com</a> | <a href="mailto:contact@ecolevirtuelledescreatifs.com">contact@ecolevirtuelledescreatifs.com</a><br>
-               🌐 Site web : <a href="https://www.ecolevirtuelledescreatifs.com">www.ecolevirtuelledescreatifs.com</a><br>
-               📱 WhatsApp : +225 07 47 25 95 07</p>
+                    {{-- Signature --}}
+                    <tr>
+                        <td style="padding:26px 32px 30px;">
+                            <p style="margin:0; font-size:14px; color:#475569; line-height:1.6;">
+                                Bonne formation,<br>
+                                <strong style="color:#1e3c72;">L'équipe École Virtuelle des Créatifs</strong>
+                            </p>
+                        </td>
+                    </tr>
 
-            <div class="social-links">
-                <a href="#">Facebook</a> |
-                <a href="#">LinkedIn</a> |
-                <a href="#">Instagram</a>
-            </div>
+                    {{-- Footer --}}
+                    <tr>
+                        <td style="background:#0f172a; padding:26px 32px; text-align:center;">
+                            <div style="font-size:14px; font-weight:800; color:#ffffff; margin-bottom:8px;">École Virtuelle des Créatifs (EVC)</div>
+                            <div style="font-size:12px; color:#94a3b8; line-height:1.8;">
+                                📍 Abidjan, Palmeraie &nbsp;•&nbsp; 📞 (+225) 07 17 25 86 02<br>
+                                � WhatsApp : +225 07 47 25 95 07<br>
+                                📧 <a href="mailto:info@ecolevirtuelledescreatifs.com" style="color:#93c5fd; text-decoration:none;">info@ecolevirtuelledescreatifs.com</a>
+                                &nbsp;•&nbsp; 🌐 <a href="https://www.ecolevirtuelledescreatifs.com" style="color:#93c5fd; text-decoration:none;">ecolevirtuelledescreatifs.com</a>
+                            </div>
+                            <div style="margin-top:16px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.1); font-size:11px; color:#64748b;">
+                                Cet email a été envoyé automatiquement. Merci de ne pas y répondre directement.
+                            </div>
+                        </td>
+                    </tr>
 
-            <p style="font-size: 12px; color: #999; margin-top: 15px;">
-                Cet email a été envoyé automatiquement. Merci de ne pas y répondre directement.
-            </p>
-        </div>
-    </div>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
