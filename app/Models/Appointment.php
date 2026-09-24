@@ -8,7 +8,7 @@ class Appointment extends Model
 {
     protected $fillable = [
         'slot_id', 'user_id', 'student_id', 'motif', 'message',
-        'status', 'meet_link', 'admin_note',
+        'status', 'meet_link', 'admin_note', 'group_id',
     ];
 
     public function slot()

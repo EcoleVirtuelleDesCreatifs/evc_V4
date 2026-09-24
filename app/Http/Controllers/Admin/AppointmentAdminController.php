@@ -23,18 +23,7 @@ class AppointmentAdminController extends Controller
         $slots = $this->upcomingSlots()->map(fn ($s) => $this->serializeSlot($s))->values();
         $appointments = $this->allAppointments()->map(fn ($a) => $this->serializeAppointment($a))->values();
 
-        $students = \Illuminate\Support\Facades\DB::table('students')
-            ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->where('students.status', 'active')
-            ->whereNotNull('students.user_id')
-            ->whereRaw(
-                "COALESCE(students.expiration_date, DATE_ADD(students.created_at, INTERVAL 4 MONTH)) >= ?",
-                [\Carbon\Carbon::today()->toDateString()]
-            )
-            ->select('students.id', 'students.first_name', 'students.last_name', 'students.program', 'users.email')
-            ->orderBy('students.first_name')
-            ->orderBy('students.last_name')
-            ->get()
+        $students = $this->activeStudents()
             ->map(fn ($s) => [
                 'id' => (int) $s->id,
                 'name' => trim(($s->first_name ?? '') . ' ' . ($s->last_name ?? '')),
@@ -120,25 +109,55 @@ class AppointmentAdminController extends Controller
     public function storeAppointment(Request $request)
     {
         $validated = $request->validate([
-            'slot_id' => 'required|exists:appointment_slots,id',
+            'booking_type' => 'sometimes|required|in:existing,direct',
+            'slot_id' => 'exclude_if:booking_type,direct|required|exists:appointment_slots,id',
+            'date' => 'exclude_unless:booking_type,direct|required|date_format:Y-m-d|after_or_equal:today',
+            'start_time' => 'exclude_unless:booking_type,direct|required|date_format:H:i',
+            'end_time' => 'exclude_unless:booking_type,direct|required|date_format:H:i|after:start_time',
+            'mode' => 'exclude_unless:booking_type,direct|required|in:en_ligne,presentiel',
+            'lieu' => 'exclude_unless:booking_type,direct|nullable|string|max:255',
             'student_ids' => 'required|array|min:1',
             'student_ids.*' => 'integer|exists:students,id',
             'motif' => 'required|string|max:150',
             'message' => 'nullable|string|max:2000',
-            'meet_link' => 'nullable|url|max:500',
+            'meet_link' => 'nullable|url:http,https|max:255',
             'admin_note' => 'nullable|string|max:1000',
         ]);
 
         $studentIds = array_values(array_unique(array_map('intval', $validated['student_ids'])));
+        $direct = ($validated['booking_type'] ?? 'existing') === 'direct';
 
-        $result = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $studentIds) {
-            $slot = AppointmentSlot::where('id', $validated['slot_id'])->lockForUpdate()->first();
-
-            if (!$slot || !$slot->is_active) {
-                return ['error' => 'Ce créneau n\'est plus actif.'];
+        $result = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $studentIds, $direct) {
+            $students = $this->activeStudents($studentIds)->keyBy('id');
+            $inactiveCount = count($studentIds) - $students->count();
+            if ($students->isEmpty()) {
+                return ['error' => 'Aucun étudiant actif parmi la sélection.'];
             }
-            if ($slot->date->isPast() || ($slot->date->isToday() && Carbon::parse($slot->start_time)->lt(Carbon::now()))) {
-                return ['error' => 'Ce créneau est déjà passé.'];
+            $studentIds = $students->keys()->all();
+
+            if ($direct) {
+                if (Carbon::parse($validated['date'] . ' ' . $validated['start_time'])->lte(now())) {
+                    return ['error' => 'La date et l\'heure de début doivent être dans le futur.'];
+                }
+                $slot = AppointmentSlot::create([
+                    'admin_id' => session('admin_id') ?? auth()->id(),
+                    'date' => $validated['date'],
+                    'start_time' => $validated['start_time'],
+                    'end_time' => $validated['end_time'],
+                    'mode' => $validated['mode'],
+                    'lieu' => $validated['lieu'] ?? null,
+                    'capacity' => $students->count(),
+                    'is_active' => true,
+                    'is_private' => true,
+                ]);
+            } else {
+                $slot = AppointmentSlot::where('id', $validated['slot_id'])->lockForUpdate()->first();
+                if (!$slot || !$slot->is_active || $slot->is_private) {
+                    return ['error' => 'Ce créneau n\'est plus disponible.'];
+                }
+                if ($slot->hasStarted()) {
+                    return ['error' => 'Ce créneau est déjà passé.'];
+                }
             }
 
             $booked = $slot->activeAppointments()->count();
@@ -158,37 +177,22 @@ class AppointmentAdminController extends Controller
             }
 
             // Lien Jitsi partagé si créneau en ligne
-            $meetLink = $validated['meet_link'] ?? null;
+            $meetLink = $slot->mode === 'en_ligne' ? ($validated['meet_link'] ?? null) : null;
             if ($slot->mode === 'en_ligne' && empty($meetLink)) {
                 $meetLink = 'https://meet.jit.si/evc-rdv-slot-' . $slot->id . '-' . strtolower(\Illuminate\Support\Str::random(6))
                     . '#config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true';
             }
 
-            $students = \Illuminate\Support\Facades\DB::table('students')
-                ->whereIn('id', $toBook)
-                ->where('status', 'active')
-                ->whereNotNull('user_id')
-                ->whereRaw(
-                    "COALESCE(expiration_date, DATE_ADD(created_at, INTERVAL 4 MONTH)) >= ?",
-                    [\Carbon\Carbon::today()->toDateString()]
-                )
-                ->get()
-                ->keyBy('id');
-
-            $inactiveCount = count($toBook) - $students->count();
-            $toBook = $students->keys()->map(fn ($v) => (int) $v)->all();
-
-            if (empty($toBook)) {
-                return ['error' => 'Aucun étudiant actif parmi la sélection.'];
-            }
             if (count($toBook) > $remaining) {
                 return ['error' => "Capacité insuffisante : {$remaining} place(s) restante(s) pour " . count($toBook) . ' étudiant(s).'];
             }
 
             $createdIds = [];
+            $groupId = (string) \Illuminate\Support\Str::uuid();
             foreach ($toBook as $studentId) {
                 $student = $students->get($studentId);
                 $createdIds[] = Appointment::insertGetId([
+                    'group_id' => $groupId,
                     'slot_id' => $slot->id,
                     'user_id' => $student->user_id,
                     'student_id' => $student->id,
@@ -248,19 +252,18 @@ class AppointmentAdminController extends Controller
      */
     public function destroySlot(Request $request, $id)
     {
-        $slot = AppointmentSlot::withCount(['appointments as active_bookings' => function ($q) {
-            $q->whereIn('status', ['pending', 'confirmed']);
-        }])->findOrFail($id);
-
-        $deactivated = false;
-        if ($slot->active_bookings > 0) {
-            $slot->update(['is_active' => false]);
-            $deactivated = true;
-            $msg = 'Créneau désactivé (des rendez-vous y sont encore rattachés).';
-        } else {
+        $deactivated = \Illuminate\Support\Facades\DB::transaction(function () use ($id) {
+            $slot = AppointmentSlot::whereKey($id)->lockForUpdate()->firstOrFail();
+            if ($slot->appointments()->exists()) {
+                $slot->update(['is_active' => false]);
+                return true;
+            }
             $slot->delete();
-            $msg = 'Créneau supprimé.';
-        }
+            return false;
+        });
+        $msg = $deactivated
+            ? 'Créneau désactivé (des rendez-vous y sont encore rattachés).'
+            : 'Créneau supprimé.';
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -356,15 +359,21 @@ class AppointmentAdminController extends Controller
         $result = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $appointment) {
             $newSlot = AppointmentSlot::where('id', $validated['slot_id'])->lockForUpdate()->first();
 
-            if (!$newSlot || !$newSlot->is_active) {
-                return ['error' => 'Le créneau choisi n\'est plus actif.'];
+            if (!$newSlot) {
+                return ['error' => 'Le créneau choisi n\'existe plus.'];
             }
-
+            $appointment = Appointment::whereKey($appointment->id)->lockForUpdate()->firstOrFail();
+            if (in_array($appointment->status, ['cancelled', 'completed'])) {
+                return ['error' => 'Un rendez-vous annulé ou terminé ne peut plus être modifié.'];
+            }
             $slotChanged = (int) $newSlot->id !== (int) $appointment->slot_id;
 
             if ($slotChanged) {
-                if ($newSlot->date->isPast() || ($newSlot->date->isToday() && Carbon::parse($newSlot->start_time)->lt(Carbon::now()))) {
-                    return ['error' => 'Le créneau choisi est déjà passé.'];
+                if (!$newSlot->is_active || $newSlot->is_private || $newSlot->hasStarted()) {
+                    return ['error' => 'Le créneau choisi n\'est plus disponible.'];
+                }
+                if ($newSlot->activeAppointments()->where('user_id', $appointment->user_id)->exists()) {
+                    return ['error' => 'Cet étudiant a déjà un rendez-vous sur ce créneau.'];
                 }
                 if ($newSlot->activeAppointments()->count() >= $newSlot->capacity) {
                     return ['error' => 'Le créneau choisi est complet.'];
@@ -378,6 +387,7 @@ class AppointmentAdminController extends Controller
             }
 
             $appointment->update([
+                'group_id' => $slotChanged ? null : $appointment->group_id,
                 'slot_id' => $newSlot->id,
                 'motif' => $validated['motif'],
                 'message' => $validated['message'] ?? null,
@@ -416,24 +426,46 @@ class AppointmentAdminController extends Controller
      */
     public function destroyAppointment(Request $request, $id)
     {
-        $appointment = Appointment::with(['slot', 'user', 'student'])->findOrFail($id);
-        $wasActive = in_array($appointment->status, ['pending', 'confirmed']);
-        $slotId = $appointment->slot_id;
+        $validated = $request->validate(['scope' => 'sometimes|required|in:group,participant']);
+        $scope = $validated['scope'] ?? 'group';
+        $deleted = \Illuminate\Support\Facades\DB::transaction(function () use ($id, $scope) {
+            $appointment = Appointment::findOrFail($id);
+            $query = Appointment::with(['slot', 'user', 'student']);
+            if ($scope === 'group' && $appointment->group_id) {
+                $query->where('group_id', $appointment->group_id);
+            } else {
+                $query->whereKey($appointment->id);
+            }
+            $appointments = $query->orderBy('id')->lockForUpdate()->get();
+            abort_unless($appointments->contains('id', (int) $id), 409, 'Le rendez-vous a changé. Actualisez la liste.');
+            Appointment::whereIn('id', $appointments->modelKeys())->delete();
+            foreach ($appointments->pluck('slot_id')->unique()->sort() as $slotId) {
+                $slot = AppointmentSlot::whereKey($slotId)->lockForUpdate()->first();
+                if ($slot && $slot->is_private && !$slot->appointments()->exists()) {
+                    $slot->delete();
+                }
+            }
+            return $appointments;
+        }, 3);
+        $slotId = $deleted->firstWhere('id', (int) $id)->slot_id;
 
         // Notifier l'étudiant si le rendez-vous était actif
-        if ($wasActive) {
-            $this->notifyStudent($appointment, 'cancelled');
+        foreach ($deleted as $appointment) {
+            if (in_array($appointment->status, ['pending', 'confirmed'])) {
+                $this->notifyStudent($appointment, 'cancelled');
+            }
         }
 
-        $appointment->delete();
-
-        $msg = 'Rendez-vous supprimé' . ($wasActive ? ' — l\'étudiant a été notifié.' : '.');
+        $msg = $scope === 'group'
+            ? 'Rendez-vous supprimé pour ' . $deleted->count() . ' étudiant(s).'
+            : 'Participant retiré du rendez-vous.';
 
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => $msg,
                 'deleted_id' => (int) $id,
+                'deleted_ids' => $deleted->modelKeys(),
                 'slot_id' => (int) $slotId,
                 'slots' => $this->upcomingSlots()->map(fn ($s) => $this->serializeSlot($s))->values(),
             ]);
@@ -444,9 +476,28 @@ class AppointmentAdminController extends Controller
 
     /* ──────────────────────────────────────────────── */
 
+    private function activeStudents(?array $ids = null)
+    {
+        return \Illuminate\Support\Facades\DB::table('students')
+            ->join('users', 'students.user_id', '=', 'users.id')
+            ->where('students.status', 'active')
+            ->when($ids !== null, fn ($q) => $q->whereIn('students.id', $ids))
+            ->select('students.*', 'users.email')
+            ->orderBy('students.first_name')
+            ->orderBy('students.last_name')
+            ->get()
+            ->filter(function ($student) {
+                $expiresAt = $student->expiration_date
+                    ? Carbon::parse($student->expiration_date)
+                    : ($student->created_at ? Carbon::parse($student->created_at)->addMonths(4) : null);
+                return $expiresAt && $expiresAt->isFuture();
+            });
+    }
+
     private function upcomingSlots()
     {
-        return AppointmentSlot::where('date', '>=', Carbon::today())
+        return AppointmentSlot::where('is_private', false)
+            ->where('date', '>=', Carbon::today())
             ->withCount(['appointments as booked_count' => function ($q) {
                 $q->whereIn('status', ['pending', 'confirmed']);
             }])
@@ -480,6 +531,7 @@ class AppointmentAdminController extends Controller
             'capacity' => (int) $s->capacity,
             'booked' => (int) $s->booked_count,
             'active' => (bool) $s->is_active,
+            'started' => $s->hasStarted(),
         ];
     }
 
@@ -488,6 +540,8 @@ class AppointmentAdminController extends Controller
         $slot = $a->slot;
         return [
             'id' => $a->id,
+            'group_id' => $a->group_id,
+            'slot_private' => (bool) $slot?->is_private,
             'slot_id' => $a->slot_id,
             'student_name' => $a->user->name ?? ($a->student ? trim(($a->student->first_name ?? '') . ' ' . ($a->student->last_name ?? '')) : '—'),
             'student_email' => $a->user->email ?? '',

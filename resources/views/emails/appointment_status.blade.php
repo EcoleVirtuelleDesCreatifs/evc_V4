@@ -53,6 +53,9 @@
                         </tr>
                     </table>
                     @endif
+                    @if($slot && $slot->mode === 'presentiel' && $slot->lieu)
+                        <p style="color:#475569; font-size:13px;">Lieu : {{ $slot->lieu }}</p>
+                    @endif
                     @if($appointment->admin_note)
                     <div style="margin-top:12px; border-top:1px dashed #e2e8f0; padding-top:12px; color:#475569; font-size:13px;">
                         💬 <em>{{ $appointment->admin_note }}</em>

@@ -207,6 +207,9 @@
                                     <i class="fas fa-map-marker-alt"></i>Présentiel
                                 @endif
                             </div>
+                            @if($slot->mode === 'presentiel' && $slot->lieu)
+                                <div class="rdv-sub"><i class="fas fa-map-marker-alt"></i>{{ $slot->lieu }}</div>
+                            @endif
                             @if($rdv->status === 'confirmed' && $rdv->meet_link && $slot->mode === 'en_ligne')
                                 <a href="{{ $rdv->meet_link }}" target="_blank" class="meet-btn"><i class="fas fa-video"></i> Rejoindre la réunion</a>
                             @endif

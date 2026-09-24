@@ -452,11 +452,47 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
+                    <div id="bookError" class="alert alert-danger d-none" role="alert"></div>
                     <div class="mb-3">
-                        <label class="form-label">Créneau <span class="text-danger">*</span></label>
-                        <select id="bookSlotSelect" class="form-select"></select>
+                        <label class="form-label" for="bookType">Organisation du rendez-vous</label>
+                        <select id="bookType" class="form-select">
+                            <option value="direct">Rendez-vous direct — saisir la date et les horaires</option>
+                            <option value="existing">Utiliser un créneau disponible</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 d-none" id="bookExistingFields">
+                        <label class="form-label" for="bookSlotSelect">Créneau <span class="text-danger">*</span></label>
+                        <select id="bookSlotSelect" class="form-select" disabled></select>
                         <div class="bk-slot-info mt-2" id="bookSlotInfo" style="display:none;"></div>
                     </div>
+                    <fieldset id="bookDirectFields" class="mb-3">
+                        <div class="row g-3">
+                            <div class="col-sm-4">
+                                <label class="form-label" for="bookDate">Date</label>
+                                <input type="date" class="form-control" id="bookDate" min="{{ now()->toDateString() }}" value="{{ now()->toDateString() }}" required>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" for="bookStart">Début</label>
+                                <input type="time" class="form-control" id="bookStart" required>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" for="bookEnd">Fin</label>
+                                <input type="time" class="form-control" id="bookEnd" required>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-label" for="bookMode">Mode</label>
+                                <select class="form-select" id="bookMode">
+                                    <option value="en_ligne">En ligne</option>
+                                    <option value="presentiel">Présentiel</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-8">
+                                <label class="form-label" for="bookLocation">Lieu / adresse (optionnel)</label>
+                                <input type="text" class="form-control" id="bookLocation" maxlength="255">
+                            </div>
+                        </div>
+                        <p class="text-white-50 small mt-2 mb-0">Réservé aux étudiants cochés. Ce rendez-vous ne sera pas proposé comme disponibilité aux autres étudiants.</p>
+                    </fieldset>
                     <div class="mb-3">
                         <label class="form-label">Motif <span class="text-danger">*</span></label>
                         <select id="bookMotif" class="form-select">
@@ -470,7 +506,7 @@
                         <textarea id="bookMessage" class="form-control" rows="2" maxlength="2000"
                                   placeholder="Objet de l'assistance…"></textarea>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3" id="bookMeetField">
                         <label class="form-label">Lien de réunion <small class="text-white-50">(auto-généré si vide et en ligne)</small></label>
                         <input type="url" id="bookMeetLink" class="form-control" placeholder="https://meet.jit.si/...">
                     </div>
@@ -619,7 +655,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="sub">${mode}${s.lieu ? ' · ' + esc(s.lieu) : ''}${s.active ? '' : ' · <span class="text-warning">désactivé</span>'}</div>
                     </div>
                     <span class="occ-badge ${occ}">${s.booked}/${s.capacity} réservé(s)</span>
-                    ${s.active && s.booked < s.capacity ? `<button type="button" class="btn-add-rdv" data-book="${s.id}" title="Créer un RDV sur ce créneau"><i class="fas fa-calendar-plus"></i></button>` : ''}
+                    ${s.active && !s.started && s.booked < s.capacity ? `<button type="button" class="btn-add-rdv" data-book="${s.id}" title="Créer un RDV sur ce créneau"><i class="fas fa-calendar-plus"></i></button>` : ''}
                     <button type="button" class="btn-del-slot" data-del="${s.id}" data-booked="${s.booked}" title="Supprimer"><i class="fas fa-trash"></i></button>
                 </div>`;
         }).join('');
@@ -675,10 +711,13 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
-    function actionButtons(a) {
+    function actionButtons(a, groupSize) {
         const label = esc(`${a.student_name} — ${a.slot_date} ${a.slot_time}`);
-        const edit = `<button type="button" class="act-btn act-edit" title="Modifier" data-edit="${a.id}"><i class="fas fa-pen"></i></button>`;
-        const del = `<button type="button" class="act-btn act-delete" title="Supprimer définitivement" data-del-apt="${a.id}" data-label="${label}"><i class="fas fa-trash"></i></button>`;
+        const edit = `<button type="button" class="act-btn act-edit" title="Modifier pour cet étudiant" data-edit="${a.id}"><i class="fas fa-pen"></i></button>`;
+        const remove = groupSize > 1
+            ? `<button type="button" class="act-btn act-delete" title="Retirer cet étudiant uniquement" aria-label="Retirer cet étudiant uniquement" data-del-apt="${a.id}" data-scope="participant"><i class="fas fa-user-minus"></i></button> `
+            : '';
+        const del = remove + `<button type="button" class="act-btn act-delete" title="Supprimer le rendez-vous pour tous les participants" aria-label="Supprimer le rendez-vous pour tous les participants" data-del-apt="${a.id}" data-scope="group"><i class="fas fa-trash"></i></button>`;
         const btn = (status, cls, icon, title) =>
             `<button type="button" class="act-btn ${cls}" title="${title}"
                 data-rdv="${a.id}" data-status="${status}" data-label="${label}"><i class="fas ${icon}"></i></button>`;
@@ -695,6 +734,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const tbody = document.getElementById('rdvTbody');
         const empty = document.getElementById('rdvEmpty');
         const rows = appointments.filter(appointmentMatches);
+        const groupCounts = new Map();
+        appointments.forEach(a => {
+            if (a.group_id) groupCounts.set(a.group_id, (groupCounts.get(a.group_id) || 0) + 1);
+        });
 
         empty.classList.toggle('d-none', rows.length > 0);
 
@@ -717,11 +760,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 </td>
                 <td>
                     <div class="stu-name" style="font-weight:600;">${esc(a.motif)}</div>
+                    <div class="stu-mail">${a.slot_private ? 'Rendez-vous direct privé' : 'Sur disponibilité'}${a.group_id ? ' · Groupe ' + esc(a.group_id.slice(0, 8)) + ' · ' + groupCounts.get(a.group_id) + ' participant(s)' : ''}</div>
                     ${a.message ? `<div class="rdv-msg" title="${esc(a.message)}">${esc(a.message)}</div>` : ''}
                     ${a.admin_note ? `<div class="stu-mail" style="color:#a78bfa;"><i class="fas fa-reply me-1"></i>${esc(a.admin_note.length > 40 ? a.admin_note.slice(0, 40) + '…' : a.admin_note)}</div>` : ''}
                 </td>
                 <td><span class="stb stb-${a.status}">${STATUS_LABELS[a.status] || a.status}</span></td>
-                <td class="text-end">${actionButtons(a)}</td>
+                <td class="text-end">${actionButtons(a, groupCounts.get(a.group_id) || 1)}</td>
             </tr>`).join('');
     }
 
@@ -729,7 +773,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const today = new Date().toISOString().slice(0, 10);
         document.getElementById('kpiPending').textContent = appointments.filter(a => a.status === 'pending').length;
         document.getElementById('kpiConfirmed').textContent = appointments.filter(a => a.status === 'confirmed' && a.slot_date_raw >= today).length;
-        document.getElementById('kpiSlots').textContent = slots.filter(s => s.active && s.booked < s.capacity).length;
+        document.getElementById('kpiSlots').textContent = slots.filter(s => s.active && !s.started && s.booked < s.capacity).length;
         document.getElementById('kpiTotal').textContent = appointments.length;
     }
 
@@ -849,23 +893,34 @@ document.addEventListener('DOMContentLoaded', function () {
     // Suppression définitive d'un rendez-vous
     document.getElementById('rdvTbody').addEventListener('click', async function (e) {
         const btn = e.target.closest('[data-del-apt]');
-        if (!btn) return;
+        if (!btn || btn.disabled) return;
         const id = btn.dataset.delApt;
-        const label = btn.dataset.label || '';
-        if (!confirm('Supprimer définitivement ce rendez-vous ?\n' + label + '\nL\'étudiant sera notifié si le RDV était actif.')) return;
+        const appointment = appointments.find(a => a.id == id);
+        if (!appointment) return;
+        const scope = btn.dataset.scope;
+        const affected = scope === 'group' && appointment.group_id
+            ? appointments.filter(a => a.group_id === appointment.group_id)
+            : [appointment];
+        const question = scope === 'group'
+            ? `Supprimer définitivement ce rendez-vous chez les ${affected.length} participant(s), y compris ceux masqués par les filtres ?`
+            : 'Retirer uniquement cet étudiant du rendez-vous ?';
+        const names = affected.map(a => a.student_name).join(', ');
+        if (!confirm(question + '\n' + names + '\nLes participants ayant un rendez-vous actif recevront une notification d’annulation.')) return;
 
+        const originalHtml = btn.innerHTML;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner spin"></i>';
         try {
-            const data = await api(URLS.destroy(id), 'DELETE');
-            appointments = appointments.filter(a => a.id != id);
+            const data = await api(URLS.destroy(id), 'DELETE', { scope });
+            const deletedIds = new Set(data.deleted_ids.map(Number));
+            appointments = appointments.filter(a => !deletedIds.has(Number(a.id)));
             if (data.slots) slots = data.slots;
             renderAll();
             toast(data.message || 'Rendez-vous supprimé.');
         } catch (err) {
             toast(err.message, 'error');
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-trash"></i>';
+            btn.innerHTML = originalHtml;
         }
     });
 
@@ -917,6 +972,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const bookCount = document.getElementById('bookCount');
     const bookPlaces = document.getElementById('bookPlaces');
     const bookSubmitBtn = document.getElementById('bookSubmitBtn');
+    const bookType = document.getElementById('bookType');
+    const bookError = document.getElementById('bookError');
+    let bookingBusy = false;
+
+    function refreshBookingType() {
+        const direct = bookType.value === 'direct';
+        document.getElementById('bookExistingFields').classList.toggle('d-none', direct);
+        document.getElementById('bookDirectFields').classList.toggle('d-none', !direct);
+        document.getElementById('bookDirectFields').disabled = !direct;
+        bookSlotSelect.disabled = direct;
+        bookSlotSelect.required = !direct;
+        bookError.classList.add('d-none');
+        refreshBook();
+    }
+
+    bookType.addEventListener('change', refreshBookingType);
+    document.getElementById('bookMode').addEventListener('change', refreshBook);
 
     // Grouper les étudiants par formation
     const studentsByProgram = {};
@@ -981,15 +1053,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const n = bookGroups.querySelectorAll('.bk-cb:checked').length;
         bookCount.textContent = n;
 
+        const direct = bookType.value === 'direct';
         const slot = slots.find(s => s.id == bookSlotSelect.value);
         const remaining = slot ? slot.capacity - slot.booked : 0;
-        bookPlaces.textContent = slot ? remaining + ' place(s) restante(s)' : '';
-        bookPlaces.style.color = (slot && n > remaining) ? '#f87171' : '#fbbf24';
-        bookSubmitBtn.disabled = n === 0 || !slot;
+        const onsite = (direct ? document.getElementById('bookMode').value : slot?.mode) === 'presentiel';
+        document.getElementById('bookMeetField').classList.toggle('d-none', onsite);
+        document.getElementById('bookMeetLink').disabled = onsite;
+        bookPlaces.textContent = direct ? 'Rendez-vous privé' : (slot ? remaining + ' place(s) restante(s)' : 'Choisissez un créneau');
+        bookPlaces.style.color = (!direct && slot && n > remaining) ? '#f87171' : '#fbbf24';
+        bookSubmitBtn.disabled = bookingBusy || n === 0 || (!direct && (!slot || n > remaining));
     }
 
     function refreshBookSlots(preselect) {
-        const open = slots.filter(s => s.active && s.booked < s.capacity);
+        const open = slots.filter(s => s.active && !s.started && s.booked < s.capacity);
         bookSlotSelect.innerHTML = open.length
             ? open.map(s => `<option value="${s.id}">${s.date_full} · ${s.start}–${s.end} · ${s.mode === 'en_ligne' ? 'En ligne' : 'Présentiel'} · ${s.capacity - s.booked} place(s)</option>`).join('')
             : '<option value="">— Aucun créneau disponible —</option>';
@@ -1005,7 +1081,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function openBookModal(preselectSlotId) {
+        bookType.value = preselectSlotId ? 'existing' : 'direct';
         refreshBookSlots(preselectSlotId);
+        refreshBookingType();
         document.getElementById('bookSearch').value = '';
         bookGroups.querySelectorAll('.bk-hidden').forEach(el => el.classList.remove('bk-hidden'));
         bookModal.show();
@@ -1037,13 +1115,22 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('bookForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         const studentIds = [...bookGroups.querySelectorAll('.bk-cb:checked')].map(cb => parseInt(cb.value, 10));
-        if (!studentIds.length) return;
-
+        if (!studentIds.length || bookingBusy) return;
+        const direct = bookType.value === 'direct';
+        bookingBusy = true;
+        bookError.classList.add('d-none');
         bookSubmitBtn.disabled = true;
         bookSubmitBtn.innerHTML = '<i class="fas fa-spinner spin me-1"></i> Création…';
         try {
             const data = await api(URLS.storeAppointment, 'POST', {
-                slot_id: parseInt(bookSlotSelect.value, 10),
+                booking_type: bookType.value,
+                ...(direct ? {
+                    date: document.getElementById('bookDate').value,
+                    start_time: document.getElementById('bookStart').value,
+                    end_time: document.getElementById('bookEnd').value,
+                    mode: document.getElementById('bookMode').value,
+                    lieu: document.getElementById('bookLocation').value || null,
+                } : { slot_id: parseInt(bookSlotSelect.value, 10) }),
                 student_ids: studentIds,
                 motif: document.getElementById('bookMotif').value,
                 message: document.getElementById('bookMessage').value || null,
@@ -1061,9 +1148,12 @@ document.addEventListener('DOMContentLoaded', function () {
             refreshBook();
             toast(data.message || 'Rendez-vous créé(s).');
         } catch (err) {
+            bookError.textContent = err.message;
+            bookError.classList.remove('d-none');
             toast(err.message, 'error');
         } finally {
-            bookSubmitBtn.disabled = false;
+            bookingBusy = false;
+            refreshBook();
             bookSubmitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Créer et confirmer';
         }
     });
@@ -1080,7 +1170,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!a) return;
 
         document.getElementById('editRdvId').value = a.id;
-        document.getElementById('editModalLabel').textContent = `${a.student_name} — statut actuel : ${STATUS_LABELS[a.status] || a.status}`;
+        document.getElementById('editModalLabel').textContent = `${a.student_name} — statut actuel : ${STATUS_LABELS[a.status] || a.status}. Modification pour cet étudiant uniquement.${a.group_id ? ' Un changement de créneau le retire du groupe.' : ''}`;
         document.getElementById('editMotif').value = a.motif;
         document.getElementById('editMessage').value = a.message || '';
         document.getElementById('editMeetLink').value = a.meet_link || '';
@@ -1089,7 +1179,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Créneaux : ouverts + le créneau actuel du RDV (même plein/passé)
         const currentSlot = slots.find(s => s.id === a.slot_id);
         const options = slots
-            .filter(s => s.id === a.slot_id || (s.active && (s.booked < s.capacity || s.id === a.slot_id)))
+            .filter(s => s.id === a.slot_id || (s.active && !s.started && s.booked < s.capacity))
             .map(s => `<option value="${s.id}">${s.date_full} · ${s.start}–${s.end} · ${s.mode === 'en_ligne' ? 'En ligne' : 'Présentiel'} · ${s.capacity - s.booked} place(s)${s.id === a.slot_id ? ' — actuel' : ''}</option>`);
 
         if (!currentSlot) {

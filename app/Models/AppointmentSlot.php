@@ -8,12 +8,13 @@ class AppointmentSlot extends Model
 {
     protected $fillable = [
         'admin_id', 'date', 'start_time', 'end_time',
-        'mode', 'lieu', 'capacity', 'is_active',
+        'mode', 'lieu', 'capacity', 'is_active', 'is_private',
     ];
 
     protected $casts = [
         'date' => 'date',
         'is_active' => 'boolean',
+        'is_private' => 'boolean',
     ];
 
     public function appointments()
@@ -39,10 +40,15 @@ class AppointmentSlot extends Model
 
     public function isBookable(): bool
     {
-        if (!$this->is_active) {
+        if (!$this->is_active || $this->is_private || $this->hasStarted()) {
             return false;
         }
         return $this->remainingCapacity() > 0;
+    }
+
+    public function hasStarted(): bool
+    {
+        return \Carbon\Carbon::parse($this->date->toDateString() . ' ' . $this->start_time)->lte(now());
     }
 
     public function isPast(): bool

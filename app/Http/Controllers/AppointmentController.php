@@ -28,6 +28,7 @@ class AppointmentController extends Controller
         $user = auth()->user();
 
         $slots = AppointmentSlot::where('is_active', true)
+            ->where('is_private', false)
             ->where('date', '>=', Carbon::today())
             ->withCount(['appointments as booked_count' => function ($q) {
                 $q->whereIn('status', ['pending', 'confirmed']);
@@ -81,11 +82,11 @@ class AppointmentController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            if (!$slot || !$slot->is_active) {
+            if (!$slot || !$slot->is_active || $slot->is_private) {
                 return ['error' => 'Ce créneau n\'est plus disponible.'];
             }
 
-            if ($slot->date->isPast() || ($slot->date->isToday() && Carbon::parse($slot->start_time)->lt(Carbon::now()))) {
+            if ($slot->hasStarted()) {
                 return ['error' => 'Ce créneau est déjà passé.'];
             }
 
