@@ -152,8 +152,8 @@
 
     <!-- Hero -->
     <div class="rdv-hero">
-        <h1><i class="fas fa-calendar-check me-2"></i>Assistance &amp; Rendez-vous</h1>
-        <p class="lead mb-0">Besoin d'une aide particulière ? Réservez un créneau avec l'équipe EVC selon les disponibilités des formateurs.</p>
+        <h1><i class="fas fa-calendar-check me-2"></i>Séances &amp; Rendez-vous</h1>
+        <p class="lead mb-0">Retrouvez les formations, ateliers et rendez-vous organisés par EVC. Besoin d’une aide particulière ? Réservez aussi un créneau avec l’équipe.</p>
     </div>
 
     <!-- Flash messages -->
@@ -170,7 +170,7 @@
 
     <!-- ═══ Mes rendez-vous à venir ═══ -->
     <div class="rdv-section-title">
-        <i class="fas fa-clock"></i> Mes rendez-vous
+        <i class="fas fa-clock"></i> Mes séances et rendez-vous
         <span class="count-badge">{{ $upcomingAppointments->count() }}</span>
     </div>
 
@@ -212,6 +212,12 @@
                             @endif
                             @if($rdv->status === 'confirmed' && $rdv->meet_link && $slot->mode === 'en_ligne')
                                 <a href="{{ $rdv->meet_link }}" target="_blank" class="meet-btn"><i class="fas fa-video"></i> Rejoindre la réunion</a>
+                            @endif
+                            @if($rdv->message)
+                                <details class="rdv-note">
+                                    <summary>Programme et consignes</summary>
+                                    <div style="white-space:pre-line; overflow-wrap:anywhere; margin-top:0.4rem;">{{ $rdv->message }}</div>
+                                </details>
                             @endif
                             @if($rdv->admin_note)
                                 <div class="rdv-note"><i class="fas fa-info-circle me-1"></i>{{ $rdv->admin_note }}</div>
@@ -316,6 +322,12 @@
                                     · {{ $slot->date->format('d/m/Y') }}
                                 @endif
                             </div>
+                            @if($rdv->message)
+                                <details class="rdv-note">
+                                    <summary>Programme et consignes</summary>
+                                    <div style="white-space:pre-line; overflow-wrap:anywhere; margin-top:0.4rem;">{{ $rdv->message }}</div>
+                                </details>
+                            @endif
                             @if($rdv->admin_note)
                                 <div class="rdv-note">{{ $rdv->admin_note }}</div>
                             @endif

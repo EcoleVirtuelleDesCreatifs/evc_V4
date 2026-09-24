@@ -117,6 +117,114 @@ class AppointmentWorkflowTest extends TestCase
         Mail::shouldHaveReceived('send')->twice();
     }
 
+    public function test_admin_training_session_sends_an_invitation_with_instructions_to_every_student(): void
+    {
+        $title = 'Séance de formation — Initiation Photoshop';
+        $instructions = "Installez Photoshop avant la séance.\nPréparez vos questions.";
+        $slot = $this->slot(['lieu' => 'https://meet.example.test/formation']);
+        $response = app(AppointmentAdminController::class)->storeAppointment($this->request([
+            'slot_id' => $slot->id, 'student_ids' => [1, 2], 'motif' => $title, 'message' => $instructions,
+        ]));
+        $this->assertSame(200, $response->getStatusCode());
+        foreach ([1, 2] as $id) {
+            $user = User::find($id);
+            $appointment = Appointment::where('user_id', $id)->firstOrFail();
+            $this->assertSame('confirmed', $appointment->status);
+            $this->assertSame($slot->lieu, $appointment->meet_link);
+            Notification::assertSentTo($user, AppointmentNotification::class, function ($notification) use ($user, $title, $instructions) {
+                $data = $notification->toDatabase($user);
+                return $data['event'] === 'scheduled'
+                    && str_contains($data['message'], $title)
+                    && $data['details'] === $instructions;
+            });
+            Mail::shouldHaveReceived('send')->withArgs(function ($view, $data, $callback) use ($id, $title, $instructions) {
+                if ($data['user']->id !== $id) return false;
+                $this->assertSame('scheduled', $data['status']);
+                $html = view($view, $data)->render();
+                $this->assertStringContainsString('Invitation EVC', $html);
+                $this->assertStringContainsString($title, $html);
+                $this->assertStringContainsString($instructions, $html);
+                $this->assertStringContainsString('https://meet.example.test/formation', $html);
+                $this->assertStringNotContainsString('votre demande de rendez-vous a été confirmée', $html);
+                $mail = new \Illuminate\Mail\Message(new \Symfony\Component\Mime\Email());
+                $callback($mail);
+                $this->assertStringContainsString($title, $mail->getSymfonyMessage()->getSubject());
+                $this->assertSame('student' . $id . '@example.test', $mail->getSymfonyMessage()->getTo()[0]->getAddress());
+                return true;
+            })->once();
+        }
+    }
+
+    public function test_invitation_details_are_escaped_and_visible_to_students_and_in_history(): void
+    {
+        $appointment = $this->booking($this->slot(), 1, (string) Str::uuid());
+        $appointment->update(['motif' => 'Atelier <script>alert(1)</script>', 'message' => "Consignes <b>importantes</b>\nDeuxième ligne"]);
+        $user = User::find(1);
+        $email = view('emails.appointment_status', [
+            'appointment' => $appointment, 'user' => $user, 'student' => $user,
+            'status' => 'scheduled', 'slotLabel' => '24/09/2026', 'appointmentsUrl' => route('student.appointments.index'),
+        ])->render();
+        $this->assertStringContainsString(e($appointment->message), $email);
+        $this->assertStringNotContainsString('<script>alert(1)</script>', $email);
+        $this->actingAs($user);
+        $view = str_replace("@extends('layouts.ki-admin')", '', file_get_contents(resource_path('views/appointments/index.blade.php'))) . "\n@yield('content')";
+        foreach (['confirmed', 'completed'] as $status) {
+            $appointment->update(['status' => $status]);
+            $html = \Illuminate\Support\Facades\Blade::render($view, app(AppointmentController::class)->index()->getData());
+            $this->assertStringContainsString(e($appointment->message), $html);
+            $this->assertStringNotContainsString('<b>importantes</b>', $html);
+        }
+    }
+
+    public function test_custom_training_title_and_instructions_can_be_modified(): void
+    {
+        $slot = $this->slot();
+        $appointment = $this->booking($slot, 1, (string) Str::uuid());
+        $title = 'Atelier Photoshop — niveau avancé';
+        $instructions = 'Préparez votre projet PSD.';
+        $response = app(AppointmentAdminController::class)->updateAppointment($this->request([
+            'slot_id' => $slot->id, 'motif' => $title, 'message' => $instructions,
+        ]), $appointment->id);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame($title, $appointment->fresh()->motif);
+        Mail::shouldHaveReceived('send')->withArgs(function ($view, $data, $callback) use ($title, $instructions) {
+            $this->assertSame('modified', $data['status']);
+            $html = view($view, $data)->render();
+            $this->assertStringContainsString($title, $html);
+            $this->assertStringContainsString($instructions, $html);
+            return true;
+        })->once();
+    }
+
+    public function test_only_http_meeting_links_are_reused_and_explicit_link_takes_priority(): void
+    {
+        $controller = app(AppointmentAdminController::class);
+        $slot = $this->slot(['lieu' => 'javascript:alert(1)']);
+        $payload = ['slot_id' => $slot->id, 'student_ids' => [1], 'motif' => 'Formation'];
+        $controller->storeAppointment($this->request($payload));
+        $this->assertStringStartsWith('https://meet.jit.si/', Appointment::where('student_id', 1)->first()->meet_link);
+        $slot->update(['lieu' => 'https://meet.example.test/slot']);
+        $payload['student_ids'] = [2];
+        $payload['meet_link'] = 'https://meet.example.test/override';
+        $controller->storeAppointment($this->request($payload));
+        $this->assertSame($payload['meet_link'], Appointment::where('student_id', 2)->first()->meet_link);
+    }
+
+    public function test_confirming_a_student_request_keeps_the_confirmation_email(): void
+    {
+        $appointment = $this->booking($this->slot(), 1);
+        $appointment->update(['status' => 'pending']);
+        app(AppointmentAdminController::class)->updateStatus($this->request(['status' => 'confirmed']), $appointment->id);
+        Notification::assertSentTo(User::find(1), AppointmentNotification::class, function ($notification, $channels, $user) {
+            return $notification->toDatabase($user)['event'] === 'confirmed';
+        });
+        Mail::shouldHaveReceived('send')->withArgs(function ($view, $data, $callback) {
+            $this->assertSame('confirmed', $data['status']);
+            $this->assertStringContainsString('votre demande de rendez-vous a été confirmée', view($view, $data)->render());
+            return true;
+        })->once();
+    }
+
     public function test_existing_slot_booking_works_today_and_enforces_capacity(): void
     {
         $slot = $this->slot(['capacity' => 2]);
@@ -337,6 +445,10 @@ class AppointmentWorkflowTest extends TestCase
         $html = \Illuminate\Support\Facades\Blade::render($view, $controller->index($this->request())->getData());
         $this->assertStringContainsString('Rendez-vous direct', $html);
         $this->assertStringContainsString('bookDirectFields', $html);
+        $this->assertStringContainsString('Séance de formation', $html);
+        $this->assertStringContainsString('Atelier pratique', $html);
+        $this->assertStringContainsString('<input id="bookMotif"', $html);
+        $this->assertStringContainsString('<input id="editMotif"', $html);
         preg_match_all('/<script[^>]*>(.*?)<\/script>/s', $html, $scripts);
         $this->assertNotEmpty($scripts[1]);
         $process = new \Symfony\Component\Process\Process(['node', '--check']);

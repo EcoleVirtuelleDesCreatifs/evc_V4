@@ -36,7 +36,14 @@ class AppointmentAdminController extends Controller
             'slotsJson' => $slots,
             'appointmentsJson' => $appointments,
             'studentsJson' => $students,
-            'motifs' => \App\Http\Controllers\AppointmentController::MOTIFS,
+            'motifs' => array_merge([
+                'Séance de formation',
+                'Atelier pratique',
+                'Coaching pédagogique',
+                'Séance de correction de projets',
+                'Réunion d’information',
+                'Évaluation / soutenance',
+            ], \App\Http\Controllers\AppointmentController::MOTIFS),
         ]);
     }
 
@@ -177,7 +184,7 @@ class AppointmentAdminController extends Controller
             }
 
             // Lien Jitsi partagé si créneau en ligne
-            $meetLink = $slot->mode === 'en_ligne' ? ($validated['meet_link'] ?? null) : null;
+            $meetLink = $slot->mode === 'en_ligne' ? (($validated['meet_link'] ?? null) ?: $this->slotMeetingLink($slot)) : null;
             if ($slot->mode === 'en_ligne' && empty($meetLink)) {
                 $meetLink = 'https://meet.jit.si/evc-rdv-slot-' . $slot->id . '-' . strtolower(\Illuminate\Support\Str::random(6))
                     . '#config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true';
@@ -228,7 +235,7 @@ class AppointmentAdminController extends Controller
             ->get();
 
         foreach ($newAppointments as $apt) {
-            $this->notifyStudent($apt, 'confirmed');
+            $this->notifyStudent($apt, 'scheduled');
         }
 
         $msg = $result['created'] . ' rendez-vous créé(s) et confirmé(s).'
@@ -305,7 +312,7 @@ class AppointmentAdminController extends Controller
 
         // Lien Jitsi automatique si confirmation en ligne sans lien fourni
         if ($newStatus === 'confirmed' && $appointment->slot?->mode === 'en_ligne') {
-            $meetLink = $validated['meet_link'] ?? $appointment->meet_link;
+            $meetLink = $validated['meet_link'] ?? $appointment->meet_link ?? $this->slotMeetingLink($appointment->slot);
             if (empty($meetLink)) {
                 $roomName = 'evc-rdv-' . $appointment->id . '-' . strtolower(\Illuminate\Support\Str::random(6));
                 $meetLink = 'https://meet.jit.si/' . $roomName
@@ -380,7 +387,8 @@ class AppointmentAdminController extends Controller
                 }
             }
 
-            $meetLink = $validated['meet_link'] ?? $appointment->meet_link;
+            $meetLink = $newSlot->mode === 'en_ligne'
+                ? ($validated['meet_link'] ?? $appointment->meet_link ?? $this->slotMeetingLink($newSlot)) : null;
             if ($newSlot->mode === 'en_ligne' && empty($meetLink)) {
                 $meetLink = 'https://meet.jit.si/evc-rdv-' . $appointment->id . '-' . strtolower(\Illuminate\Support\Str::random(6))
                     . '#config.prejoinPageEnabled=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true';
@@ -569,12 +577,14 @@ class AppointmentAdminController extends Controller
 
         $slotLabel = $this->formatSlot($appointment->slot);
         $titles = [
+            'scheduled' => 'Invitation EVC — ' . $appointment->motif,
             'confirmed' => 'Rendez-vous confirmé',
             'cancelled' => 'Rendez-vous annulé',
             'completed' => 'Rendez-vous terminé',
             'modified' => 'Rendez-vous modifié',
         ];
         $messages = [
+            'scheduled' => 'EVC vous invite : ' . $appointment->motif . ' — le ' . $slotLabel . '. Consultez les consignes dans votre espace étudiant.',
             'confirmed' => 'Votre rendez-vous du ' . $slotLabel . ' est confirmé.',
             'cancelled' => 'Votre rendez-vous du ' . $slotLabel . ' a été annulé par EVC.',
             'completed' => 'Votre rendez-vous du ' . $slotLabel . ' est terminé.',
@@ -587,6 +597,8 @@ class AppointmentAdminController extends Controller
                 'event' => $status,
                 'title' => $titles[$status] ?? 'Rendez-vous',
                 'message' => $messages[$status] ?? '',
+                'motif' => $appointment->motif,
+                'details' => $appointment->message,
                 'appointment_id' => $appointment->id,
                 'url' => route('student.appointments.index'),
                 'created_at' => now()->toIso8601String(),
@@ -604,8 +616,9 @@ class AppointmentAdminController extends Controller
                     'status' => $status,
                     'slotLabel' => $slotLabel,
                     'appointmentsUrl' => route('student.appointments.index'),
-                ], function ($m) use ($user, $status, $slotLabel) {
+                ], function ($m) use ($user, $status, $slotLabel, $appointment) {
                     $subject = match ($status) {
+                        'scheduled' => 'Invitation EVC — ' . $appointment->motif . ' — ' . $slotLabel,
                         'confirmed' => 'Rendez-vous confirmé — ' . $slotLabel,
                         'cancelled' => 'Rendez-vous annulé — ' . $slotLabel,
                         'modified' => 'Rendez-vous modifié — ' . $slotLabel,
@@ -617,6 +630,14 @@ class AppointmentAdminController extends Controller
         } catch (\Throwable $e) {
             \Log::warning('Appointment email failed: ' . $e->getMessage());
         }
+    }
+
+    private function slotMeetingLink(?AppointmentSlot $slot): ?string
+    {
+        $link = trim($slot?->lieu ?? '');
+        return $slot?->mode === 'en_ligne' && filter_var($link, FILTER_VALIDATE_URL)
+            && in_array(strtolower(parse_url($link, PHP_URL_SCHEME) ?? ''), ['https', 'http'], true)
+            ? $link : null;
     }
 
     private function formatSlot(?AppointmentSlot $slot): string

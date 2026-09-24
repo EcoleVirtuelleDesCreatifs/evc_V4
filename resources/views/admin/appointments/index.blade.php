@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Rendez-vous Étudiants')
+@section('title', 'Séances et rendez-vous étudiants')
 
 @push('styles')
 <style>
@@ -185,6 +185,7 @@
         background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff;
     }
     .rdv-modal .form-control:focus { background: rgba(255,255,255,0.08); border-color: #8b5cf6; color:#fff; }
+    .rdv-modal .form-control::placeholder { color: rgba(255,255,255,0.55); opacity: 1; }
     .rdv-modal .form-label { color: rgba(255,255,255,0.75); font-weight: 700; font-size: 0.8rem; }
 
     .rdv-empty { text-align: center; padding: 2.5rem 1rem; color: rgba(255,255,255,0.5); }
@@ -268,8 +269,8 @@
     <div class="rdv-header d-flex align-items-center gap-3">
         <div class="rdv-header-icon"><i class="fas fa-calendar-check"></i></div>
         <div>
-            <h4 class="text-white fw-bold mb-1">Rendez-vous Étudiants</h4>
-            <p class="text-white-50 mb-0" style="font-size: 0.85rem;">Gérez les disponibilités des formateurs et les demandes d'assistance spéciale.</p>
+            <h4 class="text-white fw-bold mb-1">Séances et rendez-vous étudiants</h4>
+            <p class="text-white-50 mb-0" style="font-size: 0.85rem;">Planifiez les formations, ateliers et rendez-vous, puis informez les étudiants invités.</p>
         </div>
     </div>
 
@@ -365,7 +366,7 @@
                 <div class="rdv-card-title" style="justify-content: space-between;">
                     <span class="d-flex align-items-center gap-2"><i class="fas fa-clipboard-list"></i> Demandes de rendez-vous</span>
                     <button type="button" class="btn btn-sm fw-bold" id="newRdvBtn" style="background: linear-gradient(135deg, #8b5cf6, #6366f1); color:#fff; border-radius: 999px;">
-                        <i class="fas fa-plus me-1"></i>Nouveau RDV
+                        <i class="fas fa-plus me-1"></i>Nouvelle séance / RDV
                     </button>
                 </div>
 
@@ -448,7 +449,7 @@
         <div class="modal-content">
             <form id="bookForm">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-calendar-plus me-2" style="color:#a78bfa;"></i>Créer un rendez-vous</h5>
+                    <h5 class="modal-title"><i class="fas fa-calendar-plus me-2" style="color:#a78bfa;"></i>Créer une séance / un rendez-vous</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -494,20 +495,24 @@
                         <p class="text-white-50 small mt-2 mb-0">Réservé aux étudiants cochés. Ce rendez-vous ne sera pas proposé comme disponibilité aux autres étudiants.</p>
                     </fieldset>
                     <div class="mb-3">
-                        <label class="form-label">Motif <span class="text-danger">*</span></label>
-                        <select id="bookMotif" class="form-select">
+                        <label class="form-label" for="bookMotif">Intitulé de la séance / motif <span class="text-danger">*</span></label>
+                        <input id="bookMotif" class="form-control" list="appointmentMotifs" maxlength="150" required
+                               placeholder="Ex. : Séance de formation — Initiation Photoshop">
+                        <datalist id="appointmentMotifs">
                             @foreach($motifs as $motif)
-                                <option value="{{ $motif }}">{{ $motif }}</option>
+                                <option value="{{ $motif }}"></option>
                             @endforeach
-                        </select>
+                        </datalist>
+                        <small class="text-white-50 d-block mt-2">Choisissez une suggestion (formation, atelier, coaching…) ou saisissez un intitulé personnalisé. Il apparaîtra dans l’invitation.</small>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Message / contexte <small class="text-white-50">(optionnel)</small></label>
-                        <textarea id="bookMessage" class="form-control" rows="2" maxlength="2000"
-                                  placeholder="Objet de l'assistance…"></textarea>
+                        <label class="form-label" for="bookMessage">Programme et consignes <small class="text-white-50">(optionnel)</small></label>
+                        <textarea id="bookMessage" class="form-control" rows="4" maxlength="2000"
+                                  placeholder="Thème de la formation, objectifs, logiciels à installer, matériel à préparer…"></textarea>
+                        <small class="text-white-50 d-block mt-2">Ce message sera inclus dans l’email et affiché dans l’espace de chaque étudiant invité.</small>
                     </div>
                     <div class="mb-3" id="bookMeetField">
-                        <label class="form-label">Lien de réunion <small class="text-white-50">(auto-généré si vide et en ligne)</small></label>
+                        <label class="form-label">Lien de réunion <small class="text-white-50">(repris du créneau si disponible, sinon généré automatiquement)</small></label>
                         <input type="url" id="bookMeetLink" class="form-control" placeholder="https://meet.jit.si/...">
                     </div>
 
@@ -525,7 +530,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-light btn-sm" data-bs-dismiss="modal">Fermer</button>
                     <button type="submit" class="btn btn-sm fw-bold" id="bookSubmitBtn" style="background:#22c55e; color:#fff;" disabled>
-                        <i class="fas fa-check me-1"></i>Créer et confirmer
+                        <i class="fas fa-check me-1"></i>Créer et inviter les étudiants
                     </button>
                 </div>
             </form>
@@ -550,12 +555,8 @@
                         <select id="editSlotSelect" class="form-select"></select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Motif <span class="text-danger">*</span></label>
-                        <select id="editMotif" class="form-select">
-                            @foreach($motifs as $motif)
-                                <option value="{{ $motif }}">{{ $motif }}</option>
-                            @endforeach
-                        </select>
+                        <label class="form-label" for="editMotif">Intitulé de la séance / motif <span class="text-danger">*</span></label>
+                        <input id="editMotif" class="form-control" list="appointmentMotifs" maxlength="150" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Message <small class="text-white-50">(optionnel)</small></label>
@@ -1154,7 +1155,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } finally {
             bookingBusy = false;
             refreshBook();
-            bookSubmitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Créer et confirmer';
+            bookSubmitBtn.innerHTML = '<i class="fas fa-check me-1"></i>Créer et inviter les étudiants';
         }
     });
 

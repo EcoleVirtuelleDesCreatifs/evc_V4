@@ -9,6 +9,7 @@
 @php
     $slot = $appointment->slot ?? null;
     $config = [
+        'scheduled' => ['icon' => 'EVC', 'color' => '#2563eb', 'title' => 'Invitation EVC', 'intro' => 'L’équipe EVC a programmé une séance ou un rendez-vous pour vous. Retrouvez ci-dessous le thème, les consignes et les informations pour y participer.'],
         'confirmed' => ['icon' => '✅', 'color' => '#16a34a', 'title' => 'Rendez-vous confirmé !', 'intro' => 'Bonne nouvelle : votre demande de rendez-vous a été confirmée par l\'équipe EVC.'],
         'cancelled' => ['icon' => '❌', 'color' => '#dc2626', 'title' => 'Rendez-vous annulé', 'intro' => 'Votre rendez-vous a été annulé par l\'équipe EVC. Vous pouvez réserver un autre créneau.'],
         'completed' => ['icon' => '🏁', 'color' => '#2563eb', 'title' => 'Rendez-vous terminé', 'intro' => 'Votre rendez-vous est terminé. Merci pour votre participation !'],
@@ -25,7 +26,7 @@
             <div style="display:inline-block; width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.12); line-height:64px; font-size:30px; margin-bottom:12px;">{{ $c['icon'] }}</div>
             <div style="display:inline-block; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; border-radius:999px; padding:4px 14px; margin-bottom:10px;">École Virtuelle des Créatifs</div>
             <h1 style="color:#ffffff; font-size:24px; font-weight:800; margin:0;">{{ $c['title'] }}</h1>
-            <p style="color:rgba(255,255,255,0.75); font-size:14px; margin:8px 0 0;">Assistance spéciale</p>
+            <p style="color:rgba(255,255,255,0.75); font-size:14px; margin:8px 0 0;">{{ $appointment->motif }}</p>
         </td></tr>
 
         <!-- Body -->
@@ -36,7 +37,7 @@
             <!-- Card RDV -->
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; margin-bottom:20px;">
                 <tr><td style="padding:20px;">
-                    <div style="color:#94a3b8; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">Votre rendez-vous</div>
+                    <div style="color:#94a3b8; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">Votre séance / rendez-vous</div>
                     <div style="color:#0f172a; font-size:17px; font-weight:800; margin-bottom:10px;">{{ $appointment->motif }}</div>
                     @if($slot)
                     <table cellpadding="0" cellspacing="0">
@@ -56,6 +57,12 @@
                     @if($slot && $slot->mode === 'presentiel' && $slot->lieu)
                         <p style="color:#475569; font-size:13px;">Lieu : {{ $slot->lieu }}</p>
                     @endif
+                    @if($appointment->message)
+                        <div style="margin-top:16px; border-top:1px solid #e2e8f0; padding-top:12px;">
+                            <strong style="color:#0f172a; font-size:13px;">Programme et consignes</strong>
+                            <div style="color:#475569; font-size:14px; line-height:1.6; white-space:pre-line; overflow-wrap:anywhere;">{{ $appointment->message }}</div>
+                        </div>
+                    @endif
                     @if($appointment->admin_note)
                     <div style="margin-top:12px; border-top:1px dashed #e2e8f0; padding-top:12px; color:#475569; font-size:13px;">
                         💬 <em>{{ $appointment->admin_note }}</em>
@@ -64,7 +71,7 @@
                 </td></tr>
             </table>
 
-            @if(in_array($status, ['confirmed', 'modified']) && $appointment->meet_link)
+            @if(in_array($status, ['scheduled', 'confirmed', 'modified']) && $appointment->meet_link && $slot?->mode === 'en_ligne')
             <!-- Lien réunion -->
             <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed; border:1px solid #fed7aa; border-radius:12px; margin-bottom:20px;">
                 <tr><td style="padding:16px 20px; text-align:center;">
@@ -76,7 +83,7 @@
 
             <table width="100%" cellpadding="0" cellspacing="0">
                 <tr><td align="center" style="padding-top:6px;">
-                    <a href="{{ $appointmentsUrl }}" style="display:inline-block; background:linear-gradient(135deg,#f97316,#ea580c); color:#ffffff; font-size:14px; font-weight:800; text-decoration:none; border-radius:999px; padding:13px 32px;">Voir mes rendez-vous</a>
+                    <a href="{{ $appointmentsUrl }}" style="display:inline-block; background:linear-gradient(135deg,#f97316,#ea580c); color:#ffffff; font-size:14px; font-weight:800; text-decoration:none; border-radius:999px; padding:13px 32px;">Voir mes séances et rendez-vous</a>
                 </td></tr>
             </table>
         </td></tr>
