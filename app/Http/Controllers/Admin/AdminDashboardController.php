@@ -1032,6 +1032,9 @@ class AdminDashboardController extends Controller
                     if (Schema::hasColumn('projects', 'thumbnail_image')) {
                         $existing->thumbnail_image = null;
                     }
+                    if (Schema::hasColumn('projects', 'admin_hidden')) {
+                        $existing->admin_hidden = 0;
+                    }
                     $existing->updated_at = now();
                     $existing->save();
                     $resetCount++;
@@ -1051,15 +1054,23 @@ class AdminDashboardController extends Controller
             if (Schema::hasColumn('projects', 'thumbnail_image')) {
                 $newProject->thumbnail_image = null;
             }
+            if (Schema::hasColumn('projects', 'admin_hidden')) {
+                $newProject->admin_hidden = 0;
+            }
             $newProject->created_at = now();
             $newProject->updated_at = now();
             $newProject->save();
 
-            // Copier les fichiers (project_images) du projet source vers la copie
+            // Copier les fichiers brief (project_images) du projet source vers la copie
+            // en excluant les fichiers de soumission étudiant
             if (Schema::hasTable('project_images')) {
                 $sourceFiles = DB::table('project_images')
                     ->where('project_id', $project->id)
-                    ->get();
+                    ->get()
+                    ->filter(function ($f) {
+                        $path = (string) ($f->file_path ?? '');
+                        return !str_contains($path, 'project_submissions/');
+                    });
                 foreach ($sourceFiles as $file) {
                     $fileData = (array) $file;
                     unset($fileData['id']);

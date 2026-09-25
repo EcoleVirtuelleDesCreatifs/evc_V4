@@ -1538,7 +1538,11 @@ class StudentAdminController extends Controller
         if (Schema::hasTable('project_images')) {
             $sourceFiles = DB::table('project_images')
                 ->where('project_id', $projectId)
-                ->get();
+                ->get()
+                ->filter(function ($f) {
+                    $path = (string) ($f->file_path ?? '');
+                    return !str_contains($path, 'project_submissions/');
+                });
 
             foreach ($sourceFiles as $file) {
                 DB::table('project_images')->insert([
