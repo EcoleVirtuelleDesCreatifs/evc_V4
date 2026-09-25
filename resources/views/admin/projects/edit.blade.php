@@ -233,7 +233,7 @@
 
                         @if(isset($relatedProjects) && $relatedProjects->count() > 1)
                         <div class="form-check mb-4" style="background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.25); border-radius:10px; padding:0.75rem 0.75rem 0.75rem 2.25rem;">
-                            <input class="form-check-input" type="checkbox" name="bulk" value="1" id="bulk" {{ old('bulk') ? 'checked' : '' }}>
+                            <input class="form-check-input" type="checkbox" name="bulk" value="1" id="bulk" {{ old('bulk', request()->boolean('bulk')) ? 'checked' : '' }}>
                             <label class="form-check-label text-white-50" for="bulk">
                                 <i class="fas fa-users me-1" style="color:#8b5cf6;"></i>
                                 Appliquer ces modifications aux <strong class="text-white">{{ $relatedProjects->count() }} assignations</strong> de ce projet

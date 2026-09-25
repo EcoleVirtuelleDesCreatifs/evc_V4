@@ -827,6 +827,11 @@ class AdminDashboardController extends Controller
         $studentsList = User::query()
             ->leftJoin('students', 'students.user_id', '=', 'users.id')
             ->where('students.status', 'active')
+            ->whereNotNull('students.user_id')
+            ->whereRaw(
+                "COALESCE(students.expiration_date, DATE_ADD(students.created_at, INTERVAL 4 MONTH)) >= ?",
+                [\Carbon\Carbon::today()->toDateString()]
+            )
             ->when($alreadyAssignedUserIds->isNotEmpty(), function ($query) use ($alreadyAssignedUserIds) {
                 $query->whereNotIn('users.id', $alreadyAssignedUserIds->all());
             })
@@ -942,6 +947,72 @@ class AdminDashboardController extends Controller
         $emailsSent = 0;
         $emailsFailures = [];
 
+        // Notification in-app + email pour un étudiant assigné (nouveau ou réinitialisé)
+        $notifyAssigned = function ($targetUserId, $assignedProject) use (&$emailsSent, &$emailsFailures) {
+            try {
+                $user = \App\Models\User::find($targetUserId);
+                if ($user) {
+                    $formationSlug = 'design-graphique';
+                    $studentProgram = $user->student->program ?? null;
+                    if (is_string($studentProgram) && trim($studentProgram) !== '') {
+                        $prog = strtolower((string) $studentProgram);
+                        if (str_contains($prog, 'community')) {
+                            $formationSlug = 'community-management';
+                        } elseif (str_contains($prog, 'informatique')) {
+                            $formationSlug = 'gestion-informatique';
+                        } elseif (str_contains($prog, 'intelligence')) {
+                            $formationSlug = 'intelligence-artificielle';
+                        }
+                    }
+
+                    $projectUrl = url("/evc/compte/{$formationSlug}/todo/traiter/{$assignedProject->id}");
+
+                    $user->notify(new ProjectAssignedNotification([
+                        'category' => 'project',
+                        'event' => 'assigned',
+                        'title' => 'Nouveau projet assigné',
+                        'message' => 'Un nouveau projet a été assigné : ' . ($assignedProject->title ?? 'Projet'),
+                        'project_id' => $assignedProject->id,
+                        'project_title' => $assignedProject->title ?? null,
+                        'created_at' => now()->toIso8601String(),
+                        'url' => $projectUrl,
+                    ]));
+
+                    // Notification par email
+                    try {
+                        if (empty($user->email)) {
+                            $emailsFailures[] = "user_id={$targetUserId}: email manquant";
+                        } else {
+                            Mail::send('emails.project_assigned', [
+                                'user' => $user,
+                                'student' => $user->student ?? $user,
+                                'project' => $assignedProject,
+                                'projectUrl' => $projectUrl,
+                            ], function ($message) use ($user, $assignedProject) {
+                                $message->to($user->email)
+                                    ->subject('Nouveau projet assigné : ' . ($assignedProject->title ?? 'Projet'));
+                            });
+                            $emailsSent++;
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning('Notification email projet assigné échouée (addStudentToProject)', [
+                            'project_id' => $assignedProject->id,
+                            'user_id' => $targetUserId,
+                            'email' => $user->email ?? null,
+                            'error' => $e->getMessage(),
+                        ]);
+                        $emailsFailures[] = "user_id={$targetUserId}: " . $e->getMessage();
+                    }
+                }
+            } catch (\Exception $e) {
+                Log::warning('Notification in-app projet assigné échouée (addStudentToProject)', [
+                    'project_id' => $assignedProject->id ?? null,
+                    'user_id' => $targetUserId,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        };
+
         foreach ($targetUserIds as $targetUserId) {
             $dupQuery = Project::query()
                 ->where('user_id', $targetUserId)
@@ -964,6 +1035,7 @@ class AdminDashboardController extends Controller
                     $existing->updated_at = now();
                     $existing->save();
                     $resetCount++;
+                    $notifyAssigned($targetUserId, $existing);
                     continue;
                 }
                 $skippedCount++;
@@ -1000,69 +1072,8 @@ class AdminDashboardController extends Controller
 
             $assignedCount++;
 
-            // Notification in-app (database)
-            try {
-                $user = \App\Models\User::find($targetUserId);
-                if ($user) {
-                    $formationSlug = 'design-graphique';
-                    $studentProgram = $user->student->program ?? null;
-                    if (is_string($studentProgram) && trim($studentProgram) !== '') {
-                        $prog = strtolower((string) $studentProgram);
-                        if (str_contains($prog, 'community')) {
-                            $formationSlug = 'community-management';
-                        } elseif (str_contains($prog, 'informatique')) {
-                            $formationSlug = 'gestion-informatique';
-                        } elseif (str_contains($prog, 'intelligence')) {
-                            $formationSlug = 'intelligence-artificielle';
-                        }
-                    }
-
-                    $projectUrl = url("/evc/compte/{$formationSlug}/todo/traiter/{$newProject->id}");
-
-                    $user->notify(new ProjectAssignedNotification([
-                        'category' => 'project',
-                        'event' => 'assigned',
-                        'title' => 'Nouveau projet assigné',
-                        'message' => 'Un nouveau projet a été assigné : ' . ($newProject->title ?? 'Projet'),
-                        'project_id' => $newProject->id,
-                        'project_title' => $newProject->title ?? null,
-                        'created_at' => now()->toIso8601String(),
-                        'url' => $projectUrl,
-                    ]));
-
-                    // Notification par email
-                    try {
-                        if (empty($user->email)) {
-                            $emailsFailures[] = "user_id={$targetUserId}: email manquant";
-                        } else {
-                            Mail::send('emails.project_assigned', [
-                                'user' => $user,
-                                'student' => $user->student ?? $user,
-                                'project' => $newProject,
-                                'projectUrl' => $projectUrl,
-                            ], function ($message) use ($user, $newProject) {
-                                $message->to($user->email)
-                                    ->subject('Nouveau projet assigné : ' . ($newProject->title ?? 'Projet'));
-                            });
-                            $emailsSent++;
-                        }
-                    } catch (\Exception $e) {
-                        Log::warning('Notification email projet assigné échouée (addStudentToProject)', [
-                            'project_id' => $newProject->id,
-                            'user_id' => $targetUserId,
-                            'email' => $user->email ?? null,
-                            'error' => $e->getMessage(),
-                        ]);
-                        $emailsFailures[] = "user_id={$targetUserId}: " . $e->getMessage();
-                    }
-                }
-            } catch (\Exception $e) {
-                Log::warning('Notification in-app projet assigné échouée (addStudentToProject)', [
-                    'project_id' => $newProject->id ?? null,
-                    'user_id' => $targetUserId,
-                    'error' => $e->getMessage(),
-                ]);
-            }
+            // Notification in-app + email
+            $notifyAssigned($targetUserId, $newProject);
         }
 
         $parts = [];
