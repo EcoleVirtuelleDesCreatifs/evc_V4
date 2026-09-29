@@ -307,6 +307,124 @@
     #quill-editor {
         height: 300px;
     }
+
+    /* Refonte page to-send */
+    .stat-card {
+        cursor: pointer;
+        user-select: none;
+    }
+    .stat-card.active {
+        border-color: var(--form-primary);
+        box-shadow: 0 10px 30px rgba(56, 189, 248, 0.25);
+    }
+    .stat-card .check-icon {
+        display: none;
+    }
+    .stat-card.active .check-icon {
+        display: inline;
+    }
+
+    .targeting-sidebar {
+        position: sticky;
+        top: 1.25rem;
+        max-height: calc(100vh - 2.5rem);
+        overflow-y: auto;
+    }
+    .targeting-sidebar::-webkit-scrollbar { width: 6px; }
+    .targeting-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+
+    .section-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--form-text);
+        margin-bottom: 1rem;
+    }
+
+    .stu-row-photo {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid rgba(255,255,255,0.1);
+        flex-shrink: 0;
+    }
+    .stu-photo-placeholder {
+        width: 34px; height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #334155, #475569);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 0.75rem; color: #94a3b8;
+        flex-shrink: 0;
+    }
+
+    .recipient-summary {
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        border-radius: 12px;
+        padding: 0.9rem;
+    }
+    .recipient-summary-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #34d399;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.5rem;
+    }
+    .recipient-list {
+        max-height: 160px;
+        overflow-y: auto;
+        font-size: 0.82rem;
+        color: var(--form-text);
+    }
+    .recipient-list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        padding: 0.25rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .recipient-list-item:last-child { border-bottom: none; }
+    .recipient-remove {
+        color: #f87171;
+        cursor: pointer;
+        font-size: 0.75rem;
+    }
+    .recipient-remove:hover { color: #ef4444; }
+
+    .submit-card {
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        border-radius: 14px;
+        padding: 1.25rem;
+    }
+    .submit-card .btn-send {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        border-radius: 12px;
+        padding: 0.85rem 1.5rem;
+        width: 100%;
+        transition: all 0.2s;
+    }
+    .submit-card .btn-send:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+    }
+    .submit-card .btn-send:disabled {
+        background: #374151;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .formation-help {
+        font-size: 0.78rem;
+        color: #64748b;
+        display: block;
+        margin-top: 0.5rem;
+    }
 </style>
 @endpush
 
@@ -343,97 +461,44 @@
 <form id="sendProjectForm" action="{{ route('admin.projets.send') }}" method="POST" class="interactive-dashboard-form" enctype="multipart/form-data">
     @csrf
 
-    <!-- Statistiques par formation -->
-    <div class="row g-4 stats-row">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-title">Design Graphique</div>
-                        <h2 class="stat-value" style="color: #1e3c72;">{{ $stats['design_graphique'] }}</h2>
+    <!-- Statistiques par formation (filtres rapides) -->
+    <div class="row g-3 stats-row row-cols-2 row-cols-md-3 row-cols-lg-5">
+        @php
+            $formationStatColors = [
+                'Design Graphique' => ['#1e3c72','#2a5298','fa-paint-brush'],
+                'Design Graphique & Community Management' => ['#833AB4','#C13584','fa-layer-group'],
+                'Community Management' => ['#4fc3f7','#29b6f6','fa-share-alt'],
+                'Gestion Informatique' => ['#ff9800','#fb8c00','fa-laptop-code'],
+                'Intelligence Artificielle' => ['#26c6da','#00acc1','fa-robot'],
+            ];
+            $formationStats = [
+                'Design Graphique' => $stats['design_graphique'],
+                'Design Graphique & Community Management' => $stats['design_graphique_cm'] ?? 0,
+                'Community Management' => $stats['community_management'],
+                'Gestion Informatique' => $stats['gestion_informatique'],
+                'Intelligence Artificielle' => $stats['intelligence_artificielle'] ?? 0,
+            ];
+        @endphp
+        @foreach($formationStats as $formationName => $count)
+            @php [$c1,$c2,$icon] = $formationStatColors[$formationName]; @endphp
+            <div class="col">
+                <div class="stat-card" data-formation="{{ $formationName }}" title="Cliquer pour filtrer cette formation">
+                    <div class="stat-header">
+                        <div>
+                            <div class="stat-title">{{ $formationName }}</div>
+                            <h2 class="stat-value" style="color: {{ $c1 }};">{{ $count }}</h2>
+                        </div>
+                        <div class="stat-icon" style="background: linear-gradient(135deg, {{ $c1 }}, {{ $c2 }});">
+                            <i class="fas {{ $icon }}"></i>
+                        </div>
                     </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">
-                        <i class="fas fa-paint-brush"></i>
+                    <div class="stat-footer">
+                        <i class="fas fa-check-circle check-icon me-1"></i>
+                        <span>Étudiants actifs</span>
                     </div>
-                </div>
-                <div class="stat-footer">
-                    <i class="fas fa-user-check"></i>
-                    <span>Étudiants actifs</span>
                 </div>
             </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-title">Design Graphique &amp; Community Management</div>
-                        <h2 class="stat-value" style="color: #833AB4;">{{ $stats['design_graphique_cm'] ?? 0 }}</h2>
-                    </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #833AB4, #C13584);">
-                        <i class="fas fa-layer-group"></i>
-                    </div>
-                </div>
-                <div class="stat-footer">
-                    <i class="fas fa-user-check"></i>
-                    <span>Étudiants actifs</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-title">Community Management</div>
-                        <h2 class="stat-value" style="color: #4fc3f7;">{{ $stats['community_management'] }}</h2>
-                    </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #4fc3f7, #29b6f6);">
-                        <i class="fas fa-share-alt"></i>
-                    </div>
-                </div>
-                <div class="stat-footer">
-                    <i class="fas fa-user-check"></i>
-                    <span>Étudiants actifs</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-title">Gestion Informatique</div>
-                        <h2 class="stat-value" style="color: #ff9800;">{{ $stats['gestion_informatique'] }}</h2>
-                    </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #ff9800, #fb8c00);">
-                        <i class="fas fa-laptop-code"></i>
-                    </div>
-                </div>
-                <div class="stat-footer">
-                    <i class="fas fa-user-check"></i>
-                    <span>Étudiants actifs</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div>
-                        <div class="stat-title">Intelligence Artificielle</div>
-                        <h2 class="stat-value" style="color: #26c6da;">{{ $stats['intelligence_artificielle'] ?? 0 }}</h2>
-                    </div>
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #26c6da, #00acc1);">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                </div>
-                <div class="stat-footer">
-                    <i class="fas fa-user-check"></i>
-                    <span>Étudiants actifs</span>
-                </div>
-            </div>
-        </div>
+        @endforeach
     </div>
 
     <!-- Panel : Étudiants avec 0 TP/Projet -->
@@ -606,9 +671,9 @@
                                 @error('formation')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
-                                <small class="text-muted d-block mt-2" style="color: #94a3b8 !important;">
+                                <small class="formation-help">
                                     <i class="fas fa-info-circle me-1"></i>
-                                    Maintenez Ctrl/Cmd pour sélectionner plusieurs formations
+                                    Maintenez Ctrl/Cmd pour sélectionner plusieurs formations, ou cliquez sur une carte ci-dessus.
                                 </small>
                             </div>
 
@@ -643,8 +708,9 @@
                                     @if($groupWithout->count() > 0)
                                         <optgroup label="Nouveaux inscrits (0 projet)">
                                             @foreach($groupWithout as $student)
+                                                @php $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null); @endphp
                                                 <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}" data-zero="1"
-                                                        data-name="{{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')) }}" data-email="{{ $student->email ?? '' }}"
+                                                        data-name="{{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')) }}" data-email="{{ $student->email ?? '' }}" data-photo="{{ $photoUrl }}"
                                                         {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
                                                     {{ $student->first_name }} {{ $student->last_name }}
                                                     @if($student->email)
@@ -659,8 +725,9 @@
                                     @if($groupWith->count() > 0)
                                         <optgroup label="Déjà avec projets">
                                             @foreach($groupWith as $student)
+                                                @php $photoUrl = \App\Helpers\ProfilePhotoHelper::getUrlOrDefault($student->profile_photo ?? null); @endphp
                                                 <option value="{{ $student->id }}" data-formation="{{ $student->program_normalized }}"
-                                                        data-name="{{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')) }}" data-email="{{ $student->email ?? '' }}"
+                                                        data-name="{{ trim(($student->first_name ?? '') . ' ' . ($student->last_name ?? '')) }}" data-email="{{ $student->email ?? '' }}" data-photo="{{ $photoUrl }}"
                                                         {{ in_array((int) $student->id, array_map('intval', $oldStudents), true) ? 'selected' : '' }}>
                                                     {{ $student->first_name }} {{ $student->last_name }}
                                                     @if($student->email)
@@ -692,6 +759,14 @@
                             <div class="recipients-info" id="recipientsInfo">
                                 <i class="fas fa-info-circle me-2"></i>
                                 <strong id="recipientsCount">Sélectionnez une formation</strong>
+                            </div>
+
+                            <!-- Récapitulatif des destinataires sélectionnés -->
+                            <div class="recipient-summary mt-3" id="recipientSummary" style="display: none;">
+                                <div class="recipient-summary-title">
+                                    <i class="fas fa-users me-1"></i>Destinataires
+                                </div>
+                                <div class="recipient-list" id="recipientList"></div>
                             </div>
                         </div>
                     </div>
@@ -823,7 +898,7 @@
                     Annuler
                 </a>
 
-                <button type="submit" class="btn btn-success">
+                <button type="submit" class="btn btn-success" id="sendProjectBtn">
                     <i class="fas fa-paper-plane me-2"></i>
                     Envoyer le Projet
                 </button>
@@ -865,6 +940,9 @@ const formationSelect = document.getElementById('formation');
 const studentsSelectContainer = document.getElementById('studentsSelectContainer');
 const studentsSelect = document.getElementById('students');
 const recipientsCount = document.getElementById('recipientsCount');
+const recipientSummary = document.getElementById('recipientSummary');
+const recipientList = document.getElementById('recipientList');
+const sendProjectBtn = document.getElementById('sendProjectBtn');
 
 const stats = {
     'all': {{ $stats['total_students'] }},
@@ -885,10 +963,7 @@ formationSelect.addEventListener('change', function() {
         studentsSelectContainer.style.display = 'none';
         // Laisser les étudiants sélectionnés intacts uniquement si on repasse sur 'all'
         recipientsCount.textContent = `Tous les étudiants (${stats['all']} étudiants)`;
-        return;
-    }
-
-    if (selectedSpecificFormations.length > 0) {
+    } else if (selectedSpecificFormations.length > 0) {
         // Afficher le sélecteur d'étudiants
         studentsSelectContainer.style.display = 'block';
 
@@ -903,12 +978,14 @@ formationSelect.addEventListener('change', function() {
                 option.selected = false;
             }
         });
-
-        updateRecipientsCount();
     } else {
         studentsSelectContainer.style.display = 'none';
         recipientsCount.textContent = 'Sélectionnez une formation';
     }
+
+    updateStatCardsActive();
+    updateRecipientsCount();
+    updateSendButton();
 });
 
 studentsSelect.addEventListener('change', function() {
@@ -968,16 +1045,26 @@ function rebuildPicker() {
     });
 
     stuPickerList.innerHTML = Object.entries(groups).map(([formation, opts]) => {
-        const rows = opts.map(opt => `
+        const rows = opts.map(opt => {
+            const photo = escHtml(opt.getAttribute('data-photo') || '');
+            const name = escHtml(opt.getAttribute('data-name') || '');
+            const email = escHtml(opt.getAttribute('data-email') || '');
+            const hasPhoto = photo && !photo.includes('default');
+            const avatar = hasPhoto
+                ? `<img src="${photo}" alt="${name}" class="stu-row-photo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="stu-photo-placeholder" style="display:none;"><i class="fas fa-user"></i></div>`
+                : `<div class="stu-photo-placeholder"><i class="fas fa-user"></i></div>`;
+            return `
             <label class="stu-row ${opt.selected ? 'selected' : ''}" data-opt="${opt.value}">
+                ${avatar}
                 <input type="checkbox" class="form-check-input" ${opt.selected ? 'checked' : ''}>
                 <span class="stu-row-info">
-                    <span class="stu-row-name">${escHtml(opt.getAttribute('data-name'))}</span>
-                    <span class="stu-row-email d-block">${escHtml(opt.getAttribute('data-email'))}</span>
+                    <span class="stu-row-name">${name}</span>
+                    <span class="stu-row-email d-block">${email}</span>
                 </span>
                 ${opt.getAttribute('data-zero') ? '<span class="stu-row-zero">0 projet</span>' : ''}
                 <span class="stu-row-badge" style="${FORMATION_COLORS[formation] || 'background:#475569;color:#fff;'}">${escHtml(formation)}</span>
-            </label>`).join('');
+            </label>`;
+        }).join('');
         return `
             <div class="stu-group">
                 <div class="stu-group-title">
@@ -1104,7 +1191,73 @@ function updateRecipientsCount() {
         } else {
             recipientsCount.textContent = `Étudiants des formations sélectionnées (${total} étudiants)`;
         }
+    } else {
+        recipientsCount.textContent = 'Sélectionnez une formation';
     }
+
+    renderRecipientSummary();
+    updateSendButton();
+}
+
+function updateSendButton() {
+    if (!sendProjectBtn) return;
+    const selectedFormations = Array.from(formationSelect.selectedOptions).map(o => o.value).filter(Boolean);
+    sendProjectBtn.disabled = selectedFormations.length === 0;
+}
+
+function updateStatCardsActive() {
+    document.querySelectorAll('.stat-card').forEach(card => {
+        const f = card.getAttribute('data-formation');
+        const selected = Array.from(formationSelect.selectedOptions).map(o => o.value);
+        card.classList.toggle('active', selected.includes(f));
+    });
+}
+
+function renderRecipientSummary() {
+    if (!recipientSummary || !recipientList) return;
+    const selected = Array.from(studentsSelect.selectedOptions);
+    if (selected.length === 0) {
+        recipientSummary.style.display = 'none';
+        return;
+    }
+    recipientSummary.style.display = 'block';
+    recipientList.innerHTML = selected.map(opt => `
+        <div class="recipient-list-item">
+            <span class="text-truncate" style="min-width:0;">${escHtml(opt.getAttribute('data-name'))} <span class="text-white-50">(${escHtml(opt.getAttribute('data-email'))})</span></span>
+            <span class="recipient-remove" data-opt="${opt.value}"><i class="fas fa-times"></i></span>
+        </div>
+    `).join('');
+}
+
+// Cliic sur les cartes de stats pour sélectionner/désélectionner une formation
+document.querySelectorAll('.stat-card').forEach(card => {
+    card.addEventListener('click', function() {
+        const f = this.getAttribute('data-formation');
+        const option = Array.from(formationSelect.options).find(o => o.value === f);
+        if (!option) return;
+
+        // Désélectionner "Toutes les formations" si on choisit une formation spécifique
+        const allOption = Array.from(formationSelect.options).find(o => o.value === 'all');
+        if (allOption) allOption.selected = false;
+
+        option.selected = !option.selected;
+        formationSelect.dispatchEvent(new Event('change'));
+    });
+});
+
+// Retirer un destinataire depuis le récapitulatif
+if (recipientList) {
+    recipientList.addEventListener('click', function(e) {
+        const remove = e.target.closest('.recipient-remove');
+        if (!remove) return;
+        const optValue = remove.getAttribute('data-opt');
+        const opt = Array.from(studentsSelect.options).find(o => o.value === optValue);
+        if (opt) {
+            opt.selected = false;
+            refreshPickerChecks();
+            updateRecipientsCount();
+        }
+    });
 }
 
 // Toggle panel "0 TP/Projet"
