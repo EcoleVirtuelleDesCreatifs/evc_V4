@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TP;
 use App\Models\DesignProject;
+use App\Http\Controllers\Admin\AdminDashboardController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -112,62 +113,13 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function toSendDesignGraphique()
+    public function toSendDesignGraphique(Request $request)
     {
-        // Formulaire d'attribution: réutilise le flow admin.projets.to-send / admin.projets.send
-        $students = DB::table('students')
-            ->leftJoin('users', 'students.user_id', '=', 'users.id')
-            ->where('students.status', 'active')
-            ->select('students.*', 'users.email')
-            ->get();
+        // Réutilise le flow générique optimisé (étudiants actifs, recherche, sélection par formation)
+        // en pré-sélectionnant la formation "Design Graphique"
+        $request->query->set('formation', 'Design Graphique');
 
-        // Normaliser les formations pour cohérence
-        $students = $students->map(function ($student) {
-            if ($student->program) {
-                $programNormalizedKey = strtolower(str_replace([' ', '_', '-'], '', $student->program));
-                $containsDesign = str_contains($programNormalizedKey, 'design');
-                $containsCommunity = str_contains($programNormalizedKey, 'community');
-
-                if ($containsDesign && $containsCommunity) {
-                    $normalized = 'Design Graphique & Community Management';
-                } else {
-                    $normalized = match ($programNormalizedKey) {
-                        'designgraphique' => 'Design Graphique',
-                        'communitymanagement' => 'Community Management',
-                        'gestioninformatique' => 'Gestion Informatique',
-                        'intelligenceartificielle' => 'Intelligence Artificielle',
-                        default => $student->program
-                    };
-                }
-                $student->program_normalized = $normalized;
-            } else {
-                $student->program_normalized = 'Sans formation';
-            }
-            return $student;
-        });
-
-        // Stats globales (pour les cards en haut du formulaire)
-        $stats = [
-            'total_students' => $students->count(),
-            'design_graphique' => $students->where('program_normalized', 'Design Graphique')->count(),
-            'design_graphique_cm' => $students->where('program_normalized', 'Design Graphique & Community Management')->count(),
-            'community_management' => $students->where('program_normalized', 'Community Management')->count(),
-            'gestion_informatique' => $students->where('program_normalized', 'Gestion Informatique')->count(),
-            'intelligence_artificielle' => $students->where('program_normalized', 'Intelligence Artificielle')->count(),
-            'sans_formation' => $students->where('program_normalized', 'Sans formation')->count(),
-        ];
-
-        // Filtrer la liste affichée: Design Graphique + double cursus Design & Community
-        $filteredStudents = $students
-            ->whereIn('program_normalized', ['Design Graphique', 'Design Graphique & Community Management'])
-            ->values();
-
-        return view('admin.projets.to-send', [
-            'students' => $filteredStudents,
-            'all_students' => $filteredStudents,
-            'stats' => $stats,
-            'defaultFormation' => 'Design Graphique',
-        ]);
+        return app(AdminDashboardController::class)->projetsToSend($request);
     }
 
     public function assignedDesignGraphique()
