@@ -132,9 +132,9 @@
             <div class="col-md-4">
                 <div class="stat-card-payment">
                     <div class="text-muted mb-1">Montant par Étudiant</div>
-                    <div class="stat-value-payment">350 000 FCFA</div>
+                    <div class="stat-value-payment">{{ number_format($stats['amount_per_student'], 0, ',', ' ') }} FCFA</div>
                     <div class="text-muted mt-2">
-                        <i class="fas fa-tag me-1"></i>Tarif formation
+                        <i class="fas fa-tag me-1"></i>Montant total moyen
                     </div>
                 </div>
             </div>

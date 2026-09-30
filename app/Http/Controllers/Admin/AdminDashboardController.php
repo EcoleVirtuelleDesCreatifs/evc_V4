@@ -5156,7 +5156,7 @@ class AdminDashboardController extends Controller
                     'created_at' => now()->subDays(10),
                     'student_name' => 'Mathieu TÉYOTONMIN',
                     'formation' => 'Gestion Informatique',
-                    'amount' => 350000,
+                    'amount' => 265000,
                     'status' => 'completed'
                 ],
                 (object)[
@@ -5787,7 +5787,7 @@ class AdminDashboardController extends Controller
                         'last_name' => 'ASSANE',
                         'formation' => 'Gestion Informatique',
                         'amount_paid' => 0,
-                        'remaining' => 350000,
+                        'remaining' => 265000,
                         'created_at' => now()->subWeeks(2),
                     ];
 
