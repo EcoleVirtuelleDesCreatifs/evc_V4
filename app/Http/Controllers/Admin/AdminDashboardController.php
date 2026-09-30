@@ -5283,13 +5283,9 @@ class AdminDashboardController extends Controller
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->program ?: ($s->specialization ?: ($s->choix_formation ?? null)));
             $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
             $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
-            $storedDiscountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
-            $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount)
-                ? ($grossTotalAmount - $paymentsTotal)
-                : 0;
-            $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
+            $discountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
-            $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
+            $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
 
@@ -5485,13 +5481,9 @@ class AdminDashboardController extends Controller
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->program ?: ($s->specialization ?: ($s->choix_formation ?? null)));
             $pricingDate = $pricingDate ?: ($s->pre_registered_at ?? $s->created_at ?? null);
             $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
-            $storedDiscountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
-            $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount)
-                ? ($grossTotalAmount - $paymentsTotal)
-                : 0;
-            $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
+            $discountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
-            $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
+            $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
 
