@@ -398,7 +398,7 @@
                     </div>
                     <div class="pt-3 border-t border-slate-700">
                         <div class="text-xs text-gray-400 mb-1">Modalités de paiement :</div>
-                        <div class="text-sm text-gray-300">150.000 FCFA comme premier montant</div>
+                        <div class="text-sm text-gray-300">140.000 FCFA puis 125.000 FCFA</div>
                     </div>
                 </div>
 

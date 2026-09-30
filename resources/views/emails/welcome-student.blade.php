@@ -213,7 +213,7 @@
                             'icon' => '💻',
                             'title' => 'Gestion Informatique',
                             'description' => '2 mois - Bureautique, Environnement professionnel',
-                            'price' => '150 000 FCFA'
+                            'price' => '265 000 FCFA'
                         ],
                         'intelligence-artificielle' => [
                             'icon' => '🤖',

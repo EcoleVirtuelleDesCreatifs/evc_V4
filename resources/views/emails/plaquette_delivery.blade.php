@@ -90,7 +90,7 @@
                                                 <div style="font-weight:800;">Bureautique et informatique</div>
                                                 <div style="font-size:12px; color:#94a3b8;">Durée : 2 mois</div>
                                             </td>
-                                            <td align="right" style="padding:12px 12px; background:#0f172a; border:1px solid #1f2a44; border-radius:12px; color:#fbbf24; font-weight:900;">150 000 FCFA</td>
+                                            <td align="right" style="padding:12px 12px; background:#0f172a; border:1px solid #1f2a44; border-radius:12px; color:#fbbf24; font-weight:900;">265 000 FCFA</td>
                                         </tr>
                                         <tr>
                                             <td style="padding:12px 12px; background:#0f172a; border:1px solid #1f2a44; border-radius:12px; color:#e5e7eb;">
