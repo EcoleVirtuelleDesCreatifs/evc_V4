@@ -5359,7 +5359,10 @@ class AdminDashboardController extends Controller
             ->get();
 
         $preRegIds = $studentsBase->pluck('pre_registration_id')->filter()->unique()->values()->toArray();
+        $studentUserIds = $studentsBase->pluck('user_id')->filter()->unique()->values()->toArray();
+        $studentIds = $studentsBase->pluck('id')->filter()->unique()->values()->toArray();
 
+        // Agrégation par pre_registration_id
         $paymentAgg = collect();
         if (!empty($preRegIds)) {
             $paymentAgg = DB::table('payments')
@@ -5375,39 +5378,107 @@ class AdminDashboardController extends Controller
                 ->keyBy('pre_registration_id');
         }
 
-        // Fallback sur l'ancienne table paiements (par user_id) pour les étudiants
-        // dont les paiements n'ont pas encore été migrés vers pre_registration_id.
-        $studentUserIds = $studentsBase->pluck('user_id')->filter()->unique()->values()->toArray();
-
-        $oldPaiementsByUser = collect();
-        if (!empty($studentUserIds) && Schema::hasTable('paiements')) {
-            $oldPaiementsByUser = DB::table('paiements')
+        // Agrégation par user_id (certains paiements sont liés directement à l'utilisateur)
+        $paymentAggByUser = collect();
+        if (!empty($studentUserIds)) {
+            $paymentAggByUser = DB::table('payments')
+                ->select(
+                    'user_id',
+                    DB::raw("COALESCE(MAX(total_amount), 0) as total_amount"),
+                    DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid"),
+                    DB::raw("MIN(created_at) as first_payment_date")
+                )
                 ->whereIn('user_id', $studentUserIds)
+                ->whereNotNull('user_id')
+                ->groupBy('user_id')
                 ->get()
-                ->groupBy('user_id');
+                ->keyBy('user_id');
+        }
+
+        // Agrégation par student_id (si user_id absent)
+        $paymentAggByStudent = collect();
+        if (!empty($studentIds)) {
+            $paymentAggByStudent = DB::table('payments')
+                ->select(
+                    'student_id',
+                    DB::raw("COALESCE(MAX(total_amount), 0) as total_amount"),
+                    DB::raw("SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) as amount_paid"),
+                    DB::raw("MIN(created_at) as first_payment_date")
+                )
+                ->whereIn('student_id', $studentIds)
+                ->whereNotNull('student_id')
+                ->groupBy('student_id')
+                ->get()
+                ->keyBy('student_id');
+        }
+
+        // Fallback sur l'ancienne table paiements (par user_id / student_id)
+        $oldPaiementsByUser = collect();
+        $oldPaiementsByStudent = collect();
+        if (Schema::hasTable('paiements')) {
+            if (!empty($studentUserIds)) {
+                $oldPaiementsByUser = DB::table('paiements')
+                    ->whereIn('user_id', $studentUserIds)
+                    ->get()
+                    ->groupBy('user_id');
+            }
+            if (!empty($studentIds)) {
+                $oldPaiementsByStudent = DB::table('paiements')
+                    ->whereIn('student_id', $studentIds)
+                    ->get()
+                    ->groupBy('student_id');
+            }
         }
 
         $oldFacturesTotalByUser = collect();
-        if (!empty($studentUserIds) && Schema::hasTable('factures')) {
-            $oldFacturesTotalByUser = DB::table('factures')
-                ->whereIn('user_id', $studentUserIds)
-                ->groupBy('user_id')
-                ->select('user_id', DB::raw('SUM(montant) as total_amount'))
-                ->pluck('total_amount', 'user_id');
+        $oldFacturesTotalByStudent = collect();
+        if (Schema::hasTable('factures')) {
+            if (!empty($studentUserIds)) {
+                $oldFacturesTotalByUser = DB::table('factures')
+                    ->whereIn('user_id', $studentUserIds)
+                    ->groupBy('user_id')
+                    ->select('user_id', DB::raw('SUM(montant) as total_amount'))
+                    ->pluck('total_amount', 'user_id');
+            }
+            if (!empty($studentIds)) {
+                $oldFacturesTotalByStudent = DB::table('factures')
+                    ->whereIn('student_id', $studentIds)
+                    ->groupBy('student_id')
+                    ->select('student_id', DB::raw('SUM(montant) as total_amount'))
+                    ->pluck('total_amount', 'student_id');
+            }
         }
 
-        $students = $studentsBase->map(function ($s) use ($paymentAgg, $oldPaiementsByUser, $oldFacturesTotalByUser) {
+        $students = $studentsBase->map(function ($s) use (
+            $paymentAgg,
+            $paymentAggByUser,
+            $paymentAggByStudent,
+            $oldPaiementsByUser,
+            $oldPaiementsByStudent,
+            $oldFacturesTotalByUser,
+            $oldFacturesTotalByStudent
+        ) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
+            if (!$agg && $s->user_id) {
+                $agg = $paymentAggByUser[$s->user_id] ?? null;
+            }
+            if (!$agg) {
+                $agg = $paymentAggByStudent[$s->id] ?? null;
+            }
 
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
             $pricingDate = ($agg->first_payment_date ?? null);
 
-            // Si aucun paiement lié à la pré-inscription, essayer l'ancienne table paiements
-            if ((!$agg || $amountPaid <= 0) && $oldPaiementsByUser->has($s->user_id)) {
-                $oldPaiements = $oldPaiementsByUser[$s->user_id];
+            // Si aucun paiement dans la table payments, essayer l'ancienne table paiements
+            if ((!$agg || $amountPaid <= 0) && ($oldPaiementsByUser->has($s->user_id) || $oldPaiementsByStudent->has($s->id))) {
+                $oldPaiements = $oldPaiementsByUser[$s->user_id] ?? $oldPaiementsByStudent[$s->id];
                 $amountPaid = (int) round((float) $oldPaiements->where('statut', 'validé')->sum('montant'));
-                $paymentsTotal = (int) round((float) ($oldFacturesTotalByUser[$s->user_id] ?? $amountPaid));
+                $paymentsTotal = (int) round((float) (
+                    $oldFacturesTotalByUser[$s->user_id]
+                    ?? $oldFacturesTotalByStudent[$s->id]
+                    ?? $amountPaid
+                ));
                 $pricingDate = $pricingDate ?: optional($oldPaiements->sortBy('created_at')->first())->created_at;
             }
 
