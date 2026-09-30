@@ -41,7 +41,7 @@ return [
     'cancel_url' => env('CINETPAY_CANCEL_URL', 'http://127.0.0.1:8000/evc/payment/cancel'),
 
     // Tarifs par formation (en XOF)
-    'new_prices_effective_from' => env('FORMATION_NEW_PRICES_EFFECTIVE_FROM', '2026-06-02 00:00:00'),
+    'new_prices_effective_from' => env('FORMATION_NEW_PRICES_EFFECTIVE_FROM', '2000-01-01 00:00:00'),
 
     'prices' => [
         'Design Graphique' => 185000,
