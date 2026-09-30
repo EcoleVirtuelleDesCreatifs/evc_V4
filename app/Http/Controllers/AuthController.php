@@ -267,14 +267,30 @@ class AuthController extends Controller
             // Rediriger vers la page de chargement
             $request->session()->save();
 
+            $successMessage = 'Connexion réussie ! Bienvenue dans votre espace ' . $this->getFormationDisplayName($formationNormalized) . ', ' . ($user->first_name ?? 'Étudiant') . ' 👋';
+
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $successMessage,
+                    'redirect' => route('auth.loading'),
+                ])->withCookie(Cookie::make('evc_login_probe', '1', 60, '/', '.ecolevirtuelledescreatifs.com', true, true, false, 'Lax'));
+            }
+
             return redirect()
                 ->route('auth.loading')
-                ->with('success', 'Connexion réussie ! Bienvenue dans votre espace ' . $this->getFormationDisplayName($formationNormalized) . ', ' . ($user->first_name ?? 'Étudiant') . ' 👋')
+                ->with('success', $successMessage)
                 ->withCookie(Cookie::make('evc_login_probe', '1', 60, '/', '.ecolevirtuelledescreatifs.com', true, true, false, 'Lax'));
         } catch (ValidationException $e) {
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'errors' => $e->errors()], 422);
+            }
             return back()->withErrors($e->errors())->withInput($request->only('email'));
         } catch (\Exception $e) {
             $msg = app()->environment('local') ? ('Erreur de connexion: ' . $e->getMessage()) : 'Une erreur est survenue lors de la connexion. Veuillez réessayer.';
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json(['success' => false, 'message' => $msg], 500);
+            }
             return back()->with('error', $msg)->withInput($request->only('email'));
         }
     }

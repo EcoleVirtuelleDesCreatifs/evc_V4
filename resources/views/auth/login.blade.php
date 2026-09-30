@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -442,6 +443,11 @@
                 </div>
             @endif
 
+            <div id="ajaxErrors" class="alert alert-danger d-none" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span id="ajaxErrorText"></span>
+            </div>
+
             <!-- Login Form -->
             <form action="{{ route('login') }}" method="POST" id="loginForm">
                 @csrf
@@ -564,26 +570,108 @@
             }
         }
 
-        // Form submission with loading state
+        // Form submission with AJAX (same pattern as pre-inscription)
+        // Avoids Safari PWA form-post quirks (cache, token, redirect loops).
         let isSubmitting = false;
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            if (isSubmitting) {
-                e.preventDefault();
-                return;
-            }
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            if (isSubmitting) return;
             isSubmitting = true;
 
+            const form = e.currentTarget;
             const loginBtn = document.getElementById('loginBtn');
             const loginText = document.getElementById('loginText');
             const loadingSpinner = document.getElementById('loadingSpinner');
+            const errorBox = document.getElementById('ajaxErrors');
+            const errorText = document.getElementById('ajaxErrorText');
 
-            // Show loading state without disabling the submit button:
-            // Safari may cancel submission if the clicked button is disabled inside the submit handler.
+            // Clear previous errors
+            if (errorBox) errorBox.classList.add('d-none');
+            form.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+            form.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+            // Show loading state
             loginText.style.display = 'none';
             loadingSpinner.style.display = 'inline-block';
-            loginBtn.style.pointerEvents = 'none';
-            loginBtn.style.opacity = '0.8';
+            loginBtn.disabled = true;
+
+            // CSRF token (meta first, fallback to hidden input)
+            const metaTokenEl = document.querySelector('meta[name="csrf-token"]');
+            const inputTokenEl = form.querySelector('input[name="_token"]');
+            const token = (metaTokenEl && metaTokenEl.getAttribute('content')) || (inputTokenEl && inputTokenEl.value) || '';
+
+            try {
+                const resp = await fetch(form.getAttribute('action') || '{{ route('login') }}', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    body: new FormData(form),
+                });
+
+                const data = (resp.headers.get('content-type') || '').includes('application/json')
+                    ? await resp.json().catch(() => ({}))
+                    : {};
+
+                if (!resp.ok || data.success === false) {
+                    const errors = data.errors || {};
+                    const genericMessage = data.message || 'Identifiants incorrects ou erreur de connexion.';
+
+                    if (errors.email || errors.password) {
+                        Object.entries(errors).forEach(([name, messages]) => {
+                            const field = form.querySelector(`[name="${name}"]`);
+                            if (!field) return;
+                            field.classList.add('is-invalid');
+                            const msg = Array.isArray(messages) ? messages[0] : messages;
+                            const feedback = document.createElement('div');
+                            feedback.className = 'invalid-feedback d-block';
+                            feedback.innerHTML = '<i class="fas fa-exclamation-circle me-1"></i> ' + msg;
+                            field.parentElement.parentElement.appendChild(feedback);
+                        });
+                    } else {
+                        if (errorBox) {
+                            errorText.textContent = genericMessage;
+                            errorBox.classList.remove('d-none');
+                        }
+                    }
+                    return;
+                }
+
+                // Success: navigate to the loading/redirect page
+                window.location.href = data.redirect || '{{ route('auth.loading') }}';
+            } catch (err) {
+                if (errorBox) {
+                    errorText.textContent = "Impossible de se connecter pour le moment. Veuillez réessayer.";
+                    errorBox.classList.remove('d-none');
+                }
+            } finally {
+                isSubmitting = false;
+                loginText.style.display = 'inline';
+                loadingSpinner.style.display = 'none';
+                loginBtn.disabled = false;
+            }
         });
+
+        // Safari fix: keep CSRF token fresh while the login page is open
+        (function() {
+            function refreshCsrf() {
+                fetch('/csrf-token', { credentials: 'same-origin' })
+                    .then(function(r) { return r.ok ? r.json() : null; })
+                    .then(function(data) {
+                        if (!data || !data.token) return;
+                        var meta = document.querySelector('meta[name="csrf-token"]');
+                        if (meta) meta.setAttribute('content', data.token);
+                        document.querySelectorAll('input[name="_token"]').forEach(function(el) {
+                            el.value = data.token;
+                        });
+                    })
+                    .catch(function() {});
+            }
+            setInterval(refreshCsrf, 8 * 60 * 1000);
+        })();
 
         // Input animations
         document.querySelectorAll('.form-control').forEach(input => {
