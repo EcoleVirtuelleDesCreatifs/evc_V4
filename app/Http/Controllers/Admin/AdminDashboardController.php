@@ -5375,13 +5375,44 @@ class AdminDashboardController extends Controller
                 ->keyBy('pre_registration_id');
         }
 
-        $students = $studentsBase->map(function ($s) use ($paymentAgg) {
+        // Fallback sur l'ancienne table paiements (par user_id) pour les étudiants
+        // dont les paiements n'ont pas encore été migrés vers pre_registration_id.
+        $studentUserIds = $studentsBase->pluck('user_id')->filter()->unique()->values()->toArray();
+
+        $oldPaiementsByUser = collect();
+        if (!empty($studentUserIds) && Schema::hasTable('paiements')) {
+            $oldPaiementsByUser = DB::table('paiements')
+                ->whereIn('user_id', $studentUserIds)
+                ->get()
+                ->groupBy('user_id');
+        }
+
+        $oldFacturesTotalByUser = collect();
+        if (!empty($studentUserIds) && Schema::hasTable('factures')) {
+            $oldFacturesTotalByUser = DB::table('factures')
+                ->whereIn('user_id', $studentUserIds)
+                ->groupBy('user_id')
+                ->select('user_id', DB::raw('SUM(montant) as total_amount'))
+                ->pluck('total_amount', 'user_id');
+        }
+
+        $students = $studentsBase->map(function ($s) use ($paymentAgg, $oldPaiementsByUser, $oldFacturesTotalByUser) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
 
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
+            $pricingDate = ($agg->first_payment_date ?? null);
+
+            // Si aucun paiement lié à la pré-inscription, essayer l'ancienne table paiements
+            if ((!$agg || $amountPaid <= 0) && $oldPaiementsByUser->has($s->user_id)) {
+                $oldPaiements = $oldPaiementsByUser[$s->user_id];
+                $amountPaid = (int) round((float) $oldPaiements->where('statut', 'validé')->sum('montant'));
+                $paymentsTotal = (int) round((float) ($oldFacturesTotalByUser[$s->user_id] ?? $amountPaid));
+                $pricingDate = $pricingDate ?: optional($oldPaiements->sortBy('created_at')->first())->created_at;
+            }
+
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->program ?: ($s->specialization ?: ($s->choix_formation ?? null)));
-            $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
+            $pricingDate = $pricingDate ?: ($s->pre_registered_at ?? $s->created_at ?? null);
             $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $storedDiscountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
             $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount)
