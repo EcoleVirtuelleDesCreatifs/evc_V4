@@ -256,11 +256,10 @@ class CinetPayService
 
     public static function usesNewFormationPrices($registeredAt = null): bool
     {
-        if (empty($registeredAt)) {
-            return true;
-        }
-
-        return strtotime((string) $registeredAt) >= strtotime((string) config('cinetpay.new_prices_effective_from', '2026-06-02 00:00:00'));
+        // Les tarifs actuels s'appliquent à tous les étudiants, y compris les
+        // inscriptions antérieures, pour refléter les mises à jour tarifaires
+        // en cours (ex: Gestion Informatique à 265 000 FCFA).
+        return true;
     }
 
     /**
