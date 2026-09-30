@@ -2055,6 +2055,16 @@ class AdminDashboardController extends Controller
         ]);
     }
 
+    public function studentsGestionInfo()
+    {
+        return redirect()->route('admin.students.by-formation', ['formation' => 'gestion-informatique']);
+    }
+
+    public function studentsIA()
+    {
+        return redirect()->route('admin.students.by-formation', ['formation' => 'intelligence-artificielle']);
+    }
+
     public function bibliothequeCategories()
     {
         $categories = LibraryCategory::all();
