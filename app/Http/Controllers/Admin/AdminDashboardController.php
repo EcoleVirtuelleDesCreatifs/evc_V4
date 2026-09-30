@@ -5545,12 +5545,9 @@ class AdminDashboardController extends Controller
             $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
             $storedDiscountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
-            $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount)
-                ? ($grossTotalAmount - $paymentsTotal)
-                : 0;
-            $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
+            $discountAmount = $storedDiscountAmount;
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
-            $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
+            $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
             $remaining = max(0, $totalAmount - $amountPaid);
@@ -5721,12 +5718,9 @@ class AdminDashboardController extends Controller
             $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
             $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
             $storedDiscountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
-            $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount)
-                ? ($grossTotalAmount - $paymentsTotal)
-                : 0;
-            $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
+            $discountAmount = $storedDiscountAmount;
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
-            $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
+            $totalAmount = max($paymentsTotal, $expectedTotal);
 
             $remaining = max(0, $totalAmount - $amountPaid);
 
@@ -5801,10 +5795,9 @@ class AdminDashboardController extends Controller
         $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
         $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
         $storedDiscountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
-        $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount) ? ($grossTotalAmount - $paymentsTotal) : 0;
-        $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
+        $discountAmount = $storedDiscountAmount;
         $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
-        $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
+        $totalAmount = max($paymentsTotal, $expectedTotal);
         $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
         $remaining = max(0, $totalAmount - $amountPaid);
 
@@ -5922,10 +5915,9 @@ class AdminDashboardController extends Controller
                     $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
                     $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
                     $storedDiscountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
-                    $inferredDiscountAmount = ($storedDiscountAmount <= 0 && $paymentsTotal > 0 && $paymentsTotal < $grossTotalAmount) ? ($grossTotalAmount - $paymentsTotal) : 0;
-                    $discountAmount = max($storedDiscountAmount, $inferredDiscountAmount);
+                    $discountAmount = $storedDiscountAmount;
                     $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
-                    $totalAmount = $discountAmount > 0 ? $expectedTotal : max($paymentsTotal, $expectedTotal);
+                    $totalAmount = max($paymentsTotal, $expectedTotal);
                     $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
                 } else {
                     $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($student->program ?? null);
