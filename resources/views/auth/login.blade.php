@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Connexion - EVC 2024 Formation Infographie</title>
 
     <!-- Bootstrap CSS -->
@@ -562,15 +565,24 @@
         }
 
         // Form submission with loading state
+        let isSubmitting = false;
         document.getElementById('loginForm').addEventListener('submit', function(e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return;
+            }
+            isSubmitting = true;
+
             const loginBtn = document.getElementById('loginBtn');
             const loginText = document.getElementById('loginText');
             const loadingSpinner = document.getElementById('loadingSpinner');
 
-            // Show loading state
+            // Show loading state without disabling the submit button:
+            // Safari may cancel submission if the clicked button is disabled inside the submit handler.
             loginText.style.display = 'none';
             loadingSpinner.style.display = 'inline-block';
-            loginBtn.disabled = true;
+            loginBtn.style.pointerEvents = 'none';
+            loginBtn.style.opacity = '0.8';
         });
 
         // Input animations

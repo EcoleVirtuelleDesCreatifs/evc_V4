@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Connexion Administrateur - EVC 2024</title>
 
     <!-- Bootstrap CSS -->
@@ -234,15 +237,15 @@
                 margin: 10px;
                 border-radius: 15px;
             }
-            
+
             .admin-header {
                 padding: 2rem 1.5rem;
             }
-            
+
             .admin-body {
                 padding: 2rem 1.5rem;
             }
-            
+
             .admin-title {
                 font-size: 1.5rem;
             }
@@ -290,7 +293,7 @@
 
             <form action="{{ route('admin.login') }}" method="POST" id="adminLoginForm">
                 @csrf
-                
+
                 <div class="mb-4">
                     <label for="email" class="form-label fw-semibold">
                         <i class="fas fa-envelope me-1"></i>
@@ -300,9 +303,9 @@
                         <span class="input-group-text">
                             <i class="fas fa-user-shield"></i>
                         </span>
-                        <input type="email" class="form-control" id="email" name="email" 
-                               value="{{ old('email') }}" 
-                               placeholder="admin@ecolevirtuelledescreatifs.com" 
+                        <input type="email" class="form-control" id="email" name="email"
+                               value="{{ old('email') }}"
+                               placeholder="admin@ecolevirtuelledescreatifs.com"
                                required>
                     </div>
                 </div>
@@ -316,8 +319,8 @@
                         <span class="input-group-text">
                             <i class="fas fa-key"></i>
                         </span>
-                        <input type="password" class="form-control" id="password" name="password" 
-                               placeholder="Entrez votre mot de passe" 
+                        <input type="password" class="form-control" id="password" name="password"
+                               placeholder="Entrez votre mot de passe"
                                required>
                     </div>
                 </div>
@@ -350,15 +353,24 @@
 
     <script>
         // Form submission with loading state
+        let isSubmitting = false;
         document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            if (isSubmitting) {
+                e.preventDefault();
+                return;
+            }
+            isSubmitting = true;
+
             const loginBtn = document.getElementById('loginBtn');
             const loginText = document.getElementById('loginText');
             const loadingSpinner = document.getElementById('loadingSpinner');
 
-            // Show loading state
+            // Show loading state without disabling the submit button:
+            // Safari may cancel submission if the clicked button is disabled inside the submit handler.
             loginText.style.display = 'none';
             loadingSpinner.style.display = 'inline-block';
-            loginBtn.disabled = true;
+            loginBtn.style.pointerEvents = 'none';
+            loginBtn.style.opacity = '0.8';
         });
 
         // Input animations
