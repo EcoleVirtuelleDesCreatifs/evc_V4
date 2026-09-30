@@ -1373,6 +1373,25 @@ class PreRegistrationAdminController extends Controller
      */
     public function getFormationLabel($choix)
     {
+        $choix = strtolower(trim((string) $choix));
+
+        if (str_contains($choix, 'design') && str_contains($choix, 'community')) {
+            return 'Design Graphique & Community Management';
+        }
+        if (str_contains($choix, 'design') || str_contains($choix, 'graphique') || str_contains($choix, 'infographie')) {
+            return 'Design Graphique';
+        }
+        if (str_contains($choix, 'community') || str_contains($choix, 'management') || $choix === 'cm') {
+            return 'Community Management';
+        }
+        if (str_contains($choix, 'gestion') || str_contains($choix, 'informatique') || str_contains($choix, 'bureautique')) {
+            return 'Gestion Informatique';
+        }
+        if (str_contains($choix, 'intelligence') || str_contains($choix, 'artificielle') || $choix === 'ia') {
+            return 'Intelligence Artificielle';
+        }
+
+        // Mapping explicite conservé pour la compatibilité
         $mapping = [
             'design_graphique' => 'Design Graphique',
             'community_management' => 'Community Management',

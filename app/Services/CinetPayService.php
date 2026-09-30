@@ -215,7 +215,34 @@ class CinetPayService
             ? config('cinetpay.prices', [])
             : config('cinetpay.old_prices', []);
 
-        return $prices[$formation] ?? config("cinetpay.prices.{$formation}", 150000);
+        if (isset($prices[$formation])) {
+            return $prices[$formation];
+        }
+
+        $normalized = strtolower(trim((string) $formation));
+
+        // Fuzzy fallback for Gestion Informatique variations
+        if (str_contains($normalized, 'gestion') || str_contains($normalized, 'informatique') || str_contains($normalized, 'bureautique')) {
+            return $prices['Gestion Informatique'] ?? config('cinetpay.prices.Gestion Informatique', 265000);
+        }
+
+        if (str_contains($normalized, 'design') || str_contains($normalized, 'graphique') || str_contains($normalized, 'infographie')) {
+            return $prices['Design Graphique'] ?? config('cinetpay.prices.Design Graphique', 185000);
+        }
+
+        if (str_contains($normalized, 'community') || str_contains($normalized, 'management') || $normalized === 'cm') {
+            return $prices['Community Management'] ?? config('cinetpay.prices.Community Management', 165000);
+        }
+
+        if (str_contains($normalized, 'intelligence') || str_contains($normalized, 'artificielle') || $normalized === 'ia') {
+            return $prices['Intelligence Artificielle'] ?? config('cinetpay.prices.Intelligence Artificielle', 57000);
+        }
+
+        if (str_contains($normalized, 'design') && str_contains($normalized, 'community')) {
+            return $prices['Design Graphique & Community Management'] ?? config('cinetpay.prices.Design Graphique & Community Management', 165000);
+        }
+
+        return config("cinetpay.prices.{$formation}", 150000);
     }
 
     public static function getFormationInstallments($formation, $registeredAt = null): array
