@@ -5846,41 +5846,6 @@ class AdminDashboardController extends Controller
         $newTotalAmount = (int) $validated['total_amount'];
         $newAmountPaid = (int) $validated['amount_paid'];
 
-        // Mettre à jour le total de tous les enregistrements de paiement
-        DB::table('payments')
-            ->where('pre_registration_id', $preRegistrationId)
-            ->update([
-                'total_amount' => $newTotalAmount,
-                'updated_at' => now(),
-            ]);
-
-        // Archiver les anciens paiements validés et créer un paiement manuel
-        // consolidé avec le montant payé saisi par l'admin.
-        $firstPayment = $payments->first();
-        DB::table('payments')
-            ->where('pre_registration_id', $preRegistrationId)
-            ->where('status', 'completed')
-            ->update([
-                'status' => 'cancelled',
-                'amount' => 0,
-                'updated_at' => now(),
-            ]);
-
-        DB::table('payments')->insert([
-            'pre_registration_id' => $preRegistrationId,
-            'student_id' => $firstPayment->student_id ?? null,
-            'user_id' => $firstPayment->user_id ?? null,
-            'amount' => $newAmountPaid,
-            'total_amount' => $newTotalAmount,
-            'currency' => $firstPayment->currency ?? 'XOF',
-            'status' => 'completed',
-            'payment_reference' => 'MANUAL-' . $preRegistrationId . '-' . now()->format('YmdHisu'),
-            'payment_type' => 'manual',
-            'paid_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
         // Calculer la remise équivalente pour que tous les écrans (profil,
         // reçus, listes admin) affichent le même total sans être écrasés par
         // le tarif de formation automatique.
@@ -5892,13 +5857,50 @@ class AdminDashboardController extends Controller
         $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? ($student->created_at ?? null));
         $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
         $newDiscount = max(0, $grossTotalAmount - $newTotalAmount);
+        $firstPayment = $payments->first();
 
-        DB::table('pre_registrations')
-            ->where('id', $preRegistrationId)
-            ->update([
-                'discount_amount' => $newDiscount,
+        DB::transaction(function () use ($preRegistrationId, $newTotalAmount, $newAmountPaid, $newDiscount, $firstPayment) {
+            // Mettre à jour le total de tous les enregistrements de paiement
+            DB::table('payments')
+                ->where('pre_registration_id', $preRegistrationId)
+                ->update([
+                    'total_amount' => $newTotalAmount,
+                    'updated_at' => now(),
+                ]);
+
+            // Archiver les anciens paiements validés et créer un paiement manuel
+            // consolidé avec le montant payé saisi par l'admin.
+            DB::table('payments')
+                ->where('pre_registration_id', $preRegistrationId)
+                ->where('status', 'completed')
+                ->update([
+                    'status' => 'cancelled',
+                    'amount' => 0,
+                    'updated_at' => now(),
+                ]);
+
+            DB::table('payments')->insert([
+                'pre_registration_id' => $preRegistrationId,
+                'student_id' => $firstPayment->student_id ?? null,
+                'user_id' => $firstPayment->user_id ?? null,
+                'amount' => $newAmountPaid,
+                'total_amount' => $newTotalAmount,
+                'currency' => $firstPayment->currency ?? 'XOF',
+                'status' => 'completed',
+                'payment_reference' => 'MANUAL-' . $preRegistrationId . '-' . now()->format('YmdHisu'),
+                'payment_type' => 'full',
+                'paid_at' => now(),
+                'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            DB::table('pre_registrations')
+                ->where('id', $preRegistrationId)
+                ->update([
+                    'discount_amount' => $newDiscount,
+                    'updated_at' => now(),
+                ]);
+        });
 
         return redirect()->route('admin.paiements.a-solder')
             ->with('success', 'Montant total et montant payé mis à jour avec succès.');
