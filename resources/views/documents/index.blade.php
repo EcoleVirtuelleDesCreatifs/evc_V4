@@ -6,8 +6,8 @@
 @push('styles')
 <style>
     :root {
-        --design-cm-blue: #1e3c72;
-        --design-cm-orange: #4fc3f7;
+        --design-cm-blue: #9a3412;
+        --design-cm-orange: #fb923c;
     }
 
     .instagram-gradient {
@@ -358,7 +358,7 @@
         </div>
 
         <div class="col-lg-3 col-md-6 mb-4">
-            <div class="stat-card shadow-lg text-white" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%);">
+            <div class="stat-card shadow-lg text-white" style="background: linear-gradient(135deg, #9a3412 0%, #ea580c 50%, #fb923c 100%);">
                 <div class="stat-icon">
                     <i class="fas fa-layer-group"></i>
                 </div>
@@ -372,8 +372,8 @@
     <div class="row animate-in" style="animation-delay: 0.2s;">
         <div class="col-12">
             <div class="table-responsive">
-                <table class="table align-middle mb-0" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(42, 82, 152, 0.15);">
-                    <thead style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 55%, #4fc3f7 100%); color: white;">
+                <table class="table align-middle mb-0" style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 32px rgba(234, 88, 12, 0.15);">
+                    <thead style="background: linear-gradient(135deg, #9a3412 0%, #ea580c 55%, #fb923c 100%); color: white;">
                         <tr>
                             <th style="padding: 1.5rem 1.2rem; font-weight: 600; border: none; font-size: 0.95rem; letter-spacing: 0.5px;">
                                 Titre
@@ -399,7 +399,7 @@
                         @foreach($documents as $doc)
                         <tr style="transition: none; border-bottom: 1px solid #f5f5f5;">
                             <td style="padding: 1.2rem; font-weight: 600; color: #262626; font-size: 0.95rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                <i class="fas fa-file-pdf me-2" style="color: #2a5298;"></i>
+                                <i class="fas fa-file-pdf me-2" style="color: #ea580c;"></i>
                                 {{ Str::limit($doc['titre'], 30) }}
                             </td>
                             <td style="padding: 1.2rem; color: #8e8e8e; font-size: 0.9rem; max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
@@ -411,7 +411,7 @@
                                         <i class="fas fa-check-circle me-1"></i>Validé
                                     </span>
                                 @elseif($doc['status'] === 'pending')
-                                    <span class="badge" style="background: linear-gradient(135deg, #1e3c72 0%, #4fc3f7 100%); color: white; padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                                    <span class="badge" style="background: linear-gradient(135deg, #9a3412 0%, #fb923c 100%); color: white; padding: 0.4rem 0.9rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
                                         <i class="fas fa-clock me-1"></i>En attente
                                     </span>
                                 @else
@@ -433,7 +433,7 @@
                                     <a href="{{ $doc['lien'] !== '#' ? $doc['lien'] : 'javascript:void(0)' }}"
                                        @if($doc['lien'] !== '#') target="_blank" @endif
                                        class="btn btn-sm text-white {{ $doc['lien'] === '#' ? 'disabled' : '' }}"
-                                       style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);"
+                                       style="background: linear-gradient(135deg, #fb923c 0%, #f97316 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);"
                                        title="{{ $doc['lien'] !== '#' ? 'Voir le document' : 'Aucun fichier disponible' }}">
                                         <i class="fas fa-eye"></i>
                                     </a>
@@ -441,7 +441,7 @@
                                     @if($doc['status'] === 'pending')
                                         <a href="{{ route($currentModule . '.tp.modifier', $doc['id']) }}"
                                            class="btn btn-sm text-white"
-                                           style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 55%, #4fc3f7 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(42, 82, 152, 0.18);"
+                                           style="background: linear-gradient(135deg, #9a3412 0%, #ea580c 55%, #fb923c 100%); border: none; border-radius: 10px; padding: 0.5rem 1rem; transition: none; box-shadow: 0 4px 12px rgba(234, 88, 12, 0.18);"
                                            title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
@@ -556,7 +556,7 @@
                     </div>
 
                     <!-- Informations -->
-                    <div class="alert alert-info" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+                    <div class="alert alert-info" style="border-radius: 12px; border: none; background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);">
                         <i class="fas fa-info-circle me-2"></i>
                         <strong>Note :</strong> Votre rapport sera soumis pour validation. Vous recevrez une notification une fois qu'il sera validé.
                     </div>
@@ -590,8 +590,8 @@ if (fileInput) {
     // Drag and drop
     uploadArea.addEventListener('dragover', function(e) {
         e.preventDefault();
-        this.style.borderColor = '#2a5298';
-        this.style.background = 'linear-gradient(135deg, rgba(30, 60, 114, 0.06) 0%, rgba(79, 195, 247, 0.10) 100%)';
+        this.style.borderColor = '#ea580c';
+        this.style.background = 'linear-gradient(135deg, rgba(154, 52, 18, 0.06) 0%, rgba(251, 146, 60, 0.10) 100%)';
     });
 
     uploadArea.addEventListener('dragleave', function(e) {
@@ -680,7 +680,7 @@ function deleteReport(reportId, reportTitle) {
         <div class="modal fade" id="deleteModal" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content" style="border-radius: 20px; border: none;">
-                    <div class="modal-header text-white" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 55%, #4fc3f7 100%); border-radius: 20px 20px 0 0;">
+                    <div class="modal-header text-white" style="background: linear-gradient(135deg, #9a3412 0%, #ea580c 55%, #fb923c 100%); border-radius: 20px 20px 0 0;">
                         <h5 class="modal-title" style="font-weight: 700;">
                             <i class="fas fa-exclamation-triangle me-2"></i>Confirmer la suppression
                         </h5>
