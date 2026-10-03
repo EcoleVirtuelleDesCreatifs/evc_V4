@@ -91,28 +91,44 @@
                     <h5 class="mb-0"><i class="fas fa-edit me-2"></i>Nouvelle valeur</h5>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.paiements.a-solder.update-restant', $preReg->id) }}" method="POST">
+                    <form action="{{ route('admin.paiements.a-solder.update-restant', $preReg->id) }}" method="POST" id="editRestantForm">
                         @csrf
 
                         <div class="mb-3">
-                            <label for="remaining" class="form-label">Montant restant (FCFA)</label>
+                            <label for="total_amount" class="form-label">Montant total (FCFA)</label>
                             <input
                                 type="number"
                                 min="0"
-                                class="form-control @error('remaining') is-invalid @enderror"
-                                id="remaining"
-                                name="remaining"
-                                value="{{ old('remaining', $remaining) }}"
+                                class="form-control @error('total_amount') is-invalid @enderror"
+                                id="total_amount"
+                                name="total_amount"
+                                value="{{ old('total_amount', $totalAmount) }}"
                                 required
                             >
-                            @error('remaining')
+                            @error('total_amount')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="amount_paid" class="form-label">Montant déjà payé (FCFA)</label>
+                            <input
+                                type="number"
+                                min="0"
+                                class="form-control @error('amount_paid') is-invalid @enderror"
+                                id="amount_paid"
+                                name="amount_paid"
+                                value="{{ old('amount_paid', $amountPaid) }}"
+                                required
+                            >
+                            @error('amount_paid')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="alert alert-info" style="background: rgba(79,195,247,0.12); border-color: rgba(79,195,247,0.3); color: #e2e8f0;">
                             <i class="fas fa-info-circle me-2"></i>
-                            Le système recalculera le total en faisant : <strong>total = déjà payé + nouveau reste</strong>.
+                            Reste calculé : <strong id="preview_remaining">{{ number_format($remaining, 0, ',', ' ') }} FCFA</strong>.
                         </div>
 
                         <div class="d-flex gap-2">
@@ -124,6 +140,27 @@
                             </a>
                         </div>
                     </form>
+
+                    <script>
+                        (function () {
+                            const form = document.getElementById('editRestantForm');
+                            if (!form) return;
+                            const totalInput = document.getElementById('total_amount');
+                            const paidInput = document.getElementById('amount_paid');
+                            const preview = document.getElementById('preview_remaining');
+                            function formatNumber(n) {
+                                return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                            }
+                            function updatePreview() {
+                                const total = parseInt(totalInput.value, 10) || 0;
+                                const paid = parseInt(paidInput.value, 10) || 0;
+                                const remaining = Math.max(0, total - paid);
+                                preview.textContent = formatNumber(remaining) + ' FCFA';
+                            }
+                            totalInput.addEventListener('input', updatePreview);
+                            paidInput.addEventListener('input', updatePreview);
+                        })();
+                    </script>
                 </div>
             </div>
         </div>

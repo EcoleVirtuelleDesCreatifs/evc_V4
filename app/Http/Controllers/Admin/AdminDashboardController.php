@@ -5826,7 +5826,8 @@ class AdminDashboardController extends Controller
         $preRegistrationId = (int) $preRegistrationId;
 
         $validated = $request->validate([
-            'remaining' => 'required|integer|min:0',
+            'total_amount' => 'required|integer|min:0',
+            'amount_paid' => 'required|integer|min:0|lte:total_amount',
         ]);
 
         $preReg = DB::table('pre_registrations')->where('id', $preRegistrationId)->first();
@@ -5842,9 +5843,43 @@ class AdminDashboardController extends Controller
             return redirect()->route('admin.paiements.a-solder')->with('error', 'Aucun paiement trouvé pour cette préinscription.');
         }
 
-        $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
-        $newRemaining = (int) $validated['remaining'];
-        $newTotalAmount = $amountPaid + $newRemaining;
+        $newTotalAmount = (int) $validated['total_amount'];
+        $newAmountPaid = (int) $validated['amount_paid'];
+
+        // Mettre à jour le total de tous les enregistrements de paiement
+        DB::table('payments')
+            ->where('pre_registration_id', $preRegistrationId)
+            ->update([
+                'total_amount' => $newTotalAmount,
+                'updated_at' => now(),
+            ]);
+
+        // Archiver les anciens paiements validés et créer un paiement manuel
+        // consolidé avec le montant payé saisi par l'admin.
+        $firstPayment = $payments->first();
+        DB::table('payments')
+            ->where('pre_registration_id', $preRegistrationId)
+            ->where('status', 'completed')
+            ->update([
+                'status' => 'cancelled',
+                'amount' => 0,
+                'updated_at' => now(),
+            ]);
+
+        DB::table('payments')->insert([
+            'pre_registration_id' => $preRegistrationId,
+            'student_id' => $firstPayment->student_id ?? null,
+            'user_id' => $firstPayment->user_id ?? null,
+            'amount' => $newAmountPaid,
+            'total_amount' => $newTotalAmount,
+            'currency' => $firstPayment->currency ?? 'XOF',
+            'status' => 'completed',
+            'payment_reference' => 'MANUAL-' . $preRegistrationId . '-' . now()->format('YmdHisu'),
+            'payment_type' => 'manual',
+            'paid_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         // Calculer la remise équivalente pour que tous les écrans (profil,
         // reçus, listes admin) affichent le même total sans être écrasés par
@@ -5858,13 +5893,6 @@ class AdminDashboardController extends Controller
         $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
         $newDiscount = max(0, $grossTotalAmount - $newTotalAmount);
 
-        DB::table('payments')
-            ->where('pre_registration_id', $preRegistrationId)
-            ->update([
-                'total_amount' => $newTotalAmount,
-                'updated_at' => now(),
-            ]);
-
         DB::table('pre_registrations')
             ->where('id', $preRegistrationId)
             ->update([
@@ -5873,7 +5901,7 @@ class AdminDashboardController extends Controller
             ]);
 
         return redirect()->route('admin.paiements.a-solder')
-            ->with('success', 'Montant restant mis à jour avec succès.');
+            ->with('success', 'Montant total et montant payé mis à jour avec succès.');
     }
 
     /**
