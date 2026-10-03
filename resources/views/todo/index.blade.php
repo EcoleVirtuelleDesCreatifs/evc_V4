@@ -6,12 +6,12 @@
 
 @push('styles')
 <style>
-    /* Palette Bleu */
+    /* Palette Orange */
     :root {
-        --blue-900: #1e3c72;
-        --blue-700: #2a5298;
-        --blue-500: #4fc3f7;
-        --blue-300: #93c5fd;
+        --blue-900: #9a3412;
+        --blue-700: #ea580c;
+        --blue-500: #fb923c;
+        --blue-300: #fdba74;
     }
 
     /* Header avec dégradé Bleu */
@@ -203,7 +203,7 @@
         gap: 0.5rem;
         margin-bottom: 1rem;
         padding: 0.75rem;
-        background: linear-gradient(135deg, rgba(30, 60, 114, 0.06), rgba(79, 195, 247, 0.08));
+        background: linear-gradient(135deg, rgba(154, 52, 18, 0.06), rgba(251, 146, 60, 0.08));
         border-radius: 10px;
         border: 1px solid rgba(42, 82, 152, 0.15);
     }
@@ -395,7 +395,7 @@
 
     /* Alert personnalisé */
     .alert-instagram {
-        background: linear-gradient(135deg, rgba(30, 60, 114, 0.08), rgba(79, 195, 247, 0.12));
+        background: linear-gradient(135deg, rgba(154, 52, 18, 0.08), rgba(251, 146, 60, 0.12));
         border-left: 4px solid var(--blue-700);
         border-radius: 12px;
         padding: 1rem 1.5rem;
@@ -648,7 +648,7 @@
                     <h6 id="submitTpTitle" style="color: var(--blue-900); font-weight: 600; margin-bottom: 1rem;"></h6>
                 </div>
 
-                <div class="alert" style="background: linear-gradient(135deg, rgba(30, 60, 114, 0.08), rgba(79, 195, 247, 0.12)); border-left: 4px solid var(--blue-700); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                <div class="alert" style="background: linear-gradient(135deg, rgba(154, 52, 18, 0.08), rgba(251, 146, 60, 0.12)); border-left: 4px solid var(--blue-700); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem;">
                     <i class="fas fa-info-circle" style="color: var(--blue-700);"></i>
                     <strong style="color: var(--blue-900);">Instructions :</strong><br>
                     <span style="color: #555;">Soumettez le lien vers votre travail (Google Drive, Dropbox, GitHub, etc.)</span>
@@ -1096,7 +1096,7 @@ function showDetails(tpId) {
             </span>
         </div>
 
-        <div style="background: linear-gradient(135deg, rgba(30, 60, 114, 0.06), rgba(79, 195, 247, 0.08)); padding: 1.5rem; border-radius: 15px; margin-bottom: 1.5rem;">
+        <div style="background: linear-gradient(135deg, rgba(154, 52, 18, 0.06), rgba(251, 146, 60, 0.08)); padding: 1.5rem; border-radius: 15px; margin-bottom: 1.5rem;">
             <h4 style="color: var(--blue-900); margin-bottom: 1rem;">
                 <i class="fas fa-info-circle me-2"></i>Informations
             </h4>
