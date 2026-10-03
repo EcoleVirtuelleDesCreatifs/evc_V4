@@ -1300,7 +1300,7 @@
                     <i class="fas fa-chevron-down dropdown-arrow"></i>
                 </div>
                 <div class="submenu {{ request()->routeIs('evaluation.*') || request()->routeIs('certification.*') ? 'open' : '' }}">
-                    <a href="{{ \Illuminate\Support\Facades\Route::has('evaluation.test.index') ? route('evaluation.test.index') : route($dashboardRoute) }}" class="submenu-item {{ request()->routeIs('evaluation.test.*') ? 'active' : '' }}">
+                    <a href="{{ $isCommunityManagement && \Illuminate\Support\Facades\Route::has('community-management.test-connaissance') ? route('community-management.test-connaissance') : (\Illuminate\Support\Facades\Route::has('evaluation.test.index') ? route('evaluation.test.index') : route($dashboardRoute)) }}" class="submenu-item {{ request()->routeIs('evaluation.test.*') || request()->routeIs('community-management.test-connaissance') || request()->routeIs('community-manager.test-connaissance') ? 'active' : '' }}">
                         <i class="fas fa-brain"></i>
                         Test de connaissance
                     </a>

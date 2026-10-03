@@ -468,6 +468,8 @@ Route::middleware(['auth', 'student.active'])->group(function () {
 
     // Routes Test de connaissance (Étudiant)
     Route::get('/evc/compte/design-graphique-cm/evaluations/test-de-connaissance', [App\Http\Controllers\KnowledgeTestController::class, 'index'])->name('evaluation.test.index');
+    Route::get('/evc/compte/community-management/test-connaissance', [App\Http\Controllers\KnowledgeTestController::class, 'index'])->name('community-management.test-connaissance');
+    Route::get('/evc/compte/community-manager/test-connaissance', [App\Http\Controllers\KnowledgeTestController::class, 'index'])->name('community-manager.test-connaissance');
 
     // Routes Certifications (Étudiant)
     Route::get('/evc/compte/design-graphique-cm/certifications', [App\Http\Controllers\CertificationController::class, 'index'])->name('certification.index');
