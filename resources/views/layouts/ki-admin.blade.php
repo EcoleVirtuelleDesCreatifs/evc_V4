@@ -1227,9 +1227,9 @@
                         <i class="fas fa-tasks"></i>
                         Publier Un projet
                     </a>
-                    <a href="{{ route('design-graphique.projets.index') }}" class="submenu-item {{ (request()->routeIs('design-graphique.projets.*') && !request()->routeIs('design-graphique.projets.historique')) ? 'active' : '' }}">
-                        <i class="fas fa-external-link-alt"></i>
-                        Studio Creative
+                    <a href="{{ $isCommunityManagement && \Illuminate\Support\Facades\Route::has('community-management.reco-60') ? route('community-management.reco-60') : route('design-graphique.projets.index') }}" class="submenu-item {{ request()->routeIs('community-management.reco-60') || (request()->routeIs('design-graphique.projets.*') && !request()->routeIs('design-graphique.projets.historique')) ? 'active' : '' }}">
+                        <i class="fas {{ $isCommunityManagement ? 'fa-briefcase' : 'fa-external-link-alt' }}"></i>
+                        {{ $isCommunityManagement ? 'RECO 60' : 'Studio Creative' }}
                     </a>
                     <a href="{{ \Illuminate\Support\Facades\Route::has($formationPrefix . '.projets.historique')
                         ? route($formationPrefix . '.projets.historique')

@@ -992,6 +992,9 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
     Route::get('/documents/index', [DashboardController::class, 'documentsIndex'])->name('documents.index');
     Route::get('/documents/download/{id}', [DashboardController::class, 'downloadDocument'])->name('documents.download');
 
+    // RECO 60 - Documentation
+    Route::get('/reco-60', [DashboardController::class, 'reco60'])->name('reco-60');
+
     // Notifications
     Route::get('/notifications', [DashboardController::class, 'notificationsFeed'])->name('notifications.feed');
     Route::post('/notifications/mark-read', [DashboardController::class, 'notificationsMarkRead'])->name('notifications.mark-read');

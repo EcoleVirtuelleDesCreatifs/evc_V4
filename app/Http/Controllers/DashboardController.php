@@ -6067,6 +6067,14 @@ class DashboardController extends Controller
         ]);
     }
 
+    /**
+     * Page RECO 60 - Période pratique de 60 jours après la formation.
+     */
+    public function reco60(): View
+    {
+        return view('dashboard.reco-60');
+    }
+
     public function communityManagementStats(): JsonResponse
     {
         $user = Auth::user();
