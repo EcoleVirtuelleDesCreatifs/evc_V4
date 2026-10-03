@@ -4,13 +4,40 @@
 @section('page-title', 'Formation')
 
 @section('content')
+@php
+$isCommunity = str_contains((string) Route::currentRouteName(), 'community-management');
+@endphp
 <style>
+    :root {
+        --evc-gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --evc-gradient-header: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+        --evc-gradient-icon: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+        --evc-gradient-section: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+    }
+
+    @if($isCommunity)
+    :root {
+        --evc-gradient-primary: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+        --evc-gradient-header: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+        --evc-gradient-icon: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+        --evc-gradient-section: linear-gradient(135deg, #833AB4 0%, #E1306C 100%);
+    }
+
+    .stat-card.photoshop,
+    .stat-card.illustrator,
+    .stat-card.indesign,
+    .stat-card.masterclass,
+    .stat-card.community-management {
+        background: var(--evc-gradient-primary) !important;
+    }
+    @endif
+
     .stat-card {
         border: none;
         border-radius: 15px;
         overflow: hidden;
         transition: all 0.3s ease;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--evc-gradient-primary);
         color: white;
         position: relative;
     }
@@ -94,7 +121,7 @@
     }
 
     .formation-header {
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); /* Dégradé bleu */
+        background: var(--evc-gradient-header);
         color: white;
         padding: 2rem;
         position: relative;
@@ -135,7 +162,7 @@
         width: 70px;
         height: 70px;
         border-radius: 15px;
-        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); /* Dégradé bleu vers orange */
+        background: var(--evc-gradient-icon);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -155,8 +182,12 @@
         font-size: 0.75rem;
     }
 
+    .badge-custom.bg-primary {
+        background: var(--evc-gradient-primary) !important;
+    }
+
     .btn-view-formation {
-        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); /* Dégradé bleu vers orange */
+        background: var(--evc-gradient-icon);
         border: none;
         color: white;
         font-weight: 600;
@@ -187,7 +218,7 @@
         left: 0;
         width: 80px;
         height: 4px;
-        background: linear-gradient(135deg, #2563eb 0%, #f97316 100%); /* Dégradé bleu vers orange */
+        background: var(--evc-gradient-section);
         border-radius: 2px;
     }
 
