@@ -7,11 +7,11 @@
 <style>
     /* PALETTE INSTAGRAM */
     :root {
-        --ig-purple: #1e3c72;
-        --ig-pink: #2a5298;
-        --ig-red: #4fc3f7;
-        --ig-orange: #60a5fa;
-        --ig-yellow: #93c5fd;
+        --ig-purple: #9a3412;
+        --ig-pink: #c2410c;
+        --ig-red: #ea580c;
+        --ig-orange: #fb923c;
+        --ig-yellow: #fdba74;
     }
 
     body {
@@ -34,7 +34,7 @@
         margin-bottom: 2.5rem;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 20px 60px rgba(42, 82, 152, 0.35);
+        box-shadow: 0 20px 60px rgba(234, 88, 12, 0.35);
     }
 
     .profile-hero::before {
@@ -81,7 +81,7 @@
 
     .modern-section:hover {
         transform: translateY(-8px);
-        box-shadow: 0 20px 50px rgba(42, 82, 152, 0.15);
+        box-shadow: 0 20px 50px rgba(234, 88, 12, 0.15);
     }
 
     .section-header {
@@ -103,7 +103,7 @@
         justify-content: center;
         font-size: 1.75rem;
         color: white;
-        box-shadow: 0 8px 20px rgba(42, 82, 152, 0.3);
+        box-shadow: 0 8px 20px rgba(234, 88, 12, 0.3);
     }
 
     .section-title {
@@ -153,7 +153,7 @@
         outline: none;
         border-color: var(--ig-pink);
         background: white;
-        box-shadow: 0 0 0 5px rgba(42, 82, 152, 0.12);
+        box-shadow: 0 0 0 5px rgba(234, 88, 12, 0.12);
         transform: translateY(-2px);
     }
 
@@ -171,7 +171,7 @@
         padding: 1rem 2.5rem;
         font-weight: 700;
         font-size: 1.05rem;
-        box-shadow: 0 8px 25px rgba(42, 82, 152, 0.35);
+        box-shadow: 0 8px 25px rgba(234, 88, 12, 0.35);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: inline-flex;
         align-items: center;
@@ -182,7 +182,7 @@
     .btn-instagram:hover {
         background: linear-gradient(135deg, var(--ig-pink), var(--ig-orange));
         transform: translateY(-3px);
-        box-shadow: 0 12px 35px rgba(42, 82, 152, 0.35);
+        box-shadow: 0 12px 35px rgba(234, 88, 12, 0.35);
         color: white;
     }
 
@@ -212,13 +212,13 @@
         border-radius: 25px;
         padding: 2.5rem;
         text-align: center;
-        background: linear-gradient(135deg, rgba(30, 60, 114, 0.04), rgba(79, 195, 247, 0.06));
+        background: linear-gradient(135deg, rgba(154, 52, 18, 0.04), rgba(251, 146, 60, 0.06));
         transition: all 0.3s ease;
     }
 
     .photo-zone:hover {
         border-color: var(--ig-pink);
-        background: linear-gradient(135deg, rgba(30, 60, 114, 0.08), rgba(79, 195, 247, 0.12));
+        background: linear-gradient(135deg, rgba(154, 52, 18, 0.08), rgba(251, 146, 60, 0.12));
         transform: scale(1.02);
     }
 
@@ -232,7 +232,7 @@
                           linear-gradient(135deg, var(--ig-purple), var(--ig-red));
         background-origin: border-box;
         background-clip: padding-box, border-box;
-        box-shadow: 0 15px 40px rgba(42, 82, 152, 0.28);
+        box-shadow: 0 15px 40px rgba(234, 88, 12, 0.28);
         margin: 0 auto 1.5rem;
     }
 
@@ -282,7 +282,7 @@
     }
 
     .stat-item:hover {
-        background: linear-gradient(135deg, rgba(30, 60, 114, 0.08), rgba(79, 195, 247, 0.12));
+        background: linear-gradient(135deg, rgba(154, 52, 18, 0.08), rgba(251, 146, 60, 0.12));
         transform: translateX(5px);
     }
 
@@ -662,7 +662,7 @@
                             @if($currentPhoto)
                                 <img id="photoPreview" src="{{ $currentPhoto }}" alt="Photo" class="photo-current">
                             @else
-                                <div id="photoPreview" class="photo-current" style="background: linear-gradient(135deg, rgba(30, 60, 114, 0.10), rgba(79, 195, 247, 0.14)); display: flex; align-items: center; justify-content: center;">
+                                <div id="photoPreview" class="photo-current" style="background: linear-gradient(135deg, rgba(154, 52, 18, 0.10), rgba(251, 146, 60, 0.14)); display: flex; align-items: center; justify-content: center;">
                                     <i class="fas fa-user fa-4x" style="color: var(--ig-pink);"></i>
                                 </div>
                             @endif
