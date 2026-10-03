@@ -250,7 +250,7 @@
     <h2><i class="fas fa-play-circle me-2"></i>{{ $enrollment ? 'Modifier ma déclaration' : 'Déclarer le démarrage de ma RECO 60' }}</h2>
     <p style="color:#cbd5e1;">Renseignez les informations de votre projet pour officialiser le début de vos 60 jours de pratique professionnelle.</p>
 
-    <form method="POST" action="{{ route('community-management.reco-60.store') }}">
+    <form method="POST" action="{{ url()->current() }}">
         @csrf
         <div class="row g-3">
             <div class="col-md-6">

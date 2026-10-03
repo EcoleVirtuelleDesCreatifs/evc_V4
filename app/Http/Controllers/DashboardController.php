@@ -6072,12 +6072,12 @@ class DashboardController extends Controller
      */
     public function reco60(): View
     {
-        $user = Auth::user();
+        $userId = Auth::id() ?: session('user_id');
         $enrollment = null;
         try {
-            if (Schema::hasTable('reco60_enrollments')) {
+            if ($userId && Schema::hasTable('reco60_enrollments')) {
                 $enrollment = DB::table('reco60_enrollments')
-                    ->where('user_id', $user->id)
+                    ->where('user_id', $userId)
                     ->orderByDesc('id')
                     ->first();
             }
@@ -6114,10 +6114,19 @@ class DashboardController extends Controller
         }
 
         $user = Auth::user();
-        $student = DB::table('students')->where('user_id', $user->id)->first();
+        $userId = $user?->id ?: session('user_id');
+        if (!$userId) {
+            return redirect()->route('login')->with('error', 'Veuillez vous connecter pour continuer.');
+        }
+
+        $studentQuery = DB::table('students')->where('user_id', $userId);
+        if ($user?->email) {
+            $studentQuery->orWhere('email', $user->email);
+        }
+        $student = $studentQuery->first();
 
         $data = [
-            'user_id' => $user->id,
+            'user_id' => $userId,
             'student_id' => $student->id ?? null,
             'brand_name' => trim($validated['brand_name']),
             'project_type' => $validated['project_type'],
@@ -6130,7 +6139,7 @@ class DashboardController extends Controller
             'updated_at' => now(),
         ];
 
-        $existing = DB::table('reco60_enrollments')->where('user_id', $user->id)->first();
+        $existing = DB::table('reco60_enrollments')->where('user_id', $userId)->first();
         if ($existing) {
             DB::table('reco60_enrollments')->where('id', $existing->id)->update($data);
             $message = 'Votre déclaration RECO 60 a été mise à jour.';
@@ -6140,7 +6149,7 @@ class DashboardController extends Controller
             $message = 'Votre RECO 60 a bien été enregistrée. Bonne période pratique !';
         }
 
-        return redirect()->route('community-management.reco-60')->with('success', $message);
+        return back()->with('success', $message);
     }
 
     public function communityManagementStats(): JsonResponse
