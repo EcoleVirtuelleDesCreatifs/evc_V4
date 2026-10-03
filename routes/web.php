@@ -454,7 +454,9 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::delete('/evc/compte/rendez-vous/{id}', [AppointmentController::class, 'cancel'])->name('student.appointments.cancel');
     Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
     Route::get('/evc/compte/community-manager/reco-60', [DashboardController::class, 'reco60'])->name('community-manager.reco-60');
+    Route::post('/evc/compte/community-manager/reco-60', [DashboardController::class, 'reco60Store'])->name('community-manager.reco-60.store');
     Route::get('/evc/compte/community-management/reco-60', [DashboardController::class, 'reco60'])->name('community-management.reco-60');
+    Route::post('/evc/compte/community-management/reco-60', [DashboardController::class, 'reco60Store'])->name('community-management.reco-60.store');
     Route::get('/evc/compte/community-management/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-management');
     Route::get('/evc/compte/community-management/espace-etudiant/stats', [DashboardController::class, 'communityManagementStats'])->name('dashboard.community-management.stats');
     Route::get('/evc/compte/intelligence-artificielle/espace-etudiant', [DashboardController::class, 'intelligenceArtificielle'])->name('dashboard.intelligence-artificielle');

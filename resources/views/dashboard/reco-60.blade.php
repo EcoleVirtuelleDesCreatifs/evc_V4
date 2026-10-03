@@ -59,12 +59,247 @@
         font-size: 0.85rem;
         margin-bottom: 1rem;
     }
+
+    .reco-form-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 2px solid #E1306C;
+        border-radius: 16px;
+        padding: 1.75rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(225, 48, 108, 0.15);
+    }
+
+    .reco-form-card h2 {
+        color: #f8fafc;
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .reco-form-card .form-label {
+        color: #e2e8f0;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .reco-form-card .form-control,
+    .reco-form-card .form-select {
+        background: #0f172a;
+        border: 1px solid #334155;
+        color: #f8fafc;
+        border-radius: 10px;
+    }
+
+    .reco-form-card .form-control:focus,
+    .reco-form-card .form-select:focus {
+        background: #0f172a;
+        border-color: #E1306C;
+        color: #f8fafc;
+        box-shadow: 0 0 0 0.2rem rgba(225, 48, 108, 0.25);
+    }
+
+    .reco-form-card .form-control::placeholder {
+        color: #64748b;
+    }
+
+    .reco-submit-btn {
+        background: linear-gradient(135deg, #833AB4 0%, #E1306C 50%, #F77737 100%);
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 0.8rem 2rem;
+        border-radius: 12px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .reco-submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(225, 48, 108, 0.4);
+        color: white;
+    }
+
+    .reco-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .reco-summary-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 0.9rem 1rem;
+    }
+
+    .reco-summary-item .label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #94a3b8;
+        margin-bottom: 0.25rem;
+    }
+
+    .reco-summary-item .value {
+        font-weight: 700;
+        color: #f8fafc;
+    }
+
+    .reco-progress {
+        height: 10px;
+        background: #334155;
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+
+    .reco-progress > div {
+        height: 100%;
+        background: linear-gradient(90deg, #833AB4, #E1306C, #F77737);
+        border-radius: 999px;
+    }
 </style>
 
 <div class="reco-hero">
     <div class="reco-badge"><i class="fas fa-briefcase"></i> RECO 60</div>
     <h1>RECO 60 : 60 jours pour transformer la formation en expérience professionnelle</h1>
     <p>À l’École Virtuelle des Créatifs (EVC), la fin des cours ne marque pas automatiquement la fin du parcours de formation. Avec la RECO 60, l’établissement instaure une période de 60 jours de mise en pratique destinée aux étudiants en Community Management / Social Media Management et en Gestion Informatique Appliquée. L’objectif : transformer les compétences acquises en expérience professionnelle concrète avant la certification.</p>
+</div>
+
+@if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
+@if($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@php
+    $recoStart = $enrollment ? \Carbon\Carbon::parse($enrollment->start_date)->startOfDay() : null;
+    $recoEnd = $enrollment ? \Carbon\Carbon::parse($enrollment->end_date)->startOfDay() : null;
+    $recoTotalDays = $enrollment ? max(1, $recoStart->diffInDays($recoEnd)) : 0;
+    $recoElapsedDays = $enrollment ? min($recoTotalDays, max(0, $recoStart->diffInDays(now()))) : 0;
+    $recoRemainingDays = $enrollment ? max(0, now()->startOfDay()->diffInDays($recoEnd, false)) : 0;
+    $recoProgress = $enrollment ? min(100, round(($recoElapsedDays / $recoTotalDays) * 100)) : 0;
+    $recoProjectTypes = [
+        'marque' => 'Une marque',
+        'entreprise' => 'Une entreprise',
+        'activite' => 'Une activité professionnelle',
+        'projet_personnel' => 'Un projet personnel',
+    ];
+@endphp
+
+@if($enrollment)
+<div class="reco-form-card">
+    <h2><i class="fas fa-rocket me-2"></i>Ma RECO 60 est en cours</h2>
+    <p style="color:#cbd5e1;">Vous avez déclaré le démarrage de votre période pratique. Voici le suivi de votre projet.</p>
+
+    <div class="reco-summary-grid">
+        <div class="reco-summary-item">
+            <div class="label">Marque / Projet</div>
+            <div class="value">{{ $enrollment->brand_name }}</div>
+        </div>
+        <div class="reco-summary-item">
+            <div class="label">Type</div>
+            <div class="value">{{ $recoProjectTypes[$enrollment->project_type] ?? $enrollment->project_type }}</div>
+        </div>
+        <div class="reco-summary-item">
+            <div class="label">Début</div>
+            <div class="value">{{ $recoStart->format('d/m/Y') }}</div>
+        </div>
+        <div class="reco-summary-item">
+            <div class="label">Fin prévue</div>
+            <div class="value">{{ $recoEnd->format('d/m/Y') }}</div>
+        </div>
+        <div class="reco-summary-item">
+            <div class="label">Progression</div>
+            <div class="value">
+                {{ $recoElapsedDays }} / {{ $recoTotalDays }} jours
+                @if($recoRemainingDays > 0)
+                    <span style="font-weight:400;color:#94a3b8;">({{ $recoRemainingDays }} j restants)</span>
+                @else
+                    <span class="badge bg-success">Terminée</span>
+                @endif
+            </div>
+            <div class="reco-progress"><div style="width: {{ $recoProgress }}%"></div></div>
+        </div>
+    </div>
+
+    <button class="reco-submit-btn" type="button" data-bs-toggle="collapse" data-bs-target="#recoFormCollapse">
+        <i class="fas fa-edit me-2"></i>Modifier ma déclaration
+    </button>
+</div>
+@endif
+
+<div class="reco-form-card collapse {{ $enrollment ? '' : 'show' }}" id="recoFormCollapse">
+    <h2><i class="fas fa-play-circle me-2"></i>{{ $enrollment ? 'Modifier ma déclaration' : 'Déclarer le démarrage de ma RECO 60' }}</h2>
+    <p style="color:#cbd5e1;">Renseignez les informations de votre projet pour officialiser le début de vos 60 jours de pratique professionnelle.</p>
+
+    <form method="POST" action="{{ route('community-management.reco-60.store') }}">
+        @csrf
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="brand_name">Nom de la marque <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="brand_name" name="brand_name" required
+                       value="{{ old('brand_name', $enrollment->brand_name ?? '') }}"
+                       placeholder="Ex : EVC, Ma Boutique, Restaurant Le Bon Goût...">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="project_type">Type de projet <span class="text-danger">*</span></label>
+                <select class="form-select" id="project_type" name="project_type" required>
+                    @foreach($recoProjectTypes as $value => $label)
+                        <option value="{{ $value }}" {{ old('project_type', $enrollment->project_type ?? 'marque') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="presentation">Présentation du projet <span class="text-danger">*</span></label>
+                <textarea class="form-control" id="presentation" name="presentation" rows="4" required
+                          placeholder="Présentez la marque ou l'entreprise : activité, cible, présence digitale actuelle, contexte...">{{ old('presentation', $enrollment->presentation ?? '') }}</textarea>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="platforms">Plateformes / réseaux utilisés</label>
+                <input type="text" class="form-control" id="platforms" name="platforms"
+                       value="{{ old('platforms', $enrollment->platforms ?? '') }}"
+                       placeholder="Ex : Instagram, Facebook, TikTok, LinkedIn...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="start_date">Date de début <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="start_date" name="start_date" required
+                       value="{{ old('start_date', $enrollment->start_date ?? now()->format('Y-m-d')) }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label" for="end_date">Date de fin prévue <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="end_date" name="end_date" required
+                       value="{{ old('end_date', $enrollment->end_date ?? now()->addDays(60)->format('Y-m-d')) }}">
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="objectives">Objectifs des 60 jours</label>
+                <textarea class="form-control" id="objectives" name="objectives" rows="3"
+                          placeholder="Ex : +30% d'abonnés, publier 3 fois par semaine, lancer une campagne...">{{ old('objectives', $enrollment->objectives ?? '') }}</textarea>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="reco-submit-btn">
+                    <i class="fas fa-check me-2"></i>{{ $enrollment ? 'Enregistrer les modifications' : 'Démarrer ma RECO 60' }}
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <div class="reco-section">

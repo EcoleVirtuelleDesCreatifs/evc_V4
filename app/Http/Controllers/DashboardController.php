@@ -6072,7 +6072,75 @@ class DashboardController extends Controller
      */
     public function reco60(): View
     {
-        return view('dashboard.reco-60');
+        $user = Auth::user();
+        $enrollment = null;
+        try {
+            if (Schema::hasTable('reco60_enrollments')) {
+                $enrollment = DB::table('reco60_enrollments')
+                    ->where('user_id', $user->id)
+                    ->orderByDesc('id')
+                    ->first();
+            }
+        } catch (\Throwable $e) {
+            Log::warning('reco60: unable to load enrollment', ['error' => $e->getMessage()]);
+        }
+
+        return view('dashboard.reco-60', ['enrollment' => $enrollment]);
+    }
+
+    /**
+     * Déclaration de démarrage RECO 60 (marque, présentation, dates...).
+     */
+    public function reco60Store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'brand_name' => 'required|string|max:255',
+            'project_type' => 'required|string|in:marque,entreprise,activite,projet_personnel',
+            'presentation' => 'required|string|max:5000',
+            'platforms' => 'nullable|string|max:500',
+            'objectives' => 'nullable|string|max:5000',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
+        ], [
+            'brand_name.required' => 'Le nom de la marque est obligatoire.',
+            'presentation.required' => 'La présentation du projet est obligatoire.',
+            'start_date.required' => 'La date de début est obligatoire.',
+            'end_date.required' => 'La date de fin est obligatoire.',
+            'end_date.after' => 'La date de fin doit être postérieure à la date de début.',
+        ]);
+
+        if (!Schema::hasTable('reco60_enrollments')) {
+            return back()->with('error', 'Le module RECO 60 n\'est pas encore activé. Veuillez contacter l\'administration.');
+        }
+
+        $user = Auth::user();
+        $student = DB::table('students')->where('user_id', $user->id)->first();
+
+        $data = [
+            'user_id' => $user->id,
+            'student_id' => $student->id ?? null,
+            'brand_name' => trim($validated['brand_name']),
+            'project_type' => $validated['project_type'],
+            'presentation' => trim($validated['presentation']),
+            'platforms' => $validated['platforms'] ?? null,
+            'objectives' => $validated['objectives'] ?? null,
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'status' => 'in_progress',
+            'updated_at' => now(),
+        ];
+
+        $existing = DB::table('reco60_enrollments')->where('user_id', $user->id)->first();
+        if ($existing) {
+            DB::table('reco60_enrollments')->where('id', $existing->id)->update($data);
+            $message = 'Votre déclaration RECO 60 a été mise à jour.';
+        } else {
+            $data['created_at'] = now();
+            DB::table('reco60_enrollments')->insert($data);
+            $message = 'Votre RECO 60 a bien été enregistrée. Bonne période pratique !';
+        }
+
+        return redirect()->route('community-management.reco-60')->with('success', $message);
     }
 
     public function communityManagementStats(): JsonResponse
