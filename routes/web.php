@@ -473,7 +473,9 @@ Route::middleware(['auth', 'student.active'])->group(function () {
 
     // Routes Certifications (Étudiant)
     Route::get('/evc/compte/community-management/certifications', [App\Http\Controllers\CertificationController::class, 'index'])->name('community-management.certifications');
+    Route::get('/evc/compte/community-management/certification', [App\Http\Controllers\CertificationController::class, 'index'])->name('community-management.certification');
     Route::get('/evc/compte/community-manager/certifications', [App\Http\Controllers\CertificationController::class, 'index'])->name('community-manager.certifications');
+    Route::get('/evc/compte/community-manager/certification', [App\Http\Controllers\CertificationController::class, 'index'])->name('community-manager.certification');
     Route::get('/evc/compte/design-graphique-cm/certifications', [App\Http\Controllers\CertificationController::class, 'index'])->name('certification.index');
     Route::get('/evc/compte/design-graphique-cm/certifications/{id}/start', [App\Http\Controllers\CertificationController::class, 'start'])->name('certification.start');
     Route::post('/evc/compte/design-graphique-cm/certifications/{id}/confirm', [App\Http\Controllers\CertificationController::class, 'confirmStart'])->name('certification.confirm');

@@ -1304,7 +1304,7 @@
                         <i class="fas fa-brain"></i>
                         Test de connaissance
                     </a>
-                    <a href="{{ $isCommunityManagement && \Illuminate\Support\Facades\Route::has('community-management.certifications') ? route('community-management.certifications') : (\Illuminate\Support\Facades\Route::has('certification.index') ? route('certification.index') : route($dashboardRoute)) }}" class="submenu-item {{ request()->routeIs('certification.*') || request()->routeIs('community-management.certifications') || request()->routeIs('community-manager.certifications') ? 'active' : '' }}">
+                    <a href="{{ $isCommunityManagement && \Illuminate\Support\Facades\Route::has('community-management.certification') ? route('community-management.certification') : (\Illuminate\Support\Facades\Route::has('certification.index') ? route('certification.index') : route($dashboardRoute)) }}" class="submenu-item {{ request()->routeIs('certification.*') || request()->routeIs('community-management.certification*') || request()->routeIs('community-manager.certification*') ? 'active' : '' }}">
                         <i class="fas fa-award"></i>
                         Certification
                     </a>
