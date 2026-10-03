@@ -18,7 +18,7 @@
 
     .bibliotheque-pagination .pagination{margin-bottom:0;display:flex;flex-wrap:wrap;justify-content:center;}
     .bibliotheque-pagination .page-link{min-width:40px;display:flex;align-items:center;justify-content:center;}
-    .bibliotheque-pagination .page-item.active .page-link{background:#2563eb;border-color:#2563eb;}
+    .bibliotheque-pagination .page-item.active .page-link{background:#ea580c;border-color:#ea580c;}
     .bibliotheque-pagination .page-item.disabled .page-link{opacity:.55;}
 </style>
 @endpush
@@ -242,11 +242,11 @@
 <style>
 /* Palette Instagram */
 :root {
-    --instagram-purple: #1e3c72;
-    --instagram-pink: #2a5298;
-    --instagram-red: #4fc3f7;
-    --instagram-orange: #60a5fa;
-    --instagram-yellow: #93c5fd;
+    --instagram-purple: #9a3412;
+    --instagram-pink: #c2410c;
+    --instagram-red: #ea580c;
+    --instagram-orange: #fb923c;
+    --instagram-yellow: #fdba74;
 }
 
 /* Header avec dégradé Instagram */
@@ -254,7 +254,7 @@
     background: linear-gradient(135deg, var(--instagram-purple), var(--instagram-pink), var(--instagram-red));
     border-radius: 20px;
     color: white;
-    box-shadow: 0 8px 32px rgba(42, 82, 152, 0.3);
+    box-shadow: 0 8px 32px rgba(234, 88, 12, 0.3);
     animation: fadeInDown 0.6s ease;
     margin-bottom: 2rem;
 }
@@ -276,7 +276,7 @@
 .icon-circle-large {
     width: 120px;
     height: 120px;
-    background: linear-gradient(135deg, rgba(30, 60, 114, 0.08), rgba(79, 195, 247, 0.12));
+    background: linear-gradient(135deg, rgba(154, 52, 18, 0.08), rgba(251, 146, 60, 0.12));
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -336,7 +336,7 @@
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(42, 82, 152, 0.35);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
 }
 
 .featured-info {
@@ -381,7 +381,7 @@
 
 .category-stat-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(42, 82, 152, 0.2);
+    box-shadow: 0 8px 24px rgba(234, 88, 12, 0.2);
 }
 
 .category-icon {
@@ -429,7 +429,7 @@
 
 .resource-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 40px rgba(42, 82, 152, 0.25);
+    box-shadow: 0 12px 40px rgba(234, 88, 12, 0.25);
     border-color: var(--instagram-pink);
 }
 
@@ -516,13 +516,13 @@
     display: inline-block;
     text-align: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
 }
 
 .instagram-btn:hover {
     background: linear-gradient(135deg, var(--instagram-pink), var(--instagram-red));
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(42, 82, 152, 0.35);
+    box-shadow: 0 8px 24px rgba(234, 88, 12, 0.35);
     color: white;
 }
 
@@ -730,7 +730,7 @@ function filterByCategory(categoryName) {
         const cardCat = card.getAttribute('data-category');
         if (cardCat === categoryName) {
             card.style.borderColor = 'var(--instagram-pink)';
-            card.style.boxShadow = '0 12px 40px rgba(42, 82, 152, 0.35)';
+            card.style.boxShadow = '0 12px 40px rgba(234, 88, 12, 0.35)';
             card.style.transform = 'translateY(-5px)';
         } else {
             card.style.borderColor = 'transparent';
