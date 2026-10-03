@@ -5846,10 +5846,29 @@ class AdminDashboardController extends Controller
         $newRemaining = (int) $validated['remaining'];
         $newTotalAmount = $amountPaid + $newRemaining;
 
+        // Calculer la remise équivalente pour que tous les écrans (profil,
+        // reçus, listes admin) affichent le même total sans être écrasés par
+        // le tarif de formation automatique.
+        $student = DB::table('students')
+            ->where('email', $preReg->email)
+            ->first();
+        $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? ($student->program ?? null));
+        $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
+        $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? ($student->created_at ?? null));
+        $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
+        $newDiscount = max(0, $grossTotalAmount - $newTotalAmount);
+
         DB::table('payments')
             ->where('pre_registration_id', $preRegistrationId)
             ->update([
                 'total_amount' => $newTotalAmount,
+                'updated_at' => now(),
+            ]);
+
+        DB::table('pre_registrations')
+            ->where('id', $preRegistrationId)
+            ->update([
+                'discount_amount' => $newDiscount,
                 'updated_at' => now(),
             ]);
 
