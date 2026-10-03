@@ -452,6 +452,10 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::get('/evc/compte/rendez-vous', [AppointmentController::class, 'index'])->name('student.appointments.index');
     Route::post('/evc/compte/rendez-vous', [AppointmentController::class, 'store'])->name('student.appointments.store');
     Route::delete('/evc/compte/rendez-vous/{id}', [AppointmentController::class, 'cancel'])->name('student.appointments.cancel');
+    Route::get('/evc/compte/community-management/rendez-vous', [AppointmentController::class, 'index'])->name('community-management.rendez-vous.index');
+    Route::post('/evc/compte/community-management/rendez-vous', [AppointmentController::class, 'store'])->name('community-management.rendez-vous.store');
+    Route::delete('/evc/compte/community-management/rendez-vous/{id}', [AppointmentController::class, 'cancel'])->name('community-management.rendez-vous.cancel');
+    Route::get('/evc/compte/community-manager/rendez-vous', [AppointmentController::class, 'index'])->name('community-manager.rendez-vous.index');
     Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
     Route::get('/evc/compte/community-manager/reco-60', [DashboardController::class, 'reco60'])->name('community-manager.reco-60');
     Route::post('/evc/compte/community-manager/reco-60', [DashboardController::class, 'reco60Store'])->name('community-manager.reco-60.store');

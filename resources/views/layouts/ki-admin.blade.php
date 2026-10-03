@@ -1263,7 +1263,7 @@
 
             <!-- Rendez-vous -->
             <div class="nav-item">
-                <a href="{{ \Illuminate\Support\Facades\Route::has('student.appointments.index') ? route('student.appointments.index') : route($dashboardRoute) }}" class="nav-link {{ request()->routeIs('student.appointments.*') ? 'active' : '' }}">
+                <a href="{{ $isCommunityManagement && \Illuminate\Support\Facades\Route::has('community-management.rendez-vous.index') ? route('community-management.rendez-vous.index') : (\Illuminate\Support\Facades\Route::has('student.appointments.index') ? route('student.appointments.index') : route($dashboardRoute)) }}" class="nav-link {{ request()->routeIs('student.appointments.*') || request()->routeIs('community-management.rendez-vous.*') || request()->routeIs('community-manager.rendez-vous.*') ? 'active' : '' }}">
                     <i class="fas fa-calendar-check"></i>
                     <span>Rendez-vous</span>
                 </a>
