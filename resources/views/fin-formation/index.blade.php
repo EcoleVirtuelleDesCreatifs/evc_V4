@@ -10,7 +10,7 @@
 <!-- En-tête avec statut global -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #ff9800 100%); color: white;">
+        <div class="card" style="background: linear-gradient(135deg, #9a3412 0%, #ea580c 50%, #fb923c 100%); color: white;">
             <div class="card-body py-4">
                 <div class="row align-items-center">
                     <div class="col-md-8">
@@ -110,15 +110,15 @@
         <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-project-diagram me-2" style="color: #C13584;"></i>
+                    <i class="fas fa-project-diagram me-2" style="color: #ea580c;"></i>
                     Projets de Formation
                 </h5>
             </div>
             <div class="card-body">
                 <div class="row mb-4">
                     <div class="col-md-6">
-                        <div class="text-center p-3" style="background-color: #fff1f7; border-radius: 10px;">
-                            <h2 class="mb-1" style="color: #C13584;">{{ $projectsCompleted }} / {{ $minProjectsRequired }}</h2>
+                        <div class="text-center p-3" style="background-color: #fff7ed; border-radius: 10px;">
+                            <h2 class="mb-1" style="color: #ea580c;">{{ $projectsCompleted }} / {{ $minProjectsRequired }}</h2>
                             <p class="mb-0 text-muted">Projets réalisés</p>
                         </div>
                     </div>
@@ -131,7 +131,7 @@
                 </div>
 
                 <div class="progress mb-3" style="height: 15px;">
-                    <div class="progress-bar" style="width: {{ $projectProgress }}%; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #ff9800 100%);" role="progressbar">
+                    <div class="progress-bar" style="width: {{ $projectProgress }}%; background: linear-gradient(135deg, #9a3412 0%, #ea580c 50%, #fb923c 100%);" role="progressbar">
                         <span class="fw-bold">{{ $projectProgress }}% complétés</span>
                     </div>
                 </div>
@@ -350,7 +350,7 @@
     <div class="col-md-4">
         <!-- Critères d'éligibilité à la certification -->
         <div class="card mb-4">
-            <div class="card-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #ff9800 100%); color: white;">
+            <div class="card-header" style="background: linear-gradient(135deg, #9a3412 0%, #ea580c 50%, #fb923c 100%); color: white;">
                 <h6 class="mb-0">
                     <i class="fas fa-certificate me-2"></i>
                     Critères d'éligibilité à la certification
@@ -413,7 +413,7 @@
                         </div>
                         <small class="text-muted">{{ $minProjectsRequired - $projectsCompleted }} projet(s) restant(s)</small>
                         <div class="progress mt-2" style="height: 4px;">
-                            <div class="progress-bar" style="width: {{ $projectProgress }}%; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #ff9800 100%);" role="progressbar"></div>
+                            <div class="progress-bar" style="width: {{ $projectProgress }}%; background: linear-gradient(135deg, #9a3412 0%, #ea580c 50%, #fb923c 100%);" role="progressbar"></div>
                         </div>
                     </div>
 
@@ -455,7 +455,7 @@
 
                     <!-- Boutons d'actions pour le certificat -->
                     <div class="mt-3">
-                        <a href="{{ route('certificate.preview') }}" target="_blank" class="btn btn-lg w-100 text-white mb-2" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.3)'">
+                        <a href="{{ route('certificate.preview') }}" target="_blank" class="btn btn-lg w-100 text-white mb-2" style="background: linear-gradient(135deg, #c2410c 0%, #f97316 100%); border: none; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(249, 115, 22, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(249, 115, 22, 0.3)'">
                             <i class="fas fa-eye me-2"></i>
                             Voir mon certificat
                         </a>
@@ -498,7 +498,7 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted">Projets minimum requis :</span>
-                        <strong style="color: #3399ff;">{{ $minProjectsRequired }} projets</strong>
+                        <strong style="color: #fb923c;">{{ $minProjectsRequired }} projets</strong>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted">Note minimum :</span>
@@ -506,7 +506,7 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="text-muted">Assiduité minimum :</span>
-                        <strong style="color: #6f42c1;">80%</strong>
+                        <strong style="color: #ea580c;">80%</strong>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                         <span class="text-muted">Formation soldée :</span>
@@ -546,8 +546,8 @@
 
 <style>
 :root {
-    --primary-color: #833AB4;
-    --secondary-color: #E1306C;
+    --primary-color: #c2410c;
+    --secondary-color: #ea580c;
     --accent-color: #ff6633;
     --warning-color: #FF9900;
     --success-color: #28a745;
