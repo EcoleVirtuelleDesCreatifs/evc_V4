@@ -209,9 +209,23 @@ class CinetPayService
     /**
      * Obtenir le prix d'une formation
      */
-    public static function getFormationPrice($formation, $registeredAt = null)
+    public static function getFormationPrice($formation, $registeredAt = null, $legacyCutoff = null)
     {
-        $prices = self::usesNewFormationPrices($registeredAt)
+        $useNew = self::usesNewFormationPrices($registeredAt);
+
+        // Forcer les anciens tarifs pour les inscriptions antérieures au seuil
+        // défini (ex : étudiants avant KALTOUMA BOYALNGAR sur la page "à solder").
+        if ($legacyCutoff && $registeredAt) {
+            try {
+                if (\Illuminate\Support\Carbon::parse($registeredAt)->lessThanOrEqualTo(\Illuminate\Support\Carbon::parse($legacyCutoff))) {
+                    $useNew = false;
+                }
+            } catch (\Throwable $e) {
+                // Ignorer les dates invalides et garder le comportement par défaut
+            }
+        }
+
+        $prices = $useNew
             ? config('cinetpay.prices', [])
             : config('cinetpay.old_prices', []);
 

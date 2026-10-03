@@ -5275,14 +5275,16 @@ class AdminDashboardController extends Controller
                 ->keyBy('pre_registration_id');
         }
 
-        $students = $studentsBase->map(function ($s) use ($paymentAgg) {
+        $legacyCutoff = $this->legacyPriceCutoffDate();
+
+        $students = $studentsBase->map(function ($s) use ($paymentAgg, $legacyCutoff) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
 
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->program ?: ($s->specialization ?: ($s->choix_formation ?? null)));
             $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
-            $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
+            $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate, $legacyCutoff);
             $discountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
             $totalAmount = max($paymentsTotal, $expectedTotal);
@@ -5357,6 +5359,7 @@ class AdminDashboardController extends Controller
         $preRegIds = $studentsBase->pluck('pre_registration_id')->filter()->unique()->values()->toArray();
         $studentUserIds = $studentsBase->pluck('user_id')->filter()->unique()->values()->toArray();
         $studentIds = $studentsBase->pluck('id')->filter()->unique()->values()->toArray();
+        $legacyCutoff = $this->legacyPriceCutoffDate();
 
         // Agrégation par pre_registration_id
         $paymentAgg = collect();
@@ -5452,7 +5455,8 @@ class AdminDashboardController extends Controller
             $oldPaiementsByUser,
             $oldPaiementsByStudent,
             $oldFacturesTotalByUser,
-            $oldFacturesTotalByStudent
+            $oldFacturesTotalByStudent,
+            $legacyCutoff
         ) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
             if (!$agg && $s->user_id) {
@@ -5480,7 +5484,7 @@ class AdminDashboardController extends Controller
 
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->program ?: ($s->specialization ?: ($s->choix_formation ?? null)));
             $pricingDate = $pricingDate ?: ($s->pre_registered_at ?? $s->created_at ?? null);
-            $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
+            $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate, $legacyCutoff);
             $discountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
             $totalAmount = max($paymentsTotal, $expectedTotal);
@@ -5538,11 +5542,12 @@ class AdminDashboardController extends Controller
                 return redirect()->back()->with('error', 'Aucun paiement trouvé pour cette préinscription.');
             }
 
+            $legacyCutoff = $this->legacyPriceCutoffDate();
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? null);
 
             $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
-            $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
-            $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
+            $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? ($student->created_at ?? null));
+            $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate, $legacyCutoff);
             $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
             $storedDiscountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
             $discountAmount = $storedDiscountAmount;
@@ -5709,14 +5714,16 @@ class AdminDashboardController extends Controller
                 ->keyBy('pre_registration_id');
         }
 
-        $students = $studentsBase->map(function ($s) use ($paymentAgg) {
+        $legacyCutoff = $this->legacyPriceCutoffDate();
+
+        $students = $studentsBase->map(function ($s) use ($paymentAgg, $legacyCutoff) {
             $agg = $s->pre_registration_id ? ($paymentAgg[$s->pre_registration_id] ?? null) : null;
 
             $paymentsTotal = (int) round((float) ($agg->total_amount ?? 0));
             $amountPaid = (int) round((float) ($agg->amount_paid ?? 0));
             $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($s->program ?: ($s->specialization ?: ($s->choix_formation ?? null)));
             $pricingDate = ($agg->first_payment_date ?? null) ?: ($s->pre_registered_at ?? $s->created_at ?? null);
-            $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
+            $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate, $legacyCutoff);
             $storedDiscountAmount = min((int) ($s->discount_amount ?? 0), $grossTotalAmount);
             $discountAmount = $storedDiscountAmount;
             $expectedTotal = max(0, $grossTotalAmount - $discountAmount);
@@ -5789,10 +5796,11 @@ class AdminDashboardController extends Controller
             ->where('pre_registration_id', $preRegistrationId)
             ->get();
 
+        $legacyCutoff = $this->legacyPriceCutoffDate();
         $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? ($student->program ?? null));
         $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
-        $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
-        $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
+        $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? ($student->created_at ?? null));
+        $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate, $legacyCutoff);
         $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
         $storedDiscountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
         $discountAmount = $storedDiscountAmount;
@@ -5898,6 +5906,7 @@ class AdminDashboardController extends Controller
                 $amountPaid = 0;
                 $totalAmount = 0;
                 $remaining = 0;
+                $legacyCutoff = $this->legacyPriceCutoffDate();
                 $preReg = DB::table('pre_registrations')
                     ->where('email', $student->email)
                     ->orderByDesc('created_at')
@@ -5912,7 +5921,7 @@ class AdminDashboardController extends Controller
                     $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($preReg->choix_formation ?? ($student->program ?? null));
                     $firstPaymentDate = optional($payments->sortBy('created_at')->first())->created_at;
                     $pricingDate = $firstPaymentDate ?: ($preReg->created_at ?? null);
-                    $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate);
+                    $grossTotalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $pricingDate, $legacyCutoff);
                     $paymentsTotal = (int) round((float) ($payments->max('total_amount') ?? 0));
                     $storedDiscountAmount = min((int) ($preReg->discount_amount ?? 0), $grossTotalAmount);
                     $discountAmount = $storedDiscountAmount;
@@ -5921,7 +5930,7 @@ class AdminDashboardController extends Controller
                     $amountPaid = (int) round((float) $payments->where('status', 'completed')->sum('amount'));
                 } else {
                     $formationLabel = (new \App\Http\Controllers\Admin\PreRegistrationAdminController())->getFormationLabel($student->program ?? null);
-                    $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $student->created_at ?? null);
+                    $totalAmount = (int) \App\Services\CinetPayService::getFormationPrice($formationLabel, $student->created_at ?? null, $legacyCutoff);
                 }
 
                 $remaining = max(0, $totalAmount - $amountPaid);
@@ -7028,5 +7037,21 @@ class AdminDashboardController extends Controller
 
         // Sinon, faire une conversion basique (fallback)
         return strtolower(str_replace(['_', ' ', '&'], ['-', '-', ''], trim($formation)));
+    }
+
+    /**
+     * Date de coupure pour l'application des anciens tarifs.
+     * Basée sur l'étudiant KALTOUMA BOYALNGAR : tous les étudiants inscrits
+     * avant ou à cette date utilisent les anciens tarifs de formation.
+     */
+    private function legacyPriceCutoffDate(): ?string
+    {
+        $student = DB::table('students')
+            ->whereRaw("CONCAT(COALESCE(first_name,''), ' ', COALESCE(last_name,'')) LIKE ?", ['%KALTOUMA%'])
+            ->whereRaw("CONCAT(COALESCE(first_name,''), ' ', COALESCE(last_name,'')) LIKE ?", ['%BOYALNGAR%'])
+            ->orderByDesc('created_at')
+            ->first(['created_at']);
+
+        return $student?->created_at;
     }
 }
