@@ -6075,7 +6075,7 @@ class DashboardController extends Controller
         $userId = Auth::id() ?: session('user_id');
         $enrollment = null;
         try {
-            if ($userId && Schema::hasTable('reco60_enrollments')) {
+            if ($userId && $this->ensureReco60Table()) {
                 $enrollment = DB::table('reco60_enrollments')
                     ->where('user_id', $userId)
                     ->orderByDesc('id')
@@ -6109,7 +6109,7 @@ class DashboardController extends Controller
             'end_date.after' => 'La date de fin doit être postérieure à la date de début.',
         ]);
 
-        if (!Schema::hasTable('reco60_enrollments')) {
+        if (!$this->ensureReco60Table()) {
             return back()->with('error', 'Le module RECO 60 n\'est pas encore activé. Veuillez contacter l\'administration.');
         }
 
@@ -6150,6 +6150,38 @@ class DashboardController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    /**
+     * Crée la table reco60_enrollments à la demande si elle n'existe pas
+     * (permet au module de fonctionner même sans migrate sur le serveur).
+     */
+    private function ensureReco60Table(): bool
+    {
+        try {
+            if (!Schema::hasTable('reco60_enrollments')) {
+                Schema::create('reco60_enrollments', function ($table) {
+                    $table->id();
+                    $table->unsignedBigInteger('user_id');
+                    $table->unsignedBigInteger('student_id')->nullable();
+                    $table->string('brand_name');
+                    $table->string('project_type', 40)->default('marque');
+                    $table->text('presentation');
+                    $table->string('platforms')->nullable();
+                    $table->text('objectives')->nullable();
+                    $table->date('start_date');
+                    $table->date('end_date');
+                    $table->string('status', 20)->default('in_progress');
+                    $table->timestamps();
+                    $table->index('user_id');
+                    $table->index('student_id');
+                });
+            }
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('reco60: cannot ensure table', ['error' => $e->getMessage()]);
+            return false;
+        }
     }
 
     public function communityManagementStats(): JsonResponse
