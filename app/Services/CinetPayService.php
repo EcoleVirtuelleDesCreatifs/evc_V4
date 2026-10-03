@@ -270,10 +270,50 @@ class CinetPayService
 
     public static function usesNewFormationPrices($registeredAt = null): bool
     {
-        // Les tarifs actuels s'appliquent à tous les étudiants, y compris les
-        // inscriptions antérieures, pour refléter les mises à jour tarifaires
-        // en cours (ex: Gestion Informatique à 265 000 FCFA).
-        return true;
+        // Par défaut, les tarifs actuels s'appliquent.
+        if (!$registeredAt) {
+            return true;
+        }
+
+        $cutoff = self::legacyPriceCutoffDate();
+        if (!$cutoff) {
+            return true;
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($registeredAt)->greaterThan(
+                \Illuminate\Support\Carbon::parse($cutoff)
+            );
+        } catch (\Throwable $e) {
+            return true;
+        }
+    }
+
+    /**
+     * Date de coupure dynamique : date d'inscription de KALTOUMA BOYALNGAR.
+     * Les étudiants inscrits avant ou à cette date utilisent les anciens tarifs.
+     */
+    private static function legacyPriceCutoffDate(): ?string
+    {
+        static $cutoff = null;
+
+        if ($cutoff !== null) {
+            return $cutoff ?: null;
+        }
+
+        try {
+            $student = \Illuminate\Support\Facades\DB::table('students')
+                ->whereRaw("CONCAT(COALESCE(first_name,''), ' ', COALESCE(last_name,'')) LIKE ?", ['%KALTOUMA%'])
+                ->whereRaw("CONCAT(COALESCE(first_name,''), ' ', COALESCE(last_name,'')) LIKE ?", ['%BOYALNGAR%'])
+                ->orderByDesc('created_at')
+                ->first(['created_at']);
+
+            $cutoff = $student?->created_at ?: false;
+        } catch (\Throwable $e) {
+            $cutoff = false;
+        }
+
+        return $cutoff ?: null;
     }
 
     /**
