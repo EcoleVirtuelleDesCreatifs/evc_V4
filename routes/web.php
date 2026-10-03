@@ -453,6 +453,8 @@ Route::middleware(['auth', 'student.active'])->group(function () {
     Route::post('/evc/compte/rendez-vous', [AppointmentController::class, 'store'])->name('student.appointments.store');
     Route::delete('/evc/compte/rendez-vous/{id}', [AppointmentController::class, 'cancel'])->name('student.appointments.cancel');
     Route::get('/evc/compte/community-manager/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-manager');
+    Route::get('/evc/compte/community-manager/reco-60', [DashboardController::class, 'reco60'])->name('community-manager.reco-60');
+    Route::get('/evc/compte/community-management/reco-60', [DashboardController::class, 'reco60'])->name('community-management.reco-60');
     Route::get('/evc/compte/community-management/espace-etudiant', [DashboardController::class, 'communityManagement'])->name('dashboard.community-management');
     Route::get('/evc/compte/community-management/espace-etudiant/stats', [DashboardController::class, 'communityManagementStats'])->name('dashboard.community-management.stats');
     Route::get('/evc/compte/intelligence-artificielle/espace-etudiant', [DashboardController::class, 'intelligenceArtificielle'])->name('dashboard.intelligence-artificielle');
@@ -991,9 +993,6 @@ Route::prefix('/evc/compte/community-management')->name('community-management.')
     // Documents - Structure: /evc/compte/community-management/documents/{action}
     Route::get('/documents/index', [DashboardController::class, 'documentsIndex'])->name('documents.index');
     Route::get('/documents/download/{id}', [DashboardController::class, 'downloadDocument'])->name('documents.download');
-
-    // RECO 60 - Documentation
-    Route::get('/reco-60', [DashboardController::class, 'reco60'])->name('reco-60');
 
     // Notifications
     Route::get('/notifications', [DashboardController::class, 'notificationsFeed'])->name('notifications.feed');
