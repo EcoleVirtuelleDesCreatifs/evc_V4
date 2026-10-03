@@ -54,7 +54,7 @@ return [
     'old_prices' => [
         'Design Graphique' => 80000,
         'Community Management' => 107000,
-        'Design Graphique & Community Management' => 165000,
+        'Design Graphique & Community Management' => 80000,
         'Gestion Informatique' => 265000,
         'Intelligence Artificielle' => 57000,
     ],
@@ -70,7 +70,7 @@ return [
     'old_installments' => [
         'Design Graphique' => [53500, 27000],
         'Community Management' => [53500, 53500],
-        'Design Graphique & Community Management' => [100000, 65000],
+        'Design Graphique & Community Management' => [50000, 30000],
         'Gestion Informatique' => [140000, 125000],
         'Intelligence Artificielle' => [30000, 27000],
     ],
