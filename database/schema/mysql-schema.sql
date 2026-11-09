@@ -1,4 +1,3 @@
-/*M!999999\- enable the sandbox mode */ 
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -1149,7 +1148,7 @@ CREATE TABLE `payments` (
   `phone_number` varchar(20) DEFAULT NULL,
   `payer_name` varchar(255) DEFAULT NULL,
   `payer_email` varchar(255) DEFAULT NULL,
-  `account_creation_token` text DEFAULT NULL,
+  `account_creation_token` varchar(512) DEFAULT NULL,
   `account_created` tinyint(1) NOT NULL DEFAULT 0,
   `account_created_at` timestamp NULL DEFAULT NULL,
   `paid_at` timestamp NULL DEFAULT NULL,
@@ -1159,7 +1158,7 @@ CREATE TABLE `payments` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `payments_payment_reference_unique` (`payment_reference`),
   UNIQUE KEY `payments_transaction_id_unique` (`transaction_id`),
-  UNIQUE KEY `payments_account_creation_token_unique` (`account_creation_token`) USING HASH,
+  UNIQUE KEY `payments_account_creation_token_unique` (`account_creation_token`),
   KEY `payments_pre_registration_id_index` (`pre_registration_id`),
   KEY `payments_student_id_index` (`student_id`),
   KEY `payments_user_id_index` (`user_id`),
@@ -1888,7 +1887,6 @@ CREATE TABLE `webtv_videos` (
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-/*M!999999\- enable the sandbox mode */ 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (1,'0001_01_01_000000_create_users_table',1);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (2,'0001_01_01_000001_create_cache_table',2);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (3,'0001_01_01_000002_create_jobs_table',3);
@@ -2054,3 +2052,20 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (162,'2026_08_25_02
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (163,'2026_08_25_025812_add_stock_to_products_table',162);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (164,'2026_09_04_000006_update_seances_enums_and_add_fields',162);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (165,'2026_09_06_150001_create_certification_eligibility_histories_table',162);
+
+SET FOREIGN_KEY_CHECKS=0;
+INSERT INTO `admin_job_profiles` VALUES (1,'assistant','Assistant',25000,0,1,'2026-11-09 02:34:25','2026-11-09 02:34:25');
+INSERT INTO `admin_job_profiles` VALUES (2,'photographer','Photographe',30000,0,1,'2026-11-09 02:34:25','2026-11-09 02:34:25');
+INSERT INTO `admin_job_profiles` VALUES (3,'designer_graphic','Designer Graphic',40000,0,1,'2026-11-09 02:34:25','2026-11-09 02:34:25');
+INSERT INTO `admin_job_profiles` VALUES (4,'video_editor','Monteur Video',40000,0,1,'2026-11-09 02:34:25','2026-11-09 02:34:25');
+INSERT INTO `admin_job_profiles` VALUES (5,'community_manager','Community Manager',30000,0,1,'2026-11-09 02:34:25','2026-11-09 02:34:25');
+INSERT INTO `admin_job_profiles` VALUES (6,'commercial','Commercial',25000,1500,1,'2026-11-09 02:34:25','2026-11-09 02:34:25');
+INSERT INTO `admin_job_profiles` VALUES (7,'support_tech','Support Tech',25000,0,1,'2026-11-09 02:34:25','2026-11-09 02:34:25');
+INSERT INTO `admin_task_types` VALUES (1,'assistant_manage_projects','Gérer les projets (valider/rejeter/supprimer) sous 24h','assistant',NULL,NULL,'monthly',1,10,NULL,0,1,'2026-11-09 02:34:24','2026-11-09 02:34:24');
+INSERT INTO `admin_task_types` VALUES (2,'assistant_payment_reminders_second_month','Relancer ceux qui doivent solder (à partir du 2e mois)','assistant',NULL,NULL,'monthly',4,10,NULL,0,1,'2026-11-09 02:34:24','2026-11-09 02:34:24');
+INSERT INTO `admin_task_types` VALUES (3,'assistant_publish_actualite','Publier une actualité (au moins 1/mois)','assistant',NULL,NULL,'monthly',1,10,NULL,0,1,'2026-11-09 02:34:24','2026-11-09 02:34:24');
+INSERT INTO `admin_task_types` VALUES (4,'assistant_publish_communique','Publier un communiqué (au moins 1 toutes les 2 semaines)','assistant',NULL,NULL,'monthly',2,10,NULL,0,1,'2026-11-09 02:34:24','2026-11-09 02:34:24');
+INSERT INTO `admin_task_types` VALUES (5,'assistant_remind_end_of_training_report','Relancer les étudiants pour le rapport de fin de formation (dernier mois)','assistant',NULL,NULL,'monthly',1,10,NULL,0,1,'2026-11-09 02:34:24','2026-11-09 02:34:24');
+INSERT INTO `admin_task_types` VALUES (6,'assistant_remind_profile_completion','Relancer pour renseigner tous les profils (toutes les 2 semaines)','assistant',NULL,NULL,'monthly',2,10,NULL,0,1,'2026-11-09 02:34:24','2026-11-09 02:34:24');
+INSERT INTO `partnerships` VALUES (1,'onp','Partenaire à','ONP','(Ministère du Plan et du Développement)',NULL,1,'2026-11-09 02:34:11','2026-11-09 02:34:11');
+SET FOREIGN_KEY_CHECKS=1;
