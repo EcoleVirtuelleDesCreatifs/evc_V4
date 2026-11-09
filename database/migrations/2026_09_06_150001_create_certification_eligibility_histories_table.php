@@ -21,8 +21,8 @@ return new class extends Migration
             $table->text('comment')->nullable();
             $table->timestamps();
 
-            $table->index('certification_eligibility_id');
-            $table->index('admin_id');
+            $table->index('certification_eligibility_id', 'cert_elig_hist_eligibility_id_idx');
+            $table->index('admin_id', 'cert_elig_hist_admin_id_idx');
         });
     }
 

@@ -16,19 +16,27 @@ class FormationSeeder extends Seeder
     public function run()
     {
         $formations = [
-            ['nom' => 'Formation Complète Design Graphique', 'domaine' => 'Design', 'email' => 'contact@evc.com', 'niveau' => 'Tous'],
-            ['nom' => 'Devenir Community Manager en 2025', 'domaine' => 'Marketing', 'email' => 'contact@evc.com', 'niveau' => 'Tous'],
+            ['name' => 'Formation Complète Design Graphique', 'category' => 'design-graphique'],
+            ['name' => 'Devenir Community Manager en 2025', 'category' => 'marketing-digital'],
         ];
 
         foreach ($formations as $formation) {
-            DB::table('formations')->insert([
-                'nom' => $formation['nom'],
-                'domaine' => $formation['domaine'],
-                'email' => $formation['email'],
-                'niveau' => $formation['niveau'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            $categoryId = DB::table('categories')->where('slug', $formation['category'])->value('id');
+
+            if (! $categoryId) {
+                continue;
+            }
+
+            DB::table('formations')->updateOrInsert(
+                ['slug' => Str::slug($formation['name'])],
+                [
+                    'name' => $formation['name'],
+                    'category_id' => $categoryId,
+                    'status' => 'active',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            );
         }
     }
 }
