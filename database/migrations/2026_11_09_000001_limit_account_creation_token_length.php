@@ -30,8 +30,9 @@ return new class extends Migration
 
     public function down(): void
     {
-        // MySQL refuse un index unique sur TEXT sans préfixe : on ne revient en arrière que sur MariaDB.
-        if (! method_exists(DB::connection(), 'isMaria') || ! DB::connection()->isMaria()) {
+        // MySQL refuse un index unique sur TEXT sans préfixe : pas de retour en TEXT sur MySQL (hors MariaDB).
+        $connection = DB::connection();
+        if ($connection->getDriverName() === 'mysql' && ! $connection->isMaria()) {
             return;
         }
 
