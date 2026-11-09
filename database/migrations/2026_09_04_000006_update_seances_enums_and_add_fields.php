@@ -13,7 +13,12 @@ return new class extends Migration
     {
         if (Schema::hasTable('seances')) {
             // Ajouter module et formateur
-            DB::statement('ALTER TABLE `seances` ADD COLUMN `module` VARCHAR(255) NULL AFTER `title`, ADD COLUMN `formateur` VARCHAR(255) NULL AFTER `module`');
+            if (! Schema::hasColumn('seances', 'module')) {
+                DB::statement('ALTER TABLE `seances` ADD COLUMN `module` VARCHAR(255) NULL AFTER `title`');
+            }
+            if (! Schema::hasColumn('seances', 'formateur')) {
+                DB::statement('ALTER TABLE `seances` ADD COLUMN `formateur` VARCHAR(255) NULL AFTER `module`');
+            }
 
             // Migrer les anciennes valeurs
             DB::statement("UPDATE `seances` SET `type` = 'onsite' WHERE `type` = 'presentiel'");
