@@ -30,6 +30,11 @@ return new class extends Migration
 
     public function down(): void
     {
+        // MySQL refuse un index unique sur TEXT sans préfixe : on ne revient en arrière que sur MariaDB.
+        if (! method_exists(DB::connection(), 'isMaria') || ! DB::connection()->isMaria()) {
+            return;
+        }
+
         Schema::table('payments', function (Blueprint $table) {
             $table->text('account_creation_token')->nullable()->change();
         });
