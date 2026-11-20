@@ -192,16 +192,6 @@
             <div class="legal-section" id="critere-certification">
                 <h2>5. Critères d'éligibilité à la certification EVC</h2>
                 @include('legal.partials.criteres-certification')
-
-                <h3 id="precision-eligibilite">📌 Précision sur les conditions d'éligibilité à la certification</h3>
-                <p>Si tu remplis l'ensemble des conditions administratives et pédagogiques d'éligibilité, mais que tu n'es pas retenu pour la certification, cela signifie que l'évaluation de tes compétences pratiques par les formateurs n'a pas été jugée suffisamment satisfaisante.</p>
-                <p>En effet, les formateurs peuvent estimer que tes réalisations ne démontrent pas encore le niveau de maîtrise, de créativité et de qualité professionnelle attendu.</p>
-                <p>Dans ce cas, un <strong>rattrapage miroir</strong> t'est accordé afin de te permettre de corriger tes insuffisances, de renforcer tes compétences et de démontrer une progression concrète en t'appliquant davantage.</p>
-                <p>À l'issue de ce rattrapage, tes réalisations feront l'objet d'une nouvelle évaluation.</p>
-                <p>Si aucune amélioration significative n'est constatée, une <strong>attestation de fin de formation</strong> te sera délivrée en lieu et place du certificat.</p>
-                <div class="legal-info-box">
-                    <p>L'objectif de cette démarche n'est pas de sanctionner, mais de garantir que chaque certificat délivré par l'EVC reflète des compétences réellement acquises et démontrées.</p>
-                </div>
             </div>
 
             <div class="legal-section">
